@@ -1,0 +1,574 @@
+[
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super(@bad ||= 1) {}; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super { @bad ||= 1 }; end",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super do @bad ||= 1 end; end",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super(@bad ||= 1) { helper }; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super { helper; @bad ||= 1 }; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super { @bad ||= 1; helper }; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super(@bad ||= 1); end",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super(@bad ||= 1, &handler); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F1",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; super { @foo ||= 1 }; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= __LINE__; @bad ||= __LINE__; end",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        29
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= __LINE__\n @bad ||= __LINE__; end",
+    "positions": [
+      [
+        2,
+        2
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= __LINE__; @bad ||= 1; end",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        29
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= /abc/im; @bad ||= /abc/mi; end",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        28
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= /abc/i; @bad ||= /abc/m; end",
+    "positions": [
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= -0.0; @bad ||= 0.0; end",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= 0.5r; @bad ||= 1/2r; end",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F2",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; @bad ||= x[1]; @bad ||= x.[](1); end",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F3",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; unless defined?(@bad); else; return @bad; end; @bad = 1; end",
+    "positions": [
+      [
+        1,
+        26
+      ],
+      [
+        1,
+        46
+      ],
+      [
+        1,
+        57
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F3",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; unless defined?(@bad); return @bad; end; @bad = 1; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F3",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; unless defined?(@bad); nil; else; return @bad; end; @bad = 1; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F3",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; unless defined?(@bad); else; return @other; end; @bad = 1; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F3",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; unless defined?(@foo); else; return @foo; end; @foo = 1; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F3",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "def foo; unless defined?(@bad); else; return @bad; end; helper; @bad = 1; end",
+    "positions": [
+      [
+        1,
+        26
+      ],
+      [
+        1,
+        46
+      ],
+      [
+        1,
+        65
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(\"initialize\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize`. Use `@initialize` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(:initialize) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(\"initialize\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        41
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize`. Use `@initialize` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(:initialize) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(\"initialize_clone\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        37
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize_clone`. Use `@initialize_clone` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(:initialize_clone) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(\"initialize_clone\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        47
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize_clone`. Use `@initialize_clone` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(:initialize_clone) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(\"initialize_copy\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        36
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize_copy`. Use `@initialize_copy` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(:initialize_copy) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(\"initialize_copy\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        46
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize_copy`. Use `@initialize_copy` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(:initialize_copy) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(\"initialize_dup\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        35
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize_dup`. Use `@initialize_dup` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(:initialize_dup) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(\"initialize_dup\") { @bad ||= 1 }",
+    "positions": [
+      [
+        1,
+        45
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize_dup`. Use `@initialize_dup` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_singleton_method(:initialize_dup) { @bad ||= 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(\"initialize\") { return @bad if defined?(@bad); @bad = 1 }",
+    "positions": [
+      [
+        1,
+        38
+      ],
+      [
+        1,
+        55
+      ],
+      [
+        1,
+        62
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `initialize`. Use `@initialize` instead.",
+      "Memoized variable `@bad` does not match method name `initialize`. Use `@initialize` instead.",
+      "Memoized variable `@bad` does not match method name `initialize`. Use `@initialize` instead."
+    ]
+  },
+  {
+    "finding": "F4",
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source": "define_method(:initialize) { return @bad if defined?(@bad); @bad = 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

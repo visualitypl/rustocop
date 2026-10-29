@@ -1,0 +1,927 @@
+[
+  {
+    "spec_line": 6,
+    "source": "[1, 2, 3].length == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length == 0`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "[1, 2, 3]&.length == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length == 0`."
+    ],
+    "correction": "[1, 2, 3]&.empty?\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "[1, 2, 3].size == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size == 0`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "[1, 2, 3].length.zero?\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length.zero?`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "[1, 2, 3]&.length.zero?\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length.zero?`."
+    ],
+    "correction": "[1, 2, 3]&.empty?\n"
+  },
+  {
+    "spec_line": 61,
+    "source": "[1, 2, 3]&.length&.zero?\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length&.zero?`."
+    ],
+    "correction": "[1, 2, 3]&.empty?\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "[1, 2, 3].size.zero?\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size.zero?`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 83,
+    "source": "0 == [1, 2, 3].length\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `0 == length`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 94,
+    "source": "0 == [1, 2, 3].size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `0 == size`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 105,
+    "source": "[1, 2, 3].length < 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length < 1`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 116,
+    "source": "array&.length < 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length < 1`."
+    ],
+    "correction": "array&.empty?\n"
+  },
+  {
+    "spec_line": 127,
+    "source": "[1, 2, 3].size < 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size < 1`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 138,
+    "source": "1 > [1, 2, 3].length\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `1 > length`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 149,
+    "source": "1 > array&.length\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `1 > length`."
+    ],
+    "correction": "array&.empty?\n"
+  },
+  {
+    "spec_line": 160,
+    "source": "1 > [1, 2, 3].size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `1 > size`."
+    ],
+    "correction": "[1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 171,
+    "source": "[1, 2, 3].length > 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `length > 0`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 182,
+    "source": "[1, 2, 3]&.length > 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 188,
+    "source": "[1, 2, 3].size > 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `size > 0`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 199,
+    "source": "[1, 2, 3].length != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `length != 0`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 210,
+    "source": "[1, 2, 3].size != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `size != 0`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 221,
+    "source": "![1, 2, 3].length.zero?\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `length.zero?`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 232,
+    "source": "![1, 2, 3].size.zero?\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size.zero?`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 243,
+    "source": "0 < [1, 2, 3].length\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 < length`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 254,
+    "source": "0 < [1, 2, 3].size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 < size`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 265,
+    "source": "0 != [1, 2, 3].length\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 != length`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 276,
+    "source": "0 != [1, 2, 3].size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 != size`."
+    ],
+    "correction": "![1, 2, 3].empty?\n"
+  },
+  {
+    "spec_line": 289,
+    "source": "{ a: 1, b: 2 }.size == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size == 0`."
+    ],
+    "correction": "{ a: 1, b: 2 }.empty?\n"
+  },
+  {
+    "spec_line": 300,
+    "source": "0 == { a: 1, b: 2 }.size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `0 == size`."
+    ],
+    "correction": "{ a: 1, b: 2 }.empty?\n"
+  },
+  {
+    "spec_line": 311,
+    "source": "{ a: 1, b: 2 }.size != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `size != 0`."
+    ],
+    "correction": "!{ a: 1, b: 2 }.empty?\n"
+  },
+  {
+    "spec_line": 322,
+    "source": "0 != { a: 1, b: 2 }.size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 != size`."
+    ],
+    "correction": "!{ a: 1, b: 2 }.empty?\n"
+  },
+  {
+    "spec_line": 335,
+    "source": "\"string\".size == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size == 0`."
+    ],
+    "correction": "\"string\".empty?\n"
+  },
+  {
+    "spec_line": 346,
+    "source": "0 == \"string\".size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `0 == size`."
+    ],
+    "correction": "\"string\".empty?\n"
+  },
+  {
+    "spec_line": 357,
+    "source": "\"string\".size != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `size != 0`."
+    ],
+    "correction": "!\"string\".empty?\n"
+  },
+  {
+    "spec_line": 368,
+    "source": "0 != \"string\".size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 != size`."
+    ],
+    "correction": "!\"string\".empty?\n"
+  },
+  {
+    "spec_line": 381,
+    "source": "collection.size == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `size == 0`."
+    ],
+    "correction": "collection.empty?\n"
+  },
+  {
+    "spec_line": 392,
+    "source": "0 == collection.size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `empty?` instead of `0 == size`."
+    ],
+    "correction": "collection.empty?\n"
+  },
+  {
+    "spec_line": 403,
+    "source": "collection.size != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `size != 0`."
+    ],
+    "correction": "!collection.empty?\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "0 != collection.size\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!empty?` instead of `0 != size`."
+    ],
+    "correction": "!collection.empty?\n"
+  },
+  {
+    "spec_line": 427,
+    "source": "size == 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 428,
+    "source": "length == 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 430,
+    "source": "0 == size",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "0 == length",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 435,
+    "source": "size <= 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 436,
+    "source": "length > 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 438,
+    "source": "0 <= size",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 439,
+    "source": "0 > length",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 443,
+    "source": "size != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 444,
+    "source": "length != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 446,
+    "source": "0 != size",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 447,
+    "source": "0 != length",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 453,
+    "source": "File.stat(foo).size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 459,
+    "source": "::File.stat(foo).size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 465,
+    "source": "File.stat(foo).size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 471,
+    "source": "::File.stat(foo).size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 477,
+    "source": "File::Stat.new(foo).size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 483,
+    "source": "::File::Stat.new(foo).size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 489,
+    "source": "File::Stat.new(foo).size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 495,
+    "source": "::File::Stat.new(foo).size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 504,
+    "source": "StringIO.new('foo').size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 510,
+    "source": "::StringIO.new('foo').size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 516,
+    "source": "StringIO.new('foo').size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 522,
+    "source": "::StringIO.new('foo').size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 530,
+    "source": "StringIO.new.size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 536,
+    "source": "::StringIO.new.size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 542,
+    "source": "StringIO.new.size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 548,
+    "source": "::StringIO.new.size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 557,
+    "source": "File.new('foo').size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 563,
+    "source": "::File.new('foo').size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 569,
+    "source": "File.new('foo').size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 575,
+    "source": "::File.new('foo').size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 583,
+    "source": "Tempfile.new('foo').size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 589,
+    "source": "::Tempfile.new('foo').size == 0\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 595,
+    "source": "Tempfile.new('foo').size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 601,
+    "source": "::Tempfile.new('foo').size.zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

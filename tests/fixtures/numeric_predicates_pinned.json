@@ -1,0 +1,649 @@
+[
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 7,
+    "source": "(variable & flags).positive?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.anybits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.anybits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 18,
+    "source": "(variable & flags) > 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.anybits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.anybits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 29,
+    "source": "(variable & flags) >= 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.anybits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.anybits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 40,
+    "source": "(variable & flags) != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.anybits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.anybits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 51,
+    "source": "variable.anybits?(flags)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 57,
+    "source": "(variable & flags) > 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 63,
+    "source": "foo == bar\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 81,
+    "source": "(variable & flags) == flags\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.allbits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.allbits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 92,
+    "source": "(flags & variable) == flags\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.allbits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.allbits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 103,
+    "source": "variable.allbits?(flags)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 109,
+    "source": "(flags & variable) == flagments\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 127,
+    "source": "(variable & flags).zero?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.nobits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.nobits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 138,
+    "source": "(variable & flags) == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.nobits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.nobits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 149,
+    "source": "variable & flags == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `variable.nobits?(flags)` for comparison with bit flags."
+    ],
+    "correction": "variable.nobits?(flags)\n"
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 160,
+    "source": "variable.nobits?(flags)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/BitwisePredicate",
+    "spec_line": 177,
+    "source": "zero?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 5,
+    "source": "x % 2 == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x.even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 16,
+    "source": "x % 2 != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#odd?`."
+    ],
+    "correction": "x.odd?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 27,
+    "source": "(x % 2) == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x.even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 38,
+    "source": "(x % 2) != 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#odd?`."
+    ],
+    "correction": "x.odd?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 49,
+    "source": "x % 2 == 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#odd?`."
+    ],
+    "correction": "x.odd?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 60,
+    "source": "x % 2 != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x.even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 71,
+    "source": "(x % 2) == 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#odd?`."
+    ],
+    "correction": "x.odd?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 82,
+    "source": "(y % 2) != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "y.even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 93,
+    "source": "(x.y % 2) != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x.y.even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 104,
+    "source": "(x(y) % 2) != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x(y).even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 115,
+    "source": "a * b % 2 == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "(a * b).even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 126,
+    "source": "-a % 2 == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "(-a).even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 137,
+    "source": "a[0] % 2 == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "a[0].even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 148,
+    "source": "x % 2 == 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 152,
+    "source": "x % 3 == 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 156,
+    "source": "x % 3 != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 160,
+    "source": "(x._(y) % 2) != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x._(y).even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 171,
+    "source": "(x._(y)) % 2 != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "(x._(y)).even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 182,
+    "source": "x._(y) % 2 != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "x._(y).even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 193,
+    "source": "1 % 2 != 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`."
+    ],
+    "correction": "1.even?\n"
+  },
+  {
+    "cop": "Style/EvenOdd",
+    "spec_line": 204,
+    "source": "if (y % 2) != 1\n  method == :== ? :even : :odd\nelsif x % 2 == 1\n  method == :== ? :odd : :even\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ],
+      [
+        3,
+        7
+      ]
+    ],
+    "messages": [
+      "Replace with `Integer#even?`.",
+      "Replace with `Integer#odd?`."
+    ],
+    "correction": "if y.even?\n  method == :== ? :even : :odd\nelsif x.odd?\n  method == :== ? :odd : :even\nend\n"
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 8,
+    "source": "10e6\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a mantissa >= 1 and < 10."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 15,
+    "source": "12.34e3\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a mantissa >= 1 and < 10."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 22,
+    "source": "0.314e1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a mantissa >= 1 and < 10."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 29,
+    "source": "120.03",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 33,
+    "source": "0.07390",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 37,
+    "source": "1e6",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 41,
+    "source": "3.1415e3",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 45,
+    "source": "-9.999e3",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExponentialNotation",
+    "spec_line": 49,
+    "source": "5.02e-3",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

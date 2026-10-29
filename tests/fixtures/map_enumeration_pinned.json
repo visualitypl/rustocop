@@ -1,0 +1,1428 @@
+[
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 5,
+    "source": "dest = []\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 17,
+    "source": "dest = []\nsrc.each { |e| dest.push(e * 2) }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 29,
+    "source": "dest = []\nsrc.each { |e| dest.push(e: 2) }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| { e: 2 } }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 41,
+    "source": "dest = []\nsrc.each { |e| dest.push({ e: 2 }) }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| { e: 2 } }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 53,
+    "source": "dest = []\nsrc.each { |e| dest.append(e * 2) }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 65,
+    "source": "dest = []\nsrc.each { |e| dest.append(e: 2) }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| { e: 2 } }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 77,
+    "source": "dest = []\nsrc.each { |e| dest.append({ e: 2 }) }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| { e: 2 } }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 89,
+    "source": "dest = []\ndo_something\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "correction": "do_something\ndest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 103,
+    "source": "dest = []\nsrc.each { |e| dest << e * 2 }\ndo_something\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\ndo_something\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 117,
+    "source": "dest = []\nsrc.each do |e|\n  dest << if cond?\n    e\n  else\n    e * 2\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map do |e|\n  if cond?\n    e\n  else\n    e * 2\n  end\nend\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 141,
+    "source": "dest = []\nsrc.each do |e|\n  dest << case foo\n  when 1\n    e\n  else\n    e * 2\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map do |e|\n  case foo\n  when 1\n    e\n  else\n    e * 2\n  end\nend\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 167,
+    "source": "dest = []\nsrc.each do |e|\n  dest << begin\n    foo\n    e * 2\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map do |e|\n  begin\n    foo\n    e * 2\n  end\nend\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 189,
+    "source": "dest = []\nsrc.each { |e| dest << [1, e] }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| [1, e] }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 201,
+    "source": "dest = []\nsrc.each { |e| dest << true }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| true }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 213,
+    "source": "dest = []\nsrc.each { dest << _1 * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { _1 * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 225,
+    "source": "dest = []\nsrc.each { dest << it * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { it * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 237,
+    "source": "dest = []\ndo_something(dest)\ndest = []\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "correction": "dest = []\ndo_something(dest)\ndest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 253,
+    "source": "dest = []\nsrc.each { |e| dest << e * 2 }\ndest\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 266,
+    "source": "dest = []\nsrc.each do |e|\n  dest << (\n    dest2 = []\n    src.each do |e|\n      dest2 << e\n    end\n    dest2\n  )\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ],
+      [
+        5,
+        5
+      ]
+    ],
+    "correction": "dest = src.map do |e|\n  (\n    dest2 = src.map do |e|\n      e\n    end\n  )\nend\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 293,
+    "source": "[].tap do |dest|\n  src.each { |e| dest << e * 2 }\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 306,
+    "source": "[].tap do |dest|\n  do_something(dest)\n  src.each { |e| dest << e * 2 }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 315,
+    "source": "[1, 2, 3].tap do |dest|\n  src.each { |e| dest << e * 2 }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 323,
+    "source": "{}.tap do |dest|\n  src.each { |e| dest << e * 2 }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 331,
+    "source": "@dest = []\nsrc.each { |e| @dest << e }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 338,
+    "source": "foo\nsrc.each { _1 << bar }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 345,
+    "source": "foo\nsrc.each { it << bar }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 352,
+    "source": "dest = []\nStringIO.new('foo:bar').each(':') { |e| dest << e }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 359,
+    "source": "dest = []\neach { |e| dest << e * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 366,
+    "source": "dest = []\nself.each { |e| dest << e * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 373,
+    "source": "[\n  dest = [],\n  src.each { |e| dest << e * 2 },\n]\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 382,
+    "source": "dest = []\nif cond\n  src.each { |e| dest << e * 2 }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 391,
+    "source": "dest = []\ndest << 0\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 399,
+    "source": "dest = []\n(dest << 1).each { |e| dest << e * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 406,
+    "source": "dest = []\nsrc.each { |dest| dest << 1 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 413,
+    "source": "dest = []\nsrc.each { |e| dest << dest.size }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 420,
+    "source": "dest = []\nsrc.each { |e| dest.push(*e) }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 427,
+    "source": "def foo(&)\n  dest = []\n  src.each { |e| dest.push(&) }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 436,
+    "source": "dest = []\nsrc.each { |e| dest.push(&method(:foo)) }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 443,
+    "source": "def foo(*)\n  dest = []\n  src.each { |e| dest.push(*) }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 452,
+    "source": "def foo(**)\n  dest = []\n  src.each { |e| dest.push(**) }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 461,
+    "source": "def foo(...)\n  dest = []\n  src.each { |e| dest.push(...) }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 472,
+    "source": "dest = []\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 472,
+    "source": "dest = Array.new\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 472,
+    "source": "dest = Array[]\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 472,
+    "source": "dest = Array([])\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 472,
+    "source": "dest = Array.new([])\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 542,
+    "source": "dest = []\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "dest = []\nsrc.each { |e| dest << e * 2 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "dest = src.map { |e| e * 2 }\n"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "a = (dest = []\nsrc.each { |e| dest << e * 2 }\n; do_someting)",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "a = (dest = src.map { |e| e * 2 }\n; do_someting)"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "(dest = []\nsrc.each { |e| dest << e * 2 }\n; do_someting)",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "(dest = src.map { |e| e * 2 }\n; do_someting)"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 572,
+    "source": "a = (dest = []\nsrc.each { |e| dest << e * 2 }\n)",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "(dest = []\nsrc.each { |e| dest << e * 2 }\n)",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "(dest = src.map { |e| e * 2 }\n)"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "a = begin; dest = []\nsrc.each { |e| dest << e * 2 }\n; do_something end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "a = begin; dest = src.map { |e| e * 2 }\n; do_something end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "begin; dest = []\nsrc.each { |e| dest << e * 2 }\n; do_something end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "begin; dest = src.map { |e| e * 2 }\n; do_something end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 572,
+    "source": "a = begin; dest = []\nsrc.each { |e| dest << e * 2 }\n end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "begin; dest = []\nsrc.each { |e| dest << e * 2 }\n end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "begin; dest = src.map { |e| e * 2 }\n end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "begin; ensure; dest = []\nsrc.each { |e| dest << e * 2 }\n end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "begin; ensure; dest = src.map { |e| e * 2 }\n end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "each { dest = []\nsrc.each { |e| dest << e * 2 }\n }",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "each { dest = src.map { |e| e * 2 }\n }"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 572,
+    "source": "block { dest = []\nsrc.each { |e| dest << e * 2 }\n }",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "each { _1; dest = []\nsrc.each { |e| dest << e * 2 }\n }",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "each { _1; dest = src.map { |e| e * 2 }\n }"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 572,
+    "source": "block { _1; dest = []\nsrc.each { |e| dest << e * 2 }\n }",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "def foo; dest = []\nsrc.each { |e| dest << e * 2 }\n; do_something end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "def foo; dest = src.map { |e| e * 2 }\n; do_something end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 572,
+    "source": "def foo; dest = []\nsrc.each { |e| dest << e * 2 }\n end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "def initialize; dest = []\nsrc.each { |e| dest << e * 2 }\n; end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "def initialize; dest = src.map { |e| e * 2 }\n; end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "def foo=(value); dest = []\nsrc.each { |e| dest << e * 2 }\n; end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "def foo=(value); dest = src.map { |e| e * 2 }\n; end"
+  },
+  {
+    "cop": "Style/MapIntoArray",
+    "spec_line": 558,
+    "source": "for i in foo; dest = []\nsrc.each { |e| dest << e * 2 }\n; end",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "for i in foo; dest = src.map { |e| e * 2 }\n; end"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 7,
+    "source": "array.map(&:to_s).join(', ')\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 20,
+    "source": "array.map(&:to_s).join\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 33,
+    "source": "array.map { |x| x.to_s }.join(', ')\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 46,
+    "source": "array&.map(&:to_s)&.join(', ')\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "correction": "array&.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 59,
+    "source": "map(&:to_s).join(', ')\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 72,
+    "source": "map { |x| x.to_s }.join(', ')\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 85,
+    "source": "array.map(&:to_i).join(', ')\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 93,
+    "source": "array.map { |x| x.to_i }.join(', ')\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 101,
+    "source": "array.map(&:to_s)\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 7,
+    "source": "array.collect(&:to_s).join(', ')\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 20,
+    "source": "array.collect(&:to_s).join\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 33,
+    "source": "array.collect { |x| x.to_s }.join(', ')\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 46,
+    "source": "array&.collect(&:to_s)&.join(', ')\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "correction": "array&.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 59,
+    "source": "collect(&:to_s).join(', ')\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 72,
+    "source": "collect { |x| x.to_s }.join(', ')\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 85,
+    "source": "array.collect(&:to_i).join(', ')\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 93,
+    "source": "array.collect { |x| x.to_i }.join(', ')\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 101,
+    "source": "array.collect(&:to_s)\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 110,
+    "source": "array.map { _1.to_s }.join(', ')\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 123,
+    "source": "array.map { it.to_s }.join(', ')\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 136,
+    "source": "array\n  .map(&:to_s)\n  .join(', ')\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "correction": "array\n  .join(', ')\n"
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 152,
+    "source": "array.map(&:to_s).compact\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 160,
+    "source": "array.join(', ')\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapJoin",
+    "spec_line": 168,
+    "source": "array.map { |x| x.to_s(16) }.join(', ')\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 8,
+    "source": "foo.map { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 21,
+    "source": "foo.map { |(k, v)| [k, v * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |k, v| [k, v * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 34,
+    "source": "foo.map { |x, y| [x.to_s, y.to_i] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |x, y| [x.to_s, y.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 47,
+    "source": "map { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 60,
+    "source": "foo&.map { |x| [x, x * 2] }&.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 73,
+    "source": "foo&.map { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo.to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 86,
+    "source": "foo&.map { |x, y| [x.to_s, y.to_i] }&.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_h { |x, y| [x.to_s, y.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 100,
+    "source": "foo.map { [_1, _1 * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { [_1, _1 * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 113,
+    "source": "foo.map { [_1.to_s, _2.to_i] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { [_1.to_s, _2.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 127,
+    "source": "foo.map(&:do_something).to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h(&:do_something)\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 140,
+    "source": "foo&.map(&:do_something)&.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_h(&:do_something)\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 153,
+    "source": "[1, 2, 3].map { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "correction": "[1, 2, 3].to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 166,
+    "source": "{ foo: :bar }.map { |x, y| [x.to_s, y.to_s] }.to_h\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "correction": "{ foo: :bar }.to_h { |x, y| [x.to_s, y.to_s] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 179,
+    "source": "foo.map { |x| x * 2 }.to_h.bar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |x| x * 2 }.bar\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 192,
+    "source": "foo.map { |x| x * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 200,
+    "source": "foo.map { |x| x * 2 }.to_h { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 208,
+    "source": "foo.map { |x| x * 2 }.to_h { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 216,
+    "source": "foo.map { |x| x * 2 }.to_h { [it.to_s, it] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 224,
+    "source": "{foo: bar}\n  .map { |k, v| [k.to_s, v.do_something] }\n  .to_h\n  .freeze\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "correction": "{foo: bar}\n  .to_h { |k, v| [k.to_s, v.do_something] }\n  .freeze\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 8,
+    "source": "foo.collect { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 21,
+    "source": "foo.collect { |(k, v)| [k, v * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |k, v| [k, v * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 34,
+    "source": "foo.collect { |x, y| [x.to_s, y.to_i] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |x, y| [x.to_s, y.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 47,
+    "source": "collect { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 60,
+    "source": "foo&.collect { |x| [x, x * 2] }&.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 73,
+    "source": "foo&.collect { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo.to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 86,
+    "source": "foo&.collect { |x, y| [x.to_s, y.to_i] }&.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_h { |x, y| [x.to_s, y.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 100,
+    "source": "foo.collect { [_1, _1 * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { [_1, _1 * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 113,
+    "source": "foo.collect { [_1.to_s, _2.to_i] }.to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { [_1.to_s, _2.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 127,
+    "source": "foo.collect(&:do_something).to_h\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h(&:do_something)\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 140,
+    "source": "foo&.collect(&:do_something)&.to_h\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_h(&:do_something)\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 153,
+    "source": "[1, 2, 3].collect { |x| [x, x * 2] }.to_h\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "correction": "[1, 2, 3].to_h { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 166,
+    "source": "{ foo: :bar }.collect { |x, y| [x.to_s, y.to_s] }.to_h\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "correction": "{ foo: :bar }.to_h { |x, y| [x.to_s, y.to_s] }\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 179,
+    "source": "foo.collect { |x| x * 2 }.to_h.bar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_h { |x| x * 2 }.bar\n"
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 192,
+    "source": "foo.collect { |x| x * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 200,
+    "source": "foo.collect { |x| x * 2 }.to_h { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 208,
+    "source": "foo.collect { |x| x * 2 }.to_h { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 216,
+    "source": "foo.collect { |x| x * 2 }.to_h { [it.to_s, it] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToHash",
+    "spec_line": 224,
+    "source": "{foo: bar}\n  .collect { |k, v| [k.to_s, v.do_something] }\n  .to_h\n  .freeze\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "correction": "{foo: bar}\n  .to_h { |k, v| [k.to_s, v.do_something] }\n  .freeze\n"
+  }
+]

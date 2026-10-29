@@ -1,0 +1,609 @@
+{
+  "calls": [
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 14,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with an interpolated heredoc registers an offense and corrects with a lowercase delimiter",
+      "source": "<<-sql\n  foo\nsql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-SQL\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 29,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with an interpolated heredoc registers an offense with a camel case delimiter",
+      "source": "<<-Sql\n  foo\nSql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 38,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with an interpolated heredoc does not register an offense with an uppercase delimiter",
+      "source": "<<-SQL\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 49,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using single quoted delimiters registers an offense and corrects with a lowercase delimiter",
+      "source": "<<-'sql'\n  foo\nsql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-'SQL'\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 64,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using single quoted delimiters registers an offense and corrects with a camel case delimiter",
+      "source": "<<-'Sql'\n  foo\nSql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-'SQL'\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 79,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using single quoted delimiters does not register an offense with an uppercase delimiter",
+      "source": "<<-'SQL'\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 89,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using double quoted delimiters registers an offense and corrects with a lowercase delimiter",
+      "source": "<<-\"sql\"\n  foo\nsql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-\"SQL\"\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 104,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using double quoted delimiters registers an offense and corrects with a camel case delimiter",
+      "source": "<<-\"Sql\"\n  foo\nSql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-\"SQL\"\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 119,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using double quoted delimiters does not register an offense with an uppercase delimiter",
+      "source": "<<-\"SQL\"\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 129,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using back tick delimiters registers an offense and corrects with a lowercase delimiter",
+      "source": "<<-`sql`\n  foo\nsql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-`SQL`\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 144,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using back tick delimiters registers an offense and corrects with a camel case delimiter",
+      "source": "<<-`Sql`\n  foo\nSql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<-`SQL`\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 159,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using back tick delimiters does not register an offense with an uppercase delimiter",
+      "source": "<<-`SQL`\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 169,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using non-word delimiters does not register an offense",
+      "source": "<<-'+'\n  foo\n+\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 190,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a squiggly heredoc registers an offense and corrects with a lowercase delimiter",
+      "source": "<<~sql\n  foo\nsql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<~SQL\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 205,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a squiggly heredoc registers an offense and corrects with a camel case delimiter",
+      "source": "<<~Sql\n  foo\nSql\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use uppercase heredoc delimiters."
+      ],
+      "correction": "<<~SQL\n  foo\nSQL\n"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 220,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a squiggly heredoc does not register an offense with an uppercase delimiter",
+      "source": "<<~SQL\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 8,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with an interpolated heredoc registers an offense with a non-meaningful delimiter",
+      "source": "<<-END\n  foo\nEND\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 17,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with an interpolated heredoc does not register an offense with a meaningful delimiter",
+      "source": "<<-SQL\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 28,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using single quoted delimiters registers an offense with a non-meaningful delimiter",
+      "source": "<<-'END'\n  foo\nEND\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 37,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using single quoted delimiters does not register an offense with a meaningful delimiter",
+      "source": "<<-'SQL'\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 47,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using double quoted delimiters registers an offense with a non-meaningful delimiter",
+      "source": "<<-\"END\"\n  foo\nEND\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 56,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using double quoted delimiters does not register an offense with a meaningful delimiter",
+      "source": "<<-'SQL'\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 66,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using back tick delimiters registers an offense with a non-meaningful delimiter",
+      "source": "<<-`END`\n  foo\nEND\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 75,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using back tick delimiters does not register an offense with a meaningful delimiter",
+      "source": "<<-`SQL`\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 85,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using non-word delimiters registers an offense",
+      "source": "<<-'+'\n  foo\n+\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 108,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a squiggly heredoc registers an offense with a non-meaningful delimiter",
+      "source": "<<~END\n  foo\nEND\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 117,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a squiggly heredoc does not register an offense with a meaningful delimiter",
+      "source": "<<~SQL\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 127,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a naked heredoc registers an offense with a non-meaningful delimiter",
+      "source": "<<END\n  foo\nEND\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 136,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a naked heredoc does not register an offense with a meaningful delimiter",
+      "source": "<<SQL\n  foo\nSQL\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 146,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming when the delimiter contains non-letter characters does not register an offense when delimiter contains an underscore",
+      "source": "<<-SQL_CODE\n  foo\nSQL_CODE\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 154,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming when the delimiter contains non-letter characters does not register an offense when delimiter contains a number",
+      "source": "<<-BASE64\n  foo\nBASE64\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 164,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with multiple heredocs starting on the same line registers an offense with a leading non-meaningful delimiter",
+      "source": "foo(<<-END, <<-SQL)\n  foo\nEND\n  bar\nSQL\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 175,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with multiple heredocs starting on the same line registers an offense with a trailing non-meaningful delimiter",
+      "source": "foo(<<-SQL, <<-END)\n  foo\nSQL\n  bar\nEND\n",
+      "positions": [
+        [
+          5,
+          1
+        ]
+      ],
+      "messages": [
+        "Use meaningful heredoc delimiters."
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 186,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with multiple heredocs starting on the same line does not register an offense with meaningful delimiters",
+      "source": "foo(<<-SQL, <<-JS)\n  foo\nSQL\n  bar\nJS\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    }
+  ],
+  "excluded": [
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 181,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is uppercase with a non-interpolated heredoc when using blank heredoc delimiters does not register an offense",
+      "source": "<<''\n",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 238,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase does not register an offense when a body line matches the corrected delimiter",
+      "source": "module_eval(<<~End)\n  def foo\n  end\nEnd\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 248,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with an interpolated heredoc does not register an offense with a lowercase delimiter",
+      "source": "<<-sql\n  foo\nsql\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 256,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with an interpolated heredoc registers an offense and corrects with a camel case delimiter",
+      "source": "<<-Sql\n  foo\nSql\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 271,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with an interpolated heredoc registers an offense and corrects with an uppercase delimiter",
+      "source": "<<-SQL\n  foo\nSQL\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 288,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with a non-interpolated heredoc does not register an offense with a lowercase delimiter",
+      "source": "<<-'sql'\n  foo\nsql\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 296,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with a non-interpolated heredoc registers an offense and corrects with a camel case delimiter",
+      "source": "<<-'Sql'\n  foo\nSql\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 311,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with a non-interpolated heredoc registers an offense and corrects with an uppercase delimiter",
+      "source": "<<-'SQL'\n  foo\nSQL\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 328,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with a squiggly heredoc does not register an offense with a lowercase delimiter",
+      "source": "<<~sql\n  foo\nsql\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 336,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with a squiggly heredoc registers an offense and corrects with a camel case delimiter",
+      "source": "<<~Sql\n  foo\nSql\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterCase",
+      "spec_line": 351,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterCase when enforced style is lowercase with a squiggly heredoc registers an offense and corrects with an uppercase delimiter",
+      "source": "<<~SQL\n  foo\nSQL\n",
+      "reason": [
+        "Naming/HeredocDelimiterCase EnforcedStyle=\"lowercase\""
+      ]
+    },
+    {
+      "cop": "Naming/HeredocDelimiterNaming",
+      "spec_line": 98,
+      "description": "RuboCop::Cop::Naming::HeredocDelimiterNaming with a non-interpolated heredoc when using blank heredoc delimiters registers an offense with a non-meaningful delimiter",
+      "source": "<<~''\n",
+      "reason": "not run on Prism"
+    }
+  ]
+}

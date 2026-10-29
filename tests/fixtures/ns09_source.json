@@ -1,0 +1,131 @@
+[
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 34,
+    "example": "FlaggedTerms: { whitelist: { Suggestions: ['allowlist'] } }",
+    "source": "whitelist_users = %w(user1 user1)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 37,
+    "example": "FlaggedTerms: { whitelist: { Suggestions: ['allowlist'] } }",
+    "source": "allowlist_users = %w(user1 user2)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 43,
+    "example": "FlaggedTerms: { master: { Suggestions: ['main', 'primary', 'leader'] } }",
+    "source": "@master_node = 'node1.example.com'\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 46,
+    "example": "FlaggedTerms: { master: { Suggestions: ['main', 'primary', 'leader'] } }",
+    "source": "@primary_node = 'node1.example.com'\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 52,
+    "example": "FlaggedTerms: { whitelist: { Regex: !ruby/regexp '/white[-_\\s]?list' } }",
+    "source": "white_list = %w(user1 user2)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 55,
+    "example": "FlaggedTerms: { whitelist: { Regex: !ruby/regexp '/white[-_\\s]?list' } }",
+    "source": "allow_list = %w(user1 user2)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 61,
+    "example": "FlaggedTerms: { master: { AllowedRegex: 'master\\'?s degree' } }",
+    "source": "# They had a masters\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 64,
+    "example": "FlaggedTerms: { master: { AllowedRegex: 'master\\'?s degree' } }",
+    "source": "# They had a master's degree\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 70,
+    "example": "FlaggedTerms: { slave: { WholeWord: true } }",
+    "source": "Slave\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source_line": 73,
+    "example": "FlaggedTerms: { slave: { WholeWord: true } }",
+    "source": "TeslaVehicle\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

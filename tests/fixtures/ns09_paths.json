@@ -1,0 +1,161 @@
+[
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "/db/slave/config.yml",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' in file path with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/whitelist.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' in file path with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/white-list/black_list.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white-list', 'black_list' in file path with other terms."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/Slave1.rb",
+    "source": "",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/DatabaseSlave.rb",
+    "source": "",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/éSlave.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' in file path with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/ſlave.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' in file path with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/whiteliﬆ.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whiteliﬆ' in file path with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/blacKlist.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacKlist' in file path with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/slave_slave.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave', 'slave' in file path with other terms."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/WHITELIST.rb",
+    "source": "",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WHITELIST' in file path with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "file": "lib/black.list.rb",
+    "source": "",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

@@ -1,0 +1,324 @@
+[
+  {
+    "spec_line": 25,
+    "source": "something if a if b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if b && a\n"
+  },
+  {
+    "spec_line": 36,
+    "source": "something unless a unless b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something unless b || a\n"
+  },
+  {
+    "spec_line": 47,
+    "source": "something if a unless b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something unless b || !a\n"
+  },
+  {
+    "spec_line": 58,
+    "source": "something unless b > 1 if true\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if true && !(b > 1)\n"
+  },
+  {
+    "spec_line": 69,
+    "source": "something unless a if b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if b && !a\n"
+  },
+  {
+    "spec_line": 80,
+    "source": "something if a && b unless c\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something unless c || !(a && b)\n"
+  },
+  {
+    "spec_line": 91,
+    "source": "something if a || b if c || d\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if (c || d) && (a || b)\n"
+  },
+  {
+    "spec_line": 102,
+    "source": "a unless [1, 2].include? a if a\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "a if a && ![1, 2].include?(a)\n"
+  },
+  {
+    "spec_line": 113,
+    "source": "something if a unless c || d\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something unless c || d || !a\n"
+  },
+  {
+    "spec_line": 124,
+    "source": "something if b unless c and d\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something unless (c and d) || !b\n"
+  },
+  {
+    "spec_line": 135,
+    "source": "something if b unless not c\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something unless (not c) || !b\n"
+  },
+  {
+    "spec_line": 146,
+    "source": "something if not b if d\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if d && (not b)\n"
+  },
+  {
+    "spec_line": 157,
+    "source": "something unless not b if d\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if d && !(not b)\n"
+  },
+  {
+    "spec_line": 168,
+    "source": "def foo\n  something if yield 1 if c\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "def foo\n  something if c && (yield 1)\nend\n"
+  },
+  {
+    "spec_line": 183,
+    "source": "def foo\n  something if c if super 1\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "def foo\n  something if (super 1) && c\nend\n"
+  },
+  {
+    "spec_line": 198,
+    "source": "something if c if foo 1\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if foo(1) && c\n"
+  },
+  {
+    "spec_line": 209,
+    "source": "something if a&.foo 1 if c\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if c && (a&.foo 1)\n"
+  },
+  {
+    "spec_line": 220,
+    "source": "something if b if a ? c : d\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something if (a ? c : d) && b\n"
+  },
+  {
+    "spec_line": 239,
+    "source": "something until a while b unless c if d\n",
+    "positions": [
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": "something until a while b if d && !c\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "something if a while b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 15,
+    "source": "something while a if b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "something if a until b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 15,
+    "source": "something until a if b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Avoid using nested modifiers."
+    ],
+    "correction": null
+  }
+]

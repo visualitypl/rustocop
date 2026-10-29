@@ -1,0 +1,219 @@
+[
+  {
+    "spec_line": 5,
+    "source": "a ? (b ? b1 : b2) : a2\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "if a\nb ? b1 : b2\nelse\na2\nend\n"
+  },
+  {
+    "spec_line": 20,
+    "source": "cond ? foo : bar(foo.a ? foo.b : foo) { |e, k| e.nil? ? nil : e[k] }\n",
+    "positions": [
+      [
+        1,
+        18
+      ],
+      [
+        1,
+        48
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead.",
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "if cond\nfoo\nelse\nbar(foo.a ? foo.b : foo) { |e, k| e.nil? ? nil : e[k] }\nend\n"
+  },
+  {
+    "spec_line": 36,
+    "source": "x ? y + (z ? 1 : 0) : nil\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "if x\ny + (z ? 1 : 0)\nelse\nnil\nend\n"
+  },
+  {
+    "spec_line": 51,
+    "source": "a ? (\n  if b\n    c ? 1 : 2\n  end\n) : 3\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "if a\n\n  if b\n    c ? 1 : 2\n  end\n\nelse\n3\nend\n"
+  },
+  {
+    "spec_line": 74,
+    "source": "a = if x\n  cond ? b : c\nelse\n  d\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 84,
+    "source": "a ? b : c ? d : e ? f : g\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead.",
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "if a\nb\nelse\nif c\nd\nelse\ne ? f : g\nend\nend\n"
+  },
+  {
+    "spec_line": 104,
+    "source": "foo ? (bar && baz) ? qux : quux : corge\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "if foo\n(bar && baz) ? qux : quux\nelse\ncorge\nend\n"
+  },
+  {
+    "spec_line": 119,
+    "source": "puts a ? (b ? 1 : 2) : 3\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "puts (if a\nb ? 1 : 2\nelse\n3\nend)\n"
+  },
+  {
+    "spec_line": 134,
+    "source": "return a ? (b ? 1 : 2) : 3\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "return (if a\nb ? 1 : 2\nelse\n3\nend)\n"
+  },
+  {
+    "spec_line": 149,
+    "source": "not a ? (b ? 1 : 2) : 3\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "not (if a\nb ? 1 : 2\nelse\n3\nend)\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "defined? a ? (b ? 1 : 2) : 3\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "defined? (if a\nb ? 1 : 2\nelse\n3\nend)\n"
+  },
+  {
+    "spec_line": 179,
+    "source": "not(a ? (b ? 1 : 2) : 3)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "not(if a\nb ? 1 : 2\nelse\n3\nend)\n"
+  },
+  {
+    "spec_line": 194,
+    "source": "puts x, a ? (b ? 1 : 2) : 3\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "puts x, if a\nb ? 1 : 2\nelse\n3\nend\n"
+  },
+  {
+    "spec_line": 209,
+    "source": "p(a ? (b ? 1 : 2) + (c) : 3)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": "p(if a\n(b ? 1 : 2) + (c)\nelse\n3\nend)\n"
+  },
+  {
+    "spec_line": 224,
+    "source": "x ? <<~A.map { |l| y ? l : 1 }.join : 2\n  a\nA\n",
+    "positions": [
+      [
+        1,
+        20
+      ]
+    ],
+    "messages": [
+      "Ternary operators must not be nested. Prefer `if` or `else` constructs instead."
+    ],
+    "correction": null
+  }
+]

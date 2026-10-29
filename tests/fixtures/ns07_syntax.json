@@ -1,0 +1,2905 @@
+[
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 0: @bad ||= 1",
+    "source": "def foo\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 1: @bad ||= begin; 1; end",
+    "source": "def foo\n  @bad ||= begin; 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 2: helper; @bad ||= 1",
+    "source": "def foo\n  helper; @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        11
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 3: @bad ||= 1; helper",
+    "source": "def foo\n  @bad ||= 1; helper\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 4: return @bad ||= 1",
+    "source": "def foo\n  return @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 5: return 1, @bad ||= 1",
+    "source": "def foo\n  return 1, @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 6: x = @bad ||= 1",
+    "source": "def foo\n  x = @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 7: @x = @bad ||= 1",
+    "source": "def foo\n  @x = @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 8: @x ||= @bad ||= 1",
+    "source": "def foo\n  @x ||= @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@x` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 9: @x &&= @bad ||= 1",
+    "source": "def foo\n  @x &&= @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 10: ok && @bad ||= 1",
+    "source": "def foo\n  ok && @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 11: ok || @bad ||= 1",
+    "source": "def foo\n  ok || @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 12: @bad ||= 1; helper; @bad ||= 1",
+    "source": "def foo\n  @bad ||= 1; helper; @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        23
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 13: @bad ||= 1; helper; @bad ||= 2",
+    "source": "def foo\n  @bad ||= 1; helper; @bad ||= 2\nend\n",
+    "positions": [
+      [
+        2,
+        23
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 14: begin; helper; @bad ||= 1; end",
+    "source": "def foo\n  begin; helper; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        18
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 15: begin; helper; ensure; @bad ||= 1; end",
+    "source": "def foo\n  begin; helper; ensure; @bad ||= 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 16: helper; ensure; @bad ||= 1",
+    "source": "def foo\n  helper; ensure; @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        19
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 17: helper; rescue; @bad ||= 1",
+    "source": "def foo\n  helper; rescue; @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 18: helper; rescue; helper; else; @bad ||= 1",
+    "source": "def foo\n  helper; rescue; helper; else; @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        33
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 19: return @bad if defined?(@bad); @bad = 1; ensure; helper",
+    "source": "def foo\n  return @bad if defined?(@bad); @bad = 1; ensure; helper\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 20: (return @bad if defined?(@bad); @bad = 1)",
+    "source": "def foo\n  (return @bad if defined?(@bad); @bad = 1)\nend\n",
+    "positions": [
+      [
+        2,
+        11
+      ],
+      [
+        2,
+        28
+      ],
+      [
+        2,
+        35
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 21: begin; return @bad if defined?(@bad); @bad = 1; end",
+    "source": "def foo\n  begin; return @bad if defined?(@bad); @bad = 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 22: if defined?(@bad); return @bad; else; end; @bad = 1",
+    "source": "def foo\n  if defined?(@bad); return @bad; else; end; @bad = 1\nend\n",
+    "positions": [
+      [
+        2,
+        15
+      ],
+      [
+        2,
+        29
+      ],
+      [
+        2,
+        46
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 23: return (@bad ||= 1)",
+    "source": "def foo\n  return (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 24: return 1, (@bad ||= 1)",
+    "source": "def foo\n  return 1, (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 25: return (@bad ||= 1), 2",
+    "source": "def foo\n  return (@bad ||= 1), 2\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 26: (@bad ||= 1)",
+    "source": "def foo\n  (@bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 27: ((@bad ||= 1))",
+    "source": "def foo\n  ((@bad ||= 1))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 28: begin; @bad ||= 1; end",
+    "source": "def foo\n  begin; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 29: if ok; @bad ||= 1; end",
+    "source": "def foo\n  if ok; @bad ||= 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 30: if ok; 1; else; @bad ||= 1; end",
+    "source": "def foo\n  if ok; 1; else; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        19
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 31: unless ok; @bad ||= 1; end",
+    "source": "def foo\n  unless ok; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        14
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 32: unless ok; 1; else; @bad ||= 1; end",
+    "source": "def foo\n  unless ok; 1; else; @bad ||= 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 33: (@bad ||= 1) if ok",
+    "source": "def foo\n  (@bad ||= 1) if ok\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 34: (@bad ||= 1) unless ok",
+    "source": "def foo\n  (@bad ||= 1) unless ok\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 35: ok ? 1 : (@bad ||= 1)",
+    "source": "def foo\n  ok ? 1 : (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 36: ok ? (@bad ||= 1) : 1",
+    "source": "def foo\n  ok ? (@bad ||= 1) : 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 37: ok && (@bad ||= 1)",
+    "source": "def foo\n  ok && (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 38: ok || (@bad ||= 1)",
+    "source": "def foo\n  ok || (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 39: (@bad ||= 1) && ok",
+    "source": "def foo\n  (@bad ||= 1) && ok\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 40: consume(@bad ||= 1)",
+    "source": "def foo\n  consume(@bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        11
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 41: consume(@bad ||= 1, 2)",
+    "source": "def foo\n  consume(@bad ||= 1, 2)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 42: obj.consume(1, @bad ||= 1)",
+    "source": "def foo\n  obj.consume(1, @bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        18
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 43: consume(@bad ||= 1) {}",
+    "source": "def foo\n  consume(@bad ||= 1) {}\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 44: consume { @bad ||= 1 }",
+    "source": "def foo\n  consume { @bad ||= 1 }\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 45: -> { @bad ||= 1 }",
+    "source": "def foo\n  -> { @bad ||= 1 }\nend\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 46: lambda { @bad ||= 1 }",
+    "source": "def foo\n  lambda { @bad ||= 1 }\nend\n",
+    "positions": [
+      [
+        2,
+        12
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 47: [@bad ||= 1]",
+    "source": "def foo\n  [@bad ||= 1]\nend\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 48: [@bad ||= 1, 2]",
+    "source": "def foo\n  [@bad ||= 1, 2]\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 49: {a: (@bad ||= 1)}",
+    "source": "def foo\n  {a: (@bad ||= 1)}\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 50: x = (@bad ||= 1)",
+    "source": "def foo\n  x = (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 51: @x = (@bad ||= 1)",
+    "source": "def foo\n  @x = (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 52: @x ||= (@bad ||= 1)",
+    "source": "def foo\n  @x ||= (@bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@x` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 53: @x &&= (@bad ||= 1)",
+    "source": "def foo\n  @x &&= (@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 54: while ok; @bad ||= 1; end",
+    "source": "def foo\n  while ok; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 55: until ok; @bad ||= 1; end",
+    "source": "def foo\n  until ok; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 56: for x in xs; @bad ||= 1; end",
+    "source": "def foo\n  for x in xs; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 57: begin; @bad ||= 1; rescue; end",
+    "source": "def foo\n  begin; @bad ||= 1; rescue; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 58: begin; 1; rescue; @bad ||= 1; end",
+    "source": "def foo\n  begin; 1; rescue; @bad ||= 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 59: begin; 1; ensure; @bad ||= 1; end",
+    "source": "def foo\n  begin; 1; ensure; @bad ||= 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 60: case x; when 1; @bad ||= 1; end",
+    "source": "def foo\n  case x; when 1; @bad ||= 1; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 61: case x; when 1; 2; else; @bad ||= 1; end",
+    "source": "def foo\n  case x; when 1; 2; else; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        28
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 62: super(@bad ||= 1)",
+    "source": "def foo\n  super(@bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 63: yield(@bad ||= 1)",
+    "source": "def foo\n  yield(@bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 64: !(@bad ||= 1)",
+    "source": "def foo\n  !(@bad ||= 1)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 65: \"#{@bad ||= 1}\"",
+    "source": "def foo\n  \"#{@bad ||= 1}\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 66: defined?(@bad ||= 1)",
+    "source": "def foo\n  defined?(@bad ||= 1)\nend\n",
+    "positions": [
+      [
+        2,
+        12
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 67: def inner; @bad ||= 1; end",
+    "source": "def foo\n  def inner; @bad ||= 1; end\nend\n",
+    "positions": [
+      [
+        2,
+        14
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `inner`. Use `@inner` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 68: return @bad if defined?(@bad); @bad = false",
+    "source": "def foo\n  return @bad if defined?(@bad); @bad = false\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        27
+      ],
+      [
+        2,
+        34
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 69: if defined?(@bad); return @bad; end; helper; @bad = false",
+    "source": "def foo\n  if defined?(@bad); return @bad; end; helper; @bad = false\nend\n",
+    "positions": [
+      [
+        2,
+        15
+      ],
+      [
+        2,
+        29
+      ],
+      [
+        2,
+        48
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 70: unless defined?(@bad); return @bad; end; @bad = false",
+    "source": "def foo\n  unless defined?(@bad); return @bad; end; @bad = false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 71: return @other if defined?(@bad); @bad = false",
+    "source": "def foo\n  return @other if defined?(@bad); @bad = false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 72: helper; return @bad if defined?(@bad); @bad = false",
+    "source": "def foo\n  helper; return @bad if defined?(@bad); @bad = false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 73: return @bad if defined?(@bad); @bad = false; helper",
+    "source": "def foo\n  return @bad if defined?(@bad); @bad = false; helper\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 74: return @bad if defined?(@bad); @bad ||= false",
+    "source": "def foo\n  return @bad if defined?(@bad); @bad ||= false\nend\n",
+    "positions": [
+      [
+        2,
+        34
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 75: return @bad, 1 if defined?(@bad); @bad = false",
+    "source": "def foo\n  return @bad, 1 if defined?(@bad); @bad = false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 76: if defined?(@bad); return @bad; else; nil; end; @bad = false",
+    "source": "def foo\n  if defined?(@bad); return @bad; else; nil; end; @bad = false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 77: return @bad if defined?(@bad); defined?(@bad); @bad = false",
+    "source": "def foo\n  return @bad if defined?(@bad); defined?(@bad); @bad = false\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        27
+      ],
+      [
+        2,
+        50
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 78: return @bad if defined?(@bad); tap { defined?(@bad) }; @bad = false",
+    "source": "def foo\n  return @bad if defined?(@bad); tap { defined?(@bad) }; @bad = false\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        27
+      ],
+      [
+        2,
+        58
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 79: return @bad if defined?(@bad); def inner; defined?(@bad); end; @bad = false",
+    "source": "def foo\n  return @bad if defined?(@bad); def inner; defined?(@bad); end; @bad = false\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        27
+      ],
+      [
+        2,
+        66
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 80: return @bad if defined?(@bad); @bad = <<~TEXT\nvalue\nTEXT",
+    "source": "def foo\n  return @bad if defined?(@bad); @bad = <<~TEXT\nvalue\nTEXT\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        27
+      ],
+      [
+        2,
+        34
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "body 81: @bad ||= <<~TEXT\n#{value}\nTEXT",
+    "source": "def foo\n  @bad ||= <<~TEXT\n#{value}\nTEXT\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo/@bad",
+    "source": "def foo\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo/@foo",
+    "source": "def foo\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo/@_foo",
+    "source": "def foo\n  @_foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo/@__foo",
+    "source": "def foo\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo?/@bad",
+    "source": "def foo?\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo?`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo?/@foo",
+    "source": "def foo?\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo?/@_foo",
+    "source": "def foo?\n  @_foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo?`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo?/@__foo",
+    "source": "def foo?\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `foo?`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo!/@bad",
+    "source": "def foo!\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo!`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo!/@foo",
+    "source": "def foo!\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo!/@_foo",
+    "source": "def foo!\n  @_foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo!`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo!/@__foo",
+    "source": "def foo!\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `foo!`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo=/@bad",
+    "source": "def foo=(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo=`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo=/@foo",
+    "source": "def foo=(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo=/@_foo",
+    "source": "def foo=(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo=`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name foo=/@__foo",
+    "source": "def foo=(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `foo=`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _foo/@bad",
+    "source": "def _foo\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `_foo`. Use `@_foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _foo/@foo",
+    "source": "def _foo\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _foo/@_foo",
+    "source": "def _foo\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _foo/@__foo",
+    "source": "def _foo\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `_foo`. Use `@_foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name __foo/@bad",
+    "source": "def __foo\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `__foo`. Use `@__foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name __foo/@foo",
+    "source": "def __foo\n  @foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@foo` does not match method name `__foo`. Use `@__foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name __foo/@_foo",
+    "source": "def __foo\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name __foo/@__foo",
+    "source": "def __foo\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize/@bad",
+    "source": "def initialize\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize/@foo",
+    "source": "def initialize\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize/@_foo",
+    "source": "def initialize\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize/@__foo",
+    "source": "def initialize\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_copy/@bad",
+    "source": "def initialize_copy\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_copy/@foo",
+    "source": "def initialize_copy\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_copy/@_foo",
+    "source": "def initialize_copy\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_copy/@__foo",
+    "source": "def initialize_copy\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_clone/@bad",
+    "source": "def initialize_clone\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_clone/@foo",
+    "source": "def initialize_clone\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_clone/@_foo",
+    "source": "def initialize_clone\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_clone/@__foo",
+    "source": "def initialize_clone\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_dup/@bad",
+    "source": "def initialize_dup\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_dup/@foo",
+    "source": "def initialize_dup\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_dup/@_foo",
+    "source": "def initialize_dup\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name initialize_dup/@__foo",
+    "source": "def initialize_dup\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []/@bad",
+    "source": "def []\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []/@foo",
+    "source": "def []\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []/@_foo",
+    "source": "def []\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []/@__foo",
+    "source": "def []\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []=/@bad",
+    "source": "def []=(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []=/@foo",
+    "source": "def []=(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []=/@_foo",
+    "source": "def []=(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name []=/@__foo",
+    "source": "def []=(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name +/@bad",
+    "source": "def +(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name +/@foo",
+    "source": "def +(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name +/@_foo",
+    "source": "def +(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name +/@__foo",
+    "source": "def +(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name -@/@bad",
+    "source": "def -@\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name -@/@foo",
+    "source": "def -@\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name -@/@_foo",
+    "source": "def -@\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name -@/@__foo",
+    "source": "def -@\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !/@bad",
+    "source": "def !\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !/@foo",
+    "source": "def !\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !/@_foo",
+    "source": "def !\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !/@__foo",
+    "source": "def !\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name ==/@bad",
+    "source": "def ==(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name ==/@foo",
+    "source": "def ==(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name ==/@_foo",
+    "source": "def ==(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name ==/@__foo",
+    "source": "def ==(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !=/@bad",
+    "source": "def !=(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !=/@foo",
+    "source": "def !=(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !=/@_foo",
+    "source": "def !=(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name !=/@__foo",
+    "source": "def !=(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name =~/@bad",
+    "source": "def =~(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name =~/@foo",
+    "source": "def =~(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name =~/@_foo",
+    "source": "def =~(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name =~/@__foo",
+    "source": "def =~(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name <=>/@bad",
+    "source": "def <=>(other)\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name <=>/@foo",
+    "source": "def <=>(other)\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name <=>/@_foo",
+    "source": "def <=>(other)\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name <=>/@__foo",
+    "source": "def <=>(other)\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name éfoo/@bad",
+    "source": "def éfoo\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name éfoo/@foo",
+    "source": "def éfoo\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name éfoo/@_foo",
+    "source": "def éfoo\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name éfoo/@__foo",
+    "source": "def éfoo\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name fooé/@bad",
+    "source": "def fooé\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name fooé/@foo",
+    "source": "def fooé\n  @foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name fooé/@_foo",
+    "source": "def fooé\n  @_foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name fooé/@__foo",
+    "source": "def fooé\n  @__foo ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name Foo/@bad",
+    "source": "def Foo\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `Foo`. Use `@Foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name Foo/@foo",
+    "source": "def Foo\n  @foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@foo` does not match method name `Foo`. Use `@Foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name Foo/@_foo",
+    "source": "def Foo\n  @_foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `Foo`. Use `@Foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name Foo/@__foo",
+    "source": "def Foo\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `Foo`. Use `@Foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _/@bad",
+    "source": "def _\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `_`. Use `@_` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _/@foo",
+    "source": "def _\n  @foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@foo` does not match method name `_`. Use `@_` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _/@_foo",
+    "source": "def _\n  @_foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `_`. Use `@_` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "name _/@__foo",
+    "source": "def _\n  @__foo ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@__foo` does not match method name `_`. Use `@_` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:foo)",
+    "source": "define_method(:foo) do\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:foo)",
+    "source": "def outer\ndefine_method(:foo) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(\"foo\")",
+    "source": "define_method(\"foo\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(\"foo\")",
+    "source": "def outer\ndefine_method(\"foo\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "obj.define_method(:foo)",
+    "source": "obj.define_method(:foo) do\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed obj.define_method(:foo)",
+    "source": "def outer\nobj.define_method(:foo) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_singleton_method(:foo)",
+    "source": "define_singleton_method(:foo) do\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_singleton_method(:foo)",
+    "source": "def outer\ndefine_singleton_method(:foo) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "obj&.define_method(:foo)",
+    "source": "obj&.define_method(:foo) do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed obj&.define_method(:foo)",
+    "source": "def outer\nobj&.define_method(:foo) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(name)",
+    "source": "define_method(name) do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(name)",
+    "source": "def outer\ndefine_method(name) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:foo, extra)",
+    "source": "define_method(:foo, extra) do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:foo, extra)",
+    "source": "def outer\ndefine_method(:foo, extra) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "other(:foo)",
+    "source": "other(:foo) do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed other(:foo)",
+    "source": "def outer\nother(:foo) do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:\"foo!\")",
+    "source": "define_method(:\"foo!\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo!`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:\"foo!\")",
+    "source": "def outer\ndefine_method(:\"foo!\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo!`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(\"f!o?o=\")",
+    "source": "define_method(\"f!o?o=\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `f!o?o=`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(\"f!o?o=\")",
+    "source": "def outer\ndefine_method(\"f!o?o=\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `f!o?o=`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:\"a-b\")",
+    "source": "define_method(:\"a-b\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:\"a-b\")",
+    "source": "def outer\ndefine_method(:\"a-b\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:\"föö\")",
+    "source": "define_method(:\"föö\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:\"föö\")",
+    "source": "def outer\ndefine_method(:\"föö\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:\"foo\\n\")",
+    "source": "define_method(:\"foo\\n\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:\"foo\\n\")",
+    "source": "def outer\ndefine_method(:\"foo\\n\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "define_method(:\"foo#{name}\")",
+    "source": "define_method(:\"foo#{name}\") do\n  @bad ||= 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "enclosed define_method(:\"foo#{name}\")",
+    "source": "def outer\ndefine_method(:\"foo#{name}\") do\n  @bad ||= 1\nend\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 0",
+    "source": "def foo(x = (@bad ||= 1)); @foo ||= 1; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 1",
+    "source": "def foo(x = (@bad ||= 1)); 1; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 2",
+    "source": "def foo(x = (def inner; @bad ||= 1; end)); end\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `inner`. Use `@inner` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 3",
+    "source": "define_method(:foo) { |x = (@bad ||= 1)| @foo ||= 1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 4",
+    "source": "def foo; @foo ||= 1; end; @bad ||= 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 5",
+    "source": "def foo; return @bad if defined?(@bad); @bad = false; end\n",
+    "positions": [
+      [
+        1,
+        17
+      ],
+      [
+        1,
+        34
+      ],
+      [
+        1,
+        41
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 6",
+    "source": "def self.foo; return @bad if defined?(@bad); @bad = false; end\n",
+    "positions": [
+      [
+        1,
+        22
+      ],
+      [
+        1,
+        39
+      ],
+      [
+        1,
+        46
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 7",
+    "source": "define_method(:foo) { return @bad if defined?(@bad); @bad = false }\n",
+    "positions": [
+      [
+        1,
+        30
+      ],
+      [
+        1,
+        47
+      ],
+      [
+        1,
+        54
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 8",
+    "source": "def foo; (@bad ||= 1).tap {}; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 9",
+    "source": "define_method(:foo) { @bad ||= _1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 10",
+    "source": "define_method(:foo) { @bad ||= it }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 11",
+    "source": "define_method(:foo) { _1; @bad ||= 1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 12",
+    "source": "define_method(:foo) { it; @bad ||= 1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 13",
+    "source": "def outer; define_method(:foo) { @bad ||= _1 }; end\n",
+    "positions": [
+      [
+        1,
+        34
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 14",
+    "source": "def outer; define_method(:foo) { @bad ||= it }; end\n",
+    "positions": [
+      [
+        1,
+        34
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 15",
+    "source": "def outer; tap { @bad ||= _1 }; end\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 16",
+    "source": "def outer; tap { @bad ||= it }; end\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `outer`. Use `@outer` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 17",
+    "source": "define_singleton_method(:foo) { @bad ||= _1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 18",
+    "source": "define_singleton_method(:foo) { @bad ||= it }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 19",
+    "source": "define_method(:foo) { class C; @bad ||= 1; end }\n",
+    "positions": [
+      [
+        1,
+        32
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 20",
+    "source": "define_method(:foo) { module M; @bad ||= 1; end }\n",
+    "positions": [
+      [
+        1,
+        33
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 21",
+    "source": "def foo; class << self; @bad ||= 1; end; end\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 22",
+    "source": "def foo; class << self; def foo; @bad ||= 1; end; end; end\n",
+    "positions": [
+      [
+        1,
+        34
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "case": "ownership 23",
+    "source": "def foo; consume(<<~TEXT, @bad ||= 1)\n#{@nested ||= 1}\nTEXT\nend\n",
+    "positions": [
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@bad` does not match method name `foo`. Use `@foo` instead."
+    ]
+  }
+]

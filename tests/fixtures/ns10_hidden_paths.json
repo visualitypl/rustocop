@@ -1,0 +1,10 @@
+[
+  {"cop":"Naming/FileName","source":"print 1\n","file":".Fastfile","positions":[[1,1]],"messages":["The name of this source file (`.Fastfile`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":".hidden/Gemfile","positions":[[1,1]],"messages":["The name of this source file (`Gemfile`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"lib/.hidden/Gemfile","positions":[[1,1]],"messages":["The name of this source file (`Gemfile`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":".hidden/Fastfile","positions":[[1,1]],"messages":["The name of this source file (`Fastfile`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"lib/.hidden/.Fastfile","positions":[[1,1]],"messages":["The name of this source file (`.Fastfile`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"lib/.Fastfile","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"/tmp/.Fastfile","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":".hidden/BAD.gemspec","positions":[],"messages":[]}
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "cop": "Naming/BinaryOperatorParameterName",
+    "source_line": 12,
+    "example": "",
+    "label": "bad",
+    "source": "def +(amount); end\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "When defining the `+` operator, name its argument `other`."
+    ],
+    "policy_note": "Pinned fixed defaults."
+  },
+  {
+    "cop": "Naming/BinaryOperatorParameterName",
+    "source_line": 15,
+    "example": "",
+    "label": "good",
+    "source": "def +(other); end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "policy_note": "Pinned fixed defaults."
+  },
+  {
+    "cop": "Naming/RescuedExceptionsVariableName",
+    "source_line": 19,
+    "example": "PreferredName: e (default)",
+    "label": "bad",
+    "source": "begin\n  # do something\nrescue MyException => exception\n  # do something\nend\n",
+    "positions": [
+      [
+        3,
+        23
+      ]
+    ],
+    "messages": [
+      "Use `e` instead of `exception`."
+    ],
+    "policy_note": "Pinned fixed defaults."
+  },
+  {
+    "cop": "Naming/RescuedExceptionsVariableName",
+    "source_line": 26,
+    "example": "PreferredName: e (default)",
+    "label": "good",
+    "source": "begin\n  # do something\nrescue MyException => e\n  # do something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "policy_note": "Pinned fixed defaults."
+  },
+  {
+    "cop": "Naming/RescuedExceptionsVariableName",
+    "source_line": 33,
+    "example": "PreferredName: e (default)",
+    "label": "good",
+    "source": "begin\n  # do something\nrescue MyException => _e\n  # do something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "policy_note": "Pinned fixed defaults."
+  },
+  {
+    "cop": "Naming/RescuedExceptionsVariableName",
+    "source_line": 41,
+    "example": "PreferredName: exception",
+    "label": "bad",
+    "source": "begin\n  # do something\nrescue MyException => e\n  # do something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "policy_note": "Alternate PreferredName=exception is not public policy; execute unchanged snippet under fixed e."
+  },
+  {
+    "cop": "Naming/RescuedExceptionsVariableName",
+    "source_line": 48,
+    "example": "PreferredName: exception",
+    "label": "good",
+    "source": "begin\n  # do something\nrescue MyException => exception\n  # do something\nend\n",
+    "positions": [
+      [
+        3,
+        23
+      ]
+    ],
+    "messages": [
+      "Use `e` instead of `exception`."
+    ],
+    "policy_note": "Alternate PreferredName=exception is not public policy; execute unchanged snippet under fixed e."
+  },
+  {
+    "cop": "Naming/RescuedExceptionsVariableName",
+    "source_line": 55,
+    "example": "PreferredName: exception",
+    "label": "good",
+    "source": "begin\n  # do something\nrescue MyException => _exception\n  # do something\nend\n",
+    "positions": [
+      [
+        3,
+        23
+      ]
+    ],
+    "messages": [
+      "Use `_e` instead of `_exception`."
+    ],
+    "policy_note": "Alternate PreferredName=exception is not public policy; execute unchanged snippet under fixed e."
+  }
+]

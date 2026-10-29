@@ -1,0 +1,1816 @@
+[
+  {
+    "source": "case x\nin foo\n  first_method\nin bar\n  second_method\nin foo\n  third_method\nend\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        6,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        6,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin foo\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 19,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin bar\n  second_method\nin foo\n  third_method\nin bar\n  fourth_method\nend\n",
+    "origin": "spec",
+    "line": 31,
+    "findings": [
+      [
+        6,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ],
+      [
+        8,
+        4,
+        8,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        6,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ],
+      [
+        8,
+        4,
+        8,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin 1 | 0\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 48,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 | 2\n  first_method\nin 3 | 4\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 60,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [foo, bar]\n  first_method\nin [foo, bar]\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 71,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [foo, bar]\n  first_method\nin [bar, foo]\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 83,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [foo, bar]\n  first_method\nin [foo, bar, baz]\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 94,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo: a, bar: b\n  first_method\nin foo: a, bar: b\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 105,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo: a, bar: b\n  first_method\nin bar: b, foo: a\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 117,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo: a, bar: b\n  first_method\nin foo: a, bar: b, baz: c\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 129,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin false\n  first_method\nend\n",
+    "origin": "spec",
+    "line": 140,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin bar\n  second_method\nend\n",
+    "origin": "spec",
+    "line": 149,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  method_name\nin bar\n  second_method\nelse\n  third_method\nend\n",
+    "origin": "spec",
+    "line": 160,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if condition\n  first_method\nin foo if condition\n  third_method\nend\n",
+    "origin": "spec",
+    "line": 173,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo unless condition\n  first_method\nin foo unless condition\n  third_method\nend\n",
+    "origin": "spec",
+    "line": 185,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo if condition1\n  first_method\nin foo if condition2\n  third_method\nend\n",
+    "origin": "spec",
+    "line": 197,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo unless condition1\n  first_method\nin foo unless condition2\n  third_method\nend\n",
+    "origin": "spec",
+    "line": 208,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin { key: value } if condition\nend\n",
+    "origin": "spec",
+    "line": 219,
+    "findings": [
+
+    ],
+    "declared_ruby": 2.7,
+    "declared_findings": [
+
+    ]
+  },
+  {
+    "source": "# bad\ncase x\nin 'first'\n  do_something\nin 'first'\n  do_something_else\nend\n",
+    "origin": "source",
+    "line": 10,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ncase x\nin 'first'\n  do_something\nin 'second'\n  do_something_else\nend\n",
+    "origin": "source",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad - repeated alternate patterns with the same conditions don't depend on the order\ncase x\nin 0 | 1\n  first_method\nin 1 | 0\n  second_method\nend\n",
+    "origin": "source",
+    "line": 26,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ncase x\nin 0 | 1\n  first_method\nin 2 | 3\n  second_method\nend\n",
+    "origin": "source",
+    "line": 34,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad - repeated hash patterns with the same conditions don't depend on the order\ncase x\nin foo: a, bar: b\n  first_method\nin bar: b, foo: a\n  second_method\nend\n",
+    "origin": "source",
+    "line": 42,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ncase x\nin foo: a, bar: b\n  first_method\nin bar: b, baz: c\n  second_method\nend\n",
+    "origin": "source",
+    "line": 50,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad - repeated array patterns with elements in the same order\ncase x\nin [foo, bar]\n  first_method\nin [foo, bar]\n  second_method\nend\n",
+    "origin": "source",
+    "line": 58,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ncase x\nin [foo, bar]\n  first_method\nin [bar, foo]\n  second_method\nend\n",
+    "origin": "source",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad - repeated the same patterns and guard conditions\ncase x\nin foo if bar\n  first_method\nin foo if bar\n  second_method\nend\n",
+    "origin": "source",
+    "line": 74,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ncase x\nin foo if bar\n  first_method\nin foo if baz\n  second_method\nend\n",
+    "origin": "source",
+    "line": 82,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin nil\n  first_method\nin nil\n  second_method\nend\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin true\n  first_method\nin true\n  second_method\nend\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin false\n  first_method\nin false\n  second_method\nend\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 1\n  first_method\nin 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0x1\n  first_method\nin 0x1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 1.0\n  first_method\nin 1.0\n  second_method\nend\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 1r\n  first_method\nin 1r\n  second_method\nend\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 1i\n  first_method\nin 1i\n  second_method\nend\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin :sym\n  first_method\nin :sym\n  second_method\nend\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 'str'\n  first_method\nin 'str'\n  second_method\nend\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin \"str\"\n  first_method\nin \"str\"\n  second_method\nend\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin /foo/i\n  first_method\nin /foo/i\n  second_method\nend\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 1..2\n  first_method\nin 1..2\n  second_method\nend\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin A\n  first_method\nin A\n  second_method\nend\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin ::A\n  first_method\nin ::A\n  second_method\nend\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "a = nil\ncase x\nin ^a\n  first_method\nin ^a\n  second_method\nend\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin ^(foo())\n  first_method\nin ^(foo())\n  second_method\nend\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin foo\n  second_method\nend\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin _\n  first_method\nin _\n  second_method\nend\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a, b]\n  first_method\nin [a, b]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a, *rest, b]\n  first_method\nin [a, *rest, b]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [*, a, *]\n  first_method\nin [*, a, *]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2}\n  first_method\nin {a: 1, b: 2}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a:, b:}\n  first_method\nin {a:, b:}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, **rest}\n  first_method\nin {a: 1, **rest}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, **nil}\n  first_method\nin {a: 1, **nil}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {}\n  first_method\nin {}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin **rest\n  first_method\nin **rest\n  second_method\nend\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin A[a: 1, b: 2]\n  first_method\nin A[a: 1, b: 2]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin A(a: 1, b: 2)\n  first_method\nin A(a: 1, b: 2)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin A[1, 2]\n  first_method\nin A[1, 2]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin 0 | 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 | 2\n  first_method\nin 0 | 1 | 2\n  second_method\nend\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin (0 | 1)\n  first_method\nin (0 | 1)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 => a\n  first_method\nin 0 => a\n  second_method\nend\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2} => a\n  first_method\nin {a: 1, b: 2} => a\n  second_method\nend\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin (foo)\n  first_method\nin (foo)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin \"#{foo}\"\n  first_method\nin \"#{foo}\"\n  second_method\nend\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin __LINE__\n  first_method\nin __LINE__\n  second_method\nend\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin __FILE__\n  first_method\nin __FILE__\n  second_method\nend\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin __ENCODING__\n  first_method\nin __ENCODING__\n  second_method\nend\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2}\n  first_method\nin {b: 2, a: 1}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2}\n  first_method\nin b: 2, a: 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin a: 1, b: 2\n  first_method\nin {\n b: 2,\n a: 1\n}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        4,
+        4,
+        7,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin a: 1\n  first_method\nin a:  1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, **rest}\n  first_method\nin {a: 1, **other}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, **rest}\n  first_method\nin {a: 1, **nil}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {a:, b:}\n  first_method\nin {b:, a:}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a:}\n  first_method\nin {a: a}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {}\n  first_method\nin []\n  second_method\nend\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin 1 | 0\n  second_method\nend\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 | 2\n  first_method\nin 2 | 0 | 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 | 2\n  first_method\nin 2 | (0 | 1)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 | 2\n  first_method\nin 2 | 0 | 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 | 2\n  first_method\nin 2 | 1 | 0\n  second_method\nend\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin (0 | 1)\n  first_method\nin (1 | 0)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [0 | 1]\n  first_method\nin [1 | 0]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [0] | [1]\n  first_method\nin [1] | [0]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: {b: 1, c: 2}}\n  first_method\nin {a: {c: 2, b: 1}}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2} | 0\n  first_method\nin 0 | {b: 2, a: 1}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin A[a: 1, b: 2]\n  first_method\nin A[b: 2, a: 1]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin A(a: 1)\n  first_method\nin A[a: 1]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2} => a\n  first_method\nin {b: 2, a: 1} => a\n  second_method\nend\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 0 => a\n  first_method\nin 0 => b\n  second_method\nend\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin (foo)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [foo, bar]\n  first_method\nin [foo,  bar]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 'a'\n  first_method\nin \"a\"\n  second_method\nend\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 1\n  first_method\nin 0x1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 1.0\n  first_method\nin 1.00\n  second_method\nend\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "a = nil\ncase x\nin ^a\n  first_method\nin ^(a)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin ^(foo())\n  first_method\nin ^(foo)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if condition\n  first_method\nin foo unless condition\n  second_method\nend\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin foo if condition\n  second_method\nend\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if condition\n  first_method\nin foo if (condition)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if test()\n  first_method\nin foo if test\n  second_method\nend\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if a && b\n  first_method\nin foo if a&&b\n  second_method\nend\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if (a; b)\n  first_method\nin foo if (a; b)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2} if test\n  first_method\nin {b: 2, a: 1} if test\n  second_method\nend\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1 unless test\n  first_method\nin 1 | 0 unless test\n  second_method\nend\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin [\"0\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {}\n  first_method\nin []\n  second_method\nend\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1}\n  first_method\nin [\"a: 1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [\"0\", \"1\"]\n  first_method\nin 0 | 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin [\"1\", \"0\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin [\"0\",\"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo if test\n  first_method\nin foo if\n test\n  second_method\nend\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a, b]\n  first_method\nin [a, # comment\n b]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin {a: 1, b: 2}\n  first_method\nin {a: 1, # comment\n b: 2}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        4,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 0 | 1\n  first_method\nin 0 | # comment\n 1\n  second_method\nend\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        4,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '\u0001' | 1\n  first_method\nin [\"'\\u0001'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '' | 1\n  first_method\nin [\"'\\u007F'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '' | 1\n  first_method\nin [\"'\\u0085'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin ' ' | 1\n  first_method\nin [\"'\\u2028'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin ' ' | 1\n  first_method\nin [\"'\\u2029'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 'é' | 1\n  first_method\nin [\"'é'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '​' | 1\n  first_method\nin [\"'​'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '#{foo}' | 1\n  first_method\nin [\"'\\#{foo}'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '#@foo' | 1\n  first_method\nin [\"'\\#@foo'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '#$foo' | 1\n  first_method\nin [\"'\\#$foo'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 'a\tb' | 1\n  first_method\nin [\"'a\\tb'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin 'a\nb' | 1\n  first_method\nin [\"'a\\nb'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin '\\\\' | 1\n  first_method\nin [\"'\\\\\\\\'\", \"1\"]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a,\r\n b]\n  first_method\nin [a,\n b]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        5,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a,\n b]\n  first_method\nin [a,\r\n b]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+      [
+        5,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [1,\r\n 2] | 3\n  first_method\nin 3 | [1,\n 2]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+      [
+        5,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin {a: [1,\r\n 2]}\n  first_method\nin {a: [1,\n 2]}\n  second_method\nend\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        5,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo if (a &&\r\n b)\n  first_method\nin foo if (a &&\n b)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo unless (a &&\r\n b)\n  first_method\nin foo unless (a &&\n b)\n  second_method\nend\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a,\r b]\n  first_method\nin [a,\n b]\n  second_method\nend\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin foo\n  first_method\nin foo\n  second_method\nend\ncase x\nin foo\n  first_method\nin bar\n  second_method\nend\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo\ncase x\nin foo\n  first_method\nin foo\n  second_method\nend\nin bar\nother\nend\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        6,
+        4,
+        6,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "def f\ncase x\nin foo\n  first_method\nin foo\n  second_method\nend\nrescue A\ncase x\nin foo\n  first_method\nin foo\n  second_method\nend\nend\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ],
+      [
+        12,
+        4,
+        12,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "consume(\ncase x\nin foo\n  first_method\nin foo\n  second_method\nend\n)\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        5,
+        4,
+        5,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "proc { case x\nin foo\n  first_method\nin foo\n  second_method\nend\n }\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "[-> { case x\nin foo\n  first_method\nin foo\n  second_method\nend\n }]\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin foo; 1\nin foo; 2\nin foo; 3\nelse; 4\nend\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        3,
+        4,
+        3,
+        "Duplicate `in` pattern detected."
+      ],
+      [
+        4,
+        4,
+        4,
+        "Duplicate `in` pattern detected."
+      ]
+    ]
+  },
+  {
+    "source": "x in [a]\nx in [a]\nx => [a]\nx => [a]\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x; when 1; first; when 1; second; end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# case x; in foo; first; in foo; second; end\n'case x; in foo; first; in foo; second; end'\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ]
+  }
+]

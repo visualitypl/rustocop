@@ -1,0 +1,362 @@
+[
+  {
+    "spec_line": 8,
+    "source": "while 1\n  top\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  top\nend\n"
+  },
+  {
+    "spec_line": 8,
+    "source": "while 2.0\n  top\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  top\nend\n"
+  },
+  {
+    "spec_line": 8,
+    "source": "while [1]\n  top\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  top\nend\n"
+  },
+  {
+    "spec_line": 8,
+    "source": "while {}\n  top\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  top\nend\n"
+  },
+  {
+    "spec_line": 25,
+    "source": "until false\n  top\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  top\nend\n"
+  },
+  {
+    "spec_line": 25,
+    "source": "until nil\n  top\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  top\nend\n"
+  },
+  {
+    "spec_line": 41,
+    "source": "loop { break if something }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 45,
+    "source": "def f1\n  a = nil # This `a` is local to `f1` and should not affect `f2`.\n  puts a\nend\n\ndef f2\n  b = 17\n  while true\n    # `a` springs into existence here, while `b` already existed. Because\n    # of `a` we can't introduce a block.\n    a, b = 42, 42\n    break\n  end\n  puts a, b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 65,
+    "source": "a = next_value or break while true\np a\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 72,
+    "source": "a = nil\na = next_value or break until false\np a\n",
+    "positions": [
+      [
+        2,
+        25
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "a = nil\nloop { a = next_value or break }\np a\n"
+  },
+  {
+    "spec_line": 88,
+    "source": "while true\n  a = 42\n  break\nend\nuntil false\n  # The variable `a` already exists here, having been introduced in the\n  # above `while` loop. We can therefore safely change it too `Kernel#loop`.\n  a = 43\n  break\nend\nputs a\n",
+    "positions": [
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "while true\n  a = 42\n  break\nend\nloop do\n  # The variable `a` already exists here, having been introduced in the\n  # above `while` loop. We can therefore safely change it too `Kernel#loop`.\n  a = 43\n  break\nend\nputs a\n"
+  },
+  {
+    "spec_line": 120,
+    "source": "until false\n  a = 43\n  break\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  a = 43\n  break\nend\n"
+  },
+  {
+    "spec_line": 138,
+    "source": "a = 0\nwhile true\n  a = 42 # `a` is in scope outside of the `while`\n  break\nend\nuntil false\n  a = 43 # `a` is in scope outside of the `until`\n  break\nend\nputs a\n",
+    "positions": [
+      [
+        2,
+        1
+      ],
+      [
+        6,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops.",
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "a = 0\nloop do\n  a = 42 # `a` is in scope outside of the `while`\n  break\nend\nloop do\n  a = 43 # `a` is in scope outside of the `until`\n  break\nend\nputs a\n"
+  },
+  {
+    "spec_line": 169,
+    "source": "while true\n  @a = 42\n  break\nend\nputs @a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  @a = 42\n  break\nend\nputs @a\n"
+  },
+  {
+    "spec_line": 189,
+    "source": "something += 1 while true # comment\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop { something += 1 } # comment\n"
+  },
+  {
+    "spec_line": 223,
+    "source": "begin # comment 1\n  something += 1 # comment 2\nend while true # comment 3\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do # comment 1\n  something += 1 # comment 2\nend # comment 3\n"
+  },
+  {
+    "spec_line": 238,
+    "source": "begin\n  something += 1\n  something_else += 1\nend while true\n",
+    "positions": [
+      [
+        4,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  something += 1\n  something_else += 1\nend\n"
+  },
+  {
+    "spec_line": 255,
+    "source": "something and something_else while true\n",
+    "positions": [
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop { something and something_else }\n"
+  },
+  {
+    "spec_line": 266,
+    "source": "while true do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\nend\n"
+  },
+  {
+    "spec_line": 279,
+    "source": "while true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\nend\n"
+  },
+  {
+    "spec_line": 189,
+    "source": "something += 1 until false # comment\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop { something += 1 } # comment\n"
+  },
+  {
+    "spec_line": 223,
+    "source": "begin # comment 1\n  something += 1 # comment 2\nend until false # comment 3\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do # comment 1\n  something += 1 # comment 2\nend # comment 3\n"
+  },
+  {
+    "spec_line": 238,
+    "source": "begin\n  something += 1\n  something_else += 1\nend until false\n",
+    "positions": [
+      [
+        4,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\n  something += 1\n  something_else += 1\nend\n"
+  },
+  {
+    "spec_line": 255,
+    "source": "something and something_else until false\n",
+    "positions": [
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop { something and something_else }\n"
+  },
+  {
+    "spec_line": 266,
+    "source": "until false do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\nend\n"
+  },
+  {
+    "spec_line": 279,
+    "source": "until false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Kernel#loop` for infinite loops."
+    ],
+    "correction": "loop do\nend\n"
+  }
+]

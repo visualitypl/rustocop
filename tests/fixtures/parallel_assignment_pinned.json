@@ -1,0 +1,1092 @@
+[
+  {
+    "spec_line": 7,
+    "source": "a, b, c = [1, 2], [3, 4], [5, 6]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = [1, 2]\nb = [3, 4]\nc = [5, 6]\n"
+  },
+  {
+    "spec_line": 20,
+    "source": "a, b, c = {a: 1}, {b: 2}, {c: 3}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = {a: 1}\nb = {b: 2}\nc = {c: 3}\n"
+  },
+  {
+    "spec_line": 33,
+    "source": "a, b, c = CONSTANT1, CONSTANT2, CONSTANT3\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = CONSTANT1\nb = CONSTANT2\nc = CONSTANT3\n"
+  },
+  {
+    "spec_line": 46,
+    "source": "a, b, c = [1, 2], {a: 1}, CONSTANT3\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = [1, 2]\nb = {a: 1}\nc = CONSTANT3\n"
+  },
+  {
+    "spec_line": 59,
+    "source": "a, b = foo { |a| puts a }, bar()\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = foo { |a| puts a }\nb = bar()\n"
+  },
+  {
+    "spec_line": 71,
+    "source": "a, b = 1, a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "b = a\na = 1\n"
+  },
+  {
+    "spec_line": 83,
+    "source": "a, b = a, b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = a\nb = b\n"
+  },
+  {
+    "spec_line": 95,
+    "source": "a, b = foo.map { |e| e.id }, bar.map { |e| e.id }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = foo.map { |e| e.id }\nb = bar.map { |e| e.id }\n"
+  },
+  {
+    "spec_line": 107,
+    "source": "array = [1, 2, 3]\na, b, c, = 8, 9, array\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "array = [1, 2, 3]\na = 8\nb = 9\nc = array\n"
+  },
+  {
+    "spec_line": 122,
+    "source": "a, b = Float::INFINITY, Float::INFINITY\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = Float::INFINITY\nb = Float::INFINITY\n"
+  },
+  {
+    "spec_line": 134,
+    "source": "Float::INFINITY, Float::INFINITY = 1, 2\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "Float::INFINITY = 1\nFloat::INFINITY = 2\n"
+  },
+  {
+    "spec_line": 146,
+    "source": "a[0], a[1] = a[1], a[2]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a[0] = a[1]\na[1] = a[2]\n"
+  },
+  {
+    "spec_line": 159,
+    "source": "obj.attr1, obj.attr2 = obj.attr3, obj.attr1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "obj.attr2 = obj.attr1\nobj.attr1 = obj.attr3\n"
+  },
+  {
+    "spec_line": 172,
+    "source": "obj.attr1, ary[0] = ary[1], obj.attr1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "ary[0] = obj.attr1\nobj.attr1 = ary[1]\n"
+  },
+  {
+    "spec_line": 184,
+    "source": "a[0], a[1] = a[1], b[0]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a[0] = a[1]\na[1] = b[0]\n"
+  },
+  {
+    "spec_line": 196,
+    "source": "a, b = x, -> { a, b = x, y }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = x\nb = -> { a, b = x, y }\n"
+  },
+  {
+    "spec_line": 256,
+    "source": "a, b, c = 1, 2, 3\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = 1\nb = 2\nc = 3\n"
+  },
+  {
+    "spec_line": 269,
+    "source": "a, b, c = [\"1\", \"2\", :c]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = \"1\"\nb = \"2\"\nc = :c\n"
+  },
+  {
+    "spec_line": 282,
+    "source": "a, b, c = %w(1 2 3)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = '1'\nb = '2'\nc = '3'\n"
+  },
+  {
+    "spec_line": 295,
+    "source": "a, b = %w(it's fine)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = 'it\\'s'\nb = 'fine'\n"
+  },
+  {
+    "spec_line": 307,
+    "source": "a, b = %i(foo-bar baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = :\"foo-bar\"\nb = :baz\n"
+  },
+  {
+    "spec_line": 319,
+    "source": "a, b, c = %i(a b c)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = :a\nb = :b\nc = :c\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "a, b = foo(), bar()\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = foo()\nb = bar()\n"
+  },
+  {
+    "spec_line": 344,
+    "source": "a, b = foo() { |c| puts c }, bar() { |d| puts d }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = foo() { |c| puts c }\nb = bar() { |d| puts d }\n"
+  },
+  {
+    "spec_line": 356,
+    "source": "CONSTANT1, CONSTANT2 = CONSTANT3, CONSTANT4\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "CONSTANT1 = CONSTANT3\nCONSTANT2 = CONSTANT4\n"
+  },
+  {
+    "spec_line": 368,
+    "source": "def self.foo\n  foo, bar = 1, 2\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def self.foo\n  foo = 1\n  bar = 2\nend\n"
+  },
+  {
+    "spec_line": 384,
+    "source": "a,b,c=1,2,3\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = 1\nb = 2\nc = 3\n"
+  },
+  {
+    "spec_line": 397,
+    "source": "def foo\n  a, b, c = 1, 2, 3\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  a = 1\n  b = 2\n  c = 3\nend\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "def foo\n  if true\n    a, b, c = 1, 2, 3\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  if true\n    a = 1\n    b = 2\n    c = 3\n  end\nend\n"
+  },
+  {
+    "spec_line": 435,
+    "source": "a, b = 1, 2 if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "if foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 449,
+    "source": "def foo\n  a, b = 1, 2 if foo\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  if foo\n    a = 1\n    b = 2\n  end\nend\n"
+  },
+  {
+    "spec_line": 467,
+    "source": "if foo\n  a, b = 1, 2\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "if foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 483,
+    "source": "a, b = 1, 2 unless foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "unless foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 497,
+    "source": "unless foo\n  a, b = 1, 2\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "unless foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 513,
+    "source": "a, b = 1, 2 while foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "while foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 527,
+    "source": "while foo\n  a, b = 1, 2\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "while foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 543,
+    "source": "a, b = 1, 2 until foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "until foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 557,
+    "source": "until foo\n  a, b = 1, 2\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "until foo\n  a = 1\n  b = 2\nend\n"
+  },
+  {
+    "spec_line": 573,
+    "source": "a, b = 1, 2 rescue foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "begin\n  a = 1\n  b = 2\nrescue\n  foo\nend\n"
+  },
+  {
+    "spec_line": 589,
+    "source": "a, b = 1, 2 rescue foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "begin\n  a = 1\n  b = 2\nrescue\n  foo\nend\n"
+  },
+  {
+    "spec_line": 605,
+    "source": "def bar\n  a, b = 1, 2\nrescue\n  'foo'\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def bar\n  a = 1\n  b = 2\nrescue\n  'foo'\nend\n"
+  },
+  {
+    "spec_line": 625,
+    "source": "begin\n  a, b = 1, 2\nrescue\n  'foo'\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "begin\n  a = 1\n  b = 2\nrescue\n  'foo'\nend\n"
+  },
+  {
+    "spec_line": 645,
+    "source": "def foo\n  a, b = 1, 2 rescue foo\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  a = 1\n  b = 2\nrescue\n  foo\nend\n"
+  },
+  {
+    "spec_line": 663,
+    "source": "def foo\n  a, b = 1, 2 rescue foo\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  a = 1\n  b = 2\nrescue\n  foo\nend\n"
+  },
+  {
+    "spec_line": 681,
+    "source": "def foo\n  a, b = %w(1 2) rescue foo\n  something_else\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  begin\n    a = '1'\n    b = '2'\n  rescue\n    foo\n  end\n  something_else\nend\n"
+  },
+  {
+    "spec_line": 703,
+    "source": "def foo\n  a, b = %w(1 2) rescue foo\n  something_else\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "def foo\n  begin\n    a = '1'\n    b = '2'\n  rescue\n    foo\n  end\n  something_else\nend\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "a, b, c, d = 1, a + 1, b + 1, a + b + c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "d = a + b + c\nc = b + 1\nb = a + 1\na = 1\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "a, b = c, __FILE__\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use parallel assignment."
+    ],
+    "correction": "a = c\nb = __FILE__\n"
+  },
+  {
+    "spec_line": 751,
+    "source": "a, b, c, d = 1, 2\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 757,
+    "source": "a, b = 1, 2, 3\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 763,
+    "source": "foo = [1, 2, 3]\na, b, c = foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 770,
+    "source": "a, b = <<~A, <<~B\n  one\nA\n  two\nB\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 780,
+    "source": "a, b = foo(<<~A), 2\n  text\nA\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 788,
+    "source": "a, b = 1, <<~B if condition\n  two\nB\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a = 1",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a = a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, = a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, = 1",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a = *'foo'",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, = *'foo'",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, = 1, 2, 3",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, = *foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, *b = [1, 2, 3]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "*a, b = [1, 2, 3]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "*, b = [1, 2, 3]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, *, b = [1, 2, 3]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b = b, a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b, c = b, c, a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b = (a + b), (a - b)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b = foo.map { |e| e.id }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b = foo()",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b = *foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b, c = 1, 2, *node",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b, c = *node, 1, 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "begin_token, end_token = CONSTANT",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "CONSTANT, = 1, 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a = 1\nb = 2\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "foo = [1, 2, 3]\na, b, c = foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "array = [1, 2, 3]\na, = array\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a, b = Float::INFINITY",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "a[0], a[1] = a[1], a[0]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "obj.attr1, obj.attr2 = obj.attr2, obj.attr1",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "obj.attr1, ary[0] = ary[0], obj.attr1",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "ary[0], ary[1], ary[2] = ary[1], ary[2], ary[0]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "self.a, self.b = self.b, self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "self.a, self.b = b, a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

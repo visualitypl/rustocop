@@ -1,0 +1,365 @@
+[
+  {
+    "spec_line": 6,
+    "source": "case\nwhen 1 == 2\n  foo\nwhen 1 == 1\n  bar\nelse\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if 1 == 2\n  foo\nelsif 1 == 1\n  bar\nelse\n  baz\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen 1 == 2\n  foo\nwhen 1 == 1\n  bar\nelse\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "def example\n  # Comment before everything\n  case # first comment\n  # condition a\n  # This is a multi-line comment\n  when 1 == 2\n    foo\n  # condition b\n  when 1 == 1\n    bar\n  # condition c\n  else\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "def example\n  # Comment before everything\n  # first comment\n  # condition a\n  # This is a multi-line comment\n  if 1 == 2\n    foo\n  # condition b\n  elsif 1 == 1\n    bar\n  # condition c\n  else\n    baz\n  end\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "def example\n  # Comment before everything\n  case :a # first comment\n  # condition a\n  # This is a multi-line comment\n  when 1 == 2\n    foo\n  # condition b\n  when 1 == 1\n    bar\n  # condition c\n  else\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen 1 == 2\n  foo\nwhen 1 == 1\n  bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if 1 == 2\n  foo\nelsif 1 == 1\n  bar\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen 1 == 2\n  foo\nwhen 1 == 1\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen 1 == 2\n  foo\nelse\n  bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if 1 == 2\n  foo\nelse\n  bar\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen 1 == 2\n  foo\nelse\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen 1 == 2\n  foo\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if 1 == 2\n  foo\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen 1 == 2\n  foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen false\n  foo\nwhen nil, false, 1\n  bar\nwhen false, 1\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if false\n  foo\nelsif nil || false || 1\n  bar\nelsif false || 1\n  baz\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen false\n  foo\nwhen nil, false, 1\n  bar\nwhen false, 1\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen false then foo\nwhen nil, false, 1 then bar\nwhen false, 1 then baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if false then foo\nelsif nil || false || 1 then bar\nelsif false || 1 then baz\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen false then foo\nwhen nil, false, 1 then bar\nwhen false, 1 then baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen my.foo?, my.bar?\n  something\nwhen my.baz?\n  something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if my.foo? || my.bar?\n  something\nelsif my.baz?\n  something_else\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen my.foo?, my.bar?\n  something\nwhen my.baz?\n  something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 242,
+    "source": "case\nwhen x ? a : b, c\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if (x ? a : b) || c\n  something\nend\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "case\nwhen object.nil?\n  Object.new\nelse\n  object\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "if object.nil?\n  Object.new\nelse\n  object\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "case :a\nwhen object.nil?\n  Object.new\nelse\n  object\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "# example.rb\ncase\nwhen object.nil?\n  Object.new\nelse\n  object\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use empty `case` condition, instead use an `if` expression."
+    ],
+    "correction": "# example.rb\nif object.nil?\n  Object.new\nelse\n  object\nend\n"
+  },
+  {
+    "spec_line": 14,
+    "source": "# example.rb\ncase :a\nwhen object.nil?\n  Object.new\nelse\n  object\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 312,
+    "source": "def foo\n  yield case\n        when true\n          1\n        else\n          2\n        end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 327,
+    "source": "def foo\n  super case\n        when true\n          1\n        else\n          2\n        end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 342,
+    "source": "v = case\n    when x.a\n      1\n    when x.b\n      return 2\n    end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 356,
+    "source": "v = case\n    when x.a\n      1\n    when x.b\n      return 2 if foo\n    end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 369,
+    "source": "v = case\n    when x.a\n      1\n    else\n      return 2\n    end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 383,
+    "source": "v = case\n    when x.a\n      1\n    else\n      return 2 if foo\n    end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 396,
+    "source": "return case\n       when foo\n         1\n       else\n         2\n       end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 435,
+    "source": "do_something case\n             when foo\n               1\n             else\n               2\n             end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 448,
+    "source": "obj&.do_something case\n                  when foo\n                    1\n                  else\n                    2\n                  end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

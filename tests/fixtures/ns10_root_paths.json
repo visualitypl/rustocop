@@ -1,0 +1,22 @@
+[
+  {"file":"/","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`/`) should use snake_case."]},
+  {"file":"//","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`/`) should use snake_case."]},
+  {"file":"////","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`/`) should use snake_case."]},
+  {"file":"/./","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`/`) should use snake_case."]},
+  {"file":"/././","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`/`) should use snake_case."]},
+  {"file":"..","source":"print 1\n","positions":[],"messages":[]},
+  {"file":"../","source":"print 1\n","positions":[],"messages":[]},
+  {"file":"BadName.rb/","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`BadName.rb`) should use snake_case."]},
+  {"file":"BadName.rb///","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`BadName.rb`) should use snake_case."]},
+  {"file":"./BadName.rb/","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`BadName.rb`) should use snake_case."]},
+  {"file":"lib/BadName.rb/","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`BadName.rb`) should use snake_case."]},
+  {"file":"lib/BadName.rb/.","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`BadName.rb`) should use snake_case."]},
+  {"file":"/BadName.rb/","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`BadName.rb`) should use snake_case."]},
+  {"file":"good.rb/","source":"print 1\n","positions":[],"messages":[]},
+  {"file":"./good.rb///","source":"print 1\n","positions":[],"messages":[]},
+  {"file":"/good.rb/","source":"print 1\n","positions":[],"messages":[]},
+  {"file":".Fastfile/","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`.Fastfile`) should use snake_case."]},
+  {"file":"lib/.Fastfile/","source":"print 1\n","positions":[],"messages":[]},
+  {"file":"lib/../.Fastfile","source":"print 1\n","positions":[[1,1]],"messages":["The name of this source file (`.Fastfile`) should use snake_case."],"rustocop_positions":[],"rustocop_messages":[],"path_policy":"Inherited display_path preserves interior .. without probing whether lib is a symlink. The supplied nested hidden filename remains eligible for the standard *Fastfile exemption; Ruby File.expand_path instead collapses to root .Fastfile, which is not exempt. Collapsing here would change alias-sensitive path policy, not repair the actual basename (which is .Fastfile in both)."},
+  {"file":"/","source":"#!/usr/bin/env ruby\nprint 1\n","positions":[],"messages":[]}
+]

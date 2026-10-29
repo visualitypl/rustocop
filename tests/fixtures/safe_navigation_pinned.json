@@ -1,0 +1,9416 @@
+[
+  {
+    "spec_line": 8,
+    "source": "foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 12,
+    "source": "foo&.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 16,
+    "source": "nil&.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 20,
+    "source": "x.foo? && x.bar?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 24,
+    "source": "x&.foo? && x&.bar?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 28,
+    "source": "foo && foo[:bar]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 32,
+    "source": "return if foo[:bar] && foo[:baz].blank?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo && !foo.bar?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 40,
+    "source": "user && user.thing.nil?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 44,
+    "source": "user && user.one.two.three",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 48,
+    "source": "user && user.thing.plus.another { |a| a}.other_thing",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 52,
+    "source": "user && user.thing.plus.some.other_thing.nil?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 59,
+    "source": "user && user.thing.blank?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 63,
+    "source": "foo && !foo.bar.baz?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 67,
+    "source": "foo.bar > 2 if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 71,
+    "source": "foo.bar =~ /baz/ if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo.bar !~ /baz/ if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 80,
+    "source": "foo.bar <=> baz if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 84,
+    "source": "foo && foo.bar > 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 88,
+    "source": "foo && foo.bar =~ /baz/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 92,
+    "source": "foo && foo.bar !~ /baz/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 96,
+    "source": "foo && foo.empty?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 100,
+    "source": "foo && foo.bar <=> baz",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 104,
+    "source": "foo && foo.bar.baz > 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 108,
+    "source": "foo.bar.baz > 2 if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 112,
+    "source": "obj.do_something unless obj",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 116,
+    "source": "obj.do_something if !obj",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 120,
+    "source": "foo + bar if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 124,
+    "source": "foo.baz + bar if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 128,
+    "source": "foo.baz = bar if foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 132,
+    "source": "obj && !obj&.do_something",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 137,
+    "source": "if foo\n  something\nelsif bar\n  bar.baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 147,
+    "source": "if foo\n  # a random comment\n  # TODO: Implement this before\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 157,
+    "source": "foo(bar.baz) if bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 161,
+    "source": "foo unless nil?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 167,
+    "source": "foo? && !((x.bar? || y.baz?) && z?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 173,
+    "source": "x? && y? do |b|\n  b.foo? && b.bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 181,
+    "source": "(x? + (y? && z?)) && !w?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 187,
+    "source": "x? && (y? || z? && w?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 194,
+    "source": "# Comment 1\nif x\n  # Comment 2\n  x.each do\n    # Comment 3\n    # Comment 4\n  end\n  # Comment 5\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "# Comment 1\n# Comment 2\n# Comment 5\nx&.each do\n    # Comment 3\n    # Comment 4\n  end\n"
+  },
+  {
+    "spec_line": 1558,
+    "source": "foo && (bar && bar.y?)\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo && (bar&.y?)\n"
+  },
+  {
+    "spec_line": 1569,
+    "source": "foo && (bar && (bar.y?))\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo && ((bar&.y?))\n"
+  },
+  {
+    "spec_line": 1580,
+    "source": "foo && foo.x? && bar && bar.y?\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.x? && bar&.y?\n"
+  },
+  {
+    "spec_line": 1592,
+    "source": "foo and foo.bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar?\n"
+  },
+  {
+    "spec_line": 1603,
+    "source": "foo && (foo.bar? || (foo.baz? && foo.quux?))\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1612,
+    "source": "foo && (foo.bar? && (foo.baz? && foo.quux?))\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "(foo&.bar? && (foo.baz? && foo.quux?))\n"
+  },
+  {
+    "spec_line": 1623,
+    "source": "foo && (foo.bar? && (foo.baz? || foo.quux?))\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "(foo&.bar? && (foo.baz? || foo.quux?))\n"
+  },
+  {
+    "spec_line": 1634,
+    "source": "foo && (\n  (foo >= 1 && foo < 2) ||\n  (foo >= 3 && foo < 4) ||\n  (foo >= 5 && foo < 6)\n)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 240,
+    "source": "foo.to_i if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "foo&.to_i\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "foo && foo&.do_something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "foo&.do_something\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "foo[1].bar if foo[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo[1]&.bar\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "foo.bar if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 286,
+    "source": "foo.bar(baz) if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 298,
+    "source": "foo.bar { |e| e.qux } if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 310,
+    "source": "foo.bar(baz) { |e| e.qux } if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 321,
+    "source": "foo.one.two(baz) { |e| e.qux } if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "foo.one.two(baz) { _1.qux } if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz) { _1.qux }\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "foo.one.two(baz) { it.qux } if foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz) { it.qux }\n"
+  },
+  {
+    "spec_line": 355,
+    "source": "foo.bar unless !foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 367,
+    "source": "foo.bar(baz) unless !foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 379,
+    "source": "foo.bar { |e| e.qux } unless !foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 391,
+    "source": "foo.bar(baz) { |e| e.qux } unless !foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 402,
+    "source": "foo.bar unless foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "foo.bar(baz) unless foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 426,
+    "source": "foo.bar { |e| e.qux } unless foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 438,
+    "source": "foo.bar(baz) { |e| e.qux } unless foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 450,
+    "source": "foo.one.two(baz) { |e| e.qux } unless foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "foo.bar if !foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "foo.bar(baz) if !foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 486,
+    "source": "foo.bar { |e| e.qux } if !foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "foo.bar(baz) { |e| e.qux } if !foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 510,
+    "source": "foo.one.two(baz) { |e| e.qux } if !foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 522,
+    "source": "foo if foo && foo.bar # comment\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo if foo&.bar # comment\n"
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  break foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  fail foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  next foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  raise foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  return foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  throw foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  yield foo.bar if foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 558,
+    "source": "if foo\n  foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "if foo\n  foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 586,
+    "source": "if foo\n  foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if foo\n  foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if !foo.nil?\n  foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "if !foo.nil?\n  foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 641,
+    "source": "if !foo.nil?\n  foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if !foo.nil?\n  foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 669,
+    "source": "unless foo.nil?\n  foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 683,
+    "source": "unless foo.nil?\n  foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "unless foo.nil?\n  foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 711,
+    "source": "unless foo.nil?\n  foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "unless !foo\n  foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "unless !foo\n  foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "unless !foo\n  foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "unless !foo\n  foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if foo # hello\n  # this is a comment\n  # another comment\n  foo.bar\nend # bye!\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# hello\n# this is a comment\n# another comment\nfoo&.bar # bye!\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "# comment one\ndef foobar\n  if foo\n    # comment 2\n    foo.bar\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# comment one\ndef foobar\n  # comment 2\nfoo&.bar\nend\n"
+  },
+  {
+    "spec_line": 819,
+    "source": "if foo\n  foo.bar\nelse\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "!foo.nil? ? foo.bar : something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 836,
+    "source": "foo ? foo[index] : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 842,
+    "source": "foo ? foo[index].do_something : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 848,
+    "source": "foo ? foo[index] = 1 : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 854,
+    "source": "foo.nil? ? nil : foo.foo[index]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 860,
+    "source": "foo ? foo::foo : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 866,
+    "source": "foo.nil? ? nil : foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 872,
+    "source": "%{variable}.nil? ? nil : %{variable}.foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 878,
+    "source": "puts(foo ? foo.bar : nil)\n\nresults << (foo ? foo.bar : nil)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "puts(foo&.bar)\n\nresults << (foo&.bar)\n"
+  },
+  {
+    "spec_line": 894,
+    "source": "foo ? foo&.[](index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.[](index)\n"
+  },
+  {
+    "spec_line": 905,
+    "source": "foo ? foo&.[]=(index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.[]=(index)\n"
+  },
+  {
+    "spec_line": 916,
+    "source": "foo.nil? ? nil : foo.*(42)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.*(42)\n"
+  },
+  {
+    "spec_line": 927,
+    "source": "results[0] = foo ? foo.bar : nil\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "results[0] = foo&.bar\n"
+  },
+  {
+    "spec_line": 938,
+    "source": "foo ? foo.bar : nil\n\nfoo.nil? ? nil : foo.bar\n\n!foo.nil? ? foo.bar : nil\n\n!foo ? nil : foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n\nfoo&.bar\n\nfoo&.bar\n\nfoo&.bar\n"
+  },
+  {
+    "spec_line": 1511,
+    "source": "foo.nil? || foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1515,
+    "source": "foo.nil? || foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1519,
+    "source": "foo.nil? || foo.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1525,
+    "source": "foo.nil? || foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1531,
+    "source": "!foo || foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1535,
+    "source": "!foo || foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1539,
+    "source": "!foo || foo.bar { |e| e.qux }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1543,
+    "source": "!foo || foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1044,
+    "source": "foo && foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "foo.bar && foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo.bar&.baz\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "foo && foo.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1077,
+    "source": "foo && foo.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1089,
+    "source": "foo && foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1101,
+    "source": "if foo && foo.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if foo&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1116,
+    "source": "foo && foo.bar && something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar && something\n"
+  },
+  {
+    "spec_line": 1127,
+    "source": "foo && foo.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar && bar\n"
+  },
+  {
+    "spec_line": 1138,
+    "source": "foo && foo.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1149,
+    "source": "bar && foo && foo.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && foo&.bar\n"
+  },
+  {
+    "spec_line": 1160,
+    "source": "bar? && foo && foo.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && foo&.bar\n"
+  },
+  {
+    "spec_line": 1173,
+    "source": "foo && foo.one { |a| b}.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one { |a| b}&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1259,
+    "source": "!foo.nil? && foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1263,
+    "source": "!foo.nil? && foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1267,
+    "source": "!foo.nil? && foo.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1273,
+    "source": "!foo.nil? && foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1279,
+    "source": "foo && foo.to_i\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.to_i\n"
+  },
+  {
+    "spec_line": 1290,
+    "source": "foo && foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar\n"
+  },
+  {
+    "spec_line": 1301,
+    "source": "foo&.bar && foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1312,
+    "source": "foo.bar&.baz && foo.bar.baz.quux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo.bar&.baz&.quux\n"
+  },
+  {
+    "spec_line": 1323,
+    "source": "foo && foo.bar && foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1335,
+    "source": "foo && foo.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1346,
+    "source": "foo && foo.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1358,
+    "source": "foo && foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1370,
+    "source": "if foo && foo.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if foo&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1385,
+    "source": "foo && foo.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar && bar\n"
+  },
+  {
+    "spec_line": 1396,
+    "source": "foo && foo.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1407,
+    "source": "bar && foo && foo.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && foo&.bar\n"
+  },
+  {
+    "spec_line": 1418,
+    "source": "bar? && foo && foo.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && foo&.bar\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "foo && foo.one.two\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two\n"
+  },
+  {
+    "spec_line": 1441,
+    "source": "foo && foo.one.two(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz)\n"
+  },
+  {
+    "spec_line": 1452,
+    "source": "foo && foo.one.two(&:baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(&:baz)\n"
+  },
+  {
+    "spec_line": 1463,
+    "source": "foo && foo.one.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1474,
+    "source": "foo&.bar ? foo.bar.baz : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1485,
+    "source": "foo&.bar && foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1496,
+    "source": "if foo&.bar\n  foo.bar.baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 240,
+    "source": "FOO.to_i if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "FOO&.to_i\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "FOO && FOO&.do_something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "FOO&.do_something\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "FOO[1].bar if FOO[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO[1]&.bar\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "FOO.bar if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 286,
+    "source": "FOO.bar(baz) if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 298,
+    "source": "FOO.bar { |e| e.qux } if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 310,
+    "source": "FOO.bar(baz) { |e| e.qux } if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 321,
+    "source": "FOO.one.two(baz) { |e| e.qux } if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "FOO.one.two(baz) { _1.qux } if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz) { _1.qux }\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "FOO.one.two(baz) { it.qux } if FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz) { it.qux }\n"
+  },
+  {
+    "spec_line": 355,
+    "source": "FOO.bar unless !FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 367,
+    "source": "FOO.bar(baz) unless !FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 379,
+    "source": "FOO.bar { |e| e.qux } unless !FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 391,
+    "source": "FOO.bar(baz) { |e| e.qux } unless !FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 402,
+    "source": "FOO.bar unless FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "FOO.bar(baz) unless FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 426,
+    "source": "FOO.bar { |e| e.qux } unless FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 438,
+    "source": "FOO.bar(baz) { |e| e.qux } unless FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 450,
+    "source": "FOO.one.two(baz) { |e| e.qux } unless FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "FOO.bar if !FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "FOO.bar(baz) if !FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 486,
+    "source": "FOO.bar { |e| e.qux } if !FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "FOO.bar(baz) { |e| e.qux } if !FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 510,
+    "source": "FOO.one.two(baz) { |e| e.qux } if !FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 522,
+    "source": "foo if FOO && FOO.bar # comment\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo if FOO&.bar # comment\n"
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  break FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  fail FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  next FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  raise FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  return FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  throw FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  yield FOO.bar if FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 558,
+    "source": "if FOO\n  FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "if FOO\n  FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 586,
+    "source": "if FOO\n  FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if FOO\n  FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if !FOO.nil?\n  FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "if !FOO.nil?\n  FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 641,
+    "source": "if !FOO.nil?\n  FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if !FOO.nil?\n  FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 669,
+    "source": "unless FOO.nil?\n  FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 683,
+    "source": "unless FOO.nil?\n  FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "unless FOO.nil?\n  FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 711,
+    "source": "unless FOO.nil?\n  FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "unless !FOO\n  FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "unless !FOO\n  FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "unless !FOO\n  FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "unless !FOO\n  FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if FOO # hello\n  # this is a comment\n  # another comment\n  FOO.bar\nend # bye!\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# hello\n# this is a comment\n# another comment\nFOO&.bar # bye!\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "# comment one\ndef foobar\n  if FOO\n    # comment 2\n    FOO.bar\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# comment one\ndef foobar\n  # comment 2\nFOO&.bar\nend\n"
+  },
+  {
+    "spec_line": 819,
+    "source": "if FOO\n  FOO.bar\nelse\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "!FOO.nil? ? FOO.bar : something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 836,
+    "source": "FOO ? FOO[index] : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 842,
+    "source": "FOO ? FOO[index].do_something : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 848,
+    "source": "FOO ? FOO[index] = 1 : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 854,
+    "source": "FOO.nil? ? nil : FOO.foo[index]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 860,
+    "source": "FOO ? FOO::foo : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 866,
+    "source": "FOO.nil? ? nil : FOO * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 872,
+    "source": "%{variable}.nil? ? nil : %{variable}.foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 878,
+    "source": "puts(FOO ? FOO.bar : nil)\n\nresults << (FOO ? FOO.bar : nil)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "puts(FOO&.bar)\n\nresults << (FOO&.bar)\n"
+  },
+  {
+    "spec_line": 894,
+    "source": "FOO ? FOO&.[](index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.[](index)\n"
+  },
+  {
+    "spec_line": 905,
+    "source": "FOO ? FOO&.[]=(index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.[]=(index)\n"
+  },
+  {
+    "spec_line": 916,
+    "source": "FOO.nil? ? nil : FOO.*(42)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.*(42)\n"
+  },
+  {
+    "spec_line": 927,
+    "source": "results[0] = FOO ? FOO.bar : nil\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "results[0] = FOO&.bar\n"
+  },
+  {
+    "spec_line": 938,
+    "source": "FOO ? FOO.bar : nil\n\nFOO.nil? ? nil : FOO.bar\n\n!FOO.nil? ? FOO.bar : nil\n\n!FOO ? nil : FOO.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n\nFOO&.bar\n\nFOO&.bar\n\nFOO&.bar\n"
+  },
+  {
+    "spec_line": 1511,
+    "source": "FOO.nil? || FOO.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1515,
+    "source": "FOO.nil? || FOO.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1519,
+    "source": "FOO.nil? || FOO.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1525,
+    "source": "FOO.nil? || FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1531,
+    "source": "!FOO || FOO.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1535,
+    "source": "!FOO || FOO.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1539,
+    "source": "!FOO || FOO.bar { |e| e.qux }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1543,
+    "source": "!FOO || FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1044,
+    "source": "FOO && FOO.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "FOO.bar && FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO.bar&.baz\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "FOO && FOO.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1077,
+    "source": "FOO && FOO.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1089,
+    "source": "FOO && FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1101,
+    "source": "if FOO && FOO.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if FOO&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1116,
+    "source": "FOO && FOO.bar && something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar && something\n"
+  },
+  {
+    "spec_line": 1127,
+    "source": "FOO && FOO.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar && bar\n"
+  },
+  {
+    "spec_line": 1138,
+    "source": "FOO && FOO.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1149,
+    "source": "bar && FOO && FOO.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && FOO&.bar\n"
+  },
+  {
+    "spec_line": 1160,
+    "source": "bar? && FOO && FOO.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && FOO&.bar\n"
+  },
+  {
+    "spec_line": 1173,
+    "source": "FOO && FOO.one { |a| b}.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one { |a| b}&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1259,
+    "source": "!FOO.nil? && FOO.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1263,
+    "source": "!FOO.nil? && FOO.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1267,
+    "source": "!FOO.nil? && FOO.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1273,
+    "source": "!FOO.nil? && FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1279,
+    "source": "FOO && FOO.to_i\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.to_i\n"
+  },
+  {
+    "spec_line": 1290,
+    "source": "FOO && FOO.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar\n"
+  },
+  {
+    "spec_line": 1301,
+    "source": "FOO&.bar && FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1312,
+    "source": "FOO.bar&.baz && FOO.bar.baz.quux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO.bar&.baz&.quux\n"
+  },
+  {
+    "spec_line": 1323,
+    "source": "FOO && FOO.bar && FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1335,
+    "source": "FOO && FOO.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1346,
+    "source": "FOO && FOO.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1358,
+    "source": "FOO && FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1370,
+    "source": "if FOO && FOO.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if FOO&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1385,
+    "source": "FOO && FOO.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar && bar\n"
+  },
+  {
+    "spec_line": 1396,
+    "source": "FOO && FOO.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1407,
+    "source": "bar && FOO && FOO.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && FOO&.bar\n"
+  },
+  {
+    "spec_line": 1418,
+    "source": "bar? && FOO && FOO.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && FOO&.bar\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "FOO && FOO.one.two\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two\n"
+  },
+  {
+    "spec_line": 1441,
+    "source": "FOO && FOO.one.two(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz)\n"
+  },
+  {
+    "spec_line": 1452,
+    "source": "FOO && FOO.one.two(&:baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(&:baz)\n"
+  },
+  {
+    "spec_line": 1463,
+    "source": "FOO && FOO.one.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1474,
+    "source": "FOO&.bar ? FOO.bar.baz : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1485,
+    "source": "FOO&.bar && FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1496,
+    "source": "if FOO&.bar\n  FOO.bar.baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 240,
+    "source": "FOO::BAR.to_i if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "FOO::BAR&.to_i\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "FOO::BAR && FOO::BAR&.do_something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "FOO::BAR&.do_something\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "FOO::BAR[1].bar if FOO::BAR[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR[1]&.bar\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "FOO::BAR.bar if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 286,
+    "source": "FOO::BAR.bar(baz) if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 298,
+    "source": "FOO::BAR.bar { |e| e.qux } if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 310,
+    "source": "FOO::BAR.bar(baz) { |e| e.qux } if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 321,
+    "source": "FOO::BAR.one.two(baz) { |e| e.qux } if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "FOO::BAR.one.two(baz) { _1.qux } if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz) { _1.qux }\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "FOO::BAR.one.two(baz) { it.qux } if FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz) { it.qux }\n"
+  },
+  {
+    "spec_line": 355,
+    "source": "FOO::BAR.bar unless !FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 367,
+    "source": "FOO::BAR.bar(baz) unless !FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 379,
+    "source": "FOO::BAR.bar { |e| e.qux } unless !FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 391,
+    "source": "FOO::BAR.bar(baz) { |e| e.qux } unless !FOO::BAR\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 402,
+    "source": "FOO::BAR.bar unless FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "FOO::BAR.bar(baz) unless FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 426,
+    "source": "FOO::BAR.bar { |e| e.qux } unless FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 438,
+    "source": "FOO::BAR.bar(baz) { |e| e.qux } unless FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 450,
+    "source": "FOO::BAR.one.two(baz) { |e| e.qux } unless FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "FOO::BAR.bar if !FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "FOO::BAR.bar(baz) if !FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 486,
+    "source": "FOO::BAR.bar { |e| e.qux } if !FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "FOO::BAR.bar(baz) { |e| e.qux } if !FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 510,
+    "source": "FOO::BAR.one.two(baz) { |e| e.qux } if !FOO::BAR.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 522,
+    "source": "foo if FOO::BAR && FOO::BAR.bar # comment\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo if FOO::BAR&.bar # comment\n"
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  break FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  fail FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  next FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  raise FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  return FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  throw FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  yield FOO::BAR.bar if FOO::BAR\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 558,
+    "source": "if FOO::BAR\n  FOO::BAR.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "if FOO::BAR\n  FOO::BAR.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 586,
+    "source": "if FOO::BAR\n  FOO::BAR.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if FOO::BAR\n  FOO::BAR.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if !FOO::BAR.nil?\n  FOO::BAR.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "if !FOO::BAR.nil?\n  FOO::BAR.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 641,
+    "source": "if !FOO::BAR.nil?\n  FOO::BAR.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if !FOO::BAR.nil?\n  FOO::BAR.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 669,
+    "source": "unless FOO::BAR.nil?\n  FOO::BAR.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 683,
+    "source": "unless FOO::BAR.nil?\n  FOO::BAR.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "unless FOO::BAR.nil?\n  FOO::BAR.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 711,
+    "source": "unless FOO::BAR.nil?\n  FOO::BAR.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "unless !FOO::BAR\n  FOO::BAR.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "unless !FOO::BAR\n  FOO::BAR.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "unless !FOO::BAR\n  FOO::BAR.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "unless !FOO::BAR\n  FOO::BAR.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if FOO::BAR # hello\n  # this is a comment\n  # another comment\n  FOO::BAR.bar\nend # bye!\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# hello\n# this is a comment\n# another comment\nFOO::BAR&.bar # bye!\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "# comment one\ndef foobar\n  if FOO::BAR\n    # comment 2\n    FOO::BAR.bar\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# comment one\ndef foobar\n  # comment 2\nFOO::BAR&.bar\nend\n"
+  },
+  {
+    "spec_line": 819,
+    "source": "if FOO::BAR\n  FOO::BAR.bar\nelse\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "!FOO::BAR.nil? ? FOO::BAR.bar : something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 836,
+    "source": "FOO::BAR ? FOO::BAR[index] : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 842,
+    "source": "FOO::BAR ? FOO::BAR[index].do_something : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 848,
+    "source": "FOO::BAR ? FOO::BAR[index] = 1 : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 854,
+    "source": "FOO::BAR.nil? ? nil : FOO::BAR.foo[index]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 860,
+    "source": "FOO::BAR ? FOO::BAR::foo : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 866,
+    "source": "FOO::BAR.nil? ? nil : FOO::BAR * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 872,
+    "source": "%{variable}.nil? ? nil : %{variable}.foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 878,
+    "source": "puts(FOO::BAR ? FOO::BAR.bar : nil)\n\nresults << (FOO::BAR ? FOO::BAR.bar : nil)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "puts(FOO::BAR&.bar)\n\nresults << (FOO::BAR&.bar)\n"
+  },
+  {
+    "spec_line": 894,
+    "source": "FOO::BAR ? FOO::BAR&.[](index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.[](index)\n"
+  },
+  {
+    "spec_line": 905,
+    "source": "FOO::BAR ? FOO::BAR&.[]=(index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.[]=(index)\n"
+  },
+  {
+    "spec_line": 916,
+    "source": "FOO::BAR.nil? ? nil : FOO::BAR.*(42)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.*(42)\n"
+  },
+  {
+    "spec_line": 927,
+    "source": "results[0] = FOO::BAR ? FOO::BAR.bar : nil\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "results[0] = FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 938,
+    "source": "FOO::BAR ? FOO::BAR.bar : nil\n\nFOO::BAR.nil? ? nil : FOO::BAR.bar\n\n!FOO::BAR.nil? ? FOO::BAR.bar : nil\n\n!FOO::BAR ? nil : FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n\nFOO::BAR&.bar\n\nFOO::BAR&.bar\n\nFOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1511,
+    "source": "FOO::BAR.nil? || FOO::BAR.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1515,
+    "source": "FOO::BAR.nil? || FOO::BAR.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1519,
+    "source": "FOO::BAR.nil? || FOO::BAR.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1525,
+    "source": "FOO::BAR.nil? || FOO::BAR.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1531,
+    "source": "!FOO::BAR || FOO::BAR.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1535,
+    "source": "!FOO::BAR || FOO::BAR.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1539,
+    "source": "!FOO::BAR || FOO::BAR.bar { |e| e.qux }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1543,
+    "source": "!FOO::BAR || FOO::BAR.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1044,
+    "source": "FOO::BAR && FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "FOO::BAR.bar && FOO::BAR.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR.bar&.baz\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "FOO::BAR && FOO::BAR.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1077,
+    "source": "FOO::BAR && FOO::BAR.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1089,
+    "source": "FOO::BAR && FOO::BAR.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1101,
+    "source": "if FOO::BAR && FOO::BAR.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if FOO::BAR&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1116,
+    "source": "FOO::BAR && FOO::BAR.bar && something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar && something\n"
+  },
+  {
+    "spec_line": 1127,
+    "source": "FOO::BAR && FOO::BAR.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar && bar\n"
+  },
+  {
+    "spec_line": 1138,
+    "source": "FOO::BAR && FOO::BAR.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1149,
+    "source": "bar && FOO::BAR && FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1160,
+    "source": "bar? && FOO::BAR && FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1173,
+    "source": "FOO::BAR && FOO::BAR.one { |a| b}.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one { |a| b}&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1259,
+    "source": "!FOO::BAR.nil? && FOO::BAR.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1263,
+    "source": "!FOO::BAR.nil? && FOO::BAR.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1267,
+    "source": "!FOO::BAR.nil? && FOO::BAR.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1273,
+    "source": "!FOO::BAR.nil? && FOO::BAR.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1279,
+    "source": "FOO::BAR && FOO::BAR.to_i\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.to_i\n"
+  },
+  {
+    "spec_line": 1290,
+    "source": "FOO::BAR && FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1301,
+    "source": "FOO::BAR&.bar && FOO::BAR.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1312,
+    "source": "FOO::BAR.bar&.baz && FOO::BAR.bar.baz.quux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR.bar&.baz&.quux\n"
+  },
+  {
+    "spec_line": 1323,
+    "source": "FOO::BAR && FOO::BAR.bar && FOO::BAR.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1335,
+    "source": "FOO::BAR && FOO::BAR.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1346,
+    "source": "FOO::BAR && FOO::BAR.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1358,
+    "source": "FOO::BAR && FOO::BAR.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1370,
+    "source": "if FOO::BAR && FOO::BAR.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if FOO::BAR&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1385,
+    "source": "FOO::BAR && FOO::BAR.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar && bar\n"
+  },
+  {
+    "spec_line": 1396,
+    "source": "FOO::BAR && FOO::BAR.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1407,
+    "source": "bar && FOO::BAR && FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1418,
+    "source": "bar? && FOO::BAR && FOO::BAR.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && FOO::BAR&.bar\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "FOO::BAR && FOO::BAR.one.two\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two\n"
+  },
+  {
+    "spec_line": 1441,
+    "source": "FOO::BAR && FOO::BAR.one.two(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz)\n"
+  },
+  {
+    "spec_line": 1452,
+    "source": "FOO::BAR && FOO::BAR.one.two(&:baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(&:baz)\n"
+  },
+  {
+    "spec_line": 1463,
+    "source": "FOO::BAR && FOO::BAR.one.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1474,
+    "source": "FOO::BAR&.bar ? FOO::BAR.bar.baz : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1485,
+    "source": "FOO::BAR&.bar && FOO::BAR.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1496,
+    "source": "if FOO::BAR&.bar\n  FOO::BAR.bar.baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "FOO::BAR&.bar&.baz\n"
+  },
+  {
+    "spec_line": 240,
+    "source": "@foo.to_i if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "@foo&.to_i\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "@foo && @foo&.do_something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "@foo&.do_something\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "@foo[1].bar if @foo[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo[1]&.bar\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "@foo.bar if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 286,
+    "source": "@foo.bar(baz) if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 298,
+    "source": "@foo.bar { |e| e.qux } if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 310,
+    "source": "@foo.bar(baz) { |e| e.qux } if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 321,
+    "source": "@foo.one.two(baz) { |e| e.qux } if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "@foo.one.two(baz) { _1.qux } if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz) { _1.qux }\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "@foo.one.two(baz) { it.qux } if @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz) { it.qux }\n"
+  },
+  {
+    "spec_line": 355,
+    "source": "@foo.bar unless !@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 367,
+    "source": "@foo.bar(baz) unless !@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 379,
+    "source": "@foo.bar { |e| e.qux } unless !@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 391,
+    "source": "@foo.bar(baz) { |e| e.qux } unless !@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 402,
+    "source": "@foo.bar unless @foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "@foo.bar(baz) unless @foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 426,
+    "source": "@foo.bar { |e| e.qux } unless @foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 438,
+    "source": "@foo.bar(baz) { |e| e.qux } unless @foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 450,
+    "source": "@foo.one.two(baz) { |e| e.qux } unless @foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "@foo.bar if !@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "@foo.bar(baz) if !@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 486,
+    "source": "@foo.bar { |e| e.qux } if !@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "@foo.bar(baz) { |e| e.qux } if !@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 510,
+    "source": "@foo.one.two(baz) { |e| e.qux } if !@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 522,
+    "source": "foo if @foo && @foo.bar # comment\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo if @foo&.bar # comment\n"
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  break @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  fail @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  next @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  raise @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  return @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  throw @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  yield @foo.bar if @foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 558,
+    "source": "if @foo\n  @foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "if @foo\n  @foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 586,
+    "source": "if @foo\n  @foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if @foo\n  @foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if !@foo.nil?\n  @foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "if !@foo.nil?\n  @foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 641,
+    "source": "if !@foo.nil?\n  @foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if !@foo.nil?\n  @foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 669,
+    "source": "unless @foo.nil?\n  @foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 683,
+    "source": "unless @foo.nil?\n  @foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "unless @foo.nil?\n  @foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 711,
+    "source": "unless @foo.nil?\n  @foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "unless !@foo\n  @foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "unless !@foo\n  @foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "unless !@foo\n  @foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "unless !@foo\n  @foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if @foo # hello\n  # this is a comment\n  # another comment\n  @foo.bar\nend # bye!\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# hello\n# this is a comment\n# another comment\n@foo&.bar # bye!\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "# comment one\ndef foobar\n  if @foo\n    # comment 2\n    @foo.bar\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# comment one\ndef foobar\n  # comment 2\n@foo&.bar\nend\n"
+  },
+  {
+    "spec_line": 819,
+    "source": "if @foo\n  @foo.bar\nelse\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "!@foo.nil? ? @foo.bar : something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 836,
+    "source": "@foo ? @foo[index] : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 842,
+    "source": "@foo ? @foo[index].do_something : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 848,
+    "source": "@foo ? @foo[index] = 1 : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 854,
+    "source": "@foo.nil? ? nil : @foo.foo[index]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 860,
+    "source": "@foo ? @foo::foo : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 866,
+    "source": "@foo.nil? ? nil : @foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 872,
+    "source": "%{variable}.nil? ? nil : %{variable}.foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 878,
+    "source": "puts(@foo ? @foo.bar : nil)\n\nresults << (@foo ? @foo.bar : nil)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "puts(@foo&.bar)\n\nresults << (@foo&.bar)\n"
+  },
+  {
+    "spec_line": 894,
+    "source": "@foo ? @foo&.[](index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.[](index)\n"
+  },
+  {
+    "spec_line": 905,
+    "source": "@foo ? @foo&.[]=(index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.[]=(index)\n"
+  },
+  {
+    "spec_line": 916,
+    "source": "@foo.nil? ? nil : @foo.*(42)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.*(42)\n"
+  },
+  {
+    "spec_line": 927,
+    "source": "results[0] = @foo ? @foo.bar : nil\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "results[0] = @foo&.bar\n"
+  },
+  {
+    "spec_line": 938,
+    "source": "@foo ? @foo.bar : nil\n\n@foo.nil? ? nil : @foo.bar\n\n!@foo.nil? ? @foo.bar : nil\n\n!@foo ? nil : @foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n\n@foo&.bar\n\n@foo&.bar\n\n@foo&.bar\n"
+  },
+  {
+    "spec_line": 1511,
+    "source": "@foo.nil? || @foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1515,
+    "source": "@foo.nil? || @foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1519,
+    "source": "@foo.nil? || @foo.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1525,
+    "source": "@foo.nil? || @foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1531,
+    "source": "!@foo || @foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1535,
+    "source": "!@foo || @foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1539,
+    "source": "!@foo || @foo.bar { |e| e.qux }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1543,
+    "source": "!@foo || @foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1044,
+    "source": "@foo && @foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "@foo.bar && @foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo.bar&.baz\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "@foo && @foo.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1077,
+    "source": "@foo && @foo.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1089,
+    "source": "@foo && @foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1101,
+    "source": "if @foo && @foo.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if @foo&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1116,
+    "source": "@foo && @foo.bar && something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar && something\n"
+  },
+  {
+    "spec_line": 1127,
+    "source": "@foo && @foo.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar && bar\n"
+  },
+  {
+    "spec_line": 1138,
+    "source": "@foo && @foo.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1149,
+    "source": "bar && @foo && @foo.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && @foo&.bar\n"
+  },
+  {
+    "spec_line": 1160,
+    "source": "bar? && @foo && @foo.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && @foo&.bar\n"
+  },
+  {
+    "spec_line": 1173,
+    "source": "@foo && @foo.one { |a| b}.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one { |a| b}&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1259,
+    "source": "!@foo.nil? && @foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1263,
+    "source": "!@foo.nil? && @foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1267,
+    "source": "!@foo.nil? && @foo.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1273,
+    "source": "!@foo.nil? && @foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1279,
+    "source": "@foo && @foo.to_i\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.to_i\n"
+  },
+  {
+    "spec_line": 1290,
+    "source": "@foo && @foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar\n"
+  },
+  {
+    "spec_line": 1301,
+    "source": "@foo&.bar && @foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1312,
+    "source": "@foo.bar&.baz && @foo.bar.baz.quux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo.bar&.baz&.quux\n"
+  },
+  {
+    "spec_line": 1323,
+    "source": "@foo && @foo.bar && @foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1335,
+    "source": "@foo && @foo.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1346,
+    "source": "@foo && @foo.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1358,
+    "source": "@foo && @foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1370,
+    "source": "if @foo && @foo.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if @foo&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1385,
+    "source": "@foo && @foo.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar && bar\n"
+  },
+  {
+    "spec_line": 1396,
+    "source": "@foo && @foo.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1407,
+    "source": "bar && @foo && @foo.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && @foo&.bar\n"
+  },
+  {
+    "spec_line": 1418,
+    "source": "bar? && @foo && @foo.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && @foo&.bar\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "@foo && @foo.one.two\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two\n"
+  },
+  {
+    "spec_line": 1441,
+    "source": "@foo && @foo.one.two(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz)\n"
+  },
+  {
+    "spec_line": 1452,
+    "source": "@foo && @foo.one.two(&:baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(&:baz)\n"
+  },
+  {
+    "spec_line": 1463,
+    "source": "@foo && @foo.one.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1474,
+    "source": "@foo&.bar ? @foo.bar.baz : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1485,
+    "source": "@foo&.bar && @foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1496,
+    "source": "if @foo&.bar\n  @foo.bar.baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 240,
+    "source": "@@foo.to_i if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "@@foo&.to_i\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "@@foo && @@foo&.do_something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "@@foo&.do_something\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "@@foo[1].bar if @@foo[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo[1]&.bar\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "@@foo.bar if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 286,
+    "source": "@@foo.bar(baz) if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 298,
+    "source": "@@foo.bar { |e| e.qux } if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 310,
+    "source": "@@foo.bar(baz) { |e| e.qux } if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 321,
+    "source": "@@foo.one.two(baz) { |e| e.qux } if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "@@foo.one.two(baz) { _1.qux } if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz) { _1.qux }\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "@@foo.one.two(baz) { it.qux } if @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz) { it.qux }\n"
+  },
+  {
+    "spec_line": 355,
+    "source": "@@foo.bar unless !@@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 367,
+    "source": "@@foo.bar(baz) unless !@@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 379,
+    "source": "@@foo.bar { |e| e.qux } unless !@@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 391,
+    "source": "@@foo.bar(baz) { |e| e.qux } unless !@@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 402,
+    "source": "@@foo.bar unless @@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "@@foo.bar(baz) unless @@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 426,
+    "source": "@@foo.bar { |e| e.qux } unless @@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 438,
+    "source": "@@foo.bar(baz) { |e| e.qux } unless @@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 450,
+    "source": "@@foo.one.two(baz) { |e| e.qux } unless @@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "@@foo.bar if !@@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "@@foo.bar(baz) if !@@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 486,
+    "source": "@@foo.bar { |e| e.qux } if !@@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "@@foo.bar(baz) { |e| e.qux } if !@@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 510,
+    "source": "@@foo.one.two(baz) { |e| e.qux } if !@@foo.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 522,
+    "source": "foo if @@foo && @@foo.bar # comment\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo if @@foo&.bar # comment\n"
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  break @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  fail @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  next @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  raise @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  return @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  throw @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  yield @@foo.bar if @@foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 558,
+    "source": "if @@foo\n  @@foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "if @@foo\n  @@foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 586,
+    "source": "if @@foo\n  @@foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if @@foo\n  @@foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if !@@foo.nil?\n  @@foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "if !@@foo.nil?\n  @@foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 641,
+    "source": "if !@@foo.nil?\n  @@foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if !@@foo.nil?\n  @@foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 669,
+    "source": "unless @@foo.nil?\n  @@foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 683,
+    "source": "unless @@foo.nil?\n  @@foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "unless @@foo.nil?\n  @@foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 711,
+    "source": "unless @@foo.nil?\n  @@foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "unless !@@foo\n  @@foo.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "unless !@@foo\n  @@foo.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "unless !@@foo\n  @@foo.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "unless !@@foo\n  @@foo.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if @@foo # hello\n  # this is a comment\n  # another comment\n  @@foo.bar\nend # bye!\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# hello\n# this is a comment\n# another comment\n@@foo&.bar # bye!\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "# comment one\ndef foobar\n  if @@foo\n    # comment 2\n    @@foo.bar\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# comment one\ndef foobar\n  # comment 2\n@@foo&.bar\nend\n"
+  },
+  {
+    "spec_line": 819,
+    "source": "if @@foo\n  @@foo.bar\nelse\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "!@@foo.nil? ? @@foo.bar : something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 836,
+    "source": "@@foo ? @@foo[index] : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 842,
+    "source": "@@foo ? @@foo[index].do_something : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 848,
+    "source": "@@foo ? @@foo[index] = 1 : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 854,
+    "source": "@@foo.nil? ? nil : @@foo.foo[index]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 860,
+    "source": "@@foo ? @@foo::foo : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 866,
+    "source": "@@foo.nil? ? nil : @@foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 872,
+    "source": "%{variable}.nil? ? nil : %{variable}.foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 878,
+    "source": "puts(@@foo ? @@foo.bar : nil)\n\nresults << (@@foo ? @@foo.bar : nil)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "puts(@@foo&.bar)\n\nresults << (@@foo&.bar)\n"
+  },
+  {
+    "spec_line": 894,
+    "source": "@@foo ? @@foo&.[](index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.[](index)\n"
+  },
+  {
+    "spec_line": 905,
+    "source": "@@foo ? @@foo&.[]=(index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.[]=(index)\n"
+  },
+  {
+    "spec_line": 916,
+    "source": "@@foo.nil? ? nil : @@foo.*(42)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.*(42)\n"
+  },
+  {
+    "spec_line": 927,
+    "source": "results[0] = @@foo ? @@foo.bar : nil\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "results[0] = @@foo&.bar\n"
+  },
+  {
+    "spec_line": 938,
+    "source": "@@foo ? @@foo.bar : nil\n\n@@foo.nil? ? nil : @@foo.bar\n\n!@@foo.nil? ? @@foo.bar : nil\n\n!@@foo ? nil : @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n\n@@foo&.bar\n\n@@foo&.bar\n\n@@foo&.bar\n"
+  },
+  {
+    "spec_line": 1511,
+    "source": "@@foo.nil? || @@foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1515,
+    "source": "@@foo.nil? || @@foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1519,
+    "source": "@@foo.nil? || @@foo.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1525,
+    "source": "@@foo.nil? || @@foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1531,
+    "source": "!@@foo || @@foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1535,
+    "source": "!@@foo || @@foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1539,
+    "source": "!@@foo || @@foo.bar { |e| e.qux }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1543,
+    "source": "!@@foo || @@foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1044,
+    "source": "@@foo && @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "@@foo.bar && @@foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo.bar&.baz\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "@@foo && @@foo.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1077,
+    "source": "@@foo && @@foo.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1089,
+    "source": "@@foo && @@foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1101,
+    "source": "if @@foo && @@foo.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if @@foo&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1116,
+    "source": "@@foo && @@foo.bar && something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar && something\n"
+  },
+  {
+    "spec_line": 1127,
+    "source": "@@foo && @@foo.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar && bar\n"
+  },
+  {
+    "spec_line": 1138,
+    "source": "@@foo && @@foo.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1149,
+    "source": "bar && @@foo && @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && @@foo&.bar\n"
+  },
+  {
+    "spec_line": 1160,
+    "source": "bar? && @@foo && @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && @@foo&.bar\n"
+  },
+  {
+    "spec_line": 1173,
+    "source": "@@foo && @@foo.one { |a| b}.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one { |a| b}&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1259,
+    "source": "!@@foo.nil? && @@foo.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1263,
+    "source": "!@@foo.nil? && @@foo.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1267,
+    "source": "!@@foo.nil? && @@foo.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1273,
+    "source": "!@@foo.nil? && @@foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1279,
+    "source": "@@foo && @@foo.to_i\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.to_i\n"
+  },
+  {
+    "spec_line": 1290,
+    "source": "@@foo && @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar\n"
+  },
+  {
+    "spec_line": 1301,
+    "source": "@@foo&.bar && @@foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1312,
+    "source": "@@foo.bar&.baz && @@foo.bar.baz.quux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo.bar&.baz&.quux\n"
+  },
+  {
+    "spec_line": 1323,
+    "source": "@@foo && @@foo.bar && @@foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1335,
+    "source": "@@foo && @@foo.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1346,
+    "source": "@@foo && @@foo.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1358,
+    "source": "@@foo && @@foo.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1370,
+    "source": "if @@foo && @@foo.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if @@foo&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1385,
+    "source": "@@foo && @@foo.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar && bar\n"
+  },
+  {
+    "spec_line": 1396,
+    "source": "@@foo && @@foo.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1407,
+    "source": "bar && @@foo && @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && @@foo&.bar\n"
+  },
+  {
+    "spec_line": 1418,
+    "source": "bar? && @@foo && @@foo.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && @@foo&.bar\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "@@foo && @@foo.one.two\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two\n"
+  },
+  {
+    "spec_line": 1441,
+    "source": "@@foo && @@foo.one.two(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz)\n"
+  },
+  {
+    "spec_line": 1452,
+    "source": "@@foo && @@foo.one.two(&:baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(&:baz)\n"
+  },
+  {
+    "spec_line": 1463,
+    "source": "@@foo && @@foo.one.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1474,
+    "source": "@@foo&.bar ? @@foo.bar.baz : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1485,
+    "source": "@@foo&.bar && @@foo.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1496,
+    "source": "if @@foo&.bar\n  @@foo.bar.baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "@@foo&.bar&.baz\n"
+  },
+  {
+    "spec_line": 240,
+    "source": "$FOO.to_i if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "$FOO&.to_i\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "$FOO && $FOO&.do_something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
+    ],
+    "correction": "$FOO&.do_something\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "$FOO[1].bar if $FOO[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO[1]&.bar\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "$FOO.bar if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 286,
+    "source": "$FOO.bar(baz) if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 298,
+    "source": "$FOO.bar { |e| e.qux } if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 310,
+    "source": "$FOO.bar(baz) { |e| e.qux } if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 321,
+    "source": "$FOO.one.two(baz) { |e| e.qux } if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 332,
+    "source": "$FOO.one.two(baz) { _1.qux } if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz) { _1.qux }\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "$FOO.one.two(baz) { it.qux } if $FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz) { it.qux }\n"
+  },
+  {
+    "spec_line": 355,
+    "source": "$FOO.bar unless !$FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 367,
+    "source": "$FOO.bar(baz) unless !$FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 379,
+    "source": "$FOO.bar { |e| e.qux } unless !$FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 391,
+    "source": "$FOO.bar(baz) { |e| e.qux } unless !$FOO\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 402,
+    "source": "$FOO.bar unless $FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 414,
+    "source": "$FOO.bar(baz) unless $FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 426,
+    "source": "$FOO.bar { |e| e.qux } unless $FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 438,
+    "source": "$FOO.bar(baz) { |e| e.qux } unless $FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 450,
+    "source": "$FOO.one.two(baz) { |e| e.qux } unless $FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "$FOO.bar if !$FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "$FOO.bar(baz) if !$FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 486,
+    "source": "$FOO.bar { |e| e.qux } if !$FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "$FOO.bar(baz) { |e| e.qux } if !$FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 510,
+    "source": "$FOO.one.two(baz) { |e| e.qux } if !$FOO.nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 522,
+    "source": "foo if $FOO && $FOO.bar # comment\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "foo if $FOO&.bar # comment\n"
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  break $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  fail $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  next $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  raise $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  return $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  throw $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "something.each do\n  yield $FOO.bar if $FOO\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 558,
+    "source": "if $FOO\n  $FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "if $FOO\n  $FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 586,
+    "source": "if $FOO\n  $FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if $FOO\n  $FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if !$FOO.nil?\n  $FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "if !$FOO.nil?\n  $FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 641,
+    "source": "if !$FOO.nil?\n  $FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if !$FOO.nil?\n  $FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 669,
+    "source": "unless $FOO.nil?\n  $FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 683,
+    "source": "unless $FOO.nil?\n  $FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "unless $FOO.nil?\n  $FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 711,
+    "source": "unless $FOO.nil?\n  $FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 725,
+    "source": "unless !$FOO\n  $FOO.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 739,
+    "source": "unless !$FOO\n  $FOO.bar(baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "unless !$FOO\n  $FOO.bar { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "unless !$FOO\n  $FOO.bar(baz) { |e| e.qux }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if $FOO # hello\n  # this is a comment\n  # another comment\n  $FOO.bar\nend # bye!\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# hello\n# this is a comment\n# another comment\n$FOO&.bar # bye!\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "# comment one\ndef foobar\n  if $FOO\n    # comment 2\n    $FOO.bar\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "# comment one\ndef foobar\n  # comment 2\n$FOO&.bar\nend\n"
+  },
+  {
+    "spec_line": 819,
+    "source": "if $FOO\n  $FOO.bar\nelse\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "!$FOO.nil? ? $FOO.bar : something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 836,
+    "source": "$FOO ? $FOO[index] : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 842,
+    "source": "$FOO ? $FOO[index].do_something : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 848,
+    "source": "$FOO ? $FOO[index] = 1 : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 854,
+    "source": "$FOO.nil? ? nil : $FOO.foo[index]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 860,
+    "source": "$FOO ? $FOO::foo : nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 866,
+    "source": "$FOO.nil? ? nil : $FOO * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 872,
+    "source": "%{variable}.nil? ? nil : %{variable}.foo * 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 878,
+    "source": "puts($FOO ? $FOO.bar : nil)\n\nresults << ($FOO ? $FOO.bar : nil)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "puts($FOO&.bar)\n\nresults << ($FOO&.bar)\n"
+  },
+  {
+    "spec_line": 894,
+    "source": "$FOO ? $FOO&.[](index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.[](index)\n"
+  },
+  {
+    "spec_line": 905,
+    "source": "$FOO ? $FOO&.[]=(index) : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.[]=(index)\n"
+  },
+  {
+    "spec_line": 916,
+    "source": "$FOO.nil? ? nil : $FOO.*(42)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.*(42)\n"
+  },
+  {
+    "spec_line": 927,
+    "source": "results[0] = $FOO ? $FOO.bar : nil\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "results[0] = $FOO&.bar\n"
+  },
+  {
+    "spec_line": 938,
+    "source": "$FOO ? $FOO.bar : nil\n\n$FOO.nil? ? nil : $FOO.bar\n\n!$FOO.nil? ? $FOO.bar : nil\n\n!$FOO ? nil : $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n\n$FOO&.bar\n\n$FOO&.bar\n\n$FOO&.bar\n"
+  },
+  {
+    "spec_line": 1511,
+    "source": "$FOO.nil? || $FOO.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1515,
+    "source": "$FOO.nil? || $FOO.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1519,
+    "source": "$FOO.nil? || $FOO.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1525,
+    "source": "$FOO.nil? || $FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1531,
+    "source": "!$FOO || $FOO.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1535,
+    "source": "!$FOO || $FOO.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1539,
+    "source": "!$FOO || $FOO.bar { |e| e.qux }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1543,
+    "source": "!$FOO || $FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1044,
+    "source": "$FOO && $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "$FOO.bar && $FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO.bar&.baz\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "$FOO && $FOO.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1077,
+    "source": "$FOO && $FOO.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1089,
+    "source": "$FOO && $FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1101,
+    "source": "if $FOO && $FOO.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if $FOO&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1116,
+    "source": "$FOO && $FOO.bar && something\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar && something\n"
+  },
+  {
+    "spec_line": 1127,
+    "source": "$FOO && $FOO.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar && bar\n"
+  },
+  {
+    "spec_line": 1138,
+    "source": "$FOO && $FOO.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1149,
+    "source": "bar && $FOO && $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && $FOO&.bar\n"
+  },
+  {
+    "spec_line": 1160,
+    "source": "bar? && $FOO && $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && $FOO&.bar\n"
+  },
+  {
+    "spec_line": 1173,
+    "source": "$FOO && $FOO.one { |a| b}.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one { |a| b}&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1259,
+    "source": "!$FOO.nil? && $FOO.bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1263,
+    "source": "!$FOO.nil? && $FOO.bar(baz)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1267,
+    "source": "!$FOO.nil? && $FOO.bar { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1273,
+    "source": "!$FOO.nil? && $FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1279,
+    "source": "$FOO && $FOO.to_i\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.to_i\n"
+  },
+  {
+    "spec_line": 1290,
+    "source": "$FOO && $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar\n"
+  },
+  {
+    "spec_line": 1301,
+    "source": "$FOO&.bar && $FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1312,
+    "source": "$FOO.bar&.baz && $FOO.bar.baz.quux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO.bar&.baz&.quux\n"
+  },
+  {
+    "spec_line": 1323,
+    "source": "$FOO && $FOO.bar && $FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]",
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1335,
+    "source": "$FOO && $FOO.bar(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz)\n"
+  },
+  {
+    "spec_line": 1346,
+    "source": "$FOO && $FOO.bar { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1358,
+    "source": "$FOO && $FOO.bar(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1370,
+    "source": "if $FOO && $FOO.bar\n  something\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "if $FOO&.bar\n  something\nend\n"
+  },
+  {
+    "spec_line": 1385,
+    "source": "$FOO && $FOO.bar && bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar && bar\n"
+  },
+  {
+    "spec_line": 1396,
+    "source": "$FOO && $FOO.bar && bar?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar && bar?\n"
+  },
+  {
+    "spec_line": 1407,
+    "source": "bar && $FOO && $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar && $FOO&.bar\n"
+  },
+  {
+    "spec_line": 1418,
+    "source": "bar? && $FOO && $FOO.bar\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "bar? && $FOO&.bar\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "$FOO && $FOO.one.two\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two\n"
+  },
+  {
+    "spec_line": 1441,
+    "source": "$FOO && $FOO.one.two(baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz)\n"
+  },
+  {
+    "spec_line": 1452,
+    "source": "$FOO && $FOO.one.two(&:baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(&:baz)\n"
+  },
+  {
+    "spec_line": 1463,
+    "source": "$FOO && $FOO.one.two(baz) { |e| e.qux }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.one&.two(baz) { |e| e.qux }\n"
+  },
+  {
+    "spec_line": 1474,
+    "source": "$FOO&.bar ? $FOO.bar.baz : nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1485,
+    "source": "$FOO&.bar && $FOO.bar.baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1496,
+    "source": "if $FOO&.bar\n  $FOO.bar.baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use safe navigation (`&.`) instead [...]"
+    ],
+    "correction": "$FOO&.bar&.baz\n"
+  },
+  {
+    "spec_line": 1645,
+    "source": "foo.bar if foo.respond_to?(:bar)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1649,
+    "source": "foo.bar if foo.respond_to?(:foobar)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1654,
+    "source": "foo.bar if baz.respond_to?(:bar)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1658,
+    "source": "foo.bar if baz.respond_to?(:foo)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1662,
+    "source": "foo[0] if foo.respond_to?(:[])",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

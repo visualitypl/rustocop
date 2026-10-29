@@ -1,0 +1,1893 @@
+[
+  {
+    "source": "case foo\nin [a] then 1\nin [a, b] # nothing\nend\n",
+    "origin": "spec",
+    "line": 8,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a] then 1\nin [a, b] # nothing\nelse 3\nend\n",
+    "origin": "spec",
+    "line": 20,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a] then 1\nin [a, b] then # nothing\nend\n",
+    "origin": "spec",
+    "line": 33,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a] then 1\nin [a, b] then # nothing\nelse 3\nend\n",
+    "origin": "spec",
+    "line": 45,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a]\n  1\nin [a, b]\n  # nothing\nend\n",
+    "origin": "spec",
+    "line": 58,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a]\n  1\nin [a, b]\n  # nothing\nelse\n  3\nend\n",
+    "origin": "spec",
+    "line": 72,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a] then 1\nin [a, b] then 2\nend\n",
+    "origin": "spec",
+    "line": 90,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a] then 1\nin [a, b] then 2\nelse 3\nend\n",
+    "origin": "spec",
+    "line": 99,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a]\n  1\nin [a, b]\n  2\nend\n",
+    "origin": "spec",
+    "line": 109,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case foo\nin [a]\n  1\nin [a, b]\n  2\nelse\n  3\nend\n",
+    "origin": "spec",
+    "line": 120,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "case condition\nin [a]\nin [a, b]\n  # do nothing\nend\n",
+    "origin": "spec",
+    "line": 137,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "source": "case condition\nin [a]\n  do_something\nin [a, b]\n  # do nothing\nend\n",
+    "origin": "spec",
+    "line": 148,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "source": "case condition\nin [a]\n  do_something\nin [a, b]\n  # do nothing\nend\n",
+    "origin": "spec",
+    "line": 163,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyInPattern AllowComments=false"
+    ]
+  },
+  {
+    "source": "# bad\ncase condition\nin [a]\n  do_something\nin [a, b]\nend\n",
+    "origin": "source",
+    "line": 10,
+    "findings": [
+      [
+        5,
+        1,
+        5,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ncase condition\nin [a]\n  do_something\nin [a, b]\n  nil\nend\n",
+    "origin": "source",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# good\ncase condition\nin [a]\n  do_something\nin [a, b]\n  # noop\nend\n",
+    "origin": "source",
+    "line": 27,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad\ncase condition\nin [a]\n  do_something\nin [a, b]\n  # noop\nend\n",
+    "origin": "source",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a]\nend\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] then\nend\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a];end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a]\n  nil\nend\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] then false\nend\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a]\n  ()\nend\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a]\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] # noop\nend\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a]\n  # noop\nend\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b]\nend\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b] then\nend\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b];end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b]\n  nil\nend\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b] then false\nend\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b]\n  ()\nend\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b]\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b] # noop\nend\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a, b]\n  # noop\nend\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:}\nend\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:} then\nend\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:};end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:}\n  nil\nend\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:} then false\nend\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:}\n  ()\nend\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:}\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:} # noop\nend\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin {a:, b:}\n  # noop\nend\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *]\nend\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *] then\nend\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *];end\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *]\n  nil\nend\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *] then false\nend\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *]\n  ()\nend\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *]\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *] # noop\nend\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [*, a, *]\n  # noop\nend\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String\nend\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String then\nend\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String;end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String\n  nil\nend\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String then false\nend\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String\n  ()\nend\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String # noop\nend\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String\n  # noop\nend\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3\nend\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3 then\nend\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3;end\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3\n  nil\nend\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3 then false\nend\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3\n  ()\nend\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3 # noop\nend\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin 1 | 2 | 3\n  # noop\nend\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole\nend\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole then\nend\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole;end\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole\n  nil\nend\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole then false\nend\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole\n  ()\nend\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole # noop\nend\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] => whole\n  # noop\nend\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x\nend\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x then\nend\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x;end\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x\n  nil\nend\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x then false\nend\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x\n  ()\nend\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x # noop\nend\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin ^x\n  # noop\nend\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\"\nend\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\" then\nend\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\";end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\"\n  nil\nend\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\" then false\nend\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\"\n  ()\nend\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\"\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\" # noop\nend\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin \"# text\"\n  # noop\nend\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready?\nend\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready? then\nend\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready?;end\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready?\n  nil\nend\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready? then false\nend\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready?\n  ()\nend\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready?\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready? # noop\nend\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] if ready?\n  # noop\nend\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready?\nend\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready? then\nend\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready?;end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready?\n  nil\nend\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready? then false\nend\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready?\n  ()\nend\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready?\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready? # noop\nend\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin [a] unless ready?\n  # noop\nend\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready?\nend\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready? then\nend\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready?;end\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready?\n  nil\nend\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready? then false\nend\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready?\n  ()\nend\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready?\n  begin; end\nend\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready? # noop\nend\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x = 1\ncase value\nin Integer | String if ready?\n  # noop\nend\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nin [a, b]\n  # next\nend\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a] # first\nin [a, b]\nend\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nelse\n  # before else body\n  3\nend\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nelse\n  3 # after else body\nend\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nelse\n  # empty else\nend\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nelse\nend\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\nnoop\n=end\nend\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nend # end comment\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [\n a,\n b\n]\nthen\nend\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        2,
+        1,
+        5,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [\n a, # inside pattern\n b\n]\nend\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] if (\n ready?\n)\nthen\nend\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+      [
+        2,
+        1,
+        4,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a] unless (\n ready?\n)\nend\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+      [
+        2,
+        1,
+        4,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x; in 1; in 2; end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid `in` branches without a body."
+      ],
+      [
+        1,
+        15,
+        1,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x; in 1; in 2; end # same line\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid `in` branches without a body."
+      ],
+      [
+        1,
+        15,
+        1,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nthen # noop\nend\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] if (\n ready? # guard comment\n)\nend\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f; consume(case x\nin [a]\nend); end\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "each { case x\nin [a]\nend }\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  case a\n  in [b]\n  end\nend\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+      [
+        4,
+        3,
+        4,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "x in [a]\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "x => [a]\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nwhen 1\nend\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  nil\nelse\nend\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# encoding: utf-8\r\ncase x\r\nin [a]\r\nend\r\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "﻿case x\nin [a]\nend\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "é = 1; case x; in [a]; end\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "value = <<~TEXT\nin [a]\nTEXT\ncase value\nin [a]\nend\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+      [
+        5,
+        1,
+        5,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nend\np __LINE__\n__END__\ncase x; in [a]; end\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nend\nFile.binread(__FILE__); DATA.pos\n__END__\nraw\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\nend\nRubyVM::InstructionSequence.of(method(:f)); ObjectSpace.each_object {}\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:disable Lint/EmptyInPattern\n# rubocop:disable Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:disable Lint/EmptyInPattern\nend\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable Lint/EmptyInPattern\n  # rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:disable Lint/EmptyInPattern\ncase x\nin [a]\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:todo Lint/EmptyInPattern\nend\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo Lint/EmptyInPattern\n  # rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:todo Lint/EmptyInPattern\ncase x\nin [a]\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:disable Lint\nend\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable Lint\n  # rubocop:enable Lint\nend\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable Lint\nend\n# rubocop:enable Lint\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:disable Lint\ncase x\nin [a]\nend\n# rubocop:enable Lint\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:todo Lint\nend\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo Lint\n  # rubocop:enable Lint\nend\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo Lint\nend\n# rubocop:enable Lint\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:todo Lint\ncase x\nin [a]\nend\n# rubocop:enable Lint\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:disable all\nend\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable all\n  # rubocop:enable all\nend\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable all\nend\n# rubocop:enable all\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:disable all\ncase x\nin [a]\nend\n# rubocop:enable all\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:todo all\nend\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo all\n  # rubocop:enable all\nend\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo all\nend\n# rubocop:enable all\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:todo all\ncase x\nin [a]\nend\n# rubocop:enable all\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:disable Lint/Debugger\nend\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable Lint/Debugger\n  # rubocop:enable Lint/Debugger\nend\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:disable Lint/Debugger\nend\n# rubocop:enable Lint/Debugger\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:disable Lint/Debugger\ncase x\nin [a]\nend\n# rubocop:enable Lint/Debugger\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a] # rubocop:todo Lint/Debugger\nend\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo Lint/Debugger\n  # rubocop:enable Lint/Debugger\nend\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n  # rubocop:todo Lint/Debugger\nend\n# rubocop:enable Lint/Debugger\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# rubocop:todo Lint/Debugger\ncase x\nin [a]\nend\n# rubocop:enable Lint/Debugger\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  }
+]

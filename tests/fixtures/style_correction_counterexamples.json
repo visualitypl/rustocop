@@ -1,0 +1,218 @@
+[
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "selection": "Style/RedundantRegexpCharacterClass",
+    "before": "p /[a]/\n",
+    "actual_after": "p /a/\n",
+    "observations_before": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/[a]/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/[a]/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "observations_after": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/a/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/a/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "cli_status": 0,
+    "cli_stdout": "\n1 file inspected, 1 correction applied, 0 offenses remaining\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "selection": "Style,Layout",
+    "before": "p /[a]/\n",
+    "actual_after": "p /a/\n",
+    "observations_before": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/[a]/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/[a]/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "observations_after": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/a/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/a/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "cli_status": 1,
+    "cli_stdout": "x.rb:1:1: C: Include a copyright notice matching /^Copyright (\\(c\\) )?2[0-9]{3} .+/ before any code. (Style/Copyright)\nx.rb:1:1: C: Missing frozen string literal comment. (Style/FrozenStringLiteralComment)\n\n1 file inspected, 1 correction applied, 2 offenses remaining\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpEscape",
+    "selection": "Style/RedundantRegexpEscape",
+    "before": "p /a\\-b/\n",
+    "actual_after": "p /a-b/\n",
+    "observations_before": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/a\\-b/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/a\\-b/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "observations_after": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/a-b/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/a-b/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "cli_status": 0,
+    "cli_stdout": "\n1 file inspected, 1 correction applied, 0 offenses remaining\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpEscape",
+    "selection": "Style,Layout",
+    "before": "p /a\\-b/\n",
+    "actual_after": "p /a-b/\n",
+    "observations_before": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/a\\-b/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/a\\-b/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "observations_after": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "/a-b/\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "/a-b/\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "cli_status": 1,
+    "cli_stdout": "x.rb:1:1: C: Include a copyright notice matching /^Copyright (\\(c\\) )?2[0-9]{3} .+/ before any code. (Style/Copyright)\nx.rb:1:1: C: Missing frozen string literal comment. (Style/FrozenStringLiteralComment)\n\n1 file inspected, 1 correction applied, 2 offenses remaining\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "selection": "Style/RedundantRegexpCharacterClass",
+    "before": "def values\n  [/[a]/]\nend\np values\n",
+    "actual_after": "def values\n  [/a/]\nend\np values\n",
+    "observations_before": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "[/[a]/]\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "[/[a]/]\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "observations_after": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "[/a/]\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "[/a/]\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "cli_status": 0,
+    "cli_stdout": "\n1 file inspected, 1 correction applied, 0 offenses remaining\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "selection": "Style,Layout",
+    "before": "def values\n  [/[a]/]\nend\np values\n",
+    "actual_after": "def values\n  [/a/]\nend\np values\n",
+    "observations_before": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "[/[a]/]\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "[/[a]/]\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "observations_after": [
+      {
+        "runtime": "ruby 3.2.3 (2024-01-18 revision 52bb2ac0a6) [x86_64-linux-gnu]",
+        "stdout": "[/a/]\n",
+        "stderr": "",
+        "status": 0
+      },
+      {
+        "runtime": "ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +PRISM [x86_64-linux]",
+        "stdout": "[/a/]\n",
+        "stderr": "",
+        "status": 0
+      }
+    ],
+    "cli_status": 1,
+    "cli_stdout": "x.rb:1:1: C: Include a copyright notice matching /^Copyright (\\(c\\) )?2[0-9]{3} .+/ before any code. (Style/Copyright)\nx.rb:1:1: C: Missing method documentation comment. (Style/DocumentationMethod)\nx.rb:1:1: C: Missing frozen string literal comment. (Style/FrozenStringLiteralComment)\nx.rb:1:1: C: Do not define methods at the top-level. (Style/TopLevelMethodDefinition)\n\n1 file inspected, 1 correction applied, 4 offenses remaining\n"
+  }
+]

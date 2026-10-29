@@ -1,0 +1,163 @@
+[
+  {
+    "source_line": 13,
+    "source": "# rubocop:disable Layout/LineLength Style/Encoding\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Cop names must be separated by commas. Comment in the directive must start with `--`."
+    ]
+  },
+  {
+    "source_line": 16,
+    "source": "# rubocop:disable Layout/LineLength, Style/Encoding\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 19,
+    "source": "# rubocop:disable\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The cop name is missing."
+    ]
+  },
+  {
+    "source_line": 22,
+    "source": "# rubocop:disable all\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 25,
+    "source": "# rubocop:disable Layout/LineLength # rubocop:disable Style/Encoding\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ]
+  },
+  {
+    "source_line": 28,
+    "source": "# rubocop:disable Layout/LineLength, Style/Encoding\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 31,
+    "source": "# rubocop:wrongmode Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The mode name must be one of `enable`, `disable`, `disable-next`, `enable-next`, `todo`, `todo-next`, `next`, `push`, or `pop`."
+    ]
+  },
+  {
+    "source_line": 34,
+    "source": "# rubocop:disable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 37,
+    "source": "# rubocop:disable Layout/LineLength comment\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Cop names must be separated by commas. Comment in the directive must start with `--`."
+    ]
+  },
+  {
+    "source_line": 40,
+    "source": "# rubocop:disable Layout/LineLength -- comment\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 43,
+    "source": "# rucocop:disable Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The directive keyword must be `rubocop`, not `rucocop`."
+    ]
+  },
+  {
+    "source_line": 46,
+    "source": "# rubocop:disable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 49,
+    "source": "# rubocop:disable Layout/LineLenght\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ]
+  },
+  {
+    "source_line": 52,
+    "source": "# rubocop:disable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

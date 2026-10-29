@@ -1,0 +1,201 @@
+[
+  {
+    "spec_line": 502,
+    "source": "foo rescue 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 329,
+    "source": "begin\n  foo\nrescue BarError\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 339,
+    "source": "begin\n  foo\nrescue BarError => e\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 349,
+    "source": "begin\n  foo\nrescue StandardError\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 359,
+    "source": "begin\n  foo\nrescue StandardError => e\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 369,
+    "source": "begin\n  foo\nrescue StandardError, BarError\n  bar\nrescue BazError, StandardError\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 381,
+    "source": "begin\n  foo\nrescue StandardError, BarError => e\n  bar\nrescue BazError, StandardError => e\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 288,
+    "source": "begin\n  foo\nrescue\n  bar\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid rescuing without specifying an error class."
+    ],
+    "correction": "begin\n  foo\nrescue StandardError\n  bar\nend\n"
+  },
+  {
+    "spec_line": 308,
+    "source": "begin\n  foo\nrescue => e\n  bar\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid rescuing without specifying an error class."
+    ],
+    "correction": "begin\n  foo\nrescue StandardError => e\n  bar\nend\n"
+  },
+  {
+    "spec_line": 437,
+    "source": "def baz\n  foo\nrescue BarError\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 447,
+    "source": "def baz\n  foo\nrescue BarError => e\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 457,
+    "source": "def foobar\n  foo\nrescue StandardError\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 467,
+    "source": "def foobar\n  foo\nrescue StandardError => e\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 477,
+    "source": "def foobar\n  foo\nrescue StandardError, BarError\n  bar\nrescue BazError, StandardError\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 489,
+    "source": "def foobar\n  foo\nrescue StandardError, BarError => e\n  bar\nrescue BazError, StandardError => e\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 396,
+    "source": "def baz\n  foo\nrescue\n  bar\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid rescuing without specifying an error class."
+    ],
+    "correction": "def baz\n  foo\nrescue StandardError\n  bar\nend\n"
+  },
+  {
+    "spec_line": 417,
+    "source": "def baz\n  foo\nrescue => e\n  bar\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid rescuing without specifying an error class."
+    ],
+    "correction": "def baz\n  foo\nrescue StandardError => e\n  bar\nend\n"
+  }
+]

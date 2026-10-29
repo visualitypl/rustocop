@@ -1,0 +1,410 @@
+[
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 23,
+    "source": "0.times { it }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "legacy_messages": [
+      "`it` calls without arguments will refer to the first block param in Ruby 3.4; use `it()` or `self.it`."
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 30,
+    "source": "0.times do\n  it\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "legacy_messages": [
+      "`it` calls without arguments will refer to the first block param in Ruby 3.4; use `it()` or `self.it`."
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 41,
+    "source": "0.times { it(42) }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 47,
+    "source": "0.times { it { do_something } }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 53,
+    "source": "0.times { it() }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 59,
+    "source": "0.times { self.it }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 65,
+    "source": "0.times do\n  it(42)\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 75,
+    "source": "0.times do\n  it { do_something }\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 85,
+    "source": "0.times do\n  it()\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 95,
+    "source": "0.times do\n  self.it\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 105,
+    "source": "if false\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 113,
+    "source": "def foo\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 121,
+    "source": "0.times { ||\n  it\n}\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": true,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 129,
+    "source": "0.times { |_n|\n  it\n}\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": true,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 137,
+    "source": "0.times do\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 146,
+    "source": "it = 1\n0.times { it }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 153,
+    "source": "0.times {}\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 6,
+    "source": "0.times { it }\n",
+    "legacy_version": 3.4,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "spec",
+    "line": 12,
+    "source": "0.times do\n  it\n  it = 1\n  it\nend\n",
+    "legacy_version": 3.4,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "source",
+    "line": 10,
+    "source": "0.times { it }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "legacy_messages": [
+      "`it` calls without arguments will refer to the first block param in Ruby 3.4; use `it()` or `self.it`."
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "source",
+    "line": 20,
+    "source": "# bad\ndo_something { it }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "legacy_messages": [
+      "`it` calls without arguments will refer to the first block param in Ruby 3.4; use `it()` or `self.it`."
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/ItWithoutArgumentsInBlock",
+    "origin": "source",
+    "line": 23,
+    "source": "# good\ndo_something { it() }\ndo_something { self.it }\n",
+    "legacy_version": 3.3,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 3.3; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/UselessElseWithoutRescue",
+    "origin": "spec",
+    "line": 6,
+    "source": "begin\n  do_something\nelse\n  handle_unknown_errors\nend\n",
+    "legacy_version": 2.5,
+    "legacy_positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "`else` without `rescue` is useless."
+    ],
+    "fixed_parser_error": true,
+    "exclusion": "Ruby applicability: maximum 2.5; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/UselessElseWithoutRescue",
+    "origin": "spec",
+    "line": 19,
+    "source": "begin\n  do_something\nrescue ArgumentError\n  handle_argument_error\nelse\n  handle_unknown_errors\nend\n",
+    "legacy_version": 3.4,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 2.5; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/UselessElseWithoutRescue",
+    "origin": "source",
+    "line": 12,
+    "source": "# bad\nbegin\n  do_something\nelse\n  do_something_else # This will never be run.\nend\n",
+    "legacy_version": 2.5,
+    "legacy_positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "`else` without `rescue` is useless."
+    ],
+    "fixed_parser_error": true,
+    "exclusion": "Ruby applicability: maximum 2.5; fixed target 3.4, including force-enabling"
+  },
+  {
+    "cop": "Lint/UselessElseWithoutRescue",
+    "origin": "source",
+    "line": 19,
+    "source": "# good\nbegin\n  do_something\nrescue\n  handle_errors\nelse\n  do_something_else\nend\n",
+    "legacy_version": 2.5,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "fixed_parser_error": false,
+    "exclusion": "Ruby applicability: maximum 2.5; fixed target 3.4, including force-enabling"
+  }
+]

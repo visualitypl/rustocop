@@ -1,0 +1,245 @@
+[
+  {
+    "spec_line": 5,
+    "assigned_index": false,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "No assigned graph; ordinary default applicable with no findings."
+  },
+  {
+    "spec_line": 57,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Method `old_method` is deprecated: Use `#new_method` instead."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 70,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        10,
+        3,
+        "Method `old_method` is deprecated: Use `#new_method` instead."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 83,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Method `bare_deprecation` is deprecated."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 96,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        1,
+        5,
+        1,
+        "Method `legacy_build` is deprecated: Use `.modern_build` instead."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 105,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        2,
+        3,
+        2,
+        "Method `legacy_build` is deprecated: Use `.modern_build` instead."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 116,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 128,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 140,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 165,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Constant `Api::OLD_TIMEOUT` is deprecated: Use `NEW_TIMEOUT` instead."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 180,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        1,
+        1,
+        1,
+        "Constant `Legacy` is deprecated: Use `Modern` instead."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 191,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 203,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 234,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Method `old_method` is deprecated."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 250,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 265,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 280,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        1,
+        1,
+        1,
+        "Constant `Legacy` is deprecated."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 292,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  }
+]

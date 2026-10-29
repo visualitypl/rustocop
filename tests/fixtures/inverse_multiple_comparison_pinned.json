@@ -1,0 +1,2001 @@
+[
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 26,
+    "source": "!foo.none?(&:even?)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any?(&:even?)\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 37,
+    "source": "!foo&.none?(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 43,
+    "source": "!foo.none? { |f| f.even? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any? { |f| f.even? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 54,
+    "source": "!foo&.none? { |f| f.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 86,
+    "source": "!(foo.any? &:working?)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of inverting `any?`."
+    ],
+    "correction": "foo.none? &:working?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 97,
+    "source": "foo != !(bar == baz)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `!=` instead of inverting `==`."
+    ],
+    "correction": "foo != (bar != baz)\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 108,
+    "source": "foo != not(bar == baz)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `!=` instead of inverting `==`."
+    ],
+    "correction": "foo != (bar != baz)\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 119,
+    "source": "foo + !(bar < baz)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `>=` instead of inverting `<`."
+    ],
+    "correction": "foo + (bar >= baz)\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 130,
+    "source": "foo[!(bar == baz)]\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `!=` instead of inverting `==`."
+    ],
+    "correction": "foo[bar != baz]\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 141,
+    "source": "do_something(!(bar == baz))\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use `!=` instead of inverting `==`."
+    ],
+    "correction": "do_something(bar != baz)\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 152,
+    "source": "!(foo&.any? &:working?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 158,
+    "source": "foo.none?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 162,
+    "source": "!!(string =~ /^\\w+$/)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 166,
+    "source": "!!foo.reject { |e| !e }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 170,
+    "source": "class TestClass\n  def test_method\n    [1, 2, 3, 4].select do |number|\n      next if number == 4\n\n      number != 2\n    end\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 225,
+    "source": "!foo.any?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of inverting `any?`."
+    ],
+    "correction": "foo.none?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 225,
+    "source": "!foo.even?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `odd?` instead of inverting `even?`."
+    ],
+    "correction": "foo.odd?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 225,
+    "source": "!foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 225,
+    "source": "!foo.odd?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `even?` instead of inverting `odd?`."
+    ],
+    "correction": "foo.even?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 243,
+    "source": "!(foo == bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!=` instead of inverting `==`."
+    ],
+    "correction": "foo != bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 254,
+    "source": "not (foo == bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!=` instead of inverting `==`."
+    ],
+    "correction": "foo != bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 243,
+    "source": "!(foo != bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `==` instead of inverting `!=`."
+    ],
+    "correction": "foo == bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 254,
+    "source": "not (foo != bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `==` instead of inverting `!=`."
+    ],
+    "correction": "foo == bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 243,
+    "source": "!(foo =~ bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!~` instead of inverting `=~`."
+    ],
+    "correction": "foo !~ bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 254,
+    "source": "not (foo =~ bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!~` instead of inverting `=~`."
+    ],
+    "correction": "foo !~ bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 243,
+    "source": "!(foo !~ bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `=~` instead of inverting `!~`."
+    ],
+    "correction": "foo =~ bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 254,
+    "source": "not (foo !~ bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `=~` instead of inverting `!~`."
+    ],
+    "correction": "foo =~ bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 243,
+    "source": "!(foo < bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `>=` instead of inverting `<`."
+    ],
+    "correction": "foo >= bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 254,
+    "source": "not (foo < bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `>=` instead of inverting `<`."
+    ],
+    "correction": "foo >= bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 243,
+    "source": "!(foo > bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `<=` instead of inverting `>`."
+    ],
+    "correction": "foo <= bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 254,
+    "source": "not (foo > bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `<=` instead of inverting `>`."
+    ],
+    "correction": "foo <= bar\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 266,
+    "source": "!nullable&.any?(&:odd)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 272,
+    "source": "!nullable&.none?(&:odd)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 278,
+    "source": "!nullable&.<(0)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 284,
+    "source": "!nullable&.<=(0)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 290,
+    "source": "!nullable&.>(0)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 296,
+    "source": "!nullable&.>=(0)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 302,
+    "source": "klass = self.class\n!(klass < BaseClass)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 309,
+    "source": "klass = self.class\n!(BaseClass < klass)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 316,
+    "source": "klass = self.class\n!(klass < FOO_BAR)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `>=` instead of inverting `<`."
+    ],
+    "correction": "klass = self.class\nklass >= FOO_BAR\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 329,
+    "source": "klass = self.class\n!(FOO_BAR < klass)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `>=` instead of inverting `<`."
+    ],
+    "correction": "klass = self.class\nFOO_BAR >= klass\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 61,
+    "source": "!foo.none? { _1.even? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any? { _1.even? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 74,
+    "source": "!foo.none? { it.even? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any? { it.even? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!$foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "$foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not $foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "$foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!@foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "@foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not @foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "@foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!@@foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "@@foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not @@foo.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "@@foo.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!FOO.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "FOO.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not FOO.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "FOO.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!FOO::BAR.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "FOO::BAR.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not FOO::BAR.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "FOO::BAR.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!foo[\"bar\"].none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo[\"bar\"].any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not foo[\"bar\"].none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo[\"bar\"].any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 185,
+    "source": "!foo.bar.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.bar.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 196,
+    "source": "not foo.bar.none?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of inverting `none?`."
+    ],
+    "correction": "foo.bar.any?\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 347,
+    "source": "foo.select { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 358,
+    "source": "foo&.select { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo&.reject { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 369,
+    "source": "foo.select do |e|\n  something\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject do |e|\n  something\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 386,
+    "source": "foo&.select do |e|\n  something\n  e&.bar&.!\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo&.reject do |e|\n  something\n  e&.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 403,
+    "source": "foo.select { |e| e != 2 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject { |e| e == 2 }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 414,
+    "source": "foo.select do |e|\n  something\n  something_else\n  e != 2\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject do |e|\n  something\n  something_else\n  e == 2\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 433,
+    "source": "y.select { |key, _value| !(key =~ /c\\d/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "y.reject { |key, _value| (key =~ /c\\d/) }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 444,
+    "source": "foo.select { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 455,
+    "source": "foo.select { |e| e.bar?.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 466,
+    "source": "foo&.select { |e| e&.bar?&.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo&.reject { |e| e&.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 477,
+    "source": "foo.select { |e| e.bar?.  ! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 488,
+    "source": "puts 1 if !foo.select { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "puts 1 if !foo.reject { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 499,
+    "source": "foo.select do |e|\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject` instead of inverting `select`."
+    ],
+    "correction": "foo.reject do |e|\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 347,
+    "source": "foo.reject { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 358,
+    "source": "foo&.reject { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo&.select { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 369,
+    "source": "foo.reject do |e|\n  something\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select do |e|\n  something\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 386,
+    "source": "foo&.reject do |e|\n  something\n  e&.bar&.!\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo&.select do |e|\n  something\n  e&.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 403,
+    "source": "foo.reject { |e| e != 2 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select { |e| e == 2 }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 414,
+    "source": "foo.reject do |e|\n  something\n  something_else\n  e != 2\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select do |e|\n  something\n  something_else\n  e == 2\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 433,
+    "source": "y.reject { |key, _value| !(key =~ /c\\d/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "y.select { |key, _value| (key =~ /c\\d/) }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 444,
+    "source": "foo.reject { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 455,
+    "source": "foo.reject { |e| e.bar?.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 466,
+    "source": "foo&.reject { |e| e&.bar?&.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo&.select { |e| e&.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 477,
+    "source": "foo.reject { |e| e.bar?.  ! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 488,
+    "source": "puts 1 if !foo.reject { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "puts 1 if !foo.select { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 499,
+    "source": "foo.reject do |e|\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select` instead of inverting `reject`."
+    ],
+    "correction": "foo.select do |e|\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 347,
+    "source": "foo.select! { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 358,
+    "source": "foo&.select! { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo&.reject! { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 369,
+    "source": "foo.select! do |e|\n  something\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! do |e|\n  something\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 386,
+    "source": "foo&.select! do |e|\n  something\n  e&.bar&.!\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo&.reject! do |e|\n  something\n  e&.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 403,
+    "source": "foo.select! { |e| e != 2 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! { |e| e == 2 }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 414,
+    "source": "foo.select! do |e|\n  something\n  something_else\n  e != 2\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! do |e|\n  something\n  something_else\n  e == 2\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 433,
+    "source": "y.select! { |key, _value| !(key =~ /c\\d/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "y.reject! { |key, _value| (key =~ /c\\d/) }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 444,
+    "source": "foo.select! { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 455,
+    "source": "foo.select! { |e| e.bar?.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 466,
+    "source": "foo&.select! { |e| e&.bar?&.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo&.reject! { |e| e&.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 477,
+    "source": "foo.select! { |e| e.bar?.  ! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 488,
+    "source": "puts 1 if !foo.select! { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "puts 1 if !foo.reject! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 499,
+    "source": "foo.select! do |e|\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `reject!` instead of inverting `select!`."
+    ],
+    "correction": "foo.reject! do |e|\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 347,
+    "source": "foo.reject! { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 358,
+    "source": "foo&.reject! { |e| !e }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo&.select! { |e| e }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 369,
+    "source": "foo.reject! do |e|\n  something\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! do |e|\n  something\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 386,
+    "source": "foo&.reject! do |e|\n  something\n  e&.bar&.!\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo&.select! do |e|\n  something\n  e&.bar\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 403,
+    "source": "foo.reject! { |e| e != 2 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! { |e| e == 2 }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 414,
+    "source": "foo.reject! do |e|\n  something\n  something_else\n  e != 2\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! do |e|\n  something\n  something_else\n  e == 2\nend\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 433,
+    "source": "y.reject! { |key, _value| !(key =~ /c\\d/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "y.select! { |key, _value| (key =~ /c\\d/) }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 444,
+    "source": "foo.reject! { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 455,
+    "source": "foo.reject! { |e| e.bar?.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 466,
+    "source": "foo&.reject! { |e| e&.bar?&.! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo&.select! { |e| e&.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 477,
+    "source": "foo.reject! { |e| e.bar?.  ! }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 488,
+    "source": "puts 1 if !foo.reject! { |e| !e.bar? }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "puts 1 if !foo.select! { |e| e.bar? }\n"
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "spec_line": 499,
+    "source": "foo.reject! do |e|\n  !e.bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `select!` instead of inverting `reject!`."
+    ],
+    "correction": "foo.select! do |e|\n  e.bar\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 5,
+    "source": "a = \"a\"\nif a == \"a\"\n  print a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 14,
+    "source": "a = \"a\"\nif a == \"a\" || a == \"b\"\n  print a\nend\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = \"a\"\nif [\"a\", \"b\"].include?(a)\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 31,
+    "source": "a = \"a\"\nif a == \"a\" || a == \"b\" || a == \"c\"\n  print a\nend\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = \"a\"\nif [\"a\", \"b\", \"c\"].include?(a)\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 48,
+    "source": "a = \"a\"\nif \"a\" == a || \"b\" == a || \"c\" == a\n  print a\nend\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = \"a\"\nif [\"a\", \"b\", \"c\"].include?(a)\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 66,
+    "source": "a = \"a\"\nif a == \"a\" || \"b\" == a || a == \"c\"\n  print a\nend\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = \"a\"\nif [\"a\", \"b\", \"c\"].include?(a)\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 83,
+    "source": "def foo(x)\n  x == 1 || x == 2 || x == 3\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "def foo(x)\n  [1, 2, 3].include?(x)\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 98,
+    "source": "def foo(a)\n  if a == 'foo' || a == 'bar'\n  elsif a == 'baz' || a == 'qux'\n  elsif a == 'quux'\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        6
+      ],
+      [
+        3,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead.",
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "def foo(a)\n  if ['foo', 'bar'].include?(a)\n  elsif ['baz', 'qux'].include?(a)\n  elsif a == 'quux'\n  end\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 120,
+    "source": "a = 1\na == 1 || a == 2 || a == 3\na == 1 || a == 2\n",
+    "positions": [
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead.",
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = 1\n[1, 2, 3].include?(a)\n[1, 2].include?(a)\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 136,
+    "source": "if \"a\" == \"a\" || \"a\" == \"c\"\n  print \"a\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 144,
+    "source": "if 1 == 1 || 1 == 2\n  print 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 152,
+    "source": "a = \"a\"\nb = \"b\"\nif a == \"a\" || b == \"b\"\n  print a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 162,
+    "source": "a = \"a\"\nb = \"b\"\nif a == \"a\" || \"b\" == b\n  print a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 172,
+    "source": "a = \"a\"\nb = \"b\"\nif a == b || b == a\n  print a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 182,
+    "source": "a = \"a\"\nb = \"b\"\nif a == b || a == b\n  print a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 192,
+    "source": "a = \"a\"\nif [\"a\", \"b\", \"c\"].include? a\n  print a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 316,
+    "source": "def do_something(foo, bar)\n  bar.do_something == bar || foo == :sym\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 204,
+    "source": "col = loc.column\nif col == before.column || col == after.column\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 213,
+    "source": "col = loc.column\nif col == before&.column || col == after&.column\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 222,
+    "source": "var = do_something\nvar == foo || var == 'bar' || var == 'baz'\n",
+    "positions": [
+      [
+        2,
+        15
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "var = do_something\nvar == foo || ['bar', 'baz'].include?(var)\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 235,
+    "source": "var = do_something\nvar == 'bar' || var == foo || var == 'baz'\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 242,
+    "source": "var = do_something\nvar == 'bar' || var == 'baz' || var == foo\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "var = do_something\n['bar', 'baz'].include?(var) || var == foo\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 255,
+    "source": "if a[:key] == 'a' || a[:key] == 'b'\n  print a\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "if ['a', 'b'].include?(a[:key])\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 270,
+    "source": "if 'a' == a[:key] || 'b' == a[:key]\n  print a\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "if ['a', 'b'].include?(a[:key])\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 285,
+    "source": "if a&.do_something == 'a' || a&.do_something == 'b'\n  print a\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "if ['a', 'b'].include?(a&.do_something)\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 300,
+    "source": "if 'a' == a&.do_something || 'b' == a&.do_something\n  print a\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "if ['a', 'b'].include?(a&.do_something)\n  print a\nend\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 393,
+    "source": "a = \"a\"\nfoo if a == \"a\" || a == \"b\"\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = \"a\"\nfoo if [\"a\", \"b\"].include?(a)\n"
+  },
+  {
+    "cop": "Style/MultipleComparison",
+    "spec_line": 410,
+    "source": "a = \"a\"\nfoo if a == \"a\" || a == \"b\" || a == \"c\"\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
+    ],
+    "correction": "a = \"a\"\nfoo if [\"a\", \"b\", \"c\"].include?(a)\n"
+  }
+]

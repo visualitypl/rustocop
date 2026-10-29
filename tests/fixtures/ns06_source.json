@@ -1,0 +1,98 @@
+[
+  {
+    "cop": "Naming/HeredocDelimiterCase",
+    "source_line": 11,
+    "example": "EnforcedStyle: uppercase (default)",
+    "source": "<<-sql\n  SELECT * FROM foo\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "cop": "Naming/HeredocDelimiterCase",
+    "source_line": 16,
+    "example": "EnforcedStyle: uppercase (default)",
+    "source": "<<-SQL\n  SELECT * FROM foo\nSQL\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/HeredocDelimiterCase",
+    "source_line": 22,
+    "example": "EnforcedStyle: lowercase",
+    "source": "<<-SQL\n  SELECT * FROM foo\nSQL\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/HeredocDelimiterCase",
+    "source_line": 27,
+    "example": "EnforcedStyle: lowercase",
+    "source": "<<-sql\n  SELECT * FROM foo\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source_line": 13,
+    "example": "",
+    "source": "<<-SQL\n  SELECT * FROM foo\nSQL\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source_line": 18,
+    "example": "",
+    "source": "<<-END\n  SELECT * FROM foo\nEND\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source_line": 23,
+    "example": "",
+    "source": "<<-EOS\n  SELECT * FROM foo\nEOS\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  }
+]

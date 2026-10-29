@@ -1,0 +1,45 @@
+[
+  {
+    "source_line": 28,
+    "source": "# good\n# rubocop:disable Layout/SpaceAroundOperators\nx= 0\n# rubocop:enable Layout/SpaceAroundOperators\n# y = 1\n# EOF\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 35,
+    "source": "# bad\n# rubocop:disable Layout/SpaceAroundOperators\nx= 0\n# EOF\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "source_line": 42,
+    "source": "# good\n# rubocop:disable Layout/SpaceAroundOperators\nx= 0\n# With the previous, there are 2 lines on which cop is disabled.\n# rubocop:enable Layout/SpaceAroundOperators\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 48,
+    "source": "# bad\n# rubocop:disable Layout/SpaceAroundOperators\nx= 0\nx += 1\n# Including this, that's 3 lines on which the cop is disabled.\n# rubocop:enable Layout/SpaceAroundOperators\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

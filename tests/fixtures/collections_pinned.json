@@ -1,0 +1,1296 @@
+[
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 5,
+    "source": "array.reject { |e| e.nil? }\narray.reject! { |e| e.nil? }\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        2,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 19,
+    "source": "array&.reject { |e| e&.nil? }\narray&.reject! { |e| e&.nil? }\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        8
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 33,
+    "source": "array.reject(&:nil?)\narray.reject!(&:nil?)\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        2,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 47,
+    "source": "array&.reject(&:nil?)\narray&.reject!(&:nil?)\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        8
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 61,
+    "source": "array.reject &:nil?\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 72,
+    "source": "hash.reject { |k, v| v.nil? }\nhash.reject! { |k, v| v.nil? }\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        2,
+        6
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 86,
+    "source": "array.select { |e| !e.nil? }\nhash.select! { |k, v| !v.nil? }\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        2,
+        6
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 100,
+    "source": "array&.select { |e| e&.nil?&.! }\nhash&.select! { |k, v| v&.nil?&.! }\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 162,
+    "source": "def foo(params)\n  params.reject { |_k, v| v.nil? }\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 177,
+    "source": "array.grep_v(nil)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 188,
+    "source": "array.grep_v(NilClass)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 199,
+    "source": "array&.grep_v(nil)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 210,
+    "source": "array.grep_v(::NilClass)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 221,
+    "source": "array.grep_v(pattern)\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 227,
+    "source": "array.reject { |e| e.odd? }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 233,
+    "source": "array.compact\narray.compact!\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 243,
+    "source": "array.delete_if(&:nil?)\narray.delete_if { |e| e.nil? }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 115,
+    "source": "array.reject { _1.nil? }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 126,
+    "source": "array.select { !_1.nil? }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 139,
+    "source": "array.reject { it.nil? }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 150,
+    "source": "array.select { !it.nil? }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 251,
+    "source": "reject { |e| e.nil? }\nreject! { |e| e.nil? }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 258,
+    "source": "select { |e| !e.nil? }\nselect! { |k, v| !v.nil? }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 267,
+    "source": "array.to_enum.reject { |e| e.nil? }\narray.to_enum.reject! { |e| e.nil? }\n",
+    "positions": [
+      [
+        1,
+        15
+      ],
+      [
+        2,
+        15
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 281,
+    "source": "array.lazy.reject { |e| e.nil? }\narray.lazy.reject! { |e| e.nil? }\n",
+    "positions": [
+      [
+        1,
+        12
+      ],
+      [
+        2,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionCompact",
+    "spec_line": 388,
+    "source": "foo.reject { |param| param.nil? }\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 19,
+    "source": "[1, 2, 3].collect { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 31,
+    "source": "[1, 2, 3]&.collect { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 46,
+    "source": "[1, 2, 3].collect { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 58,
+    "source": "[1, 2, 3]&.collect { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 74,
+    "source": "[1, 2, 3].collect { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 86,
+    "source": "[1, 2, 3]&.collect { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 101,
+    "source": "[1, 2, 3].collect(&:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 113,
+    "source": "[1, 2, 3]&.collect(&:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 127,
+    "source": "[1, 2, 3].collect(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 139,
+    "source": "[1, 2, 3]&.collect(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 153,
+    "source": "[1, 2, 3].collect\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 160,
+    "source": "[1, 2, 3]&.collect\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 19,
+    "source": "[1, 2, 3].inject { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 31,
+    "source": "[1, 2, 3]&.inject { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 46,
+    "source": "[1, 2, 3].inject { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 58,
+    "source": "[1, 2, 3]&.inject { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 74,
+    "source": "[1, 2, 3].inject { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 86,
+    "source": "[1, 2, 3]&.inject { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 101,
+    "source": "[1, 2, 3].inject(&:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 113,
+    "source": "[1, 2, 3]&.inject(&:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 127,
+    "source": "[1, 2, 3].inject(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 139,
+    "source": "[1, 2, 3]&.inject(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 153,
+    "source": "[1, 2, 3].inject\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 160,
+    "source": "[1, 2, 3]&.inject\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 19,
+    "source": "[1, 2, 3].detect { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 31,
+    "source": "[1, 2, 3]&.detect { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 46,
+    "source": "[1, 2, 3].detect { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 58,
+    "source": "[1, 2, 3]&.detect { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 74,
+    "source": "[1, 2, 3].detect { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 86,
+    "source": "[1, 2, 3]&.detect { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 101,
+    "source": "[1, 2, 3].detect(&:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 113,
+    "source": "[1, 2, 3]&.detect(&:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 127,
+    "source": "[1, 2, 3].detect(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 139,
+    "source": "[1, 2, 3]&.detect(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 153,
+    "source": "[1, 2, 3].detect\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 160,
+    "source": "[1, 2, 3]&.detect\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 19,
+    "source": "[1, 2, 3].find_all { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 31,
+    "source": "[1, 2, 3]&.find_all { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 46,
+    "source": "[1, 2, 3].find_all { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 58,
+    "source": "[1, 2, 3]&.find_all { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 74,
+    "source": "[1, 2, 3].find_all { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 86,
+    "source": "[1, 2, 3]&.find_all { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 101,
+    "source": "[1, 2, 3].find_all(&:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 113,
+    "source": "[1, 2, 3]&.find_all(&:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 127,
+    "source": "[1, 2, 3].find_all(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 139,
+    "source": "[1, 2, 3]&.find_all(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 153,
+    "source": "[1, 2, 3].find_all\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 160,
+    "source": "[1, 2, 3]&.find_all\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 19,
+    "source": "[1, 2, 3].member? { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 31,
+    "source": "[1, 2, 3]&.member? { |e| e + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 46,
+    "source": "[1, 2, 3].member? { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 58,
+    "source": "[1, 2, 3]&.member? { _1 + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 74,
+    "source": "[1, 2, 3].member? { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 86,
+    "source": "[1, 2, 3]&.member? { it + 1 }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 101,
+    "source": "[1, 2, 3].member?(&:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 113,
+    "source": "[1, 2, 3]&.member?(&:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 127,
+    "source": "[1, 2, 3].member?(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 139,
+    "source": "[1, 2, 3]&.member?(0, &:test)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 153,
+    "source": "[1, 2, 3].member?\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 160,
+    "source": "[1, 2, 3]&.member?\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 171,
+    "source": "[1, 2, 3].inject(:+)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 183,
+    "source": "[1, 2, 3]&.inject(:+)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 197,
+    "source": "[1, 2, 3].inject(0, :+)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 209,
+    "source": "[1, 2, 3]&.inject(0, :+)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 225,
+    "source": "[1, 2, 3].collect(:+)\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 232,
+    "source": "[1, 2, 3]&.collect(:+)\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 241,
+    "source": "[1, 2, 3].collect(0, :+)\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionMethods",
+    "spec_line": 248,
+    "source": "[1, 2, 3]&.collect(0, :+)\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 5,
+    "source": "x.count.positive?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 16,
+    "source": "x\n  .count\n  .positive?\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 30,
+    "source": "x.count > 0\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 41,
+    "source": "x.count != 0\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 52,
+    "source": "x.count.zero?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 63,
+    "source": "x.count == 0\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 74,
+    "source": "(x.count > 0).to_s\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 85,
+    "source": "x.count == 1\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 91,
+    "source": "x.count.positive?.to_s\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 97,
+    "source": "!x.count.positive?\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 108,
+    "source": "x.count.positive? | true\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 119,
+    "source": "x.count(&:foo?).positive?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 130,
+    "source": "x.count { |item| item.foo? }.positive?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 141,
+    "source": "x.count { _1.foo? }.positive?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 152,
+    "source": "x.count { it.foo? }.positive?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 163,
+    "source": "x&.count(&:foo?).positive?\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 174,
+    "source": "x&.count.positive?\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 185,
+    "source": "x.count(&:foo?) > 0\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 196,
+    "source": "x.count(&:foo?) != 0\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 207,
+    "source": "x.count(&:foo?).zero?\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 218,
+    "source": "x.count(&:foo?) == 0\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 229,
+    "source": "x.count(&:foo?) == 1\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 275,
+    "source": "x.count(foo).positive?\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 281,
+    "source": "x.count(foo: bar).positive?\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 287,
+    "source": "x.count&.positive?\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 293,
+    "source": "x.count\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 299,
+    "source": "count.positive?\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/CollectionQuerying",
+    "spec_line": 268,
+    "source": "x.count(&:foo?) > 1\n",
+    "positions": [
+
+    ]
+  }
+]

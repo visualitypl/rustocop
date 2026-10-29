@@ -1,0 +1,755 @@
+[
+  {
+    "spec_line": 5,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for a single cop name",
+    "source": "# rubocop:disable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 11,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for a single cop department",
+    "source": "# rubocop:disable Layout\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 17,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for multiple cops",
+    "source": "# rubocop:disable Layout/LineLength, Style/Encoding\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 23,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for `all` cops",
+    "source": "# rubocop:disable all\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 29,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for enable directives",
+    "source": "# rubocop:enable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 35,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for todo directives",
+    "source": "# rubocop:todo Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 41,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax registers an offense for multiple cops a without comma",
+    "source": "# rubocop:disable Layout/LineLength Style/Encoding\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Cop names must be separated by commas. Comment in the directive must start with `--`."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 48,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax registers an offense for duplicate directives",
+    "source": "# rubocop:disable Layout/LineLength # rubocop:disable Style/Encoding\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": "# rubocop:disable Layout/LineLength, Style/Encoding\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 59,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax registers an offense for missing cop name",
+    "source": "# rubocop:disable\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The cop name is missing."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 66,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax registers an offense for incorrect mode",
+    "source": "# rubocop:disabled Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The mode name must be one of `enable`, `disable`, `disable-next`, `enable-next`, `todo`, `todo-next`, `next`, `push`, or `pop`."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 73,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax registers an offense if the mode name is missing",
+    "source": "# rubocop:\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The mode name is missing."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 80,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense when a comment does not start with `# rubocop:`, which is not a directive comment",
+    "source": "# \"rubocop:disable Layout/LineLength\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 86,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for duplicate comment out",
+    "source": "# # rubocop:disable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 92,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for an extra trailing comment",
+    "source": "# rubocop:disable Layout/LineLength -- This is a good comment.\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 98,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense when a trailing comment mentions another directive",
+    "source": "# rubocop:disable Layout/LineLength -- see # rubocop:disable Style/Encoding in old branch\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 104,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for a single line directive with trailing comment",
+    "source": "a = 1 # rubocop:disable Layout/LineLength -- This is a good comment.\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 110,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax does not register an offense for a single line directive whose trailing comment mentions another directive",
+    "source": "a = 1 # rubocop:disable Layout/LineLength -- see # rubocop:disable Style/Encoding in old branch\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 116,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax registers an offense when trailing comment does not start with `--`",
+    "source": "# rubocop:disable Layout/LineLength == This is a bad comment.\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Cop names must be separated by commas. Comment in the directive must start with `--`."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 124,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `-next` directives does not register an offense for a `disable-next` on its own line",
+    "source": "# rubocop:disable-next Layout/LineLength\nfoo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 131,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `-next` directives does not register an offense for a `todo-next` with a trailing comment",
+    "source": "# rubocop:todo-next Layout/LineLength -- reason\nfoo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 138,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `-next` directives registers an offense for a `disable-next` at the end of a code line",
+    "source": "foo # rubocop:disable-next Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "A `-next` directive must be on its own line, above the statement it applies to."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 146,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `-next` directives registers an offense for an unknown cop name in a `disable-next`",
+    "source": "# rubocop:disable-next Layout/LineLenght\nfoo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 156,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `next` directives does not register an offense for signed arguments on their own line",
+    "source": "# rubocop:next +Layout/LineLength -Style/For -- tradeoff\nfoo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 163,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `next` directives registers an offense for unsigned arguments",
+    "source": "# rubocop:next Layout/LineLength\nfoo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. `push` and `next` arguments must be `+`- or `-`-prefixed cop names, and `pop` takes no arguments."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 171,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `next` directives registers an offense for a bare `next`",
+    "source": "# rubocop:next\nfoo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The cop name is missing."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 179,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `next` directives registers an offense for a `next` at the end of a code line",
+    "source": "foo # rubocop:next -Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "A `-next` directive must be on its own line, above the statement it applies to."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 187,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `next` directives registers an offense for an unknown cop name in a signed argument",
+    "source": "# rubocop:next -Layout/LineLenght\nfoo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 197,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `enable-next` directives does not register an offense for an `enable-next` on its own line",
+    "source": "# rubocop:disable Layout/LineLength\n# rubocop:enable-next Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 206,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `enable-next` directives registers an offense for an `enable-next` at the end of a code line",
+    "source": "foo # rubocop:enable-next Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "A `-next` directive must be on its own line, above the statement it applies to."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 214,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `enable-next` directives registers an offense for a bare `enable-next`",
+    "source": "# rubocop:enable-next\nfoo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The cop name is missing."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 222,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `enable-next` directives registers an offense for an unknown cop name",
+    "source": "# rubocop:enable-next Layout/LineLenght\nfoo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 232,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `push` and `pop` argument validation registers an offense for unsigned `push` arguments",
+    "source": "# rubocop:push Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. `push` and `next` arguments must be `+`- or `-`-prefixed cop names, and `pop` takes no arguments."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 239,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `push` and `pop` argument validation registers an offense for an unknown cop name in a `push` argument",
+    "source": "# rubocop:push -Layout/LineLenght\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 246,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `push` and `pop` argument validation registers an offense for `pop` with arguments",
+    "source": "# rubocop:pop +Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. `push` and `next` arguments must be `+`- or `-`-prefixed cop names, and `pop` takes no arguments."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 253,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with `push` and `pop` argument validation does not register an offense for a bare `push` and `pop`",
+    "source": "# rubocop:push\n# rubocop:pop\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 262,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with a near-miss directive keyword registers an offense for a typo in the keyword",
+    "source": "# rucocop:disable Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The directive keyword must be `rubocop`, not `rucocop`."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 269,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with a near-miss directive keyword registers an offense for a wrongly-cased keyword",
+    "source": "# RuboCop:disable Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The directive keyword must be `rubocop`, not `RuboCop`."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 276,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with a near-miss directive keyword registers an offense for a trailing near-miss directive",
+    "source": "a = 1 # robocop:disable Layout/LineLength\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. The directive keyword must be `rubocop`, not `robocop`."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 283,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with a near-miss directive keyword does not register an offense for other tools directives",
+    "source": "# pylint: disable=foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 289,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with a near-miss directive keyword does not register an offense for prose mentioning a mode name after a colon",
+    "source": "# TODO: disable the cop here eventually\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 297,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with an unknown cop name registers an offense with a suggestion for a misspelled cop name",
+    "source": "# rubocop:disable Layout/LineLenght\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 304,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with an unknown cop name registers an offense in a list of cop names",
+    "source": "# rubocop:disable Layout/LineLength, Style/Encodingg\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Style/Encodingg` (did you mean `Style/Encoding`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 311,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with an unknown cop name registers an offense for an unknown cop name in an enable directive",
+    "source": "# rubocop:enable Layout/LineLenght\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Unknown cop name `Layout/LineLenght` (did you mean `Layout/LineLength`?)."
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 318,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with an unknown cop name does not register an offense for an unqualified cop name that resolves",
+    "source": "# rubocop:disable LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 331,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line registers an offense and combines two disable directives",
+    "source": "x = 1 # rubocop:disable Style/For # rubocop:disable Metrics/AbcSize\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": "x = 1 # rubocop:disable Style/For, Metrics/AbcSize\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 342,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line combines two `-next` directives without mangling the mode name",
+    "source": "# rubocop:disable-next Style/For # rubocop:disable-next Metrics/AbcSize\nx = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": "# rubocop:disable-next Style/For, Metrics/AbcSize\nx = 1\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 355,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line combines a `todo` and a `disable` under the first mode",
+    "source": "x = 1 # rubocop:todo Style/For # rubocop:disable Metrics/AbcSize\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": "x = 1 # rubocop:todo Style/For, Metrics/AbcSize\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 366,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not correct directives of different modes",
+    "source": "x = 1 # rubocop:disable Style/For # rubocop:enable Metrics/AbcSize\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 375,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not correct when a reason separates the directives",
+    "source": "x = 1 # rubocop:disable Style/For -- keep it # rubocop:disable Metrics/AbcSize\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 384,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not correct when one of the directives disables all cops",
+    "source": "x = 1 # rubocop:disable Style/For # rubocop:disable all\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Malformed directive comment detected. Only the first directive on a line takes effect. List the cop names in a single directive instead."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 393,
+    "description": "RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not register an offense for a single directive listing several cops",
+    "source": "x = 1 # rubocop:disable Style/For, Metrics/AbcSize\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  }
+]

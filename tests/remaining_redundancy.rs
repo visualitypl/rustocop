@@ -1,0 +1,501 @@
+//! real CLI policy, pinned corrections and controlled Ruby semantics.
+//! Fixtures port RuboCop specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use std::{
+    fs,
+    io::Write,
+    path::Path,
+    process::{Command, Output, Stdio},
+};
+const EMPTY: &str = "Style/EmptyMethod";
+const BASE: &str = "Style/RedundantConstantBase";
+const FETCH: &str = "Style/RedundantFetchBlock";
+const ALL: &str = "Style/EmptyMethod,Style/RedundantConstantBase,Style/RedundantFetchBlock";
+const CASES: [(&str, &str); 3] = [
+    (EMPTY, "def f\nend\n"),
+    (BASE, "::A\n"),
+    (FETCH, "hash.fetch(:key) { false }\n"),
+];
+fn project() -> tempfile::TempDir {
+    let d = tempfile::tempdir().unwrap();
+    fs::create_dir(d.path().join(".git")).unwrap();
+    fs::write(d.path().join("rustocop.toml"), "").unwrap();
+    d
+}
+fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
+    let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+        .current_dir(dir)
+        .args(args)
+        .output()
+        .unwrap();
+    assert_eq!(o.status.code(), Some(code), "{args:?}: {o:?}");
+    assert!(o.stderr.is_empty() || code == 2, "{o:?}");
+    o
+}
+fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
+    let path = dir.join("a.rb");
+    fs::write(&path, source).unwrap();
+    let mtime = fs::metadata(&path).unwrap().modified().unwrap();
+    let o = cli(dir, args, code);
+    assert_eq!(fs::read(&path).unwrap(), source);
+    assert_eq!(fs::metadata(path).unwrap().modified().unwrap(), mtime);
+    o
+}
+fn fixed(dir: &Path, cop: &str, before: &[u8], after: &[u8]) {
+    unchanged(dir, before, &["--only", cop, "a.rb"], 1);
+    cli(dir, &["--only", cop, "--fix", "a.rb"], 0);
+    assert_eq!(fs::read(dir.join("a.rb")).unwrap(), after);
+    unchanged(dir, after, &["--only", cop, "--fix", "a.rb"], 0);
+}
+#[test]
+fn exact_registry_defaults_and_safe_capabilities() {
+    let registry = rustocop::cops::Registry::new();
+    for (name, _) in CASES {
+        let cops: Vec<_> = registry
+            .cops()
+            .iter()
+            .filter(|c| c.name() == name)
+            .collect();
+        assert_eq!(cops.len(), 1);
+        assert!(cops[0].default_enabled());
+        assert_eq!(cops[0].safe_fixes(), name != FETCH);
+        assert!(cops[0].path_policy().is_none());
+        assert_eq!(cops[0].ruby_versions(), Default::default());
+    }
+}
+#[test]
+fn defaults_selectors_config_excludes_and_no_write() {
+    let d = project();
+    for (cop, source) in CASES {
+        let o = unchanged(d.path(), source.as_bytes(), &["a.rb"], 1);
+        assert!(String::from_utf8_lossy(&o.stdout).contains(cop));
+        unchanged(d.path(), source.as_bytes(), &["--only", cop, "a.rb"], 1);
+        unchanged(
+            d.path(),
+            source.as_bytes(),
+            &["--only", cop, "--except", cop, "--fix", "a.rb"],
+            0,
+        );
+        for config in [
+            "[cops.Style]\nenabled = false\n".into(),
+            format!("[cops.\"{cop}\"]\nenabled = false\n"),
+        ] {
+            fs::write(d.path().join("rustocop.toml"), config).unwrap();
+            unchanged(d.path(), source.as_bytes(), &["--fix", "a.rb"], 0);
+            unchanged(d.path(), source.as_bytes(), &["--only", cop, "a.rb"], 1);
+        }
+        fs::write(
+            d.path().join("rustocop.toml"),
+            format!("[cops.Style]\nenabled = false\n[cops.\"{cop}\"]\nenabled = true\n"),
+        )
+        .unwrap();
+        let o = unchanged(d.path(), source.as_bytes(), &["a.rb"], 1);
+        assert!(String::from_utf8_lossy(&o.stdout).contains(cop));
+        unchanged(
+            d.path(),
+            source.as_bytes(),
+            &["--except", cop, "--fix", "a.rb"],
+            0,
+        );
+        for config in [
+            "exclude = [\"*.rb\"]\n".into(),
+            format!("[cops.\"{cop}\"]\nexclude = [\"*.rb\"]\n"),
+        ] {
+            fs::write(d.path().join("rustocop.toml"), config).unwrap();
+            unchanged(
+                d.path(),
+                source.as_bytes(),
+                &["--only", cop, "--fix", "a.rb"],
+                0,
+            );
+        }
+        for setting in [
+            "EnforcedStyle = \"expanded\"",
+            "SafeForConstants = true",
+            "TargetRubyVersion = 4.0",
+        ] {
+            fs::write(
+                d.path().join("rustocop.toml"),
+                format!("[cops.\"{cop}\"]\n{setting}\n"),
+            )
+            .unwrap();
+            unchanged(d.path(), source.as_bytes(), &["--fix", "a.rb"], 2);
+        }
+        fs::write(d.path().join("rustocop.toml"), "").unwrap();
+    }
+}
+#[test]
+fn both_directive_prefixes_scopes_source_enabling_clean_and_error_files() {
+    let d = project();
+    for (cop, source) in CASES {
+        for prefix in ["rubocop", "rustocop"] {
+            for target in [cop, "Style", "all"] {
+                for kind in ["disable", "disable-next"] {
+                    let source = format!("# {prefix}:{kind} {target}\n{source}");
+                    unchanged(
+                        d.path(),
+                        source.as_bytes(),
+                        &["--only", cop, "--fix", "a.rb"],
+                        0,
+                    );
+                }
+                let inline = if cop == EMPTY {
+                    format!("def f # {prefix}:disable {target}\nend\n")
+                } else {
+                    format!("{} # {prefix}:disable {target}\n", source.trim_end())
+                };
+                unchanged(
+                    d.path(),
+                    inline.as_bytes(),
+                    &["--only", cop, "--fix", "a.rb"],
+                    0,
+                );
+            }
+            let source =
+                format!("# {prefix}:disable {cop}\n{source}# {prefix}:enable {cop}\n{source}");
+            let o = unchanged(d.path(), source.as_bytes(), &["--only", cop, "a.rb"], 1);
+            assert_eq!(
+                String::from_utf8_lossy(&o.stdout)
+                    .matches(&format!("({cop})"))
+                    .count(),
+                1
+            );
+        }
+        fs::write(
+            d.path().join("rustocop.toml"),
+            format!("[cops.\"{cop}\"]\nenabled = false\n"),
+        )
+        .unwrap();
+        let enabled = format!("# rustocop:enable {cop}\n{source}");
+        unchanged(d.path(), enabled.as_bytes(), &["a.rb"], 1);
+        fs::write(d.path().join("rustocop.toml"), "").unwrap();
+        unchanged(d.path(), b"nil\n", &["--only", cop, "--fix", "a.rb"], 0);
+        unchanged(d.path(), b"(\n", &["--only", cop, "--fix", "a.rb"], 2);
+    }
+}
+#[test]
+fn stdin_is_report_only_and_fix_is_rejected() {
+    let d = project();
+    for (cop, source) in CASES {
+        fs::write(d.path().join("a.rb"), source).unwrap();
+        let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+            .current_dir(d.path())
+            .args(["--only", cop, "--stdin", "a.rb"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(source.as_bytes())
+            .unwrap();
+        let o = child.wait_with_output().unwrap();
+        assert_eq!(o.status.code(), Some(1));
+        assert!(String::from_utf8_lossy(&o.stdout).contains(cop));
+        cli(d.path(), &["--only", cop, "--fix", "--stdin", "a.rb"], 2);
+        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), source);
+    }
+}
+#[test]
+fn all_47_pinned_calls_and_23_correction_calls_through_cli() {
+    let d = project();
+    let mut fixes = 0;
+    let mut holds = 0;
+    for fixture in [
+        include_str!("fixtures/empty_method_pinned.json"),
+        include_str!("fixtures/redundant_constant_base_pinned.json"),
+        include_str!("fixtures/redundant_fetch_block_pinned.json"),
+    ] {
+        let cases: serde_json::Value = serde_json::from_str(fixture).unwrap();
+        for case in cases.as_array().unwrap() {
+            let source = case["source"].as_str().unwrap();
+            let cop = case["cop"].as_str().unwrap();
+            let mut config = String::new();
+            for (name, values) in case["toml"].as_object().unwrap() {
+                config.push_str(&format!("[cops.\"{name}\"]\n"));
+                for (key, value) in values.as_object().unwrap() {
+                    config.push_str(&format!("{key} = {value}\n"));
+                }
+            }
+            fs::write(d.path().join("rustocop.toml"), config).unwrap();
+            let has_offense = !case["positions"].as_array().unwrap().is_empty();
+            unchanged(
+                d.path(),
+                source.as_bytes(),
+                &["--only", cop, "a.rb"],
+                i32::from(has_offense),
+            );
+            if cop == FETCH
+                || (cop == BASE && case["spec_line"] == 54)
+                || case["correction"].is_null()
+            {
+                unchanged(
+                    d.path(),
+                    source.as_bytes(),
+                    &["--only", cop, "--fix", "a.rb"],
+                    i32::from(has_offense),
+                );
+                holds += usize::from(case["correction"].is_string());
+            } else {
+                let after = case["correction"].as_str().unwrap();
+                fixed(d.path(), cop, source.as_bytes(), after.as_bytes());
+                fixes += 1;
+            }
+        }
+    }
+    assert_eq!((fixes, holds), (13, 10));
+}
+#[test]
+fn line_length_dependency_uses_config_not_selection() {
+    let d = project();
+    let source = "def long_name(a, b, c)\nend\n";
+    fs::write(
+        d.path().join("rustocop.toml"),
+        "[cops.\"Layout/LineLength\"]\nmax = 20\n",
+    )
+    .unwrap();
+    unchanged(
+        d.path(),
+        source.as_bytes(),
+        &[
+            "--only",
+            EMPTY,
+            "--except",
+            "Layout/LineLength",
+            "--fix",
+            "a.rb",
+        ],
+        1,
+    );
+    fs::write(
+        d.path().join("rustocop.toml"),
+        "[cops.\"Layout/LineLength\"]\nenabled = false\nmax = 20\n",
+    )
+    .unwrap();
+    fixed(
+        d.path(),
+        EMPTY,
+        source.as_bytes(),
+        b"def long_name(a, b, c); end\n",
+    );
+}
+#[test]
+fn byte_exact_bom_crlf_encoding_payload_and_line_preservation() {
+    let d = project();
+    for (before, after) in [
+        (
+            "\u{feff}# encoding: UTF-8\r\ndef f(a = \"café  x\")\r\nend\r\n__END__\r\nraw\0ÿ\r\n"
+                .as_bytes(),
+            "\u{feff}# encoding: UTF-8\r\ndef f(a = \"café  x\"); end\r\n__END__\r\nraw\0ÿ\r\n"
+                .as_bytes(),
+        ),
+        (
+            b"# encoding: ISO-8859-1\r\n::A # caf\xe9\r\np __LINE__\r\n__END__\r\nraw\xff\r\n",
+            b"# encoding: ISO-8859-1\r\nA # caf\xe9\r\np __LINE__\r\n__END__\r\nraw\xff\r\n",
+        ),
+        (b"def f\r\nend\r\np 42\r\n", b"def f; end\r\n\r\np 42\r\n"),
+    ] {
+        fixed(d.path(), ALL, before, after);
+    }
+    unchanged(
+        d.path(),
+        b"# encoding: ISO-8859-1\ndef f(a = 'caf\xe9')\nend\n",
+        &["--only", EMPTY, "--fix", "a.rb"],
+        1,
+    );
+    for source in [
+        "def f\nend\np __LINE__\n",
+        "def f\nend # frozen_string_literal: true\n",
+        "def f(a = <<~TEXT)\n  text\nTEXT\nend\n",
+        "def f\nend\np DATA.pos\n__END__\nraw\n",
+        "::A\np DATA.pos\n__END__\nraw\n",
+        "::A\np File.binread(__FILE__)\n",
+        "def f\nend\np method(:f).source_location\n",
+        "class << self\n ::A\nend\n",
+    ] {
+        unchanged(
+            d.path(),
+            source.as_bytes(),
+            &["--only", ALL, "--fix", "a.rb"],
+            1,
+        );
+    }
+}
+fn rubies() -> Vec<String> {
+    ["ruby", "/opt/ruby34/bin/ruby"]
+        .into_iter()
+        .filter(|r| Command::new(r).arg("--version").output().is_ok())
+        .map(str::to_owned)
+        .collect()
+}
+fn runtime(ruby: &str, cop: &str, source: &str, should_change: bool) {
+    let d = project();
+    let path = d.path().join("a.rb");
+    fs::write(&path, source).unwrap();
+    let run = || {
+        Command::new(ruby)
+            .current_dir(d.path())
+            .arg("a.rb")
+            .output()
+            .unwrap()
+    };
+    let before = run();
+    cli(
+        d.path(),
+        &["--only", cop, "--fix", "a.rb"],
+        if should_change { 0 } else { 1 },
+    );
+    assert_eq!(
+        fs::read_to_string(path).unwrap() != source,
+        should_change,
+        "{source}"
+    );
+    let after = run();
+    assert_eq!(before.status.code(), after.status.code(), "{source}");
+    assert_eq!(before.stdout, after.stdout, "{source}");
+    assert_eq!(before.stderr, after.stderr, "{source}");
+}
+#[test]
+fn runtime_empty_method_returns_nil_preserves_defaults_initialization_dispatch_and_control_flow() {
+    for ruby in rubies() {
+        runtime(
+            &ruby,
+            EMPTY,
+            "$events = []\ndef seed; $events << :seed; false; end\ndef f(a = seed, k: nil)\nend\np [f, f(true, k: false), $events]\n",
+            true,
+        );
+        runtime(
+            &ruby,
+            EMPTY,
+            "$events = []\ndef object; $events << :receiver; Object.new; end\ndef (object).f(a = 1)\nend\np $events\n",
+            true,
+        );
+        for header in [
+            "# frozen_string_literal: true\n",
+            "# frozen_string_literal: false\n",
+        ] {
+            runtime(
+                &ruby,
+                EMPTY,
+                &format!(
+                    "{header}$events = []\ndef observe(x); $events << [x, x.encoding.name, x.frozen?]; x; end\ndef f(a = observe(\"café  x\"))\nend\nf; f; p $events\n"
+                ),
+                true,
+            );
+        }
+        runtime(
+            &ruby,
+            EMPTY,
+            "class C\n def f(a = 1)\n end\nend\np [C.new.f, false, nil]\nraise 'same backtrace'\n",
+            true,
+        );
+        runtime(
+            &ruby,
+            EMPTY,
+            "def f\nend\np [method(:f).source_location, method(:f).parameters]\n",
+            false,
+        );
+        runtime(
+            &ruby,
+            EMPTY,
+            "def f(a = __LINE__)\nend\np [f, __LINE__]\n",
+            false,
+        );
+        runtime(
+            &ruby,
+            EMPTY,
+            "def f\nend\np [f, DATA.pos, DATA.read]\n__END__\nraw\n",
+            false,
+        );
+    }
+}
+#[test]
+fn runtime_root_constant_binding_and_singleton_shadowing_counterexample() {
+    for ruby in rubies() {
+        runtime(
+            &ruby,
+            BASE,
+            "A = :root\np ::A\nmodule M\n A = :nested\n p ::A\nend\ndef value; ::A; end\np value\n",
+            true,
+        );
+        runtime(
+            &ruby,
+            BASE,
+            "$events = []\nclass Parent\n def self.inherited(child); $events << :inherited; end\nend\nclass Child < ::Parent; end\np [Child.superclass.name, $events]\n",
+            true,
+        );
+        runtime(
+            &ruby,
+            BASE,
+            "A = :root\nclass << self\n A = :eigenclass\n p ::A\nend\n",
+            false,
+        );
+    }
+}
+#[test]
+fn private_root_constant_visibility_is_preserved_without_writes() {
+    let d = project();
+    for source in [
+        "A = 1\nObject.private_constant(:A)\np defined?(::A)\n",
+        "A = 1\nObject.private_constant(:A)\nbegin\n p ::A\nrescue NameError => e\n p [e.class.name, e.name]\nend\n",
+        // A later declaration can run before an earlier method's constant read.
+        "A = 1\ndef value; ::A; end\nObject.private_constant(:A)\nbegin\n p value\nrescue NameError => e\n p [e.class.name, e.name]\nend\n",
+    ] {
+        let o = unchanged(
+            d.path(),
+            source.as_bytes(),
+            &["--only", BASE, "--fix", "a.rb"],
+            1,
+        );
+        assert!(String::from_utf8_lossy(&o.stdout).contains(BASE));
+        for ruby in rubies() {
+            runtime(&ruby, BASE, source, false);
+        }
+    }
+}
+#[test]
+fn runtime_unsafe_fetch_overrides_nil_false_mutability_and_short_circuiting_never_change() {
+    for ruby in rubies() {
+        runtime(
+            &ruby,
+            FETCH,
+            "$events = []\nclass Custom\n def fetch(key, *defaults); $events << [key, defaults]; block_given? ? yield : :different; end\nend\np Custom.new.fetch(:x) { false }\np $events\np nil&.fetch(:x) { 5 }\np [{a: false}.fetch(:a) { nil }, {a: nil}.fetch(:a) { false }]\n",
+            false,
+        );
+        runtime(
+            &ruby,
+            FETCH,
+            "# frozen_string_literal: true\nh = {}\np [h.fetch(:x) { 'value' }.frozen?, h.fetch(:x) { 'value' }, h.fetch(:x) {}]\n",
+            false,
+        );
+        runtime(
+            &ruby,
+            FETCH,
+            "$calls = 0\ndef build; $calls += 1; []; end\nh = {x: nil}\np h.fetch(:x) { build }\np h.fetch(:x) { [] }\np $calls\np h.fetch(:x) { false }\n",
+            false,
+        );
+    }
+}
+#[test]
+fn selected_style_and_layout_corrections_stabilize_within_three_explicit_passes() {
+    let d = project();
+    let path = d.path().join("a.rb");
+    let source = "def f(a = 'x')\nend\n::A;\n";
+    fs::write(&path, source).unwrap();
+    let selection = "Style/EmptyMethod,Style/RedundantConstantBase,Style/MethodDefParentheses,Style/StringLiterals,Style/Semicolon,Style/RedundantReturn,Style/HashSyntax,Style/SignalException,Layout/TrailingWhitespace,Layout/EmptyLines";
+    for _ in 0..3 {
+        let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+            .current_dir(d.path())
+            .args(["--only", selection, "--fix", "a.rb"])
+            .output()
+            .unwrap();
+        assert!(matches!(o.status.code(), Some(0 | 1)), "{o:?}");
+    }
+    let after = fs::read(&path).unwrap();
+    unchanged(d.path(), &after, &["--only", selection, "--fix", "a.rb"], 0);
+    assert_eq!(
+        String::from_utf8(after).unwrap(),
+        "def f(a = \"x\"); end\n\nA\n"
+    );
+}

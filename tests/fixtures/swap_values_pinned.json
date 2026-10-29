@@ -1,0 +1,147 @@
+[
+  {
+    "spec_line": 29,
+    "source": "tmp = x # comment 1\n# comment 2\nx = y\ny = tmp # comment 3\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 3 and 4 with `x, y = y, x`."
+    ],
+    "correction": "x, y = y, x\n"
+  },
+  {
+    "spec_line": 43,
+    "source": "x, y = y, x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 49,
+    "source": "tmp = x\nx = y\ny = not_a_tmp\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 57,
+    "source": "def (foo = Object.new).do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = x\nx = y\ny = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `x, y = y, x`."
+    ],
+    "correction": "x, y = y, x\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = $x\n$x = $y\n$y = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `$x, $y = $y, $x`."
+    ],
+    "correction": "$x, $y = $y, $x\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = @x\n@x = @y\n@y = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `@x, @y = @y, @x`."
+    ],
+    "correction": "@x, @y = @y, @x\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = @@x\n@@x = @@y\n@@y = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `@@x, @@y = @@y, @@x`."
+    ],
+    "correction": "@@x, @@y = @@y, @@x\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = X\nX = Y\nY = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `X, Y = Y, X`."
+    ],
+    "correction": "X, Y = Y, X\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = ::X\n::X = Foo::Y\nFoo::Y = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `::X, Foo::Y = Foo::Y, ::X`."
+    ],
+    "correction": "::X, Foo::Y = Foo::Y, ::X\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "tmp = @x\n@x = $y\n$y = tmp\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Replace this and assignments at lines 2 and 3 with `@x, $y = $y, @x`."
+    ],
+    "correction": "@x, $y = $y, @x\n"
+  }
+]

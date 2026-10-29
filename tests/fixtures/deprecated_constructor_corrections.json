@@ -1,0 +1,2133 @@
+[
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "bounded-canonical",
+    "line": 1,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require \"bigdecimal\"\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(\"1.25\")]\n",
+    "origin": "bounded-canonical",
+    "line": 2,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require \"bigdecimal\"\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(\"1.25\")]\n",
+    "project_after": "require \"bigdecimal\"\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(\"1.25\")]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[::BigDecimal.new('1.25')]\n",
+    "origin": "bounded-canonical",
+    "line": 3,
+    "findings": [
+      [
+        3,
+        15,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require \"bigdecimal\"\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[::BigDecimal.new(\"1.25\")]\n",
+    "origin": "bounded-canonical",
+    "line": 4,
+    "findings": [
+      [
+        3,
+        15,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require \"bigdecimal\"\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(\"1.25\")]\n",
+    "project_after": "require \"bigdecimal\"\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(\"1.25\")]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'other'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 5,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'other'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'other'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 6,
+    "findings": [
+      [
+        2,
+        13,
+        2,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "def BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def delayed; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nend\n",
+    "origin": "held-control",
+    "line": 7,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def delayed; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nend\n",
+    "project_after": "def delayed; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nend\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "module M; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nend\n",
+    "origin": "held-control",
+    "line": 8,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "module M; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nend\n",
+    "project_after": "module M; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nend\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BEGIN { puts :hook }; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 9,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BEGIN { puts :hook }; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "BEGIN { puts :hook }; require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nEND { puts :hook }\n",
+    "origin": "held-control",
+    "line": 10,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nEND { puts :hook }\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nEND { puts :hook }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new( # argument comment\n'1.25')]\n",
+    "origin": "held-control",
+    "line": 11,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal( # argument comment\n'1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new( # argument comment\n'1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(*['1.25'])]\n",
+    "origin": "held-control",
+    "line": 12,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(*['1.25'])]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(*['1.25'])]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(effect())]\n",
+    "origin": "held-control",
+    "line": 13,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(effect())]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(effect())]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n__LINE__\n",
+    "origin": "held-control",
+    "line": 14,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n__LINE__\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n__LINE__\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "__LINE__\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 15,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "__LINE__\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "__LINE__\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n__ENCODING__\n",
+    "origin": "held-control",
+    "line": 16,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n__ENCODING__\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n__ENCODING__\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "__ENCODING__\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 17,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "__ENCODING__\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "__ENCODING__\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nGC.stat\n",
+    "origin": "held-control",
+    "line": 18,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nGC.stat\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nGC.stat\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "GC.stat\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 19,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "GC.stat\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "GC.stat\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nFile.read(__FILE__)\n",
+    "origin": "held-control",
+    "line": 20,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nFile.read(__FILE__)\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nFile.read(__FILE__)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "File.read(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 21,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "File.read(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "File.read(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nIO.read($0)\n",
+    "origin": "held-control",
+    "line": 22,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nIO.read($0)\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nIO.read($0)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "IO.read($0)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 23,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "IO.read($0)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "IO.read($0)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nObjectSpace.each_object {}\n",
+    "origin": "held-control",
+    "line": 24,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nObjectSpace.each_object {}\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nObjectSpace.each_object {}\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "ObjectSpace.each_object {}\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 25,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "ObjectSpace.each_object {}\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "ObjectSpace.each_object {}\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "origin": "held-control",
+    "line": 26,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "RubyVM::InstructionSequence.compile_file(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 27,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "RubyVM::InstructionSequence.compile_file(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "RubyVM::InstructionSequence.compile_file(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "origin": "held-control",
+    "line": 28,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 29,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nbinding.local_variables\n",
+    "origin": "held-control",
+    "line": 30,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nbinding.local_variables\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nbinding.local_variables\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "binding.local_variables\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 31,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "binding.local_variables\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "binding.local_variables\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nTracePoint.new(:call) {}.enable\n",
+    "origin": "held-control",
+    "line": 32,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nTracePoint.new(:call) {}.enable\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nTracePoint.new(:call) {}.enable\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "TracePoint.new(:call) {}.enable\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 33,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "TracePoint.new(:call) {}.enable\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "TracePoint.new(:call) {}.enable\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nDATA.read\n__END__\npayload\n\n",
+    "origin": "held-control",
+    "line": 34,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nDATA.read\n__END__\npayload\n\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nDATA.read\n__END__\npayload\n\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\neval(\"1\")\n",
+    "origin": "held-control",
+    "line": 35,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\neval(\"1\")\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\neval(\"1\")\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "eval(\"1\")\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 36,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "eval(\"1\")\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "eval(\"1\")\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nrequire 'other'\n",
+    "origin": "held-control",
+    "line": 37,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nrequire 'other'\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nrequire 'other'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'other'\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 38,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'other'\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'other'\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nat_exit { puts :later }\n",
+    "origin": "held-control",
+    "line": 39,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\nat_exit { puts :later }\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\nat_exit { puts :later }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "at_exit { puts :later }\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 40,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "at_exit { puts :later }\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "at_exit { puts :later }\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); :constant; end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 41,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); :constant; end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); :constant; end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 42,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(\"2\"); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 43,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(\"2\"); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(\"2\"); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(other); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 44,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(other); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(other); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value = \"2\"); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 45,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value = \"2\"); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value = \"2\"); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(*value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 46,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(*value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(*value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('bad')]\n",
+    "origin": "held-control",
+    "line": 47,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('bad')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('bad')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(nil)]\n",
+    "origin": "held-control",
+    "line": 48,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(nil)]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(nil)]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1e9999999999999999999')]\n",
+    "origin": "held-control",
+    "line": 49,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1e9999999999999999999')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1e9999999999999999999')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(\"1\\x2e25\")]\n",
+    "origin": "held-control",
+    "line": 50,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(\"1\\x2e25\")]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(\"1\\x2e25\")]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('12345678901234567')]\n",
+    "origin": "held-control",
+    "line": 51,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('12345678901234567')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('12345678901234567')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.2.3')]\n",
+    "origin": "held-control",
+    "line": 52,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.2.3')]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.2.3')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25', &nil)]\n",
+    "origin": "held-control",
+    "line": 53,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25', &nil)]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25', &nil)]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25', 3)]\n",
+    "origin": "held-control",
+    "line": 54,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25', 3)]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25', 3)]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def BigDecimal(value); :other; end\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 55,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def BigDecimal(value); :other; end\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "def BigDecimal(value); :other; end\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "module Kernel; def BigDecimal(value); :other; end; end\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 56,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "module Kernel; def BigDecimal(value); :other; end; end\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "module Kernel; def BigDecimal(value); :other; end; end\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal = Object\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "origin": "held-control",
+    "line": 57,
+    "findings": [
+      [
+        4,
+        13,
+        4,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal = Object\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n",
+    "project_after": "BigDecimal = Object\nrequire 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(<<~VALUE)]\n1.25\nVALUE\n",
+    "origin": "held-control",
+    "line": 58,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal(<<~VALUE)]\n1.25\nVALUE\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new(<<~VALUE)]\n1.25\nVALUE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25') { work }]\n",
+    "origin": "held-control",
+    "line": 59,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25') { work }]\n",
+    "project_after": "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25') { work }]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "bounded-canonical",
+    "line": 60,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require \"erb\"\n[defined?(ERB.new(\"task-literal\", nil, \"-\"))]\n",
+    "origin": "bounded-canonical",
+    "line": 61,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ]
+    ],
+    "upstream_after": "require \"erb\"\n[defined?(ERB.new(\"task-literal\", trim_mode: \"-\"))]\n",
+    "project_after": "require \"erb\"\n[defined?(ERB.new(\"task-literal\", trim_mode: \"-\"))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(::ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "bounded-canonical",
+    "line": 62,
+    "findings": [
+      [
+        2,
+        37,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        42,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(::ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\n[defined?(::ERB.new('task-literal', trim_mode: '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require \"erb\"\n[defined?(::ERB.new(\"task-literal\", nil, \"-\"))]\n",
+    "origin": "bounded-canonical",
+    "line": 63,
+    "findings": [
+      [
+        2,
+        37,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        42,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ]
+    ],
+    "upstream_after": "require \"erb\"\n[defined?(::ERB.new(\"task-literal\", trim_mode: \"-\"))]\n",
+    "project_after": "require \"erb\"\n[defined?(::ERB.new(\"task-literal\", trim_mode: \"-\"))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'other'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 64,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'other'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'other'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 65,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        40,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "def delayed; require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nend\n",
+    "origin": "held-control",
+    "line": 66,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "def delayed; require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nend\n",
+    "project_after": "def delayed; require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nend\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "module M; require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nend\n",
+    "origin": "held-control",
+    "line": 67,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "module M; require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nend\n",
+    "project_after": "module M; require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nend\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "BEGIN { puts :hook }; require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 68,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "BEGIN { puts :hook }; require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "BEGIN { puts :hook }; require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nEND { puts :hook }\n",
+    "origin": "held-control",
+    "line": 69,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nEND { puts :hook }\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nEND { puts :hook }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new( # argument comment\n'task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 70,
+    "findings": [
+      [
+        3,
+        17,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        22,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new( # argument comment\n'task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new( # argument comment\n'task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new(*['task-literal', nil, '-']))]\n",
+    "origin": "held-control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new(*['task-literal', nil, '-']))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new(*['task-literal', nil, '-']))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new(effect(), nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 72,
+    "findings": [
+      [
+        2,
+        29,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        34,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new(effect(), trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new(effect(), nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n__LINE__\n",
+    "origin": "held-control",
+    "line": 73,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n__LINE__\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n__LINE__\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "__LINE__\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 74,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "__LINE__\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "__LINE__\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n__ENCODING__\n",
+    "origin": "held-control",
+    "line": 75,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n__ENCODING__\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n__ENCODING__\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "__ENCODING__\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 76,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "__ENCODING__\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "__ENCODING__\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nGC.stat\n",
+    "origin": "held-control",
+    "line": 77,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nGC.stat\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nGC.stat\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "GC.stat\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 78,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "GC.stat\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "GC.stat\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nFile.read(__FILE__)\n",
+    "origin": "held-control",
+    "line": 79,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nFile.read(__FILE__)\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nFile.read(__FILE__)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "File.read(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 80,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "File.read(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "File.read(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nIO.read($0)\n",
+    "origin": "held-control",
+    "line": 81,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nIO.read($0)\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nIO.read($0)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "IO.read($0)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 82,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "IO.read($0)\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "IO.read($0)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nObjectSpace.each_object {}\n",
+    "origin": "held-control",
+    "line": 83,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nObjectSpace.each_object {}\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nObjectSpace.each_object {}\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ObjectSpace.each_object {}\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 84,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "ObjectSpace.each_object {}\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "ObjectSpace.each_object {}\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "origin": "held-control",
+    "line": 85,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "RubyVM::InstructionSequence.compile_file(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 86,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "RubyVM::InstructionSequence.compile_file(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "RubyVM::InstructionSequence.compile_file(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "origin": "held-control",
+    "line": 87,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 88,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nbinding.local_variables\n",
+    "origin": "held-control",
+    "line": 89,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nbinding.local_variables\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nbinding.local_variables\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "binding.local_variables\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 90,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "binding.local_variables\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "binding.local_variables\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nTracePoint.new(:call) {}.enable\n",
+    "origin": "held-control",
+    "line": 91,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nTracePoint.new(:call) {}.enable\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nTracePoint.new(:call) {}.enable\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "TracePoint.new(:call) {}.enable\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 92,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "TracePoint.new(:call) {}.enable\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "TracePoint.new(:call) {}.enable\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nDATA.read\n__END__\npayload\n\n",
+    "origin": "held-control",
+    "line": 93,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nDATA.read\n__END__\npayload\n\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nDATA.read\n__END__\npayload\n\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\neval(\"1\")\n",
+    "origin": "held-control",
+    "line": 94,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\neval(\"1\")\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\neval(\"1\")\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "eval(\"1\")\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 95,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "eval(\"1\")\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "eval(\"1\")\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nrequire 'other'\n",
+    "origin": "held-control",
+    "line": 96,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nrequire 'other'\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nrequire 'other'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'other'\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 97,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'other'\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'other'\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nat_exit { puts :later }\n",
+    "origin": "held-control",
+    "line": 98,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\nat_exit { puts :later }\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\nat_exit { puts :later }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "at_exit { puts :later }\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 99,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "at_exit { puts :later }\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "at_exit { puts :later }\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[ERB.new('task-literal', nil, '-')]\n",
+    "origin": "held-control",
+    "line": 100,
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[ERB.new('task-literal', trim_mode: '-')]\n",
+    "project_after": "require 'erb'\n[ERB.new('task-literal', nil, '-')]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', effect(), '-'))]\n",
+    "origin": "held-control",
+    "line": 101,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        45,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', effect(), '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, effect()))]\n",
+    "origin": "held-control",
+    "line": 102,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: effect())` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: effect()))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, effect()))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-', '@buf'))]\n",
+    "origin": "held-control",
+    "line": 103,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        2,
+        45,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-', eoutvar: '@buf'))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-', '@buf'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-', &block))]\n",
+    "origin": "held-control",
+    "line": 104,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        2,
+        45,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-', eoutvar: &block))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-', &block))]\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-', unknown: 1))]\n",
+    "origin": "held-control",
+    "line": 105,
+    "findings": [
+      [
+        2,
+        35,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        40,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-', unknown: 1))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB = Object\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 106,
+    "findings": [
+      [
+        3,
+        35,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        40,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "ERB = Object\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "ERB = Object\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\ndef ERB.new(*); :other; end\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "origin": "held-control",
+    "line": 107,
+    "findings": [
+      [
+        4,
+        35,
+        4,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        4,
+        40,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\ndef ERB.new(*); :other; end\nrequire 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n",
+    "project_after": "require 'erb'\ndef ERB.new(*); :other; end\nrequire 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "require 'erb'\n[defined?(ERB.new(<<~DOC, nil, '-'))]\ntext\nDOC\n",
+    "origin": "held-control",
+    "line": 108,
+    "findings": [
+      [
+        2,
+        27,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        32,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "require 'erb'\n[defined?(ERB.new(<<~DOC, trim_mode: '-'))]\ntext\nDOC\n",
+    "project_after": "require 'erb'\n[defined?(ERB.new(<<~DOC, nil, '-'))]\ntext\nDOC\n",
+    "upstream_valid_syntax": true
+  }
+]

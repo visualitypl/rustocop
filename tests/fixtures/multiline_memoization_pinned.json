@@ -1,0 +1,110 @@
+[
+  {
+    "spec_line": 7,
+    "source": "foo ||= bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 11,
+    "source": "foo ||=\n  bar\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 21,
+    "source": "foo ||= bar.each do |b|\n  b.baz\n  bb.ax\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 30,
+    "source": "foo ||=\n  bar.each do |b|\n    b.baz\n    b.bax\n  end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 40,
+    "source": "foo ||= if bar\n          baz\n        else\n          bax\n        end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 50,
+    "source": "foo ||=\n  if bar\n    baz\n  else\n    bax\n  end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 72,
+    "source": "foo ||= (\n  bar\n  baz\n)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Wrap multiline memoization blocks in `begin` and `end`."
+    ],
+    "correction": "foo ||= begin\n  bar\n  baz\nend\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "foo ||=\n  (\n    bar\n    baz\n  )\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Wrap multiline memoization blocks in `begin` and `end`."
+    ],
+    "correction": "foo ||=\n  begin\n    bar\n    baz\n  end\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "foo ||= (bar ||\n          baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Wrap multiline memoization blocks in `begin` and `end`."
+    ],
+    "correction": "foo ||= begin\n          bar ||\n          baz\n        end\n"
+  }
+]

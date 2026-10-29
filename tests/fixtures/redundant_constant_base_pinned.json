@@ -1,0 +1,115 @@
+[
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 8,
+    "source": "class Foo\n  ::Bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 18,
+    "source": "module Foo\n  ::Bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 28,
+    "source": "::Bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `::`."
+    ],
+    "correction": "Bar\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 41,
+    "source": "::Bar::Baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `::`."
+    ],
+    "correction": "Bar::Baz\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 54,
+    "source": "class << self\n  ::Bar\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `::`."
+    ],
+    "correction": "class << self\n  Bar\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 71,
+    "source": "class Foo < ::Bar\nend\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Remove redundant `::`."
+    ],
+    "correction": "class Foo < Bar\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantConstantBase",
+    "spec_line": 86,
+    "source": "class Foo < ::Bar\n  ::A\nend\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Remove redundant `::`."
+    ],
+    "correction": "class Foo < Bar\n  ::A\nend\n",
+    "toml": {
+    }
+  }
+]

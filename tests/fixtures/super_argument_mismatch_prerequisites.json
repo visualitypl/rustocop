@@ -1,0 +1,333 @@
+[
+  {
+    "spec_line": 5,
+    "assigned_index": false,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "No assigned graph; ordinary default applicable with no findings."
+  },
+  {
+    "spec_line": 50,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Wrong number of arguments to `super` (given 1, expected 2 for `Base#initialize`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 70,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Wrong number of arguments to `super` (given 3, expected 2 for `Base#initialize`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 90,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Wrong number of arguments to `super` (given 0, expected 2 for `Base#initialize`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 110,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 123,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 136,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 149,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Wrong number of arguments to `super` (given 1, expected 2 for `Base#initialize`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 180,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 193,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Wrong number of arguments to `super` (given 3, expected 1..2 for `Base#add`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 213,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        5,
+        3,
+        "Wrong number of arguments to `super` (given 0, expected 1+ for `Base#sum`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 239,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 256,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 273,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 294,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        5,
+        5,
+        5,
+        "Wrong number of arguments to `super` (given 1, expected 3 for `Extras#run`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 324,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 337,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 360,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 373,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 386,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        3,
+        20,
+        3,
+        "Wrong number of arguments to `super` (given 1, expected 2 for `Base#run`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 408,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 427,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 440,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 453,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 470,
+    "assigned_index": true,
+    "indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  },
+  {
+    "spec_line": 493,
+    "assigned_index": true,
+    "indexed_findings": [
+      [
+        4,
+        7,
+        4,
+        "Wrong number of arguments to `super` (given 1, expected 2 for `App::Base#run`)."
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Explicit graph required; private indexed evidence, not default activation."
+  }
+]

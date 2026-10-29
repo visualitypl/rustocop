@@ -1,0 +1,305 @@
+[
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 9,
+    "source": "def foo\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def foo; end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 21,
+    "source": "def foo(bar, baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def foo(bar, baz); end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 33,
+    "source": "def foo bar, baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def foo bar, baz; end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 45,
+    "source": "def foo\n\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def foo; end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 58,
+    "source": "def foo(arg\n); end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def foo(arg); end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 70,
+    "source": "def foo; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 74,
+    "source": "def foo(bar, baz = {\n  qux: 1\n})\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 85,
+    "source": "def foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 93,
+    "source": "def foo; bar; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 97,
+    "source": "def foo\n  # bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 107,
+    "source": "def self.foo\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def self.foo; end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 119,
+    "source": "def self.foo(bar, baz)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def self.foo(bar, baz); end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 131,
+    "source": "def self.foo\n\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def self.foo; end\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 144,
+    "source": "def self.foo; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 150,
+    "source": "def self.foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 158,
+    "source": "def self.foo; bar; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 162,
+    "source": "def self.foo\n  # bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 185,
+    "source": "def foo(abc: '10000', def: '20000', ghi: '30000')\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": "def foo(abc: '10000', def: '20000', ghi: '30000'); end\n",
+    "toml": {
+      "Layout/LineLength": {
+        "enabled": false,
+        "max": 20
+      }
+    }
+  },
+  {
+    "cop": "Style/EmptyMethod",
+    "spec_line": 199,
+    "source": "def foo(abc: '10000', def: '20000', ghi: '30000')\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Put empty method definitions on a single line."
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 20
+      }
+    }
+  }
+]

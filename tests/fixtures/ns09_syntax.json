@@ -1,0 +1,2162 @@
+[
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "whitelist = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@whitelist; @@whitelist; $whitelist\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def whitelist; end; def self.whitelist; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def whitelist?; end; def self.whitelist?; end; whitelist?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":whitelist; :\"whitelist\"; %i[whitelist]; %I[whitelist]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(whitelist: 1); {whitelist:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# whitelist whitelist\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias whitelist other; undef whitelist\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :whitelist; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"whitelist\"; /whitelist/; `whitelist`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "blacklist = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@blacklist; @@blacklist; $blacklist\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def blacklist; end; def self.blacklist; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def blacklist?; end; def self.blacklist?; end; blacklist?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":blacklist; :\"blacklist\"; %i[blacklist]; %I[blacklist]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(blacklist: 1); {blacklist:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# blacklist blacklist\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias blacklist other; undef blacklist\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :blacklist; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"blacklist\"; /blacklist/; `blacklist`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "slave = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@slave; @@slave; $slave\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def slave; end; def self.slave; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def slave?; end; def self.slave?; end; slave?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":slave; :\"slave\"; %i[slave]; %I[slave]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(slave: 1); {slave:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# slave slave\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias slave other; undef slave\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :slave; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"slave\"; /slave/; `slave`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "Slave = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@Slave; @@Slave; $Slave\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def Slave; end; def self.Slave; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def Slave?; end; def self.Slave?; end; Slave?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":Slave; :\"Slave\"; %i[Slave]; %I[Slave]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(Slave: 1); {Slave:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# Slave Slave\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias Slave other; undef Slave\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :Slave; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"Slave\"; /Slave/; `Slave`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "WhiteList = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@WhiteList; @@WhiteList; $WhiteList\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'.",
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'.",
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def WhiteList; end; def self.WhiteList; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'.",
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def WhiteList?; end; def self.WhiteList?; end; WhiteList?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":WhiteList; :\"WhiteList\"; %i[WhiteList]; %I[WhiteList]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(WhiteList: 1); {WhiteList:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# WhiteList WhiteList\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias WhiteList other; undef WhiteList\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'.",
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :WhiteList; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"WhiteList\"; /WhiteList/; `WhiteList`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "BLACKLIST = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@BLACKLIST; @@BLACKLIST; $BLACKLIST\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'.",
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'.",
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def BLACKLIST; end; def self.BLACKLIST; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'.",
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def BLACKLIST?; end; def self.BLACKLIST?; end; BLACKLIST?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":BLACKLIST; :\"BLACKLIST\"; %i[BLACKLIST]; %I[BLACKLIST]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(BLACKLIST: 1); {BLACKLIST:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# BLACKLIST BLACKLIST\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias BLACKLIST other; undef BLACKLIST\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'.",
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :BLACKLIST; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"BLACKLIST\"; /BLACKLIST/; `BLACKLIST`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "white_list = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@white_list; @@white_list; $white_list\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        16
+      ],
+      [
+        1,
+        29
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'.",
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'.",
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def white_list; end; def self.white_list; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'.",
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def white_list?; end; def self.white_list?; end; white_list?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":white_list; :\"white_list\"; %i[white_list]; %I[white_list]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(white_list: 1); {white_list:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white_list white_list\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias white_list other; undef white_list\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'.",
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :white_list; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white_list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"white_list\"; /white_list/; `white_list`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "black_list = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@black_list; @@black_list; $black_list\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        16
+      ],
+      [
+        1,
+        29
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'.",
+      "Consider replacing 'black_list' with 'denylist' or 'block'.",
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def black_list; end; def self.black_list; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'.",
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def black_list?; end; def self.black_list?; end; black_list?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":black_list; :\"black_list\"; %i[black_list]; %I[black_list]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(black_list: 1); {black_list:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# black_list black_list\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias black_list other; undef black_list\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'.",
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :black_list; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black_list' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"black_list\"; /black_list/; `black_list`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "database_slave = 1\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@database_slave; @@database_slave; $database_slave\n",
+    "positions": [
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        29
+      ],
+      [
+        1,
+        46
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def database_slave; end; def self.database_slave; end\n",
+    "positions": [
+      [
+        1,
+        14
+      ],
+      [
+        1,
+        44
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def database_slave?; end; def self.database_slave?; end; database_slave?\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":database_slave; :\"database_slave\"; %i[database_slave]; %I[database_slave]\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(database_slave: 1); {database_slave:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# database_slave database_slave\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias database_slave other; undef database_slave\n",
+    "positions": [
+      [
+        1,
+        16
+      ],
+      [
+        1,
+        44
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :database_slave; end\n",
+    "positions": [
+      [
+        1,
+        32
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"database_slave\"; /database_slave/; `database_slave`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "Slave1 = 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@Slave1; @@Slave1; $Slave1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def Slave1; end; def self.Slave1; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def Slave1?; end; def self.Slave1?; end; Slave1?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":Slave1; :\"Slave1\"; %i[Slave1]; %I[Slave1]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(Slave1: 1); {Slave1:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# Slave1 Slave1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias Slave1 other; undef Slave1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :Slave1; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"Slave1\"; /Slave1/; `Slave1`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "enslave = 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@enslave; @@enslave; $enslave\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def enslave; end; def self.enslave; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def enslave?; end; def self.enslave?; end; enslave?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":enslave; :\"enslave\"; %i[enslave]; %I[enslave]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(enslave: 1); {enslave:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# enslave enslave\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias enslave other; undef enslave\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :enslave; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"enslave\"; /enslave/; `enslave`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "ſlave = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "@ſlave; @@ſlave; $ſlave\n",
+    "positions": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def ſlave; end; def self.ſlave; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def ſlave?; end; def self.ſlave?; end; ſlave?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": ":ſlave; :\"ſlave\"; %i[ſlave]; %I[ſlave]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "foo(ſlave: 1); {ſlave:}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# ſlave ſlave\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias ſlave other; undef ſlave\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "class A; attr_reader :ſlave; end\n",
+    "positions": [
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "a=\"ſlave\"; /ſlave/; `ſlave`\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white-list\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white-list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white list\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white\tlist\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white\tlist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white\nlist\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white  list\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white\u000blist\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white\u000blist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# black\flist\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'black\flist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# éslave slaveé 奴slave slave奴 slave_ _slave slave1 1slave\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# enslave slave\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# slave slave Slave ſlave\n",
+    "positions": [
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# whiteList Blacklist WHITELIST BLACKLIST\n",
+    "positions": [
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        13
+      ],
+      [
+        1,
+        23
+      ],
+      [
+        1,
+        33
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whiteList' with 'allowlist' or 'permit'.",
+      "Consider replacing 'Blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'WHITELIST' with 'allowlist' or 'permit'.",
+      "Consider replacing 'BLACKLIST' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def f(whitelist:, slave:); end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def f(whitelist, *blacklist, **slave, &whitelist_block); end\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        1,
+        19
+      ],
+      [
+        1,
+        32
+      ],
+      [
+        1,
+        40
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "case x; in [whitelist, slave]; end\n",
+    "positions": [
+      [
+        1,
+        13
+      ],
+      [
+        1,
+        24
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "whitelist += 1; blacklist ||= 1; slave &&= 2\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        17
+      ],
+      [
+        1,
+        34
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "obj.whitelist, @slave, $blacklist = 1,2,3\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        17
+      ],
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "alias $whitelist $blacklist\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "=begin\nslave\nwhitelist\n=end\n",
+    "positions": [
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "p <<~slave\nwhitelist\nslave\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# white\r\n# list\r\n__END__\nslave whitelist\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "﻿# slave\r\nwhitelist = __LINE__\r\n__END__\r\nblacklist\r\n",
+    "positions": [
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# whiteliﬆ whiteliﬅ BlacKliſt\n",
+    "positions": [
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        12
+      ],
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whiteliﬆ' with 'allowlist' or 'permit'.",
+      "Consider replacing 'whiteliﬅ' with 'allowlist' or 'permit'.",
+      "Consider replacing 'BlacKliſt' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# coding: UTF8-MAC\n# blacKliſt ſlave éslave slave奴\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        2,
+        20
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacKliſt' with 'denylist' or 'block'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "# enslave slave slave Slave\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "def whitelist!; end; def self.blacklist!; end; whitelist!\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "A::WHITELIST; A::Slave; ::Blacklist\n",
+    "positions": [
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        18
+      ],
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WHITELIST' with 'allowlist' or 'permit'.",
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'Blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "obj[whitelist]; obj[slave] = blacklist\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        21
+      ],
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "undef :slave?, :\"whitelist\"; alias :whitelist :blacklist\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        37
+      ],
+      [
+        1,
+        48
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "p <<~\"whitelist\"\nslave\nwhitelist\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "puts \"#{whitelist} slave\"\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "source": "x = %I[slave #{blacklist}]\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  }
+]

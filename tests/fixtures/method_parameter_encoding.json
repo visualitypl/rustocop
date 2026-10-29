@@ -1,0 +1,3188 @@
+{
+  "attribution": "RuboCop MIT, Copyright (c) 2012-26 Bozhidar Batsov; pinned 97f30c4fe1ae5c11dd5844bbe00a822c25e6f255",
+  "pinned": [
+    {
+      "spec_line": 15,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register for method without parameters",
+      "source": "def something\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 23,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register offense for valid parameter names",
+      "source": "def something(foo, bar)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register offense for valid parameter names on self.method",
+      "source": "def self.something(foo, bar)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 39,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register offense for valid default parameters",
+      "source": "def self.something(foo = Pwd.dir, bar = 1)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 47,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register offense for valid keyword parameters",
+      "source": "def self.something(foo: Pwd.dir, bar: 1)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 55,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register offense for empty restarg",
+      "source": "def qux(*)\n  stuff!\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 63,
+      "description": "RuboCop::Cop::Naming::MethodParameterName does not register offense for empty kwrestarg",
+      "source": "def qux(**)\n  stuff!\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 71,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense when parameter ends in number",
+      "source": "def something(foo1, bar)\n  do_stuff\n end\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false"
+      ],
+      "declared_positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "declared_messages": [
+        "Do not end method parameter with a number."
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 80,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense when parameter ends in number on class method",
+      "source": "def self.something(foo, bar1)\n  do_stuff\n end\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false"
+      ],
+      "declared_positions": [
+        [
+          1,
+          25
+        ]
+      ],
+      "declared_messages": [
+        "Do not end method parameter with a number."
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 89,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense when parameter is less than minimum length",
+      "source": "def something(ab)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "declared_messages": [
+        "Method parameter must be at least 3 characters long."
+      ],
+      "offenses": [
+        {
+          "line": 1,
+          "col": 15,
+          "end_line": 1,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "spec_line": 98,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense when parameter with prefix is less than minimum length",
+      "source": "def something(_a, __b, *c, **__d)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+        [
+          1,
+          15
+        ],
+        [
+          1,
+          19
+        ],
+        [
+          1,
+          24
+        ],
+        [
+          1,
+          28
+        ]
+      ],
+      "declared_messages": [
+        "Method parameter must be at least 3 characters long.",
+        "Method parameter must be at least 3 characters long.",
+        "Method parameter must be at least 3 characters long.",
+        "Method parameter must be at least 3 characters long."
+      ],
+      "offenses": [
+        {
+          "line": 1,
+          "col": 15,
+          "end_line": 1,
+          "message": "Method parameter must be at least 3 characters long."
+        },
+        {
+          "line": 1,
+          "col": 19,
+          "end_line": 1,
+          "message": "Method parameter must be at least 3 characters long."
+        },
+        {
+          "line": 1,
+          "col": 24,
+          "end_line": 1,
+          "message": "Method parameter must be at least 3 characters long."
+        },
+        {
+          "line": 1,
+          "col": 28,
+          "end_line": 1,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "spec_line": 110,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense when parameter contains uppercase characters",
+      "source": "def something(number_One)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "declared_messages": [
+        "Only use lowercase characters for method parameter."
+      ],
+      "offenses": [
+        {
+          "line": 1,
+          "col": 15,
+          "end_line": 1,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "spec_line": 119,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense for offensive default parameter",
+      "source": "def self.something(foo1 = Pwd.dir)\n  do_stuff\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false"
+      ],
+      "declared_positions": [
+        [
+          1,
+          20
+        ]
+      ],
+      "declared_messages": [
+        "Do not end method parameter with a number."
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 128,
+      "description": "RuboCop::Cop::Naming::MethodParameterName registers an offense for offensive keyword parameters",
+      "source": "def something(fooBar:)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "declared_messages": [
+        "Only use lowercase characters for method parameter."
+      ],
+      "offenses": [
+        {
+          "line": 1,
+          "col": 15,
+          "end_line": 1,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "spec_line": 137,
+      "description": "RuboCop::Cop::Naming::MethodParameterName can register multiple offenses in one method definition",
+      "source": "def self.something(y, num1, oFo)\n  do_stuff\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false"
+      ],
+      "declared_positions": [
+        [
+          1,
+          20
+        ],
+        [
+          1,
+          23
+        ],
+        [
+          1,
+          29
+        ]
+      ],
+      "declared_messages": [
+        "Method parameter must be at least 3 characters long.",
+        "Do not end method parameter with a number.",
+        "Only use lowercase characters for method parameter."
+      ],
+      "offenses": [
+        {
+          "line": 1,
+          "col": 20,
+          "end_line": 1,
+          "message": "Method parameter must be at least 3 characters long."
+        },
+        {
+          "line": 1,
+          "col": 29,
+          "end_line": 1,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "spec_line": 8,
+      "description": "RuboCop::Cop::Naming::MethodParameterName when using argument forwarding does not register an offense",
+      "source": "def foo(...); end\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 156,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with AllowedNames accepts specified block param names",
+      "source": "def quux(foo1, foo2)\n  do_stuff\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false",
+        "Naming/MethodParameterName AllowedNames=[\"foo1\", \"foo2\"]"
+      ],
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 164,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with AllowedNames accepts param names prefixed with underscore",
+      "source": "def quux(_foo1, _foo2)\n  do_stuff\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false",
+        "Naming/MethodParameterName AllowedNames=[\"foo1\", \"foo2\"]"
+      ],
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 172,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with AllowedNames accepts underscore param names",
+      "source": "def quux(_)\n  do_stuff\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowedNames=[\"foo1\", \"foo2\"]"
+      ],
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 180,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with AllowedNames registers unlisted offensive names",
+      "source": "def quux(bar, bar1)\n  do_stuff\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName AllowNamesEndingInNumbers=false",
+        "Naming/MethodParameterName AllowedNames=[\"foo1\", \"foo2\"]"
+      ],
+      "declared_positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "declared_messages": [
+        "Do not end method parameter with a number."
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 193,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with ForbiddenNames registers an offense for parameter listed as forbidden",
+      "source": "def baz(arg)\n  arg.do_things\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName ForbiddenNames=[\"arg\"]"
+      ],
+      "declared_positions": [
+        [
+          1,
+          9
+        ]
+      ],
+      "declared_messages": [
+        "Do not use arg as a name for a method parameter."
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 202,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with ForbiddenNames accepts parameter that uses a forbidden name's letters",
+      "source": "def baz(foo_parameter)\n  foo_parameter.do_things\nend\n",
+      "exclusion": [
+        "Naming/MethodParameterName ForbiddenNames=[\"arg\"]"
+      ],
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    },
+    {
+      "spec_line": 214,
+      "description": "RuboCop::Cop::Naming::MethodParameterName with AllowNamesEndingInNumbers accepts parameters that end in numbers",
+      "source": "def something(foo1, bar2, qux3)\n  do_stuff\nend\n",
+      "exclusion": null,
+      "declared_positions": [
+
+      ],
+      "declared_messages": [
+
+      ],
+      "offenses": [
+
+      ]
+    }
+  ],
+  "encoded": [
+    {
+      "label": "UTF-8/0",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28616263c389293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/1",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28616263c3a9293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8/2",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f2861c389293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/3",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f2861c3a9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/4",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f285f616263c389293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/5",
+      "source_hex": "2320656e636f64696e673a205554462d380a6465662073656c662e666f6f28616263c3893a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/6",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28616263c389203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/7",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f282a616263c389293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/8",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f282a2a616263c389293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/9",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f2826616263c389293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/10",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f282861c3892c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/11",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28282a61c3892c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/12",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f2828286162632c2061c389292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/13",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28286162632c2061c38929293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8/14",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f282861c3a92c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8/15",
+      "source_hex": "2320656e636f64696e673a205554462d380a666f6f207b207c616263c3897c207d3b202d3e28616263c38929207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8/16",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28286142c3a92c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/17",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263c3a9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/rubocop/false",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263c3a9292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/rubocop/true",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263c3a9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8/rustocop/false",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263c3a9292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8/rustocop/true",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263c3a9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/0",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2861626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/1",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2861626365cc81293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/2",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f286145cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/3",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f286165cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/4",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f285f61626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/5",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a6465662073656c662e666f6f2861626345cc813a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/6",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2861626345cc81203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/7",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f282a61626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/8",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f282a2a61626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/9",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f282661626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/10",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28286145cc812c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/11",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28282a6145cc812c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/12",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2828286162632c206145cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/13",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28286162632c206145cc8129293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/14",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28286165cc812c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/15",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a666f6f207b207c61626345cc817c207d3b202d3e2861626345cc8129207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/16",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2828614265cc812c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/17",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/rubocop/false",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/rubocop/true",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/rustocop/false",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/rustocop/true",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/0",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2861626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/1",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2861626365cc81293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/2",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f286145cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/3",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f286165cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/4",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f285f61626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/5",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a6465662073656c662e666f6f2861626345cc813a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/6",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2861626345cc81203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/7",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f282a61626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/8",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f282a2a61626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/9",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f282661626345cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/10",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28286145cc812c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/11",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28282a6145cc812c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/12",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2828286162632c206145cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/13",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28286162632c206145cc8129293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/14",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28286165cc812c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/15",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a666f6f207b207c61626345cc817c207d3b202d3e2861626345cc8129207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/16",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2828614265cc812c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/17",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/rubocop/false",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/rubocop/true",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/rustocop/false",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/rustocop/true",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a61626365cc81292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "ISO-8859-1/0",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/1",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28616263e9293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "ISO-8859-1/2",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f2861c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/3",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f2861e9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/4",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f285f616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/5",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a6465662073656c662e666f6f28616263c93a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/6",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28616263c9203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/7",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f282a616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/8",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f282a2a616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/9",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f2826616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/10",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f282861c92c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/11",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28282a61c92c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/12",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f2828286162632c2061c9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/13",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28286162632c2061c929293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "ISO-8859-1/14",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f282861e92c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "ISO-8859-1/15",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a666f6f207b207c616263c97c207d3b202d3e28616263c929207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "ISO-8859-1/16",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28286142e92c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/17",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/rubocop/false",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/rubocop/true",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "ISO-8859-1/rustocop/false",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "ISO-8859-1/rustocop/true",
+      "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-1252/0",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/1",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28616263e9293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-1252/2",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f2861c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/3",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f2861e9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/4",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f285f616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/5",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a6465662073656c662e666f6f28616263c93a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/6",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28616263c9203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/7",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f282a616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/8",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f282a2a616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/9",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f2826616263c9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/10",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f282861c92c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/11",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28282a61c92c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/12",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f2828286162632c2061c9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/13",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28286162632c2061c929293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-1252/14",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f282861e92c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-1252/15",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a666f6f207b207c616263c97c207d3b202d3e28616263c929207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-1252/16",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28286142e92c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/17",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/rubocop/false",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/rubocop/true",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-1252/rustocop/false",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-1252/rustocop/true",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/0",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f286162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/1",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f286162638281293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/2",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28618260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/3",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28618281293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/4",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f285f6162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/5",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a6465662073656c662e666f6f2861626382603a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/6",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f286162638260203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/7",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f282a6162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/8",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f282a2a6162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/9",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28266162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/10",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28286182602c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/11",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28282a6182602c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/12",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f2828286162632c20618260292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/13",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28286162632c2061826029293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/14",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28286182812c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/15",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a666f6f207b207c61626382607c207d3b202d3e28616263826029207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/16",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f2828614282812c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/17",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/rubocop/false",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/rubocop/true",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/rustocop/false",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Shift_JIS/rustocop/true",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-31J/0",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f286162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/1",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f286162638281293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-31J/2",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28618260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/3",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28618281293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/4",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f285f6162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/5",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a6465662073656c662e666f6f2861626382603a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/6",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f286162638260203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/7",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f282a6162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/8",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f282a2a6162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/9",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28266162638260293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/10",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28286182602c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/11",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28282a6182602c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/12",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f2828286162632c20618260292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/13",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28286162632c2061826029293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-31J/14",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28286182812c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-31J/15",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a666f6f207b207c61626382607c207d3b202d3e28616263826029207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-31J/16",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f2828614282812c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/17",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/rubocop/false",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/rubocop/true",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Windows-31J/rustocop/false",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Windows-31J/rustocop/true",
+      "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a6162638281292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "EUC-JP/0",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/1",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28616263a3e1293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "EUC-JP/2",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f2861a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/3",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f2861a3e1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/4",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f285f616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/5",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a6465662073656c662e666f6f28616263a3c13a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/6",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28616263a3c1203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/7",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f282a616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/8",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f282a2a616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/9",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f2826616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/10",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f282861a3c12c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/11",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28282a61a3c12c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/12",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f2828286162632c2061a3c1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/13",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28286162632c2061a3c129293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "EUC-JP/14",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f282861a3e12c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "EUC-JP/15",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a666f6f207b207c616263a3c17c207d3b202d3e28616263a3c129207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "EUC-JP/16",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28286142a3e12c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/17",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/rubocop/false",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/rubocop/true",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "EUC-JP/rustocop/false",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "EUC-JP/rustocop/true",
+      "source_hex": "2320656e636f64696e673a204555432d4a500a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GB18030/0",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/1",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28616263a3e1293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GB18030/2",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f2861a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/3",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f2861a3e1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/4",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f285f616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/5",
+      "source_hex": "2320656e636f64696e673a20474231383033300a6465662073656c662e666f6f28616263a3c13a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/6",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28616263a3c1203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/7",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f282a616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/8",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f282a2a616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/9",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f2826616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/10",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f282861a3c12c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/11",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28282a61a3c12c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/12",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f2828286162632c2061a3c1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/13",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28286162632c2061a3c129293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GB18030/14",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f282861a3e12c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GB18030/15",
+      "source_hex": "2320656e636f64696e673a20474231383033300a666f6f207b207c616263a3c17c207d3b202d3e28616263a3c129207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GB18030/16",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28286142a3e12c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/17",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/rubocop/false",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/rubocop/true",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GB18030/rustocop/false",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GB18030/rustocop/true",
+      "source_hex": "2320656e636f64696e673a20474231383033300a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GBK/0",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/1",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28616263a3e1293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GBK/2",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f2861a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/3",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f2861a3e1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "GBK/4",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f285f616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/5",
+      "source_hex": "2320656e636f64696e673a2047424b0a6465662073656c662e666f6f28616263a3c13a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/6",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28616263a3c1203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/7",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f282a616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/8",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f282a2a616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/9",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f2826616263a3c1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/10",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f282861a3c12c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/11",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28282a61a3c12c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/12",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f2828286162632c2061a3c1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/13",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28286162632c2061a3c129293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GBK/14",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f282861a3e12c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GBK/15",
+      "source_hex": "2320656e636f64696e673a2047424b0a666f6f207b207c616263a3c17c207d3b202d3e28616263a3c129207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GBK/16",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28286142a3e12c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/17",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/rubocop/false",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/rubocop/true",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "GBK/rustocop/false",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "GBK/rustocop/true",
+      "source_hex": "2320656e636f64696e673a2047424b0a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a3e1292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Big5/0",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28616263a2cf293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/1",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28616263a2e9293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Big5/2",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f2861a2cf293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/3",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f2861a2e9293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "Big5/4",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f285f616263a2cf293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/5",
+      "source_hex": "2320656e636f64696e673a20426967350a6465662073656c662e666f6f28616263a2cf3a293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 14,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/6",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28616263a2cf203d2031293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/7",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f282a616263a2cf293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/8",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f282a2a616263a2cf293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/9",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f2826616263a2cf293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/10",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f282861a2cf2c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/11",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28282a61a2cf2c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/12",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f2828286162632c2061a2cf292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/13",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28286162632c2061a2cf29293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Big5/14",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f282861a2e92c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Big5/15",
+      "source_hex": "2320656e636f64696e673a20426967350a666f6f207b207c616263a2cf7c207d3b202d3e28616263a2cf29207b7d0a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Big5/16",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28286142a2e92c20202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/17",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a2e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/rubocop/false",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a2e9292c207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/rubocop/true",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28282861422c2023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a2e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Big5/rustocop/false",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28282861422c0a20202020202020202020202020202020202020202020202020200a616263a2e9292c207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "Big5/rustocop/true",
+      "source_hex": "2320656e636f64696e673a20426967350a64656620666f6f28282861422c202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a20202020202020202020202020202020202020202020202020200a616263a2e9292c207365636f6e6429293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/0",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f286161cc82cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/1",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2861e18480e185a1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/2",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2861626365cc81293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/3",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2828614265cc812c202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/4",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2828614265cc812c202020200a207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/5",
+      "source_hex": "2320656e636f64696e673a20555446382d4d41430a64656620666f6f2828614265cc812c202020200a207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF8-MAC/composition/6",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f286165cc81293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/0",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f286161cc82cc81293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/1",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2861e18480e185a1293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 2,
+          "message": "Method parameter must be at least 3 characters long."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/2",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2861626365cc81293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/3",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2828614265cc812c202020200a207365636f6e6429293b20656e640a",
+      "offenses": [
+        {
+          "line": 2,
+          "col": 9,
+          "end_line": 3,
+          "message": "Only use lowercase characters for method parameter."
+        }
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/4",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2828614265cc812c202020200a207365636f6e6429293b20656e642023207275626f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/5",
+      "source_hex": "2320656e636f64696e673a205554462d382d4846530a64656620666f6f2828614265cc812c202020200a207365636f6e6429293b20656e64202320727573746f636f703a64697361626c65204e616d696e672f4d6574686f64506172616d657465724e616d650a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "UTF-8-HFS/composition/6",
+      "source_hex": "2320656e636f64696e673a205554462d380a64656620666f6f286165cc81293b20656e640a",
+      "offenses": [
+
+      ]
+    },
+    {
+      "label": "Shift_JIS/trail-ASCII",
+      "source_hex": "2320656e636f64696e673a2053686966745f4a49530a64656620666f6f286162638341293b20656e640a",
+      "offenses": [
+
+      ]
+    }
+  ]
+}

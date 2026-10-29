@@ -1,0 +1,1530 @@
+[
+  {
+    "case": "quoted sql",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'sql'\nbody\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted sql",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'sql'\nbody\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted Sql",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'Sql'\nbody\nSql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted Sql",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'Sql'\nbody\nSql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted SQL",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'SQL'\nbody\nSQL\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted SQL",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'SQL'\nbody\nSQL\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted EOF",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'EOF'\nbody\nEOF\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted EOF",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'EOF'\nbody\nEOF\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted end",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'end'\nbody\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted end",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'end'\nbody\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted ENDING",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'ENDING'\nbody\nENDING\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted ENDING",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'ENDING'\nbody\nENDING\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted EOXX",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'EOXX'\nbody\nEOXX\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted EOXX",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'EOXX'\nbody\nEOXX\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted +",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'+'\nbody\n+\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted +",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'+'\nbody\n+\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted _",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'_'\nbody\n_\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted _",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'_'\nbody\n_\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted 123",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'123'\nbody\n123\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted 123",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'123'\nbody\n123\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted é",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'é'\nbody\né\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted é",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'é'\nbody\né\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted É",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'É'\nbody\nÉ\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted É",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'É'\nbody\nÉ\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted ß",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'ß'\nbody\nß\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted ß",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'ß'\nbody\nß\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted ǅ",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'ǅ'\nbody\nǅ\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted ǅ",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'ǅ'\nbody\nǅ\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted あ",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'あ'\nbody\nあ\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted あ",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'あ'\nbody\nあ\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted a\"b",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'a\"b'\nbody\na\"b\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted a\"b",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'a\"b'\nbody\na\"b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted SQL\"bad",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'SQL\"bad'\nbody\nSQL\"bad\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted SQL\"bad",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'SQL\"bad'\nbody\nSQL\"bad\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted a`b",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'a`b'\nbody\na`b\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted a`b",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'a`b'\nbody\na`b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted END x",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'END x'\nbody\nEND x\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted END x",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'END x'\nbody\nEND x\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted  x eOf y ",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~' x eOf y '\nbody\n x eOf y \n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted  x eOf y ",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~' x eOf y '\nbody\n x eOf y \n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted x-END-y",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'x-END-y'\nbody\nx-END-y\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted x-END-y",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'x-END-y'\nbody\nx-END-y\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "quoted x\tEND\ty",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'x\tEND\ty'\nbody\nx\tEND\ty\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted x\tEND\ty",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'x\tEND\ty'\nbody\nx\tEND\ty\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted x\u000bEND\fy",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'x\u000bEND\fy'\nbody\nx\u000bEND\fy\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted x\u000bEND\fy",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'x\u000bEND\fy'\nbody\nx\u000bEND\fy\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted a　END　b",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'a　END　b'\nbody\na　END　b\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "quoted a　END　b",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'a　END　b'\nbody\na　END　b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"SQL\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nSQL\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"SQL\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nSQL\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"  SQL  \"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\n  SQL  \nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"  SQL  \"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\n  SQL  \nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"\\tSQL\\t\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\n\tSQL\t\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"\\tSQL\\t\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\n\tSQL\t\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"SQLx\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nSQLx\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "collision \"SQLx\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nSQLx\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"sql\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nsql\nsql\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "collision \"sql\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nsql\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"ＳＱＬ\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nＳＱＬ\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "collision \"ＳＱＬ\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nＳＱＬ\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"Sql\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nSql\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "collision \"Sql\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nSql\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"\\vSQL\\f\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\n\u000bSQL\f\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"\\vSQL\\f\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\n\u000bSQL\f\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "collision \"SQL # comment\"",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nSQL # comment\nsql\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "collision \"SQL # comment\"",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nSQL # comment\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "second queued owner collision does not belong to first",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql, <<~TEXT\nvalue\nsql\nSQL\nTEXT\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "second queued owner collision does not belong to first",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql, <<~TEXT\nvalue\nsql\nSQL\nTEXT\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "first queued owner collision does not belong to second",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~TEXT, <<~sql\nSQL\nTEXT\nvalue\nsql\n",
+    "positions": [
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "first queued owner collision does not belong to second",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~TEXT, <<~sql\nSQL\nTEXT\nvalue\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "two lowercase queued owners",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql, <<~html # tail\n#{1}\nsql\ntext\nhtml\n",
+    "positions": [
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters.",
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "two lowercase queued owners",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql, <<~html # tail\n#{1}\nsql\ntext\nhtml\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested interpolation",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~outer\n#{<<~inner}\ntext\ninner\nouter\n",
+    "positions": [
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters.",
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "nested interpolation",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~outer\n#{<<~inner}\ntext\ninner\nouter\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested outer collision across nested terminator",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~inner\n#{<<~INNER}\ntext\nINNER\ninner\n",
+    "positions": [
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "nested outer collision across nested terminator",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~inner\n#{<<~INNER}\ntext\nINNER\ninner\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "multiline interpolation",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\n#{\n1 + 2\n}\nsql\n",
+    "positions": [
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "multiline interpolation",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\n#{\n1 + 2\n}\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty string owner",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\nsql\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty string owner",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty command owner source only",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~`sql`\nsql\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty command owner source only",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~`sql`\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "command interpolation source only",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~`sql`\n#{<<~text}\nnever executed\ntext\nsql\n",
+    "positions": [
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters.",
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "command interpolation source only",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~`sql`\n#{<<~text}\nnever executed\ntext\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "indented end and EOF without newline",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<-sql\nbody\n  sql",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "indented end and EOF without newline",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<-sql\nbody\n  sql",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "CRLF queued",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql, <<~END\r\na\r\nsql\r\nb\r\nEND\r\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "CRLF queued",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql, <<~END\r\na\r\nsql\r\nb\r\nEND\r\n",
+    "positions": [
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty forbidden string",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~END\nEND\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty forbidden string",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~END\nEND\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty forbidden command source only",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~`END`\nEND\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty forbidden command source only",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~`END`\nEND\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty nonword string",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~'+'\n+\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty nonword string",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~'+'\n+\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty indented forbidden string",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<-END\n  END\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty indented forbidden string",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<-END\n  END\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "empty embedded expression not empty composition",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~EOS\n#{}\nEOS\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "empty embedded expression not empty composition",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~EOS\n#{}\nEOS\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "MAC composed word projection",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-MAC\np <<~'é'\ntext\né\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "MAC composed word projection",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-MAC\np <<~'é'\ntext\né\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "MAC cross form collision",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-MAC\np <<~'é'\nÉ\né\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "MAC cross form collision",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-MAC\np <<~'é'\nÉ\né\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "MAC reverse cross form collision",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-MAC\np <<~'é'\nÉ\né\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "MAC reverse cross form collision",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-MAC\np <<~'é'\nÉ\né\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "MAC Hangul composed collision with ASCII case",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-MAC\np <<~'가sql'\n가SQL\n가sql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "MAC Hangul composed collision with ASCII case",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-MAC\np <<~'가sql'\n가SQL\n가sql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "MAC titlecase compound composition",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-MAC\np <<~'ấ'\nẤ\nấ\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "MAC titlecase compound composition",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-MAC\np <<~'ấ'\nẤ\nấ\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "NUL collision strip",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\n\u0000SQL\u0000\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "NUL collision strip",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\n\u0000SQL\u0000\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "interpolation final continuation",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~sql\n#{1}\\\nSQL\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "interpolation final continuation",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~sql\n#{1}\\\nSQL\nsql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "mobile keycap projection 0",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-DoCoMo\np <<~1⃣\ntext\n1⃣\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "mobile keycap projection 0",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-DoCoMo\np <<~1⃣\ntext\n1⃣\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "mobile keycap projection 1",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "# coding: UTF8-DoCoMo\np <<~1⃣sql\n1⃣SQL\n1⃣sql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "mobile keycap projection 1",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "# coding: UTF8-DoCoMo\np <<~1⃣sql\n1⃣SQL\n1⃣sql\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "case insensitive regex class EOK",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~EOK\nvalue\nEOK\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "case insensitive regex class EOK",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~EOK\nvalue\nEOK\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "case insensitive regex class EOſ",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~EOſ\nvalue\nEOſ\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "case insensitive regex class EOſ",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~EOſ\nvalue\nEOſ\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use meaningful heredoc delimiters."
+    ]
+  },
+  {
+    "case": "case insensitive regex class EOı",
+    "cop": "Naming/HeredocDelimiterCase",
+    "source": "p <<~EOı\nvalue\nEOı\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use uppercase heredoc delimiters."
+    ]
+  },
+  {
+    "case": "case insensitive regex class EOı",
+    "cop": "Naming/HeredocDelimiterNaming",
+    "source": "p <<~EOı\nvalue\nEOı\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

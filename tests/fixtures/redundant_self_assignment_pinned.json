@@ -1,0 +1,183 @@
+[
+  {
+    "spec_line": 73,
+    "source": "foo = bar.concat(ary)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 79,
+    "source": "foo = concat(ary)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 85,
+    "source": "self.foo = foo.concat(ary)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 91,
+    "source": "self.foo = foo&.concat(ary)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 97,
+    "source": "other.foo = other.foo.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "other.foo.concat(ary)\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "other.foo = other.foo&.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "other.foo&.concat(ary)\n"
+  },
+  {
+    "spec_line": 119,
+    "source": "other&.foo = other&.foo&.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "other&.foo&.concat(ary)\n"
+  },
+  {
+    "spec_line": 130,
+    "source": "self.foo = bar.concat(ary)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "foo = foo.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "foo.concat(ary)\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "@foo = @foo.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "@foo.concat(ary)\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "@@foo = @@foo.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "@@foo.concat(ary)\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "$foo = $foo.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "$foo.concat(ary)\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "foo = foo&.concat(ary)\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `concat` modifies its receiver in place."
+    ],
+    "correction": "foo&.concat(ary)\n"
+  },
+  {
+    "spec_line": 61,
+    "source": "foo = foo.delete_if { true }\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant self assignment detected. Method `delete_if` modifies its receiver in place."
+    ],
+    "correction": "foo.delete_if { true }\n"
+  }
+]

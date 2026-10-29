@@ -1,0 +1,1084 @@
+[
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "testCase.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`testCase.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "testCase",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`testCase`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "test_case.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "test_case",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "test_case.rake",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "some_view.html.slim_spec.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "file?!.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "some_file.xlsx+mobile.axlsx",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": ".pryrc",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "ünbound_sérvér.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Rakefile.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "lib/Rakefile.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`Rakefile.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Rakefile.rb.extra",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`Rakefile.rb.extra`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "rakeFile.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`rakeFile.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Gemfile.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`Gemfile.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Gemfile.extra",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`Gemfile.extra`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "BAD.GEMSPEC",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`BAD.GEMSPEC`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "bundler-console.gemspec",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "BAD.gemspec",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": ".gemspec",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Gemfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Guardfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": ".Gemfile",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`.Gemfile`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Gemfile/Bad.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`Bad.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "BadDir/good.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "BadDir/good",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "CamelCase.rb.bak",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`CamelCase.rb.bak`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "1.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "９.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`９.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "a-b.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`a-b.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "a+b+c.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`a+b+c.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "a+b.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "a..rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "a.rb.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": ".Bad.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`.Bad.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "..good.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": ".rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "_.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "?.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "!.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "ⅰ.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "ª.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "ǅ.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`ǅ.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "𐐨.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "𐐀.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`𐐀.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "日本語.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`日本語.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "é.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "é.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`é.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Appraisals",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Berksfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Brewfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Buildfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Capfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Dangerfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Deliverfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Fastfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "xFastfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Jarfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Mavenfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Podfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Puppetfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Rakefile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Schemafile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Snapfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Steepfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Thorfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Vagrantfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Bad\ngood.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "good\nBad.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "bad\r.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`bad\r.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "bad\n.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "lib/../Rakefile.rb",
+    "rustocop_positions": [[1, 1]],
+    "rustocop_messages": ["The name of this source file (`Rakefile.rb`) should use snake_case."],
+    "path_policy": "Inherited display_path preserves interior parent components (possibly symlink-sensitive); root-only exclusion does not collapse lib/.., unlike Ruby File.expand_path. No filesystem probe or policy broadening.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "lib/Rakefile.rb/extra.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Rakefile.rb/good.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "Gemfile/good.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "/tmp/Rakefile.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`Rakefile.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "/tmp/Gemfile",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "print 1\n",
+    "file": "dir\\Bad.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`dir\\Bad.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "#!/usr/bin/env ruby\nprint 1\n",
+    "file": "badName.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "#!anything\n",
+    "file": "badName.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "# comment\n#!ruby\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "\n#!ruby\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "﻿#!ruby\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "#!/usr/bin/env ruby\r\nprint 1\r\n",
+    "file": "badName.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "# encoding: US-ASCII\nprint 1\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "# coding: ISO-8859-1\nprint 1\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "module HTTP; class CLI; end; end\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source": "p __LINE__\n__END__\nraw data\n",
+    "file": "badName.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`badName.rb`) should use snake_case."
+    ]
+  },
+  {"cop":"Naming/FileName","source":"print 1\n","file":"good.Upper\nBad.rb","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"good.Upper\nBad","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"Bad.Upper\ngood.rb","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"Bad.\ngood.rb","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"Bad.x\ngood.Upper.rb","positions":[[1,1]],"messages":["The name of this source file (`Bad.x\ngood.Upper.rb`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":".gemspec","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"..gemspec","positions":[[1,1]],"messages":["The name of this source file (`..gemspec`) should use snake_case."]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"...gemspec","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":".a.gemspec","positions":[],"messages":[]},
+  {"cop":"Naming/FileName","source":"print 1\n","file":"a..gemspec","positions":[],"messages":[]}
+]

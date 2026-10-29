@@ -1,0 +1,1437 @@
+[
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 11,
+    "source": "x = a + b and return x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 17,
+    "source": "if a and b\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "if a && b\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 32,
+    "source": "if some_condition\n  do_something and return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 40,
+    "source": "while a and b\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "while a && b\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 55,
+    "source": "while some_condition\n  do_something and return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 63,
+    "source": "until a and b\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "until a && b\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 78,
+    "source": "until some_condition\n  do_something and return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 86,
+    "source": "begin\n  do_something\nend while a and b\n",
+    "positions": [
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "begin\n  do_something\nend while a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 101,
+    "source": "begin\n  do_something and return\nend while some_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 109,
+    "source": "begin\n  do_something\nend until a and b\n",
+    "positions": [
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "begin\n  do_something\nend until a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 124,
+    "source": "begin\n  do_something and return\nend until some_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 11,
+    "source": "x = a + b or return x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 17,
+    "source": "if a or b\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "if a || b\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 32,
+    "source": "if some_condition\n  do_something or return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 40,
+    "source": "while a or b\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "while a || b\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 55,
+    "source": "while some_condition\n  do_something or return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 63,
+    "source": "until a or b\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "until a || b\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 78,
+    "source": "until some_condition\n  do_something or return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 86,
+    "source": "begin\n  do_something\nend while a or b\n",
+    "positions": [
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "begin\n  do_something\nend while a || b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 101,
+    "source": "begin\n  do_something or return\nend while some_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 109,
+    "source": "begin\n  do_something\nend until a or b\n",
+    "positions": [
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "begin\n  do_something\nend until a || b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 124,
+    "source": "begin\n  do_something or return\nend until some_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 134,
+    "source": "test if a && b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 140,
+    "source": "x = a && b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 134,
+    "source": "test if a || b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 140,
+    "source": "x = a || b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 154,
+    "source": "test if a and b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "test if a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 165,
+    "source": "def z(a, b)\n  return true if a and b\nend\n",
+    "positions": [
+      [
+        2,
+        20
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "def z(a, b)\n  return true if a && b\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 154,
+    "source": "test if a or b\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "test if a || b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 165,
+    "source": "def z(a, b)\n  return true if a or b\nend\n",
+    "positions": [
+      [
+        2,
+        20
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "def z(a, b)\n  return true if a || b\nend\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 226,
+    "source": "x = a + b if a and b\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "x = a + b if a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 237,
+    "source": "x = a + b unless a and b\n",
+    "positions": [
+      [
+        1,
+        20
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "x = a + b unless a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 248,
+    "source": "x = a + b while a and b\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "x = a + b while a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 259,
+    "source": "x = a + b until a and b\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use `&&` instead of `and`."
+    ],
+    "correction": "x = a + b until a && b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 226,
+    "source": "x = a + b if a or b\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "x = a + b if a || b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 237,
+    "source": "x = a + b unless a or b\n",
+    "positions": [
+      [
+        1,
+        20
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "x = a + b unless a || b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 248,
+    "source": "x = a + b while a or b\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "x = a + b while a || b\n"
+  },
+  {
+    "cop": "Style/AndOr",
+    "spec_line": 259,
+    "source": "x = a + b until a or b\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use `||` instead of `or`."
+    ],
+    "correction": "x = a + b until a || b\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 49,
+    "source": "Array === var\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "var.is_a?(Array)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 60,
+    "source": "Array === a + b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "(a + b).is_a?(Array)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 71,
+    "source": "Array === !foo\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "(!foo).is_a?(Array)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 6,
+    "source": "puts \"No offense\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 12,
+    "source": "REGEXP_CONSTANT === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 19,
+    "source": "/OMG/ === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 25,
+    "source": "(1..10) === var\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "(1..10).include?(var)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 36,
+    "source": "foo === var\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 6,
+    "source": "puts \"No offense\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 12,
+    "source": "REGEXP_CONSTANT === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 19,
+    "source": "/OMG/ === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 25,
+    "source": "(1..10) === var\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "(1..10).include?(var)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 36,
+    "source": "foo === var\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 100,
+    "source": "self.class === var\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "var.is_a?(self.class)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 6,
+    "source": "puts \"No offense\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 12,
+    "source": "REGEXP_CONSTANT === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 19,
+    "source": "/OMG/ === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 25,
+    "source": "(1..10) === var\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "(1..10).include?(var)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 36,
+    "source": "foo === var\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 123,
+    "source": "self.klass === var\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 6,
+    "source": "puts \"No offense\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 12,
+    "source": "REGEXP_CONSTANT === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 19,
+    "source": "/OMG/ === var\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 25,
+    "source": "(1..10) === var\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": "(1..10).include?(var)\n"
+  },
+  {
+    "cop": "Style/CaseEquality",
+    "spec_line": 36,
+    "source": "foo === var\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid the use of the case equality operator `===`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 5,
+    "source": "defined?(Foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 13,
+    "source": "defined?(Foo) && defined?(Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 20,
+    "source": "defined?(Foo) && defined?(Foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 26,
+    "source": "defined?(Foo) && defined?(::Foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 32,
+    "source": "defined?(Foo) && defined?(Foo::Bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 43,
+    "source": "defined?(Foo::Bar) && defined?(Foo)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 54,
+    "source": "defined?(::Foo) && defined?(::Foo::Bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(::Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 65,
+    "source": "defined?(Foo::Bar) && defined?(Foo::Bar::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 76,
+    "source": "defined?(Foo) && defined?(Foo::Bar) && defined?(Foo::Bar::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 88,
+    "source": "defined?(Foo) && defined?(Foo::Bar) && defined?(Foo::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar) && defined?(Foo::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 100,
+    "source": "defined?(Foo::Bar) && defined?(Foo::Baz)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 106,
+    "source": "defined?(Foo) && !defined?(Foo::Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 112,
+    "source": "defined?(::Foo) && defined?(Foo::Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 118,
+    "source": "defined?(Foo) && defined?(Foo::Bar::Baz)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 124,
+    "source": "defined?(foo) && defined?(foo::Bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 135,
+    "source": "defined?(foo) && defined?(foo.bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo.bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 146,
+    "source": "defined?(foo) && defined?(foo::bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo::bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 157,
+    "source": "defined?(foo) && defined?(foo.bar) && defined?(foo.bar::BAZ)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo.bar::BAZ)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 169,
+    "source": "foo && defined?(Foo) && bar && defined?(Foo::Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 13,
+    "source": "defined?(Foo) and defined?(Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 20,
+    "source": "defined?(Foo) and defined?(Foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 26,
+    "source": "defined?(Foo) and defined?(::Foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 32,
+    "source": "defined?(Foo) and defined?(Foo::Bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 43,
+    "source": "defined?(Foo::Bar) and defined?(Foo)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 54,
+    "source": "defined?(::Foo) and defined?(::Foo::Bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(::Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 65,
+    "source": "defined?(Foo::Bar) and defined?(Foo::Bar::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 76,
+    "source": "defined?(Foo) and defined?(Foo::Bar) and defined?(Foo::Bar::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 88,
+    "source": "defined?(Foo) and defined?(Foo::Bar) and defined?(Foo::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar) and defined?(Foo::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 100,
+    "source": "defined?(Foo::Bar) and defined?(Foo::Baz)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 106,
+    "source": "defined?(Foo) and !defined?(Foo::Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 112,
+    "source": "defined?(::Foo) and defined?(Foo::Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 118,
+    "source": "defined?(Foo) and defined?(Foo::Bar::Baz)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 124,
+    "source": "defined?(foo) and defined?(foo::Bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo::Bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 135,
+    "source": "defined?(foo) and defined?(foo.bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo.bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 146,
+    "source": "defined?(foo) and defined?(foo::bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo::bar)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 157,
+    "source": "defined?(foo) and defined?(foo.bar) and defined?(foo.bar::BAZ)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(foo.bar::BAZ)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 169,
+    "source": "foo and defined?(Foo) and bar and defined?(Foo::Bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 178,
+    "source": "defined?(Foo) && defined?(Foo::Bar) and defined?(Foo::Bar::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar::Baz)\n"
+  },
+  {
+    "cop": "Style/CombinableDefined",
+    "spec_line": 190,
+    "source": "defined?(Foo) && defined?(Foo::Bar) and defined?(Foo::Baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Combine nested `defined?` calls.",
+      "Combine nested `defined?` calls."
+    ],
+    "correction": "defined?(Foo::Bar) and defined?(Foo::Baz)\n"
+  }
+]

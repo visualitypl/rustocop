@@ -1,0 +1,4232 @@
+[
+  {
+    "source": "NIL\n",
+    "origin": "spec",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "nil\n",
+    "project_after": "NIL\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "nil\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "TRUE\n",
+    "origin": "spec",
+    "line": 35,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "true\n",
+    "project_after": "TRUE\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "true\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "FALSE\n",
+    "origin": "spec",
+    "line": 46,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "false\n",
+    "project_after": "FALSE\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "false\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "::NIL\n",
+    "origin": "spec",
+    "line": 144,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "nil\n",
+    "project_after": "::NIL\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "nil\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "::TRUE\n",
+    "origin": "spec",
+    "line": 155,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `::TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "true\n",
+    "project_after": "::TRUE\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `::TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "true\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "::FALSE\n",
+    "origin": "spec",
+    "line": 166,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `::FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "false\n",
+    "project_after": "::FALSE\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `::FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "false\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "::Triple::Nested::Constant\n",
+    "origin": "spec",
+    "line": 177,
+    "findings": [
+
+    ],
+    "upstream_after": "::Triple::Nested::Constant\n",
+    "project_after": "::Triple::Nested::Constant\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Value` instead of `::Triple::Nested::Constant`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "Value\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Spec-only custom constant entry is absent from the fixed seven-entry table."
+  },
+  {
+    "source": "Have::No::Alternative\n",
+    "origin": "spec",
+    "line": 188,
+    "findings": [
+
+    ],
+    "upstream_after": "Have::No::Alternative\n",
+    "project_after": "Have::No::Alternative\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not use `Have::No::Alternative`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "declared_after": "Have::No::Alternative\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Spec-only custom constant entry is absent from the fixed seven-entry table."
+  },
+  {
+    "source": "Have::No::DeprecatedVersion\n",
+    "origin": "spec",
+    "line": 197,
+    "findings": [
+
+    ],
+    "upstream_after": "Have::No::DeprecatedVersion\n",
+    "project_after": "Have::No::DeprecatedVersion\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Value` instead of `Have::No::DeprecatedVersion`."
+      ]
+    ],
+    "declared_after": "Value\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Spec-only custom constant entry is absent from the fixed seven-entry table."
+  },
+  {
+    "source": "Foo::TRUE\n",
+    "origin": "spec",
+    "line": 208,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::TRUE\n",
+    "project_after": "Foo::TRUE\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+
+    ],
+    "declared_after": "Foo::TRUE\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "__ENCODING__\n",
+    "origin": "spec",
+    "line": 214,
+    "findings": [
+
+    ],
+    "upstream_after": "__ENCODING__\n",
+    "project_after": "__ENCODING__\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+
+    ],
+    "declared_after": "__ENCODING__\n",
+    "declared_ruby": 3.4,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "Net::HTTPServerException\n",
+    "origin": "spec",
+    "line": 58,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "Net::HTTPClientException\n",
+    "project_after": "Net::HTTPServerException\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+
+    ],
+    "declared_after": "Net::HTTPServerException\n",
+    "declared_ruby": 2.5,
+    "ordinary_skip": "not run on Prism; pre-deprecation version",
+    "fixed_policy_note": "Pre-deprecation version is not fixed Ruby3.4; legacy parser replayed separately."
+  },
+  {
+    "source": "Net::HTTPServerException\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "Net::HTTPClientException\n",
+    "project_after": "Net::HTTPServerException\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "declared_after": "Net::HTTPClientException\n",
+    "declared_ruby": 2.6,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "Random::DEFAULT\n",
+    "origin": "spec",
+    "line": 79,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Random.new\n",
+    "project_after": "Random::DEFAULT\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+
+    ],
+    "declared_after": "Random::DEFAULT\n",
+    "declared_ruby": 2.7,
+    "ordinary_skip": "not run on Prism; pre-deprecation version",
+    "fixed_policy_note": "Pre-deprecation version is not fixed Ruby3.4; legacy parser replayed separately."
+  },
+  {
+    "source": "Struct::Group\n",
+    "origin": "spec",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Group\n",
+    "project_after": "Struct::Group\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+
+    ],
+    "declared_after": "Struct::Group\n",
+    "declared_ruby": 2.7,
+    "ordinary_skip": "not run on Prism; pre-deprecation version",
+    "fixed_policy_note": "Pre-deprecation version is not fixed Ruby3.4; legacy parser replayed separately."
+  },
+  {
+    "source": "Struct::Passwd\n",
+    "origin": "spec",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Passwd\n",
+    "project_after": "Struct::Passwd\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+
+    ],
+    "declared_after": "Struct::Passwd\n",
+    "declared_ruby": 2.7,
+    "ordinary_skip": "not run on Prism; pre-deprecation version",
+    "fixed_policy_note": "Pre-deprecation version is not fixed Ruby3.4; legacy parser replayed separately."
+  },
+  {
+    "source": "Random::DEFAULT\n",
+    "origin": "spec",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Random.new\n",
+    "project_after": "Random::DEFAULT\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "declared_after": "Random.new\n",
+    "declared_ruby": 3.0,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "::Random::DEFAULT\n",
+    "origin": "spec",
+    "line": 110,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `::Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Random.new\n",
+    "project_after": "::Random::DEFAULT\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `::Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "declared_after": "Random.new\n",
+    "declared_ruby": 3.0,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "Struct::Group\n",
+    "origin": "spec",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Group\n",
+    "project_after": "Struct::Group\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "declared_after": "Etc::Group\n",
+    "declared_ruby": 3.0,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "Struct::Passwd\n",
+    "origin": "spec",
+    "line": 132,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Passwd\n",
+    "project_after": "Struct::Passwd\n",
+    "upstream_valid_syntax": true,
+    "declared_findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "declared_after": "Etc::Passwd\n",
+    "declared_ruby": 3.0,
+    "ordinary_skip": null,
+    "fixed_policy_note": "Extra custom table entries are not consulted by this source."
+  },
+  {
+    "source": "# bad\nNIL\nTRUE\nFALSE\nNet::HTTPServerException\nRandom::DEFAULT # Return value of Ruby 2 is `Random` instance, Ruby 3.0 is `Random` class.\nStruct::Group\nStruct::Passwd\n",
+    "origin": "source",
+    "line": 22,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ],
+      [
+        6,
+        1,
+        6,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ],
+      [
+        7,
+        1,
+        7,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ],
+      [
+        8,
+        1,
+        8,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "# bad\nnil\ntrue\nfalse\nNet::HTTPClientException\nRandom.new # Return value of Ruby 2 is `Random` instance, Ruby 3.0 is `Random` class.\nEtc::Group\nEtc::Passwd\n",
+    "project_after": "# bad\nNIL\nTRUE\nFALSE\nNet::HTTPServerException\nRandom::DEFAULT # Return value of Ruby 2 is `Random` instance, Ruby 3.0 is `Random` class.\nStruct::Group\nStruct::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# good\nnil\ntrue\nfalse\nNet::HTTPClientException\nRandom.new # `::DEFAULT` has been deprecated in Ruby 3, `.new` is compatible with Ruby 2.\nEtc::Group\nEtc::Passwd\n",
+    "origin": "source",
+    "line": 31,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nnil\ntrue\nfalse\nNet::HTTPClientException\nRandom.new # `::DEFAULT` has been deprecated in Ruby 3, `.new` is compatible with Ruby 2.\nEtc::Group\nEtc::Passwd\n",
+    "project_after": "# good\nnil\ntrue\nfalse\nNet::HTTPClientException\nRandom.new # `::DEFAULT` has been deprecated in Ruby 3, `.new` is compatible with Ruby 2.\nEtc::Group\nEtc::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "nil\n",
+    "project_after": "NIL\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::NIL\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "nil\n",
+    "project_after": "::NIL\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::NIL\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::NIL\n",
+    "project_after": "Foo::NIL\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::NIL\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::NIL\n",
+    "project_after": "::Foo::NIL\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL::Nested\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "nil::Nested\n",
+    "project_after": "NIL::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class NIL; end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "class nil; end\n",
+    "project_after": "class NIL; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "module NIL; end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module nil; end\n",
+    "project_after": "module NIL; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "class C < NIL; end\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "class C < nil; end\n",
+    "project_after": "class C < NIL; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+
+    ],
+    "upstream_after": "NIL = nil\n",
+    "project_after": "NIL = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL ||= nil\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ],
+    "upstream_after": "NIL ||= nil\n",
+    "project_after": "NIL ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL &&= nil\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ],
+    "upstream_after": "NIL &&= nil\n",
+    "project_after": "NIL &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL += 1\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+
+    ],
+    "upstream_after": "NIL += 1\n",
+    "project_after": "NIL += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL, other = nil\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ],
+    "upstream_after": "NIL, other = nil\n",
+    "project_after": "NIL, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(NIL)\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "defined?(nil)\n",
+    "project_after": "defined?(NIL)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { NIL }\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "task { nil }\n",
+    "project_after": "task { NIL }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { NIL }\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "-> { nil }\n",
+    "project_after": "-> { NIL }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; NIL; end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "def f; nil; end\n",
+    "project_after": "def f; NIL; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; NIL; end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module M; nil; end\n",
+    "project_after": "module M; NIL; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(NIL)\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "consume(nil)\n",
+    "project_after": "consume(NIL)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{NIL}\"\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "\"#{nil}\"\n",
+    "project_after": "\"#{NIL}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in NIL; end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "case x; in nil; end\n",
+    "project_after": "case x; in NIL; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue NIL; end\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue nil; end\n",
+    "project_after": "begin; work; rescue NIL; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => NIL; end\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => NIL; end\n",
+    "project_after": "begin; work; rescue => NIL; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "true\n",
+    "project_after": "TRUE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::TRUE\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `::TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "true\n",
+    "project_after": "::TRUE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::TRUE\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::TRUE\n",
+    "project_after": "Foo::TRUE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::TRUE\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::TRUE\n",
+    "project_after": "::Foo::TRUE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE::Nested\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "true::Nested\n",
+    "project_after": "TRUE::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class TRUE; end\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "class true; end\n",
+    "project_after": "class TRUE; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "module TRUE; end\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module true; end\n",
+    "project_after": "module TRUE; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "class C < TRUE; end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "class C < true; end\n",
+    "project_after": "class C < TRUE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE = nil\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ],
+    "upstream_after": "TRUE = nil\n",
+    "project_after": "TRUE = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE ||= nil\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "TRUE ||= nil\n",
+    "project_after": "TRUE ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE &&= nil\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ],
+    "upstream_after": "TRUE &&= nil\n",
+    "project_after": "TRUE &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE += 1\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "TRUE += 1\n",
+    "project_after": "TRUE += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE, other = nil\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ],
+    "upstream_after": "TRUE, other = nil\n",
+    "project_after": "TRUE, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(TRUE)\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "defined?(true)\n",
+    "project_after": "defined?(TRUE)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { TRUE }\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "task { true }\n",
+    "project_after": "task { TRUE }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { TRUE }\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "-> { true }\n",
+    "project_after": "-> { TRUE }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; TRUE; end\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "def f; true; end\n",
+    "project_after": "def f; TRUE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; TRUE; end\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module M; true; end\n",
+    "project_after": "module M; TRUE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(TRUE)\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "consume(true)\n",
+    "project_after": "consume(TRUE)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{TRUE}\"\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "\"#{true}\"\n",
+    "project_after": "\"#{TRUE}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in TRUE; end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "case x; in true; end\n",
+    "project_after": "case x; in TRUE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue TRUE; end\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue true; end\n",
+    "project_after": "begin; work; rescue TRUE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => TRUE; end\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => TRUE; end\n",
+    "project_after": "begin; work; rescue => TRUE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "false\n",
+    "project_after": "FALSE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::FALSE\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `::FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "false\n",
+    "project_after": "::FALSE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::FALSE\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::FALSE\n",
+    "project_after": "Foo::FALSE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::FALSE\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::FALSE\n",
+    "project_after": "::Foo::FALSE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE::Nested\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "false::Nested\n",
+    "project_after": "FALSE::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class FALSE; end\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "class false; end\n",
+    "project_after": "class FALSE; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "module FALSE; end\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module false; end\n",
+    "project_after": "module FALSE; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "class C < FALSE; end\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "class C < false; end\n",
+    "project_after": "class C < FALSE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE = nil\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ],
+    "upstream_after": "FALSE = nil\n",
+    "project_after": "FALSE = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE ||= nil\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ],
+    "upstream_after": "FALSE ||= nil\n",
+    "project_after": "FALSE ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE &&= nil\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ],
+    "upstream_after": "FALSE &&= nil\n",
+    "project_after": "FALSE &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE += 1\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ],
+    "upstream_after": "FALSE += 1\n",
+    "project_after": "FALSE += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE, other = nil\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ],
+    "upstream_after": "FALSE, other = nil\n",
+    "project_after": "FALSE, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(FALSE)\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "defined?(false)\n",
+    "project_after": "defined?(FALSE)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { FALSE }\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "task { false }\n",
+    "project_after": "task { FALSE }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { FALSE }\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "-> { false }\n",
+    "project_after": "-> { FALSE }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; FALSE; end\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "def f; false; end\n",
+    "project_after": "def f; FALSE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; FALSE; end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module M; false; end\n",
+    "project_after": "module M; FALSE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(FALSE)\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "consume(false)\n",
+    "project_after": "consume(FALSE)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{FALSE}\"\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "\"#{false}\"\n",
+    "project_after": "\"#{FALSE}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in FALSE; end\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "case x; in false; end\n",
+    "project_after": "case x; in FALSE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue FALSE; end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue false; end\n",
+    "project_after": "begin; work; rescue FALSE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => FALSE; end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => FALSE; end\n",
+    "project_after": "begin; work; rescue => FALSE; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "Net::HTTPClientException\n",
+    "project_after": "Net::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Net::HTTPServerException\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Net::HTTPClientException` instead of `::Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "Net::HTTPClientException\n",
+    "project_after": "::Net::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::Net::HTTPServerException\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::Net::HTTPServerException\n",
+    "project_after": "Foo::Net::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::Net::HTTPServerException\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::Net::HTTPServerException\n",
+    "project_after": "::Foo::Net::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException::Nested\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "Net::HTTPClientException::Nested\n",
+    "project_after": "Net::HTTPServerException::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "class Net::HTTPClientException; end\n",
+    "project_after": "class Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "module Net::HTTPClientException; end\n",
+    "project_after": "module Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class C < Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "class C < Net::HTTPClientException; end\n",
+    "project_after": "class C < Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException = nil\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::HTTPServerException = nil\n",
+    "project_after": "Net::HTTPServerException = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException ||= nil\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::HTTPServerException ||= nil\n",
+    "project_after": "Net::HTTPServerException ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException &&= nil\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::HTTPServerException &&= nil\n",
+    "project_after": "Net::HTTPServerException &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException += 1\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::HTTPServerException += 1\n",
+    "project_after": "Net::HTTPServerException += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::HTTPServerException, other = nil\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::HTTPServerException, other = nil\n",
+    "project_after": "Net::HTTPServerException, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(Net::HTTPServerException)\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "defined?(Net::HTTPClientException)\n",
+    "project_after": "defined?(Net::HTTPServerException)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { Net::HTTPServerException }\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "task { Net::HTTPClientException }\n",
+    "project_after": "task { Net::HTTPServerException }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { Net::HTTPServerException }\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "-> { Net::HTTPClientException }\n",
+    "project_after": "-> { Net::HTTPServerException }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "def f; Net::HTTPClientException; end\n",
+    "project_after": "def f; Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "module M; Net::HTTPClientException; end\n",
+    "project_after": "module M; Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(Net::HTTPServerException)\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "consume(Net::HTTPClientException)\n",
+    "project_after": "consume(Net::HTTPServerException)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{Net::HTTPServerException}\"\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "\"#{Net::HTTPClientException}\"\n",
+    "project_after": "\"#{Net::HTTPServerException}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "case x; in Net::HTTPClientException; end\n",
+    "project_after": "case x; in Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `Net::HTTPClientException` instead of `Net::HTTPServerException`, deprecated since Ruby 2.6."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Net::HTTPClientException; end\n",
+    "project_after": "begin; work; rescue Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => Net::HTTPServerException; end\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => Net::HTTPServerException; end\n",
+    "project_after": "begin; work; rescue => Net::HTTPServerException; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Random.new\n",
+    "project_after": "Random::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Random::DEFAULT\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `::Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Random.new\n",
+    "project_after": "::Random::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::Random::DEFAULT\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::Random::DEFAULT\n",
+    "project_after": "Foo::Random::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::Random::DEFAULT\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::Random::DEFAULT\n",
+    "project_after": "::Foo::Random::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT::Nested\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Random.new::Nested\n",
+    "project_after": "Random::DEFAULT::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "class Random.new; end\n",
+    "project_after": "class Random::DEFAULT; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "module Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "module Random.new; end\n",
+    "project_after": "module Random::DEFAULT; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "class C < Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "class C < Random.new; end\n",
+    "project_after": "class C < Random::DEFAULT; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT = nil\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::DEFAULT = nil\n",
+    "project_after": "Random::DEFAULT = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT ||= nil\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::DEFAULT ||= nil\n",
+    "project_after": "Random::DEFAULT ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT &&= nil\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::DEFAULT &&= nil\n",
+    "project_after": "Random::DEFAULT &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT += 1\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::DEFAULT += 1\n",
+    "project_after": "Random::DEFAULT += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::DEFAULT, other = nil\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::DEFAULT, other = nil\n",
+    "project_after": "Random::DEFAULT, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(Random::DEFAULT)\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "defined?(Random.new)\n",
+    "project_after": "defined?(Random::DEFAULT)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { Random::DEFAULT }\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "task { Random.new }\n",
+    "project_after": "task { Random::DEFAULT }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { Random::DEFAULT }\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "-> { Random.new }\n",
+    "project_after": "-> { Random::DEFAULT }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "def f; Random.new; end\n",
+    "project_after": "def f; Random::DEFAULT; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "module M; Random.new; end\n",
+    "project_after": "module M; Random::DEFAULT; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(Random::DEFAULT)\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "consume(Random.new)\n",
+    "project_after": "consume(Random::DEFAULT)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{Random::DEFAULT}\"\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "\"#{Random.new}\"\n",
+    "project_after": "\"#{Random::DEFAULT}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "case x; in Random.new; end\n",
+    "project_after": "case x; in Random::DEFAULT; end\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "source": "begin; work; rescue Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `Random.new` instead of `Random::DEFAULT`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Random.new; end\n",
+    "project_after": "begin; work; rescue Random::DEFAULT; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => Random::DEFAULT; end\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => Random::DEFAULT; end\n",
+    "project_after": "begin; work; rescue => Random::DEFAULT; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Group\n",
+    "project_after": "Struct::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Struct::Group\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Group` instead of `::Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Group\n",
+    "project_after": "::Struct::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::Struct::Group\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::Struct::Group\n",
+    "project_after": "Foo::Struct::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::Struct::Group\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::Struct::Group\n",
+    "project_after": "::Foo::Struct::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group::Nested\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Group::Nested\n",
+    "project_after": "Struct::Group::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class Struct::Group; end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "class Etc::Group; end\n",
+    "project_after": "class Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module Struct::Group; end\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "module Etc::Group; end\n",
+    "project_after": "module Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class C < Struct::Group; end\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "class C < Etc::Group; end\n",
+    "project_after": "class C < Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group = nil\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Group = nil\n",
+    "project_after": "Struct::Group = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group ||= nil\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Group ||= nil\n",
+    "project_after": "Struct::Group ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group &&= nil\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Group &&= nil\n",
+    "project_after": "Struct::Group &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group += 1\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Group += 1\n",
+    "project_after": "Struct::Group += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Group, other = nil\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Group, other = nil\n",
+    "project_after": "Struct::Group, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(Struct::Group)\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "defined?(Etc::Group)\n",
+    "project_after": "defined?(Struct::Group)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { Struct::Group }\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "task { Etc::Group }\n",
+    "project_after": "task { Struct::Group }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { Struct::Group }\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "-> { Etc::Group }\n",
+    "project_after": "-> { Struct::Group }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; Struct::Group; end\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "def f; Etc::Group; end\n",
+    "project_after": "def f; Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; Struct::Group; end\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "module M; Etc::Group; end\n",
+    "project_after": "module M; Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(Struct::Group)\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "consume(Etc::Group)\n",
+    "project_after": "consume(Struct::Group)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{Struct::Group}\"\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "\"#{Etc::Group}\"\n",
+    "project_after": "\"#{Struct::Group}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in Struct::Group; end\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "case x; in Etc::Group; end\n",
+    "project_after": "case x; in Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue Struct::Group; end\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `Etc::Group` instead of `Struct::Group`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Etc::Group; end\n",
+    "project_after": "begin; work; rescue Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => Struct::Group; end\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => Struct::Group; end\n",
+    "project_after": "begin; work; rescue => Struct::Group; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Passwd\n",
+    "project_after": "Struct::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Struct::Passwd\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Passwd` instead of `::Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Passwd\n",
+    "project_after": "::Struct::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Foo::Struct::Passwd\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ],
+    "upstream_after": "Foo::Struct::Passwd\n",
+    "project_after": "Foo::Struct::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::Foo::Struct::Passwd\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ],
+    "upstream_after": "::Foo::Struct::Passwd\n",
+    "project_after": "::Foo::Struct::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd::Nested\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "Etc::Passwd::Nested\n",
+    "project_after": "Struct::Passwd::Nested\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "class Etc::Passwd; end\n",
+    "project_after": "class Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "module Etc::Passwd; end\n",
+    "project_after": "module Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "class C < Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "class C < Etc::Passwd; end\n",
+    "project_after": "class C < Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd = nil\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Passwd = nil\n",
+    "project_after": "Struct::Passwd = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd ||= nil\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Passwd ||= nil\n",
+    "project_after": "Struct::Passwd ||= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd &&= nil\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Passwd &&= nil\n",
+    "project_after": "Struct::Passwd &&= nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd += 1\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Passwd += 1\n",
+    "project_after": "Struct::Passwd += 1\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::Passwd, other = nil\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::Passwd, other = nil\n",
+    "project_after": "Struct::Passwd, other = nil\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "defined?(Struct::Passwd)\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "defined?(Etc::Passwd)\n",
+    "project_after": "defined?(Struct::Passwd)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "task { Struct::Passwd }\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "task { Etc::Passwd }\n",
+    "project_after": "task { Struct::Passwd }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "-> { Struct::Passwd }\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "-> { Etc::Passwd }\n",
+    "project_after": "-> { Struct::Passwd }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def f; Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "def f; Etc::Passwd; end\n",
+    "project_after": "def f; Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "module M; Etc::Passwd; end\n",
+    "project_after": "module M; Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "consume(Struct::Passwd)\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "consume(Etc::Passwd)\n",
+    "project_after": "consume(Struct::Passwd)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "\"#{Struct::Passwd}\"\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "\"#{Etc::Passwd}\"\n",
+    "project_after": "\"#{Struct::Passwd}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "case x; in Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "case x; in Etc::Passwd; end\n",
+    "project_after": "case x; in Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `Etc::Passwd` instead of `Struct::Passwd`, deprecated since Ruby 3.0."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Etc::Passwd; end\n",
+    "project_after": "begin; work; rescue Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "begin; work; rescue => Struct::Passwd; end\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => Struct::Passwd; end\n",
+    "project_after": "begin; work; rescue => Struct::Passwd; end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net ::HTTPServerException\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+
+    ],
+    "upstream_after": "Net ::HTTPServerException\n",
+    "project_after": "Net ::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net:: HTTPServerException\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+
+    ],
+    "upstream_after": "Net:: HTTPServerException\n",
+    "project_after": "Net:: HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::\n HTTPServerException\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::\n HTTPServerException\n",
+    "project_after": "Net::\n HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net::\\\nHTTPServerException\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+
+    ],
+    "upstream_after": "Net::\\\nHTTPServerException\n",
+    "project_after": "Net::\\\nHTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Net:: # note\nHTTPServerException\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+
+    ],
+    "upstream_after": "Net:: # note\nHTTPServerException\n",
+    "project_after": "Net:: # note\nHTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": ":: Net::HTTPServerException\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+
+    ],
+    "upstream_after": ":: Net::HTTPServerException\n",
+    "project_after": ":: Net::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "(Net)::HTTPServerException\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ],
+    "upstream_after": "(Net)::HTTPServerException\n",
+    "project_after": "(Net)::HTTPServerException\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random ::DEFAULT\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ],
+    "upstream_after": "Random ::DEFAULT\n",
+    "project_after": "Random ::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random:: DEFAULT\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ],
+    "upstream_after": "Random:: DEFAULT\n",
+    "project_after": "Random:: DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::\n DEFAULT\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::\n DEFAULT\n",
+    "project_after": "Random::\n DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random::\\\nDEFAULT\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+
+    ],
+    "upstream_after": "Random::\\\nDEFAULT\n",
+    "project_after": "Random::\\\nDEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Random:: # note\nDEFAULT\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+
+    ],
+    "upstream_after": "Random:: # note\nDEFAULT\n",
+    "project_after": "Random:: # note\nDEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": ":: Random::DEFAULT\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+
+    ],
+    "upstream_after": ":: Random::DEFAULT\n",
+    "project_after": ":: Random::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "(Random)::DEFAULT\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+
+    ],
+    "upstream_after": "(Random)::DEFAULT\n",
+    "project_after": "(Random)::DEFAULT\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct ::Group\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct ::Group\n",
+    "project_after": "Struct ::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct:: Group\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct:: Group\n",
+    "project_after": "Struct:: Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::\n Group\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::\n Group\n",
+    "project_after": "Struct::\n Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::\\\nGroup\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::\\\nGroup\n",
+    "project_after": "Struct::\\\nGroup\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct:: # note\nGroup\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct:: # note\nGroup\n",
+    "project_after": "Struct:: # note\nGroup\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": ":: Struct::Group\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+
+    ],
+    "upstream_after": ":: Struct::Group\n",
+    "project_after": ":: Struct::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "(Struct)::Group\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ],
+    "upstream_after": "(Struct)::Group\n",
+    "project_after": "(Struct)::Group\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct ::Passwd\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct ::Passwd\n",
+    "project_after": "Struct ::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct:: Passwd\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct:: Passwd\n",
+    "project_after": "Struct:: Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::\n Passwd\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::\n Passwd\n",
+    "project_after": "Struct::\n Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct::\\\nPasswd\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct::\\\nPasswd\n",
+    "project_after": "Struct::\\\nPasswd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Struct:: # note\nPasswd\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ],
+    "upstream_after": "Struct:: # note\nPasswd\n",
+    "project_after": "Struct:: # note\nPasswd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": ":: Struct::Passwd\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ],
+    "upstream_after": ":: Struct::Passwd\n",
+    "project_after": ":: Struct::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "(Struct)::Passwd\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ],
+    "upstream_after": "(Struct)::Passwd\n",
+    "project_after": "(Struct)::Passwd\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; NIL",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil",
+    "project_after": "NIL = nil; NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE = true; ::TRUE",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Use `true` instead of `::TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "TRUE = true; true",
+    "project_after": "TRUE = true; ::TRUE",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE = false; FALSE",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "FALSE = false; false",
+    "project_after": "FALSE = false; FALSE",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = 1; [::NIL]",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = 1; [nil]",
+    "project_after": "NIL = 1; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = true; [::NIL]",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = true; [nil]",
+    "project_after": "NIL = true; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [TRUE]",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [true]",
+    "project_after": "NIL = nil; [TRUE]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::NIL = nil; [::NIL]",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "::NIL = nil; [nil]",
+    "project_after": "::NIL = nil; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [::NIL, nil]",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [nil, nil]",
+    "project_after": "NIL = nil; [::NIL, nil]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [*::NIL]",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [*nil]",
+    "project_after": "NIL = nil; [*::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [[::NIL]]",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [[nil]]",
+    "project_after": "NIL = nil; [[::NIL]]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [::NIL].freeze",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [nil].freeze",
+    "project_after": "NIL = nil; [::NIL].freeze",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; NIL = nil; [NIL]; end",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module M; NIL = nil; [nil]; end",
+    "project_after": "module M; NIL = nil; [NIL]; end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; module M; [NIL]; end",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; module M; [nil]; end",
+    "project_after": "NIL = nil; module M; [NIL]; end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; task { [::NIL] }",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; task { [nil] }",
+    "project_after": "NIL = nil; task { [::NIL] }",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; private_constant :NIL; [::NIL]",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+      [
+        1,
+        36,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; private_constant :NIL; [nil]",
+    "project_after": "NIL = nil; private_constant :NIL; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; deprecate_constant :NIL; [::NIL]",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+      [
+        1,
+        38,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; deprecate_constant :NIL; [nil]",
+    "project_after": "NIL = nil; deprecate_constant :NIL; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "autoload :NIL, 'alias'; [NIL]",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "autoload :NIL, 'alias'; [nil]",
+    "project_after": "autoload :NIL, 'alias'; [NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def Object.const_added(x); raise; end; NIL = nil; [::NIL]",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+      [
+        1,
+        52,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "def Object.const_added(x); raise; end; NIL = nil; [nil]",
+    "project_after": "def Object.const_added(x); raise; end; NIL = nil; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [::NIL]\n__END__\npayload\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [nil]\n__END__\npayload\n",
+    "project_after": "NIL = nil; [::NIL]\n__END__\npayload\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [::NIL]; File.read(__FILE__)",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [nil]; File.read(__FILE__)",
+    "project_after": "NIL = nil; [::NIL]; File.read(__FILE__)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [::NIL]; GC.stat",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [nil]; GC.stat",
+    "project_after": "NIL = nil; [::NIL]; GC.stat",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; [::NIL]; p __LINE__",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; [nil]; p __LINE__",
+    "project_after": "NIL = nil; [::NIL]; p __LINE__",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TracePoint.new(:line) {}.enable; NIL = nil; [::NIL]",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+      [
+        1,
+        46,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "TracePoint.new(:line) {}.enable; NIL = nil; [nil]",
+    "project_after": "TracePoint.new(:line) {}.enable; NIL = nil; [::NIL]",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "__ENCODING__",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+
+    ],
+    "upstream_after": "__ENCODING__",
+    "project_after": "__ENCODING__",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Triple::Nested::Constant",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+
+    ],
+    "upstream_after": "Triple::Nested::Constant",
+    "project_after": "Triple::Nested::Constant",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Have::No::Alternative",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+
+    ],
+    "upstream_after": "Have::No::Alternative",
+    "project_after": "Have::No::Alternative",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "Have::No::DeprecatedVersion",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+
+    ],
+    "upstream_after": "Have::No::DeprecatedVersion",
+    "project_after": "Have::No::DeprecatedVersion",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# NIL",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ],
+    "upstream_after": "# NIL",
+    "project_after": "# NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "'NIL'; :TRUE",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+
+    ],
+    "upstream_after": "'NIL'; :TRUE",
+    "project_after": "'NIL'; :TRUE",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL::Nested",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil::Nested",
+    "project_after": "NIL = nil; ::NIL::Nested",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = true; ::NIL",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = true; nil",
+    "project_after": "NIL = true; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = 1; ::NIL",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = 1; nil",
+    "project_after": "NIL = 1; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "::NIL = nil; ::NIL",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "::NIL = nil; nil",
+    "project_after": "::NIL = nil; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; TRUE",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; true",
+    "project_after": "NIL = nil; TRUE",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; NIL = 1",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; NIL = 1",
+    "project_after": "NIL = nil; ::NIL; NIL = 1",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; NIL = 1; ::NIL",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; NIL = 1; nil",
+    "project_after": "NIL = nil; NIL = 1; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL ||= nil; ::NIL",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL ||= nil; nil",
+    "project_after": "NIL ||= nil; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; (::NIL)",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; (nil)",
+    "project_after": "NIL = nil; (::NIL)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "module M; NIL = nil; NIL; end",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "module M; NIL = nil; nil; end",
+    "project_after": "module M; NIL = nil; NIL; end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; private_constant :NIL; ::NIL",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; private_constant :NIL; nil",
+    "project_after": "NIL = nil; private_constant :NIL; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; deprecate_constant :NIL; ::NIL",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+      [
+        1,
+        37,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; deprecate_constant :NIL; nil",
+    "project_after": "NIL = nil; deprecate_constant :NIL; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "autoload :NIL, 'alias'; NIL",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "autoload :NIL, 'alias'; nil",
+    "project_after": "autoload :NIL, 'alias'; NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "def Object.const_added(x); raise; end; NIL = nil; ::NIL",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+      [
+        1,
+        51,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "def Object.const_added(x); raise; end; NIL = nil; nil",
+    "project_after": "def Object.const_added(x); raise; end; NIL = nil; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; Object.send(:remove_const, :NIL); ::NIL",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+      [
+        1,
+        46,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; Object.send(:remove_const, :NIL); nil",
+    "project_after": "NIL = nil; Object.send(:remove_const, :NIL); ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; eval('NIL=1'); ::NIL",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; eval('NIL=1'); nil",
+    "project_after": "NIL = nil; eval('NIL=1'); ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; TracePoint.new(:line) {}.enable; ::NIL",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+      [
+        1,
+        45,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; TracePoint.new(:line) {}.enable; nil",
+    "project_after": "NIL = nil; TracePoint.new(:line) {}.enable; ::NIL",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; File.read(__FILE__)",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; File.read(__FILE__)",
+    "project_after": "NIL = nil; ::NIL; File.read(__FILE__)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; IO.read(__FILE__)",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; IO.read(__FILE__)",
+    "project_after": "NIL = nil; ::NIL; IO.read(__FILE__)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; RubyVM::InstructionSequence.compile_file(__FILE__)",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; RubyVM::InstructionSequence.compile_file(__FILE__)",
+    "project_after": "NIL = nil; ::NIL; RubyVM::InstructionSequence.compile_file(__FILE__)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; RubyVM::AbstractSyntaxTree.parse_file(__FILE__)",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; RubyVM::AbstractSyntaxTree.parse_file(__FILE__)",
+    "project_after": "NIL = nil; ::NIL; RubyVM::AbstractSyntaxTree.parse_file(__FILE__)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; ObjectSpace.each_object {}",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; ObjectSpace.each_object {}",
+    "project_after": "NIL = nil; ::NIL; ObjectSpace.each_object {}",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; GC.stat",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; GC.stat",
+    "project_after": "NIL = nil; ::NIL; GC.stat",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL\n__END__\npayload\n",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil\n__END__\npayload\n",
+    "project_after": "NIL = nil; ::NIL\n__END__\npayload\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; p __LINE__",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; p __LINE__",
+    "project_after": "NIL = nil; ::NIL; p __LINE__",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; ::NIL; p DATA.pos\n__END__\ndata",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; nil; p DATA.pos\n__END__\ndata",
+    "project_after": "NIL = nil; ::NIL; p DATA.pos\n__END__\ndata",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil; <<~DOC\n#{::NIL}\nDOC\n",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil; <<~DOC\n#{nil}\nDOC\n",
+    "project_after": "NIL = nil; <<~DOC\n#{::NIL}\nDOC\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil\n[NIL]\n",
+    "origin": "closed-alias",
+    "line": 268,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil\n[nil]\n",
+    "project_after": "NIL = nil\n[nil]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# alias\nNIL = nil # binding\n[NIL] # read\n",
+    "origin": "closed-alias",
+    "line": 269,
+    "findings": [
+      [
+        3,
+        2,
+        3,
+        "Use `nil` instead of `NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "# alias\nNIL = nil # binding\n[nil] # read\n",
+    "project_after": "# alias\nNIL = nil # binding\n[nil] # read\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "NIL = nil\n[::NIL]\n",
+    "origin": "closed-alias",
+    "line": 270,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "NIL = nil\n[nil]\n",
+    "project_after": "NIL = nil\n[nil]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# alias\nNIL = nil # binding\n[::NIL] # read\n",
+    "origin": "closed-alias",
+    "line": 271,
+    "findings": [
+      [
+        3,
+        2,
+        3,
+        "Use `nil` instead of `::NIL`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "# alias\nNIL = nil # binding\n[nil] # read\n",
+    "project_after": "# alias\nNIL = nil # binding\n[nil] # read\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE = true\n[TRUE]\n",
+    "origin": "closed-alias",
+    "line": 272,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "TRUE = true\n[true]\n",
+    "project_after": "TRUE = true\n[true]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# alias\nTRUE = true # binding\n[TRUE] # read\n",
+    "origin": "closed-alias",
+    "line": 273,
+    "findings": [
+      [
+        3,
+        2,
+        3,
+        "Use `true` instead of `TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "# alias\nTRUE = true # binding\n[true] # read\n",
+    "project_after": "# alias\nTRUE = true # binding\n[true] # read\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "TRUE = true\n[::TRUE]\n",
+    "origin": "closed-alias",
+    "line": 274,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Use `true` instead of `::TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "TRUE = true\n[true]\n",
+    "project_after": "TRUE = true\n[true]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# alias\nTRUE = true # binding\n[::TRUE] # read\n",
+    "origin": "closed-alias",
+    "line": 275,
+    "findings": [
+      [
+        3,
+        2,
+        3,
+        "Use `true` instead of `::TRUE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "# alias\nTRUE = true # binding\n[true] # read\n",
+    "project_after": "# alias\nTRUE = true # binding\n[true] # read\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE = false\n[FALSE]\n",
+    "origin": "closed-alias",
+    "line": 276,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "FALSE = false\n[false]\n",
+    "project_after": "FALSE = false\n[false]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# alias\nFALSE = false # binding\n[FALSE] # read\n",
+    "origin": "closed-alias",
+    "line": 277,
+    "findings": [
+      [
+        3,
+        2,
+        3,
+        "Use `false` instead of `FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "# alias\nFALSE = false # binding\n[false] # read\n",
+    "project_after": "# alias\nFALSE = false # binding\n[false] # read\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "FALSE = false\n[::FALSE]\n",
+    "origin": "closed-alias",
+    "line": 278,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Use `false` instead of `::FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "FALSE = false\n[false]\n",
+    "project_after": "FALSE = false\n[false]\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "source": "# alias\nFALSE = false # binding\n[::FALSE] # read\n",
+    "origin": "closed-alias",
+    "line": 279,
+    "findings": [
+      [
+        3,
+        2,
+        3,
+        "Use `false` instead of `::FALSE`, deprecated since Ruby 2.4."
+      ]
+    ],
+    "upstream_after": "# alias\nFALSE = false # binding\n[false] # read\n",
+    "project_after": "# alias\nFALSE = false # binding\n[false] # read\n",
+    "upstream_valid_syntax": true
+  }
+]

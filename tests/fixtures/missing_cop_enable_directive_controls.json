@@ -1,0 +1,297 @@
+[
+  {
+    "label": "repeated-disable",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\n# rubocop:disable Layout/SpaceAroundOperators\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "first-inserted-not-first-token",
+    "source": "# rubocop:enable Layout/LineLength\n# rubocop:disable Layout/SpaceAroundOperators, Layout/LineLength\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/LineLength cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "next-first-insertion",
+    "source": "# rubocop:disable-next Layout/LineLength\nx\n# rubocop:disable Layout/SpaceAroundOperators, Layout/LineLength\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/LineLength cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "detached-next-no-insertion",
+    "source": "# rubocop:disable-next Layout/LineLength\n\nx\n# rubocop:disable Layout/SpaceAroundOperators, Layout/LineLength\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "enable-next-first-insertion",
+    "source": "# rubocop:enable-next Layout/LineLength\nx\n# rubocop:disable Layout/SpaceAroundOperators, Layout/LineLength\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/LineLength cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "pop-restores-origin",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\n# rubocop:push +Layout/SpaceAroundOperators\n# rubocop:push -Layout/SpaceAroundOperators\nx\n# rubocop:pop\n# rubocop:pop\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "pop-restores-enabled",
+    "source": "# rubocop:push\n# rubocop:disable Layout/SpaceAroundOperators\n# rubocop:pop\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "negative-push-keeps-origin",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\n# rubocop:push -Layout/SpaceAroundOperators\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "positive-push-closes",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\n# rubocop:push +Layout/SpaceAroundOperators\nx\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "negative-next-does-not-reopen",
+    "source": "# rubocop:next -Layout/SpaceAroundOperators\nx = [\n  1\n]\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "temporary-hole-at-eof",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\n# rubocop:enable-next Layout/SpaceAroundOperators\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "trailing-enable",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx # rubocop:enable Layout/SpaceAroundOperators\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "prose-prefix",
+    "source": "# note # rubocop:disable Layout/SpaceAroundOperators\nx\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "wrong-namespace",
+    "source": "# rubocop:disable Wrong/SpaceAroundOperators, Unknown/Cop\nx\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "short-name",
+    "source": "# rubocop:todo SpaceAroundOperators\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "block-ordinary",
+    "source": "=begin\n# rubocop:disable Layout/SpaceAroundOperators\n=end\nx\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "block-push",
+    "source": "=begin\n# rubocop:push -Layout/SpaceAroundOperators\n=end\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:pop` after disabling it."
+    ]
+  },
+  {
+    "label": "configured-off",
+    "source": "# rubocop:enable Layout/LineLength\n# rubocop:disable Layout/LineLength\nx\n",
+    "disabled": true,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "inactive-version-still-configured-on",
+    "source": "# rubocop:disable Style/ReverseFind\nx\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Style/ReverseFind cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "label": "ban-immunity",
+    "source": "# rubocop:disable Style/DisableCopsWithinSourceCodeDirective\nx\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "signed-all-is-not-expanded",
+    "source": "# rubocop:push -all\nx\n",
+    "disabled": false,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "label": "trailing-push",
+    "source": "x # rubocop:push -Layout/SpaceAroundOperators\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:pop` after disabling it."
+    ]
+  },
+  {
+    "label": "comment-only",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\n",
+    "disabled": false,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  }
+]

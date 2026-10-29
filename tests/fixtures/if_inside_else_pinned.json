@@ -1,0 +1,391 @@
+[
+  {
+    "spec_line": 7,
+    "source": "if a\n  blah\nelse\n  if b\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  blah\nelsif b\n  foo\nend\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "if a\n  blah\nelse\n  if b\n    foo\n  else # This is expected to be autocorrected by `Layout/IndentationWidth`.\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  blah\nelsif b\n  foo\n  else # This is expected to be autocorrected by `Layout/IndentationWidth`.\n    bar\nend\n"
+  },
+  {
+    "spec_line": 53,
+    "source": "if a\n  foo\nelse\n  if b\n    # TODO: comment.\n  else\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  foo\nelsif b\n    # TODO: comment.\n  else\n    bar\nend\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "if a\n  foo\nelse\n  if b\n    # this is very important\n    bar # this too\n  else\n    # this three\n    baz # this four\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  foo\nelsif b\n  # this is very important\n    bar # this too\n  else\n    # this three\n    baz # this four\nend\n"
+  },
+  {
+    "spec_line": 107,
+    "source": "if a\n  blah\nelse\n  if b\n    foo\n  elsif c # This is expected to be autocorrected by `Layout/IndentationWidth`.\n      bar\n  elsif d\n    baz\n  else\n    qux\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  blah\nelsif b\n  foo\n  elsif c # This is expected to be autocorrected by `Layout/IndentationWidth`.\n      bar\n  elsif d\n    baz\n  else\n    qux\nend\n"
+  },
+  {
+    "spec_line": 140,
+    "source": "if a\n  blah\nelsif b\n  foo\nelse\n  # important info\n  bar if condition # blabla\nend\n",
+    "positions": [
+      [
+        7,
+        7
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  blah\nelsif b\n  foo\nelsif condition\n  # important info\n  bar # blabla\nend\n"
+  },
+  {
+    "spec_line": 165,
+    "source": "if x\n  'x'\nelse\n  if y then 'y' end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if x\n  'x'\nelse\n  if y\n  'y'\nend\nend\n"
+  },
+  {
+    "spec_line": 186,
+    "source": "if x\n  'x'\nelse\n  if y then 'y' else 'z' end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if x\n  'x'\nelsif y\n  'y'\n  else\n  'z'\nend\n"
+  },
+  {
+    "spec_line": 207,
+    "source": "if x\n  'x'\nelse\n  if y then 'y' elsif z then 'z' end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if x\n  'x'\nelse\n  if y\n  'y'\n  elsif z\n  'z'\nend\nend\n"
+  },
+  {
+    "spec_line": 230,
+    "source": "if x\n  'x'\nelse\n  if y then 'y' elsif z then 'z' else 'a' end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if x\n  'x'\nelsif y\n  'y'\n  elsif z\n  'z'\n  else\n  'a'\nend\n"
+  },
+  {
+    "spec_line": 253,
+    "source": "if x\n  'x'\nelse\n  if y then 'y'\n  elsif z then 'z'\n  else 'a' end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if x\n  'x'\nelse\n  if y\n  'y'\n  elsif z\n  'z'\n  else\n  'a'\n  end\nend\n"
+  },
+  {
+    "spec_line": 280,
+    "source": "if cond\nelse\n  if nested_one\n  else\n    if c\n      if d\n      else\n        if e\n        end\n      end\n    end\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        8,
+        9
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`.",
+      "Convert `if` nested inside `else` to `elsif`.",
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if cond\nelsif nested_one\n  else\n    if c\n      if d\n      else\n        if e\n        end\n      end\n    end\nend\n"
+  },
+  {
+    "spec_line": 315,
+    "source": "if a then foo else if b; bar else baz end; end\n",
+    "positions": [
+      [
+        1,
+        20
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 324,
+    "source": "if a\n  blah\nelse\n  if b; foo; end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 337,
+    "source": "if a\n  blah\nelse\n  if b; else\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 352,
+    "source": "if a\n  blah\nelse\n  if b\n    foo\n  else bar end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 367,
+    "source": "if a\n  blah\nelse if b\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        6
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 437,
+    "source": "if a\n  blah\nelse\n  if b\n    foo\n  end\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 450,
+    "source": "if a\n  blah\nelse\n  bar\n  if b\n    foo\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 463,
+    "source": "if a\n  blah\nelse\n  # Not A!\n\n  if b\n    foo\n  else\n    bar\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 479,
+    "source": "if a\n  blah\nelse\n  # comment\n  if b\n    foo\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 492,
+    "source": "if a\n  blah\nelsif b\n  blah\nelse\n  blah\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 504,
+    "source": "if a\n  blah\nelse\n  unless b\n    foo\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 516,
+    "source": "unless a\n  if b\n    foo\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 526,
+    "source": "a ? b : c ? d : e",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 530,
+    "source": "if a\n  blah\nelse\n  a ? b : c\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 382,
+    "source": "if a\n  blah\nelse\n  foo if b\nend\n",
+    "positions": [
+      [
+        4,
+        7
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": "if a\n  blah\nelsif b\n  foo\nend\n"
+  },
+  {
+    "spec_line": 401,
+    "source": "if a\n  blah\nelse foo if b\nend\n",
+    "positions": [
+      [
+        3,
+        10
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 413,
+    "source": "if a then blah else foo if b end\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Convert `if` nested inside `else` to `elsif`."
+    ],
+    "correction": null
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "spec_line": 173,
+    "source": "a ? b : c",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 177,
+    "source": "!foo.empty? ? :bar : :baz",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 181,
+    "source": "if ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 188,
+    "source": "unless ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 16,
+    "source": "if !a_condition\n  some_method\nend\nsome_method if !a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `unless` over `if` for negative conditions.",
+      "Favor `unless` over `if` for negative conditions."
+    ],
+    "correction": "unless a_condition\n  some_method\nend\nsome_method unless a_condition\n"
+  },
+  {
+    "spec_line": 34,
+    "source": "if not a_condition\n  some_method\nend\nsome_method if not a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `unless` over `if` for negative conditions.",
+      "Favor `unless` over `if` for negative conditions."
+    ],
+    "correction": "unless a_condition\n  some_method\nend\nsome_method unless a_condition\n"
+  },
+  {
+    "spec_line": 52,
+    "source": "if !a_condition\n  some_method\nelse\n  something_else\nend\nif not a_condition\n  some_method\nelsif other_condition\n  something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 67,
+    "source": "if !condition && another_condition\n  some_method\nend\nif not condition or another_condition\n  some_method\nend\nsome_method if not condition or another_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 79,
+    "source": "if !!condition\n  some_method\nend\nsome_method if !!condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 88,
+    "source": "if test.is_a?(String)\n  3\nelsif test.is_a?(Array)\n  2\nelsif !test.nil?\n  1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 100,
+    "source": "something if (!x.even?)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `unless` over `if` for negative conditions."
+    ],
+    "correction": "something unless (x.even?)\n"
+  }
+]

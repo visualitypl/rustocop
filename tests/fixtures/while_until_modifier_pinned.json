@@ -1,0 +1,846 @@
+[
+  {
+    "spec_line": 10,
+    "source": "while aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 23,
+    "source": "while aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(a:)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 49,
+    "source": "while some_condition\n  do_something\n  do_something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 58,
+    "source": "while condition\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "do_something while condition\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 71,
+    "source": "while cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 78,
+    "source": "while (var = something)\n  puts var\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 86,
+    "source": "while true\n  x = 0\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "x = 0 while true\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 99,
+    "source": "a = while b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "a = (1 while b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 112,
+    "source": "@a = while b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "@a = (1 while b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 125,
+    "source": "@@a = while b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "@@a = (1 while b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 138,
+    "source": "A = while b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "A = (1 while b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 151,
+    "source": "a + while b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "a + (1 while b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 164,
+    "source": "while bar # important comment not to be nuked\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "baz while bar # important comment not to be nuked\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 177,
+    "source": "while foo; bar; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "bar while foo\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 39,
+    "source": "while foo\n  \"This string would make the line longer than eighty characters if combined with the statement.\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "enabled": false
+      }
+    }
+  },
+  {
+    "spec_line": 190,
+    "source": "foo while bar ||\n               baz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 199,
+    "source": "[\n  1, while foo # bar\n       baz\n     end, 3\n]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 10,
+    "source": "until aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 23,
+    "source": "until aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(a:)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 49,
+    "source": "until some_condition\n  do_something\n  do_something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 58,
+    "source": "until condition\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "do_something until condition\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 71,
+    "source": "until cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 78,
+    "source": "until (var = something)\n  puts var\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 86,
+    "source": "until true\n  x = 0\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "x = 0 until true\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 99,
+    "source": "a = until b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "a = (1 until b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 112,
+    "source": "@a = until b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "@a = (1 until b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 125,
+    "source": "@@a = until b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "@@a = (1 until b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 138,
+    "source": "A = until b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "A = (1 until b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 151,
+    "source": "a + until b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "a + (1 until b)\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 164,
+    "source": "until bar # important comment not to be nuked\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "baz until bar # important comment not to be nuked\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 177,
+    "source": "until foo; bar; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": "bar until foo\n",
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 39,
+    "source": "until foo\n  \"This string would make the line longer than eighty characters if combined with the statement.\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `until` usage when having a single-line body."
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "enabled": false
+      }
+    }
+  },
+  {
+    "spec_line": 190,
+    "source": "foo until bar ||\n               baz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 199,
+    "source": "[\n  1, until foo # bar\n       baz\n     end, 3\n]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 80
+      }
+    }
+  },
+  {
+    "spec_line": 9,
+    "source": "while foo\n  bar if baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 17,
+    "source": "until foo\n  bar if baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 27,
+    "source": "while foo\n  bar unless baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 35,
+    "source": "until foo\n  bar unless baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 45,
+    "source": "while foo\n  x.odd? ? do_a : do_b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 53,
+    "source": "until foo\n  x.odd? ? do_a : do_b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 63,
+    "source": "while foo\n  bar while baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 71,
+    "source": "until foo\n  bar while baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 81,
+    "source": "while foo\n  bar until baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 89,
+    "source": "until foo\n  bar until baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 99,
+    "source": "while foo\n  case x; when 42 then a; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 107,
+    "source": "until foo\n  case x; when 42 then a; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 117,
+    "source": "while foo\n  case x; in 42 then a; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 125,
+    "source": "until foo\n  case x; in 42 then a; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 135,
+    "source": "while foo\n  begin bar end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 143,
+    "source": "until foo\n  begin bar end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 153,
+    "source": "def foo = while bar\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Favor modifier `while` usage when having a single-line body."
+    ],
+    "correction": "def foo = (baz while bar)\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 175,
+    "source": "while url == 'https://example.com/a/rather/long/path?with=query'\n  step\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Layout/LineLength": {
+        "max": 40
+      }
+    }
+  }
+]

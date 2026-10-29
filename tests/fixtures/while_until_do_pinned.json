@@ -1,0 +1,141 @@
+[
+  {
+    "spec_line": 5,
+    "source": "while cond do\nend\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Do not use `do` with multi-line `while`."
+    ],
+    "correction": "while cond\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 18,
+    "source": "until cond do\nend\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Do not use `do` with multi-line `until`."
+    ],
+    "correction": "until cond\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 31,
+    "source": "while i < 3 do\n  i += 1\nend\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Do not use `do` with multi-line `while`."
+    ],
+    "correction": "while i < 3\n  i += 1\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 46,
+    "source": "while cond do something end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 50,
+    "source": "until cond do something end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 54,
+    "source": "while i < 3 do i += 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 61,
+    "source": "until i >= 3 do i += 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 68,
+    "source": "while i < 3 ||\n      j < 3 do i += 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 76,
+    "source": "while cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 83,
+    "source": "until cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  }
+]

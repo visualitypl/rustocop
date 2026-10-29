@@ -1,0 +1,1054 @@
+[
+  {
+    "name": "Style/AccessorGrouping",
+    "before": "class Foo\n  attr_reader :one\n  attr_reader :two\nend\n",
+    "after": "class Foo\n  attr_reader :one, :two\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Alias",
+    "before": "alias :ala :bala",
+    "after": "alias ala bala",
+    "origin": "tests/definition_syntax.rs:185"
+  },
+  {
+    "name": "Style/AmbiguousEndlessMethodDefinition",
+    "before": "def foo = true if bar\n",
+    "after": "def foo\n  true\nend if bar\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ArgumentsForwarding",
+    "before": "def foo(*args)\n  bar(*args)\nend\n",
+    "after": "def foo(*)\n  bar(*)\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ArrayJoin",
+    "before": "%w[a b] * ','\n",
+    "after": "%w[a b].join(',')\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Attr",
+    "before": "module Foo; attr :name; end",
+    "after": "module Foo; attr_reader :name; end",
+    "origin": "src/cops/style/attr.rs:133"
+  },
+  {
+    "name": "Style/BarePercentLiterals",
+    "before": "%Q(#{x})\n",
+    "after": "%(#{x})\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/BisectedAttrAccessor",
+    "before": "class Foo\n  attr_reader :one\n  attr_writer :one\nend\n",
+    "after": "class Foo\n  attr_accessor :one\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/BlockComments",
+    "before": "=begin\ncomment\n=end\n",
+    "after": "# comment\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/BlockDelimiters",
+    "before": "each { |x|\n  x\n}\n",
+    "after": "each do |x|\n  x\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/CaseEquality",
+    "before": "(1..10) === 7\n",
+    "after": "(1..10).include?(7)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/CharacterLiteral",
+    "before": "x = ?x\n",
+    "after": "x = 'x'\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ClassCheck",
+    "before": "x&.kind_of?(String)\n",
+    "after": "x&.is_a?(String)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ClassMethods",
+    "before": "class Test\n  def Test.foo; end\nend\n",
+    "after": "class Test\n  def self.foo; end\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ClassMethodsDefinitions",
+    "before": "class A\n  class << self\n    def one; end\n  end\nend\n",
+    "after": "class A\n  def self.one; end\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ColonMethodCall",
+    "before": "object::method_name(arg)\nobject::value ||= rhs\n",
+    "after": "object.method_name(arg)\nobject.value ||= rhs\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ColonMethodDefinition",
+    "before": "def self::foo; end\n",
+    "after": "def self.foo; end\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/CombinableDefined",
+    "before": "module Foo; Bar=1; end; defined?(Foo) && defined?(Foo::Bar)\n",
+    "after": "module Foo; Bar=1; end; defined?(Foo::Bar)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/CommandLiteral",
+    "before": "foo = %x(ls)\n",
+    "after": "foo = `ls`\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/CommentAnnotation",
+    "before": "# TODO improve this\n",
+    "after": "# TODO: improve this\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ComparableClamp",
+    "before": "if 2 < 1; 1; elsif 3 < 2; 3; else; 2; end\n",
+    "after": "2.clamp(1, 3)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ConditionalAssignment",
+    "before": "condition ? value = 1 : value = 2\n",
+    "after": "value = condition ? 1 : 2\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Copyright",
+    "before": "names = []\n# Copyright 2026 X\n",
+    "after": "names = []\n# Copyright 2026 X\n",
+    "origin": "spec/rubocop/cop/style/copyright_spec.rb",
+    "withheld": "Pinned AutocorrectNotice is empty: no conforming notice can be invented."
+  },
+  {
+    "name": "Style/DefWithParentheses",
+    "before": "def foo()\nend\n",
+    "after": "def foo\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Dir",
+    "before": "File.expand_path(File.dirname(__FILE__))\n",
+    "after": "__dir__\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/DirEmpty",
+    "before": "Dir.children('.').empty?",
+    "after": "Dir.empty?('.')",
+    "origin": "tests/file_apis.rs:685"
+  },
+  {
+    "name": "Style/DisableCopsWithinSourceCodeDirective",
+    "before": "work # rustocop:todo Metrics/AbcSize\n",
+    "after": "work \n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EachForSimpleLoop",
+    "before": "(0...10).each {}\n",
+    "after": "10.times {}\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EachWithObject",
+    "before": "[].inject({}) { |a,e| a }\n",
+    "after": "[].each_with_object({}) { |e,a|  }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyBlockParameter",
+    "before": "proc { || 42 }\n",
+    "after": "proc { 42 }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyCaseCondition",
+    "before": "case\nwhen ready\n work\nend\n",
+    "after": "if ready\n work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyClassDefinition",
+    "before": "FooError = Class.new(StandardError)\n",
+    "after": "class FooError < StandardError\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyElse",
+    "before": "case x\nwhen 1\nelse\nend\n",
+    "after": "case x\nwhen 1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyHeredoc",
+    "before": "p <<~EOS\nEOS\n",
+    "after": "p \"\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyLambdaParameter",
+    "before": "-> () { 42 }\n",
+    "after": "-> { 42 }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyLiteral",
+    "before": "Array.new\n",
+    "after": "[]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyMethod",
+    "before": "def f\nend\n",
+    "after": "def f; end\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EmptyStringInsideInterpolation",
+    "before": "\"#{true ? 'foo' : nil}\"\n",
+    "after": "\"#{'foo' if true}\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Encoding",
+    "before": "# encoding: utf-8\nx\n",
+    "after": "x\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EndBlock",
+    "before": "# exit\n  END {\n    :work\n  }\n",
+    "after": "# exit\n  at_exit {\n    :work\n  }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EndlessMethod",
+    "before": "def foo = [\n  1]\n",
+    "after": "def foo\n  [\n  1]\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EvalWithLocation",
+    "before": "eval('42', binding)\n",
+    "after": "eval('42', binding, __FILE__, __LINE__)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/EvenOdd",
+    "before": "1 % 2 != 1\n",
+    "after": "1.even?\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ExactRegexpMatch",
+    "before": "'x'.match?(/\\Ax\\z/)\n",
+    "after": "'x' == 'x'\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ExpandPathArguments",
+    "before": "File.expand_path('..', __FILE__)\n",
+    "after": "File.expand_path(__dir__)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ExplicitBlockArgument",
+    "before": "def f\n  if block_given?; [1].each { |x| yield x }; end\nend\n",
+    "after": "def f(&block)\n  if block_given?; [1].each(&block); end\nend\n",
+    "origin": "src/cops/style/explicit_block_argument.rs:584"
+  },
+  {
+    "name": "Style/FetchEnvVar",
+    "before": "ENV['X']\n",
+    "after": "ENV.fetch('X', nil)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/FileRead",
+    "before": "File.open(\"file\", &:read)\n",
+    "after": "File.read(\"file\")\n",
+    "origin": "tests/file_apis.rs:48"
+  },
+  {
+    "name": "Style/FileWrite",
+    "before": "File.open('file', 'wb') { |f| f.write('data') }\n",
+    "after": "File.binwrite('file', 'data')\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/FormatString",
+    "before": "\"%s\" % 1\n",
+    "after": "format(\"%s\", 1)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/FormatStringToken",
+    "before": "format(\"%{x}\", x: 1)\n",
+    "after": "format(\"%<x>s\", x: 1)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/GuardClause",
+    "before": "def foo\n  if condition\n    work\n  end\nend\n",
+    "after": "def foo\n  return unless condition\n    work\n  \nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/HashAsLastArrayItem",
+    "before": "[1, a: 2]\n",
+    "after": "[1, {a: 2}]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/HashSyntax",
+    "before": "{ :a => 1 }\n",
+    "after": "{ a: 1 }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/IfInsideElse",
+    "before": "if a\nelse\n  work if b\nend\n",
+    "after": "if a\nelsif b\n  work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/IfUnlessModifier",
+    "before": "if condition\n  work\nend\n",
+    "after": "work if condition\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/IfUnlessModifierOfIfUnless",
+    "before": "a ? b : c if d\n",
+    "after": "if d\na ? b : c\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/IfWithSemicolon",
+    "before": "if cond; run else dont end\n",
+    "after": "cond ? run : dont\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/InPatternThen",
+    "before": "case a\nin b; c\nend\n",
+    "after": "case a\nin b then c\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ItBlockParameter",
+    "before": "foo { puts _1 }\n",
+    "after": "foo { puts it }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/KeywordArgumentsMerging",
+    "before": "foo(**{}.merge(y: 1))\n",
+    "after": "foo(**{}, y: 1)\n",
+    "origin": "tests/argument_wrappers.rs:12"
+  },
+  {
+    "name": "Style/KeywordParametersOrder",
+    "before": "def m(arg, optional: 1, required:)\nend\n",
+    "after": "def m(arg, required:, optional: 1)\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Lambda",
+    "before": "f = -> do\n  1\nend\n",
+    "after": "f = lambda do\n  1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/LambdaCall",
+    "before": "x.(a, b)\n",
+    "after": "x.call(a, b)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MagicCommentFormat",
+    "before": "# frozen-string-literal: true\nx\n",
+    "after": "# frozen_string_literal: true\nx\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MethodCallWithArgsParentheses",
+    "before": "object.call value\n",
+    "after": "object.call(value)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MethodCallWithoutArgsParentheses",
+    "before": "object.test()\n",
+    "after": "object.test\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MethodDefParentheses",
+    "before": "def foo a, b\nend\n",
+    "after": "def foo(a, b)\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MinMax",
+    "before": "[[3,1].min,[3,1].max]\n",
+    "after": "[3,1].minmax\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MissingElse",
+    "before": "if ready; work; end\n",
+    "after": "if ready; work; end\n",
+    "origin": "spec/rubocop/cop/style/missing_else_spec.rb",
+    "withheld": "Fixed EmptyElse=both leaves no compatible else insertion; findings remain visible."
+  },
+  {
+    "name": "Style/MixinGrouping",
+    "before": "module Bar; end\nmodule Qux; end\nclass Foo\n  include Bar, Qux\nend\n",
+    "after": "module Bar; end\nmodule Qux; end\nclass Foo\n  include Qux\n  include Bar\nend\n",
+    "origin": "tests/module_mixins.rs:19"
+  },
+  {
+    "name": "Style/ModuleMemberExistenceCheck",
+    "before": "Array.instance_methods(false).include?(:size)\n",
+    "after": "Array.method_defined?(:size, false)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineIfModifier",
+    "before": "[\n] if ready\n",
+    "after": "if ready\n  [\n  ]\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineIfThen",
+    "before": "unless cond then\nend\n",
+    "after": "unless cond\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineInPatternThen",
+    "before": "case foo\nin bar then\nend\n",
+    "after": "case foo\nin bar\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineMemoization",
+    "before": "foo ||= (\n bar\n baz\n)\n",
+    "after": "foo ||= begin\n bar\n baz\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineMethodSignature",
+    "before": "def f(a,\n  b)\nend\n",
+    "after": "def f(a, b)\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineTernaryOperator",
+    "before": "a = cond ?\n yes : no\n",
+    "after": "a = if cond\n  yes\nelse\n  no\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultilineWhenThen",
+    "before": "case x\nwhen one then\n work\nend\n",
+    "after": "case x\nwhen one\n work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/MultipleComparison",
+    "before": "a=1; a == 1 || a == 2\n",
+    "after": "a=1; [1, 2].include?(a)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NegatedIf",
+    "before": "if !false\n work\nend\n",
+    "after": "unless false\n work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NegatedIfElseCondition",
+    "before": "if !false\n work\nelse\n other\nend\n",
+    "after": "if false\n other\nelse\n work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NegatedUnless",
+    "before": "unless !false\n work\nend\n",
+    "after": "if false\n work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NegatedWhile",
+    "before": "while !true\n work\nend\n",
+    "after": "until true\n work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NestedFileDirname",
+    "before": "File.dirname(File.dirname(path))\n",
+    "after": "File.dirname(path, 2)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NestedModifier",
+    "before": "work if a if b\n",
+    "after": "work if b && a\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NestedParenthesizedCalls",
+    "before": "puts(compute something)\n",
+    "after": "puts(compute(something))\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NestedTernaryOperator",
+    "before": "a ? (b ? 1 : 2) : 3\n",
+    "after": "if a\nb ? 1 : 2\nelse\n3\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Next",
+    "before": "[].each do\n  if ready?\n    a\n    b\n    c\n  end\nend\n",
+    "after": "[].each do\n  next unless ready?\n  a\n  b\n  c\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NilComparison",
+    "before": "nil == nil\n",
+    "after": "nil.nil?\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NilLambda",
+    "before": "f = -> { return nil }\n",
+    "after": "f = -> {}\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NonNilCheck",
+    "before": "false != nil\n",
+    "after": "!false.nil?\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Not",
+    "before": "not test\n",
+    "after": "!test\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NumericLiteralPrefix",
+    "before": "0XABC\n",
+    "after": "0xABC\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/NumericLiterals",
+    "before": "-12345.6E3\n",
+    "after": "-12_345.6E3\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ObjectThen",
+    "before": "obj.yield_self { it }\n",
+    "after": "obj.then { it }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/OneLineConditional",
+    "before": "if a then b else c end\n",
+    "after": "a ? b : c\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/OperatorMethodCall",
+    "before": "foo.+ bar\n",
+    "after": "foo + bar\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/OrAssignment",
+    "before": "  foo = foo ? foo : 3\n",
+    "after": "  foo ||= 3\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ParallelAssignment",
+    "before": "  a,b=1,2\n",
+    "after": "  a = 1\n  b = 2\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ParenthesesAroundCondition",
+    "before": "if (a); end\n",
+    "after": "if a; end\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/PercentLiteralDelimiters",
+    "before": "%w(one two)\n",
+    "after": "%w[one two]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/PercentQLiterals",
+    "before": "%Q(hi)\n",
+    "after": "%q(hi)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/PerlBackrefs",
+    "before": "puts $1\n",
+    "after": "puts Regexp.last_match(1)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Proc",
+    "before": "f = Proc.new { it }\n",
+    "after": "f = proc { it }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/QuotedSymbols",
+    "before": ":'a-b'\n",
+    "after": ":\"a-b\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RandomWithOffset",
+    "before": "Kernel.rand(6).succ\n",
+    "after": "Kernel.rand(1..6)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantArrayConstructor",
+    "before": "Array.new([])\n::Array[]\nArray(%w[a b])\n",
+    "after": "[]\n[]\n%w[a b]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantAssignment",
+    "before": "def f\n  x = work\n  x\nend\n",
+    "after": "def f\n  work\n  \nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantBegin",
+    "before": "begin\n  work\nend\n",
+    "after": "\n  work\n\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantCapitalW",
+    "before": "%W(cat dog)\n",
+    "after": "%w(cat dog)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantCondition",
+    "before": "@b ? @b : c\n",
+    "after": "@b || c\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantConditional",
+    "before": "unless 1 < 2\n  true\nelse\n  false\nend\n",
+    "after": "!(1 < 2)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantConstantBase",
+    "before": "::A::B\n",
+    "after": "A::B\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantCurrentDirectoryInPath",
+    "before": "require_relative './feature'\n",
+    "after": "require_relative 'feature'\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantDoubleSplatHashBraces",
+    "before": "f(**{a: 1})\n",
+    "after": "f(a: 1)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantException",
+    "before": "raise RuntimeError, 'x'\n",
+    "after": "raise 'x'\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantFileExtensionInRequire",
+    "before": "require 'foo.rb'\n",
+    "after": "require 'foo'\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantFreeze",
+    "before": "1.freeze\n",
+    "after": "1\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantHeredocDelimiterQuotes",
+    "before": "p <<~'EOS'\n  hi\nEOS\n",
+    "after": "p <<~EOS\n  hi\nEOS\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantInterpolationUnfreeze",
+    "before": "+\"#{1}\"\n",
+    "after": "\"#{1}\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantLineContinuation",
+    "before": "foo(1, \\\n 2)\n",
+    "after": "foo(1, \n 2)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantMinMaxBy",
+    "before": "[3,1].min_by { it }\n",
+    "after": "[3,1].min\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantParentheses",
+    "before": "x = (1)\n",
+    "after": "x = 1\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantPercentQ",
+    "before": "x = %q(hi)\n",
+    "after": "x = 'hi'\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantRegexpArgument",
+    "before": "\"foo\".scan(/f/)\n",
+    "after": "\"foo\".scan(\"f\")\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantRegexpCharacterClass",
+    "before": "/[a]/\n",
+    "after": "/a/\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantRegexpConstructor",
+    "before": "Regexp.new(/a/)\n",
+    "after": "/a/\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantRegexpEscape",
+    "before": "/a\\-b/\n",
+    "after": "/a-b/\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantReturn",
+    "before": "def f\n  return 1\nend\n",
+    "after": "def f\n  1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantSelf",
+    "before": "self.object_id\n",
+    "after": "object_id\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantSelfAssignmentBranch",
+    "before": "foo = cond ? foo : bar\n",
+    "after": "foo = bar unless cond\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantSortBy",
+    "before": "[3,1].sort_by { |x| x }\n",
+    "after": "[3,1].sort\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RedundantStringEscape",
+    "before": "p \"\\#hi\"\n",
+    "after": "p \"#hi\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RegexpLiteral",
+    "before": "%r{a}\n",
+    "after": "/a/\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RescueModifier",
+    "before": "1 rescue nil\n",
+    "after": "begin\n  1\nrescue\n  nil\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/RescueStandardError",
+    "before": "def f\n  work\nrescue => e\n  e\nend\n",
+    "after": "def f\n  work\nrescue StandardError => e\n  e\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/ReturnNil",
+    "before": "return nil\n",
+    "after": "return\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Sample",
+    "before": "[42].shuffle.first\n",
+    "after": "[42].sample\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SelfAssignment",
+    "before": "def f(x)\n  x = x + 1\nend\n",
+    "after": "def f(x)\n  x += 1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Semicolon",
+    "before": "x; y\n",
+    "after": "x\n y\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SignalException",
+    "before": "fail \"oops\"\n",
+    "after": "raise \"oops\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SingleLineBlockParams",
+    "before": "items.reduce { |memo, item| memo + item }\n",
+    "after": "items.reduce { |acc, elem| acc + elem }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SingleLineDoEndBlock",
+    "before": "foo do bar(it) end\n",
+    "after": "foo do\n bar(it) \nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SingleLineMethods",
+    "before": "def f; body; end\n",
+    "after": "def f() = body\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SoleNestedConditional",
+    "before": "if a\n  work if b\nend\n",
+    "after": "if a && b\n  work\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/StabbyLambdaParentheses",
+    "before": "->a,b { a + b }\n",
+    "after": "->(a,b) { a + b }\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/StderrPuts",
+    "before": "$VERBOSE = false; STDERR::puts('x')",
+    "after": "$VERBOSE = false; warn('x')",
+    "origin": "src/cops/style/stderr_puts.rs:473"
+  },
+  {
+    "name": "Style/StringLiterals",
+    "before": "'hello'\n",
+    "after": "\"hello\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/StringLiteralsInInterpolation",
+    "before": "\"#{'hi'}\"\n",
+    "after": "\"#{\"hi\"}\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/StringMethods",
+    "before": "'name'.intern\n",
+    "after": "'name'.to_sym\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/Strip",
+    "before": "' x '.lstrip.rstrip\n",
+    "after": "' x '.strip\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SuperArguments",
+    "before": "def foo(a)\n  super(a)\nend\n",
+    "after": "def foo(a)\n  super\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SuperWithArgsParentheses",
+    "before": "super name, age\n",
+    "after": "super(name, age)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SymbolArray",
+    "before": "[:one,:two]\n",
+    "after": "%i[one two]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/SymbolLiteral",
+    "before": ":\"word\"\n",
+    "after": ":word\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TernaryParentheses",
+    "before": "result = (ready) ? yes : no\n",
+    "after": "result = ready ? yes : no\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TimeNow",
+    "before": "::Time.new()\n",
+    "after": "::Time.now\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingBodyOnClass",
+    "before": "class C; 1\nend\n",
+    "after": "class C \n  1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingBodyOnMethodDefinition",
+    "before": "def f; 1\nend\n",
+    "after": "def f \n  1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingBodyOnModule",
+    "before": "module M; 1\nend\n",
+    "after": "module M \n  1\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingCommaInArguments",
+    "before": "f(a:,)\nobj[key,] += value\n",
+    "after": "f(a:)\nobj[key] += value\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingCommaInArrayLiteral",
+    "before": "[1,]\n",
+    "after": "[1]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingCommaInHashLiteral",
+    "before": "{a:,}\n",
+    "after": "{a:}\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingMethodEndStatement",
+    "before": "def f\n  1 end\n",
+    "after": "def f\n  1 \nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrailingUnderscoreVariable",
+    "before": "a, _ = rhs\n",
+    "after": "a, = rhs\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/TrivialAccessors",
+    "before": "class Foo\n  def foo; @foo; end\n  def self.bar=(value); @bar=value; end\nend\n",
+    "after": "class Foo\n  attr_reader :foo\n  class << self\n    attr_writer :bar\n  end\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/UnlessElse",
+    "before": "unless ready\n negative\nelse\n positive\nend\n",
+    "after": "if ready\n positive\nelse\n negative\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/UnpackFirst",
+    "before": "'abc'.unpack('h*').first\n",
+    "after": "'abc'.unpack1('h*')\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/VariableInterpolation",
+    "before": "\"#@word\"\n",
+    "after": "\"#{@word}\"\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/WhenThen",
+    "before": "case x\nwhen a; b\nend\n",
+    "after": "case x\nwhen a then b\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/WhileUntilDo",
+    "before": "until cond do\nend\n",
+    "after": "until cond\nend\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/WhileUntilModifier",
+    "before": "while cond\n work\nend\n",
+    "after": "work while cond\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/WordArray",
+    "before": "['one','two']\n",
+    "after": "%w[one two]\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  },
+  {
+    "name": "Style/YAMLFileRead",
+    "before": "YAML.safe_load(File.read(File::NULL))\n",
+    "after": "YAML.safe_load_file(File::NULL)\n",
+    "origin": "tests/fixtures/style_evidence.json"
+  }
+]

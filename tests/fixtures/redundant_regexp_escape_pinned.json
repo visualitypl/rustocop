@@ -1,0 +1,2528 @@
+[
+  {
+    "spec_line": 7,
+    "source": "foo = /a/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 13,
+    "source": "foo = /\\/a\\//",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 19,
+    "source": "foo = /a\\\nb/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 25,
+    "source": "foo = /[a\\\nb]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\a/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\a]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\b/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\b]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\d/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\d]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\e/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\e]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\f/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\f]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\h/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\h]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\i/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\i]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\j/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\j]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\l/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\l]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\m/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\m]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\o/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\o]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\q/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\q]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\r/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\r]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\s/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\s]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\t/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\t]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\v/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\v]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\w/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\w]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\y/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\y]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\z/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\z]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\A/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\A]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\B/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\B]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\D/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\D]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\E/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\E]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\F/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\F]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\G/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\G]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\H/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\H]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\I/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\I]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\J/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\J]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\K/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\K]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\L/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\L]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\N/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\N]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\O/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\O]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\Q/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\Q]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\R/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\R]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\S/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\S]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\T/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\T]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\U/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\U]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\V/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\V]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\W/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\W]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\X/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\X]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\Y/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\Y]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\Z/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\Z]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\n101/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\n101]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\x41/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\x41]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\u0041/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\u0041]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\u{0041}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\u{0041}]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\cc/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\cc]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\C-c/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\C-c]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\p{alpha}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\p{alpha}]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "foo = /\\P{alpha}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 42,
+    "source": "foo = /[\\P{alpha}]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 51,
+    "source": "foo = /\\g/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 57,
+    "source": "foo = /\\M-a/n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 63,
+    "source": "foo = /[\\M-a]/n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\./",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\.]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[.]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\*/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\*]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[*]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\+/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\+]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[+]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\?/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\?]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[?]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\{/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\{]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[{]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\}]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[}]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\(/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\(]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[(]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\)/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\)]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[)]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\|/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\|]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[|]/\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "foo = /\\$/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "foo = /[\\$]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[$]/\n"
+  },
+  {
+    "spec_line": 90,
+    "source": "foo = /([\\+])/\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /([+])/\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "foo = /[:\\.]/\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[:.]/\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "foo = %r{[0-9\\-]}\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = %r{[0-9-]}\n"
+  },
+  {
+    "spec_line": 130,
+    "source": "foo = /[0-9\\-]/\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[0-9-]/\n"
+  },
+  {
+    "spec_line": 143,
+    "source": "foo = /[\\[\\-]/\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[\\[-]/\n"
+  },
+  {
+    "spec_line": 158,
+    "source": "foo = %r{[\\-0-9]}\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = %r{[-0-9]}\n"
+  },
+  {
+    "spec_line": 171,
+    "source": "foo = /[\\-0-9]/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[-0-9]/\n"
+  },
+  {
+    "spec_line": 185,
+    "source": "foo = %r{[\\w\\-\\#]}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 186,
+    "source": "foo = /[\\w\\-\\#]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 187,
+    "source": "foo = /[\\[\\-\\]]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 193,
+    "source": "foo = /\\[\\+/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 199,
+    "source": "foo = /[a]\\+/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 205,
+    "source": "foo = /[a-w&&[^c-g]\\-1-9]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 211,
+    "source": "foo = /[[:punct:]&&[^\\.]]/\n",
+    "positions": [
+      [
+        1,
+        22
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[[:punct:]&&[^.]]/\n"
+  },
+  {
+    "spec_line": 224,
+    "source": "foo = /[[:alnum:]\\-_]+/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 230,
+    "source": "foo = /[[:alnum:]\\.]/\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[[:alnum:].]/\n"
+  },
+  {
+    "spec_line": 243,
+    "source": "foo = /([a-z])\\s*\\1/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 249,
+    "source": "foo = /a#{/\\-/}c/\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /a#{/-/}c/\n"
+  },
+  {
+    "spec_line": 262,
+    "source": "foo = /[#\\@not_ivar]/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 270,
+    "source": "foo = /[#\\@@not_cvar]/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 278,
+    "source": "foo = /[#\\$not_gvar]/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 286,
+    "source": "foo = %r{#\\@not_ivar}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 290,
+    "source": "foo = %r{#\\$not_gvar}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 294,
+    "source": "foo = %r/#\\@not_ivar/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 300,
+    "source": "foo = /#{\"\\\"\"}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 306,
+    "source": "foo = /\\#\\{[a-z_]+\\}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 312,
+    "source": "foo = /[\\#{}]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 331,
+    "source": "r = /\n  foo # shouldn't start a char class: [\n  \\+  # escape is only redundant inside a char class, so not redundant here\n  bar # shouldn't end a char class: ]\n/x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 343,
+    "source": "r = /\n  foo # redundant unless commented: \\-\n/x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 353,
+    "source": "r = /foo # redundant unless commented: \\-/x",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 359,
+    "source": "r = /\n  foo \\# \\-\n/x\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "r = /\n  foo \\# -\n/x\n"
+  },
+  {
+    "spec_line": 377,
+    "source": "r = /\\-/i\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "r = /-/i\n"
+  },
+  {
+    "spec_line": 390,
+    "source": "METHOD_NAME  = /\\#?#{IDENTIFIER}[\\!\\?]?\\(?/.freeze\n",
+    "positions": [
+      [
+        1,
+        34
+      ],
+      [
+        1,
+        36
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "METHOD_NAME  = /\\#?#{IDENTIFIER}[!?]?\\(?/.freeze\n"
+  },
+  {
+    "spec_line": 404,
+    "source": "foo = /[\\s\\(\\|\\{\\[;,\\*\\=]/\n",
+    "positions": [
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        13
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        21
+      ],
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /[\\s(|{\\[;,*=]/\n"
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\ /",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "foo = /[\\ ]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\\n/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\[/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "foo = /[\\[]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "foo = /[\\]]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\^/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "foo = /[\\^]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\\\/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "foo = /[\\\\]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "foo = /\\#/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 431,
+    "source": "foo = /[\\#]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 439,
+    "source": "foo = /a\\-b/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /a-b/\n"
+  },
+  {
+    "spec_line": 452,
+    "source": "foo = /a[\\-]b/\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = /a[-]b/\n"
+  },
+  {
+    "spec_line": 468,
+    "source": "foo = %r{a}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 474,
+    "source": "foo = %r{\\{\\}}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 480,
+    "source": "foo = %r{[\\{\\}]}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 486,
+    "source": "foo = %r{\\/a\\/}\n",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = %r{/a/}\n"
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r!a!",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r!\\!\\!!i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r!\\!\\!!",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r!a[\\!\\!]b!",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r~a~",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r~\\~\\~~i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r~\\~\\~~",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r~a[\\~\\~]b~",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r@a@",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r@\\@\\@@i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r@\\@\\@@",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r@a[\\@\\@]b@",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r_a_",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r_\\_\\__i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r_\\_\\__",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r_a[\\_\\_]b_",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r^a^",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r^\\^\\^^i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r^\\^\\^^",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r^a[\\^\\^]b^",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r<a>",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r<\\<\\>>i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r<\\<\\>>",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r<a[\\<\\>]b>",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 515,
+    "source": "foo = %r(a)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 521,
+    "source": "foo = %r(\\(\\))i",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 527,
+    "source": "foo = %r(\\(\\))",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 533,
+    "source": "foo = %r(a[\\(\\)]b)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 542,
+    "source": "foo = %r/a/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 548,
+    "source": "foo = %r/\\/a\\//",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 556,
+    "source": "foo = %r{\n  a\n  b\n}x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 569,
+    "source": "regexp = %r{\n  \\A[a-z#]            # letters or #\n  \\.[a-z]\\z           # dot + letters\n}x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 580,
+    "source": "foo = %r{\n  \\/a\n  b\\/\n}x\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal",
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = %r{\n  /a\n  b/\n}x\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "foo = %r{\n  foo # this should not affect the position of the escape below\n  \\-\n}x\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "foo = %r{\n  foo # this should not affect the position of the escape below\n  -\n}x\n"
+  },
+  {
+    "spec_line": 621,
+    "source": "foo = %r/\n  a\n  b\n/x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 632,
+    "source": "foo = %r/\n  \\/a\n  b\\/\n/x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 646,
+    "source": "x = s[/[一二三四\\.]+/]\np x\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "x = s[/[一二三四.]+/]\np x\n"
+  },
+  {
+    "spec_line": 661,
+    "source": "r = /[\\§]/\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant escape inside regexp literal"
+    ],
+    "correction": "r = /[§]/\n"
+  }
+]

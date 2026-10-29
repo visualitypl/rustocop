@@ -1,0 +1,684 @@
+[
+  {
+    "spec_line": 5,
+    "source": "if cond; run else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? run : dont\n"
+  },
+  {
+    "spec_line": 16,
+    "source": "if a = b; run else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if a = b;` - use a ternary operator instead."
+    ],
+    "correction": "(a = b) ? run : dont\n"
+  },
+  {
+    "spec_line": 27,
+    "source": "x = if a and b; run else dont end\nx = if not a; run else dont end\nx = if defined? a; run else dont end\nx = if foo a; run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        4,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not use `if a and b;` - use a ternary operator instead.",
+      "Do not use `if not a;` - use a ternary operator instead.",
+      "Do not use `if defined? a;` - use a ternary operator instead.",
+      "Do not use `if foo a;` - use a ternary operator instead."
+    ],
+    "correction": "x = (a and b) ? run : dont\nx = (not a) ? run : dont\nx = (defined? a) ? run : dont\nx = foo(a) ? run : dont\n"
+  },
+  {
+    "spec_line": 47,
+    "source": "if cond; foo if bar else baz end\nif cond; not foo else foo and bar end\nif cond; foo rescue bar else yield baz end\nif cond; super foo else defined? bar end\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? (foo if bar) : baz\ncond ? (not foo) : (foo and bar)\ncond ? (foo rescue bar) : (yield baz)\ncond ? (super foo) : (defined? bar)\n"
+  },
+  {
+    "spec_line": 67,
+    "source": "x = if !foo a; run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not use `if !foo a;` - use a ternary operator instead."
+    ],
+    "correction": "x = (!foo a) ? run : dont\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "if cond; !foo a else !bar.baz b end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? (!foo a) : (!bar.baz b)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "if !foo(a); !bar[b] else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if !foo(a);` - use a ternary operator instead."
+    ],
+    "correction": "!foo(a) ? !bar[b] : dont\n"
+  },
+  {
+    "spec_line": 100,
+    "source": "if cond; begin foo end while bar else baz end\nx = if cond; foo else begin bar end until baz end\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? (begin foo end while bar) : baz\nx = cond ? foo : (begin bar end until baz)\n"
+  },
+  {
+    "spec_line": 114,
+    "source": "x = if cond; foo else bar end.baz\nx = !if cond; foo else bar end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        6
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "x = (cond ? foo : bar).baz\nx = !(cond ? foo : bar)\n"
+  },
+  {
+    "spec_line": 128,
+    "source": "x = if cond; foo else bar end || baz\nx = foo + if cond; bar else baz end\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        11
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "x = (cond ? foo : bar) || baz\nx = foo + (cond ? bar : baz)\n"
+  },
+  {
+    "spec_line": 142,
+    "source": "foo(if cond; bar else baz end)\nfoo[if cond; bar else baz end]\nx = not(if cond; bar else baz end)\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        9
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead.",
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "foo(cond ? bar : baz)\nfoo[cond ? bar : baz]\nx = not(cond ? bar : baz)\n"
+  },
+  {
+    "spec_line": 159,
+    "source": "if cond; else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? nil : dont\n"
+  },
+  {
+    "spec_line": 170,
+    "source": "if cond; run end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? run : nil\n"
+  },
+  {
+    "spec_line": 181,
+    "source": "if cond;do_something(arg) end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? do_something(arg) : nil\n"
+  },
+  {
+    "spec_line": 192,
+    "source": "if cond;[] end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? [] : nil\n"
+  },
+  {
+    "spec_line": 203,
+    "source": "if cond;do_something arg end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? do_something(arg) : nil\n"
+  },
+  {
+    "spec_line": 214,
+    "source": "if cond;obj&.do_something arg end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? obj&.do_something(arg) : nil\n"
+  },
+  {
+    "spec_line": 225,
+    "source": "if cond;foo foo_arg else bar bar_arg end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? foo(foo_arg) : bar(bar_arg)\n"
+  },
+  {
+    "spec_line": 236,
+    "source": "if cond;foo obj&.foo_arg else bar obj&.bar_arg end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? foo(obj&.foo_arg) : bar(obj&.bar_arg)\n"
+  },
+  {
+    "spec_line": 247,
+    "source": "if cond;do_something - arg end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? do_something - arg : nil\n"
+  },
+  {
+    "spec_line": 258,
+    "source": "if cond; foo[key] else bar end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? foo[key] : bar\n"
+  },
+  {
+    "spec_line": 269,
+    "source": "if cond; foo[key] = value else bar end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? foo[key] = value : bar\n"
+  },
+  {
+    "spec_line": 280,
+    "source": "if cond; foo else bar'arg'; baz end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a newline instead."
+    ],
+    "correction": "if cond\n foo else bar'arg'; baz end\n"
+  },
+  {
+    "spec_line": 292,
+    "source": "class Hash\nend if RUBY_VERSION < \"1.8.7\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 300,
+    "source": "if cond; elsif cond2; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use `if/else` instead."
+    ],
+    "correction": "if cond\n  \nelsif cond2\n  \nend\n"
+  },
+  {
+    "spec_line": 315,
+    "source": "if cond; run elsif cond2; run2 end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use `if/else` instead."
+    ],
+    "correction": "if cond\n  run\nelsif cond2\n  run2\nend\n"
+  },
+  {
+    "spec_line": 330,
+    "source": "if cond; run elsif cond2; run2 elsif cond3; run3 else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use `if/else` instead."
+    ],
+    "correction": "if cond\n  run\nelsif cond2\n  run2\nelsif cond3\n  run3\nelse\n  dont\nend\n"
+  },
+  {
+    "spec_line": 349,
+    "source": "if cond; run elsif cond2; run2 else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use `if/else` instead."
+    ],
+    "correction": "if cond\n  run\nelsif cond2\n  run2\nelse\n  dont\nend\n"
+  },
+  {
+    "spec_line": 366,
+    "source": "if cond; run\n  if cond; run\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a newline instead."
+    ],
+    "correction": "if cond\n run\n  if cond; run\n  end\nend\n"
+  },
+  {
+    "spec_line": 384,
+    "source": "if foo?; bar { if qux?; quux else end } end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if foo?;` - use `if/else` instead."
+    ],
+    "correction": "if foo?\n bar { if qux?; quux else end } end\n"
+  },
+  {
+    "spec_line": 396,
+    "source": "if foo?; bar else baz { if qux?; quux else end } end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if foo?;` - use `if/else` instead."
+    ],
+    "correction": "if foo?\n bar else baz { if qux?; quux else end } end\n"
+  },
+  {
+    "spec_line": 408,
+    "source": "if foo?; bar { if _1; quux else end } end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if foo?;` - use `if/else` instead."
+    ],
+    "correction": "if foo?\n bar { if _1; quux else end } end\n"
+  },
+  {
+    "spec_line": 420,
+    "source": "if foo?; bar else baz { if _1; quux else end } end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if foo?;` - use `if/else` instead."
+    ],
+    "correction": "if foo?\n bar else baz { if _1; quux else end } end\n"
+  },
+  {
+    "spec_line": 432,
+    "source": "if foo; bar, baz = qux else quux end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if foo;` - use `if/else` instead."
+    ],
+    "correction": "if foo\n bar, baz = qux else quux end\n"
+  },
+  {
+    "spec_line": 444,
+    "source": "if foo; bar else baz, qux = quux end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if foo;` - use `if/else` instead."
+    ],
+    "correction": "if foo\n bar else baz, qux = quux end\n"
+  },
+  {
+    "spec_line": 456,
+    "source": "if cond; return value end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a newline instead."
+    ],
+    "correction": "if cond\n return value end\n"
+  },
+  {
+    "spec_line": 468,
+    "source": "if cond; run else return value end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a newline instead."
+    ],
+    "correction": "if cond\n run else return value end\n"
+  },
+  {
+    "spec_line": 480,
+    "source": "unless cond; run else return value end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless cond;` - use a newline instead."
+    ],
+    "correction": "unless cond\n run else return value end\n"
+  },
+  {
+    "spec_line": 492,
+    "source": "if cond; return end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? return : nil\n"
+  },
+  {
+    "spec_line": 503,
+    "source": "if cond1; foo + if cond2; bar\n  else\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `if cond1;` - use a ternary operator instead."
+    ],
+    "correction": "cond1 ? foo + if cond2; bar\n  else\n  end : nil\n"
+  },
+  {
+    "spec_line": 521,
+    "source": "unless cond; run end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? nil : run\n"
+  },
+  {
+    "spec_line": 532,
+    "source": "unless cond; run else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? dont : run\n"
+  },
+  {
+    "spec_line": 543,
+    "source": "unless cond; else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? dont : nil\n"
+  },
+  {
+    "spec_line": 554,
+    "source": "unless cond; do_something arg end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless cond;` - use a ternary operator instead."
+    ],
+    "correction": "cond ? nil : do_something(arg)\n"
+  },
+  {
+    "spec_line": 565,
+    "source": "unless cond; foo else bar'arg'; baz end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless cond;` - use a newline instead."
+    ],
+    "correction": "unless cond\n foo else bar'arg'; baz end\n"
+  }
+]

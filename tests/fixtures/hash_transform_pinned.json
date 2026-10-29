@@ -1,0 +1,708 @@
+[
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[k.to_sym] = foo(v)}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1}.map { |k, v| [*k, v] }.to_h",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1}.to_h { |k, v| [*k, v] }",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[foo(v)] = v}",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[k] = v}",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| other_h[k.to_sym] = v}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.each_with_object({}) { |(k, v), h| h[h[k.to_sym]] = v }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "[1, 2, 3].each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.to_enum(:foreach, path).select { |entry| entry.file? }.each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.to_h.each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.group_by { |e| e.type }.each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map {|k, v| [k.to_sym, v]}.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map {|k, v| [k.to_sym, v]}.\n  to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "wrapping do\n  {a: 1, b: 2}.map do |k, v|\n    [k.to_sym, v]\n  end.to_h\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map {|k, v| [k.to_sym, foo(v)]}.to_h",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "Hash[{a: 1, b: 2}.map {|k, v| [k.to_sym, v]}]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "Hash[{a: 1, b: 2}.map {|k, v| [k.to_sym, foo(v)]}]",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map {|_k, v| [v, v]}.to_h\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map {|k, v| [k.to_sym, v]}",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.map {|k, v| [k.to_sym, v]}.to_h\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "[1, 2, 3].map {|k, v| [k.to_sym, v]}.to_h\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "Hash[x.map { |k, v| [k.to_sym, v] }]\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "Hash[[1, 2, 3].map { |k, v| [k.to_sym, v] }]\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.to_h.map {|k, v| [k.to_sym, v]}.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "Hash[x.merge(y).map {|k, v| [k.to_sym, v]}]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map do |k, v|\n  [k.to_s, v]\nend.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.map {|k, v| [k.to_s, v]}.to_h {|k, v| [v, k]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "Hash[{a: 1, b: 2}.map do |k, v|\n  [k.to_s, v]\nend]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "some_hash.to_h.each_with_object({}) do |(key, val), memo|\n  memo[key.to_sym] = val\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.to_h&.each_with_object({}) {|(k, v), h| h[foo(k)] = v}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.to_h {|k, v| [k.to_sym, v]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.merge(y).to_h {|k, v| [k.to_sym, v]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.tally.to_h {|k, v| [k.to_sym, v]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.to_h { |k, v| [k.to_sym, foo(v)] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "{a: 1, b: 2}.to_h {|_k, v| [v, v]}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.to_h { |k, v| [k.to_sym, v] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "[1, 2, 3].to_h { |k, v| [k.to_sym, v] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformKeys",
+    "source": "x.to_enum(:foreach, path).select { |e| e.file? }.map { |e| [e, name(e)] }.each { |e, p| e.extract(p) }.to_h { |k, v| [k.to_sym, v] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[k.to_sym] = foo(v)}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1}.map { |k, v| [k, *v] }.to_h",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1}.to_h { |k, v| [k, *v] }",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[k] = k.to_s}",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[k] = v}",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| other_h[k] = v * v}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.each_with_object({}) { |(k, v), h| h[k] = h.count }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "[1, 2, 3].each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.to_enum(:foreach, path).select { |entry| entry.file? }.each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.to_h.each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.group_by { |e| e.type }.each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.map {|k, v| [k, foo(v)]}.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.map {|k, v| [k, foo(v)]}.\n  to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "wrapping do\n  {a: 1, b: 2}.map do |k, v|\n    [k, v.to_s]\n  end.to_h\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.map {|k, v| [k.to_sym, foo(v)]}.to_h",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "Hash[{a: 1, b: 2}.map {|k, v| [k, foo(v)]}]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "Hash[{a: 1, b: 2}.map {|k, v| [k.to_sym, foo(v)]}]",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.map {|k, _v| [k, k]}.to_h\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.map {|k, v| [k, foo(v)]}",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.map {|k, v| [k, foo(v)]}.to_h\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "[1, 2, 3].map {|k, v| [k, foo(v)]}.to_h\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "Hash[x.map { |k, v| [k, foo(v)] }]\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "Hash[[1, 2, 3].map { |k, v| [k, foo(v)] }]\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.to_h.map {|k, v| [k, foo(v)]}.to_h\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "Hash[x.merge(y).map {|k, v| [k, foo(v)]}]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.map {|k, v| [k, foo(v)]}.to_h {|k, v| [v, k]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "some_hash.to_h.each_with_object({}) do |(key, val), memo|\n  memo[key] = val * val\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.to_h&.each_with_object({}) {|(k, v), h| h[k] = foo(v)}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.to_h {|k, v| [k, foo(v)]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.merge(y).to_h {|k, v| [k, foo(v)]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.tally.to_h {|k, v| [k, foo(v)]}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.to_h { |key, val| [key, { value: val }] }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.to_h { |key, val| [key, value: val] }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.to_h { |k, v| [k.to_sym, foo(v)] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "{a: 1, b: 2}.to_h {|k, _v| [k, k]}\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.to_h { |k, v| [k, foo(v)] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "[1, 2, 3].to_h { |k, v| [k, foo(v)] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/HashTransformValues",
+    "source": "x.to_enum(:foreach, path).select { |e| e.file? }.map { |e| [e, name(e)] }.each { |e, p| e.extract(p) }.to_h { |k, v| [k, foo(v)] }\n",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/PreferredHashMethods",
+    "source": "o.has_key?(o)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/PreferredHashMethods",
+    "source": "o.has_key?",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/PreferredHashMethods",
+    "source": "o.has_value?(o)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  {
+    "cop": "Style/PreferredHashMethods",
+    "source": "o.has_value?",
+    "positions": [
+
+    ]
+  },
+  {
+    "cop": "Style/PreferredHashMethods",
+    "source": "o&.has_value?(o)\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ]
+  }
+]

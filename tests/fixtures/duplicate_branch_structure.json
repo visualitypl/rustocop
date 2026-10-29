@@ -1,0 +1,886 @@
+[
+  {
+    "origin": "counterexample",
+    "source": "if x\n  unless a; b; else; c; end\nelse\n  a ? c : b\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  unless a; b; end\nelse\n  if a; else; b; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  if a; b; else; end\nelse\n  if a; b; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  if a; elsif b; c; end\nelse\n  if a; else; if b; c; end; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  if a; b; elsif c; d; end\nelse\n  if a; b; else; if c; d; end; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  while a; b; end\nelse\n  b while a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  until a; b; end\nelse\n  b until a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  lambda { _1 }\nelse\n  -> { _1 }\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  lambda { it }\nelse\n  -> { it }\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  foo { |a| a }\nelse\n  foo do |a| a end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  for a in xs; f(a); end\nelse\n  for a in xs do f(a) end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "# encoding: Shift_JIS\nif x\n __ENCODING__\nelse\n Encoding::UTF_8\nend\n",
+    "findings": [
+      [
+        4,
+        1,
+        4,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "# encoding: Shift_JIS\nif x\n __ENCODING__\nelse\n Encoding::Shift_JIS\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  if a; b; end\nelse\n  b if a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  unless a; b; end\nelse\n  b unless a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  while a; b; end\nelse\n  while a do b end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  until a; b; end\nelse\n  until a do b end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  while a; begin; b; end; end\nelse\n  begin; b; end while a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f a; a; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(a) = a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  def self.f(a); a; end\nelse\n  def self.f(a) = a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  \"#{a}\"\nelse\n  %Q(#{a})\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  `#{a}`\nelse\n  %x(#{a})\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  /#{a}/im\nelse\n  %r{#{a}}mi\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  lambda() { |a| a }\nelse\n  ->(a) { a }\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  foo { || work }\nelse\n  foo { work }\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  def f; a; end\nelse\n  def f(); a; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  not x\nelse\n  x.!\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  unless a; b; else; c; end\nelse\n  if a; b; else; c; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "counterexample",
+    "source": "if x\n  while a; b; end\nelse\n  until a; b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; else; c; end\nelse\n  a ? c : b\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; end\nelse\n  if a; else; b; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; b; else; end\nelse\n  if a; b; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; elsif b; c; end\nelse\n  if a; else; if b; c; end; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; b; elsif c; d; end\nelse\n  if a; b; else; if c; d; end; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; end\nelse\n  b unless a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; else; end\nelse\n  if a; else; b; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; else; b; end\nelse\n  if a; b; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; end\nelse\n  if a; else; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; c; else; d; e; end\nelse\n  if a; d; e; else; b; c; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  [unless a; b; else; c; end]\nelse\n  [a ? c : b]\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; b; elsif c; d; elsif e; f; end\nelse\n  if a; b; else; if c; d; else; if e; f; end; end; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; else; c; end\nelse\n  if a; b; else; c; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; b; else; end\nelse\n  if a; b; else; nil; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; end\nelse\n  if a; nil; else; b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; else; b; end\nelse\n  if a; b; else; nil; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; b; end\nelse\n  if a; else; b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; if b; c; end; end\nelse\n  if a; elsif b; c; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; elsif b; c; end\nelse\n  if a; else; begin; if b; c; end; end; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; c; else; d; e; end\nelse\n  if a; d; e; else; c; b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  unless a; b; end\nelse\n  b unless (a)\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "conditional",
+    "source": "if x\n  if a; b; end\nelse\n  if a; (b); end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; b; end\nelse\n  b while a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  until a; b; end\nelse\n  b until a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; b; end\nelse\n  while a do b end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  until a; b; end\nelse\n  until a do b end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  for a in xs; f(a); end\nelse\n  for a in xs do f(a) end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; end\nelse\n  while a do end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  until a; end\nelse\n  until a do end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  for a, b in xs; f(a, b); end\nelse\n  for a, b in xs do f(a, b) end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  foo { while a; b; end }\nelse\n  foo { b while a }\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  begin; b; end while a\nelse\n  begin b end while a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; b; end\nelse\n  until a; b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; begin; b; end; end\nelse\n  begin; b; end while a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  until a; begin; b; end; end\nelse\n  begin; b; end until a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; end\nelse\n  while a; nil; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  until a; end\nelse\n  until a; nil; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; b; end\nelse\n  while b; a; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  while a; b; end\nelse\n  while (a); b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  until a; b; c; end\nelse\n  until a; c; b; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  for a, b in xs; f(a, b); end\nelse\n  for b, a in xs; f(a, b); end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  for a in xs; f(a); end\nelse\n  for a in ys; f(a); end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  for a in xs; f(a); end\nelse\n  for a in xs; f; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "loop",
+    "source": "if x\n  for a in xs; end\nelse\n  for a in xs; nil; end\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(a) = a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def self.f(a); a; end\nelse\n  def self.f(a) = a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f a; a; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f; a; end\nelse\n  def f(); a; end\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f; nil; end\nelse\n  def f = nil\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def obj.f; a; end\nelse\n  def (obj).f = a\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a = 1, *b, c:, **d, &e); [a, b, c, d, e]; end\nelse\n  def f(a = 1, *b, c:, **d, &e) = [a, b, c, d, e]\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def obj.f(...); g(...); end\nelse\n  def obj.f(...) = g(...)\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  foo { def self.f(a); a; end }\nelse\n  foo { def self.f(a) = a }\nend\n",
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate branch body detected."
+      ]
+    ]
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def g(a) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def self.f(a) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def self.f(a); a; end\nelse\n  def obj.f(a) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(b) = b\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(a = 1) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(*a) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(a:) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a, b); a; end\nelse\n  def f(b, a) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(a, &block) = a\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f; end\nelse\n  def f = nil\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def self.f; end\nelse\n  def self.f = nil\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f(a); a; end\nelse\n  def f(a) = (a)\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def f; a; b; end\nelse\n  def f = (b; a)\nend\n",
+    "findings": []
+  },
+  {
+    "origin": "def",
+    "source": "if x\n  def obj.f; a; end\nelse\n  def ((obj)).f = a\nend\n",
+    "findings": []
+  }
+]

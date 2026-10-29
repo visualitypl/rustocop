@@ -1,0 +1,450 @@
+[
+  {
+    "cop": "Style/NilComparison",
+    "spec_line": 8,
+    "source": "x == nil\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer the use of the `nil?` predicate."
+    ],
+    "correction": "x.nil?\n"
+  },
+  {
+    "cop": "Style/NilComparison",
+    "spec_line": 19,
+    "source": "x === nil\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer the use of the `nil?` predicate."
+    ],
+    "correction": "x.nil?\n"
+  },
+  {
+    "cop": "Style/NilComparison",
+    "spec_line": 30,
+    "source": "bar if x == nil\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Prefer the use of the `nil?` predicate."
+    ],
+    "correction": "bar if x.nil?\n"
+  },
+  {
+    "cop": "Style/NilComparison",
+    "spec_line": 41,
+    "source": "x.==(nil)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer the use of the `nil?` predicate."
+    ],
+    "correction": "x.nil?\n"
+  },
+  {
+    "cop": "Style/NilComparison",
+    "spec_line": 52,
+    "source": "x.===(nil)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer the use of the `nil?` predicate."
+    ],
+    "correction": "x.nil?\n"
+  },
+  {
+    "cop": "Style/NilComparison",
+    "spec_line": 63,
+    "source": "!x == nil\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Prefer the use of the `nil?` predicate."
+    ],
+    "correction": "(!x).nil?\n"
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 8,
+    "source": "x != nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `!x.nil?` over `x != nil`."
+    ],
+    "correction": "!x.nil?\n"
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 19,
+    "source": "a + b != nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `!(a + b).nil?` over `a + b != nil`."
+    ],
+    "correction": "!(a + b).nil?\n"
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 30,
+    "source": "!a != nil\n-a != nil\n~a != nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `!(!a).nil?` over `!a != nil`.",
+      "Prefer `!(-a).nil?` over `-a != nil`.",
+      "Prefer `!(~a).nil?` over `~a != nil`."
+    ],
+    "correction": "!(!a).nil?\n!(-a).nil?\n!(~a).nil?\n"
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 47,
+    "source": "x != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 51,
+    "source": "!x.nil?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 55,
+    "source": "not x.nil?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 59,
+    "source": "def signed_in?\n  !current_user.nil?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 67,
+    "source": "def Test.signed_in?\n  current_user != nil\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 75,
+    "source": "def signed_in?\n  something\n  current_user != nil\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 84,
+    "source": "def Test.signed_in?\n  something\n  current_user != nil\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 93,
+    "source": "!nil?",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/NonNilCheck",
+    "spec_line": 97,
+    "source": "return nil unless (line =~ //) != nil\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Prefer `!(line =~ //).nil?` over `(line =~ //) != nil`."
+    ],
+    "correction": "return nil unless !(line =~ //).nil?\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 5,
+    "source": "not test\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!test\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 16,
+    "source": "!test",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 20,
+    "source": "x = 10 if not y\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "x = 10 if !y\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 31,
+    "source": "not(test)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!(test)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 42,
+    "source": "not x < y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "x >= y\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 53,
+    "source": "not a >> b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!(a >> b)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 64,
+    "source": "not a ? b : c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!(a ? b : c)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 75,
+    "source": "not a && b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!(a && b)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 86,
+    "source": "x if not 1..5\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "x if !(1..5)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 97,
+    "source": "x if not a = 5\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "x if !(a = 5)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 108,
+    "source": "not a || b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!(a || b)\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 119,
+    "source": "x = (not ~a)\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "x = (!(~a))\n"
+  },
+  {
+    "cop": "Style/Not",
+    "spec_line": 130,
+    "source": "not (~a).zero?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `!` instead of `not`."
+    ],
+    "correction": "!(~a).zero?\n"
+  }
+]

@@ -1,0 +1,185 @@
+[
+  {
+    "spec_line": 5,
+    "source": "if cond\nelsif cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 13,
+    "source": "if cond then\nend\nif cond then\t\nend\nif cond then\nend\nif cond\nthen\nend\nif cond then # bad\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        3,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        10,
+        9
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multi-line `if`.",
+      "Do not use `then` for multi-line `if`.",
+      "Do not use `then` for multi-line `if`.",
+      "Do not use `then` for multi-line `if`.",
+      "Do not use `then` for multi-line `if`."
+    ],
+    "correction": "if cond\nend\nif cond\t\nend\nif cond\nend\nif cond\nend\nif cond # bad\nend\n"
+  },
+  {
+    "spec_line": 47,
+    "source": "if cond1\n  a\nelsif cond2 then\n  b\nend\n",
+    "positions": [
+      [
+        3,
+        13
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multi-line `elsif`."
+    ],
+    "correction": "if cond1\n  a\nelsif cond2\n  b\nend\n"
+  },
+  {
+    "spec_line": 66,
+    "source": "if cond1 then a\nelsif cond2\n  b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 75,
+    "source": "if    @io == $stdout then str << \"$stdout\"\nelsif @io == $stdin  then str << \"$stdin\"\nelsif @io == $stderr then str << \"$stderr\"\nelse                      str << @io.class.to_s\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 85,
+    "source": "if a\n  case b\n  when c then\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 95,
+    "source": "if a # then\n  b\nend\nif c # then\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 106,
+    "source": "if //\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 116,
+    "source": "unless cond then\nend\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multi-line `unless`."
+    ],
+    "correction": "unless cond\nend\n"
+  },
+  {
+    "spec_line": 129,
+    "source": "two unless one",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 133,
+    "source": "if two\n  puts 1\nend unless two\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 142,
+    "source": "unless //\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 150,
+    "source": "if cond then end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 154,
+    "source": "unless cond then end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

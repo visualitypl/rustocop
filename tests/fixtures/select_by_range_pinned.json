@@ -1,0 +1,1706 @@
+[
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 277,
+    "source": "array.select { it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 288,
+    "source": "array.select { (1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 277,
+    "source": "array.find_all { it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 288,
+    "source": "array.find_all { (1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 277,
+    "source": "array.filter { it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 288,
+    "source": "array.filter { (1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 308,
+    "source": "array.reject { !it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 319,
+    "source": "array.reject { !(1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 308,
+    "source": "array.select { !it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 319,
+    "source": "array.select { !(1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 308,
+    "source": "array.find_all { !it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 319,
+    "source": "array.find_all { !(1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 308,
+    "source": "array.filter { !it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 319,
+    "source": "array.filter { !(1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 277,
+    "source": "array.reject { it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 288,
+    "source": "array.reject { (1..10).cover?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 429,
+    "source": "array.find { it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 429,
+    "source": "array.detect { it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 445,
+    "source": "array.find { !it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 445,
+    "source": "array.detect { !it.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 215,
+    "source": "array.select { _1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 226,
+    "source": "array.select { (1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 215,
+    "source": "array.find_all { _1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 226,
+    "source": "array.find_all { (1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 215,
+    "source": "array.filter { _1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 226,
+    "source": "array.filter { (1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 246,
+    "source": "array.reject { !_1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 257,
+    "source": "array.reject { !(1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 246,
+    "source": "array.select { !_1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 257,
+    "source": "array.select { !(1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 246,
+    "source": "array.find_all { !_1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 257,
+    "source": "array.find_all { !(1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 246,
+    "source": "array.filter { !_1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 257,
+    "source": "array.filter { !(1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 215,
+    "source": "array.reject { _1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 226,
+    "source": "array.reject { (1..10).cover?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 397,
+    "source": "array.find { _1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 397,
+    "source": "array.detect { _1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 413,
+    "source": "array.find { !_1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 413,
+    "source": "array.detect { !_1.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 14,
+    "source": "array.select { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 25,
+    "source": "array.select { |x| (1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 36,
+    "source": "array.select { |x| (1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 47,
+    "source": "array.select { |x| (1...10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1...10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 63,
+    "source": "array.select do |x|\n  x.between?(1, 10)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 76,
+    "source": "array.select\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 82,
+    "source": "array.select { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 88,
+    "source": "array.select do |x|\n  next if x.even?\n  x.between?(1, 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 97,
+    "source": "array.select { |x| y.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 103,
+    "source": "select { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 114,
+    "source": "{}.select { |x| x.between?(1, 10) }\n{ foo: :bar }.select { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 121,
+    "source": "Hash.new.select { |x| x.between?(1, 10) }\nHash.new(:default).select { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 128,
+    "source": "to_h.select { |x| x.between?(1, 10) }\nfoo.to_h.select { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 135,
+    "source": "ENV.select { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 195,
+    "source": "array&.select { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a range check."
+    ],
+    "correction": "array&.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 14,
+    "source": "array.find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 25,
+    "source": "array.find_all { |x| (1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 36,
+    "source": "array.find_all { |x| (1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 47,
+    "source": "array.find_all { |x| (1...10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1...10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 63,
+    "source": "array.find_all do |x|\n  x.between?(1, 10)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 76,
+    "source": "array.find_all\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 82,
+    "source": "array.find_all { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 88,
+    "source": "array.find_all do |x|\n  next if x.even?\n  x.between?(1, 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 97,
+    "source": "array.find_all { |x| y.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 103,
+    "source": "find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 114,
+    "source": "{}.find_all { |x| x.between?(1, 10) }\n{ foo: :bar }.find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 121,
+    "source": "Hash.new.find_all { |x| x.between?(1, 10) }\nHash.new(:default).find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 128,
+    "source": "to_h.find_all { |x| x.between?(1, 10) }\nfoo.to_h.find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 135,
+    "source": "ENV.find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 195,
+    "source": "array&.find_all { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a range check."
+    ],
+    "correction": "array&.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 14,
+    "source": "array.filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 25,
+    "source": "array.filter { |x| (1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 36,
+    "source": "array.filter { |x| (1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 47,
+    "source": "array.filter { |x| (1...10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1...10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 63,
+    "source": "array.filter do |x|\n  x.between?(1, 10)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 76,
+    "source": "array.filter\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 82,
+    "source": "array.filter { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 88,
+    "source": "array.filter do |x|\n  next if x.even?\n  x.between?(1, 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 97,
+    "source": "array.filter { |x| y.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 103,
+    "source": "filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 114,
+    "source": "{}.filter { |x| x.between?(1, 10) }\n{ foo: :bar }.filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 121,
+    "source": "Hash.new.filter { |x| x.between?(1, 10) }\nHash.new(:default).filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 128,
+    "source": "to_h.filter { |x| x.between?(1, 10) }\nfoo.to_h.filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 135,
+    "source": "ENV.filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 195,
+    "source": "array&.filter { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a range check."
+    ],
+    "correction": "array&.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 152,
+    "source": "array.reject { |x| !x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 163,
+    "source": "array.reject { |x| !(1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 174,
+    "source": "array.reject { |x| !(1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a range check."
+    ],
+    "correction": "array.grep(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 152,
+    "source": "array.select { |x| !x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 163,
+    "source": "array.select { |x| !(1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 174,
+    "source": "array.select { |x| !(1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 152,
+    "source": "array.find_all { |x| !x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 163,
+    "source": "array.find_all { |x| !(1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 174,
+    "source": "array.find_all { |x| !(1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 152,
+    "source": "array.filter { |x| !x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 163,
+    "source": "array.filter { |x| !(1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 174,
+    "source": "array.filter { |x| !(1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 14,
+    "source": "array.reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 25,
+    "source": "array.reject { |x| (1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 36,
+    "source": "array.reject { |x| (1..10).include?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 47,
+    "source": "array.reject { |x| (1...10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1...10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 63,
+    "source": "array.reject do |x|\n  x.between?(1, 10)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 76,
+    "source": "array.reject\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 82,
+    "source": "array.reject { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 88,
+    "source": "array.reject do |x|\n  next if x.even?\n  x.between?(1, 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 97,
+    "source": "array.reject { |x| y.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 103,
+    "source": "reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 114,
+    "source": "{}.reject { |x| x.between?(1, 10) }\n{ foo: :bar }.reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 121,
+    "source": "Hash.new.reject { |x| x.between?(1, 10) }\nHash.new(:default).reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 128,
+    "source": "to_h.reject { |x| x.between?(1, 10) }\nfoo.to_h.reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 135,
+    "source": "ENV.reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 195,
+    "source": "array&.reject { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a range check."
+    ],
+    "correction": "array&.grep_v(1..10)\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 340,
+    "source": "array.find { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 351,
+    "source": "array.find { |x| (1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 340,
+    "source": "array.detect { |x| x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 351,
+    "source": "array.detect { |x| (1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 369,
+    "source": "array.find { |x| !x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 380,
+    "source": "array.find { |x| !(1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `find` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 369,
+    "source": "array.detect { |x| !x.between?(1, 10) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  },
+  {
+    "cop": "Style/SelectByRange",
+    "spec_line": 380,
+    "source": "array.detect { |x| !(1..10).cover?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v(...).first` to `detect` with a range check."
+    ],
+    "correction": "array.grep_v(1..10).first\n"
+  }
+]

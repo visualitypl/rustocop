@@ -1,0 +1,7055 @@
+//! Source files and byte-offset to line/column mapping.
+
+use std::{ops::Range, path::PathBuf, sync::OnceLock};
+
+use ruby_prism::{Node, ParseResult};
+
+mod columns;
+mod encoding;
+pub(crate) mod heredoc_boundaries;
+mod literal_ranges;
+mod punctuation;
+
+pub(crate) use encoding::{SourceEncoding, unicode_lowercase};
+
+/// A Ruby source file: its display path, raw bytes, and a line index.
+pub struct SourceFile {
+    /// The path as reported in output (relative to the config root when possible).
+    pub path: PathBuf,
+    /// The raw file bytes.
+    pub bytes: Vec<u8>,
+    /// Actual disk input, distinct from its display/config path. Absent for stdin
+    /// and in-memory fixtures; consulted lazily only by load-path-sensitive fixes.
+    read_path: Option<PathBuf>,
+    /// Supplied parser filename, including stdin's virtual name. Unlike `path`,
+    /// this is not rebased for display; unlike `read_path`, it grants no I/O.
+    source_path: Option<PathBuf>,
+    noncanonical_load_path: OnceLock<bool>,
+    /// Correction-only code-object and heap evidence, one shared main-parse walk.
+    code_object_facts: OnceLock<crate::cops::code_object_safety::Facts>,
+    interpolation_facts: OnceLock<crate::cops::style::interpolation_safety::Facts>,
+    format_string_facts: OnceLock<crate::cops::style::format_string::Facts>,
+    negative_array_index_facts: OnceLock<crate::cops::style::negative_array_index::Facts>,
+    dig_calls: OnceLock<crate::cops::style::dig_chain::Facts>,
+    word_array_matrices: OnceLock<std::sync::Mutex<std::collections::HashSet<usize>>>,
+    visible_locals: OnceLock<crate::cops::variables::VisibleLocals>,
+    local_rename_facts: OnceLock<crate::cops::naming::local_rename::Facts>,
+    forwarding_safety: OnceLock<crate::cops::style::arguments_forwarding::Safety>,
+    rescue_preferred_reads:
+        OnceLock<crate::cops::naming::rescued_exceptions_variable_name::PreferredReads>,
+    class_emitter_siblings: OnceLock<crate::cops::naming::class_emitters::Siblings>,
+    freeze_facts: OnceLock<crate::cops::style::redundant_freeze::Facts>,
+    self_facts: OnceLock<crate::cops::style::redundant_self::Facts>,
+    self_proof: OnceLock<crate::cops::style::redundant_self::Proof>,
+    initialize_comments: OnceLock<crate::cops::style::redundant_initialize::Comments>,
+    redundant_assignment_safety: OnceLock<crate::cops::style::redundant_assignment::Safety>,
+    trailing_underscore_facts: OnceLock<crate::cops::style::trailing_underscore_variable::Facts>,
+    hash_each_facts: OnceLock<crate::cops::style::hash_each_methods::Facts>,
+    each_with_object_facts: OnceLock<crate::cops::style::each_with_object::Facts>,
+    map_into_array_facts: OnceLock<crate::cops::style::map_into_array::Facts>,
+    hash_transform_facts: OnceLock<crate::cops::style::hash_transform::Facts>,
+    reduce_to_hash_facts: OnceLock<crate::cops::style::reduce_to_hash::Facts>,
+    redundant_double_splats: OnceLock<std::collections::HashSet<usize>>,
+    hash_fetch_facts: OnceLock<crate::cops::style::hash_fetch_chain::Facts>,
+    hash_lookup_facts: [OnceLock<crate::cops::style::hash_lookup_method::Facts>; 2],
+    super_facts: OnceLock<crate::cops::style::super_arguments::Facts>,
+    argument_rewrite_facts: OnceLock<crate::cops::style::explicit_block_argument::Facts>,
+    option_hash_supers: OnceLock<crate::cops::style::option_hash::SuperIndex>,
+    inverse_method_nexts: OnceLock<crate::cops::style::inverse_methods::NextIndex>,
+    multiple_comparison_safety: OnceLock<crate::cops::style::multiple_comparison::Safety>,
+    negated_condition_safety: OnceLock<crate::cops::style::negated_if::Safety>,
+    /// Correction-only lexical declaration/read evidence for branch swaps.
+    unless_else_bindings: OnceLock<crate::cops::style::unless_else::Bindings>,
+    /// Detection-only bottom-up return facts for subjectless-case branch guards.
+    empty_case_return_bodies: OnceLock<std::collections::HashSet<usize>>,
+    /// Correction-only implicit-it hazards for both empty-parameter cops.
+    empty_parameter_facts: OnceLock<crate::cops::style::empty_parameters::Facts>,
+    do_end_facts: OnceLock<crate::cops::style::single_line_do_end_block::Facts>,
+    block_chain_facts: OnceLock<crate::cops::style::multiline_block_chain::Facts>,
+    block_param_facts: OnceLock<crate::cops::style::single_line_block_params::Facts>,
+    it_parameter_facts: OnceLock<crate::cops::style::it_block_parameter::Facts>,
+    /// Correction-only one-shot END registration and lexical-binding proof.
+    end_block_facts: OnceLock<crate::cops::style::end_block::Facts>,
+    /// Correction-only fresh, closed empty class declaration proof.
+    empty_class_facts: OnceLock<crate::cops::style::empty_class_definition::Facts>,
+    /// Root-prefix visibility proof, collected once only when fixing.
+    constant_base_visibility: OnceLock<crate::cops::style::redundant_constant_base::Visibility>,
+    /// Correction-only closed eager Kernel.lambda lookup proof.
+    lambda_facts: OnceLock<crate::cops::style::lambda::Facts>,
+    /// Correction-only closed eager Proc constant and Kernel.proc lookup proof.
+    proc_facts: OnceLock<crate::cops::style::proc::Facts>,
+    /// Correction-only ownership of nested sugar sends, indexed in linear work.
+    lambda_call_facts: OnceLock<crate::cops::style::lambda_call::Facts>,
+    /// Distinct numbered-name masks folded once from the main AST.
+    numbered_limit_facts: OnceLock<crate::cops::style::numbered_parameters_limit::Facts>,
+    /// Byte offsets at which each line starts (line 1 starts at 0).
+    line_starts: std::sync::Arc<Vec<usize>>,
+    /// Byte ranges of the file's comments, in source order. Recorded by the
+    /// pipeline from its parse; computed on first use otherwise.
+    comments: OnceLock<Vec<Range<usize>>>,
+    /// Shared constant-definition locations for Struct/Data superclass checks.
+    inheritance_constants: OnceLock<crate::cops::style::struct_inheritance::ConstantDefinitions>,
+    /// Correction-only closed declaration prefix for class-method policies.
+    class_method_bindings: OnceLock<crate::cops::style::class_methods::Bindings>,
+    /// Shared lazy accessor correction proof and custom attr scope index.
+    accessor_bindings: OnceLock<crate::cops::style::accessors::Bindings>,
+    custom_attrs: OnceLock<crate::cops::style::accessors::CustomAttrs>,
+    /// Lazy closed-source alias conversion proof, separate from accessor rules.
+    alias_bindings: OnceLock<crate::cops::style::alias::Bindings>,
+    /// Separate correction-only proof: trivial defs are not regroupable attrs.
+    trivial_accessor_bindings: OnceLock<crate::cops::style::trivial_accessors::Bindings>,
+    accessor_annotations: OnceLock<crate::cops::style::accessors::Annotations>,
+    /// MutableConstant's fixed magic policy, indexed once rather than per write.
+    mutable_constant_magic: OnceLock<crate::cops::style::mutable_constant::MagicState>,
+    /// Fixed documentation/annotation/nodoc facts, classified once per comment.
+    documentation_comments: OnceLock<crate::cops::style::documentation::DocumentationComments>,
+    /// Physical-line # markers for eval docs, including markers in literals.
+    non_interpolation_hash_lines: OnceLock<Vec<bool>>,
+    /// Per-container method visibility, indexed lazily from NodeContext parents.
+    method_visibility:
+        OnceLock<std::sync::Mutex<crate::cops::style::documentation_method::MethodVisibility>>,
+    /// Lazy source-order facts for modifier eligibility, using the main AST.
+    modifier_index: OnceLock<crate::cops::style::if_unless_modifier::ModifierIndex>,
+    /// Correction-only exception dispatch/constant evidence, once per main AST.
+    exception_safety: OnceLock<crate::cops::style::redundant_exception::Safety>,
+    /// Correction-only file API binding evidence, indexed once from the main AST.
+    file_api_bindings: OnceLock<crate::cops::style::file_api::Bindings>,
+    /// Lazy, single main-AST pass for warning/stream correction safety.
+    stderr_bindings: OnceLock<crate::cops::style::stderr_puts::Bindings>,
+    /// Lazy main-AST binding evidence for regexp backreference corrections.
+    perl_backref_bindings: OnceLock<crate::cops::style::perl_backrefs::Bindings>,
+    /// Main-AST lexical companion-method presence, indexed at most once.
+    respond_to_missing_index:
+        OnceLock<crate::cops::style::missing_respond_to_missing::CompanionIndex>,
+    /// Correction-only binding evidence for class-check selector replacements.
+    class_check_bindings: OnceLock<crate::cops::style::class_check::Bindings>,
+    /// Correction-only binding/visibility proof for ObjectThen selector edits.
+    object_then_bindings: OnceLock<crate::cops::style::object_then::Bindings>,
+    /// Shared correction-only proof for literal integer min/max rewrites.
+    min_max_safety: OnceLock<crate::cops::style::min_max::Safety>,
+    /// Correction-only closed eager core proof for literal conditional clamps.
+    comparable_clamp_safety: OnceLock<crate::cops::style::comparable_clamp::Safety>,
+    /// Correction-only closed Integer comparison/Boolean result proof.
+    redundant_conditional_safety: OnceLock<crate::cops::style::redundant_conditional::Safety>,
+    /// Correction-only immediate-Integer parity dispatch proof.
+    even_odd_safety: OnceLock<crate::cops::style::even_odd::Safety>,
+    /// Correction-only closed literal String regexp-predicate dispatch proof.
+    exact_regexp_safety: OnceLock<crate::cops::style::exact_regexp_match::Safety>,
+    /// Shared lazy closed-core proof for regexp argument/constructor edits.
+    redundant_regexp_safety: OnceLock<crate::cops::style::redundant_regexp_constructor::Safety>,
+    /// Shared correction-only core-dispatch and declared-constant proof.
+    boolean_predicate_safety: OnceLock<crate::cops::style::boolean_safety::Safety>,
+    /// Correction-only closed literal-expression proof for Module predicates.
+    module_member_bindings: OnceLock<crate::cops::style::module_member_existence_check::Bindings>,
+    /// Correction-only closed-declaration proof for separated mixins.
+    mixin_grouping_bindings: OnceLock<crate::cops::style::mixin_grouping::Bindings>,
+    /// Detection-only conservative method return facts, built once on demand.
+    predicate_method_returns: OnceLock<crate::cops::naming::predicate_method::Returns>,
+    /// Lazy structural tail equality for Naming memoization detection only.
+    memoized_name_fingerprints: OnceLock<
+        std::sync::Mutex<crate::cops::naming::memoized_instance_variable_name::Fingerprints>,
+    >,
+    /// Direct conditional guard keys, indexed once per condition for FetchEnvVar.
+    fetch_env_conditions: OnceLock<std::sync::Mutex<crate::cops::style::fetch_env_var::Conditions>>,
+    /// FileNull's detection evidence, distinct from correction-only bindings.
+    contains_dev_null: OnceLock<crate::cops::style::file_null::NullDevices>,
+    /// RedundantCondition matches already visited in the main preorder walk.
+    /// Descendants query these facts instead of re-fingerprinting ancestors.
+    redundant_conditions: OnceLock<std::sync::Mutex<std::collections::HashSet<(usize, usize)>>>,
+    /// IdenticalConditionalBranches expression ranges already reported by an
+    /// enclosing chain; also deduplicates an expression that is both edges.
+    identical_branch_edges: OnceLock<std::sync::Mutex<std::collections::HashSet<(usize, usize)>>>,
+    /// Correction-only unbraced variable ends, recorded in the existing main
+    /// preorder cop dispatch. Exact offsets avoid fragment/sibling rescans.
+    string_escape_variable_ends: OnceLock<std::sync::Mutex<std::collections::HashSet<usize>>>,
+    /// Literal-token boundaries recorded by the main LineEndConcatenation walk.
+    line_end_boundaries:
+        OnceLock<std::sync::Mutex<crate::cops::style::line_end_concatenation::Boundaries>>,
+    /// Narrow continuation facts from the main lexer, completed by cop dispatch.
+    raw_continuations: OnceLock<Vec<crate::parser::Continuation>>,
+    line_continuations:
+        OnceLock<std::sync::Mutex<crate::cops::style::redundant_line_continuation::Facts>>,
+    /// Raw backtick character starts, indexed once for nested command bodies.
+    command_backticks: OnceLock<Vec<usize>>,
+    /// Pipeline directive state, also read by cross-cop length-policy checks.
+    directives: OnceLock<crate::directives::Directives>,
+    /// Configured-off cop universe, before CLI force-selection/exclusion.
+    directive_disabled: OnceLock<Vec<String>>,
+    /// Parsed directive tokens, shared by the two directive Style policies.
+    directive_records: OnceLock<Vec<crate::directives::comments::DirectiveComment>>,
+    /// Comments containing directive spellings, cached for newline-edit guards.
+    directive_comments: OnceLock<Vec<Range<usize>>>,
+    /// Last textual `__LINE__` boundary, shared by newline-changing fixes.
+    line_value_boundary: OnceLock<usize>,
+    /// The parser's warnings, in source order. Recorded by the pipeline from
+    /// its parse; computed on first use otherwise.
+    warnings: OnceLock<Vec<ParseWarning>>,
+    /// The byte offset of the `__END__` line that starts the data section,
+    /// if any. Recorded by the pipeline from its parse; computed on first
+    /// use otherwise.
+    data_start: OnceLock<Option<usize>>,
+    /// Merged literal-text ranges, lazily built from the main parse's AST.
+    literal_ranges: OnceLock<Vec<Range<usize>>>,
+    /// Literal token exclusions shared by spacing and empty-line detection.
+    token_ranges: OnceLock<literal_ranges::PunctuationRanges>,
+    /// Actual separators and extraneous parenthesis spacing, built once on demand.
+    punctuation: OnceLock<punctuation::PunctuationData>,
+    /// Encoding-dependent character widths and blanks, from the main parse.
+    encoding: OnceLock<encoding::ParsedEncoding>,
+    /// Lazy sparse scalar-column savings, shared by every cop.
+    columns: OnceLock<columns::ColumnIndex>,
+}
+
+/// A warning Prism reported while parsing (e.g. an ambiguous first
+/// argument). Cops built on the parser's own diagnostics, as RuboCop's are,
+/// read these instead of re-lexing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParseWarning {
+    /// Prism's message, e.g. ``ambiguous `*` has been interpreted as an
+    /// argument prefix``.
+    pub message: String,
+    /// The byte range the warning points at.
+    pub range: Range<usize>,
+}
+
+impl SourceFile {
+    /// Build a source file from its bytes, computing the line index.
+    pub fn new(path: PathBuf, bytes: Vec<u8>) -> Self {
+        let mut line_starts = vec![0];
+        for (i, byte) in bytes.iter().enumerate() {
+            if *byte == b'\n' {
+                line_starts.push(i + 1);
+            }
+        }
+        SourceFile {
+            path,
+            bytes,
+            read_path: None,
+            source_path: None,
+            noncanonical_load_path: OnceLock::new(),
+            code_object_facts: OnceLock::new(),
+            interpolation_facts: OnceLock::new(),
+            format_string_facts: OnceLock::new(),
+            negative_array_index_facts: OnceLock::new(),
+            dig_calls: OnceLock::new(),
+            word_array_matrices: OnceLock::new(),
+            visible_locals: OnceLock::new(),
+            local_rename_facts: OnceLock::new(),
+            forwarding_safety: OnceLock::new(),
+            rescue_preferred_reads: OnceLock::new(),
+            class_emitter_siblings: OnceLock::new(),
+            freeze_facts: OnceLock::new(),
+            self_facts: OnceLock::new(),
+            self_proof: OnceLock::new(),
+            initialize_comments: OnceLock::new(),
+            redundant_assignment_safety: OnceLock::new(),
+            trailing_underscore_facts: OnceLock::new(),
+            hash_each_facts: OnceLock::new(),
+            each_with_object_facts: OnceLock::new(),
+            map_into_array_facts: OnceLock::new(),
+            hash_transform_facts: OnceLock::new(),
+            reduce_to_hash_facts: OnceLock::new(),
+            redundant_double_splats: OnceLock::new(),
+            hash_fetch_facts: OnceLock::new(),
+            hash_lookup_facts: std::array::from_fn(|_| OnceLock::new()),
+            super_facts: OnceLock::new(),
+            argument_rewrite_facts: OnceLock::new(),
+            option_hash_supers: OnceLock::new(),
+            inverse_method_nexts: OnceLock::new(),
+            multiple_comparison_safety: OnceLock::new(),
+            negated_condition_safety: OnceLock::new(),
+            unless_else_bindings: OnceLock::new(),
+            empty_case_return_bodies: OnceLock::new(),
+            line_starts: std::sync::Arc::new(line_starts),
+            comments: OnceLock::new(),
+            inheritance_constants: OnceLock::new(),
+            class_method_bindings: OnceLock::new(),
+            end_block_facts: OnceLock::new(),
+            empty_class_facts: OnceLock::new(),
+            constant_base_visibility: OnceLock::new(),
+            accessor_bindings: OnceLock::new(),
+            alias_bindings: OnceLock::new(),
+            custom_attrs: OnceLock::new(),
+            trivial_accessor_bindings: OnceLock::new(),
+            accessor_annotations: OnceLock::new(),
+            mutable_constant_magic: OnceLock::new(),
+            documentation_comments: OnceLock::new(),
+            non_interpolation_hash_lines: OnceLock::new(),
+            method_visibility: OnceLock::new(),
+            modifier_index: OnceLock::new(),
+            exception_safety: OnceLock::new(),
+            file_api_bindings: OnceLock::new(),
+            stderr_bindings: OnceLock::new(),
+            perl_backref_bindings: OnceLock::new(),
+            respond_to_missing_index: OnceLock::new(),
+            class_check_bindings: OnceLock::new(),
+            object_then_bindings: OnceLock::new(),
+            min_max_safety: OnceLock::new(),
+            comparable_clamp_safety: OnceLock::new(),
+            redundant_conditional_safety: OnceLock::new(),
+            even_odd_safety: OnceLock::new(),
+            exact_regexp_safety: OnceLock::new(),
+            redundant_regexp_safety: OnceLock::new(),
+            boolean_predicate_safety: OnceLock::new(),
+            module_member_bindings: OnceLock::new(),
+            mixin_grouping_bindings: OnceLock::new(),
+            predicate_method_returns: OnceLock::new(),
+            memoized_name_fingerprints: OnceLock::new(),
+            fetch_env_conditions: OnceLock::new(),
+            contains_dev_null: OnceLock::new(),
+            redundant_conditions: OnceLock::new(),
+            identical_branch_edges: OnceLock::new(),
+            string_escape_variable_ends: OnceLock::new(),
+            line_end_boundaries: OnceLock::new(),
+            command_backticks: OnceLock::new(),
+            raw_continuations: OnceLock::new(),
+            line_continuations: OnceLock::new(),
+            directives: OnceLock::new(),
+            directive_disabled: OnceLock::new(),
+            directive_records: OnceLock::new(),
+            directive_comments: OnceLock::new(),
+            line_value_boundary: OnceLock::new(),
+            warnings: OnceLock::new(),
+            data_start: OnceLock::new(),
+            empty_parameter_facts: OnceLock::new(),
+            do_end_facts: OnceLock::new(),
+            block_chain_facts: OnceLock::new(),
+            block_param_facts: OnceLock::new(),
+            it_parameter_facts: OnceLock::new(),
+            lambda_facts: OnceLock::new(),
+            proc_facts: OnceLock::new(),
+            lambda_call_facts: OnceLock::new(),
+            numbered_limit_facts: OnceLock::new(),
+            literal_ranges: OnceLock::new(),
+            token_ranges: OnceLock::new(),
+            punctuation: OnceLock::new(),
+            encoding: OnceLock::new(),
+            columns: OnceLock::new(),
+        }
+    }
+
+    pub(crate) fn record_continuations(&self, records: &[crate::parser::Continuation]) {
+        let _ = self.raw_continuations.set(records.to_vec());
+    }
+
+    pub(crate) fn line_continuations(
+        &self,
+    ) -> Option<&std::sync::Mutex<crate::cops::style::redundant_line_continuation::Facts>> {
+        let records = self.raw_continuations.get()?;
+        if records.is_empty() {
+            return None;
+        }
+        Some(self.line_continuations.get_or_init(|| {
+            std::sync::Mutex::new(crate::cops::style::redundant_line_continuation::Facts::new(
+                self, records,
+            ))
+        }))
+    }
+
+    pub(crate) fn line_end_boundaries(
+        &self,
+    ) -> &std::sync::Mutex<crate::cops::style::line_end_concatenation::Boundaries> {
+        self.line_end_boundaries.get_or_init(Default::default)
+    }
+
+    /// Raw policy includes interpolation code, not just decoded static parts.
+    /// One encoding-aware index avoids rescanning recursively nested bodies.
+    pub(crate) fn command_body_has_backtick(&self, range: Range<usize>) -> bool {
+        let offsets = self.command_backticks.get_or_init(|| {
+            self.character_offsets(0..self.bytes.len())
+                .filter(|&i| self.bytes[i] == b'`')
+                .collect()
+        });
+        offsets
+            .get(offsets.partition_point(|&i| i < range.start))
+            .is_some_and(|&i| i < range.end)
+    }
+
+    pub(crate) fn dig_calls(&self, root: &Node<'_>) -> &crate::cops::style::dig_chain::Facts {
+        self.dig_calls
+            .get_or_init(|| crate::cops::style::dig_chain::Facts::build(root))
+    }
+
+    pub(crate) fn negative_array_index_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::negative_array_index::Facts {
+        self.negative_array_index_facts
+            .get_or_init(|| crate::cops::style::negative_array_index::Facts::build(root))
+    }
+
+    pub(crate) fn format_string_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::format_string::Facts {
+        self.format_string_facts
+            .get_or_init(|| crate::cops::style::format_string::Facts::build(root))
+    }
+
+    pub(crate) fn interpolation_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::interpolation_safety::Facts {
+        self.interpolation_facts
+            .get_or_init(|| crate::cops::style::interpolation_safety::Facts::build(root))
+    }
+
+    pub(crate) fn code_object_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::code_object_safety::Facts {
+        self.code_object_facts
+            .get_or_init(|| crate::cops::code_object_safety::Facts::build(root))
+    }
+
+    pub(crate) fn numbered_limit_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::numbered_parameters_limit::Facts {
+        self.numbered_limit_facts
+            .get_or_init(|| crate::cops::style::numbered_parameters_limit::Facts::build(root))
+    }
+
+    pub(crate) fn lambda_call_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::lambda_call::Facts {
+        self.lambda_call_facts
+            .get_or_init(|| crate::cops::style::lambda_call::Facts::build(root))
+    }
+
+    pub(crate) fn proc_facts(&self, root: &Node<'_>) -> &crate::cops::style::proc::Facts {
+        self.proc_facts
+            .get_or_init(|| crate::cops::style::proc::Facts::build(root))
+    }
+
+    pub(crate) fn lambda_facts(&self, root: &Node<'_>) -> &crate::cops::style::lambda::Facts {
+        self.lambda_facts
+            .get_or_init(|| crate::cops::style::lambda::Facts::build(root))
+    }
+
+    pub(crate) fn empty_class_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::empty_class_definition::Facts {
+        self.empty_class_facts
+            .get_or_init(|| crate::cops::style::empty_class_definition::Facts::build(root))
+    }
+
+    pub(crate) fn constant_base_visibility(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_constant_base::Visibility {
+        self.constant_base_visibility
+            .get_or_init(|| crate::cops::style::redundant_constant_base::Visibility::build(root))
+    }
+
+    pub(crate) fn end_block_facts(&self, root: &Node<'_>) -> &crate::cops::style::end_block::Facts {
+        self.end_block_facts
+            .get_or_init(|| crate::cops::style::end_block::Facts::build(root))
+    }
+
+    pub(crate) fn inheritance_constants(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::struct_inheritance::ConstantDefinitions {
+        self.inheritance_constants.get_or_init(|| {
+            crate::cops::style::struct_inheritance::ConstantDefinitions::build(root)
+        })
+    }
+
+    pub(crate) fn class_method_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::class_methods::Bindings {
+        self.class_method_bindings
+            .get_or_init(|| crate::cops::style::class_methods::Bindings::build(root))
+    }
+
+    pub(crate) fn alias_bindings(&self, root: &Node<'_>) -> &crate::cops::style::alias::Bindings {
+        self.alias_bindings
+            .get_or_init(|| crate::cops::style::alias::Bindings::build(root))
+    }
+
+    pub(crate) fn accessor_annotations(&self) -> &crate::cops::style::accessors::Annotations {
+        self.accessor_annotations
+            .get_or_init(|| crate::cops::style::accessors::Annotations::build(self))
+    }
+
+    pub(crate) fn accessor_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::accessors::Bindings {
+        self.accessor_bindings
+            .get_or_init(|| crate::cops::style::accessors::Bindings::build(root))
+    }
+
+    pub(crate) fn trivial_accessor_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::trivial_accessors::Bindings {
+        self.trivial_accessor_bindings
+            .get_or_init(|| crate::cops::style::trivial_accessors::Bindings::build(root))
+    }
+
+    pub(crate) fn custom_attrs(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::accessors::CustomAttrs {
+        self.custom_attrs
+            .get_or_init(|| crate::cops::style::accessors::CustomAttrs::build(root))
+    }
+
+    pub(crate) fn mutable_constant_magic(
+        &self,
+    ) -> &crate::cops::style::mutable_constant::MagicState {
+        self.mutable_constant_magic
+            .get_or_init(|| crate::cops::style::mutable_constant::MagicState::build(self))
+    }
+
+    pub(crate) fn hash_lookup_facts(
+        &self,
+        root: &ruby_prism::Node<'_>,
+        fetch_env_enabled: bool,
+    ) -> &crate::cops::style::hash_lookup_method::Facts {
+        self.hash_lookup_facts[usize::from(fetch_env_enabled)].get_or_init(|| {
+            crate::cops::style::hash_lookup_method::Facts::build(root, self, fetch_env_enabled)
+        })
+    }
+
+    pub(crate) fn hash_fetch_facts(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::style::hash_fetch_chain::Facts {
+        self.hash_fetch_facts
+            .get_or_init(|| crate::cops::style::hash_fetch_chain::Facts::build(root))
+    }
+
+    pub(crate) fn reduce_to_hash_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::reduce_to_hash::Facts {
+        self.reduce_to_hash_facts
+            .get_or_init(|| crate::cops::style::reduce_to_hash::Facts::build(root))
+    }
+
+    pub(crate) fn hash_transform_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::hash_transform::Facts {
+        self.hash_transform_facts
+            .get_or_init(|| crate::cops::style::hash_transform::Facts::build(root))
+    }
+
+    pub(crate) fn each_with_object_facts(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::style::each_with_object::Facts {
+        self.each_with_object_facts
+            .get_or_init(|| crate::cops::style::each_with_object::Facts::build(root))
+    }
+
+    pub(crate) fn map_into_array_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::map_into_array::Facts {
+        self.map_into_array_facts
+            .get_or_init(|| crate::cops::style::map_into_array::Facts::build(root))
+    }
+
+    pub(crate) fn hash_each_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::hash_each_methods::Facts {
+        self.hash_each_facts
+            .get_or_init(|| crate::cops::style::hash_each_methods::Facts::build(root))
+    }
+
+    pub(crate) fn forwarding_safety(
+        &self,
+        root: &ruby_prism::Node<'_>,
+        analysis: &crate::cops::variables::ScopeAnalysis<'_>,
+    ) -> &crate::cops::style::arguments_forwarding::Safety {
+        self.forwarding_safety
+            .get_or_init(|| crate::cops::style::arguments_forwarding::Safety::build(root, analysis))
+    }
+
+    pub(crate) fn local_rename_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::naming::local_rename::Facts {
+        self.local_rename_facts
+            .get_or_init(|| crate::cops::naming::local_rename::Facts::build(root))
+    }
+
+    pub(crate) fn rescue_preferred_reads(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::naming::rescued_exceptions_variable_name::PreferredReads {
+        self.rescue_preferred_reads.get_or_init(|| {
+            crate::cops::naming::rescued_exceptions_variable_name::PreferredReads::build(root)
+        })
+    }
+
+    pub(crate) fn trailing_underscore_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::trailing_underscore_variable::Facts {
+        self.trailing_underscore_facts
+            .get_or_init(|| crate::cops::style::trailing_underscore_variable::Facts::build(root))
+    }
+
+    pub(crate) fn with_source_path(mut self, path: &std::path::Path) -> Self {
+        self.source_path = Some(path.to_path_buf());
+        self
+    }
+
+    pub(crate) fn source_path(&self) -> &std::path::Path {
+        self.source_path.as_deref().unwrap_or(&self.path)
+    }
+
+    pub(crate) fn with_read_path(mut self, path: &std::path::Path) -> Self {
+        self.read_path = Some(path.to_path_buf());
+        self
+    }
+
+    /// `expand_path(dirname(__FILE__))` retains a symlink's directory, whereas
+    /// `__dir__` canonicalizes it. Protect known aliased disk inputs. Unknown
+    /// future invocation paths and external monkey patches cannot be inferred.
+    pub(crate) fn noncanonical_load_path(&self) -> bool {
+        *self.noncanonical_load_path.get_or_init(|| {
+            let Some(path) = &self.read_path else {
+                return false;
+            };
+            Self::path_is_noncanonical(path)
+        })
+    }
+
+    pub(crate) fn path_is_noncanonical(path: &std::path::Path) -> bool {
+        let Ok(absolute) = std::path::absolute(path) else {
+            return true;
+        };
+        let Ok(canonical) = std::fs::canonicalize(path) else {
+            return true;
+        };
+        absolute != canonical
+    }
+
+    pub(crate) fn file_api_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::file_api::Bindings {
+        self.file_api_bindings
+            .get_or_init(|| crate::cops::style::file_api::Bindings::build(root))
+    }
+
+    pub(crate) fn stderr_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::stderr_puts::Bindings {
+        self.stderr_bindings
+            .get_or_init(|| crate::cops::style::stderr_puts::Bindings::build(root))
+    }
+
+    pub(crate) fn perl_backref_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::perl_backrefs::Bindings {
+        self.perl_backref_bindings
+            .get_or_init(|| crate::cops::style::perl_backrefs::Bindings::build(root))
+    }
+
+    pub(crate) fn respond_to_missing_index(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::missing_respond_to_missing::CompanionIndex {
+        self.respond_to_missing_index.get_or_init(|| {
+            crate::cops::style::missing_respond_to_missing::CompanionIndex::build(root)
+        })
+    }
+
+    pub(crate) fn module_member_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::module_member_existence_check::Bindings {
+        self.module_member_bindings.get_or_init(|| {
+            crate::cops::style::module_member_existence_check::Bindings::build(root)
+        })
+    }
+
+    pub(crate) fn mixin_grouping_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::mixin_grouping::Bindings {
+        self.mixin_grouping_bindings
+            .get_or_init(|| crate::cops::style::mixin_grouping::Bindings::build(root))
+    }
+
+    pub(crate) fn comparable_clamp_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::comparable_clamp::Safety {
+        self.comparable_clamp_safety
+            .get_or_init(|| crate::cops::style::comparable_clamp::Safety::build(root))
+    }
+
+    pub(crate) fn redundant_conditional_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_conditional::Safety {
+        self.redundant_conditional_safety
+            .get_or_init(|| crate::cops::style::redundant_conditional::Safety::build(root))
+    }
+
+    pub(crate) fn empty_case_return_bodies(
+        &self,
+        root: &Node<'_>,
+    ) -> &std::collections::HashSet<usize> {
+        self.empty_case_return_bodies
+            .get_or_init(|| crate::cops::style::empty_case_condition::return_bodies(root))
+    }
+
+    pub(crate) fn unless_else_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::unless_else::Bindings {
+        self.unless_else_bindings
+            .get_or_init(|| crate::cops::style::unless_else::Bindings::build(root))
+    }
+
+    pub(crate) fn negated_condition_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::negated_if::Safety {
+        self.negated_condition_safety
+            .get_or_init(|| crate::cops::style::negated_if::Safety::build(root))
+    }
+
+    pub(crate) fn boolean_predicate_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::boolean_safety::Safety {
+        self.boolean_predicate_safety
+            .get_or_init(|| crate::cops::style::boolean_safety::Safety::build(root))
+    }
+
+    pub(crate) fn redundant_regexp_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_regexp_constructor::Safety {
+        self.redundant_regexp_safety
+            .get_or_init(|| crate::cops::style::redundant_regexp_constructor::Safety::build(root))
+    }
+
+    pub(crate) fn exact_regexp_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::exact_regexp_match::Safety {
+        self.exact_regexp_safety
+            .get_or_init(|| crate::cops::style::exact_regexp_match::Safety::build(root))
+    }
+
+    pub(crate) fn even_odd_safety(&self, root: &Node<'_>) -> &crate::cops::style::even_odd::Safety {
+        self.even_odd_safety
+            .get_or_init(|| crate::cops::style::even_odd::Safety::build(root))
+    }
+
+    pub(crate) fn min_max_safety(&self, root: &Node<'_>) -> &crate::cops::style::min_max::Safety {
+        self.min_max_safety
+            .get_or_init(|| crate::cops::style::min_max::Safety::build(root))
+    }
+
+    pub(crate) fn object_then_bindings(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::style::object_then::Bindings {
+        self.object_then_bindings
+            .get_or_init(|| crate::cops::style::object_then::Bindings::build(root))
+    }
+
+    pub(crate) fn class_check_bindings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::class_check::Bindings {
+        self.class_check_bindings
+            .get_or_init(|| crate::cops::style::class_check::Bindings::build(root))
+    }
+
+    pub(crate) fn predicate_method_returns(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::naming::predicate_method::Returns {
+        self.predicate_method_returns
+            .get_or_init(|| crate::cops::naming::predicate_method::Returns::build(root))
+    }
+
+    pub(crate) fn memoized_name_fingerprints(
+        &self,
+    ) -> &std::sync::Mutex<crate::cops::naming::memoized_instance_variable_name::Fingerprints> {
+        self.memoized_name_fingerprints
+            .get_or_init(Default::default)
+    }
+
+    pub(crate) fn fetch_env_conditions(
+        &self,
+    ) -> &std::sync::Mutex<crate::cops::style::fetch_env_var::Conditions> {
+        self.fetch_env_conditions.get_or_init(Default::default)
+    }
+
+    pub(crate) fn contains_dev_null(&self, root: &Node<'_>) -> bool {
+        self.contains_dev_null
+            .get_or_init(|| crate::cops::style::file_null::NullDevices::build(root))
+            .contains_dev_null
+    }
+
+    pub(crate) fn documentation_comments(
+        &self,
+    ) -> &crate::cops::style::documentation::DocumentationComments {
+        self.documentation_comments
+            .get_or_init(|| crate::cops::style::documentation::DocumentationComments::build(self))
+    }
+
+    /// Eval documentation uses physical source lines, not parser comments.
+    /// Index once: many eval calls/interpolations on one line must not rescan it.
+    pub(crate) fn line_has_non_interpolation_hash(&self, line: u32) -> bool {
+        let lines = self.non_interpolation_hash_lines.get_or_init(|| {
+            self.bytes
+                .split(|&b| b == b'\n')
+                .map(|line| {
+                    line.iter()
+                        .enumerate()
+                        .any(|(i, &b)| b == b'#' && line.get(i + 1) != Some(&b'{'))
+                })
+                .collect()
+        });
+        line.checked_sub(1)
+            .and_then(|i| lines.get(i as usize))
+            .copied()
+            .unwrap_or(false)
+    }
+
+    pub(crate) fn method_visibility(
+        &self,
+    ) -> &std::sync::Mutex<crate::cops::style::documentation_method::MethodVisibility> {
+        self.method_visibility.get_or_init(Default::default)
+    }
+
+    pub(crate) fn modifier_index(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::if_unless_modifier::ModifierIndex {
+        self.modifier_index.get_or_init(|| {
+            crate::cops::style::if_unless_modifier::ModifierIndex::build(root, self)
+        })
+    }
+
+    pub(crate) fn redundant_double_splats(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &std::collections::HashSet<usize> {
+        self.redundant_double_splats
+            .get_or_init(|| crate::cops::style::redundant_double_splat_hash_braces::index(root))
+    }
+
+    pub(crate) fn redundant_conditions(
+        &self,
+    ) -> &std::sync::Mutex<std::collections::HashSet<(usize, usize)>> {
+        self.redundant_conditions.get_or_init(Default::default)
+    }
+
+    pub(crate) fn identical_branch_edges(
+        &self,
+    ) -> &std::sync::Mutex<std::collections::HashSet<(usize, usize)>> {
+        self.identical_branch_edges.get_or_init(Default::default)
+    }
+
+    /// Parse once before cop dispatch; filtering and dependent cops share it.
+    pub(crate) fn directives_with_disabled(
+        &self,
+        result: &ParseResult<'_>,
+        disabled: &[&str],
+    ) -> &crate::directives::Directives {
+        self.directives.get_or_init(|| {
+            crate::directives::Directives::parse_with_disabled(result, self, disabled)
+        })
+    }
+
+    /// The main-parse directive cache is shared with branch comment policy.
+    /// Callers initialize it in check_parse, never reparse from check_node.
+    pub(crate) fn comments_contain_disables(&self, cop: &str, lines: Range<u32>) -> bool {
+        self.directives
+            .get()
+            .is_some_and(|d| d.contains_disables(cop, lines))
+    }
+
+    pub(crate) fn record_directive_disabled(&self, names: &[String]) {
+        let _ = self.directive_disabled.set(names.to_vec());
+    }
+
+    pub(crate) fn directive_disabled(&self) -> &[String] {
+        self.directive_disabled.get_or_init(Vec::new)
+    }
+
+    pub(crate) fn line_length_enabled(&self, line: u32) -> bool {
+        self.directives
+            .get()
+            .is_none_or(|d| d.is_enabled("Layout/LineLength", line))
+    }
+
+    /// Record encoding and frozen-string metadata from the main parse, before
+    /// mapping either diagnostics or cop offenses. A no-op once known.
+    pub(crate) fn record_encoding(&self, result: &ParseResult<'_>) {
+        let _ = self
+            .encoding
+            .set(encoding::ParsedEncoding::from_parse(result));
+    }
+
+    fn parsed_encoding(&self) -> &encoding::ParsedEncoding {
+        self.encoding.get_or_init(|| {
+            encoding::ParsedEncoding::from_parse(&crate::parser::parse(&self.bytes))
+        })
+    }
+
+    /// Validate decoded literal bytes in the main parse's source encoding.
+    /// Callers handle forced UTF-8/binary literal flags separately.
+    pub(crate) fn valid_source_encoded_bytes(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().valid(bytes)
+    }
+
+    /// Width in the main parse encoding, also for decoded symbol payloads.
+    pub(crate) fn encoded_character_width(&self, bytes: &[u8]) -> usize {
+        self.parsed_encoding().width(bytes)
+    }
+
+    /// Raw width and projected character count, honoring UTF8-MAC composition.
+    pub(crate) fn composed_character_chunk(&self, bytes: &[u8]) -> (usize, usize) {
+        self.parsed_encoding().composed_character_chunk(bytes)
+    }
+
+    pub(crate) fn word_array_matrices(
+        &self,
+    ) -> &std::sync::Mutex<std::collections::HashSet<usize>> {
+        self.word_array_matrices.get_or_init(Default::default)
+    }
+
+    pub(crate) fn word_projection_required(&self) -> bool {
+        self.parsed_encoding().word_projection_required()
+    }
+
+    pub(crate) fn word_prefix(&self, bytes: &[u8]) -> Option<(usize, usize)> {
+        self.parsed_encoding().word_prefix(bytes)
+    }
+
+    pub(crate) fn word_character(&self, bytes: &[u8], projected: bool) -> bool {
+        self.parsed_encoding().word(bytes, projected)
+    }
+
+    /// Bounded reference-buffer projection for DuplicateMatchPattern identities
+    /// and column counts, not diagnostic text or a global decoded source view.
+    pub(crate) fn match_pattern_source<'a>(&self, bytes: &'a [u8]) -> std::borrow::Cow<'a, [u8]> {
+        self.parsed_encoding().match_pattern_source(bytes)
+    }
+
+    pub(crate) fn match_pattern_binary(&self) -> bool {
+        self.parsed_encoding().match_pattern_binary()
+    }
+
+    /// Unicode scalar escaped by Ruby inspection of already projected source.
+    pub(crate) fn inspection_nonprint(&self, character: &[u8]) -> Option<u32> {
+        encoding::inspection_nonprint(character)
+    }
+
+    pub(crate) fn binary_encoding(&self) -> bool {
+        self.parsed_encoding().binary
+    }
+
+    pub(crate) fn frozen_string_setting(&self) -> Option<bool> {
+        self.parsed_encoding().frozen_strings
+    }
+
+    pub(crate) fn encoding(&self) -> SourceEncoding {
+        self.parsed_encoding().blanks
+    }
+
+    /// Non-ASCII case folds in the three fixed InclusiveLanguage terms.
+    pub(crate) fn inclusive_case_fold(&self, bytes: &[u8]) -> [u8; 2] {
+        self.parsed_encoding().inclusive_fold(bytes)
+    }
+
+    /// Canonical encoding identity for UTF-8 literal comparisons. Some Ruby
+    /// encodings share UTF-8's character widths/blanks but not string equality.
+    pub(crate) fn is_utf8(&self) -> bool {
+        self.parsed_encoding().utf8
+    }
+
+    /// Whether Ruby upcase changes an identifier in the main parse's encoding.
+    pub(crate) fn identifier_uppercase_changes(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().uppercase_changes(bytes)
+    }
+
+    pub(crate) fn heredoc_normalized<'a>(&self, bytes: &'a [u8]) -> std::borrow::Cow<'a, [u8]> {
+        self.parsed_encoding().heredoc_normalized(bytes)
+    }
+
+    pub(crate) fn heredoc_ascii_letter(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().heredoc_ascii_letter(bytes)
+    }
+
+    pub(crate) fn heredoc_has_ascii_word(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().heredoc_has_ascii_word(bytes)
+    }
+
+    /// Source-encoded uppercase for exact heredoc body collision detection.
+    pub(crate) fn heredoc_uppercase(&self, bytes: &[u8]) -> Option<Vec<u8>> {
+        self.parsed_encoding().heredoc_uppercase(bytes)
+    }
+
+    /// POSIX uppercase in names, using the pinned source-buffer projection.
+    pub(crate) fn identifier_has_uppercase(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().contains_uppercase(bytes)
+    }
+
+    /// POSIX lowercase in constant identifiers, using the main parse's encoding.
+    pub(crate) fn identifier_has_lowercase(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().contains_lowercase(bytes)
+    }
+
+    /// POSIX alnum of the first source-buffer-projected character. Callers need
+    /// at most six bytes (a CESU-8 surrogate pair); source widths stay unchanged.
+    pub(crate) fn character_alphanumeric(&self, bytes: &[u8]) -> bool {
+        self.parsed_encoding().alphanumeric_prefix(bytes)
+    }
+
+    pub(crate) fn record_string_escape_variable_end(&self, end: usize) {
+        self.string_escape_variable_ends
+            .get_or_init(Default::default)
+            .lock()
+            .unwrap()
+            .insert(end);
+    }
+
+    #[cfg(test)]
+    pub(crate) fn string_escape_variable_count(&self) -> Option<usize> {
+        self.string_escape_variable_ends
+            .get()
+            .map(|ends| ends.lock().unwrap().len())
+    }
+
+    pub(crate) fn follows_string_escape_variable(&self, start: usize) -> bool {
+        self.string_escape_variable_ends
+            .get()
+            .is_some_and(|ends| ends.lock().unwrap().contains(&start))
+    }
+
+    /// Absolute byte offsets of character starts within a token/line range.
+    /// Spacing alignment uses these once per line instead of repeatedly
+    /// counting prefixes, including for Ruby's declared legacy encodings.
+    pub(crate) fn character_offsets(
+        &self,
+        range: Range<usize>,
+    ) -> impl Iterator<Item = usize> + '_ {
+        let encoding = *self.parsed_encoding();
+        let mut offset = range.start;
+        std::iter::from_fn(move || {
+            if offset >= range.end {
+                return None;
+            }
+            let start = offset;
+            offset += encoding.width(&self.bytes[offset..range.end]);
+            Some(start)
+        })
+    }
+
+    pub(crate) fn multiple_comparison_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::multiple_comparison::Safety {
+        self.multiple_comparison_safety
+            .get_or_init(|| crate::cops::style::multiple_comparison::Safety::build(root))
+    }
+
+    pub(crate) fn inverse_method_nexts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::inverse_methods::NextIndex {
+        self.inverse_method_nexts
+            .get_or_init(|| crate::cops::style::inverse_methods::NextIndex::build(root))
+    }
+
+    pub(crate) fn option_hash_supers(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::option_hash::SuperIndex {
+        self.option_hash_supers
+            .get_or_init(|| crate::cops::style::option_hash::SuperIndex::of(root))
+    }
+
+    pub(crate) fn argument_rewrite_facts(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::style::explicit_block_argument::Facts {
+        self.argument_rewrite_facts
+            .get_or_init(|| crate::cops::style::explicit_block_argument::Facts::build(root))
+    }
+
+    pub(crate) fn super_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::super_arguments::Facts {
+        self.super_facts
+            .get_or_init(|| crate::cops::style::super_arguments::Facts::of(root))
+    }
+
+    pub(crate) fn redundant_assignment_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_assignment::Safety {
+        self.redundant_assignment_safety
+            .get_or_init(|| crate::cops::style::redundant_assignment::Safety::of(root))
+    }
+
+    pub(crate) fn exception_safety(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_exception::Safety {
+        self.exception_safety
+            .get_or_init(|| crate::cops::style::redundant_exception::Safety::build(root))
+    }
+
+    pub(crate) fn freeze_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_freeze::Facts {
+        self.freeze_facts
+            .get_or_init(|| crate::cops::style::redundant_freeze::Facts::build(root, self))
+    }
+
+    pub(crate) fn initialize_comments(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::redundant_initialize::Comments {
+        self.initialize_comments
+            .get_or_init(|| crate::cops::style::redundant_initialize::Comments::build(root))
+    }
+
+    pub(crate) fn self_proof(&self, root: &Node<'_>) -> &crate::cops::style::redundant_self::Proof {
+        self.self_proof
+            .get_or_init(|| crate::cops::style::redundant_self::Proof::build(root))
+    }
+
+    pub(crate) fn self_facts(&self, root: &Node<'_>) -> &crate::cops::style::redundant_self::Facts {
+        self.self_facts
+            .get_or_init(|| crate::cops::style::redundant_self::Facts::build(root))
+    }
+
+    pub(crate) fn class_emitter_siblings(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::naming::class_emitters::Siblings {
+        self.class_emitter_siblings
+            .get_or_init(|| crate::cops::naming::class_emitters::Siblings::build(root))
+    }
+
+    pub(crate) fn visible_locals(&self, root: &Node<'_>) -> &crate::cops::variables::VisibleLocals {
+        self.visible_locals
+            .get_or_init(|| crate::cops::variables::VisibleLocals::of(root))
+    }
+
+    /// Whether a byte range overlaps literal text (not interpolation code).
+    /// `root` must be the main parse's root for this file. Collection is lazy
+    /// and cached; repeated queries use binary search, never another AST walk.
+    /// Percent arrays are conservatively protected in their entirety.
+    pub fn overlaps_literal(&self, root: &Node<'_>, range: &Range<usize>) -> bool {
+        let ranges = self
+            .literal_ranges
+            .get_or_init(|| literal_ranges::collect(self, root));
+        let first = ranges.partition_point(|literal| literal.end <= range.start);
+        ranges
+            .get(first)
+            .is_some_and(|literal| literal.start < range.end)
+    }
+
+    fn token_ranges(&self, root: &Node<'_>) -> &literal_ranges::PunctuationRanges {
+        self.token_ranges
+            .get_or_init(|| literal_ranges::punctuation_ranges(self, root))
+    }
+
+    /// Literal token bytes, exposing interpolation code and percent-array
+    /// separators. Unlike correction safety, these do not protect whole arrays.
+    pub(crate) fn literal_token_ranges(&self, root: &Node<'_>) -> &[Range<usize>] {
+        &self.token_ranges(root).protected
+    }
+
+    /// Shared lazy physical heredoc evidence from this file's main parse.
+    pub(crate) fn heredoc_boundaries(
+        &self,
+        root: &Node<'_>,
+    ) -> &std::sync::Arc<heredoc_boundaries::Boundaries> {
+        let ranges = self.token_ranges(root);
+        ranges.heredoc_boundaries.get_or_init(|| {
+            std::sync::Arc::new(heredoc_boundaries::Boundaries::build(
+                self,
+                &ranges.heredocs,
+            ))
+        })
+    }
+
+    pub(crate) fn cached_heredoc_boundaries(
+        &self,
+    ) -> Option<&std::sync::Arc<heredoc_boundaries::Boundaries>> {
+        self.token_ranges
+            .get()
+            .and_then(|ranges| ranges.heredoc_boundaries.get())
+    }
+
+    /// Percent-array separator token starts, collected in the shared AST walk.
+    pub(crate) fn percent_array_separators(&self, root: &Node<'_>) -> &[usize] {
+        &self.token_ranges(root).percent_array_separators
+    }
+
+    /// A definition's physical last line, including a trailing heredoc body.
+    /// Reuse the token collector's bottom-up extents: no per-definition walks,
+    /// even for deeply nested definitions.
+    pub(crate) fn definition_end_line(&self, root: &Node<'_>, node: &Node<'_>) -> u32 {
+        let end = self
+            .token_ranges(root)
+            .definition_ends
+            .get(&node.location().start_offset())
+            .copied()
+            .unwrap_or(node.location().end_offset());
+        self.line_of(end.saturating_sub(1).max(node.location().start_offset()))
+    }
+
+    /// Whether a subtree contains a real heredoc opening (not a `<<` string
+    /// lookalike). The shared collector propagates presence through actual AST
+    /// parents once; each query is an exact cached lookup, not byte containment
+    /// (deferred heredoc text may physically overlap an unrelated subtree).
+    pub(crate) fn contains_heredoc(&self, root: &Node<'_>, node: &Node<'_>) -> bool {
+        let location = node.location();
+        self.token_ranges(root)
+            .heredoc_subtrees
+            .contains(&(location.start_offset(), location.end_offset()))
+    }
+
+    /// Exact main-AST ownership, sharing the lazy heredoc/token walk. A do/end
+    /// block inside a hash value can bind to an outer command after unbracing.
+    pub(crate) fn contains_keyword_block(&self, root: &Node<'_>, node: &Node<'_>) -> bool {
+        let loc = node.location();
+        self.token_ranges(root)
+            .keyword_block_subtrees
+            .contains(&(loc.start_offset(), loc.end_offset()))
+    }
+
+    /// An earlier real heredoc opener on this physical line makes a new line
+    /// unsafe even when the heredoc belongs to a sibling, not the edited node.
+    /// Share the lazy token collection and binary-search it per correction.
+    pub(crate) fn heredoc_pending_at(&self, root: &Node<'_>, offset: usize) -> bool {
+        let openings = &self.token_ranges(root).heredoc_openings;
+        let line_start = self.line_start(self.line_of(offset));
+        let first = openings.partition_point(|&start| start < line_start);
+        openings.get(first).is_some_and(|&start| start < offset)
+    }
+
+    pub(crate) fn block_chain_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::multiline_block_chain::Facts {
+        self.block_chain_facts
+            .get_or_init(|| crate::cops::style::multiline_block_chain::Facts::build(root, self))
+    }
+
+    pub(crate) fn it_parameter_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::it_block_parameter::Facts {
+        self.it_parameter_facts
+            .get_or_init(|| crate::cops::style::it_block_parameter::Facts::build(root, self))
+    }
+
+    pub(crate) fn block_param_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::single_line_block_params::Facts {
+        self.block_param_facts
+            .get_or_init(|| crate::cops::style::single_line_block_params::Facts::build(root, self))
+    }
+
+    pub(crate) fn do_end_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::single_line_do_end_block::Facts {
+        self.do_end_facts
+            .get_or_init(|| crate::cops::style::single_line_do_end_block::Facts::build(root, self))
+    }
+
+    pub(crate) fn empty_parameter_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::style::empty_parameters::Facts {
+        self.empty_parameter_facts
+            .get_or_init(|| crate::cops::style::empty_parameters::Facts::build(root))
+    }
+
+    /// Actual punctuation spacing outside literal text, comments and raw data.
+    /// Cached across spacing cops, using the existing parse (never reparsing).
+    pub(crate) fn punctuation(&self, root: &Node<'_>) -> &[punctuation::Punctuation] {
+        &self
+            .punctuation
+            .get_or_init(|| punctuation::collect(self, root))
+            .tokens
+    }
+
+    /// Real square brackets in source order, sharing the punctuation scan.
+    pub(crate) fn square_brackets(&self, root: &Node<'_>) -> &[usize] {
+        &self
+            .punctuation
+            .get_or_init(|| punctuation::collect(self, root))
+            .square_brackets
+    }
+
+    /// Record the comments of `result`, a parse of this file's bytes, so
+    /// [`SourceFile::comments`] needs no second parse. A no-op once known.
+    pub fn record_comments(&self, result: &ParseResult<'_>) {
+        let _ = self.comments.set(comment_ranges(result));
+    }
+
+    /// Byte ranges of every comment (`# …` and `=begin`/`=end`), in source
+    /// order.
+    pub fn comments(&self) -> &[Range<usize>] {
+        self.comments
+            .get_or_init(|| comment_ranges(&crate::parser::parse(&self.bytes)))
+    }
+
+    pub(crate) fn directive_records(&self) -> &[crate::directives::comments::DirectiveComment] {
+        self.directive_records
+            .get_or_init(|| crate::directives::comments::collect(self))
+    }
+
+    /// Directive-like comments for conservative newline correction guards.
+    /// Scan each comment's bytes once, even for many edits inside a large
+    /// block comment. Detection/normal lint never needs this cache.
+    pub(crate) fn directive_comments(&self) -> &[Range<usize>] {
+        self.directive_comments.get_or_init(|| {
+            self.comments()
+                .iter()
+                .filter(|comment| {
+                    let text = &self.bytes[(*comment).clone()];
+                    memchr::memmem::find(text, b"rubocop:").is_some()
+                        || memchr::memmem::find(text, b"rustocop:").is_some()
+                })
+                .cloned()
+                .collect()
+        })
+    }
+
+    /// Cache the newline-edit guard once per file, not once per definition.
+    pub(crate) fn line_value_boundary(&self) -> usize {
+        *self.line_value_boundary.get_or_init(|| {
+            memchr::memmem::rfind(&self.bytes, b"__LINE__").map_or(0, |offset| offset + 1)
+        })
+    }
+
+    /// Record the warnings of `result`, a parse of this file's bytes, so
+    /// [`SourceFile::warnings`] needs no second parse. A no-op once known.
+    pub fn record_warnings(&self, result: &ParseResult<'_>) {
+        let _ = self.warnings.set(parse_warnings(result));
+    }
+
+    /// Every warning the parser reported, in source order.
+    pub fn warnings(&self) -> &[ParseWarning] {
+        self.warnings
+            .get_or_init(|| parse_warnings(&crate::parser::parse(&self.bytes)))
+    }
+
+    /// Record where the data section of `result`, a parse of this file's
+    /// bytes, starts, so [`SourceFile::data_start`] needs no second parse. A
+    /// no-op once known.
+    pub fn record_data_start(&self, result: &ParseResult<'_>) {
+        let _ = self.data_start.set(data_start(result));
+    }
+
+    /// The byte offset of the `__END__` marker line, if the file has a data
+    /// section: everything from it on is data, not code.
+    pub fn data_start(&self) -> Option<usize> {
+        *self
+            .data_start
+            .get_or_init(|| data_start(&crate::parser::parse(&self.bytes)))
+    }
+
+    /// The number of lines before the data section (all of them when there
+    /// is none): the lines RuboCop's line-oriented cops check.
+    pub fn code_line_count(&self) -> usize {
+        match self.data_start() {
+            Some(offset) => self.line_of(offset) as usize - 1,
+            None => self.line_count(),
+        }
+    }
+
+    /// Whether a comment starts on one of `lines` (1-based, end-exclusive),
+    /// like RuboCop's `each_comment_in_lines`.
+    pub fn has_comment_in_lines(&self, lines: Range<u32>) -> bool {
+        if lines.start >= lines.end {
+            return false;
+        }
+        let start = self.line_start(lines.start);
+        let end = self.line_start(lines.end);
+        let comments = self.comments();
+        let first = comments.partition_point(|comment| comment.start < start);
+        comments
+            .get(first)
+            .is_some_and(|comment| comment.start < end)
+    }
+
+    /// Whether the source contains `needle` anywhere: a cheap prefilter for
+    /// cops that can only fire when some token is spelled out.
+    pub fn contains(&self, needle: &[u8]) -> bool {
+        memchr::memmem::find(&self.bytes, needle).is_some()
+    }
+
+    /// The text of a 1-based line, without its `\n` (or `\r\n`) terminator;
+    /// empty for lines past the end of the file.
+    pub fn line_text(&self, line: u32) -> &[u8] {
+        if line == 0 || line as usize > self.line_starts.len() {
+            return &[];
+        }
+        let start = self.line_start(line);
+        let end = self.line_start(line + 1);
+        let text = &self.bytes[start..end];
+        let text = text.strip_suffix(b"\n").unwrap_or(text);
+        text.strip_suffix(b"\r").unwrap_or(text)
+    }
+
+    /// The byte offset at which a 1-based line starts; the end of the file
+    /// for lines past it.
+    pub fn line_start(&self, line: u32) -> usize {
+        let index = (line as usize).saturating_sub(1);
+        self.line_starts
+            .get(index)
+            .copied()
+            .unwrap_or(self.bytes.len())
+    }
+
+    /// The 1-based line of a byte offset: [`SourceFile::line_col`] without
+    /// the column count.
+    pub fn line_of(&self, offset: usize) -> u32 {
+        let offset = offset.min(self.bytes.len());
+        let line_index = match self.line_starts.binary_search(&offset) {
+            Ok(i) => i,
+            Err(i) => i.saturating_sub(1),
+        };
+        line_index as u32 + 1
+    }
+
+    /// The inclusive last line of an end-exclusive Prism source location.
+    /// Empty locations stay on their starting line; a location ending at
+    /// the start of a line does not include that line.
+    pub fn last_line_of(&self, location: ruby_prism::Location<'_>) -> u32 {
+        self.line_of(
+            location
+                .end_offset()
+                .saturating_sub(1)
+                .max(location.start_offset()),
+        )
+    }
+
+    /// Map a byte offset to a 1-based (line, column) pair.
+    ///
+    /// Columns count characters in Ruby's declared source encoding (UTF-8 by
+    /// default), excluding a leading UTF-8 BOM. Offsets within that BOM map to
+    /// column 1. Invalid/incomplete characters in the prefix count one per byte.
+    /// Raw source offsets are never transcoded or adjusted.
+    pub fn line_col(&self, offset: usize) -> (u32, u32) {
+        let offset = offset.min(self.bytes.len());
+        let line_index = match self.line_starts.binary_search(&offset) {
+            Ok(i) => i,
+            Err(i) => i.saturating_sub(1),
+        };
+        let line_start = if line_index == 0 && self.bytes.starts_with(b"\xef\xbb\xbf") {
+            // Keep raw offsets intact; only the displayed column ignores the BOM.
+            3.min(offset)
+        } else {
+            self.line_starts[line_index]
+        };
+        let encoding = *self.parsed_encoding();
+        let columns = self
+            .columns
+            .get_or_init(|| columns::ColumnIndex::build(&self.bytes, &self.line_starts, encoding));
+        let col = columns.count_chars(&self.bytes, line_start, offset, encoding) as u32 + 1;
+        (line_index as u32 + 1, col)
+    }
+
+    /// Map many offsets with the same semantics as `line_col`, retaining input
+    /// order and duplicates. Sorting queries lets us scan each queried line's
+    /// prefix only once, rather than once per diagnostic on a long rejected line.
+    pub(crate) fn line_cols(&self, offsets: impl IntoIterator<Item = usize>) -> Vec<(u32, u32)> {
+        let mut queries: Vec<_> = offsets
+            .into_iter()
+            .enumerate()
+            .map(|(index, offset)| (offset.min(self.bytes.len()), index))
+            .collect();
+        queries.sort_unstable();
+        let mut positions = vec![(1, 1); queries.len()];
+        if queries.is_empty() {
+            return positions;
+        }
+        let encoding = *self.parsed_encoding();
+        let mut current_line = 0;
+        let mut cursor = 0;
+        let mut line_end = 0;
+        let mut characters = 0;
+        for (offset, index) in queries {
+            let line = self.line_of(offset);
+            if line != current_line {
+                current_line = line;
+                cursor = self.line_start(line);
+                if line == 1 && self.bytes.starts_with(b"\xef\xbb\xbf") {
+                    cursor = 3;
+                }
+                line_end = self.line_start(line + 1);
+                characters = 0;
+            }
+            while cursor < offset {
+                let width = encoding.width(&self.bytes[cursor..line_end]);
+                if cursor + width > offset {
+                    break;
+                }
+                cursor += width;
+                characters += 1;
+            }
+            // A query can split a multibyte character. Count that incomplete
+            // prefix exactly as the scalar mapper does, but keep the cursor at
+            // the full character boundary for subsequent queries. BOM bytes
+            // precede the cursor and always map to column 1.
+            let partial = if cursor < offset {
+                encoding.count_chars(&self.bytes[cursor..offset])
+            } else {
+                0
+            };
+            positions[index] = (line, (characters + partial) as u32 + 1);
+        }
+        positions
+    }
+
+    /// The number of lines in the file.
+    pub fn line_count(&self) -> usize {
+        let newlines = self.bytes.iter().filter(|b| **b == b'\n').count();
+        if newlines > 0 && self.bytes.last() == Some(&b'\n') {
+            newlines
+        } else {
+            newlines + usize::from(!self.bytes.is_empty())
+        }
+    }
+}
+
+/// The byte ranges of a parse's comments.
+fn comment_ranges(result: &ParseResult<'_>) -> Vec<Range<usize>> {
+    result
+        .comments()
+        .map(|comment| {
+            let location = comment.location();
+            location.start_offset()..location.end_offset()
+        })
+        .collect()
+}
+
+/// Where a parse's data section (`__END__` and after) starts.
+fn data_start(result: &ParseResult<'_>) -> Option<usize> {
+    result.data_loc().map(|location| location.start_offset())
+}
+
+/// The warnings of a parse, sorted by position.
+fn parse_warnings(result: &ParseResult<'_>) -> Vec<ParseWarning> {
+    let mut warnings: Vec<ParseWarning> = result
+        .warnings()
+        .map(|warning| {
+            let location = warning.location();
+            ParseWarning {
+                message: warning.message().into_owned(),
+                range: location.start_offset()..location.end_offset(),
+            }
+        })
+        .collect();
+    warnings.sort_by_key(|warning| (warning.range.start, warning.range.end));
+    warnings
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn formatting_proof_is_lazy_cached_file_local_and_linear() {
+        use crate::cops::{
+            Cop, run_cops, run_cops_with_corrections,
+            style::FormatString,
+            walk::{self, NodeVisitor},
+        };
+        let source = "[\"%s/%s\" % [\"a\", 1], sprintf('%s', 2)]\n".repeat(1500);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&FormatString];
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 3000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 3000);
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut count = Count(0);
+        walk::walk(&mut count, &parsed.node());
+        let facts = file.format_string_facts.get().unwrap();
+        assert_eq!(facts.visits, count.0);
+        assert!(facts.visits < 1500 * 25);
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+        let other = SourceFile::new("other.rb".into(), b"effect; '%s' % 1".to_vec());
+        assert!(other.format_string_facts.get().is_none());
+    }
+
+    #[test]
+    fn decoded_literal_validity_uses_real_encoding_widths_not_column_fallbacks() {
+        for (header, valid, invalid) in [
+            ("UTF-8", b"\xc3\xa9".as_slice(), Some(b"\xff".as_slice())),
+            ("US-ASCII", b"ascii".as_slice(), Some(b"\xff".as_slice())),
+            (
+                "Windows-31J",
+                b"\x83\\".as_slice(),
+                Some(b"\x83".as_slice()),
+            ),
+            ("ISO-8859-1", b"\xff".as_slice(), None),
+            ("ASCII-8BIT", b"\xff".as_slice(), None),
+        ] {
+            let file = SourceFile::new(
+                "x.rb".into(),
+                format!("# encoding: {header}\n'x'\n").into_bytes(),
+            );
+            let parsed = crate::parser::parse(&file.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            file.record_encoding(&parsed);
+            assert!(file.valid_source_encoded_bytes(valid), "{header}");
+            assert!(file.valid_source_encoded_bytes(b""), "{header}");
+            if let Some(invalid) = invalid {
+                assert!(!file.valid_source_encoded_bytes(invalid), "{header}");
+            }
+        }
+    }
+
+    #[test]
+    fn string_apis_share_lazy_bounded_closed_dispatch_facts() {
+        use crate::cops::{
+            Cop, run_cops, run_cops_with_corrections,
+            style::{StringMethods, Strip},
+        };
+        let source = "[\"x\".intern, :x.intern, \" x \".lstrip.rstrip, \" x \"&.rstrip&.lstrip]\n"
+            .repeat(1500);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 2] = [&StringMethods, &Strip];
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
+        let facts = file.format_string_facts.get().unwrap();
+        assert!(facts.visits < 1500 * 30);
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+        let other = SourceFile::new("other.rb".into(), b"effect; 'x'.intern".to_vec());
+        assert!(other.format_string_facts.get().is_none());
+    }
+
+    #[test]
+    fn unpack_first_candidates_share_lazy_bounded_closed_dispatch_facts() {
+        use crate::cops::{Cop, run_cops, run_cops_with_corrections, style::UnpackFirst};
+        let source = "['abc'.unpack('h*').first, 'abc'&.unpack('a*')&.at(0), ''.unpack('C')[0]]\n"
+            .repeat(2000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&UnpackFirst];
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
+        let facts = file.format_string_facts.get().unwrap();
+        assert!(facts.visits < 2000 * 30);
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn sample_degenerate_literals_share_one_lazy_bounded_dispatch_index() {
+        use crate::cops::{Cop, run_cops, run_cops_with_corrections, style::Sample};
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "x = [42].shuffle.first\n".repeat(6000).into_bytes(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&Sample];
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
+        let facts = file.format_string_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 6 + 2, "{}", facts.visits);
+        assert!(std::ptr::eq(
+            facts,
+            file.format_string_facts(&parsed.node())
+        ));
+    }
+
+    #[test]
+    fn array_join_dense_literals_reuse_one_lazy_closed_dispatch_walk() {
+        use crate::cops::{Cop, run_cops, run_cops_with_corrections, style::ArrayJoin};
+        let source = "x = [nil, [1, false], :x] * ','\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&ArrayJoin];
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(out.iter().all(|o| o.correction.is_some()));
+        let facts = file.format_string_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 12 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn array_constructor_reuses_lazy_closed_dispatch_facts_and_linear_work() {
+        use crate::cops::{
+            Cop, run_cops, run_cops_with_corrections, style::RedundantArrayConstructor,
+        };
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "x = Array.new([nil, [1, false], :x])\n"
+                .repeat(6000)
+                .into_bytes(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&RedundantArrayConstructor];
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(out.iter().all(|o| o.correction.is_some()));
+        let facts = file.format_string_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 12 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn array_constructor_string_context_holds_keep_proof_work_lazy_and_linear() {
+        use crate::cops::{
+            Cop, run_cops, run_cops_with_corrections, style::RedundantArrayConstructor,
+        };
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "Array[\"x\"]; Array[?x]; Array[\"x\" \"y\"]; Array.new([?x])\n"
+                .repeat(1500)
+                .into_bytes(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&RedundantArrayConstructor];
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 1500);
+        let facts = file.format_string_facts.get().unwrap();
+        assert!(facts.visits <= 1500 * 25 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn hash_fetch_and_lookup_facts_are_lazy_linear_and_source_local() {
+        use crate::cops::{
+            Cop, run_cops,
+            style::{HashFetchChain, HashLookupMethod},
+        };
+        let lookup = HashLookupMethod::default();
+        let cops: [&dyn Cop; 2] = [&HashFetchChain, &lookup];
+        let clean = SourceFile::new("x.rb".into(), b"h[key]\n".to_vec());
+        let parsed = crate::parser::parse(&clean.bytes);
+        let mut out = vec![];
+        assert!(run_cops(&cops, &parsed, &clean, &mut out).is_empty());
+        assert!(clean.hash_fetch_facts.get().is_none());
+        assert!(clean.hash_lookup_facts.iter().all(|c| c.get().is_none()));
+        let chain = format!("h{}.fetch(:last,nil)\n", ".fetch(:a,{})".repeat(48));
+        let source = format!("{chain}h.fetch(h.fetch(h.fetch(:key)))\n").repeat(6000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        assert_eq!(parsed.errors().count(), 0);
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 12000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let fetch = file.hash_fetch_facts.get().unwrap();
+        assert_eq!(fetch.links, 49 * 6000);
+        assert!(fetch.visits <= 6000 * 330 + 2, "{}", fetch.visits);
+        let lookup = file.hash_lookup_facts[1].get().unwrap();
+        assert_eq!(fetch.visits, lookup.visits);
+        assert!(file.hash_lookup_facts[0].get().is_none());
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(fetch, file.hash_fetch_facts(&parsed.node())));
+            assert!(std::ptr::eq(
+                lookup,
+                file.hash_lookup_facts(&parsed.node(), true)
+            ));
+        }
+        assert!(clean.hash_fetch_facts.get().is_none());
+    }
+
+    #[test]
+    fn set_partition_and_reduce_have_bounded_main_ast_work() {
+        use crate::cops::{
+            Cop, run_cops,
+            style::{MapToSet, PartitionInsteadOfDoubleSelect, ReduceToHash},
+        };
+        let cops: [&dyn Cop; 3] = [&MapToSet, &PartitionInsteadOfDoubleSelect, &ReduceToHash];
+        for s in [
+            "xs.map.to_set",
+            "xs.reduce(0) { |a,e| a+e }",
+            "xs.select(&:ok?)",
+        ] {
+            let f = SourceFile::new("x.rb".into(), s.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&f.bytes);
+            let mut out = vec![];
+            assert!(run_cops(&cops, &parsed, &f, &mut out).is_empty());
+            assert!(f.reduce_to_hash_facts.get().is_none());
+        }
+        let s="xs.map { it*2 }.to_set\nxs.select(&:ok?)\nxs.reject(&:ok?)\nxs.each_with_object({}) { |e,h| h[e]=e }\n".repeat(6000);
+        let f = SourceFile::new("x.rb".into(), s.into_bytes());
+        let parsed = crate::parser::parse(&f.bytes);
+        let mut out = vec![];
+        assert!(run_cops(&cops, &parsed, &f, &mut out).is_empty());
+        assert_eq!(out.len(), 18000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let facts = f.reduce_to_hash_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 50 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(facts, f.reduce_to_hash_facts(&parsed.node())));
+        }
+        assert!(f.code_object_facts.get().is_none());
+        let other = SourceFile::new("other.rb".into(), vec![]);
+        assert!(other.reduce_to_hash_facts.get().is_none());
+    }
+
+    #[test]
+    fn map_destination_index_is_lazy_shared_bounded_and_source_local() {
+        use crate::cops::{Cop, run_cops, style::MapIntoArray};
+        let cops: [&dyn Cop; 1] = [&MapIntoArray];
+        for s in [
+            "src.each {}",
+            "src.each { |x| x << 1 }",
+            "dest=[]; src.map { |x| dest << x }",
+        ] {
+            let file = SourceFile::new("x.rb".into(), s.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            let mut out = vec![];
+            assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+            // A syntactic local push candidate may require the index even if
+            // its lexical identity turns out to be a parameter, not a mapping.
+            if !s.contains("x <<") {
+                assert!(file.map_into_array_facts.get().is_none());
+            }
+        }
+        let s = "dest=[]; src.each { |e| dest << e }; dest\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), s.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let mut out = vec![];
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let facts = file.map_into_array_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 18 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.map_into_array_facts(&parsed.node())
+            ));
+        }
+        let other = SourceFile::new("other.rb".into(), b"dest=[]".to_vec());
+        assert!(other.map_into_array_facts.get().is_none());
+    }
+
+    #[test]
+    fn enumeration_indexes_are_lazy_shared_bounded_and_source_local() {
+        use crate::cops::{
+            Cop, run_cops, run_cops_with_corrections,
+            style::{EachForSimpleLoop, EachWithObject},
+        };
+        let cops: [&dyn Cop; 2] = [&EachForSimpleLoop, &EachWithObject];
+        for s in [
+            "[].reduce(0) { |a,e| a }",
+            "[].reduce({}) { |a| a }",
+            "(0..3).each {}",
+        ] {
+            let file = SourceFile::new("x.rb".into(), s.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            let mut out = vec![];
+            assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+            assert!(file.each_with_object_facts.get().is_none(), "{s}");
+        }
+        let s = "[].reduce({}) { |a,e| nested { a[e]=e }; a }\n[].reduce({}) { |a,e| a=e; a }\n"
+            .repeat(6000);
+        let file = SourceFile::new("x.rb".into(), s.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let mut out = vec![];
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 6000);
+        let facts = file.each_with_object_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 65 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.each_with_object_facts(&parsed.node())
+            ));
+        }
+        let other = SourceFile::new("other.rb".into(), b"[].reduce(0)".to_vec());
+        assert!(other.each_with_object_facts.get().is_none());
+    }
+
+    #[test]
+    fn hash_each_indexes_are_lazy_once_bounded_and_source_local() {
+        use crate::cops::{Cop, run_cops, style::HashEachMethods};
+        let cops: [&dyn Cop; 1] = [&HashEachMethods];
+        for source in [
+            "foo.each {}",
+            "foo.each { p it }",
+            "foo.each { |k,v,w| p k }",
+            "foo.keys.each(&:bar)",
+            "foo.each_pair { |k,v| p k }",
+        ] {
+            let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            let mut out = vec![];
+            assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+            assert!(file.hash_each_facts.get().is_none(), "{source}");
+        }
+        let source = "h.chain.more.keys.each { |k| other[k] = k }\nh.each { |k,v| nested { |k| p k } }\nh.keys.each { |k| h[k],x = values }\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        assert!(file.hash_each_facts.get().is_none());
+        let mut out = vec![];
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 12000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let facts = file.hash_each_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 65 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(facts, file.hash_each_facts(&parsed.node())));
+        }
+        let other = SourceFile::new("other.rb".into(), b"h.each {}".to_vec());
+        assert!(other.hash_each_facts.get().is_none());
+    }
+
+    #[test]
+    fn hash_transform_indexes_are_lazy_shared_and_bounded_for_wide_and_nested_bodies() {
+        use crate::cops::{
+            Cop, run_cops,
+            style::{HashTransformKeys, HashTransformValues},
+        };
+        let cops: [&dyn Cop; 2] = [&HashTransformKeys, &HashTransformValues];
+        for s in [
+            "{}.map { |k,v| [k,v] }.to_h",
+            "unknown.map { |k,v| [k.to_s,v] }.to_h",
+            "{}.to_h { it }",
+            "{}.map { |k,v| [k.to_s,v.to_s] }.to_h",
+        ] {
+            let file = SourceFile::new("x.rb".into(), s.as_bytes().to_vec());
+            let mut out = vec![];
+            assert!(
+                run_cops(&cops, &crate::parser::parse(&file.bytes), &file, &mut out).is_empty()
+            );
+            assert!(file.hash_transform_facts.get().is_none());
+        }
+        let nested = format!(
+            "{}k.to_s{}",
+            "{}.to_h { |k,v| [".repeat(12),
+            ",v] }".repeat(12)
+        );
+        let s =
+            format!("{{}}.map {{ |k,v| [{nested},v] }}.to_h\n{{}}.to_h {{ |k,v| [k,v.to_s] }}\n")
+                .repeat(6000);
+        let file = SourceFile::new("x.rb".into(), s.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let mut out = vec![];
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        // Only the innermost key transform: nested lexical v reads exclude
+        // its outer candidates. Each row also has one value transform.
+        assert_eq!(out.len(), 2 * 6000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let facts = file.hash_transform_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 240 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.hash_transform_facts(&parsed.node())
+            ));
+        }
+        assert!(file.code_object_facts.get().is_none());
+        assert!(file.visible_locals.get().is_none());
+        let other = SourceFile::new("other.rb".into(), b"{}.to_h {}".to_vec());
+        assert!(other.hash_transform_facts.get().is_none());
+    }
+
+    #[test]
+    fn double_splat_index_is_lazy_shared_and_bounded_for_wide_merge_arguments() {
+        use crate::cops::{
+            Cop, run_cops_with_corrections,
+            style::{RedundantDoubleSplatHashBraces, StringHashKeys},
+        };
+        let cops: [&dyn Cop; 2] = [&RedundantDoubleSplatHashBraces, &StringHashKeys];
+        let clean = SourceFile::new("x.rb".into(), b"f(a: 1); {'a'=>1}".to_vec());
+        let mut out = vec![];
+        run_cops_with_corrections(
+            &cops,
+            &crate::parser::parse(&clean.bytes),
+            &clean,
+            &mut out,
+            false,
+        );
+        assert!(clean.redundant_double_splats.get().is_none());
+        let s = "f(**{a: 1, **{b: 2}}); {'a'=>1}\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), s.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 18000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let facts = file.redundant_double_splats.get().unwrap();
+        assert_eq!(facts.len(), 12000);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.redundant_double_splats(&parsed.node())
+            ));
+        }
+        assert!(file.code_object_facts.get().is_none());
+        let wide = format!("f(**{{a:1}}.merge({}))", vec!["{b:2}"; 6000].join(","));
+        let file = SourceFile::new("x.rb".into(), wide.into_bytes());
+        let mut out = vec![];
+        assert!(
+            run_cops_with_corrections(
+                &cops,
+                &crate::parser::parse(&file.bytes),
+                &file,
+                &mut out,
+                false
+            )
+            .is_empty()
+        );
+        assert_eq!(out.len(), 1);
+        assert_eq!(file.redundant_double_splats.get().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn keyword_block_ownership_for_unbracing_is_lazy_shared_and_bounded() {
+        use crate::cops::{Cop, run_cops_with_corrections, style::RedundantDoubleSplatHashBraces};
+        let s = "f **{a: make do 2 end}\nf(**{b: 2})\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), s.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&RedundantDoubleSplatHashBraces];
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 12000);
+        assert!(file.token_ranges.get().is_none());
+        let index = file.redundant_double_splats.get().unwrap();
+        out.clear();
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, true).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
+        assert!(std::ptr::eq(
+            index,
+            file.redundant_double_splats(&parsed.node())
+        ));
+        let facts = file.token_ranges.get().unwrap();
+        assert!(facts.keyword_block_subtrees.len() <= 6000 * 12 + 2);
+        for _ in 0..6000 {
+            assert!(file.contains_keyword_block(&parsed.node(), &parsed.node()));
+            assert!(std::ptr::eq(facts, file.token_ranges(&parsed.node())));
+        }
+    }
+
+    #[test]
+    fn dig_index_is_lazy_shared_and_receiver_chain_work_is_bounded() {
+        use crate::cops::{
+            Cop,
+            ast::CALL_ARGUMENT_VISITS,
+            run_cops_with_corrections,
+            style::{DigChain, SingleArgumentDig},
+        };
+        let cops: [&dyn Cop; 2] = [&DigChain, &SingleArgumentDig::default()];
+        let clean = SourceFile::new("x.rb".into(), b"x.other(:a)\n".to_vec());
+        let parsed = crate::parser::parse(&clean.bytes);
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &clean, &mut out, true).is_empty());
+        assert!(clean.dig_calls.get().is_none());
+        let source = format!("x{}\n", ".dig(:a)".repeat(30)).repeat(1000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        assert!(file.dig_calls.get().is_none());
+        CALL_ARGUMENT_VISITS.set(0);
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, true).is_empty());
+        assert_eq!(out.len(), 1000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        assert!(
+            CALL_ARGUMENT_VISITS.get() < 150_000,
+            "{}",
+            CALL_ARGUMENT_VISITS.get()
+        );
+        let facts = file.dig_calls.get().unwrap();
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(facts, file.dig_calls(&parsed.node())));
+        }
+        assert!(file.token_ranges.get().is_none());
+    }
+
+    #[test]
+    fn negative_index_receiver_chain_classification_is_lazy_once_and_bounded() {
+        use crate::cops::{Cop, run_cops, style::NegativeArrayIndex};
+        let source = "arr.sort.reverse.rotate[arr.shuffle.sort.reverse.size - 2]\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        assert!(file.negative_array_index_facts.get().is_none());
+        let mut out = vec![];
+        let cops: [&dyn Cop; 1] = [&NegativeArrayIndex];
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.len(), 6000);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let facts = file.negative_array_index_facts.get().unwrap();
+        assert!(facts.visits <= 6000 * 15 + 2, "{}", facts.visits);
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.negative_array_index_facts(&parsed.node())
+            ));
+        }
+        assert!(file.format_string_facts.get().is_none());
+    }
+
+    #[test]
+    fn compound_array_getters_reuse_facts_and_never_build_constructor_correction_proofs() {
+        use crate::cops::{
+            Cop, run_cops,
+            style::{NegativeArrayIndex, RedundantArrayConstructor},
+        };
+        for (cop, source) in [
+            (
+                &NegativeArrayIndex as &dyn Cop,
+                "arr[0..[arr.length - 1]] ||= rhs\n",
+            ),
+            (&RedundantArrayConstructor as &dyn Cop, "Array[0] += 1\n"),
+        ] {
+            let file = SourceFile::new("x.rb".into(), source.repeat(6000).into_bytes());
+            let parsed = crate::parser::parse(&file.bytes);
+            let mut out = vec![];
+            assert!(run_cops(&[cop], &parsed, &file, &mut out).is_empty());
+            assert_eq!(out.len(), 6000);
+            assert!(out.iter().all(|o| o.correction.is_none()));
+            assert!(file.format_string_facts.get().is_none());
+            if cop.name() == "Style/NegativeArrayIndex" {
+                let facts = file.negative_array_index_facts.get().unwrap();
+                assert!(facts.visits <= 6000 * 15 + 2, "{}", facts.visits);
+                for _ in 0..6000 {
+                    assert!(std::ptr::eq(
+                        facts,
+                        file.negative_array_index_facts(&parsed.node())
+                    ));
+                }
+            } else {
+                assert!(file.negative_array_index_facts.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn format_token_many_directives_share_one_lazy_dispatch_and_hash_index() {
+        use crate::cops::{
+            Cop, run_cops, run_cops_with_corrections,
+            style::FormatStringToken,
+            walk::{self, NodeVisitor},
+        };
+        let format = (0..2000)
+            .map(|i| format!("%{{k{i}}}"))
+            .collect::<Vec<_>>()
+            .join("/");
+        let hash = (0..2000)
+            .map(|i| format!("k{i}: {i}"))
+            .collect::<Vec<_>>()
+            .join(",");
+        let source = format!("format('{format}', {hash})\n");
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        let cops: [&dyn Cop; 1] = [&FormatStringToken];
+        let mut out = vec![];
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 2000);
+        assert!(file.format_string_facts.get().is_none());
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 2000);
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut count = Count(0);
+        walk::walk(&mut count, &parsed.node());
+        let facts = file.format_string_facts.get().unwrap();
+        assert_eq!(facts.visits, count.0);
+        assert!(facts.visits < 2000 * 6);
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(
+                facts,
+                file.format_string_facts(&parsed.node())
+            ));
+        }
+        let other = SourceFile::new("other.rb".into(), b"'%{x}'".to_vec());
+        assert!(other.format_string_facts.get().is_none());
+    }
+
+    #[test]
+    fn format_token_large_mixed_formats_withhold_without_dispatch_walks() {
+        use crate::cops::{Cop, run_cops, style::FormatStringToken};
+        let named = std::iter::repeat_n("%{x}", 2000)
+            .collect::<Vec<_>>()
+            .join("/%%/");
+        for other in ["%s", "%1$s", "%q", "%<x>*s"] {
+            for format in [format!("{other}/{named}"), format!("{named}/{other}")] {
+                let source = format!("format('{format}', x: 1)\n");
+                let file = SourceFile::new("x.rb".into(), source.into_bytes());
+                let parsed = crate::parser::parse(&file.bytes);
+                let cops: [&dyn Cop; 1] = [&FormatStringToken];
+                let mut out = vec![];
+                assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
+                let expected = if matches!(other, "%s" | "%1$s") {
+                    2001
+                } else {
+                    2000
+                };
+                assert_eq!(out.len(), expected);
+                assert!(out.iter().all(|o| o.correction.is_none()));
+                // Whole-format mode proof uses existing token facts, not a
+                // main-tree/hash walk, per-offense rescan or candidate parse.
+                assert!(file.format_string_facts.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn interpolation_proofs_are_lazy_file_local_and_one_bounded_main_ast_walk() {
+        use crate::cops::{
+            Cop, run_cops,
+            style::{EmptyStringInsideInterpolation, RedundantInterpolationUnfreeze},
+            walk::{self, NodeVisitor},
+        };
+        let source = format!(
+            "# frozen_string_literal: false\n{}",
+            "[\"#{1}#{true ? 'x' : ''}\", +\"#{1}\"]\n".repeat(1500)
+        );
+        let f = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&f.bytes);
+        let mut out = Vec::new();
+        let cops: [&dyn Cop; 2] = [
+            &EmptyStringInsideInterpolation,
+            &RedundantInterpolationUnfreeze,
+        ];
+        assert!(
+            crate::cops::run_cops_with_corrections(&cops, &parsed, &f, &mut out, false).is_empty()
+        );
+        assert!(f.interpolation_facts.get().is_none());
+        assert_eq!(out.len(), 3000);
+        out.clear();
+        assert!(run_cops(&cops, &parsed, &f, &mut out).is_empty());
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 1500);
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut count = Count(0);
+        walk::walk(&mut count, &parsed.node());
+        let facts = f.interpolation_facts.get().unwrap();
+        assert_eq!(facts.visits, count.0);
+        assert!(facts.visits < 1500 * 30);
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(facts, f.interpolation_facts(&parsed.node())));
+        }
+        // Many conditionals sharing ONE interpolation must reuse its cached
+        // shapes, not rescan all sibling parts per offense. Empty String branches
+        // remain reported, but no longer authorize encoding-changing edits.
+        let wide = format!(
+            "# frozen_string_literal: false\n\"{}#{{1}}\"\n",
+            "#{true ? '' : 'yes'}".repeat(1500)
+        );
+        let wide_file = SourceFile::new("wide.rb".into(), wide.into_bytes());
+        let wide_parse = crate::parser::parse(&wide_file.bytes);
+        out.clear();
+        assert!(run_cops(&cops, &wide_parse, &wide_file, &mut out).is_empty());
+        assert_eq!(out.len(), 1500);
+        assert!(out.iter().all(|o| o.correction.is_none()));
+        let mut count = Count(0);
+        walk::walk(&mut count, &wide_parse.node());
+        assert_eq!(wide_file.interpolation_facts.get().unwrap().visits, count.0);
+        assert!(count.0 < 1500 * 15);
+        let other = SourceFile::new("other.rb".into(), b"effect; +\"#{1}\"".to_vec());
+        assert!(other.interpolation_facts.get().is_none());
+    }
+
+    fn file(bytes: &[u8]) -> SourceFile {
+        SourceFile::new(PathBuf::from("test.rb"), bytes.to_vec())
+    }
+
+    #[test]
+    fn eval_documentation_line_facts_are_lazy_cached_and_isolated() {
+        let f = file(b"eval(\"#{x}\")\n# docs\neval(\"#@x #{y}\")\n#\r\n");
+        assert!(f.non_interpolation_hash_lines.get().is_none());
+        for _ in 0..10000 {
+            assert!(!f.line_has_non_interpolation_hash(1));
+            assert!(f.line_has_non_interpolation_hash(2));
+            assert!(f.line_has_non_interpolation_hash(3));
+            assert!(f.line_has_non_interpolation_hash(4));
+            assert!(!f.line_has_non_interpolation_hash(5));
+        }
+        let facts = f.non_interpolation_hash_lines.get().unwrap();
+        assert_eq!(facts.len(), f.line_starts.len());
+        assert!(std::ptr::eq(
+            facts,
+            f.non_interpolation_hash_lines.get().unwrap()
+        ));
+        let other = file(b"#{not_a_comment}\n");
+        assert!(!other.line_has_non_interpolation_hash(1));
+        assert!(!other.line_has_non_interpolation_hash(100));
+    }
+
+    #[test]
+    fn last_lines_exclude_the_end_offset_and_handle_empty_locations() {
+        let empty = file(b"");
+        let result = ruby_prism::parse(&empty.bytes);
+        assert_eq!(empty.last_line_of(result.node().location()), 1);
+
+        for source in ["<<~TEXT\n  é\nTEXT\n", "<<~TEXT\r\n  é\r\nTEXT\r\n"] {
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            let string = result
+                .node()
+                .as_program_node()
+                .unwrap()
+                .statements()
+                .body()
+                .iter()
+                .next()
+                .unwrap()
+                .as_string_node()
+                .unwrap();
+            // A heredoc's closing location includes the terminator's newline.
+            let closing = string.closing_loc().unwrap();
+            assert_eq!(f.line_of(closing.end_offset()), 4);
+            assert_eq!(f.last_line_of(closing), 3);
+            // The literal's own source location is just its opener.
+            assert_eq!(f.last_line_of(string.location()), 1);
+        }
+    }
+
+    #[test]
+    fn code_object_proof_is_lazy_shared_bounded_and_main_parse_only() {
+        use crate::cops::{
+            Cop, layout::TrailingWhitespace, run_cops_with_corrections, style::StringLiterals,
+        };
+        let cops: &[&dyn Cop] = &[&TrailingWhitespace, &StringLiterals];
+        for observer in [
+            "p RubyVM.name\n",
+            "p RubyVM::AbstractSyntaxTree.of(-> {}).first_column\n",
+            "p RubyVM::InstructionSequence.of(-> {}).to_a\n",
+            "K = eval(code); p K.of(-> {}).first_column\n",
+            "k = Marshal.load(payload); p k.of(-> {}).first_column\n",
+            "k = ::Marshal.restore(payload); p k.of(-> {}).children\n",
+            "k = (Marshal ||= nil).load(payload); p k.of(-> {}).first_column\n",
+            "k = (Object::Marshal ||= nil).restore(payload); p k.of(-> {}).children\n",
+            "def Object.const_get(name); super(\"RubyVM::AbstractSyntaxTree\"); end; p Object.const_get(:String).of(-> {}).first_column\n",
+        ] {
+            let source = "x = 'hi'  \n".repeat(4000) + observer;
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_comments(&parsed);
+            f.record_data_start(&parsed);
+            f.record_warnings(&parsed);
+            f.record_encoding(&parsed);
+            for requested in [false, true, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(cops, &parsed, &f, &mut out, requested).is_empty()
+                );
+                assert_eq!(out.len(), 8000);
+                assert!(out.iter().all(
+                    |o| o.correction.is_some() == (requested && observer == "p RubyVM.name\n")
+                ));
+                if !requested {
+                    assert!(f.code_object_facts.get().is_none());
+                } else {
+                    let proof = f.code_object_facts.get().unwrap();
+                    assert_eq!(
+                        proof.visits,
+                        crate::cops::testing::preorder_kinds(&source).len()
+                    );
+                    assert!(proof.constant_segments <= proof.visits);
+                    assert!(std::ptr::eq(proof, f.code_object_facts(&parsed.node())));
+                }
+                assert!(f.punctuation.get().is_none());
+                assert!(f.token_ranges.get().is_none());
+            }
+        }
+        let f = file(b"x = 1\np RubyVM::InstructionSequence.of(-> {}).to_a\n");
+        let parsed = crate::parser::parse(&f.bytes);
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut out, true).is_empty());
+        assert!(out.is_empty());
+        assert!(f.code_object_facts.get().is_none());
+    }
+
+    #[test]
+    fn heap_evidence_reuses_the_lazy_observer_walk_once_for_dense_cross_family_edits() {
+        use crate::cops::{
+            Cop,
+            layout::TrailingWhitespace,
+            run_cops_with_corrections,
+            style::{KeywordArgumentsMerging, StringLiterals},
+        };
+        let cops: &[&dyn Cop] = &[
+            &KeywordArgumentsMerging,
+            &StringLiterals,
+            &TrailingWhitespace,
+        ];
+        for (observer, heap) in [
+            ("p ObjectSpace.count_objects", true),
+            ("p ::Object::GC.stat", true),
+            ("def later(reader); reader.stat; end", true),
+            ("reader = :stat.to_proc; escape(reader)", true),
+            ("((:autoload)).to_proc; p File.stat('ignored')", true),
+            ("invoke(&((:autoload))); p File.stat('ignored')", true),
+            ("selector.to_proc; p File.stat('ignored')", true),
+            ("items.map(&((:to_s))); p File.stat('ignored')", false),
+            ("p File.stat('other.rb').file?", false),
+            ("p 'GC ObjectSpace count_objects stat'", false),
+        ] {
+            let source = "x = 'hi'  \nf(**{a: 1}.merge(b: 2))\n".repeat(1500) + observer;
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_comments(&parsed);
+            f.record_warnings(&parsed);
+            f.record_data_start(&parsed);
+            f.record_encoding(&parsed);
+            for requested in [false, true, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(cops, &parsed, &f, &mut out, requested).is_empty()
+                );
+                assert!(out.len() >= 4500);
+                assert!(
+                    out.iter()
+                        .all(|o| o.correction.is_some() == (requested && !heap))
+                );
+                if !requested {
+                    assert!(f.code_object_facts.get().is_none());
+                } else {
+                    let facts = f.code_object_facts.get().unwrap();
+                    assert_eq!(facts.heap.observed(), heap);
+                    assert_eq!(
+                        facts.visits,
+                        crate::cops::testing::preorder_kinds(&source).len()
+                    );
+                    assert!(facts.visits < 1500 * 40);
+                    assert!(std::ptr::eq(facts, f.code_object_facts(&parsed.node())));
+                }
+            }
+        }
+        let f = file(b"p GC.stat\n");
+        let parsed = crate::parser::parse(&f.bytes);
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut out, true).is_empty());
+        assert!(out.is_empty());
+        assert!(f.code_object_facts.get().is_none());
+    }
+
+    #[test]
+    fn position_barrier_reuses_one_lazy_main_ast_proof_for_dense_mixed_edits() {
+        use crate::cops::{
+            Cop, layout::TrailingWhitespace, run_cops_with_corrections, style::StringLiterals,
+        };
+        let cops: &[&dyn Cop] = &[&TrailingWhitespace, &StringLiterals];
+        for (observer, safe) in [
+            ("p DATA.pos\n__END__\npayload\n", 4000),
+            ("p DATA.lineno\n__END__\npayload\n", 8000),
+            ("p File.size(__FILE__)\n", 4000),
+            ("p File.mtime(__FILE__)\n", 0),
+            ("p File.size(File.join(__dir__, \"x.rb\"))\n", 4000),
+            ("p File.stat(__FILE__).size\n", 4000),
+            ("p File.stat(\"x\" + \".rb\").size\n", 4000),
+            ("p File.stat(\"x\" + \".rb\")\n", 0),
+            ("p File.stat(__FILE__)\n", 0),
+            ("p DATA.stat\n__END__\npayload\n", 0),
+            ("p File.atime(__FILE__)\n", 0),
+            ("p test(?A, __FILE__)\n", 0),
+            (
+                "File.symlink(__FILE__, \"alias\"); p File.size(\"alias\")\n",
+                4000,
+            ),
+            (
+                "FileUtils.mv(__FILE__, \"alias\"); p File.size(\"alias\")\n",
+                4000,
+            ),
+            (
+                "FileUtils.move(__FILE__, \"alias\"); p File.size(\"alias\")\n",
+                4000,
+            ),
+            (
+                "FileUtils.mv(__FILE__, \"alias\"); p File.mtime(\"alias\")\n",
+                0,
+            ),
+            (
+                "FileUtils.move(__FILE__, \"alias\"); p File.mtime(\"alias\")\n",
+                0,
+            ),
+            ("p caller_locations(0)\n", 8000),
+            ("p __LINE__\n", 8000),
+        ] {
+            let source = "x = 'hi'  \n".repeat(4000) + observer;
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_comments(&parsed);
+            f.record_data_start(&parsed);
+            f.record_warnings(&parsed);
+            f.record_encoding(&parsed);
+            for requested in [false, true, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(cops, &parsed, &f, &mut out, requested).is_empty()
+                );
+                assert_eq!(out.len(), 8000);
+                assert_eq!(
+                    out.iter().filter(|o| o.correction.is_some()).count(),
+                    if requested { safe } else { 0 },
+                    "{observer}"
+                );
+                assert_eq!((out[0].line, out[0].col), (1, 9));
+                assert_eq!(out[0].message, "Trailing whitespace detected.");
+                if requested {
+                    assert!(
+                        !f.class_method_bindings
+                            .get()
+                            .unwrap()
+                            .observes_source_bytes()
+                    );
+                }
+                if !requested {
+                    assert!(f.class_method_bindings.get().is_none());
+                } else {
+                    let proof = f.class_method_bindings.get().unwrap();
+                    assert_eq!(
+                        proof.observer_visits,
+                        crate::cops::testing::preorder_kinds(&source).len()
+                    );
+                    assert!(std::ptr::eq(proof, f.class_method_bindings(&parsed.node())));
+                    assert_eq!(proof.forwarding_analyses, 0);
+                }
+                assert!(f.token_ranges.get().is_none());
+                assert!(f.punctuation.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn global_raw_source_barrier_is_lazy_shared_bounded_and_main_parse_only() {
+        use crate::cops::{
+            Cop, layout::TrailingWhitespace, run_cops_with_corrections, style::StringLiterals,
+        };
+        let cops: &[&dyn Cop] = &[&TrailingWhitespace, &StringLiterals];
+        for observer in [
+            "",
+            "p File.binread(__FILE__)\n",
+            "p error.full_message\n",
+            "RubyVM.keep_script_lines = true; p RubyVM::InstructionSequence.compile_file(__FILE__).script_lines\n",
+            "p RubyVM::InstructionSequence.compile_file_prism(__FILE__).script_lines\n",
+            "p retained.script_lines\n",
+            "p $retained.source\n",
+            "reader = $retained.method(:source); escape(reader)\n",
+            "DATA.rewind; p DATA.each_codepoint.to_a\n__END__\npayload\n",
+            "DATA.rewind; p DATA.map(&:itself)\n__END__\npayload\n",
+            "F = File; ctor = F.method(:new); escape(ctor.call(__FILE__))\n",
+        ] {
+            let source = "x = 'hi'  \n".repeat(4000) + observer;
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_comments(&parsed);
+            f.record_data_start(&parsed);
+            f.record_warnings(&parsed);
+            f.record_encoding(&parsed);
+            for requested in [false, true, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(cops, &parsed, &f, &mut out, requested).is_empty()
+                );
+                assert_eq!(out.len(), 8000);
+                assert!(
+                    out.iter()
+                        .all(|o| o.correction.is_some() == (requested && observer.is_empty()))
+                );
+                if requested {
+                    assert_eq!(
+                        f.class_method_bindings
+                            .get()
+                            .unwrap()
+                            .observes_source_bytes(),
+                        !observer.is_empty()
+                    );
+                }
+                if !requested {
+                    assert!(f.class_method_bindings.get().is_none());
+                } else {
+                    let proof = f.class_method_bindings.get().unwrap();
+                    assert_eq!(
+                        proof.observer_visits,
+                        crate::cops::testing::preorder_kinds(&source).len()
+                    );
+                    assert!(std::ptr::eq(proof, f.class_method_bindings(&parsed.node())));
+                    assert_eq!(proof.forwarding_analyses, 0);
+                }
+                assert!(f.token_ranges.get().is_none());
+                assert!(f.punctuation.get().is_none());
+            }
+        }
+        // A requested fix pass without emitted edits needs no global proof.
+        let f = file(b"x = 1\np File.binread(__FILE__)\n");
+        let parsed = crate::parser::parse(&f.bytes);
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut out, true).is_empty());
+        assert!(out.is_empty());
+        assert!(f.class_method_bindings.get().is_none());
+
+        // A path used only as metadata must not bypass the optional forwarding
+        // proof and turn proven Proc-or-nil parameters into snippet selectors.
+        let f = file(b"x = 'hi'\ndef forward(&block); [1].map(&block); end\np $0\n");
+        let parsed = crate::parser::parse(&f.bytes);
+        for _ in 0..3 {
+            let mut out = Vec::new();
+            assert!(run_cops_with_corrections(cops, &parsed, &f, &mut out, true).is_empty());
+            assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 1);
+            assert_eq!(
+                f.class_method_bindings.get().unwrap().forwarding_analyses,
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn trailing_whitespace_and_empty_lines_share_lazy_literal_ranges_from_the_main_parse() {
+        use crate::cops::{
+            layout::{TrailingEmptyLines, TrailingWhitespace},
+            run_cops_with_corrections,
+        };
+
+        // Many nodes and offenses: only one source scan per cop invocation,
+        // one cached collection, and binary-search range queries thereafter.
+        let source = "x = \"text  \n#{1}more  \n\"  \n".repeat(2000) + "\n";
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_warnings(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(
+                &[&TrailingEmptyLines, &TrailingWhitespace],
+                &result,
+                &f,
+                &mut found,
+                false,
+            )
+            .is_empty()
+        );
+        assert_eq!(found.len(), 6001);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(
+            f.literal_ranges.get().is_none(),
+            "plain lint does no correction-only AST walk"
+        );
+        found.clear();
+        assert!(
+            run_cops_with_corrections(
+                &[&TrailingEmptyLines, &TrailingWhitespace],
+                &result,
+                &f,
+                &mut found,
+                true,
+            )
+            .is_empty()
+        );
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            2001
+        );
+        let ranges = f.literal_ranges.get().unwrap();
+        assert_eq!(ranges.len(), 4000);
+        let pointer = ranges.as_ptr();
+        for _ in 0..2000 {
+            assert!(f.overlaps_literal(&result.node(), &(9..11)));
+        }
+        assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), pointer);
+    }
+
+    #[test]
+    fn end_alignment_many_offenses_share_lazy_literal_safety_from_the_main_parse() {
+        use crate::cops::{layout::EndAlignment, run_cops_with_corrections};
+
+        let source = "value = if true\n  \"literal\"\nend\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_encoding(&result);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&EndAlignment], &result, &f, &mut found, false).is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(f.literal_ranges.get().is_none());
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&EndAlignment], &result, &f, &mut found, true).is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        let ranges = f.literal_ranges.get().unwrap();
+        assert_eq!(ranges.len(), 2000);
+        let pointer = ranges.as_ptr();
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&EndAlignment], &result, &f, &mut found, true).is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), pointer);
+    }
+
+    #[test]
+    fn separator_and_paren_cops_share_one_cached_scan_of_the_main_parse() {
+        use crate::cops::{
+            Cop,
+            layout::{SpaceAfterComma, SpaceAfterSemicolon, SpaceBeforeComma, SpaceInsideParens},
+            run_cops_with_corrections,
+        };
+        // Thousands of nodes/ranges/queries, but a single AST collection and
+        // one separator scan; subsequent cop invocations reuse the allocation.
+        let source = "f( \"text,;#{g( 1 ,2 );3}\" ,4 );5\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_warnings(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let cops: &[&dyn Cop] = &[
+            &SpaceAfterComma,
+            &SpaceBeforeComma,
+            &SpaceAfterSemicolon,
+            &SpaceInsideParens,
+        ];
+        let mut found = Vec::new();
+        assert!(f.punctuation.get().is_none());
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 20000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(f.literal_ranges.get().is_none());
+        let cached = &f.punctuation.get().unwrap().tokens;
+        assert_eq!(cached.len(), 16000);
+        let pointer = cached.as_ptr();
+        for _ in 0..2000 {
+            assert_eq!(f.punctuation(&result.node()).as_ptr(), pointer);
+        }
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 20000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        assert_eq!(f.punctuation.get().unwrap().tokens.as_ptr(), pointer);
+    }
+
+    #[test]
+    fn bracket_cops_share_cached_bracket_tokens_for_many_constant_patterns() {
+        use crate::cops::{
+            Cop,
+            layout::{SpaceInsideArrayLiteralBrackets, SpaceInsideReferenceBrackets},
+            run_cops_with_corrections,
+        };
+        let source = "x in A( [ a, b ] )\na = [ 1, [ 2 ] ]\na[ 0 ]\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let cops: &[&dyn Cop] = &[
+            &SpaceInsideArrayLiteralBrackets,
+            &SpaceInsideReferenceBrackets,
+        ];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 16000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(f.literal_ranges.get().is_none());
+        let brackets = f.square_brackets(&result.node());
+        assert_eq!(brackets.len(), 16000);
+        let pointer = brackets.as_ptr();
+        for _ in 0..2000 {
+            assert_eq!(f.square_brackets(&result.node()).as_ptr(), pointer);
+        }
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 16000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        assert_eq!(f.square_brackets(&result.node()).as_ptr(), pointer);
+        assert!(f.literal_ranges.get().is_none());
+    }
+
+    #[test]
+    fn empty_lines_reuse_cached_token_ranges_with_bounded_many_offense_work() {
+        use crate::cops::{
+            layout::{EmptyLines, SpaceAfterComma},
+            run_cops_with_corrections,
+        };
+        let source = "x = \"a\n\n\nb\"\nx\n\n\ny\nf(1,2)\n%w(a\\\n\n\nb)\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(
+                &[&EmptyLines, &SpaceAfterComma],
+                &result,
+                &f,
+                &mut found,
+                false
+            )
+            .is_empty()
+        );
+        assert_eq!(found.len(), 4000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(
+            f.literal_ranges.get().is_none(),
+            "no correction-only protection walk"
+        );
+        let pointer = f.token_ranges.get().unwrap().protected.as_ptr();
+        let separators = f.percent_array_separators(&result.node());
+        assert_eq!(separators.len(), 4000);
+        let separator_pointer = separators.as_ptr();
+        for _ in 0..2000 {
+            assert_eq!(f.literal_token_ranges(&result.node()).as_ptr(), pointer);
+            assert_eq!(
+                f.percent_array_separators(&result.node()).as_ptr(),
+                separator_pointer
+            );
+        }
+        found.clear();
+        assert!(
+            run_cops_with_corrections(
+                &[&EmptyLines, &SpaceAfterComma],
+                &result,
+                &f,
+                &mut found,
+                true
+            )
+            .is_empty()
+        );
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            4000
+        );
+        assert_eq!(f.token_ranges.get().unwrap().protected.as_ptr(), pointer);
+    }
+
+    #[test]
+    fn endless_methods_reuse_cached_heredoc_subtrees_with_bounded_work() {
+        use crate::cops::{run_cops_with_corrections, style::EndlessMethod};
+        // Nested endless definitions share a body, but must not each walk it.
+        let nested = "def outer = def inner = [\n  <<~H]\nhello\nH\n";
+        let source = (nested.to_owned() + "def flagged = [\n  1]\n").repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_encoding(&result);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&EndlessMethod], &result, &f, &mut found, false).is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(f.class_method_bindings.get().is_none());
+        assert!(f.line_value_boundary.get().is_none());
+        assert!(f.directive_comments.get().is_none());
+        f.record_comments(&result);
+        let cache = f.token_ranges.get().unwrap();
+        assert_eq!(cache.heredoc_subtrees.len(), 8001);
+        let entry = cache.heredoc_subtrees.iter().next().unwrap();
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&EndlessMethod], &result, &f, &mut found, true).is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|offense| offense.correction.is_some()));
+        assert!(std::ptr::eq(
+            f.token_ranges
+                .get()
+                .unwrap()
+                .heredoc_subtrees
+                .get(entry)
+                .unwrap(),
+            entry
+        ));
+        assert!(f.literal_ranges.get().is_none());
+        assert!(f.line_value_boundary.get().is_some());
+        assert!(f.directive_comments.get().is_some());
+        let proof = f.class_method_bindings.get().unwrap();
+        assert!(proof.observer_visits >= 2000);
+        assert!(proof.observer_visits < 2000 * 40);
+        for _ in 0..2000 {
+            assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+        }
+    }
+
+    #[test]
+    fn null_devices_index_is_lazy_reused_and_visits_each_node_once() {
+        use crate::cops::{style::FileNull, testing::correction_offenses};
+        let source = format!("devices = ['/dev/null']\n{}", "path = 'NUL'\n".repeat(2000));
+        let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
+        let parsed = ruby_prism::parse(&file.bytes);
+        assert!(file.contains_dev_null.get().is_none());
+        for _ in 0..2000 {
+            assert!(file.contains_dev_null(&parsed.node()));
+        }
+        let index = file.contains_dev_null.get().unwrap();
+        assert_eq!(
+            index.visited,
+            crate::cops::testing::preorder_kinds(&source).len()
+        );
+        assert!(index.visited < 10_000);
+        assert!(file.file_api_bindings.get().is_none());
+        let found = correction_offenses(&FileNull, &source);
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+    }
+
+    #[test]
+    fn mixin_grouping_proof_is_lazy_cached_and_bounded() {
+        use crate::cops::{run_cops_with_corrections, style::MixinGrouping};
+        let source = format!(
+            "module A; end\nmodule B; end\nclass C\n{}end\n",
+            "  include A, B\n".repeat(3000)
+        );
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&MixinGrouping],
+                    &result,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 3000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 3000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.mixin_grouping_bindings.get().is_none());
+            }
+        }
+        let index = file.mixin_grouping_bindings.get().unwrap();
+        assert_eq!(index.visited, 3003);
+        assert!(std::ptr::eq(
+            index,
+            file.mixin_grouping_bindings(&result.node())
+        ));
+    }
+
+    #[test]
+    fn numeric_spellings_share_one_lazy_bounded_main_parse_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{FloatDivision, NumericLiteralPrefix, NumericLiterals},
+        };
+        for observer in [
+            "",
+            "p File.binread(__FILE__)\n",
+            "p DATA.pos\n__END__\npayload\n",
+        ] {
+            let source = format!(
+                "{}{observer}",
+                "01234; 12345; a.to_f / b.to_f\n".repeat(2000)
+            );
+            let file = SourceFile::new("x.rb".into(), source.into_bytes());
+            let result = ruby_prism::parse(&file.bytes);
+            assert_eq!(result.errors().count(), 0);
+            let cops: &[&dyn crate::cops::Cop] =
+                &[&FloatDivision, &NumericLiteralPrefix, &NumericLiterals];
+            for corrections in [false, true, true] {
+                let mut found = vec![];
+                assert!(
+                    run_cops_with_corrections(cops, &result, &file, &mut found, corrections)
+                        .is_empty()
+                );
+                assert_eq!(found.len(), 6000);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if corrections && observer.is_empty() {
+                        4000
+                    } else {
+                        0
+                    }
+                );
+                if !corrections {
+                    assert!(file.class_method_bindings.get().is_none());
+                }
+            }
+            let proof = file.class_method_bindings.get().unwrap();
+            assert_eq!(
+                proof.observer_visits,
+                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
+                    .len()
+            );
+            assert!(proof.observer_visits < 50000);
+            assert!(std::ptr::eq(
+                proof,
+                file.class_method_bindings(&result.node())
+            ));
+            assert!(file.token_ranges.get().is_none());
+            assert!(file.literal_ranges.get().is_none());
+        }
+    }
+
+    #[test]
+    fn redundant_regexp_cops_share_one_lazy_bounded_safety_walk() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{RedundantRegexpArgument, RedundantRegexpConstructor},
+        };
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "\"foo\".scan(/f/)\nRegexp.new(/a/)\n"
+                .repeat(3000)
+                .into_bytes(),
+        );
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(
+                    &[&RedundantRegexpArgument, &RedundantRegexpConstructor],
+                    &result,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 6000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 6000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.redundant_regexp_safety.get().is_none());
+            }
+        }
+        let facts = file.redundant_regexp_safety.get().unwrap();
+        assert_eq!(
+            facts.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(facts.visits < 60000);
+        assert!(std::ptr::eq(
+            facts,
+            file.redundant_regexp_safety(&result.node())
+        ));
+    }
+
+    #[test]
+    fn inverse_and_multiple_comparison_indexes_are_lazy_cached_and_linear() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{InverseMethods, MultipleComparison},
+        };
+        for inverse in [false, true] {
+            let source = if inverse {
+                "foo.select { |e| !e.even? }\n".repeat(6000)
+            } else {
+                format!("a=1\n{}", "a == 1 || a == 2\n".repeat(6000))
+            };
+            let file = SourceFile::new("x.rb".into(), source.into_bytes());
+            let parsed = ruby_prism::parse(&file.bytes);
+            for corrections in [false, true, true] {
+                let mut found = vec![];
+                assert!(
+                    run_cops_with_corrections(
+                        &[&InverseMethods, &MultipleComparison],
+                        &parsed,
+                        &file,
+                        &mut found,
+                        corrections
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 6000);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if corrections && !inverse { 6000 } else { 0 }
+                );
+                if !corrections {
+                    assert!(file.multiple_comparison_safety.get().is_none());
+                }
+            }
+            let count =
+                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
+                    .len();
+            assert!(count < 150000);
+            if inverse {
+                let nexts = file.inverse_method_nexts.get().unwrap();
+                assert_eq!(nexts.visits, count);
+                assert!(std::ptr::eq(
+                    nexts,
+                    file.inverse_method_nexts(&parsed.node())
+                ));
+                assert!(file.multiple_comparison_safety.get().is_none());
+            } else {
+                let safety = file.multiple_comparison_safety.get().unwrap();
+                assert_eq!(safety.visits, count);
+                assert!(std::ptr::eq(
+                    safety,
+                    file.multiple_comparison_safety(&parsed.node())
+                ));
+                assert!(file.inverse_method_nexts.get().is_none());
+            }
+        }
+        let file = SourceFile::new("x.rb".into(), b"!foo.none?".to_vec());
+        let parsed = ruby_prism::parse(&file.bytes);
+        let mut found = vec![];
+        run_cops_with_corrections(&[&InverseMethods], &parsed, &file, &mut found, false);
+        assert!(file.inverse_method_nexts.get().is_none());
+    }
+
+    #[test]
+    fn keyword_negation_and_wide_predicate_tails_keep_bounded_lazy_work() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{NonNilCheck, Not},
+        };
+        for (source, corrections_expected) in [
+            ("not test\n".repeat(6000), 6000),
+            (
+                format!("def signed_in?\n{}end\n", "user != nil\n".repeat(6001)),
+                0,
+            ),
+        ] {
+            let file = SourceFile::new("x.rb".into(), source.into_bytes());
+            let parsed = ruby_prism::parse(&file.bytes);
+            for corrections in [false, true] {
+                let mut found = vec![];
+                assert!(
+                    run_cops_with_corrections(
+                        &[&NonNilCheck, &Not],
+                        &parsed,
+                        &file,
+                        &mut found,
+                        corrections
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 6000);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if corrections { corrections_expected } else { 0 }
+                );
+                assert!(file.boolean_predicate_safety.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn nil_comparisons_share_one_lazy_bounded_safety_walk() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{NilComparison, NonNilCheck, Not},
+        };
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "nil == nil\nfalse != nil\n".repeat(3000).into_bytes(),
+        );
+        let parsed = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(
+                    &[&NilComparison, &NonNilCheck, &Not],
+                    &parsed,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 6000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 6000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.boolean_predicate_safety.get().is_none());
+            }
+        }
+        let facts = file.boolean_predicate_safety.get().unwrap();
+        assert_eq!(
+            facts.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(facts.visits < 40000);
+        assert!(std::ptr::eq(
+            facts,
+            file.boolean_predicate_safety(&parsed.node())
+        ));
+    }
+
+    #[test]
+    fn boolean_predicates_share_one_lazy_bounded_safety_walk() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{AndOr, CaseEquality, CombinableDefined},
+        };
+        for source in [
+            "(1..10) === 7\n".repeat(6000),
+            format!(
+                "module Foo; Bar=1; end;\n{}",
+                "defined?(Foo) && defined?(Foo::Bar)\n".repeat(6000)
+            ),
+        ] {
+            let file = SourceFile::new("x.rb".into(), source.into_bytes());
+            let parsed = ruby_prism::parse(&file.bytes);
+            for corrections in [false, true, true] {
+                let mut found = vec![];
+                assert!(
+                    run_cops_with_corrections(
+                        &[&AndOr, &CaseEquality, &CombinableDefined],
+                        &parsed,
+                        &file,
+                        &mut found,
+                        corrections
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 6000);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if corrections { 6000 } else { 0 }
+                );
+                if !corrections {
+                    assert!(file.boolean_predicate_safety.get().is_none());
+                }
+            }
+            let facts = file.boolean_predicate_safety.get().unwrap();
+            assert_eq!(
+                facts.visits,
+                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
+                    .len()
+            );
+            assert!(facts.visits < 90000);
+            assert!(std::ptr::eq(
+                facts,
+                file.boolean_predicate_safety(&parsed.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn exact_regexp_match_uses_one_lazy_bounded_safety_walk() {
+        use crate::cops::{run_cops_with_corrections, style::ExactRegexpMatch};
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "'x'.match?(/\\Ax\\z/)\n".repeat(6000).into_bytes(),
+        );
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(
+                    &[&ExactRegexpMatch],
+                    &result,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 6000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 6000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.exact_regexp_safety.get().is_none());
+            }
+        }
+        let facts = file.exact_regexp_safety.get().unwrap();
+        assert_eq!(
+            facts.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(facts.visits < 60000);
+        assert!(std::ptr::eq(
+            facts,
+            file.exact_regexp_safety(&result.node())
+        ));
+        let other = SourceFile::new("x.rb".into(), b"s.match?(/\\Ax\\z/)".to_vec());
+        let parsed = ruby_prism::parse(&other.bytes);
+        let mut found = vec![];
+        run_cops_with_corrections(&[&ExactRegexpMatch], &parsed, &other, &mut found, true);
+        assert!(other.exact_regexp_safety.get().is_none());
+    }
+
+    #[test]
+    fn regexp_spelling_cops_share_one_lazy_bounded_dispatch_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{RedundantRegexpCharacterClass, RedundantRegexpEscape},
+        };
+        let clean = SourceFile::new("x.rb".into(), b"'a'.match?(/a/)".to_vec());
+        let parsed = crate::parser::parse(&clean.bytes);
+        let mut found = vec![];
+        run_cops_with_corrections(
+            &[&RedundantRegexpCharacterClass, &RedundantRegexpEscape],
+            &parsed,
+            &clean,
+            &mut found,
+            true,
+        );
+        assert!(found.is_empty());
+        assert!(clean.exact_regexp_safety.get().is_none());
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "'a-b'.match?(/[a]\\-b/)\n".repeat(6000).into_bytes(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(
+                    &[&RedundantRegexpCharacterClass, &RedundantRegexpEscape],
+                    &parsed,
+                    &file,
+                    &mut found,
+                    corrections,
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 12000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 12000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.exact_regexp_safety.get().is_none());
+            }
+        }
+        let facts = file.exact_regexp_safety.get().unwrap();
+        assert_eq!(
+            facts.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(facts.visits < 60000);
+        assert!(std::ptr::eq(
+            facts,
+            file.exact_regexp_safety(&parsed.node())
+        ));
+    }
+
+    #[test]
+    fn even_odd_uses_one_lazy_bounded_safety_walk() {
+        use crate::cops::{run_cops_with_corrections, style::EvenOdd};
+        let file = SourceFile::new("x.rb".into(), "2 % 2 == 0\n".repeat(6000).into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(&[&EvenOdd], &result, &file, &mut found, corrections)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), 6000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 6000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.even_odd_safety.get().is_none());
+            }
+        }
+        let facts = file.even_odd_safety.get().unwrap();
+        assert_eq!(
+            facts.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(facts.visits < 60000);
+        assert!(std::ptr::eq(facts, file.even_odd_safety(&result.node())));
+        let file = SourceFile::new("x.rb".into(), b"x % 2 == 0".to_vec());
+        let result = ruby_prism::parse(&file.bytes);
+        let mut found = vec![];
+        run_cops_with_corrections(&[&EvenOdd], &result, &file, &mut found, true);
+        assert!(file.even_odd_safety.get().is_none());
+    }
+
+    #[test]
+    fn redundant_conditional_corrections_use_one_lazy_bounded_main_parse_proof() {
+        use crate::cops::{run_cops_with_corrections, style::RedundantConditional};
+        let source = "if 1 < 2\n  true\nelse\n  false\nend\n".repeat(2000);
+        let file = SourceFile::new("many.rb".into(), source.into_bytes());
+        let parsed = ruby_prism::parse(&file.bytes);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&RedundantConditional], &parsed, &file, &mut found, false)
+                .is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(file.redundant_conditional_safety.get().is_none());
+        for _ in 0..2 {
+            found.clear();
+            assert!(
+                run_cops_with_corrections(
+                    &[&RedundantConditional],
+                    &parsed,
+                    &file,
+                    &mut found,
+                    true
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 2000);
+            assert!(found.iter().all(|o| o.correction.is_some()));
+            let proof = file.redundant_conditional_safety.get().unwrap();
+            assert!(proof.visits < 25 * 2000, "{}", proof.visits);
+        }
+    }
+
+    #[test]
+    fn comparable_clamp_uses_one_lazy_bounded_safety_walk() {
+        use crate::cops::{run_cops_with_corrections, style::ComparableClamp};
+        let source = "if 2 < 1; 1; elsif 3 < 2; 3; else; 2; end\n".repeat(6000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(
+                    &[&ComparableClamp],
+                    &result,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 6000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 6000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.comparable_clamp_safety.get().is_none());
+            }
+        }
+        let index = file.comparable_clamp_safety.get().unwrap();
+        assert_eq!(
+            index.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(index.visits < 150000);
+        assert!(std::ptr::eq(
+            index,
+            file.comparable_clamp_safety(&result.node())
+        ));
+        for s in [
+            "if x < low; low; elsif high < x; high; else; x; end",
+            "[[2,1].max,3].min",
+        ] {
+            let file = SourceFile::new("x.rb".into(), s.as_bytes().to_vec());
+            let result = ruby_prism::parse(&file.bytes);
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(&[&ComparableClamp], &result, &file, &mut found, true)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), 1);
+            assert!(found[0].correction.is_none());
+            assert!(file.comparable_clamp_safety.get().is_none());
+        }
+    }
+
+    #[test]
+    fn min_max_and_sort_cops_share_one_lazy_bounded_safety_walk() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{MinMax, RedundantMinMaxBy, RedundantSortBy},
+        };
+        let source =
+            "[[3,1].min,[3,1].max]\n[3,1].min_by { it }\n[3,1].sort_by { it }\n".repeat(2000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = vec![];
+            assert!(
+                run_cops_with_corrections(
+                    &[&MinMax, &RedundantMinMaxBy, &RedundantSortBy],
+                    &result,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 6000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 6000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.min_max_safety.get().is_none());
+            }
+        }
+        let index = file.min_max_safety.get().unwrap();
+        assert_eq!(
+            index.visits,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(index.visits < 80000);
+        assert!(std::ptr::eq(index, file.min_max_safety(&result.node())));
+    }
+
+    #[test]
+    fn object_then_uses_one_lazy_bounded_binding_walk() {
+        use crate::cops::{run_cops_with_corrections, style::ObjectThen};
+        let file = SourceFile::new(
+            "x.rb".into(),
+            "x.yield_self { |e| e }\n".repeat(3000).into_bytes(),
+        );
+        let result = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(&[&ObjectThen], &result, &file, &mut found, corrections)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), 3000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 3000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.object_then_bindings.get().is_none());
+            }
+        }
+        let index = file.object_then_bindings.get().unwrap();
+        assert_eq!(
+            index.visited,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(index.visited < 30000);
+        assert!(std::ptr::eq(
+            index,
+            file.object_then_bindings(&result.node())
+        ));
+    }
+
+    #[test]
+    fn class_checks_use_one_lazy_binding_walk_not_one_per_offense() {
+        use crate::cops::{run_cops_with_corrections, style::ClassCheck};
+        let source = "x.kind_of?(String)\n".repeat(3000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        let mut found = Vec::new();
+        for corrections in [false, true, true] {
+            found.clear();
+            assert!(
+                run_cops_with_corrections(&[&ClassCheck], &result, &file, &mut found, corrections)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), 3000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 3000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.class_check_bindings.get().is_none());
+            }
+        }
+        let index = file.class_check_bindings.get().unwrap();
+        assert_eq!(
+            index.visited,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(index.visited < 16000);
+        assert!(std::ptr::eq(
+            index,
+            file.class_check_bindings(&result.node())
+        ));
+    }
+
+    #[test]
+    fn method_object_class_check_guards_share_one_lazy_bounded_walk() {
+        use crate::cops::{run_cops_with_corrections, style::ClassCheck};
+        for (selector, correctable) in [
+            ("object_id", true),
+            ("define_singleton_method", false),
+            ("new", false),
+            ("define", false),
+        ] {
+            let source = format!(
+                "{}{}",
+                "obj.kind_of?(Object)\n".repeat(3000),
+                format!("binder = obj.method(:{selector})\n").repeat(1000)
+            );
+            let file = SourceFile::new("x.rb".into(), source.into_bytes());
+            let result = ruby_prism::parse(&file.bytes);
+            for corrections in [false, true, true] {
+                let mut found = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&ClassCheck],
+                        &result,
+                        &file,
+                        &mut found,
+                        corrections
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 3000);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if corrections && correctable { 3000 } else { 0 }
+                );
+                if !corrections {
+                    assert!(file.class_check_bindings.get().is_none());
+                }
+            }
+            let index = file.class_check_bindings.get().unwrap();
+            assert_eq!(
+                index.visited,
+                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
+                    .len()
+            );
+            assert!(index.visited < 22000);
+            assert!(std::ptr::eq(
+                index,
+                file.class_check_bindings(&result.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn module_member_proof_is_lazy_and_reused_for_many_offenses_and_comments() {
+        use crate::cops::{run_cops_with_corrections, style::ModuleMemberExistenceCheck};
+        let source = "# unrelated comment\nArray.instance_methods.include?(:size)\n".repeat(2000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = ruby_prism::parse(&file.bytes);
+        for corrections in [false, true, true] {
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&ModuleMemberExistenceCheck],
+                    &parsed,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 2000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 2000 } else { 0 }
+            );
+            if !corrections {
+                assert!(file.module_member_bindings.get().is_none());
+            }
+        }
+        let index = file.module_member_bindings.get().unwrap();
+        assert_eq!(
+            index.visited,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(std::ptr::eq(
+            index,
+            file.module_member_bindings(&parsed.node())
+        ));
+    }
+
+    #[test]
+    fn empty_call_binding_index_is_lazy_built_once_and_file_local() {
+        use crate::cops::{
+            run_cops_with_corrections, style::MethodCallWithoutArgsParentheses,
+            variables::VISIBLE_LOCAL_BUILDS,
+        };
+        VISIBLE_LOCAL_BUILDS.with(|n| n.set(0));
+        let source = format!(
+            "foo0 = 1\n{}",
+            (0..5000).map(|i| format!("foo{i}()\n")).collect::<String>()
+        );
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        assert!(file.visible_locals.get().is_none());
+        for corrections in [false, true, false] {
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&MethodCallWithoutArgsParentheses],
+                    &result,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 4999);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 4999 } else { 0 }
+            );
+            VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 1));
+        }
+        let other = SourceFile::new("x.rb".into(), b"foo0()\n".to_vec());
+        let parsed = ruby_prism::parse(&other.bytes);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(
+                &[&MethodCallWithoutArgsParentheses],
+                &parsed,
+                &other,
+                &mut found,
+                false
+            )
+            .is_empty()
+        );
+        assert_eq!(found.len(), 1);
+        VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 2));
+    }
+
+    #[test]
+    fn heredoc_local_ownership_is_lazy_shared_and_bounded_by_ancestor_depth() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::MethodCallWithoutArgsParentheses,
+            variables::{VISIBLE_LOCAL_BUILDS, VISIBLE_LOCAL_EDGES},
+        };
+        VISIBLE_LOCAL_BUILDS.with(|n| n.set(0));
+        let inert = SourceFile::new(
+            "x.rb".into(),
+            b"class C; X=<<~TXT\n#{obj.foo()}\nTXT\nend\n".to_vec(),
+        );
+        let parsed = ruby_prism::parse(&inert.bytes);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(
+                &[&MethodCallWithoutArgsParentheses],
+                &parsed,
+                &inert,
+                &mut found,
+                true
+            )
+            .is_empty()
+        );
+        assert_eq!(found.len(), 1);
+        assert!(
+            inert.visible_locals.get().is_none(),
+            "qualified calls need no local analysis"
+        );
+
+        let source = "class C; foo=1; X=<<~TXT\n#{foo()} #{safe()}\nTXT\nend\n".repeat(3000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = ruby_prism::parse(&file.bytes);
+        assert!(file.visible_locals.get().is_none());
+        for corrections in [false, true, false] {
+            VISIBLE_LOCAL_EDGES.with(|n| n.set(0));
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&MethodCallWithoutArgsParentheses],
+                    &parsed,
+                    &file,
+                    &mut found,
+                    corrections
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 3000);
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                if corrections { 3000 } else { 0 }
+            );
+            VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 1));
+            // Each of 6000 queries only walks its existing ancestor path;
+            // no body rescan, ownership index, or per-candidate parse is added.
+            VISIBLE_LOCAL_EDGES.with(|n| assert_eq!(n.get(), 6000 * 6));
+        }
+    }
+
+    #[test]
+    fn companion_presence_is_cached_linear_and_file_local() {
+        use crate::cops::{run_cops, style::MissingRespondToMissing};
+        let source = format!(
+            "class C\n{}\ndef respond_to_missing?; end\nend\n{}",
+            "def method_missing; end\n".repeat(3000),
+            "module M; def method_missing; end; end\n".repeat(1000)
+        );
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        assert!(file.respond_to_missing_index.get().is_none());
+        for _ in 0..2 {
+            let mut found = Vec::new();
+            assert!(run_cops(&[&MissingRespondToMissing], &result, &file, &mut found).is_empty());
+            assert_eq!(found.len(), 1000);
+        }
+        let index = file.respond_to_missing_index.get().unwrap();
+        assert_eq!(
+            index.visited,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(index.visited < 16000);
+        assert!(std::ptr::eq(
+            index,
+            file.respond_to_missing_index(&result.node())
+        ));
+        assert_eq!(
+            crate::pipeline::lint_str("class C; def method_missing; end; end")
+                .iter()
+                .filter(|o| o.cop == "Style/MissingRespondToMissing")
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn perl_backref_guards_are_lazy_cached_and_linear() {
+        use crate::cops::{run_cops_with_corrections, style::PerlBackrefs};
+        let source = "p [$1, $2, $&]\n".repeat(2000);
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&PerlBackrefs], &result, &file, &mut found, false)
+                .is_empty()
+        );
+        assert_eq!(found.len(), 6000);
+        assert!(file.perl_backref_bindings.get().is_none());
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&PerlBackrefs], &result, &file, &mut found, true)
+                .is_empty()
+        );
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            6000
+        );
+        let bindings = file.perl_backref_bindings.get().unwrap();
+        assert_eq!(
+            bindings.visited,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert!(bindings.visited < 18010);
+        let pointer = std::ptr::from_ref(bindings);
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&PerlBackrefs], &result, &file, &mut found, true)
+                .is_empty()
+        );
+        assert_eq!(
+            pointer,
+            std::ptr::from_ref(file.perl_backref_bindings.get().unwrap())
+        );
+    }
+
+    #[test]
+    fn stderr_correction_guards_are_lazy_cached_and_bounded() {
+        use crate::cops::{run_cops_with_corrections, style::StderrPuts};
+        let source = format!("$VERBOSE = false\n{}", "$stderr.puts('x')\n".repeat(2000));
+        let file = SourceFile::new("many.rb".into(), source.into_bytes());
+        let result = ruby_prism::parse(&file.bytes);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&StderrPuts], &result, &file, &mut found, false).is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(file.stderr_bindings.get().is_none());
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&StderrPuts], &result, &file, &mut found, true).is_empty()
+        );
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            2000
+        );
+        let bindings = file.stderr_bindings.get().unwrap();
+        assert_eq!(
+            bindings.visited,
+            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
+        );
+        assert_eq!(bindings.prefix_visited, 2000);
+        assert!(bindings.visited < 14010);
+        let pointer = std::ptr::from_ref(bindings);
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&StderrPuts], &result, &file, &mut found, true).is_empty()
+        );
+        assert_eq!(
+            pointer,
+            std::ptr::from_ref(file.stderr_bindings.get().unwrap())
+        );
+    }
+
+    #[test]
+    fn initialize_comment_windows_are_lazy_cached_and_linear_in_many_siblings() {
+        use crate::cops::{run_cops_with_corrections, style::RedundantInitialize};
+        let source = "class C\ndef initialize;end # deliberate override\nend\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let parsed = crate::parser::parse(&f.bytes);
+        f.record_comments(&parsed);
+        f.record_encoding(&parsed);
+        f.record_data_start(&parsed);
+        assert!(f.initialize_comments.get().is_none());
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&RedundantInitialize], &parsed, &f, &mut found, false)
+                .is_empty()
+        );
+        assert!(found.is_empty());
+        let facts = f.initialize_comments.get().unwrap();
+        assert!(facts.visits < 20020);
+        let pointer = std::ptr::from_ref(facts);
+        assert!(
+            run_cops_with_corrections(&[&RedundantInitialize], &parsed, &f, &mut found, true)
+                .is_empty()
+        );
+        assert!(found.is_empty());
+        assert_eq!(
+            pointer,
+            std::ptr::from_ref(f.initialize_comments.get().unwrap())
+        );
+        let inert = file(b"def other;end\n");
+        let parsed = crate::parser::parse(&inert.bytes);
+        assert!(
+            run_cops_with_corrections(&[&RedundantInitialize], &parsed, &inert, &mut found, true)
+                .is_empty()
+        );
+        assert!(inert.initialize_comments.get().is_none());
+    }
+    #[test]
+    fn freeze_and_self_proofs_are_lazy_main_parse_only_cached_and_bounded() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{RedundantFreeze, RedundantSelf},
+        };
+        let source = "a = 1.freeze\nself.object_id\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let parsed = crate::parser::parse(&f.bytes);
+        f.record_comments(&parsed);
+        f.record_data_start(&parsed);
+        f.record_encoding(&parsed);
+        let cops: &[&dyn crate::cops::Cop] = &[&RedundantFreeze, &RedundantSelf];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 4000);
+        assert!(f.freeze_facts.get().is_none());
+        assert!(f.self_proof.get().is_none());
+        assert!(f.visible_locals.get().is_none());
+        let detection = f.self_facts.get().unwrap();
+        assert!(detection.visits < 20010);
+        let detection_pointer = std::ptr::from_ref(detection);
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 4000);
+        let freeze = f.freeze_facts.get().unwrap();
+        let proof = f.self_proof.get().unwrap();
+        assert!(freeze.visits < 20010);
+        assert!(proof.visits < 20010);
+        let freeze_pointer = std::ptr::from_ref(freeze);
+        let proof_pointer = std::ptr::from_ref(proof);
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
+        assert_eq!(
+            detection_pointer,
+            std::ptr::from_ref(f.self_facts.get().unwrap())
+        );
+        assert_eq!(
+            freeze_pointer,
+            std::ptr::from_ref(f.freeze_facts.get().unwrap())
+        );
+        assert_eq!(
+            proof_pointer,
+            std::ptr::from_ref(f.self_proof.get().unwrap())
+        );
+        let other = file(b"1.freeze\n");
+        assert!(other.freeze_facts.get().is_none());
+        assert!(other.self_facts.get().is_none());
+        let inert = file(b"nil\n");
+        let parsed = crate::parser::parse(&inert.bytes);
+        assert!(run_cops_with_corrections(cops, &parsed, &inert, &mut Vec::new(), true).is_empty());
+        assert!(inert.freeze_facts.get().is_none());
+        assert!(inert.self_proof.get().is_none());
+        assert!(inert.self_facts.get().is_none());
+    }
+    #[test]
+    fn file_api_correction_guards_are_lazy_and_shared() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{
+                Dir, DirEmpty, ExpandPathArguments, FetchEnvVar, NestedFileDirname,
+                RedundantCurrentDirectoryInPath,
+            },
+        };
+        let cops: &[&dyn crate::cops::Cop] = &[
+            &Dir,
+            &DirEmpty,
+            &ExpandPathArguments,
+            &NestedFileDirname,
+            &RedundantCurrentDirectoryInPath,
+            &FetchEnvVar,
+        ];
+        let f = file(b"File.expand_path(File.dirname(__FILE__))\nDir.children('.').empty?\nFile.dirname(File.dirname(path))\nFile.expand_path('..', __FILE__)\nPathname(__FILE__).parent.expand_path\nrequire_relative './feature'\nENV['X']\n");
+        let result = ruby_prism::parse(&f.bytes);
+        f.record_comments(&result);
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 7);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(f.file_api_bindings.get().is_none());
+        assert!(f.token_ranges.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        let pointer = f.file_api_bindings.get().unwrap() as *const _;
+        assert_eq!(pointer, f.file_api_bindings(&result.node()) as *const _);
+    }
+
+    #[test]
+    fn definition_spacing_reuses_bottom_up_extents_and_lazy_safety_caches() {
+        use crate::cops::{layout::EmptyLineBetweenDefs, run_cops_with_corrections};
+        // Nested definitions must not trigger repeated descendant walks. Each
+        // of these 2,000 small scopes also has an endless heredoc boundary.
+        let source = "p __LINE__\n".to_owned()
+            + &"class C\ndef a = <<~H\n  hello\nH\ndef b\nend\nend\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&EmptyLineBetweenDefs], &result, &f, &mut found, false)
+                .is_empty()
+        );
+        assert_eq!(found.len(), 3999);
+        assert!(f.literal_ranges.get().is_none());
+        assert!(f.line_value_boundary.get().is_none());
+        assert!(f.directive_comments.get().is_none());
+        let cache = f.token_ranges.get().unwrap();
+        assert_eq!(cache.definition_ends.len(), 6000);
+        let pointer = cache.protected.as_ptr();
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&EmptyLineBetweenDefs], &result, &f, &mut found, true)
+                .is_empty()
+        );
+        assert_eq!(found.len(), 3999);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        assert_eq!(f.token_ranges.get().unwrap().protected.as_ptr(), pointer);
+        assert_eq!(f.line_value_boundary.get(), Some(&3));
+    }
+
+    #[test]
+    fn body_padding_guards_are_lazy_and_shared_across_many_definitions() {
+        use crate::cops::{
+            layout::{
+                EmptyLinesAroundClassBody, EmptyLinesAroundMethodBody, EmptyLinesAroundModuleBody,
+            },
+            run_cops_with_corrections,
+        };
+        let source = "p __LINE__\n".to_string() + &"module M\n\n  class C\n\n    def foo\n\n      'literal'\n\n    end\n\n  end\n\nend\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[
+            &EmptyLinesAroundClassBody,
+            &EmptyLinesAroundModuleBody,
+            &EmptyLinesAroundMethodBody,
+        ];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 12000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(f.line_value_boundary.get().is_none());
+        assert!(f.literal_ranges.get().is_none());
+        assert!(f.directive_comments.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 12000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        assert_eq!(f.line_value_boundary.get(), Some(&3));
+        let pointer = f.literal_ranges.get().unwrap().as_ptr();
+        for _ in 0..2000 {
+            assert_eq!(f.line_value_boundary(), 3);
+            assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), pointer);
+        }
+    }
+
+    #[test]
+    fn many_empty_lines_in_a_directive_block_comment_share_one_guard_scan() {
+        use crate::cops::{layout::EmptyLines, run_cops_with_corrections};
+        let source = "x\n=begin\n".to_string()
+            + &"\n".repeat(2000)
+            + "rubocop:enable Lint/Debugger\n=end\ny\n";
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        f.record_encoding(&result);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&EmptyLines], &result, &f, &mut found, false).is_empty()
+        );
+        assert_eq!(found.len(), 1999);
+        assert!(f.directive_comments.get().is_none());
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&EmptyLines], &result, &f, &mut found, true).is_empty()
+        );
+        assert_eq!(found.len(), 1999);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert_eq!(f.directive_comments.get().unwrap().len(), 1);
+        let pointer = f.directive_comments().as_ptr();
+        for _ in 0..2000 {
+            assert_eq!(f.directive_comments().as_ptr(), pointer);
+        }
+    }
+
+    #[test]
+    fn class_method_cops_share_one_lazy_bounded_main_ast_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{ClassMethods, ClassMethodsDefinitions},
+        };
+        let source = (0..500)
+            .map(|i| {
+                format!(
+                    "class C{i}\ndef C{i}.one; end\nclass << self\n  def two; :two; end\nend\nend\n"
+                )
+            })
+            .collect::<String>();
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[&ClassMethods, &ClassMethodsDefinitions];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 1000);
+        assert!(f.class_method_bindings.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 1000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        assert_eq!(f.class_method_bindings.get().unwrap().visits, 1500);
+        assert!(f.class_method_bindings.get().unwrap().observer_visits < 500 * 40);
+        let root = result.node();
+        let proof = f.class_method_bindings(&root);
+        for _ in 0..500 {
+            assert!(std::ptr::eq(proof, f.class_method_bindings(&root)));
+        }
+    }
+
+    #[test]
+    fn main_script_evidence_is_lazy_shared_and_visits_each_main_node_once() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{EmptyLambdaParameter, Lambda, TrailingCommaInArrayLiteral},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "",
+            "p File.binread($0)",
+            "p File.binread($PROGRAM_NAME)",
+            "p File.binread(((::Process).argv0))",
+            "alias $script $0; p File.binread($script)",
+            "p File.binread(Process.send(\"arg\" + \"v0\"))",
+            "p [Process].map(&(\"arg\" + \"v0\").to_sym).map { |path| File.binread(path) }",
+            "selector = :\"arg#{'v0'}\"; p [Process].map(&selector).map { |path| File.binread(path) }",
+            "callback = (selector.to_proc ||= nil); p File.binread(callback.call(Process))",
+            "selector = Symbol.all_symbols.find { |s| s.to_s == \"arg\" + \"v0\" }; p [Process].map(&selector).map { |path| File.binread(path) }",
+            "selector = Marshal.load(\"\\x04\\b:\\narg\" + \"v0\"); p [Process].map(&selector).map { |path| File.binread(path) }",
+            "def read(selector); items.map(&selector); end",
+            "class String; def to_sym; factory; end; end; items.map(&(\"to_s\".to_sym))",
+            "def read(&block); binding.local_variable_set(:block, factory); items.map(&block); end",
+        ] {
+            let source = format!(
+                "{}{observer}\n",
+                "f = lambda { 1 }; a = [1,]; g = ->() { 1 }\n".repeat(1000)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let cops: &[&dyn crate::cops::Cop] =
+                &[&Lambda, &EmptyLambdaParameter, &TrailingCommaInArrayLiteral];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 3000);
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 3000);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(count.0 < 1000 * 30);
+            for _ in 0..1000 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn naming_and_style_forwarding_share_lazy_bounded_correction_safety() {
+        use crate::cops::{
+            naming::BlockForwarding,
+            run_cops_with_corrections,
+            style::ArgumentsForwarding,
+            variables::ScopeAnalysis,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let source = "def foo(&callback); items.each { bar(&callback) }; end\ndef bar(*args, **kwargs, &block); baz(*args, **kwargs, &block); end\n".repeat(1000);
+        let f = file(source.as_bytes());
+        let parsed = crate::parser::parse(&f.bytes);
+        f.record_comments(&parsed);
+        let cops: &[&dyn crate::cops::Cop] = &[&BlockForwarding, &ArgumentsForwarding];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, false).is_empty());
+        assert!(found.len() >= 6000);
+        assert!(f.forwarding_safety.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
+        let proof = f.forwarding_safety.get().unwrap();
+        let mut count = Count(0);
+        walk(&mut count, &parsed.node());
+        assert_eq!(proof.visits, count.0);
+        assert!(count.0 < 1000 * 50);
+        let analysis = ScopeAnalysis::of(&parsed.node().as_program_node().unwrap());
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(
+                proof,
+                f.forwarding_safety(&parsed.node(), &analysis)
+            ));
+        }
+    }
+
+    #[test]
+    fn main_script_forwarding_proof_is_lazy_cached_and_binding_aware() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::ClassMethods,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for (body, safe) in [
+            ("g(&((block)))", true),
+            ("items.each { |; block| block = factory }; g(&block)", true),
+            ("later { block = factory }; g(&block)", false),
+            ("factory => block; g(&block)", false),
+            ("binding; g(&block)", false),
+            ("binding(&nil); g(&block)", false),
+            ("((Kernel)).binding(&-> {}); g(&block)", false),
+            ("method(:binding); g(&block)", false),
+            (
+                "stash.local_variable_set(:block, selector); g(&block)",
+                false,
+            ),
+            ("items.each { |block| binding(&nil) }; g(&block)", true),
+            ("send(nil); g(&block)", true),
+            ("items.each { binding }; g(&block)", false),
+        ] {
+            let source = format!(
+                "{}{}",
+                (0..1000)
+                    .map(|i| format!("class C{i}\n def C{i}.f; end\nend\n"))
+                    .collect::<String>(),
+                (0..1000)
+                    .map(|i| format!("def forward{i}(&block); {body}; end\n"))
+                    .collect::<String>(),
+            );
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            f.record_comments(&parsed);
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(&[&ClassMethods], &parsed, &f, &mut found, false)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), 1000);
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(
+                run_cops_with_corrections(&[&ClassMethods], &parsed, &f, &mut found, true)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), 1000);
+            assert!(found.iter().all(|o| o.correction.is_some() == safe));
+            let proof = f.class_method_bindings.get().unwrap();
+            assert_eq!(proof.forwarding_analyses, 1);
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(count.0 < 1000 * 40);
+            for _ in 0..1000 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&parsed.node())));
+                assert_eq!(proof.forwarding_analyses, 1);
+            }
+        }
+    }
+
+    #[test]
+    fn percent_literal_fixes_reuse_lazy_bounded_source_proofs() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{BarePercentLiterals, PercentLiteralDelimiters, PercentQLiterals},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "",
+            "p errors.map(&:backtrace_locations)\n",
+            "p File.binread($0)\n",
+            "p File.binread($PROGRAM_NAME)\n",
+            "p File.binread(((::Process).argv0))\n",
+            "alias $script $0; p File.binread($script)\n",
+            "p [Process].map(&(:\"arg\\x760\"))\n",
+            "selector = Symbol.all_symbols.find { |s| s.to_s == \"arg\" + \"v0\" }; p [Process].map(&selector).map { |path| File.binread(path) }\n",
+            "selector = Marshal.load(\"\\x04\\b:\\narg\" + \"v0\"); p [Process].map(&selector).map { |path| File.binread(path) }\n",
+        ] {
+            let source = format!(
+                "{}{observer}",
+                "%Q[hello]; %W(#{%Q[#{x}]} word)\n".repeat(1000)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[
+                &BarePercentLiterals,
+                &PercentLiteralDelimiters,
+                &PercentQLiterals,
+            ];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 6000);
+            assert!(found.iter().all(|o| o.correction.is_none()));
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 6000);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(count.0 < 1000 * 30);
+            assert_eq!(proof.visits, 0);
+            for _ in 0..1000 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+            // No token/literal cache that could trigger an auxiliary parse.
+            assert!(f.token_ranges.get().is_none());
+            assert!(f.literal_ranges.get().is_none());
+        }
+    }
+
+    #[test]
+    fn local_constructor_proof_reuses_lazy_main_walk_and_bounded_prefix() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::Dir,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut source = String::new();
+        for i in 0..1000 {
+            source.push_str(&format!(
+                "class Local{i}\n def run; File.dirname(File.realpath(__FILE__)); end\nend\n"
+            ));
+        }
+        for i in 0..1000 {
+            source.push_str(&format!("p Local{i}.new.run\n"));
+        }
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[&Dir];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 1000);
+        assert!(f.class_method_bindings.get().is_none());
+        let proof = f.class_method_bindings(&result.node());
+        // The constructor proof itself neither lexes nor reparses. Dir's own
+        // correction validation may subsequently request the token index.
+        assert!(f.token_ranges.get().is_none());
+        assert!(f.literal_ranges.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 1000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        assert!(!proof.observes_source_bytes());
+        let mut count = Count(0);
+        walk(&mut count, &result.node());
+        assert_eq!(proof.observer_visits, count.0);
+        assert!(count.0 < 1000 * 25);
+        assert_eq!(proof.visits, 1000);
+        assert_eq!(proof.forwarding_analyses, 0);
+        for _ in 0..2000 {
+            assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+        }
+    }
+
+    #[test]
+    fn endless_source_observer_proof_is_lazy_cached_and_bounded() {
+        use crate::cops::{run_cops_with_corrections, style::AmbiguousEndlessMethodDefinition};
+        for observer in [
+            "",
+            "p error.backtrace_locations\n",
+            "p errors.flat_map(&:backtrace_locations)\n",
+        ] {
+            let source = format!("{}{observer}", "def f = true if condition\n".repeat(2000));
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[&AmbiguousEndlessMethodDefinition];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 2000);
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 2000);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            assert!(proof.observer_visits >= 2000);
+            assert!(proof.observer_visits < 2000 * 20);
+            assert_eq!(proof.visits, 0); // no class declaration-prefix work
+            for _ in 0..2000 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn trailing_definition_cops_reuse_lazy_bounded_main_parse_proofs() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{TrailingBodyOnClass, TrailingBodyOnModule, TrailingMethodEndStatement},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "",
+            "p errors.map(&:full_message)\n",
+            "p Object.const_get(:DATA).pos\n",
+        ] {
+            let source = format!(
+                "{}{}{}{observer}__END__\nraw\n",
+                "def f\n 1 end\n".repeat(500),
+                "class C; 2\nend\n".repeat(500),
+                "module M; 3\nend\n".repeat(500)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            f.record_data_start(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[
+                &TrailingMethodEndStatement,
+                &TrailingBodyOnClass,
+                &TrailingBodyOnModule,
+            ];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 1500);
+            assert!(f.class_method_bindings.get().is_none());
+            assert!(f.line_value_boundary.get().is_none());
+            assert!(f.token_ranges.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 1500);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(count.0 < 1500 * 10);
+            assert_eq!(proof.visits, 0);
+            for _ in 0..1500 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn trailing_method_body_reuses_lazy_bounded_main_parse_proofs() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::TrailingBodyOnMethodDefinition,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "",
+            "p errors.map(&:full_message)\n",
+            "p Object.const_get(:DATA).pos\n",
+        ] {
+            let source = format!("{}{observer}__END__\nraw\n", "def f; 1\nend\n".repeat(2000));
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            f.record_data_start(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[&TrailingBodyOnMethodDefinition];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 2000);
+            assert!(f.class_method_bindings.get().is_none());
+            assert!(f.line_value_boundary.get().is_none());
+            assert!(f.token_ranges.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 2000);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(count.0 < 2000 * 10);
+            assert_eq!(proof.visits, 0);
+            for _ in 0..2000 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn empty_else_removals_share_lazy_main_parse_proofs() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::EmptyElse,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let source = "if ready\n work\nelse\n nil\nend\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = crate::parser::parse(&f.bytes);
+        f.record_comments(&result);
+        let cop = EmptyElse::default();
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(&[&cop], &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(f.token_ranges.get().is_none());
+        assert!(f.class_method_bindings.get().is_none());
+        assert!(f.line_value_boundary.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(&[&cop], &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        let cache = f.token_ranges.get().unwrap();
+        let proof = f.class_method_bindings.get().unwrap();
+        let mut count = Count(0);
+        walk(&mut count, &result.node());
+        assert_eq!(proof.observer_visits, count.0);
+        assert!(count.0 < 2000 * 12);
+        for _ in 0..2000 {
+            assert!(std::ptr::eq(cache, f.token_ranges(&result.node())));
+            assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+        }
+    }
+
+    #[test]
+    fn pending_sibling_heredoc_queries_reuse_the_lazy_sorted_token_index() {
+        use crate::cops::{run_cops_with_corrections, style::TrailingBodyOnMethodDefinition};
+        let source = "x = <<TXT;def f; 1\npayload\nTXT\nend\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        let mut found = Vec::new();
+        let cops: &[&dyn crate::cops::Cop] = &[&TrailingBodyOnMethodDefinition];
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(f.token_ranges.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| o.correction.is_none()));
+        let cache = f.token_ranges.get().unwrap();
+        assert_eq!(cache.heredoc_openings.len(), 2000);
+        assert!(cache.heredoc_openings.windows(2).all(|w| w[0] < w[1]));
+        for _ in 0..5 {
+            for &opening in &cache.heredoc_openings {
+                assert!(!f.heredoc_pending_at(&result.node(), opening));
+                assert!(f.heredoc_pending_at(&result.node(), opening + 6));
+                assert!(std::ptr::eq(cache, f.token_ranges(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn heredoc_boundary_guard_bounds_long_labels_and_is_shared_only_for_fixes() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{SymbolLiteral, VariableInterpolation},
+        };
+        for nonword in [false, true] {
+            let delimiter = format!("{}{}", "X".repeat(4096), if nonword { "#" } else { "" });
+            let source = format!(
+                "p <<~\"{delimiter}\"\n{}{delimiter}\n",
+                "#@x #{:\"word\"}\n".repeat(1000)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[&SymbolLiteral, &VariableInterpolation];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 2000);
+            assert!(f.token_ranges.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 2000);
+            assert!(found.iter().all(|o| o.correction.is_none() == nonword));
+            let cache = f.token_ranges.get().unwrap();
+            assert_eq!(cache.heredoc_openings.len(), 1);
+            for _ in 0..2000 {
+                assert!(std::sync::Arc::ptr_eq(
+                    cache.heredoc_boundaries.get().unwrap(),
+                    f.heredoc_boundaries(&result.node())
+                ));
+                assert!(std::ptr::eq(cache, f.token_ranges(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn ns06_boundary_renames_reuse_one_lazy_bounded_main_parse_index() {
+        use crate::cops::{naming::HeredocDelimiterCase, run_cops_with_corrections};
+        let source = "p <<~sql\nvalue\nsql\n".repeat(2000);
+        let f = file(source.as_bytes());
+        let parsed = crate::parser::parse(&f.bytes);
+        f.record_comments(&parsed);
+        let mut found = Vec::new();
+        let cops: &[&dyn crate::cops::Cop] = &[&HeredocDelimiterCase];
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(f.cached_heredoc_boundaries().is_none());
+        assert!(f.token_ranges.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            2000
+        );
+        let index = f.cached_heredoc_boundaries().unwrap();
+        assert_eq!(f.token_ranges.get().unwrap().heredocs.len(), 2000);
+        for _ in 0..2000 {
+            assert!(std::sync::Arc::ptr_eq(
+                index,
+                f.heredoc_boundaries(&parsed.node())
+            ));
+        }
+        let large = file(format!("p <<~sql\n{}\nsql\n", "x".repeat(4096)).as_bytes());
+        let parsed = crate::parser::parse(&large.bytes);
+        let mut found = Vec::new();
+        run_cops_with_corrections(cops, &parsed, &large, &mut found, true);
+        assert_eq!(found.len(), 1);
+        assert!(found[0].correction.is_none());
+    }
+
+    #[test]
+    fn option_hash_super_index_is_lazy_linear_and_uses_only_the_main_parse() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::OptionHash,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for (source, expected, builds_index) in [
+            ("def f(config = {}); super; end\n".repeat(1000), 0, false),
+            (
+                format!(
+                    "{}{}{}",
+                    "def f(options = {}); end\n".repeat(1000),
+                    "def f(options = {}); proc { super }; end\n".repeat(1000),
+                    "foo(super) { |options = {}| }\n".repeat(1000)
+                ),
+                1000,
+                true,
+            ),
+        ] {
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            f.record_data_start(&result);
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(&[&OptionHash], &result, &f, &mut found, false)
+                    .is_empty()
+            );
+            assert_eq!(found.len(), expected);
+            assert_eq!(f.option_hash_supers.get().is_some(), builds_index);
+            if builds_index {
+                let mut count = Count(0);
+                walk(&mut count, &result.node());
+                let index = f.option_hash_supers.get().unwrap();
+                assert_eq!(index.visits, count.0);
+                assert!(count.0 < 3000 * 20);
+                for _ in 0..3000 {
+                    assert!(std::ptr::eq(index, f.option_hash_supers(&result.node())));
+                }
+            }
+            assert!(f.super_facts.get().is_none());
+            assert!(f.token_ranges.get().is_none());
+            assert!(f.literal_ranges.get().is_none());
+        }
+    }
+
+    #[test]
+    fn super_and_keyword_facts_are_lazy_shared_bounded_and_main_parse_only() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{KeywordParametersOrder, SuperArguments, SuperWithArgsParentheses},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let source = format!(
+            "{}{}{}",
+            "def f(a: 1, b:); [a,b]; end\n".repeat(1000),
+            "def g(&block); super(&block); end\n".repeat(1000),
+            "# independent\ndef h; super 1; end\n".repeat(1000)
+        );
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[&KeywordParametersOrder];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 1000);
+        assert!(f.super_facts.get().is_none());
+        assert!(f.class_method_bindings.get().is_none());
+        found.clear();
+        let cops: &[&dyn crate::cops::Cop] = &[
+            &KeywordParametersOrder,
+            &SuperArguments,
+            &SuperWithArgsParentheses,
+        ];
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 3000);
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        let mut count = Count(0);
+        walk(&mut count, &result.node());
+        let facts = f.super_facts.get().unwrap();
+        assert_eq!(facts.visits, count.0);
+        assert!(count.0 < 3000 * 25);
+        for _ in 0..3000 {
+            assert!(std::ptr::eq(facts, f.super_facts(&result.node())));
+        }
+        // Caches never initialize Prism token/literal helpers that reparse.
+        assert!(f.token_ranges.get().is_none());
+        assert!(f.literal_ranges.get().is_none());
+    }
+
+    #[test]
+    fn method_newline_cops_share_lazy_bounded_main_ast_facts() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{EndlessMethod, MultilineMethodSignature, SingleLineMethods},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "",
+            "p errors.map(&:full_message)\n",
+            "p Object.const_get(:DATA).pos\n",
+        ] {
+            let source = format!(
+                "{}{}{}{observer}__END__\nraw\n",
+                "def f; 1; 2; end\n".repeat(500),
+                "def g(a,\n b)\nend\n".repeat(500),
+                "def h = [\n 1]\n".repeat(500)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            f.record_data_start(&result);
+            let single = SingleLineMethods::default();
+            let multi = MultilineMethodSignature::default();
+            let cops: &[&dyn crate::cops::Cop] = &[&single, &multi, &EndlessMethod];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 1500);
+            assert!(f.class_method_bindings.get().is_none());
+            assert!(f.line_value_boundary.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 1500);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(count.0 < 1500 * 20);
+            assert_eq!(proof.visits, 0);
+            for _ in 0..1500 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn call_parentheses_data_guards_share_one_lazy_complete_main_ast_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{
+                MethodCallWithArgsParentheses, MethodCallWithoutArgsParentheses,
+                NestedParenthesizedCalls, SuperWithArgsParentheses,
+            },
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "",
+            "p DATA.method(:pos).call\n",
+            "p Object.const_get(:DATA).tell\n",
+            "p (DATA ||= nil).method(:tell).call\n",
+            "if false; DATA &&= nil; end\n",
+            "if false; DATA += nil; end\n",
+        ] {
+            let source = format!(
+                "{}{}{}{}{observer}__END__\nDATA.read Object.const_get(:DATA)\n",
+                "def f; x = identity 1; end\n".repeat(500),
+                "x = identity()\n".repeat(500),
+                "x = identity(identity 1)\n".repeat(500),
+                "def g(a); super a; end\n".repeat(500),
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            f.record_data_start(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[
+                &MethodCallWithArgsParentheses,
+                &MethodCallWithoutArgsParentheses,
+                &NestedParenthesizedCalls,
+                &SuperWithArgsParentheses,
+            ];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 2500);
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 2500);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0); // complete walk, exactly once
+            assert!(proof.observer_visits < 2500 * 20);
+            assert_eq!(proof.visits, 0); // no declaration-prefix work
+            for _ in 0..2500 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn equal_byte_call_parentheses_edits_share_the_source_read_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{
+                MethodCallWithArgsParentheses, NestedParenthesizedCalls, SuperWithArgsParentheses,
+            },
+        };
+        let source = format!(
+            "{}{}{}p DATA.pos\n__END__\nraw\n",
+            "def f; x = identity  1; end\n".repeat(500),
+            "x = identity(identity  1)\n".repeat(500),
+            "def g(a); super  a; end\n".repeat(500),
+        );
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[
+            &MethodCallWithArgsParentheses,
+            &NestedParenthesizedCalls,
+            &SuperWithArgsParentheses,
+        ];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(found.iter().all(|o| {
+            o.correction
+                .as_ref()
+                .is_some_and(|edit| edit.range.len() == edit.replacement.len())
+        }));
+        let proof = f.class_method_bindings.get().unwrap();
+        assert!(proof.observer_visits < 1500 * 30);
+        for _ in 0..2000 {
+            assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+        }
+    }
+
+    #[test]
+    fn data_guards_share_one_lazy_complete_bounded_proof_across_three_consumers() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions, EndlessMethod},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in ["", "p DATA.pos\n", "p Object.const_get(:DATA).lineno\n"] {
+            let classes = (0..200)
+                .map(|i| {
+                    format!("class C{i}\n  class << self\n    def one; :one; end\n  end\nend\n")
+                })
+                .collect::<String>();
+            let source = format!(
+                "{classes}{}{}{observer}__END__\nDATA.read Object.const_get(:DATA)\n",
+                "def f = true if true\n".repeat(200),
+                "def g = [\n  1]\n".repeat(200),
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let cops: &[&dyn crate::cops::Cop] = &[
+                &ClassMethodsDefinitions,
+                &AmbiguousEndlessMethodDefinition,
+                &EndlessMethod,
+            ];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 600);
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 600);
+            assert!(
+                found
+                    .iter()
+                    .all(|o| o.correction.is_some() == observer.is_empty())
+            );
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(proof.observer_visits < 600 * 20);
+            assert_eq!(proof.visits, 400);
+            for _ in 0..600 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn empty_parameter_proofs_are_lazy_shared_and_bounded_main_ast_passes() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{EmptyBlockParameter, EmptyLambdaParameter},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [100, 1000] {
+            for observer in ["", "p DATA.pos\n"] {
+                let source = format!(
+                    "{}{observer}__END__\nraw\n",
+                    "proc { || 1 }; ->() { 2 }\n".repeat(n)
+                );
+                let f = file(source.as_bytes());
+                let result = ruby_prism::parse(&f.bytes);
+                assert_eq!(result.errors().count(), 0);
+                let cops: &[&dyn crate::cops::Cop] = &[&EmptyBlockParameter, &EmptyLambdaParameter];
+                for collect in [false, true] {
+                    let mut found = Vec::new();
+                    assert!(
+                        run_cops_with_corrections(cops, &result, &f, &mut found, collect)
+                            .is_empty()
+                    );
+                    assert_eq!(found.len(), n * 2);
+                    assert!(
+                        found
+                            .iter()
+                            .all(|o| o.correction.is_some() == (collect && observer.is_empty()))
+                    );
+                    if !collect {
+                        assert!(f.empty_parameter_facts.get().is_none());
+                        assert!(f.class_method_bindings.get().is_none());
+                    }
+                }
+                let mut count = Count(0);
+                walk(&mut count, &result.node());
+                let facts = f.empty_parameter_facts.get().unwrap();
+                assert_eq!(facts.visits, count.0);
+                assert!(facts.visits < n * 30);
+                assert_eq!(
+                    f.class_method_bindings.get().unwrap().observer_visits,
+                    count.0
+                );
+                assert!(std::ptr::eq(facts, f.empty_parameter_facts(&result.node())));
+                assert!(f.visible_locals.get().is_none());
+                assert!(f.literal_ranges.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn numbered_limit_masks_are_lazy_cached_and_one_bounded_main_ast_fold() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::NumberedParametersLimit,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let plain = file(b"foo { |x| x }; -> { it }");
+        let parsed = ruby_prism::parse(&plain.bytes);
+        let mut out = Vec::new();
+        assert!(
+            run_cops_with_corrections(
+                &[&NumberedParametersLimit],
+                &parsed,
+                &plain,
+                &mut out,
+                false
+            )
+            .is_empty()
+        );
+        assert!(plain.numbered_limit_facts.get().is_none());
+        for n in [100, 1000] {
+            let source = "foo { |x| inner { [_1, _2, x] } }; -> { _9 }; (-> { _1 }).call { _2 }; foo(-> { _1 }) { [_2, _3] }\n".repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&NumberedParametersLimit],
+                        &parsed,
+                        &f,
+                        &mut out,
+                        collect
+                    )
+                    .is_empty()
+                );
+                assert_eq!(out.len(), n * 3);
+                assert!(out.iter().all(|o| o.correction.is_none()));
+                let facts = f.numbered_limit_facts.get().unwrap();
+                assert_eq!(facts.visits, count.0);
+                assert!(facts.visits < n * 60);
+                assert!(std::ptr::eq(facts, f.numbered_limit_facts(&parsed.node())));
+                assert!(f.class_method_bindings.get().is_none());
+                assert!(f.visible_locals.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn nil_lambda_reuses_lazy_cached_main_ast_observer_and_lookup_proofs() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::NilLambda,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [100, 1000] {
+            for observer in ["", "p DATA.pos\n__END__\nraw\n", "TracePoint.new {}\n"] {
+                let source = format!(
+                    "{}{observer}",
+                    "lambda { return nil }; lambda { next nil }; -> { nil }\n".repeat(n)
+                );
+                let f = file(source.as_bytes());
+                let parsed = ruby_prism::parse(&f.bytes);
+                for collect in [false, true] {
+                    let mut out = Vec::new();
+                    assert!(
+                        run_cops_with_corrections(&[&NilLambda], &parsed, &f, &mut out, collect)
+                            .is_empty()
+                    );
+                    assert_eq!(out.len(), n * 3);
+                    assert!(
+                        out.iter()
+                            .all(|o| o.correction.is_some() == (collect && observer.is_empty()))
+                    );
+                    if !collect {
+                        assert!(f.lambda_facts.get().is_none());
+                        assert!(f.class_method_bindings.get().is_none());
+                        assert!(f.literal_ranges.get().is_none());
+                    }
+                }
+                let mut count = Count(0);
+                walk(&mut count, &parsed.node());
+                let lookup = f.lambda_facts.get().unwrap();
+                assert_eq!(lookup.visits, count.0);
+                assert!(std::ptr::eq(lookup, f.lambda_facts(&parsed.node())));
+                assert_eq!(
+                    f.class_method_bindings.get().unwrap().observer_visits,
+                    count.0
+                );
+                assert!(count.0 < n * 25);
+                assert!(f.visible_locals.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn lambda_lookup_proof_is_lazy_cached_and_one_bounded_main_ast_walk() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::Lambda,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [100, 1000] {
+            let source = "f = lambda { |x| x }; g = ->(y) do\n y\nend\n".repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&[&Lambda], &parsed, &f, &mut out, collect)
+                        .is_empty()
+                );
+                assert_eq!(out.len(), n * 2);
+                assert!(out.iter().all(|o| o.correction.is_some() == collect));
+                if !collect {
+                    assert!(f.lambda_facts.get().is_none());
+                    assert!(f.class_method_bindings.get().is_none());
+                    assert!(f.token_ranges.get().is_none());
+                }
+            }
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            let facts = f.lambda_facts.get().unwrap();
+            assert_eq!(facts.visits, count.0);
+            assert!(facts.visits < n * 30);
+            assert!(std::ptr::eq(facts, f.lambda_facts(&parsed.node())));
+            assert_eq!(
+                f.class_method_bindings.get().unwrap().observer_visits,
+                count.0
+            );
+            assert!(f.visible_locals.get().is_none());
+        }
+    }
+
+    #[test]
+    fn command_backtick_index_is_lazy_encoding_aware_and_queries_do_not_rescan() {
+        for n in [100, 1000] {
+            let f = file(
+                format!("# encoding: Windows-31J\n{}", "p %x(no); `ok`\n".repeat(n)).as_bytes(),
+            );
+            let parsed = ruby_prism::parse(&f.bytes);
+            f.record_encoding(&parsed);
+            assert!(f.command_backticks.get().is_none());
+            encoding::WIDTH_CALLS.set(0);
+            assert!(f.command_body_has_backtick(0..f.bytes.len()));
+            assert!(encoding::WIDTH_CALLS.get() <= f.bytes.len());
+            assert_eq!(f.command_backticks.get().unwrap().len(), n * 2);
+            encoding::WIDTH_CALLS.set(0);
+            for offset in 0..f.bytes.len() {
+                let _ = f.command_body_has_backtick(offset..f.bytes.len());
+            }
+            assert_eq!(encoding::WIDTH_CALLS.get(), 0);
+        }
+        let f = file(b"# encoding: Windows-31J\n%x(\x83\x60)\n");
+        assert!(!f.command_body_has_backtick(0..f.bytes.len()));
+    }
+
+    #[test]
+    fn nested_command_envelope_work_is_disjoint_and_observer_proof_is_lazy_shared() {
+        use crate::cops::{run_cops_with_corrections, style::CommandLiteral};
+        // Each command adds three AST levels; stay inside the shared depth-64 budget.
+        for depth in [4, 8, 16] {
+            let source = format!("{}no{}\n", "%x(#{".repeat(depth), "})".repeat(depth));
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&[&CommandLiteral], &parsed, &f, &mut out, collect)
+                        .is_empty()
+                );
+                assert_eq!(out.len(), depth);
+                assert_eq!(
+                    out.iter().filter(|o| o.correction.is_some()).count(),
+                    usize::from(collect)
+                );
+                assert!(
+                    out.iter()
+                        .filter_map(|o| o.correction.as_ref())
+                        .map(|c| c.range.len())
+                        .sum::<usize>()
+                        <= f.bytes.len()
+                );
+                if !collect {
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+            }
+            assert!(f.class_method_bindings.get().unwrap().observer_visits < depth * 8);
+        }
+    }
+
+    #[test]
+    fn block_chain_index_is_one_main_ast_pass_even_with_large_argument_lists() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::MultilineBlockChain,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [100, 1000] {
+            let args = std::iter::repeat_n("a do\n b\nend.c { d }", n)
+                .collect::<Vec<_>>()
+                .join(",\n");
+            let source = format!("outer({args}) do z end");
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            assert!(f.block_chain_facts.get().is_none());
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(&[&MultilineBlockChain], &parsed, &f, &mut out, false)
+                    .is_empty()
+            );
+            assert_eq!(out.len(), n);
+            assert!(out.iter().all(|o| o.correction.is_none()));
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            assert_eq!(f.block_chain_facts.get().unwrap().visits, count.0);
+            assert!(count.0 < n * 20);
+            assert!(std::ptr::eq(
+                f.block_chain_facts.get().unwrap(),
+                f.block_chain_facts(&parsed.node())
+            ));
+        }
+    }
+
+    #[test]
+    fn implicit_parameter_corrections_use_one_lazy_bounded_main_ast_index() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::ItBlockParameter,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut counts = Vec::new();
+        for n in [100, 1000] {
+            let source =
+                "foo { use(_1); def (build(<<~TXT)).tag(x=1); end }\n#{_1}\nTXT\n".repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&[&ItBlockParameter], &parsed, &f, &mut out, collect)
+                        .is_empty()
+                );
+                assert_eq!(out.len(), 2 * n);
+                assert_eq!(
+                    out.iter().filter(|o| o.correction.is_some()).count(),
+                    if collect { n } else { 0 }
+                );
+                if !collect {
+                    assert!(f.it_parameter_facts.get().is_none());
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+            }
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            assert_eq!(f.it_parameter_facts.get().unwrap().visits, count.0);
+            assert_eq!(
+                f.class_method_bindings.get().unwrap().observer_visits,
+                count.0
+            );
+            assert!(std::ptr::eq(
+                f.it_parameter_facts.get().unwrap(),
+                f.it_parameter_facts(&parsed.node())
+            ));
+            assert!(count.0 < 40 * n);
+            counts.push(count.0);
+        }
+        assert_eq!(counts[1] - 2, 10 * (counts[0] - 2));
+    }
+
+    #[test]
+    fn block_parameter_and_heredoc_facts_are_lazy_shared_and_bounded() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{SingleLineBlockParams, SingleLineDoEndBlock},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut counts = Vec::new();
+        for n in [100, 1000] {
+            let source = "xs.reduce { |memo,item| inner { memo += item }; memo }; foo do bar end\n"
+                .repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&SingleLineBlockParams, &SingleLineDoEndBlock],
+                        &parsed,
+                        &f,
+                        &mut out,
+                        collect
+                    )
+                    .is_empty()
+                );
+                assert_eq!(out.len(), 2 * n);
+                assert!(out.iter().all(|o| o.correction.is_some() == collect));
+                if !collect {
+                    assert!(f.block_param_facts.get().is_none());
+                    assert!(f.do_end_facts.get().is_none());
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+            }
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            assert_eq!(f.block_param_facts.get().unwrap().visits, count.0);
+            assert_eq!(f.do_end_facts.get().unwrap().visits, count.0);
+            assert_eq!(
+                f.class_method_bindings.get().unwrap().observer_visits,
+                count.0
+            );
+            assert!(count.0 < n * 40);
+            assert!(std::ptr::eq(
+                f.block_param_facts.get().unwrap(),
+                f.block_param_facts(&parsed.node())
+            ));
+            assert!(std::ptr::eq(
+                f.do_end_facts.get().unwrap(),
+                f.do_end_facts(&parsed.node())
+            ));
+            counts.push(count.0);
+        }
+        assert_eq!(counts[1] - 2, 10 * (counts[0] - 2)); // Program and Statements are shared.
+    }
+
+    #[test]
+    fn deferred_header_parameter_index_visits_every_main_ast_node_once() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::SingleLineBlockParams,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let fragment = "xs.reduce { |memo,item| def (build(<<~HEADER)).tag; end; memo+item }\n#{[0].map { acc }.first}\nHEADER\nxs.inject { |total,value| <<~SAFE }\n#{-> { total+value }.call}\nSAFE\n";
+        let mut counts = Vec::new();
+        for n in [100, 1000] {
+            let f = file(fragment.repeat(n).as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&SingleLineBlockParams],
+                        &parsed,
+                        &f,
+                        &mut out,
+                        collect
+                    )
+                    .is_empty()
+                );
+                assert_eq!(out.len(), 2 * n);
+                for pair in out.as_chunks::<2>().0 {
+                    assert!(pair[0].correction.is_none());
+                    assert_eq!(pair[1].correction.is_some(), collect);
+                }
+                if !collect {
+                    assert!(f.block_param_facts.get().is_none());
+                }
+            }
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            let facts = f.block_param_facts.get().unwrap();
+            assert_eq!(facts.visits, count.0);
+            assert!(std::ptr::eq(facts, f.block_param_facts(&parsed.node())));
+            counts.push(count.0);
+        }
+        assert_eq!(counts[1] - 2, 10 * (counts[0] - 2));
+    }
+
+    #[test]
+    fn proc_and_sugar_correction_facts_are_lazy_shared_and_bounded() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{LambdaCall, Proc, StabbyLambdaParentheses},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [100, 1000] {
+            // The closed prefix proves every Proc creation; sugar calls then
+            // end lookup proof without invalidating earlier eager creations.
+            let source = format!(
+                "{}{}{}",
+                "f = Proc.new { |x| x };\n".repeat(n),
+                "x.(1);\n".repeat(n),
+                "->a { a };\n".repeat(n)
+            );
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&Proc, &LambdaCall, &StabbyLambdaParentheses],
+                        &parsed,
+                        &f,
+                        &mut out,
+                        collect
+                    )
+                    .is_empty()
+                );
+                assert_eq!(out.len(), n * 3);
+                assert!(out.iter().all(|o| o.correction.is_some() == collect));
+                if !collect {
+                    assert!(f.proc_facts.get().is_none());
+                    assert!(f.lambda_call_facts.get().is_none());
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+            }
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            assert_eq!(f.proc_facts.get().unwrap().visits, count.0);
+            assert_eq!(f.lambda_call_facts.get().unwrap().visits, count.0);
+            assert_eq!(
+                f.class_method_bindings.get().unwrap().observer_visits,
+                count.0
+            );
+            assert!(count.0 < n * 40);
+            assert!(std::ptr::eq(
+                f.proc_facts.get().unwrap(),
+                f.proc_facts(&parsed.node())
+            ));
+            assert!(std::ptr::eq(
+                f.lambda_call_facts.get().unwrap(),
+                f.lambda_call_facts(&parsed.node())
+            ));
+            assert!(f.visible_locals.get().is_none());
+        }
+    }
+
+    #[test]
+    fn nested_sugar_ownership_visits_each_main_node_once() {
+        use crate::cops::{run_cops_with_corrections, style::LambdaCall};
+        for n in [10, 50] {
+            let source = format!("x{}", ".()".repeat(n));
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(&[&LambdaCall], &parsed, &f, &mut out, true).is_empty()
+            );
+            assert_eq!(out.len(), n);
+            assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 1);
+            assert!(f.lambda_call_facts.get().unwrap().visits <= n * 2 + 3);
+            let applied = crate::corrections::apply(&f.bytes, &out).unwrap();
+            assert_eq!(
+                applied.bytes,
+                format!("x{}.call", ".()".repeat(n - 1)).as_bytes()
+            );
+        }
+    }
+
+    #[test]
+    fn regexp_escape_corrections_share_one_lazy_bounded_main_ast_proof() {
+        use crate::cops::{run_cops_with_corrections, style::RedundantRegexpEscape};
+        let n = 6000;
+        let source = "/a\\-b/\n".repeat(n);
+        let f = file(source.as_bytes());
+        let parsed = ruby_prism::parse(&f.bytes);
+        for collect in [false, true, true] {
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&RedundantRegexpEscape],
+                    &parsed,
+                    &f,
+                    &mut out,
+                    collect
+                )
+                .is_empty()
+            );
+            assert_eq!(out.len(), n);
+            assert!(out.iter().all(|o| o.correction.is_some() == collect));
+            if !collect {
+                assert!(f.class_method_bindings.get().is_none());
+            } else {
+                let proof = f.class_method_bindings.get().unwrap();
+                assert!(proof.observer_visits <= n * 3 + 2);
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&parsed.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn redundant_literal_spelling_reuses_one_lazy_main_ast_observer_fold() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{CharacterLiteral, RedundantCapitalW, RedundantPercentQ},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let mut counts = Vec::new();
+        for n in [100, 1000] {
+            let source = "p [%q(hi), %W(a b), ?x]\n".repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            for collect in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&RedundantPercentQ, &RedundantCapitalW, &CharacterLiteral],
+                        &parsed,
+                        &f,
+                        &mut out,
+                        collect
+                    )
+                    .is_empty()
+                );
+                assert_eq!(out.len(), n * 3);
+                assert!(out.iter().all(|o| o.correction.is_some() == collect));
+                if !collect {
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+            }
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            assert_eq!(
+                f.class_method_bindings.get().unwrap().observer_visits,
+                count.0
+            );
+            assert!(std::ptr::eq(
+                f.class_method_bindings.get().unwrap(),
+                f.class_method_bindings(&parsed.node())
+            ));
+            assert!(f.visible_locals.get().is_none());
+            assert!(count.0 < n * 20);
+            counts.push(count.0);
+        }
+        assert_eq!(counts[1] - 2, 10 * (counts[0] - 2));
+    }
+
+    #[test]
+    fn trailing_literal_commas_share_bounded_lazy_main_parse_caches() {
+        use crate::cops::{
+            Cop, run_cops_with_corrections,
+            style::{
+                TrailingCommaInArguments, TrailingCommaInArrayLiteral, TrailingCommaInBlockArgs,
+                TrailingCommaInHashLiteral,
+            },
+            walk::{NodeVisitor, walk},
+        };
+        let cops: &[&dyn Cop] = &[
+            &TrailingCommaInArguments,
+            &TrailingCommaInArrayLiteral,
+            &TrailingCommaInHashLiteral,
+            &TrailingCommaInBlockArgs,
+        ];
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [10, 1000] {
+            for observer in ["", "p DATA.pos\n"] {
+                let source = format!(
+                    "{}{observer}__END__\nraw,\n",
+                    "f({a: [1,],},) { |(x,y),| x }\n".repeat(n)
+                );
+                let f = file(source.as_bytes());
+                let result = ruby_prism::parse(&f.bytes);
+                f.record_comments(&result);
+                f.record_data_start(&result);
+                let mut found = Vec::new();
+                assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+                assert_eq!(found.len(), 4 * n);
+                assert!(found.iter().all(|o| o.correction.is_none()));
+                assert!(f.class_method_bindings.get().is_none());
+                let pointer = f.punctuation.get().unwrap().tokens.as_ptr();
+                let protected = f.token_ranges.get().unwrap().protected.as_ptr();
+                for _ in 0..2 {
+                    found.clear();
+                    assert!(
+                        run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty()
+                    );
+                    assert_eq!(found.len(), 4 * n);
+                    assert_eq!(
+                        found.iter().filter(|o| o.correction.is_some()).count(),
+                        if observer.is_empty() { 3 * n } else { 0 }
+                    );
+                    assert_eq!(f.punctuation.get().unwrap().tokens.as_ptr(), pointer);
+                    assert_eq!(f.token_ranges.get().unwrap().protected.as_ptr(), protected);
+                }
+                let mut count = Count(0);
+                walk(&mut count, &result.node());
+                let proof = f.class_method_bindings.get().unwrap();
+                assert_eq!(proof.observer_visits, count.0);
+                assert!(proof.observer_visits < n * 25);
+            }
+        }
+        let f = file(b"f([1], {a: 1}) { |x,| x }\n");
+        let result = ruby_prism::parse(&f.bytes);
+        f.record_comments(&result);
+        for collect in [false, true] {
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, collect).is_empty());
+            assert!(found.is_empty());
+            assert!(f.punctuation.get().is_none());
+            assert!(f.token_ranges.get().is_none());
+            assert!(f.class_method_bindings.get().is_none());
+        }
+    }
+
+    #[test]
+    fn trailing_argument_commas_reuse_lazy_main_parse_tokens_and_data_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::TrailingCommaInArguments,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in ["", "p DATA.pos\n"] {
+            let source = format!(
+                "{}{observer}__END__\nraw,\n",
+                "f(g(1,), k: [2,],)\n".repeat(1000)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            f.record_comments(&result);
+            f.record_data_start(&result);
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&TrailingCommaInArguments],
+                    &result,
+                    &f,
+                    &mut found,
+                    false
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 2000);
+            assert!(found.iter().all(|o| o.correction.is_none()));
+            assert!(f.class_method_bindings.get().is_none());
+            let pointer = f.punctuation.get().unwrap().tokens.as_ptr();
+            let protected = f.token_ranges.get().unwrap().protected.as_ptr();
+            for _ in 0..2 {
+                found.clear();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&TrailingCommaInArguments],
+                        &result,
+                        &f,
+                        &mut found,
+                        true
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 2000);
+                assert!(
+                    found
+                        .iter()
+                        .all(|o| o.correction.is_some() == observer.is_empty())
+                );
+                assert_eq!(f.punctuation.get().unwrap().tokens.as_ptr(), pointer);
+                assert_eq!(f.token_ranges.get().unwrap().protected.as_ptr(), protected);
+            }
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            let proof = f.class_method_bindings.get().unwrap();
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(proof.observer_visits < 1000 * 20);
+        }
+        // No candidate => no token/proof construction, in lint or fix mode.
+        let f = file(b"f(g(1), k: [2,]); obj[3]; f(1, &block)\n");
+        let result = ruby_prism::parse(&f.bytes);
+        f.record_comments(&result);
+        for collect in [false, true] {
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&TrailingCommaInArguments],
+                    &result,
+                    &f,
+                    &mut found,
+                    collect
+                )
+                .is_empty()
+            );
+            assert!(found.is_empty());
+            assert!(f.punctuation.get().is_none());
+            assert!(f.token_ranges.get().is_none());
+            assert!(f.class_method_bindings.get().is_none());
+        }
+    }
+
+    #[test]
+    fn block_delimiter_data_proof_is_lazy_shared_and_one_main_ast_walk() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::BlockDelimiters,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in ["", "p DATA.pos\n", "p Object.const_get(:DATA).pos\n"] {
+            let source = format!("{}{observer}__END__\nraw\n", "map {\n 1\n}\n".repeat(1000));
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let mut found = Vec::new();
+            for collect in [false, true] {
+                assert!(
+                    run_cops_with_corrections(
+                        &[&BlockDelimiters],
+                        &result,
+                        &f,
+                        &mut found,
+                        collect
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 1000);
+                if collect {
+                    assert!(
+                        found
+                            .iter()
+                            .all(|o| o.correction.is_some() == observer.is_empty())
+                    );
+                } else {
+                    assert!(found.iter().all(|o| o.correction.is_none()));
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+                found.clear();
+            }
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0);
+            assert!(proof.observer_visits < 1000 * 20);
+            // No inserted lines: pending heredocs and newline observers need
+            // no extra token/subtree scan for this consumer.
+            assert!(f.token_ranges.get().is_none());
+        }
+    }
+
+    #[test]
+    fn exception_corrections_share_one_lazy_bounded_main_ast_binding_proof() {
+        use crate::cops::{run_cops_with_corrections, style::RedundantException};
+        for (suffix, safe) in [
+            ("", true),
+            ("def RuntimeError.exception(*a); super; end\n", false),
+        ] {
+            let source = format!(
+                "{}{suffix}",
+                "raise RuntimeError.new('message')\n".repeat(2000)
+            );
+            let f = file(source.as_bytes());
+            let result = crate::parser::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            for fixes in [false, true] {
+                let mut found = Vec::new();
+                assert!(
+                    run_cops_with_corrections(
+                        &[&RedundantException],
+                        &result,
+                        &f,
+                        &mut found,
+                        fixes
+                    )
+                    .is_empty()
+                );
+                assert_eq!(found.len(), 2000);
+                assert!(
+                    found
+                        .iter()
+                        .all(|o| o.correction.is_some() == (fixes && safe))
+                );
+                if !fixes {
+                    assert!(f.exception_safety.get().is_none());
+                }
+            }
+            let proof = f.exception_safety.get().unwrap();
+            assert_eq!(
+                proof.visits,
+                crate::cops::testing::preorder_kinds(&source).len()
+            );
+            assert!(proof.visits < 2000 * 10);
+            for _ in 0..2000 {
+                assert!(std::ptr::eq(proof, f.exception_safety(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn predicate_return_facts_are_lazy_source_local_complete_and_shared() {
+        use crate::cops::{naming::PredicateMethod, run_cops_with_corrections};
+        for (source, expected, indexed) in [
+            ("def initialize; return true; end\ndef call; true; end\ndef ==(other); true; end\ndef empty?; end\n".to_owned(), 0, false),
+            ("def foo; log; return true; end\n".repeat(2000), 2000, true),
+            ("def foo?; def nested(x = -> { return true }); 5; end; 5; end\n".repeat(2000), 0, true),
+        ] {
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            for fixes in [false, true] {
+                let mut found = Vec::new();
+                assert!(run_cops_with_corrections(&[&PredicateMethod], &parsed, &f, &mut found, fixes).is_empty());
+                assert_eq!(found.len(), expected);
+                assert!(found.iter().all(|o| o.correction.is_none()));
+                assert_eq!(f.predicate_method_returns.get().is_some(), indexed);
+                if indexed {
+                    let facts = f.predicate_method_returns.get().unwrap();
+                    assert_eq!(facts.visited, crate::cops::testing::preorder_kinds(&source).len());
+                    assert!(facts.visited < 2000 * 25);
+                    for _ in 0..2000 {
+                        assert!(std::ptr::eq(facts, f.predicate_method_returns(&parsed.node())));
+                    }
+                }
+                assert!(f.token_ranges.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn rescue_corrections_are_lazy_and_reuse_bounded_main_parse_facts() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{RescueModifier, RescueStandardError},
+        };
+        for (cop, source) in [
+            (
+                &RescueStandardError as &dyn crate::cops::Cop,
+                "begin; work; rescue; fallback; end\n".repeat(2000),
+            ),
+            (&RescueModifier, "work rescue fallback\n".repeat(2000)),
+        ] {
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            f.record_comments(&parsed);
+            for fixes in [false, true] {
+                let mut found = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&[cop], &parsed, &f, &mut found, fixes).is_empty()
+                );
+                assert_eq!(found.len(), 2000);
+                if !fixes || cop.name() == "Style/RescueModifier" {
+                    assert!(f.exception_safety.get().is_none());
+                    assert!(f.class_method_bindings.get().is_none());
+                } else {
+                    let proof = f.exception_safety.get().unwrap();
+                    assert_eq!(
+                        proof.visits,
+                        crate::cops::testing::preorder_kinds(&source).len()
+                    );
+                    assert!(proof.visits < 2000 * 10);
+                    for _ in 0..2000 {
+                        assert!(std::ptr::eq(proof, f.exception_safety(&parsed.node())));
+                    }
+                }
+                assert!(f.token_ranges.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn indirect_observer_analysis_is_complete_lazy_and_shared_by_both_consumers() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for (dispatch, safe) in [
+            (":to_s", true),
+            (":backtrace_locations", false),
+            ("unknown", false),
+        ] {
+            let classes = (0..500)
+                .map(|i| {
+                    format!("class C{i}\n  class << self\n    def one; :one; end\n  end\nend\n")
+                })
+                .collect::<String>();
+            let groups = format!("{}{}{}", "(".repeat(20), dispatch, ")".repeat(20));
+            let source = format!(
+                "{classes}{}{}",
+                "def f = true if true\n".repeat(500),
+                format!("items.map(&{groups})\n").repeat(500)
+            );
+            let f = file(source.as_bytes());
+            let result = ruby_prism::parse(&f.bytes);
+            assert_eq!(result.errors().count(), 0);
+            f.record_comments(&result);
+            let cops: &[&dyn crate::cops::Cop] =
+                &[&ClassMethodsDefinitions, &AmbiguousEndlessMethodDefinition];
+            let mut found = Vec::new();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+            assert_eq!(found.len(), 1000);
+            assert!(f.class_method_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+            assert_eq!(found.len(), 1000);
+            assert!(found.iter().all(|o| o.correction.is_some() == safe));
+            let proof = f.class_method_bindings.get().unwrap();
+            let mut count = Count(0);
+            walk(&mut count, &result.node());
+            assert_eq!(proof.observer_visits, count.0); // complete, exactly once
+            assert!(proof.observer_visits < 500 * 150);
+            assert_eq!(proof.visits, 1000);
+            for _ in 0..1000 {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn hash_wrappers_share_one_lazy_bounded_main_parse_observer_proof() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{HashAsLastArrayItem, HashConversion},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        let source = "[a: 1, b: 2]\nHash[Hash[ary]]\n".repeat(6000);
+        let f = file(source.as_bytes());
+        let result = crate::parser::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_data_start(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[&HashAsLastArrayItem, &HashConversion];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 12000);
+        assert!(f.class_method_bindings.get().is_none());
+        assert!(f.token_ranges.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 12000);
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            6000
+        );
+        let proof = f.class_method_bindings.get().unwrap();
+        let mut count = Count(0);
+        walk(&mut count, &result.node());
+        assert_eq!(proof.observer_visits, count.0);
+        assert!(proof.observer_visits < 6000 * 20);
+        assert!(f.token_ranges.get().is_none());
+        assert!(f.format_string_facts.get().is_none());
+        for _ in 0..6000 {
+            assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+        }
+    }
+
+    #[test]
+    fn accessor_proof_is_lazy_shared_and_linear_for_many_siblings() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{AccessorGrouping, Attr, BisectedAttrAccessor},
+        };
+        let source = format!(
+            "class Foo\n{}{}end\n",
+            (0..2000)
+                .map(|i| format!("attr :a{i}\n"))
+                .collect::<String>(),
+            "attr_reader :paired\nattr_writer :paired\n"
+        );
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[&AccessorGrouping, &Attr, &BisectedAttrAccessor];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 4002);
+        assert!(f.accessor_bindings.get().is_none());
+        assert_eq!(
+            f.accessor_annotations.get().unwrap().visited_lines,
+            f.code_line_count()
+        );
+        assert!(f.custom_attrs.get().unwrap().visited < 2000 * 5 + 30);
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert_eq!(found.len(), 4002);
+        assert_eq!(f.accessor_bindings.get().unwrap().visited, 2003);
+        let root = result.node();
+        let proof = f.accessor_bindings(&root);
+        let custom = f.custom_attrs(&root);
+        for _ in 0..1000 {
+            assert!(std::ptr::eq(proof, f.accessor_bindings(&root)));
+            assert!(std::ptr::eq(custom, f.custom_attrs(&root)));
+        }
+    }
+
+    #[test]
+    fn alias_proof_is_lazy_cached_and_linear() {
+        use crate::cops::{run_cops_with_corrections, style::Alias};
+        for count in [100, 2000] {
+            let source = format!(
+                "class Fresh\ndef original; 42; end\n{}end\n",
+                (0..count)
+                    .map(|i| format!("alias_method :a{i}, :original\n"))
+                    .collect::<String>()
+            );
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            f.record_comments(&parsed);
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(&[&Alias], &parsed, &f, &mut found, false).is_empty()
+            );
+            assert_eq!(found.len(), count);
+            assert!(f.alias_bindings.get().is_none());
+            found.clear();
+            assert!(run_cops_with_corrections(&[&Alias], &parsed, &f, &mut found, true).is_empty());
+            assert_eq!(
+                found.iter().filter(|o| o.correction.is_some()).count(),
+                count - 1 // The final alias supplies the declaration's result.
+            );
+            let proof = f.alias_bindings.get().unwrap();
+            assert_eq!(proof.visited, count + 2);
+            for _ in 0..count {
+                assert!(std::ptr::eq(proof, f.alias_bindings(&parsed.node())));
+            }
+        }
+    }
+
+    #[test]
+    fn trivial_accessor_proof_is_lazy_separate_and_linear() {
+        use crate::cops::{run_cops_with_corrections, style::TrivialAccessors};
+        let source = format!(
+            "class Foo\n{}end\n",
+            (0..2000)
+                .map(|i| format!("def a{i}; @a{i}; end\n"))
+                .collect::<String>()
+        );
+        let f = file(source.as_bytes());
+        let parsed = ruby_prism::parse(&f.bytes);
+        f.record_comments(&parsed);
+        let mut found = Vec::new();
+        assert!(
+            run_cops_with_corrections(&[&TrivialAccessors], &parsed, &f, &mut found, false)
+                .is_empty()
+        );
+        assert_eq!(found.len(), 2000);
+        assert!(f.trivial_accessor_bindings.get().is_none());
+        assert!(f.accessor_annotations.get().is_none());
+        found.clear();
+        assert!(
+            run_cops_with_corrections(&[&TrivialAccessors], &parsed, &f, &mut found, true)
+                .is_empty()
+        );
+        assert_eq!(
+            found.iter().filter(|o| o.correction.is_some()).count(),
+            2000
+        );
+        assert_eq!(f.trivial_accessor_bindings.get().unwrap().visited, 2001);
+        assert_eq!(
+            f.accessor_annotations.get().unwrap().visited_lines,
+            f.code_line_count()
+        );
+        // Def acceptance must not leak into the existing regrouping proof.
+        assert!(f.accessor_bindings.get().is_none());
+        let root = parsed.node();
+        let proof = f.trivial_accessor_bindings(&root);
+        for _ in 0..2000 {
+            assert!(std::ptr::eq(proof, f.trivial_accessor_bindings(&root)));
+        }
+    }
+
+    #[test]
+    fn argument_wrapper_proofs_are_lazy_shared_and_bounded() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{ExplicitBlockArgument, KeywordArgumentsMerging},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [10, 1000] {
+            let source = "def f; if block_given?; [1].each { |x| yield x }; end; end\nfoo(**{}.merge(y: 1))\n".repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            let cops: &[&dyn crate::cops::Cop] =
+                &[&ExplicitBlockArgument, &KeywordArgumentsMerging];
+            for corrections in [false, true, true] {
+                let mut found = Vec::new();
+                assert!(
+                    run_cops_with_corrections(cops, &parsed, &f, &mut found, corrections)
+                        .is_empty()
+                );
+                assert_eq!(found.len(), 2 * n);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if corrections { 2 * n } else { 0 }
+                );
+                if !corrections {
+                    assert!(f.argument_rewrite_facts.get().is_none());
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+            }
+            let root = parsed.node();
+            let mut count = Count(0);
+            walk(&mut count, &root);
+            let proof = f.argument_rewrite_facts(&root);
+            assert_eq!(proof.visits, count.0);
+            for _ in 0..n {
+                assert!(std::ptr::eq(proof, f.argument_rewrite_facts(&root)));
+            }
+        }
+    }
+
+    #[test]
+    fn remaining_redundancy_work_is_local_and_newline_safety_proof_is_lazy_and_shared() {
+        use crate::cops::{
+            Cop, run_cops_with_corrections,
+            style::{EmptyMethod, RedundantConstantBase, RedundantFetchBlock},
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for n in [10, 2000] {
+            let source = "def f(a = 1)\nend\n::A\nh.fetch(:key) { false }\n".repeat(n);
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            let method = EmptyMethod::default();
+            let cops: &[&dyn Cop] = &[
+                &method,
+                &RedundantConstantBase::default(),
+                &RedundantFetchBlock,
+            ];
+            for fixes in [false, true, true] {
+                let mut found = Vec::new();
+                assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, fixes).is_empty());
+                assert_eq!(found.len(), 3 * n);
+                assert_eq!(
+                    found.iter().filter(|o| o.correction.is_some()).count(),
+                    if fixes { 2 * n } else { 0 }
+                );
+                assert!(
+                    found
+                        .iter()
+                        .filter_map(|o| o.correction.as_ref())
+                        .all(|c| c.range.len() < 30 && c.replacement.len() < 30)
+                );
+                if !fixes {
+                    assert!(f.class_method_bindings.get().is_none());
+                    assert!(f.constant_base_visibility.get().is_none());
+                }
+            }
+            let root = parsed.node();
+            let mut count = Count(0);
+            walk(&mut count, &root);
+            let proof = f.class_method_bindings(&root);
+            let visibility = f.constant_base_visibility.get().unwrap();
+            assert_eq!(proof.observer_visits, count.0);
+            assert_eq!(visibility.visits, count.0);
+            for _ in 0..n {
+                assert!(std::ptr::eq(proof, f.class_method_bindings(&root)));
+                assert!(std::ptr::eq(visibility, f.constant_base_visibility(&root)));
+            }
+        }
+    }
+
+    // Independent pre-index implementation, not another cache-based path.
+    fn prefix_position(f: &SourceFile, offset: usize) -> (u32, u32) {
+        let offset = offset.min(f.bytes.len());
+        let line = f.line_of(offset);
+        let start = if line == 1 && f.bytes.starts_with(b"\xef\xbb\xbf") {
+            3.min(offset)
+        } else {
+            f.line_start(line)
+        };
+        (
+            line,
+            f.parsed_encoding().count_chars(&f.bytes[start..offset]) as u32 + 1,
+        )
+    }
+
+    #[test]
+    fn dense_valid_scalar_cop_positions_have_bounded_shared_width_work() {
+        use crate::cops::{
+            run_cops_with_corrections,
+            style::{AmbiguousEndlessMethodDefinition, MethodDefParentheses},
+        };
+        for fragment in [
+            "def f arg; arg; end; def g = true if condition; ",
+            "\"é😀\"; def f arg; arg; end; def g = true if condition; ",
+        ] {
+            let f = file(fragment.repeat(1000).as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            f.record_encoding(&parsed);
+            encoding::WIDTH_CALLS.set(0);
+            let mut found = Vec::new();
+            assert!(
+                run_cops_with_corrections(
+                    &[&MethodDefParentheses, &AmbiguousEndlessMethodDefinition],
+                    &parsed,
+                    &f,
+                    &mut found,
+                    false,
+                )
+                .is_empty()
+            );
+            assert_eq!(found.len(), 2000);
+            let work = encoding::WIDTH_CALLS.get();
+            assert!(
+                work <= f.bytes.len() + 256 * found.len(),
+                "{work} width calls for {} bytes",
+                f.bytes.len()
+            );
+            // Reverse, duplicate and EOF queries cannot restart a line scan.
+            encoding::WIDTH_CALLS.set(0);
+            for offset in (0..=f.bytes.len())
+                .rev()
+                .step_by(17)
+                .chain([usize::MAX, 0, 0])
+            {
+                let actual = f.line_col(offset);
+                let before_reference = encoding::WIDTH_CALLS.get();
+                assert_eq!(actual, prefix_position(&f, offset));
+                encoding::WIDTH_CALLS.set(before_reference);
+            }
+            assert!(encoding::WIDTH_CALLS.get() <= 256 * (f.bytes.len() / 17 + 5));
+        }
+    }
+
+    #[test]
+    fn scalar_column_index_is_lazy_sparse_linear_and_reused() {
+        for (pragma, fragment, has_blocks) in [
+            ("", "binding.pry; ", false),
+            ("# coding: ASCII-8BIT\n", "\"é\"; binding.pry; ", false),
+            ("", "\"é😀\"; binding.pry; ", true),
+        ] {
+            for repeats in [100, 1000, 10000] {
+                let f = file(format!("{pragma}{}", fragment.repeat(repeats)).as_bytes());
+                let parsed = crate::parser::parse(&f.bytes);
+                assert_eq!(parsed.errors().count(), 0);
+                f.record_encoding(&parsed);
+                assert!(f.columns.get().is_none());
+                encoding::WIDTH_CALLS.set(0);
+                assert_eq!(f.line_col(0), (1, 1));
+                let construction = encoding::WIDTH_CALLS.get();
+                assert!(construction <= f.bytes.len() + f.bytes.len() / 250 + 4);
+                let index = f.columns.get().unwrap();
+                let (blocks, capacity) = index.allocated_blocks();
+                if has_blocks {
+                    assert!(blocks > 0);
+                    assert!(blocks <= f.bytes.len() / 250 + 1);
+                    assert!(capacity <= 2 * blocks.max(2));
+                } else {
+                    assert_eq!((blocks, capacity), (0, 0));
+                }
+                for offset in [f.bytes.len(), f.bytes.len() / 2, 0, 999, 999] {
+                    encoding::WIDTH_CALLS.set(0);
+                    let position = f.line_col(offset);
+                    assert!(encoding::WIDTH_CALLS.get() <= 256);
+                    assert_eq!(position, prefix_position(&f, offset));
+                    assert!(std::ptr::eq(index, f.columns.get().unwrap()));
+                    assert_eq!(index.allocated_blocks(), (blocks, capacity));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn sparse_block_boundaries_preserve_all_prefix_positions() {
+        for (name, text) in [
+            ("UTF-8", b"\xc3\xa9\xf0\x9f\x98\x80\xff\xc3".as_slice()),
+            ("Shift_JIS", b"\x82\xa0\xa6\xff\x82".as_slice()),
+            ("EUC-JP", b"\xa4\xa2\x8f\xa2\xaf\xff\x8f\xa2".as_slice()),
+            ("Big5", b"\xa4\x40\xff\xa4".as_slice()),
+            ("GB18030", b"\x81\x30\x81\x30\xff\x81\x30\x81".as_slice()),
+            ("CESU-8", b"\xed\xa0\x80\xed\xb0\x80\xff".as_slice()),
+            ("Windows-1252", b"\xc3\xa9\xff".as_slice()),
+            ("not-an-encoding", b"\xc3\xa9\xff".as_slice()),
+        ] {
+            let mut source = format!("# coding: {name}\r\n").into_bytes();
+            // Straddle sparse blocks and physical lines at varied boundaries.
+            for padding in [0, 1, 249, 254, 255, 256, 257] {
+                source.extend(std::iter::repeat_n(b'x', padding));
+                source.extend(text.repeat(80));
+                source.extend_from_slice(b"\r\n");
+            }
+            source.extend_from_slice(text); // incomplete prefix at EOF too
+            let f = file(&source);
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_encoding(&parsed);
+            for offset in (0..=source.len()).rev().chain([usize::MAX, 0, 0]) {
+                assert_eq!(
+                    f.line_col(offset),
+                    prefix_position(&f, offset),
+                    "{name}: {offset}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn maps_offsets_to_line_and_col() {
+        let f = file(b"abc\ndef\n");
+        assert_eq!(f.line_col(0), (1, 1));
+        assert_eq!(f.line_col(2), (1, 3));
+        assert_eq!(f.line_col(4), (2, 1));
+        assert_eq!(f.line_col(5), (2, 2));
+    }
+
+    #[test]
+    fn batched_positions_match_scalar_mapping_for_every_byte_and_query_order() {
+        for (name, text) in [
+            ("UTF-8", b"\xc3\xa9\xe3\x80\x80\xff\xc3".as_slice()),
+            ("ASCII-8BIT", b"\xc3\xa9\xff".as_slice()),
+            ("Windows-1252", b"\xc3\xa9\xff".as_slice()),
+            ("Shift_JIS", b"\x82\xa0\xa6\xff\x82".as_slice()),
+            ("EUC-JP", b"\xa4\xa2\x8f\xa2\xaf\xff\x8f\xa2".as_slice()),
+            ("Big5", b"\xa4\x40\xff\xa4".as_slice()),
+            ("GB18030", b"\x81\x30\x81\x30\xff\x81\x30\x81".as_slice()),
+            ("CESU-8", b"\xed\xa0\x80\xed\xb0\x80\xff".as_slice()),
+            ("not-an-encoding", b"\xc3\xa9\xff".as_slice()),
+        ] {
+            let mut source = format!("# coding: {name}\n").into_bytes();
+            source.extend_from_slice(text);
+            source.extend_from_slice(b"\r\n\n");
+            source.extend_from_slice(text);
+            let f = file(&source);
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_encoding(&parsed);
+            drop(parsed);
+            let offsets: Vec<_> = (0..=source.len())
+                .rev()
+                .chain([usize::MAX, 0, 1, 1])
+                .collect();
+            let expected: Vec<_> = offsets
+                .iter()
+                .map(|&offset| prefix_position(&f, offset))
+                .collect();
+            for &offset in &offsets {
+                assert_eq!(
+                    f.line_col(offset),
+                    prefix_position(&f, offset),
+                    "{name}: {offset}"
+                );
+            }
+            assert_eq!(f.line_cols(offsets), expected, "{name}");
+            assert!(f.line_cols([]).is_empty());
+        }
+    }
+
+    #[test]
+    fn batched_positions_preserve_bom_empty_and_eof_semantics() {
+        for source in [
+            b"".as_slice(),
+            b"\n",
+            b"\xef\xbb",
+            b"\xef\xbb\xbf",
+            "\u{feff}éx\n\u{feff}z\n".as_bytes(),
+            b"\xef\xbb\xbf# coding: ascii-8bit\n\xc3\xa9\xff",
+        ] {
+            let f = file(source);
+            let offsets: Vec<_> = (0..=source.len()).rev().chain([usize::MAX, 0]).collect();
+            let expected: Vec<_> = offsets
+                .iter()
+                .map(|&offset| prefix_position(&f, offset))
+                .collect();
+            for &offset in &offsets {
+                assert_eq!(
+                    f.line_col(offset),
+                    prefix_position(&f, offset),
+                    "{source:?}: {offset}"
+                );
+            }
+            assert_eq!(f.line_cols(offsets), expected, "{source:?}");
+        }
+    }
+
+    #[test]
+    fn counts_columns_in_characters_not_bytes() {
+        // "é" is two bytes; one character.
+        let f = file("\u{e9}x\n".as_bytes());
+        assert_eq!(f.line_col(3), (1, 3));
+    }
+
+    #[test]
+    fn declared_single_byte_encodings_count_bytes_even_when_valid_utf8() {
+        for name in ["ASCII-8BIT", "binary", "ISO-8859-1", "Windows-1252"] {
+            let mut source = format!("# coding: {name}\n").into_bytes();
+            source.extend_from_slice(b"\"\xe3\x80\x80\"; binding.pry\n");
+            let f = file(&source);
+            let offset = f.line_start(2) + 7;
+            assert_eq!(f.line_col(offset), (2, 8), "{name}");
+            assert_eq!(f.bytes, source);
+            assert_eq!(f.line_text(2), b"\"\xe3\x80\x80\"; binding.pry");
+        }
+    }
+
+    #[test]
+    fn declared_multibyte_encodings_count_ruby_characters() {
+        for (name, text, characters) in [
+            ("Shift_JIS", b"\x82\xa0\xa6".as_slice(), 2),
+            ("CP932", b"\x82\xa0\xa6".as_slice(), 2),
+            ("Shift_JIS", b"\xc3\xa9".as_slice(), 2),
+            ("EUC-JP", b"\xa4\xa2\x8f\xa2\xaf".as_slice(), 2),
+            ("Big5", b"\xa4\x40".as_slice(), 1),
+            ("GB18030", b"\x81\x30\x81\x30".as_slice(), 1),
+        ] {
+            let mut source = format!("# coding: {name}\n\"").into_bytes();
+            source.extend_from_slice(text);
+            source.extend_from_slice(b"\"; binding.pry\n");
+            let f = file(&source);
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0, "{name}");
+            f.record_encoding(&parsed);
+            let offset = f.line_start(2) + text.len() + 4;
+            assert_eq!(f.line_col(offset), (2, characters + 5), "{name}");
+            assert_eq!(f.bytes, source);
+        }
+    }
+
+    #[test]
+    fn column_encoding_obeys_magic_comment_placement_and_aliases() {
+        for (prefix, col) in [
+            ("# coding = BINARY\n", 8),
+            ("# free-form coding: ISO8859-1\n", 8),
+            ("# -*- coding: Windows-1252 -*-\n", 8),
+            ("#!/usr/bin/ruby\n  # encoding: ascii-8bit\n", 8),
+            ("# comment\n# coding: ascii-8bit\n", 6),
+            ("x = 0 # coding: ascii-8bit\n", 6),
+            ("#!/bin/bash\n# coding: ascii-8bit\n", 6),
+            ("# foo: coding:ascii-8bit\n", 6),
+            ("# coding: not-an-encoding\n", 6),
+        ] {
+            let mut source = prefix.as_bytes().to_vec();
+            source.extend_from_slice(b"\"\xe3\x80\x80\"; binding.pry\n");
+            let f = file(&source);
+            let parsed = ruby_prism::parse(&f.bytes);
+            f.record_encoding(&parsed);
+            // Cached metadata has no dependency on the parse's lifetime.
+            drop(parsed);
+            assert!(f.encoding.get().is_some());
+            let line = prefix.bytes().filter(|&b| b == b'\n').count() as u32 + 1;
+            for _ in 0..3 {
+                assert_eq!(f.line_col(prefix.len() + 7), (line, col), "{prefix:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn invalid_or_incomplete_characters_do_not_erase_prior_character_boundaries() {
+        for (name, text, col) in [
+            ("UTF-8", b"\xc3\xa9\xffx".as_slice(), 4),
+            ("UTF-8", b"\xc3\xa9\xc3".as_slice(), 3),
+            ("Shift_JIS", b"\x82\xa0\xffx".as_slice(), 4),
+            ("Shift_JIS", b"\x82\xa0\x82".as_slice(), 3),
+            ("EUC-JP", b"\xa4\xa2\xffx".as_slice(), 4),
+            ("EUC-JP", b"\xa4\xa2\x8f\xa2".as_slice(), 4),
+        ] {
+            let mut source = format!("# coding: {name}\n").into_bytes();
+            source.extend_from_slice(text);
+            let f = file(&source);
+            assert!(f.encoding.get().is_none());
+            assert_eq!(f.line_col(usize::MAX), (2, col), "{name}: {text:?}");
+            assert!(f.encoding.get().is_some(), "lazy mapping caches metadata");
+            assert_eq!(f.bytes, source);
+        }
+    }
+
+    #[test]
+    fn excludes_leading_utf8_bom_from_columns() {
+        let f = file("\u{feff}éx\n  y\n".as_bytes());
+        for offset in 0..=3 {
+            assert_eq!(f.line_col(offset), (1, 1));
+        }
+        assert_eq!(f.line_col(5), (1, 2));
+        assert_eq!(f.line_col(6), (1, 3));
+        assert_eq!(f.line_col(7), (2, 1));
+        assert_eq!(f.line_col(9), (2, 3));
+        assert_eq!(f.line_col(999), (3, 1));
+        // Raw byte offsets and line contents must remain unchanged.
+        assert_eq!(f.line_start(1), 0);
+        assert_eq!(f.line_start(2), 7);
+        assert_eq!(f.line_text(1), "\u{feff}éx".as_bytes());
+        assert_eq!(file("\u{feff}".as_bytes()).line_col(999), (1, 1));
+    }
+
+    #[test]
+    fn counts_nonleading_bom_as_a_character() {
+        let f = file("x\u{feff}y\n\u{feff}z".as_bytes());
+        assert_eq!(f.line_col(4), (1, 3));
+        assert_eq!(f.line_col(9), (2, 2));
+    }
+
+    #[test]
+    fn excludes_bom_from_invalid_utf8_column_fallback() {
+        let f = file(b"\xef\xbb\xbf\xffx");
+        assert_eq!(f.line_col(4), (1, 2));
+        assert_eq!(f.line_col(5), (1, 3));
+        // An incomplete BOM is ordinary invalid UTF-8, not a signature.
+        assert_eq!(file(b"\xef\xbbx").line_col(3), (1, 4));
+    }
+
+    #[test]
+    fn maps_offsets_to_lines() {
+        let f = file("\u{e9}b\ncd\n".as_bytes());
+        assert_eq!(f.line_of(0), 1);
+        assert_eq!(f.line_of(3), 1);
+        assert_eq!(f.line_of(4), 2);
+        assert_eq!(f.line_of(999), 3);
+        assert_eq!(f.line_start(2), 4);
+        assert_eq!(f.line_start(9), 7);
+    }
+
+    #[test]
+    fn clamps_offsets_past_eof() {
+        let f = file(b"a\n");
+        assert_eq!(f.line_col(999), (2, 1));
+    }
+
+    #[test]
+    fn indexes_comments_lazily() {
+        let f = file(b"a # one\n\"# not a comment\"\n=begin\ndoc\n=end\nb\n");
+        assert_eq!(f.comments().len(), 2);
+        assert!(f.has_comment_in_lines(1..2));
+        assert!(!f.has_comment_in_lines(2..3));
+        // Block comments count on the line they start.
+        assert!(f.has_comment_in_lines(3..4));
+        assert!(!f.has_comment_in_lines(4..7));
+        assert!(!f.has_comment_in_lines(1..1));
+    }
+
+    #[test]
+    fn records_comments_from_an_existing_parse() {
+        let f = file(b"x = 1\n# two\n");
+        let result = ruby_prism::parse(&f.bytes);
+        f.record_comments(&result);
+        assert_eq!(f.comments().len(), 1);
+        assert_eq!(f.comments()[0], 6..11);
+        assert!(f.has_comment_in_lines(2..3));
+        assert!(!f.has_comment_in_lines(1..2));
+    }
+
+    #[test]
+    fn indexes_warnings_lazily() {
+        let f = file(b"p 1\np /a/\n");
+        assert_eq!(f.warnings().len(), 1);
+        assert_eq!(f.warnings()[0].range, 6..7);
+        assert!(f.warnings()[0].message.starts_with("ambiguous `/`"));
+    }
+
+    #[test]
+    fn records_warnings_from_an_existing_parse() {
+        let f = file(b"puts *a\nputs(a * b)\n");
+        let result = ruby_prism::parse(&f.bytes);
+        f.record_warnings(&result);
+        assert_eq!(f.warnings().len(), 1);
+        assert_eq!(f.warnings()[0].range, 5..6);
+        assert!(file(b"puts(*a)\n").warnings().is_empty());
+    }
+
+    #[test]
+    fn finds_the_data_section_lazily() {
+        let f = file(b"x = 1\n__END__\ndata\n");
+        assert_eq!(f.data_start(), Some(6));
+        assert_eq!(f.code_line_count(), 1);
+        // `__END__` inside a heredoc body is text, not the marker.
+        let f = file(b"x = <<~A\n__END__\nA\ny\n");
+        assert_eq!(f.data_start(), None);
+        assert_eq!(f.code_line_count(), 4);
+        assert_eq!(file(b"").code_line_count(), 0);
+    }
+
+    #[test]
+    fn records_the_data_section_from_an_existing_parse() {
+        let f = file(b"# c\n__END__\n");
+        let result = ruby_prism::parse(&f.bytes);
+        f.record_data_start(&result);
+        assert_eq!(f.data_start(), Some(4));
+        assert_eq!(f.code_line_count(), 1);
+        let f = file(b"__END__");
+        f.record_data_start(&ruby_prism::parse(&f.bytes));
+        assert_eq!(f.data_start(), Some(0));
+        assert_eq!(f.code_line_count(), 0);
+    }
+
+    #[test]
+    fn comment_line_ranges_clamp_past_eof() {
+        let f = file(b"# a");
+        assert!(f.has_comment_in_lines(1..99));
+        assert!(!f.has_comment_in_lines(2..99));
+    }
+
+    #[test]
+    fn empty_hash_command_arguments_do_not_rescan_the_full_sibling_list_per_literal() {
+        use crate::cops::{
+            ast::CALL_ARGUMENT_VISITS, run_cops_with_corrections, style::EmptyLiteral,
+        };
+        for count in [1, 100, 1000] {
+            let source = format!("consume {}\n", vec!["Hash.new"; count].join(", "));
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            let mut found = Vec::new();
+            CALL_ARGUMENT_VISITS.set(0);
+            run_cops_with_corrections(&[&EmptyLiteral::default()], &parsed, &f, &mut found, true);
+            assert_eq!(found.len(), count);
+            assert!(
+                CALL_ARGUMENT_VISITS.get() <= count * 64,
+                "{} visits for {count}",
+                CALL_ARGUMENT_VISITS.get()
+            );
+        }
+    }
+
+    #[test]
+    fn empty_constructor_proofs_are_lazy_cached_and_linear_in_main_ast_work() {
+        use crate::cops::{
+            Cop, run_cops_with_corrections,
+            style::{EmptyClassDefinition, EmptyLiteral},
+        };
+        for count in [1, 100, 1000] {
+            for classes in [false, true] {
+                let source = if classes {
+                    (0..count)
+                        .map(|i| format!("FreshError{i} = Class.new(StandardError)\n"))
+                        .collect::<String>()
+                } else {
+                    "Array.new\nHash.new\n".repeat(count)
+                };
+                let f = file(source.as_bytes());
+                let parsed = crate::parser::parse(&f.bytes);
+                let literal = EmptyLiteral::default();
+                let cops: &[&dyn Cop] = if classes {
+                    &[&EmptyClassDefinition]
+                } else {
+                    &[&literal]
+                };
+                let mut found = Vec::new();
+                for fixes in [false, true, true] {
+                    found.clear();
+                    run_cops_with_corrections(cops, &parsed, &f, &mut found, fixes);
+                    assert_eq!(found.len(), count * if classes { 1 } else { 2 });
+                    assert!(found.iter().all(|o| o.correction.is_some() == fixes));
+                    if !fixes {
+                        assert!(f.empty_class_facts.get().is_none());
+                        assert!(f.format_string_facts.get().is_none());
+                        assert!(f.class_method_bindings.get().is_none());
+                    }
+                }
+                if classes {
+                    let facts = f.empty_class_facts.get().unwrap();
+                    assert!(facts.visits <= count + 2);
+                    assert!(std::ptr::eq(facts, f.empty_class_facts(&parsed.node())));
+                } else {
+                    let facts = f.format_string_facts.get().unwrap();
+                    assert!(facts.visits <= count * 4 + 2);
+                    assert!(std::ptr::eq(facts, f.format_string_facts(&parsed.node())));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn end_block_proof_is_lazy_cached_and_linear_across_many_hooks() {
+        use crate::cops::style::EndBlock;
+        for count in [1, 100, 1000] {
+            let source = "END { :work }\n".repeat(count);
+            let f = file(source.as_bytes());
+            let parsed = crate::parser::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            let mut found = Vec::new();
+            for cops in [&[][..], &[&EndBlock as &dyn crate::cops::Cop][..]] {
+                crate::cops::run_cops_with_corrections(cops, &parsed, &f, &mut found, false);
+                assert!(f.end_block_facts.get().is_none());
+                assert!(f.class_method_bindings.get().is_none());
+            }
+            found.clear();
+            crate::cops::run_cops_with_corrections(&[&EndBlock], &parsed, &f, &mut found, true);
+            assert_eq!(found.len(), count);
+            assert!(found.iter().all(|o| o.correction.is_some()));
+            let facts = f.end_block_facts.get().unwrap();
+            assert!(facts.visits <= count * 4 + 2, "{}", facts.visits);
+            assert!(std::ptr::eq(facts, f.end_block_facts(&parsed.node())));
+            found.clear();
+            crate::cops::run_cops_with_corrections(&[&EndBlock], &parsed, &f, &mut found, true);
+            assert!(std::ptr::eq(facts, f.end_block_facts(&parsed.node())));
+        }
+    }
+
+    #[test]
+    fn numbered_class_emitter_siblings_are_lazy_and_cached_across_many_definitions() {
+        use crate::cops::{naming::VariableNumber, run_cops_with_corrections};
+        let ordinary = SourceFile::new("x.rb".into(), b"def self.foo1; end\n".to_vec());
+        let parsed = crate::parser::parse(&ordinary.bytes);
+        let mut found = Vec::new();
+        run_cops_with_corrections(&[&VariableNumber], &parsed, &ordinary, &mut found, false);
+        assert!(ordinary.class_emitter_siblings.get().is_none());
+        let mut source = String::from("class A\n");
+        for i in 0..2000 {
+            source.push_str(&format!("class Foo_{i}; end; def self.Foo_{i}; end\n"));
+        }
+        source.push_str("end\n");
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        assert_eq!(parsed.errors().count(), 0);
+        assert!(file.class_emitter_siblings.get().is_none());
+        run_cops_with_corrections(&[&VariableNumber], &parsed, &file, &mut found, false);
+        assert!(found.is_empty());
+        let pointer = file.class_emitter_siblings.get().unwrap() as *const _;
+        run_cops_with_corrections(&[&VariableNumber], &parsed, &file, &mut found, true);
+        assert!(found.is_empty());
+        assert_eq!(
+            file.class_emitter_siblings.get().unwrap() as *const _,
+            pointer
+        );
+    }
+
+    #[test]
+    fn continuation_index_is_lazy_and_uses_only_main_parse_evidence() {
+        use crate::cops::style::RedundantLineContinuation;
+        for source in [
+            b"foo(1, \\\n 2)\n".as_slice(),
+            b"foo\n",
+            b"'literal \\\n text'\n",
+        ] {
+            let f = file(source);
+            let parsed = crate::parser::parse(&f.bytes);
+            f.record_continuations(&parsed.continuations);
+            f.record_warnings(&parsed);
+            f.record_encoding(&parsed);
+            assert!(f.line_continuations.get().is_none());
+            let mut found = Vec::new();
+            crate::cops::run_cops_with_corrections(&[], &parsed, &f, &mut found, false);
+            assert!(f.line_continuations.get().is_none());
+            crate::cops::run_cops_with_corrections(
+                &[&RedundantLineContinuation],
+                &parsed,
+                &f,
+                &mut found,
+                false,
+            );
+            assert_eq!(found.len(), usize::from(source.starts_with(b"foo(")));
+            assert_eq!(
+                f.line_continuations.get().is_some(),
+                !parsed.continuations.is_empty()
+            );
+            assert!(f.token_ranges.get().is_none());
+            assert!(f.punctuation.get().is_none());
+            assert!(f.literal_ranges.get().is_none());
+            assert!(f.class_method_bindings.get().is_none());
+        }
+    }
+
+    #[test]
+    fn finds_substrings() {
+        let f = file(b"raise Exception\n");
+        assert!(f.contains(b"Exception"));
+        assert!(f.contains(b"raise"));
+        assert!(!f.contains(b"StandardError"));
+        assert!(!file(b"").contains(b"x"));
+    }
+
+    #[test]
+    fn returns_line_text_without_terminator() {
+        let f = file(b"ab\r\n  # c\nlast");
+        assert_eq!(f.line_text(1), b"ab");
+        assert_eq!(f.line_text(2), b"  # c");
+        assert_eq!(f.line_text(3), b"last");
+        assert_eq!(f.line_text(4), b"");
+        assert_eq!(f.line_text(0), b"");
+        assert_eq!(file(b"a\n").line_text(2), b"");
+    }
+
+    #[test]
+    fn counts_lines() {
+        assert_eq!(file(b"").line_count(), 0);
+        assert_eq!(file(b"a").line_count(), 1);
+        assert_eq!(file(b"a\n").line_count(), 1);
+        assert_eq!(file(b"a\nb\n").line_count(), 2);
+        assert_eq!(file(b"a\nb").line_count(), 2);
+    }
+}

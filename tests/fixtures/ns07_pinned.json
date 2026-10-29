@@ -1,0 +1,962 @@
+{
+  "calls": [
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 5,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName does not register an offense when or-assignment-based memoization is used outside a method definition",
+      "source": "@x ||= y\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 16,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable does not match method name registers an offense",
+      "source": "def x\n  @my_var ||= :foo\nend\n",
+      "positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead."
+      ],
+      "unsafe_correction": "def x\n  @x ||= :foo\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 33,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable does not match class method name registers an offense",
+      "source": "def self.x\n  @my_var ||= :foo\nend\n",
+      "positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead."
+      ],
+      "unsafe_correction": "def self.x\n  @x ||= :foo\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 50,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable does not match method name during assignment registers an offense",
+      "source": "foo = def x\n  @y ||= :foo\nend\n",
+      "positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@y` does not match method name `x`. Use `@x` instead."
+      ],
+      "unsafe_correction": "foo = def x\n  @x ||= :foo\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 67,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable does not match method name for block registers an offense",
+      "source": "def x\n  @y ||= begin\n    :foo\n  end\nend\n",
+      "positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@y` does not match method name `x`. Use `@x` instead."
+      ],
+      "unsafe_correction": "def x\n  @x ||= begin\n    :foo\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 88,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable after other code does not match method name registers an offense",
+      "source": "def foo\n  helper_variable = something_we_need_to_calculate_foo\n  @bar ||= calculate_expensive_thing(helper_variable)\nend\n",
+      "positions": [
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@bar` does not match method name `foo`. Use `@foo` instead."
+      ],
+      "unsafe_correction": "def foo\n  helper_variable = something_we_need_to_calculate_foo\n  @foo ||= calculate_expensive_thing(helper_variable)\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 105,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable after other code does not match method name registers an offense for a predicate method",
+      "source": "def foo?\n  helper_variable = something_we_need_to_calculate_foo\n  @bar ||= calculate_expensive_thing(helper_variable)\nend\n",
+      "positions": [
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@bar` does not match method name `foo?`. Use `@foo` instead."
+      ],
+      "unsafe_correction": "def foo?\n  helper_variable = something_we_need_to_calculate_foo\n  @foo ||= calculate_expensive_thing(helper_variable)\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 122,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable after other code does not match method name registers an offense for a bang method",
+      "source": "def foo!\n  helper_variable = something_we_need_to_calculate_foo\n  @bar ||= calculate_expensive_thing(helper_variable)\nend\n",
+      "positions": [
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@bar` does not match method name `foo!`. Use `@foo` instead."
+      ],
+      "unsafe_correction": "def foo!\n  helper_variable = something_we_need_to_calculate_foo\n  @foo ||= calculate_expensive_thing(helper_variable)\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 139,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable after other code does not match method name registers an offense for a assignment method",
+      "source": "def foo=(bar)\n  helper_variable = something_we_need_to_calculate(foo)\n  @bar ||= calculate_expensive_thing(helper_variable)\nend\n",
+      "positions": [
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@bar` does not match method name `foo=`. Use `@foo` instead."
+      ],
+      "unsafe_correction": "def foo=(bar)\n  helper_variable = something_we_need_to_calculate(foo)\n  @foo ||= calculate_expensive_thing(helper_variable)\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 158,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name does not register an offense",
+      "source": "def x\n  @x ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 166,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name does not register an offense when method has leading `_`",
+      "source": "def _foo\n  @foo ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 174,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name does not register an offense with a leading `_` for both names",
+      "source": "def _foo\n  @_foo ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 183,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name memoized variable matches method name during assignment does not register an offense",
+      "source": "foo = def y\n  @y ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 193,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name memoized variable matches method name for block does not register an offense",
+      "source": "def z\n  @z ||= begin\n    :foo\n  end\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 205,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name non-memoized variable does not match method name does not register an offense",
+      "source": "def a\n  x ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 215,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name memoized variable matches predicate method name does not register an offense",
+      "source": "def a?\n  @a ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 225,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name memoized variable matches bang method name does not register an offense",
+      "source": "def a!\n  @a ||= :foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 235,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name method name is an operator that cannot form a valid ivar name does not register an offense (avoids suggesting an invalid `@[]`)",
+      "source": "def []\n  @foo ||= 1\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 243,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name method name is an operator that cannot form a valid ivar name does not register an offense for a binary operator method",
+      "source": "def +(other)\n  @foo ||= other\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 253,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name code follows memoized variable assignment does not register an offense",
+      "source": "def a\n  @b ||= :foo\n  call_something_else\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 263,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name code follows memoized variable assignment memoized variable after other code does not register an offense",
+      "source": "def foo\n  helper_variable = something_we_need_to_calculate_foo\n  @foo ||= calculate_expensive_thing(helper_variable)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 274,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name code follows memoized variable assignment instance variables in initialize methods does not register an offense",
+      "source": "def initialize\n  @files_with_offenses ||= {}\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 284,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name code follows memoized variable assignment instance variables in `initialize_clone` method does not register an offense",
+      "source": "def initialize_clone(obj)\n  @files_with_offenses ||= {}\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 294,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name code follows memoized variable assignment instance variables in `initialize_copy` method does not register an offense",
+      "source": "def initialize_copy(obj)\n  @files_with_offenses ||= {}\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 304,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used memoized variable matches method name code follows memoized variable assignment instance variables in `initialize_dup` method does not register an offense",
+      "source": "def initialize_dup(obj)\n  @files_with_offenses ||= {}\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 317,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used with dynamically defined methods when the variable name matches the method name does not register an offense",
+      "source": "define_method(:values) do\n  @values ||= do_something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 327,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used with dynamically defined methods when the variable name does not match the method name registers an offense",
+      "source": "define_method(:values) do\n  @foo ||= do_something\nend\n",
+      "positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead."
+      ],
+      "unsafe_correction": "define_method(:values) do\n  @values ||= do_something\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 345,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    @values ||= do_something\n  end\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 357,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    @foo ||= do_something\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          5
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead."
+      ],
+      "unsafe_correction": "def self.inherited(klass)\n  klass.define_method(:values) do\n    @values ||= do_something\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 380,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    @values ||= do_something\n  end\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 392,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when or-assignment-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    @foo ||= do_something\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          5
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead."
+      ],
+      "unsafe_correction": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    @values ||= do_something\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 416,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used registers an offense when memoized variable does not match method name",
+      "source": "def x\n  return @my_var if defined?(@my_var)\n  @my_var = false\nend\n",
+      "positions": [
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead.",
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead.",
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead."
+      ],
+      "unsafe_correction": "def x\n  return @x if defined?(@x)\n  @x = false\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 435,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used registers an offense when memoized variable does not match class method name",
+      "source": "def self.x\n  return @my_var if defined?(@my_var)\n  @my_var = false\nend\n",
+      "positions": [
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead.",
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead.",
+        "Memoized variable `@my_var` does not match method name `x`. Use `@x` instead."
+      ],
+      "unsafe_correction": "def self.x\n  return @x if defined?(@x)\n  @x = false\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 512,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used does not register an offense when some code before defined",
+      "source": "def x\n  do_something\n  return @x if defined?(@x)\n  @x = false\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 522,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used does not register an offense when some code after assignment",
+      "source": "def x\n  return @x if defined?(@x)\n  @x = false\n  do_something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 532,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used does not register an offense when there is no assignment",
+      "source": "def x\n  return @x if defined?(@x)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 455,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used memoized variable matches method name does not register an offense",
+      "source": "def x\n  return @x if defined?(@x)\n  @x = false\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 464,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used memoized variable matches method name does not register an offense when method has leading `_`",
+      "source": "def _foo\n  return @foo if defined?(@foo)\n  @foo = false\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 473,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used memoized variable matches method name does not register an offense with a leading `_` for both names",
+      "source": "def _foo\n  return @_foo if defined?(@_foo)\n  @_foo = false\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 493,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used memoized variable matches method name does not register an offense when memoized variable matches predicate method name",
+      "source": "def a?\n  return @a if defined?(@a)\n  @a = false\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 502,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used memoized variable matches method name does not register an offense when memoized variable matches bang method name",
+      "source": "def a!\n  return @a if defined?(@a)\n  @a = false\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 483,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used memoized variable matches method name non-memoized variable does not match method name does not register an offense",
+      "source": "def a\n  return x if defined?(x)\n  x = 1\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 542,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used with dynamically defined methods when the variable name matches the method name does not register an offense",
+      "source": "define_method(:values) do\n  return @values if defined?(@values)\n  @values = do_something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 553,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used with dynamically defined methods when the variable name does not match the method name registers an offense",
+      "source": "define_method(:values) do\n  return @foo if defined?(@foo)\n  @foo = do_something\nend\n",
+      "positions": [
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          27
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead.",
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead.",
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead."
+      ],
+      "unsafe_correction": "define_method(:values) do\n  return @values if defined?(@values)\n  @values = do_something\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 575,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    return @values if defined?(@values)\n    @values = do_something\n  end\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 588,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    return @foo if defined?(@foo)\n    @foo = do_something\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          12
+        ],
+        [
+          3,
+          29
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead.",
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead.",
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead."
+      ],
+      "unsafe_correction": "def self.inherited(klass)\n  klass.define_method(:values) do\n    return @values if defined?(@values)\n    @values = do_something\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 615,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    return @values if defined?(@values)\n    @values = do_something\n  end\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "unsafe_correction": null
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 628,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName with default EnforcedStyleForLeadingUnderscores => disallowed when defined?-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    return @foo if defined?(@foo)\n    @foo = do_something\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          12
+        ],
+        [
+          3,
+          29
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "messages": [
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead.",
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead.",
+        "Memoized variable `@foo` does not match method name `values`. Use `@values` instead."
+      ],
+      "unsafe_correction": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    return @values if defined?(@values)\n    @values = do_something\n  end\nend\n"
+    }
+  ],
+  "excluded": [
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 660,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used registers an offense when names match but missing a leading _",
+      "source": "def foo\n  @foo ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 675,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used registers an offense when it has leading `_` but names do not match",
+      "source": "def foo\n  @_my_var ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 690,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used does not register an offense with a leading `_` for both names",
+      "source": "def _foo\n  @_foo ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 700,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used with dynamically defined methods when the variable name matches the method name does not register an offense",
+      "source": "define_method(:values) do\n  @_values ||= do_something\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 710,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used with dynamically defined methods when the variable name does not match the method name registers an offense",
+      "source": "define_method(:values) do\n  @foo ||= do_something\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 728,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    @_values ||= do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 740,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    @foo ||= do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 763,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    @_values ||= do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 775,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when or-assignment-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    @foo ||= do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 799,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used registers an offense when names match but missing a leading _",
+      "source": "def foo\n  return @foo if defined?(@foo)\n  @foo = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 818,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used registers an offense when it has leading `_` but names do not match",
+      "source": "def foo\n  return @_my_var if defined?(@_my_var)\n  @_my_var = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 837,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used does not register an offense with a leading `_` for both names",
+      "source": "def _foo\n  return @_foo if defined?(@_foo)\n  @_foo = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 848,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used with dynamically defined methods when the variable name matches the method name does not register an offense",
+      "source": "define_method(:values) do\n  return @_values if defined?(@_values)\n  @_values = do_something\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 859,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used with dynamically defined methods when the variable name does not match the method name registers an offense",
+      "source": "define_method(:values) do\n  return @foo if defined?(@foo)\n  @foo = do_something\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 881,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    return @_values if defined?(@_values)\n    @_values = do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 894,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used with dynamically defined methods when a method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_method(:values) do\n    return @foo if defined?(@foo)\n    @foo = do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 921,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method matches does not register an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    return @_values if defined?(@_values)\n    @_values = do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 934,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: required when defined?-based memoization is used with dynamically defined methods when a singleton method is defined inside a module callback when the method does not match registers an offense",
+      "source": "def self.inherited(klass)\n  klass.define_singleton_method(:values) do\n    return @foo if defined?(@foo)\n    @foo = do_something\n  end\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"required\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 967,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used memoized variable matches method name does not register an offense with a leading underscore",
+      "source": "def x\n  @_x ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 975,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used memoized variable matches method name does not register an offense without a leading underscore",
+      "source": "def x\n  @x ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 983,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used memoized variable matches method name does not register an offense with a leading `_` for both names",
+      "source": "def _x\n  @_x ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 991,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used memoized variable matches method name does not register an offense with a leading `_` for method name",
+      "source": "def _x\n  @x ||= :foo\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 1002,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used when defined?-based memoization is used memoized variable matches method name does not register an offense with a leading underscore",
+      "source": "def x\n  return @_x if defined?(@_x)\n  @_x = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 1011,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used when defined?-based memoization is used memoized variable matches method name does not register an offense without a leading underscore",
+      "source": "def x\n  return @x if defined?(@x)\n  @x = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 1020,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used when defined?-based memoization is used memoized variable matches method name does not register an offense with a leading `_` for both names",
+      "source": "def _x\n  return @_x if defined?(@_x)\n  @_x = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    },
+    {
+      "cop": "Naming/MemoizedInstanceVariableName",
+      "spec_line": 1029,
+      "description": "RuboCop::Cop::Naming::MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores: optional when or-assignment-based memoization is used when defined?-based memoization is used memoized variable matches method name does not register an offense with a leading `_` for method name",
+      "source": "def _x\n  return @x if defined?(@x)\n  @x = false\nend\n",
+      "reason": [
+        "Naming/MemoizedInstanceVariableName EnforcedStyleForLeadingUnderscores=\"optional\""
+      ]
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+[
+  {
+    "spec_line": 6,
+    "source": "{\n  result: run\n} if cond\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  {\n    result: run\n  }\nend\n"
+  },
+  {
+    "spec_line": 23,
+    "source": "run if cond\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 29,
+    "source": "run if cond &&\n       cond2\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 36,
+    "source": "  {\n    result: run\n  } if cond\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "  if cond\n    {\n      result: run\n    }\n  end\n"
+  },
+  {
+    "spec_line": 53,
+    "source": "[\n] if inner if outer\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if outer\n  if inner\n    [\n    ]\n  end\nend\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "items.each { |item|\n  foo(item, <<~EOS) } if cond\n  text\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  items.each { |item|\n    foo(item, <<~EOS) }\n  text\nEOS\nend\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "foo(bar,\n    baz) if cond?(<<~EOS)\n  text\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond?(<<~EOS)\n  text\nEOS\n  foo(bar,\n      baz)\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "foo(bar,\n    <<~A, <<~B) if cond\n  #{baz(<<~C)}\n    c\n  C\nA\n  b\nB\nqux\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  foo(bar,\n      <<~A, <<~B)\n  #{baz(<<~C)}\n    c\n  C\nA\n  b\nB\nend\nqux\n"
+  },
+  {
+    "spec_line": 137,
+    "source": "items.each do |item|\n  foo(item, <<-EOS)\n  text\n  EOS\nend if cond\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  items.each do |item|\n    foo(item, <<-EOS)\n  text\n  EOS\n  end\nend\n"
+  },
+  {
+    "spec_line": 158,
+    "source": "items.each do |item|\n  foo(item, <<EOS)\n  text\nEOS\nend if cond\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  items.each do |item|\n    foo(item, <<EOS)\n  text\nEOS\n  end\nend\n"
+  },
+  {
+    "spec_line": 179,
+    "source": "items.each do |item|\n  foo(item, <<~EOS)\n    text\n  EOS\nend if cond\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  items.each do |item|\n    foo(item, <<~EOS)\n      text\n    EOS\n  end\nend\n"
+  },
+  {
+    "spec_line": 200,
+    "source": "items.each do |item|\n  foo(item, \"a\n  b\", %q(c\n  d))\nend if cond\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal if-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "if cond\n  items.each do |item|\n    foo(item, \"a\n  b\", %q(c\n  d))\n  end\nend\n"
+  },
+  {
+    "spec_line": 223,
+    "source": "{\n  result: run\n} unless cond\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal unless-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "unless cond\n  {\n    result: run\n  }\nend\n"
+  },
+  {
+    "spec_line": 240,
+    "source": "run unless cond\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 246,
+    "source": "run unless cond &&\n           cond2\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 253,
+    "source": "  {\n    result: run\n  } unless cond\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor a normal unless-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "  unless cond\n    {\n      result: run\n    }\n  end\n"
+  },
+  {
+    "spec_line": 270,
+    "source": "[\n] unless inner unless outer\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor a normal unless-statement over a modifier clause in a multiline statement."
+    ],
+    "correction": "unless outer\n  unless inner\n    [\n    ]\n  end\nend\n"
+  }
+]

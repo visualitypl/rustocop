@@ -1,0 +1,52 @@
+[
+  {
+    "spec_line": 5,
+    "source": "case a\nwhen b; c\nend\n",
+    "positions": [
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Do not use `when b;`. Use `when b then` instead."
+    ],
+    "correction": "case a\nwhen b then c\nend\n"
+  },
+  {
+    "spec_line": 20,
+    "source": "case a\nwhen b, c; d\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Do not use `when b, c;`. Use `when b, c then` instead."
+    ],
+    "correction": "case a\nwhen b, c then d\nend\n"
+  },
+  {
+    "spec_line": 35,
+    "source": "case a\nwhen b then c; d\nend\n\ncase e\nwhen f\n  g; h\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 50,
+    "source": "case value\nwhen cond1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

@@ -1,0 +1,389 @@
+//! Shared accessor sibling matching and lazy, closed-source correction proof.
+use crate::{
+    cops::{
+        ast,
+        walk::{NodeVisitor, walk},
+    },
+    offense::Correction,
+    source::SourceFile,
+};
+use ruby_prism::{CallNode, Node};
+use std::collections::HashSet;
+
+pub(super) fn children<'pr>(node: &Node<'pr>) -> Option<Vec<Node<'pr>>> {
+    let body = if let Some(class) = node.as_class_node() {
+        class.body()
+    } else if let Some(module) = node.as_module_node() {
+        module.body()
+    } else {
+        node.as_singleton_class_node()?.body()
+    };
+    if let Some(statements) = body.as_ref().and_then(Node::as_statements_node)
+        && statements.body().len() == 1
+        && let Some(begin) = statements
+            .body()
+            .iter()
+            .next()
+            .and_then(|n| n.as_begin_node())
+        && begin.rescue_clause().is_none()
+        && begin.ensure_clause().is_none()
+    {
+        return Some(
+            begin
+                .statements()
+                .map(|s| s.body().iter().collect())
+                .unwrap_or_default(),
+        );
+    }
+    if let Some(statements) = body.as_ref().and_then(Node::as_statements_node)
+        && statements.body().len() == 1
+        && let Some(only) = statements.body().first()
+    {
+        // A sole logical expression is the reference class body itself, not
+        // a begin/statement list. Its immediate operands are the sibling sends
+        // selected by each_child_node(:send). Do not flatten nested operators
+        // or expressions beside other statements: those have different parents.
+        if let Some(and) = only.as_and_node() {
+            return Some(vec![and.left(), and.right()]);
+        }
+        if let Some(or) = only.as_or_node() {
+            return Some(vec![or.left(), or.right()]);
+        }
+    }
+    Some(super::module_function::body_elements(body))
+}
+pub(super) fn literal_block(call: &CallNode<'_>) -> bool {
+    call.block().is_some_and(|b| b.as_block_node().is_some())
+}
+pub(super) fn family(call: &CallNode<'_>) -> bool {
+    call.receiver().is_none()
+        && !literal_block(call)
+        && matches!(
+            call.name().as_slice(),
+            b"attr" | b"attr_reader" | b"attr_writer" | b"attr_accessor"
+        )
+        && !ast::call_arguments(call).is_empty()
+}
+pub(super) fn visibility<'pr>(call: &CallNode<'pr>) -> Option<&'pr [u8]> {
+    (call.receiver().is_none()
+        && !literal_block(call)
+        && ast::call_arguments(call).is_empty()
+        && matches!(
+            call.name().as_slice(),
+            b"private" | b"protected" | b"public"
+        ))
+    .then(|| call.name().as_slice())
+}
+pub(super) fn groupable(child: &Node<'_>, previous: Option<&Node<'_>>, file: &SourceFile) -> bool {
+    let line = file.line_of(child.location().start_offset());
+    let annotations = file.accessor_annotations();
+    if line > 1 && annotations.comment_lines.contains(&(line - 1)) {
+        return false;
+    }
+    let Some(previous_node) = previous else {
+        return true;
+    };
+    let first_line = file.line_of(previous_node.location().start_offset());
+    // Parser represents an arrow lambda as a block with a synthetic `lambda`
+    // send whose range is just `->`, not the parameters or literal body.
+    if previous_node.as_lambda_node().is_some() {
+        return !annotations.rbs_lines.contains(&first_line) && line > first_line + 1;
+    }
+    let Some(previous) = previous_node
+        .as_call_node()
+        .filter(|c| !c.is_safe_navigation())
+    else {
+        return true;
+    };
+    let prev_line = file.line_of(ast::source_end(previous_node).saturating_sub(1));
+    if annotations.rbs_lines.contains(&first_line) {
+        return false;
+    }
+    (previous.receiver().is_none()
+        && matches!(
+            previous.name().as_slice(),
+            b"attr" | b"attr_reader" | b"attr_writer" | b"attr_accessor"
+        )
+        && !ast::call_arguments(&previous).is_empty())
+        || (previous.receiver().is_none()
+            && matches!(
+                previous.name().as_slice(),
+                b"public" | b"private" | b"protected" | b"module_function"
+            ))
+        || line > prev_line + 1
+}
+
+/// Physical comment-only lines (including text in literals, as upstream does)
+/// and actual RBS annotation starts. Cache once: many siblings can share a very
+/// long preceding physical line, so trimming/scanning it per accessor is unbounded.
+#[derive(Default)]
+pub(crate) struct Annotations {
+    comment_lines: HashSet<u32>,
+    rbs_lines: HashSet<u32>,
+    #[cfg(test)]
+    pub(crate) visited_lines: usize,
+}
+impl Annotations {
+    pub(crate) fn build(file: &SourceFile) -> Self {
+        let mut result = Self::default();
+        for line in 1..=file.code_line_count() as u32 {
+            #[cfg(test)]
+            {
+                result.visited_lines += 1;
+            }
+            let text = file.line_text(line);
+            let start = text
+                .iter()
+                .position(|b| !super::is_ruby_whitespace(*b))
+                .unwrap_or(text.len());
+            if text[start..].starts_with(b"#") {
+                result.comment_lines.insert(line);
+            }
+        }
+        for comment in file.comments() {
+            if file.bytes[comment.clone()].starts_with(b"#:") {
+                result.rbs_lines.insert(file.line_of(comment.start));
+            }
+        }
+        result
+    }
+}
+
+#[derive(Default)]
+pub(crate) struct CustomAttrs {
+    scopes: HashSet<usize>,
+    #[cfg(test)]
+    pub(crate) visited: usize,
+}
+impl CustomAttrs {
+    pub(crate) fn build(root: &Node<'_>) -> Self {
+        let mut index = Self::default();
+        struct Visitor<'a> {
+            index: &'a mut CustomAttrs,
+            scopes: Vec<usize>,
+            stack: Vec<bool>,
+        }
+        impl<'pr> NodeVisitor<'pr> for Visitor<'_> {
+            fn enter(&mut self, node: Node<'pr>) {
+                self.stack.push(matches!(
+                    node,
+                    Node::ClassNode { .. } | Node::BlockNode { .. } | Node::LambdaNode { .. }
+                ));
+                #[cfg(test)]
+                {
+                    self.index.visited += 1;
+                }
+                if matches!(
+                    node,
+                    Node::ClassNode { .. } | Node::BlockNode { .. } | Node::LambdaNode { .. }
+                ) {
+                    self.scopes.push(node.location().start_offset());
+                }
+                if node
+                    .as_def_node()
+                    .is_some_and(|d| d.receiver().is_none() && d.name().as_slice() == b"attr")
+                {
+                    self.index.scopes.extend(self.scopes.iter().copied());
+                }
+            }
+            fn leave(&mut self) {
+                if self.stack.pop() == Some(true) {
+                    self.scopes.pop();
+                }
+            }
+        }
+        walk(
+            &mut Visitor {
+                index: &mut index,
+                scopes: Vec::new(),
+                stack: Vec::new(),
+            },
+            root,
+        );
+        index
+    }
+    pub(super) fn contains(&self, node: &Node<'_>) -> bool {
+        self.scopes.contains(&node.location().start_offset())
+    }
+}
+
+/// Only a whole, closed file of fresh root declarations, literal valid attr
+/// names, bare visibility and `class << self`. No calls, superclass hooks,
+/// observers, overrides, reopening, control flow or consumed declaration values.
+/// External preloads/monkey patches are outside the source-only proof boundary.
+#[derive(Default)]
+pub(crate) struct Bindings {
+    proven: HashSet<usize>,
+    #[cfg(test)]
+    pub(crate) visited: usize,
+}
+impl Bindings {
+    pub(crate) fn build(root: &Node<'_>) -> Self {
+        let mut result = Self::default();
+        let Some(program) = root.as_program_node() else {
+            return result;
+        };
+        let mut names = HashSet::new();
+        for node in program.statements().body().iter() {
+            #[cfg(test)]
+            {
+                result.visited += 1;
+            }
+            let (path, body) = if let Some(class) = node.as_class_node() {
+                if class.superclass().is_some() {
+                    return Self::default();
+                }
+                (class.constant_path(), class.body())
+            } else if let Some(module) = node.as_module_node() {
+                (module.constant_path(), module.body())
+            } else {
+                return Self::default();
+            };
+            let Some(name) = path.as_constant_read_node() else {
+                return Self::default();
+            };
+            if super::mixin_grouping::core_namespace(name.name().as_slice())
+                || !names.insert(name.name().as_slice().to_vec())
+                || !result.body(body, 0, &mut Vec::new())
+            {
+                return Self::default();
+            }
+        }
+        result
+    }
+    fn body(
+        &mut self,
+        body: Option<Node<'_>>,
+        depth: usize,
+        defined: &mut Vec<HashSet<(Vec<u8>, bool)>>,
+    ) -> bool {
+        if defined.len() <= depth {
+            defined.push(HashSet::new());
+        }
+        let Some(body) = body else {
+            return true;
+        };
+        let Some(statements) = body.as_statements_node() else {
+            return false;
+        };
+        for child in statements.body().iter() {
+            #[cfg(test)]
+            {
+                self.visited += 1;
+            }
+            if let Some(class) = child.as_singleton_class_node() {
+                if class.expression().as_self_node().is_none()
+                    || !self.body(class.body(), depth + 1, defined)
+                {
+                    return false;
+                }
+                continue;
+            }
+            let Some(call) = child.as_call_node() else {
+                return false;
+            };
+            if visibility(&call).is_some() {
+                continue;
+            }
+            if !family(&call)
+                || call.block().is_some()
+                || !ast::call_arguments(&call).iter().all(valid_name)
+            {
+                return false;
+            }
+            // Repeated methods emit observable redefinition warnings under -w.
+            // Track decoded getter/setter identities, including repeated openings
+            // of the same eigenclass, rather than just argument source spellings.
+            for arg in ast::call_arguments(&call) {
+                let name = arg.as_symbol_node().unwrap().unescaped().to_vec();
+                if call.name().as_slice() != b"attr_writer"
+                    && !defined[depth].insert((name.clone(), false))
+                {
+                    return false;
+                }
+                if matches!(call.name().as_slice(), b"attr_writer" | b"attr_accessor")
+                    && !defined[depth].insert((name, true))
+                {
+                    return false;
+                }
+            }
+            self.proven.insert(child.location().start_offset());
+        }
+        true
+    }
+    pub(super) fn contains(&self, node: &Node<'_>) -> bool {
+        self.proven.contains(&node.location().start_offset())
+    }
+}
+fn valid_name(node: &Node<'_>) -> bool {
+    let Some(symbol) = node.as_symbol_node() else {
+        return false;
+    };
+    let name = symbol.unescaped();
+    // Inside an eigenclass these generated readers can shadow later macro
+    // dispatch or install callbacks on an enclosing class. Do not prove them.
+    if matches!(
+        name,
+        b"method_added"
+            | b"singleton_method_added"
+            | b"attr"
+            | b"attr_reader"
+            | b"attr_writer"
+            | b"attr_accessor"
+            | b"private"
+            | b"protected"
+            | b"public"
+    ) {
+        return false;
+    }
+    !name.is_empty()
+        && (name[0].is_ascii_alphabetic() || name[0] == b'_')
+        && name.iter().all(|b| b.is_ascii_alphanumeric() || *b == b'_')
+}
+/// Whole-line atomic rewrites never detach docs/comments, normalize encodings,
+/// touch inline siblings/directives, or change a later explicit __LINE__.
+pub(super) fn rewrite(file: &SourceFile, nodes: &[&Node<'_>], text: &str) -> Option<Correction> {
+    let first = nodes.first()?.location();
+    let last = nodes.last()?.location();
+    let start_line = file.line_of(first.start_offset());
+    let last_end = last.end_offset();
+    let end_line = file.last_line_of(last);
+    if start_line > 1
+        && file
+            .accessor_annotations()
+            .comment_lines
+            .contains(&(start_line - 1))
+    {
+        return None;
+    }
+    let start = file.line_start(start_line);
+    let end = file.line_start(end_line + 1);
+    let indent = &file.bytes[start..first.start_offset()];
+    if !indent.iter().all(|b| matches!(b, b' ' | b'\t')) {
+        return None;
+    }
+    let tail = &file.bytes[last_end..end];
+    if !tail.iter().all(u8::is_ascii_whitespace)
+        || super::correction::touches_directive(file, start..end)
+    {
+        return None;
+    }
+    let comments = file.comments();
+    let first_comment = comments.partition_point(|c| c.end <= start);
+    if comments.get(first_comment).is_some_and(|c| c.start < end) {
+        return None;
+    }
+    let newline = if tail.ends_with(b"\r\n") {
+        "\r\n"
+    } else if tail.ends_with(b"\n") {
+        "\n"
+    } else {
+        ""
+    };
+    let indent = std::str::from_utf8(indent).ok()?;
+    let correction = Correction {
+        range: start..end,
+        replacement: format!("{indent}{text}{newline}"),
+    };
+    super::correction::preserves_line_values(file, &correction).then_some(correction)
+}

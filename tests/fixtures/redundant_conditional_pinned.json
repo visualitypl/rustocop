@@ -1,0 +1,147 @@
+[
+  {
+    "spec_line": 5,
+    "source": "x == y ? true : false\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by `x == y`."
+    ],
+    "correction": "x == y\n"
+  },
+  {
+    "spec_line": 16,
+    "source": "x == y ? false : true\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by `!(x == y)`."
+    ],
+    "correction": "!(x == y)\n"
+  },
+  {
+    "spec_line": 27,
+    "source": "x == y ? 1 : 10",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 31,
+    "source": "if x == y\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by `x == y`."
+    ],
+    "correction": "x == y\n"
+  },
+  {
+    "spec_line": 46,
+    "source": "if x == y\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by `!(x == y)`."
+    ],
+    "correction": "!(x == y)\n"
+  },
+  {
+    "spec_line": 61,
+    "source": "unless x == y\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by `!(x == y)`."
+    ],
+    "correction": "!(x == y)\n"
+  },
+  {
+    "spec_line": 76,
+    "source": "unless x == y\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by `x == y`."
+    ],
+    "correction": "x == y\n"
+  },
+  {
+    "spec_line": 91,
+    "source": "if cond\n  false\nelsif x == y\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by [...]"
+    ],
+    "correction": "if cond\n  false\nelse\n  x == y\nend\n"
+  },
+  {
+    "spec_line": 112,
+    "source": "if cond\n  false\nelsif x == y\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "This conditional expression can just be replaced by [...]"
+    ],
+    "correction": "if cond\n  false\nelse\n  !(x == y)\nend\n"
+  },
+  {
+    "spec_line": 133,
+    "source": "if x == y\n  1\nelse\n  2\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 143,
+    "source": "if cond\n  1\nelsif x == y\n  2\nelse\n  3\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

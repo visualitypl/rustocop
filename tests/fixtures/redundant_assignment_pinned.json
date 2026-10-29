@@ -1,0 +1,175 @@
+[
+  {
+    "spec_line": 5,
+    "source": "def func\n  some_preceding_statements\n  x = something\n  x\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected."
+    ],
+    "correction": "def func\n  some_preceding_statements\n  something\n  \nend\n"
+  },
+  {
+    "spec_line": 83,
+    "source": "def func\n  1\n  x = 2\n  x\nensure\n  3\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 171,
+    "source": "def func\n  case x\n  when y then 1\n  when z # do nothing\n  else\n    3\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 224,
+    "source": "def func\n  case x\n  in y then 1\n  in z # do nothing\n  else\n    3\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 237,
+    "source": "def func\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 244,
+    "source": "def func\n  if x\n  elsif y\n  else\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 255,
+    "source": "def func\n  some_preceding_statements\n  x = something\n  # something important about x\n  x\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 25,
+    "source": "def func\n  some_preceding_statements\n  begin\n    x = something\n    x\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected."
+    ],
+    "correction": "def func\n  some_preceding_statements\n  begin\n    something\n    \n  end\nend\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "def func\n  1\n  x = 2\n  x\nrescue SomeException\n  3\n  x = 4\n  x\nrescue AnotherException\n  5\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        7,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected.",
+      "Redundant assignment before returning detected."
+    ],
+    "correction": "def func\n  1\n  2\n  \nrescue SomeException\n  3\n  4\n  \nrescue AnotherException\n  5\nend\n"
+  },
+  {
+    "spec_line": 96,
+    "source": "def func\n  some_preceding_statements\n  if x\n    z = 1\n    z\n  elsif y\n    2\n  else\n    z = 3\n    z\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        5
+      ],
+      [
+        9,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected.",
+      "Redundant assignment before returning detected."
+    ],
+    "correction": "def func\n  some_preceding_statements\n  if x\n    1\n    \n  elsif y\n    2\n  else\n    3\n    \n  end\nend\n"
+  },
+  {
+    "spec_line": 132,
+    "source": "def func\n  some_preceding_statements\n  case x\n  when y\n    res = 1\n    res\n  when z\n    2\n  when q\n  else\n    res = 3\n    res\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ],
+      [
+        11,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected.",
+      "Redundant assignment before returning detected."
+    ],
+    "correction": "def func\n  some_preceding_statements\n  case x\n  when y\n    1\n    \n  when z\n    2\n  when q\n  else\n    3\n    \n  end\nend\n"
+  },
+  {
+    "spec_line": 185,
+    "source": "def func\n  some_preceding_statements\n  case x\n  in y\n    res = 1\n    res\n  in z\n    2\n  in q\n  else\n    res = 3\n    res\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ],
+      [
+        11,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant assignment before returning detected.",
+      "Redundant assignment before returning detected."
+    ],
+    "correction": "def func\n  some_preceding_statements\n  case x\n  in y\n    1\n    \n  in z\n    2\n  in q\n  else\n    3\n    \n  end\nend\n"
+  }
+]

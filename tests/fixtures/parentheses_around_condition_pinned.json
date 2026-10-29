@@ -1,0 +1,349 @@
+[
+  {
+    "spec_line": 7,
+    "source": "if (x > 10)\nelsif (x < 3)\nend\nunless (x > 10)\nend\nwhile (x > 10)\nend\nuntil (x > 10)\nend\nx += 1 if (x < 10)\nx += 1 unless (x < 10)\nx += 1 until (x < 10)\nx += 1 while (x < 10)\n",
+    "positions": [
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        11,
+        15
+      ],
+      [
+        12,
+        14
+      ],
+      [
+        13,
+        14
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of an `if`.",
+      "Don't use parentheses around the condition of an `elsif`.",
+      "Don't use parentheses around the condition of an `unless`.",
+      "Don't use parentheses around the condition of a `while`.",
+      "Don't use parentheses around the condition of an `until`.",
+      "Don't use parentheses around the condition of an `if`.",
+      "Don't use parentheses around the condition of an `unless`.",
+      "Don't use parentheses around the condition of an `until`.",
+      "Don't use parentheses around the condition of a `while`."
+    ],
+    "correction": "if x > 10\nelsif x < 3\nend\nunless x > 10\nend\nwhile x > 10\nend\nuntil x > 10\nend\nx += 1 if x < 10\nx += 1 unless x < 10\nx += 1 until x < 10\nx += 1 while x < 10\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "if(x > 5) then something end\ndo_something until(x > 5)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 57,
+    "source": "(a == 0) ? b : a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "(a > b) && other ? one : two",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 65,
+    "source": "if (a + b).c()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 73,
+    "source": "if (something rescue top)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 73,
+    "source": "if (something if top)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 73,
+    "source": "if (something unless top)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 73,
+    "source": "if (something while top)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 73,
+    "source": "if (something until top)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 81,
+    "source": "x if (a ? b : c)\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of an `if`."
+    ],
+    "correction": "x if a ? b : c\n"
+  },
+  {
+    "spec_line": 92,
+    "source": "if ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 99,
+    "source": "unless ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 106,
+    "source": "while (foo do\n      end)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 114,
+    "source": "until (foo do\n      end)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 122,
+    "source": "while (foo do\n        _1\n      end)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 131,
+    "source": "until (foo do\n        _1\n      end)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 140,
+    "source": "while (foo {\n      })\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of a `while`."
+    ],
+    "correction": "while foo {\n      }\nend\n"
+  },
+  {
+    "spec_line": 155,
+    "source": "until (foo {\n      })\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of an `until`."
+    ],
+    "correction": "until foo {\n      }\nend\n"
+  },
+  {
+    "spec_line": 170,
+    "source": "if (foo do\n   end)\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of an `if`."
+    ],
+    "correction": "if foo do\n   end\nend\n"
+  },
+  {
+    "spec_line": 185,
+    "source": "if (foo {\n   })\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of an `if`."
+    ],
+    "correction": "if foo {\n   }\nend\n"
+  },
+  {
+    "spec_line": 200,
+    "source": "if (foo; bar)\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "if (test = 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 216,
+    "source": "if (test[0] = 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 223,
+    "source": "if (self.test = 10)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 323,
+    "source": "if (\n  x > 3 &&\n  x < 10\n)\n  return true\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Don't use parentheses around the condition of an `if`."
+    ],
+    "correction": "if x > 3 &&\n  x < 10\n  return true\nend\n"
+  }
+]

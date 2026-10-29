@@ -1,0 +1,328 @@
+[
+  {
+    "spec_line": 6,
+    "source": "foo = foo ? foo : 'default'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "@foo = @foo ? @foo : 'default'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "@@foo = @@foo ? @@foo : 'default'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "$foo = $foo ? $foo : 'default'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "$foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "foo = bar ? foo : 3",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 51,
+    "source": "foo = foo ? bar : 3",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 57,
+    "source": "foo = if foo\n        foo\n      else\n        'default'\n      end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@foo = if @foo\n         @foo\n       else\n         'default'\n       end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 87,
+    "source": "@@foo = if @@foo\n          @@foo\n        else\n          'default'\n        end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 102,
+    "source": "$foo = if $foo\n         $foo\n       else\n         'default'\n       end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "$foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "foo = if foo\n        bar\n      else\n        3\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 124,
+    "source": "foo = if bar\n        foo\n      else\n        3\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 136,
+    "source": "foo = 'default' unless foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 147,
+    "source": "@foo = 'default' unless @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 158,
+    "source": "@@foo = 'default' unless @@foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 169,
+    "source": "$foo = 'default' unless $foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "$foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 180,
+    "source": "foo = 3 unless bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 181,
+    "source": "unless foo\n  bar = 3\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 191,
+    "source": "foo = nil\nunless foo\n  foo = 'default'\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "foo = nil\nfoo ||= 'default'\n"
+  },
+  {
+    "spec_line": 206,
+    "source": "@foo = nil\nunless @foo\n  @foo = 'default'\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@foo = nil\n@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 221,
+    "source": "@@foo = nil\nunless @@foo\n  @@foo = 'default'\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "@@foo = nil\n@@foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 236,
+    "source": "$foo = nil\nunless $foo\n  $foo = 'default'\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "$foo = nil\n$foo ||= 'default'\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "unless foo\n  bar = 3\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 261,
+    "source": "foo = nil\nif foo\nelse\n  foo = 2\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the double pipe equals operator `||=` instead."
+    ],
+    "correction": "foo = nil\nfoo ||= 2\n"
+  },
+  {
+    "spec_line": 279,
+    "source": "foo = if foo\n        foo\n      elsif\n        bar\n      else\n        'default'\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

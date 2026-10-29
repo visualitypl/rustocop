@@ -1,0 +1,23 @@
+[
+  {"line":645,"before":"for d in x do\n  each { |y|\n    y\n  }\nend\n","after":"for d in x do\n  each do |y|\n    y\n  end\nend\n"},
+  {"line":660,"before":"block do |x| end\n","after":"block { |x| }\n"},
+  {"line":690,"before":"foo do bar rescue baz end\n","after":"foo { bar rescue baz }\n"},
+  {"line":194,"before":"each do |x| end\n","after":"each { |x| }\n"},
+  {"line":217,"before":"each do _1 end\n","after":"each { _1 }\n"},
+  {"line":720,"before":"each { |x|\n}\n","after":"each do |x|\nend\n"},
+  {"line":786,"before":"while foo\n  bar { |x|\n  }\nend\n","after":"while foo\n  bar do |x|\n  end\nend\n"},
+  {"line":801,"before":"foo.bar = baz.map { |x|\n}\n","after":"foo.bar = baz.map do |x|\nend\n"},
+  {"line":825,"before":"baz.map { |x|\nfoo(x) } # comment\n","after":"baz.map do |x|\nfoo(x) end # comment\n","upstream_after":"# comment\nbaz.map do |x|\nfoo(x) end\n","reason":"Keep comments and physical lines in place, unlike upstream relocation."},
+  {"line":839,"before":"[foo {\n}] # comment\n","after":"[foo do\nend] # comment\n","upstream_after":"[# comment\nfoo do\nend]\n","reason":"Keep comments and physical lines in place."},
+  {"line":853,"before":"baz.map { |x|\nfoo(x) }.map { |x| x.quux } # comment\n","after":"baz.map do |x|\nfoo(x) end.map { |x| x.quux } # comment\n","upstream_after":"# comment\nbaz.map do |x|\nfoo(x) end.map { |x| x.quux }\n","reason":"Keep comments and physical lines in place."},
+  {"line":867,"before":"baz.map { |x|\nfoo(x) }.qux.quux # comment\n","after":"baz.map do |x|\nfoo(x) end.qux.quux # comment\n","upstream_after":"# comment\nbaz.map do |x|\nfoo(x) end.qux.quux\n","reason":"Keep comments and physical lines in place."},
+  {"line":882,"before":"baz.map { |x|\n} # comment\n\n","after":"baz.map do |x|\nend # comment\n\n","upstream_after":"# comment\nbaz.map do |x|\nend\n","reason":"Keep comments, blank lines and physical lines in place."},
+  {"line":978,"before":"h2[k2] = Hash.new { |h3,k3|\n  h3[k3] = 0\n}\n\nx = done? list.reject { |e|\n  e.nil?\n}\n","after":"h2[k2] = Hash.new do |h3,k3|\n  h3[k3] = 0\nend\n\nx = done? list.reject { |e|\n  e.nil?\n}\n"},
+  {"line":998,"before":"each{ |x|\n  some_method\n  other_method\n}\n","after":"each do |x|\n  some_method\n  other_method\nend\n"},
+  {"line":1014,"before":"(0..3).each { |a| a.times {\n  puts a\n}}\n","after":"(0..3).each do |a| a.times {\n  puts a\n} end\n"},
+  {"line":1057,"before":"my_method { |x|\n  x.foo } unless bar   # comment\n","after":"my_method do |x|\n  x.foo end unless bar   # comment\n","upstream_after":"# comment\nmy_method do |x|\n  x.foo end unless bar\n","reason":"Keep comments and physical lines in place."},
+  {"line":765,"before":"while foo(-> {\n  bar { |z|\n    z\n  }\n})\n  baz\nend\n","after":"while foo(-> {\n  bar do |z|\n    z\n  end\n})\n  baz\nend\n"},
+  {"line":1072,"before":"map do |x| x.y? rescue z end\n","after":"map { |x| x.y? rescue z }\n"},
+  {"line":1085,"before":"foo do next unless bar rescue StandardError; end\n","after":"foo { next unless bar rescue StandardError; }\n"},
+  {"line":1522,"before":"each{ |x|\n  some_method\n  other_method\n}\n","after":"each do |x|\n  some_method\n  other_method\nend\n"}
+]

@@ -1,0 +1,859 @@
+[
+  {
+    "spec_line": 6,
+    "source": "if something\n  do_x\nelse\n  do_x\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "if something\nelse\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 27,
+    "source": "def foo\n  if something\n    bar\n    do_x\n  else\n    baz\n    do_x\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        5
+      ],
+      [
+        7,
+        5
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "def foo\n  if something\n    bar\n  else\n    baz\n  end\n  do_x\nend\n"
+  },
+  {
+    "spec_line": 56,
+    "source": "if something\n  method_call_here(1, 2, 3)\n  do_x\nelse\n  1 + 2 + 3\n  do_x\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "if something\n  method_call_here(1, 2, 3)\nelse\n  1 + 2 + 3\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 81,
+    "source": "if something\n  do_x\n  method_call_here(1, 2, 3)\nelse\n  do_x\n  1 + 2 + 3\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "do_x\nif something\n  method_call_here(1, 2, 3)\nelse\n  1 + 2 + 3\nend\n"
+  },
+  {
+    "spec_line": 106,
+    "source": "if something\n  method_call_here(1, 2, 3)\n  do_x\nelse; do_x; end\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        7
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "if something\n  method_call_here(1, 2, 3)\nelse; end\ndo_x\n"
+  },
+  {
+    "spec_line": 126,
+    "source": "if something\n  method_call_here(1, 2, 3); do_x\nelse\n  1 + 2 + 3; do_x\nend\n",
+    "positions": [
+      [
+        2,
+        30
+      ],
+      [
+        4,
+        14
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "if something\n  method_call_here(1, 2, 3)\nelse\n  1 + 2 + 3\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 149,
+    "source": "if something\n  do_x; method_call_here(1, 2, 3)\nelse\n  do_x; 1 + 2 + 3\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "do_x\nif something\n  method_call_here(1, 2, 3)\nelse\n  1 + 2 + 3\nend\n"
+  },
+  {
+    "spec_line": 172,
+    "source": "if something\n  method_call_here(1, 2, 3)\n  do_x # comment\nelse\n  1 + 2 + 3\n  do_x\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "if something\n  method_call_here(1, 2, 3)\n  # comment\nelse\n  1 + 2 + 3\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 198,
+    "source": "if condition\n  h[:key] = foo\n  bar\nelse\n  h[:key] = foo\n  baz\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `h[:key] = foo` out of the conditional.",
+      "Move `h[:key] = foo` out of the conditional."
+    ],
+    "correction": "h[:key] = foo\nif condition\n  bar\nelse\n  baz\nend\n"
+  },
+  {
+    "spec_line": 223,
+    "source": "if h[:key]\n  h[:key] = foo\n  bar\nelse\n  h[:key] = foo\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 237,
+    "source": "if something\n  self.foo ||= default\n  do_x\nelse\n  self.foo ||= default\n  do_y\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `self.foo ||= default` out of the conditional.",
+      "Move `self.foo ||= default` out of the conditional."
+    ],
+    "correction": "self.foo ||= default\nif something\n  do_x\nelse\n  do_y\nend\n"
+  },
+  {
+    "spec_line": 262,
+    "source": "if x.condition\n  x = do_something\n  foo\nelse\n  x = do_something\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 276,
+    "source": "if x&.condition\n  x = do_something\n  foo\nelse\n  x = do_something\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 290,
+    "source": "if x\n  x = do_something\n  foo\nelse\n  x = do_something\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 304,
+    "source": "x = 42\n\nif x\n  x = do_something\n  foo\nelse\n  x = do_something\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 320,
+    "source": "if @x\n  @x = do_something\n  foo\nelse\n  @x = do_something\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 334,
+    "source": "if x.condition\n  foo\n  x = do_something\nelse\n  bar\n  x = do_something\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `x = do_something` out of the conditional.",
+      "Move `x = do_something` out of the conditional."
+    ],
+    "correction": "if x.condition\n  foo\nelse\n  bar\nend\nx = do_something\n"
+  },
+  {
+    "spec_line": 359,
+    "source": "def foo\n  if something\n    do_x\n  else\n    do_x\n    1 + 2 + 3\n  end\nend\n\ndef bar\n  y = if something\n        do_x\n      else\n        do_x\n        1 + 2 + 3\n      end\n  do_something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 384,
+    "source": "if something\n  do_x\nelsif something_else\n  do_x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 396,
+    "source": "if something\n  do_x(1)\nelse\n  do_x(2)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 408,
+    "source": "x = 0\nif x == 0\n  x += 1\n  foo\nelse\n  x += 1\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 423,
+    "source": "case something\nwhen :a\n  do_x\nwhen :b\n  do_x\nelse\n  do_x\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        7,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "case something\nwhen :a\nwhen :b\nelse\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 451,
+    "source": "case value\nwhen cond1\nelse\n  if cond2\n  else\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 465,
+    "source": "case something\nwhen :a\n  x1\n  do_x\nwhen :b\n  x2\n  do_x\nelse\n  x3\n  do_x\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        10,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "case something\nwhen :a\n  x1\nwhen :b\n  x2\nelse\n  x3\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 498,
+    "source": "case something\nwhen :a\n  do_x\n  x1\nwhen :b\n  do_x\n  x2\nelse\n  do_x\n  x3\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        9,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "do_x\ncase something\nwhen :a\n  x1\nwhen :b\n  x2\nelse\n  x3\nend\n"
+  },
+  {
+    "spec_line": 531,
+    "source": "case something\nwhen :a\n  nil\nwhen :b\n  do_x\n  x1\nelse\n  do_x\n  x2\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 548,
+    "source": "case something\nwhen :a\n  ()\nwhen :b\n  do_x\n  x1\nelse\n  do_x\n  x2\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 565,
+    "source": "def foo\n  case something\n  when :a\n    do_x\n  when :b\n    do_x\n    x2\n  else\n    do_x\n    x3\n  end\nend\n\ndef bar\n  x = case something\n      when :a\n        do_x\n      when :b\n        do_x\n        x2\n      else\n        do_x\n        x3\n      end\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 598,
+    "source": "case something\nwhen :a\n  do_x\nwhen :b\n  do_x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 611,
+    "source": "case something\nwhen :a\n  do_x\n  do_y\nwhen :b\nelse\n  do_x\n  do_z\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 627,
+    "source": "x = 0\ncase x\nwhen 1\n  x += 1\n  foo\nwhen 42\n  x += 1\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 644,
+    "source": "case something\nin :a\n  do_x\nin :b\n  do_x\nelse\n  do_x\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        7,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "case something\nin :a\nin :b\nelse\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 670,
+    "source": "x = 0\ncase x\nin 1\n  x += 1\n  foo\nin 42\n  x += 1\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 687,
+    "source": "case value\nin cond1\nelse\n  if cond2\n  else\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 701,
+    "source": "case something\nin :a\n  x1\n  do_x\nin :b\n  x2\n  do_x\nelse\n  x3\n  do_x\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        10,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "case something\nin :a\n  x1\nin :b\n  x2\nelse\n  x3\nend\ndo_x\n"
+  },
+  {
+    "spec_line": 734,
+    "source": "case something\nin :a\n  do_x\n  x1\nin :b\n  do_x\n  x2\nelse\n  do_x\n  x3\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        9,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional.",
+      "Move `do_x` out of the conditional."
+    ],
+    "correction": "do_x\ncase something\nin :a\n  x1\nin :b\n  x2\nelse\n  x3\nend\n"
+  },
+  {
+    "spec_line": 767,
+    "source": "def foo\n  case something\n  in :a\n    do_x\n  in :b\n    do_x\n    x2\n  else\n    do_x\n    x3\n  end\nend\n\ndef bar\n  y = case something\n      in :a\n        do_x\n      in :b\n        do_x\n        x2\n      else\n        do_x\n        x3\n      end\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 800,
+    "source": "case something\nin :a\n  do_x\nin :b\n  do_x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 813,
+    "source": "case something\nin :a\n  do_x\n  do_y\nin :b\nelse\n  do_x\n  do_z\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 830,
+    "source": "if condition\n  ()\nelse\n  ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 840,
+    "source": "if condition\n  ()\nelse\n  foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 850,
+    "source": "if condition\n  foo\nelse\n  ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 862,
+    "source": "x ? y : y\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Move `y` out of the conditional.",
+      "Move `y` out of the conditional."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 876,
+    "source": "x = if foo\n  bar\nelse\n  bar\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": "if foo\nelse\nend\nx = bar\n"
+  },
+  {
+    "spec_line": 897,
+    "source": "x = foo ? bar : bar\n",
+    "positions": [
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 909,
+    "source": "x = case something\nwhen :a\n  bar\nwhen :b\n  bar\nelse\n  bar\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        7,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": "case something\nwhen :a\nwhen :b\nelse\nend\nx = bar\n"
+  },
+  {
+    "spec_line": 936,
+    "source": "x = case something\nin :a\n  bar\nin :b\n  bar\nelse\n  bar\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        7,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": "case something\nin :a\nin :b\nelse\nend\nx = bar\n"
+  },
+  {
+    "spec_line": 965,
+    "source": "x = if foo\n  bar\n  do_x(1)\nelse\n  bar\n  do_x(2)\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": "bar\nx = if foo\n  do_x(1)\nelse\n  do_x(2)\nend\n"
+  },
+  {
+    "spec_line": 990,
+    "source": "x = case something\nwhen :a\n  bar\n  do_x(1)\nwhen :b\n  bar\n  do_x(2)\nelse\n  bar\n  do_x(3)\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        9,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": "bar\nx = case something\nwhen :a\n  do_x(1)\nwhen :b\n  do_x(2)\nelse\n  do_x(3)\nend\n"
+  },
+  {
+    "spec_line": 1023,
+    "source": "x = case something\nin :a\n  bar\n  do_x(1)\nin :b\n  bar\n  do_x(2)\nelse\n  bar\n  do_x(3)\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        9,
+        3
+      ]
+    ],
+    "messages": [
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional.",
+      "Move `bar` out of the conditional."
+    ],
+    "correction": "bar\nx = case something\nin :a\n  do_x(1)\nin :b\n  do_x(2)\nelse\n  do_x(3)\nend\n"
+  },
+  {
+    "spec_line": 1058,
+    "source": "def fixed_point(value)\n  if value then value\n  else value\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        17
+      ],
+      [
+        3,
+        8
+      ]
+    ],
+    "messages": [
+      "Move `value` out of the conditional.",
+      "Move `value` out of the conditional."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1072,
+    "source": "def fixed_point(value)\n  if value then value\n  else\n    value\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        17
+      ],
+      [
+        4,
+        5
+      ]
+    ],
+    "messages": [
+      "Move `value` out of the conditional.",
+      "Move `value` out of the conditional."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1089,
+    "source": "def fixed_point(value)\n  if value then\n    value\n  else value\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ],
+      [
+        4,
+        8
+      ]
+    ],
+    "messages": [
+      "Move `value` out of the conditional.",
+      "Move `value` out of the conditional."
+    ],
+    "correction": null
+  }
+]

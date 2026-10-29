@@ -1,0 +1,2318 @@
+[
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "()\n",
+    "origin": "spec",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(())\n",
+    "origin": "spec",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "if (); end\n",
+    "origin": "spec",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "if foo\n  1\nelsif ()\n  2\nend\n",
+    "origin": "spec",
+    "line": 31,
+    "findings": [
+      [
+        3,
+        7,
+        3,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "case ()\nwhen :foo then 1\nend\n",
+    "origin": "spec",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "case foo\nwhen () then 1\nend\n",
+    "origin": "spec",
+    "line": 51,
+    "findings": [
+      [
+        2,
+        6,
+        2,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "() ? true : false\n",
+    "origin": "spec",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "foo ? () : bar\n",
+    "origin": "spec",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def foo\n  ()\nend\n",
+    "origin": "spec",
+    "line": 76,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "if foo\n  ()\nend\n",
+    "origin": "spec",
+    "line": 85,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "case foo\nwhen :bar then ()\nend\n",
+    "origin": "spec",
+    "line": 94,
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "foo = ()\n",
+    "origin": "spec",
+    "line": 105,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "# bad\n",
+    "origin": "source",
+    "line": 10,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "foo = ()\nif ()\n  bar\nend\n",
+    "origin": "source",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        2,
+        4,
+        2,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "# good\n",
+    "origin": "source",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "foo = (some_expression)\nif (some_expression)\n  bar\nend\n",
+    "origin": "source",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "()\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = ()\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume(())\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[()]\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: ()}\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { () }\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = ()); end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (); end\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (); break; end\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?(())\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "( )\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = ( )\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume(( ))\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[( )]\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: ( )}\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { ( ) }\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = ( )); end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < ( ); end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while ( ); break; end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?(( ))\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(;)\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (;)\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((;))\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(;)]\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (;)}\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (;) }\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (;)); end\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (;); end\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (;); break; end\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((;))\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(;;)\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (;;)\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((;;))\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(;;)]\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (;;)}\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (;;) }\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (;;)); end\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (;;); end\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (;;); break; end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((;;))\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(\n# comment\n)\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (\n# comment\n)\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        9,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((\n# comment\n))\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        1,
+        9,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(\n# comment\n)]\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        2,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (\n# comment\n)}\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+      [
+        1,
+        7,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (\n# comment\n) }\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+      [
+        1,
+        6,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (\n# comment\n)); end\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        1,
+        11,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (\n# comment\n); end\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        1,
+        11,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (\n# comment\n); break; end\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+      [
+        1,
+        7,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((\n# comment\n))\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+      [
+        1,
+        10,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(nil)\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (nil)\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((nil))\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(nil)]\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (nil)}\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (nil) }\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (nil)); end\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (nil); end\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (nil); break; end\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((nil))\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(false)\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (false)\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((false))\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(false)]\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (false)}\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (false) }\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (false)); end\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (false); end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (false); break; end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((false))\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(work)\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (work)\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((work))\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(work)]\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (work)}\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (work) }\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (work)); end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (work); end\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (work); break; end\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((work))\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "(())\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = (())\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume((()))\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[(())]\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+      [
+        1,
+        3,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: (())}\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { (()) }\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = (())); end\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < (()); end\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while (()); break; end\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?((()))\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "((()))\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        3,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = ((()))\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume(((())))\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[((()))]\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: ((()))}\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { ((())) }\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = ((()))); end\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < ((())); end\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while ((())); break; end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?(((())))\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "((); ())\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        6,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = ((); ())\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        14,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume(((); ()))\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        14,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[((); ())]\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        3,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: ((); ())}\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { ((); ()) }\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = ((); ())); end\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        16,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < ((); ()); end\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        16,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while ((); ()); break; end\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        12,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?(((); ()))\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Avoid empty expressions."
+      ],
+      [
+        1,
+        15,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "begin; end\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "value = begin; end\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "consume(begin; end)\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[begin; end]\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{key: begin; end}\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> { begin; end }\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "def f(x = begin; end); end\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "class A < begin; end; end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "while begin; end; break; end\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "defined?(begin; end)\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "foo()",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "foo {}",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "-> {}",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "[]",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "{}",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "\"()\"",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "# ()",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "BEGIN {}; END {}",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "\"#{}\"",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "\"#{;}\"",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "\"#{nil}\"",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": ":\"#{}\"",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+      [
+        1,
+        3,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "`#{}`",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "/#{}/",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "%W[#{} a]",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "%I[#{} a]",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "x = <<~TEXT\n#{ }\nTEXT\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "x = <<~TEXT\n#{()}\nTEXT\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "()\n__END__\n()\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "# encoding: utf-8\r\n(\r\n)\r\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+      [
+        2,
+        1,
+        3,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "﻿()\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "reference_findings": [
+      [
+        1,
+        2,
+        1,
+        "Avoid empty expressions."
+      ]
+    ],
+    "position_policy": "Inherited rustocop display columns exclude a leading BOM; byte offsets remain unchanged."
+  },
+  {
+    "cop": "Lint/EmptyExpression",
+    "source": "é = 1; ()\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Avoid empty expressions."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "",
+    "origin": "spec",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty file detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "foo.bar\n",
+    "origin": "spec",
+    "line": 17,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# comment\n",
+    "origin": "spec",
+    "line": 23,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# comment",
+    "origin": "spec",
+    "line": 33,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyFile AllowComments=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# bad\n# Empty file\n",
+    "origin": "source",
+    "line": 9,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# good\n# File containing non commented source lines\n",
+    "origin": "source",
+    "line": 12,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# good\n# File consisting only of comments\n",
+    "origin": "source",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# bad\n# File consisting only of comments\n",
+    "origin": "source",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty file detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": " ",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\t",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\r\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\r",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\u000b",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\f",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\u0000",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "\u001a",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "﻿",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# comment",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "# encoding: UTF-8\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "#!/usr/bin/ruby\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "=begin\ncomment\n=end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "__END__\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "__END__\ndata\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": ";",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "nil",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "()",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyFile",
+    "source": "begin; end",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ]
+  }
+]

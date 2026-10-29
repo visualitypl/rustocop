@@ -1,0 +1,2464 @@
+[
+  {
+    "spec_line": 647,
+    "source": "unless a\n  b # A comment\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 655,
+    "source": "if args.last.is_a? Hash then args.pop else Hash.new end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 661,
+    "source": "if test\n  something\nelsif test2\n  something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 957,
+    "source": "if test\n  something\nend.inspect\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 965,
+    "source": "if test\n  something\nend&.inspect\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 973,
+    "source": "a || if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "a || (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 986,
+    "source": "a && if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "a && (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 999,
+    "source": "if b\n  1\nend || a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "(1 if b) || a\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1012,
+    "source": "if test\n  1\nend + 2\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 10,
+    "source": "if aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 23,
+    "source": "if aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(a:)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 49,
+    "source": "if some_condition\n  do_something\n  do_something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 58,
+    "source": "if condition\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "do_something if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 71,
+    "source": "if cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "if (var = something)\n  puts var\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 86,
+    "source": "if true\n  x = 0\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "x = 0 if true\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 99,
+    "source": "a = if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "a = (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 112,
+    "source": "@a = if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "@a = (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 125,
+    "source": "@@a = if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "@@a = (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 138,
+    "source": "A = if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "A = (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 151,
+    "source": "a + if b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "a + (1 if b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "if bar # important comment not to be nuked\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "baz if bar # important comment not to be nuked\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 177,
+    "source": "if foo; bar; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "bar if foo\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "if foo\n  \"This string would make the line longer than eighty characters if combined with the statement.\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nenabled = false\n"
+  },
+  {
+    "spec_line": 190,
+    "source": "foo if bar ||\n               baz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 199,
+    "source": "[\n  1, if foo # bar\n       baz\n     end, 3\n]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 10,
+    "source": "unless aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 23,
+    "source": "unless aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(a:)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 49,
+    "source": "unless some_condition\n  do_something\n  do_something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 58,
+    "source": "unless condition\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "do_something unless condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 71,
+    "source": "unless cond\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "unless (var = something)\n  puts var\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 86,
+    "source": "unless true\n  x = 0\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "x = 0 unless true\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 99,
+    "source": "a = unless b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "a = (1 unless b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 112,
+    "source": "@a = unless b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "@a = (1 unless b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 125,
+    "source": "@@a = unless b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "@@a = (1 unless b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 138,
+    "source": "A = unless b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "A = (1 unless b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 151,
+    "source": "a + unless b\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "a + (1 unless b)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "unless bar # important comment not to be nuked\n  baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "baz unless bar # important comment not to be nuked\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 177,
+    "source": "unless foo; bar; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "bar unless foo\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "unless foo\n  \"This string would make the line longer than eighty characters if combined with the statement.\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nenabled = false\n"
+  },
+  {
+    "spec_line": 190,
+    "source": "foo unless bar ||\n               baz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 199,
+    "source": "[\n  1, unless foo # bar\n       baz\n     end, 3\n]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 32,
+    "source": "if url == 'https://some.example.com/with/a/rather?long&and=very&complicated=path'\n  puts 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 54,
+    "source": "unless long_variable_name.is_a?(ExampleNamespace::Networking::Http::Response)\n  puts 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 84,
+    "source": "def f\n  # Comment 1\n  puts '                                                           ' if condition # Comment 2\nend\n",
+    "positions": [
+      [
+        3,
+        70
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "def f\n  # Comment 1\n  if condition\n    puts '                                                           '\n  end # Comment 2\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 104,
+    "source": "\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#{'string1' if cond1} #{'string2' if cond2}\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 110,
+    "source": "\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx#{'string1' unless cond1} #{'string2' unless cond2}\"\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 118,
+    "source": "puts 1 if url == 'https://some.example.com/with/a/rather?long&and=very&complicated=path'\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 143,
+    "source": "def f\n  return value if items.filter_map { |item| item.do_something if item.something? }\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ],
+      [
+        2,
+        63
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "def f\n  if items.filter_map { |item| item.do_something if item.something? }\n    return value\n  end\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 163,
+    "source": "fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS) if condition\n  string\nEOS\n",
+    "positions": [
+      [
+        1,
+        70
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if condition\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS)\n  string\nEOS\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 182,
+    "source": "raise Errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr.new(<<~EOS.squish) if condition\n  string\nEOS\n",
+    "positions": [
+      [
+        1,
+        82
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if condition\n  raise Errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr.new(<<~EOS.squish)\n  string\nEOS\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 201,
+    "source": "fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS) if condition\nEOS\n",
+    "positions": [
+      [
+        1,
+        70
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if condition\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS)\nEOS\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 218,
+    "source": "fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS, <<~EOT) if condition\n  string\nEOS\n  text\nEOT\n",
+    "positions": [
+      [
+        1,
+        78
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if condition\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS, <<~EOT)\n  string\nEOS\n  text\nEOT\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 241,
+    "source": "fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS) if condition\n  #{bar(<<~EOT)}\n    inner\n  EOT\n  outer\nEOS\n",
+    "positions": [
+      [
+        1,
+        70
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if condition\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS)\n  #{bar(<<~EOT)}\n    inner\n  EOT\n  outer\nEOS\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 266,
+    "source": "def do_something\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(bar(<<~EOS)) if condition\n    first\n      second\n  EOS\nend\n",
+    "positions": [
+      [
+        2,
+        75
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "def do_something\n  if condition\n    fooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(bar(<<~EOS))\n    first\n      second\n  EOS\n  end\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 291,
+    "source": "def do_something\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(bar(<<-EOS)) if condition\n  string\n  EOS\nend\n",
+    "positions": [
+      [
+        2,
+        75
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "def do_something\n  if condition\n    fooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(bar(<<-EOS))\n  string\n  EOS\n  end\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 314,
+    "source": "def do_something\n  fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(bar(<<EOS)) if condition\nstring\nEOS\nend\n",
+    "positions": [
+      [
+        2,
+        76
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "def do_something\n  if condition\n    fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(bar(<<EOS))\nstring\nEOS\n  end\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 337,
+    "source": "def do_something\n  return if foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS)\n    string\n  EOS\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "def do_something\n  if foooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo(<<~EOS)\n    string\n  EOS\n    return\n  end\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 360,
+    "source": "fooooooooooooooooooooooooooooooo(<<~EOS) if baaaaaaaaaaaaaaaaaaaaaaaaaaaaar(<<~EOT)\n  string\nEOS\n  text\nEOT\n",
+    "positions": [
+      [
+        1,
+        42
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if baaaaaaaaaaaaaaaaaaaaaaaaaaaaar(<<~EOT)\n  text\nEOT\n  fooooooooooooooooooooooooooooooo(<<~EOS)\n  string\nEOS\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 383,
+    "source": "variable = foooooooooooooooooooooooooooooooooooooooooooooooooooooooo if condition\n",
+    "positions": [
+      [
+        1,
+        70
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "if condition\n  variable = foooooooooooooooooooooooooooooooooooooooooooooooooooooooo\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 398,
+    "source": "some_statement if some_quite_long_condition # The condition might have been long, but this comment is longer. In fact, it is too long for RuboCop\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "# The condition might have been long, but this comment is longer. In fact, it is too long for RuboCop\nsome_statement if some_quite_long_condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 418,
+    "source": "def f\n  puts '                                                         ' if condition # rubocop:disable Style/For\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 452,
+    "source": "def f\n  puts '                                                           ' if condition\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nenabled = false\nmax = 80\n"
+  },
+  {
+    "spec_line": 462,
+    "source": "def f\n  # rubocop:disable Layout/LineLength\n  puts '                                                           ' if condition\n  # rubocop:enable Layout/LineLength\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 474,
+    "source": "def f\n  puts '                                                           ' if condition # rubocop:disable Layout/LineLength\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 493,
+    "source": "if aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 508,
+    "source": "if condition\n  do_this; do_that\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 518,
+    "source": "if condition\n  do_this(**options)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "do_this(**options) if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 533,
+    "source": "items.each do |item|\n  if condition\n    next(item.foo)\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "items.each do |item|\n  next(item.foo) if condition\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 559,
+    "source": "def f\n  puts '                                                           ' if condition; some_method_call\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 569,
+    "source": "if a # comment\n  b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "b if a # comment\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 584,
+    "source": "if a\n  b\nend # comment\nif a\n  b\n  # comment\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 598,
+    "source": "if x\n  y\nelsif x1\n  y1\nelse\n  z\nend\nn = a ? 0 : 1\nm = 3 if m0\n\nif a\n  b\nend\n",
+    "positions": [
+      [
+        11,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "if x\n  y\nelsif x1\n  y1\nelse\n  z\nend\nn = a ? 0 : 1\nm = 3 if m0\n\nb if a\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 633,
+    "source": "unless a\n  b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "b unless a\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 672,
+    "source": "if [42] in [x]\n  x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 680,
+    "source": "if { x: 1, y: 2 } in { x:, y: }\n  a && y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 688,
+    "source": "if [42] in [x]\n  y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 696,
+    "source": "if { x: 1, y: 2 } in { x:, y: }\n  a && b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 672,
+    "source": "if [42] in [x]\n  x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 680,
+    "source": "if { x: 1, y: 2 } in { x:, y: }\n  a && y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 688,
+    "source": "if [42] in [x]\n  y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 696,
+    "source": "if { x: 1, y: 2 } in { x:, y: }\n  a && b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 716,
+    "source": "if condition\n  def method_name = body\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 724,
+    "source": "if condition\n  def self.method_name = body\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 734,
+    "source": "if condition\n  obj[:key] = { foo: }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "obj[:key] = { foo: } if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 749,
+    "source": "if condition\n  obj.do_something foo:\nend\n\nif condition\n  obj&.do_something foo:\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        5,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`.",
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "obj.do_something(foo:) if condition\n\nobj&.do_something(foo:) if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 769,
+    "source": "def do_something(foo)\n  if condition\n    return obj.do_something foo:\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "def do_something(foo)\n  return obj.do_something(foo:) if condition\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 786,
+    "source": "if condition\n  bar = obj.do_something foo:\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "bar = obj.do_something(foo:) if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 799,
+    "source": "def do_something(foo)\n  if condition\n    return obj.do_something( bar, foo: )\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "def do_something(foo)\n  return obj.do_something( bar, foo: ) if condition\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 818,
+    "source": "if condition\n  obj.(attr:)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "obj.(attr:) if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 833,
+    "source": "if condition\n  obj&.(attr:)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "obj&.(attr:) if condition\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 848,
+    "source": "value = :custom\n\nunless defined?(value)\n  value = :default\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "value = :custom\n\nvalue = :default unless defined?(value)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 865,
+    "source": "unless defined?(yield)\n  value = :default\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "value = :default unless defined?(yield)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 878,
+    "source": "unless defined?(super)\n  value = :default\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `unless` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "value = :default unless defined?(super)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 891,
+    "source": "other_value = do_something\n\nunless defined?(value)\n  value = :default\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 901,
+    "source": "other_value = do_something\n\nunless defined?(value) && condition\n  value = :default\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 911,
+    "source": "other_value = do_something\n\nunless condition && defined?(value)\n  value = :default\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 930,
+    "source": "  if /aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/\n    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n  end\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if /aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 947,
+    "source": "  if /aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/\n    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n  end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1021,
+    "source": "puts(\"string\", if a\n  1\nend)\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "puts(\"string\", (1 if a))\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1036,
+    "source": "puts \"string\", if a\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "puts \"string\", (1 if a)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1051,
+    "source": "x&.push(if a\n  1\nend)\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "x&.push((1 if a))\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1066,
+    "source": "def foo\n  yield(if a\n    1\n  end)\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "def foo\n  yield((1 if a))\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1085,
+    "source": "def foo\n  super(if a\n    1\n  end)\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "def foo\n  super((1 if a))\nend\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1104,
+    "source": "p(b ? if a\n  1\nend : 2)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "p(b ? (1 if a) : 2)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1119,
+    "source": "def foo(a) = if a\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "def foo(a) = (1 if a)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1132,
+    "source": "def self.foo(a) = if a\n  1\nend\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "def self.foo(a) = (1 if a)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1147,
+    "source": "if condition\n  foo ? \"bar\" : \"baz\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1157,
+    "source": "unless condition\n  foo ? \"bar\" : \"baz\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1167,
+    "source": "if /(?<foo>d)/ =~ \"bar\"\n  foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1188,
+    "source": "\t\t\t\t\t\tif aaa\n\t\t\t\t\t\t\tbbb\n\t\t\t\t\t\tend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. [...]"
+    ],
+    "correction": "\t\t\t\t\t\tbbb if aaa\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 22\n"
+  },
+  {
+    "spec_line": 1209,
+    "source": "\t\t\t\t\t\tif aaaa\n\t\t\t\t\t\t\tbbb\n\t\t\t\t\t\tend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 22\n"
+  },
+  {
+    "spec_line": 1245,
+    "source": "if foo\n  \"This string would make the line longer than eighty characters if combined with the statement.\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`."
+    ],
+    "correction": "\"This string would make the line longer than eighty characters if combined with the statement.\" if foo\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nenabled = false\n"
+  },
+  {
+    "spec_line": 1266,
+    "source": "x = if a\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "x = (bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if a)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1283,
+    "source": "x = if a\n  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1299,
+    "source": "x =\n  if a\n    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n  end\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "x =\n  (bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if a)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1318,
+    "source": "x =\n  if a\n    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n  end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1336,
+    "source": "[\n  if a\n    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n  end\n]\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[\n  (bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if a)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1357,
+    "source": "[\n  if a\n    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n  end\n]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1369,
+    "source": "[if a\n  b\nend, if c\n  d\nend]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1379,
+    "source": "[(if a\n  b\nend), (unless c\n  d\nend)]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1391,
+    "source": "[(if a\n  b\nend)]\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[(b if a)]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1406,
+    "source": "[\n  (if a\n    b\n  end),\n  (if c\n    d\n  end)\n]\n",
+    "positions": [
+      [
+        2,
+        4
+      ],
+      [
+        5,
+        4
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]",
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[\n  (b if a),\n  (d if c)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1430,
+    "source": "[\n  (1 + 2),\n  (if a\n    b\n  end)\n]\n",
+    "positions": [
+      [
+        3,
+        4
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[\n  (1 + 2),\n  (b if a)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1451,
+    "source": "[\n  [(if a\n    b\n  end)],\n  [(if c\n    d\n  end)]\n]\n",
+    "positions": [
+      [
+        2,
+        5
+      ],
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]",
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[\n  [(b if a)],\n  [(d if c)]\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1475,
+    "source": "[if a\n  b\nend, if c\n  d\nend, if e\n  f\nend]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1490,
+    "source": "foo(if a\n  b\nend, if c\n  d\nend)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1500,
+    "source": "foo((if a\n  b\nend), (unless c\n  d\nend))\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1512,
+    "source": "foo&.bar(if a\n  b\nend, if c\n  d\nend)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1522,
+    "source": "foo&.bar((if a\n  b\nend), (if c\n  d\nend))\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1539,
+    "source": "{\n  x: if a\n       bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n     end\n}\n",
+    "positions": [
+      [
+        2,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "{\n  x: (bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if a)\n}\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1560,
+    "source": "{\n  x: if a\n       bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n     end\n}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1572,
+    "source": "{\n  x: [(if a\n    b\n  end), (if c\n    d\n  end)]\n}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1586,
+    "source": "{\n  x: if a\n    b\n  end, y: if c\n    d\n  end\n}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1600,
+    "source": "{x: (if a\n  b\nend), y: (if c\n  d\nend)}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1612,
+    "source": "{\n  x: (if a\n    b\n  end),\n  y: (if c\n    d\n  end)\n}\n",
+    "positions": [
+      [
+        2,
+        7
+      ],
+      [
+        5,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]",
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "{\n  x: (b if a),\n  y: (d if c)\n}\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1636,
+    "source": "{\n  x: if a\n    b\n  end\n}\n",
+    "positions": [
+      [
+        2,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "{\n  x: (b if a)\n}\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1655,
+    "source": "{\n  first_key: if first_cond\n                  first_expr\n                end,\n  second_key: (second_expr if second_cond)\n}\n",
+    "positions": [
+      [
+        2,
+        14
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "{\n  first_key: (first_expr if first_cond),\n  second_key: (second_expr if second_cond)\n}\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1676,
+    "source": "{\n  first_key: if first_cond\n               first_expr\n             end,\n  second_key: second_cond ? second_then : second_else\n}\n",
+    "positions": [
+      [
+        2,
+        14
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression."
+    ],
+    "correction": "{\n  first_key: (first_expr if first_cond),\n  second_key: second_cond ? second_then : second_else\n}\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1703,
+    "source": "if foo # ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\n  bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "bar if foo # ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1720,
+    "source": "if foo # cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1736,
+    "source": "[\n  1, if foo\n       bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n     end, 300_000_000\n]\n",
+    "positions": [
+      [
+        2,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[\n  1, (bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb if foo), 300_000_000\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1757,
+    "source": "[\n  1, if foo\n       bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n     end, 300_000_000\n]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1771,
+    "source": "[(fooooooooooo if condition_onnnnnnnnnnne), (baaaaaar if condition_twwwwwwwwwwo)]\n",
+    "positions": [
+      [
+        1,
+        16
+      ],
+      [
+        1,
+        55
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1781,
+    "source": "[(foooooooooo unless condition_onnnnnnnnnne), (baaaaar unless condition_twwwwwwwwwwo)]\n",
+    "positions": [
+      [
+        1,
+        15
+      ],
+      [
+        1,
+        56
+      ]
+    ],
+    "messages": [
+      "Modifier form of `unless` makes the line too long.",
+      "Modifier form of `unless` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1791,
+    "source": "[(fooooooooooo if condition_onnnnnnnnnnne), (baaaaar unless condition_twwwwwwwwwwo)]\n",
+    "positions": [
+      [
+        1,
+        16
+      ],
+      [
+        1,
+        54
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `unless` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1805,
+    "source": "{ a: (fooooooooo if condition_onnnnnnnnnnne), b: (baaaaaaaar if condition_twwwo) }\n",
+    "positions": [
+      [
+        1,
+        18
+      ],
+      [
+        1,
+        62
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1815,
+    "source": "{ a: (foooooooo unless condition_onnnnnnnnne), b: (baaaaaaaar unless condition_twwwo) }\n",
+    "positions": [
+      [
+        1,
+        17
+      ],
+      [
+        1,
+        63
+      ]
+    ],
+    "messages": [
+      "Modifier form of `unless` makes the line too long.",
+      "Modifier form of `unless` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1825,
+    "source": "{ a: (fooooooooo if condition_onnnnnnnnnnne), b: (baaaaaaaar unless condition_twwwo) }\n",
+    "positions": [
+      [
+        1,
+        18
+      ],
+      [
+        1,
+        62
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `unless` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1839,
+    "source": "foo((foooooooooooooooooooooooooooooooo if condition_onnnnnnnnnnne), (baaaaaar if condition_twwwwwwwwwwo))\n",
+    "positions": [
+      [
+        1,
+        40
+      ],
+      [
+        1,
+        79
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": null,
+    "no_correction": true,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1853,
+    "source": "x = (fooooooooooo if condition_onnnnnnnnnnne) || (baaaaaar if condition_twwwwwwwwwwo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1859,
+    "source": "x = (fooooooooooo if condition_onnnnnnnnnnne) && (baaaaaar unless condition_twwwwwwwwwwo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1865,
+    "source": "x = (foooooooo if condition_onnnnne) || (baaaar if condition_twwwo) || (baz if qux)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1874,
+    "source": "x = (if condition1\n       foo\n     end) || (if condition2\n                bar\n              end)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1884,
+    "source": "x = (if condition1\n       foo\n     end) ||\n    (if condition2\n       bar\n     end)\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        4,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]",
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "x = (foo if condition1) ||\n    (bar if condition2)\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1905,
+    "source": "[\n  (if condition1\n     foo\n   end),\n  (if condition2\n     bar\n   end)\n]\n",
+    "positions": [
+      [
+        2,
+        4
+      ],
+      [
+        5,
+        4
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage [...]",
+      "Favor modifier `if` usage [...]"
+    ],
+    "correction": "[\n  (foo if condition1),\n  (bar if condition2)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1931,
+    "source": "[\n  (foooooooooooooooooooooooooooooooooooooooooooo if condition_onnnnnnnnnnnnnnnnne)\n]\n",
+    "positions": [
+      [
+        2,
+        50
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "[\n  (if condition_onnnnnnnnnnnnnnnnne\n     foooooooooooooooooooooooooooooooooooooooooooo\n   end)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1948,
+    "source": "[\n  (foooooooooooooooooooooooooooooooooooooooooooo unless condition_onnnnnnnnnnnnnnne)\n]\n",
+    "positions": [
+      [
+        2,
+        50
+      ]
+    ],
+    "messages": [
+      "Modifier form of `unless` makes the line too long."
+    ],
+    "correction": "[\n  (unless condition_onnnnnnnnnnnnnnne\n     foooooooooooooooooooooooooooooooooooooooooooo\n   end)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1967,
+    "source": "[\n  (if condition1\n     foo\n   end),\n  (foooooooooooooooooooooooooooooooooooooooooooo if condition_onnnnnnnnnnnnnnnnne)\n]\n",
+    "positions": [
+      [
+        2,
+        4
+      ],
+      [
+        5,
+        50
+      ]
+    ],
+    "messages": [
+      "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`.",
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "[\n  (foo if condition1),\n  (if condition_onnnnnnnnnnnnnnnnne\n     foooooooooooooooooooooooooooooooooooooooooooo\n   end)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1991,
+    "source": "[\n  (foooooooooooooooooooooooooooooooooooooooooooo if condition_onnnnnnnnnnnnnnnnne),\n  (baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa if condition_twwwwwwwwwwwwwwwwwe)\n]\n",
+    "positions": [
+      [
+        2,
+        50
+      ],
+      [
+        3,
+        50
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long.",
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "[\n  (if condition_onnnnnnnnnnnnnnnnne\n     foooooooooooooooooooooooooooooooooooooooooooo\n   end),\n  (if condition_twwwwwwwwwwwwwwwwwe\n     baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n   end)\n]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 2015,
+    "source": "[(x ? y : z), (foooooooooooooooooooooooooooooooooooooooooooo if condition_onnnnnn)]\n",
+    "positions": [
+      [
+        1,
+        62
+      ]
+    ],
+    "messages": [
+      "Modifier form of `if` makes the line too long."
+    ],
+    "correction": "[(x ? y : z), (if condition_onnnnnn\n                 foooooooooooooooooooooooooooooooooooooooooooo\n               end)]\n",
+    "no_correction": false,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  }
+]

@@ -1,0 +1,1229 @@
+[
+  {
+    "spec_line": 615,
+    "source": "if ()\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo == bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo == bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo == bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo == bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo == bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo == bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo == bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo == bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo == bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo == bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo == bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo == bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo == bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo === bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo === bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo === bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo === bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo === bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo === bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo === bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo === bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo === bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo === bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo === bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo === bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo === bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo != bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo != bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo != bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo != bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo != bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo != bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo != bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo != bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo != bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo != bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo != bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo != bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo != bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo <= bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo <= bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo <= bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo <= bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo <= bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo <= bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo <= bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo <= bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo <= bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo <= bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo <= bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo <= bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo <= bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo >= bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo >= bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo >= bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo >= bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo >= bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo >= bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo >= bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo >= bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo >= bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo >= bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo >= bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo >= bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo >= bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo > bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo > bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo > bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo > bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo > bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo > bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo > bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo > bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo > bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo > bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo > bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo > bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo > bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 7,
+    "source": "if foo < bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo < bar\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "unless foo < bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo < bar\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo < bar ? true : false\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "foo < bar\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "if foo < bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo < bar)\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "unless foo < bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo < bar)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "foo < bar ? false : true\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Remove redundant ternary operator with boolean literal branches."
+    ],
+    "correction": "!(foo < bar)\n"
+  },
+  {
+    "spec_line": 89,
+    "source": "def foo\n  if bar > baz\n    true\n  else\n    false\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "def foo\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if foo < bar\n  do_something\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 121,
+    "source": "if foo.do_something?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo.do_something?\n"
+  },
+  {
+    "spec_line": 136,
+    "source": "unless foo.do_something?\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo.do_something?\n"
+  },
+  {
+    "spec_line": 151,
+    "source": "if foo.do_something?\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!foo.do_something?\n"
+  },
+  {
+    "spec_line": 166,
+    "source": "unless foo.do_something?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!foo.do_something?\n"
+  },
+  {
+    "spec_line": 181,
+    "source": "if condition\n  bar\n  false\nelsif foo.do_something?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `else` instead of redundant `elsif` with boolean literal branches."
+    ],
+    "correction": "if condition\n  bar\n  false\nelse\n  foo.do_something?\nend\n"
+  },
+  {
+    "spec_line": 204,
+    "source": "if condition\n  bar\n  false\nelsif foo.do_something?\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `else` instead of redundant `elsif` with boolean literal branches."
+    ],
+    "correction": "if condition\n  bar\n  false\nelse\n  !foo.do_something?\nend\n"
+  },
+  {
+    "spec_line": 229,
+    "source": "if !!condition\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!!condition\n"
+  },
+  {
+    "spec_line": 244,
+    "source": "if !!condition\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!!!condition\n"
+  },
+  {
+    "spec_line": 261,
+    "source": "if condition\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 271,
+    "source": "unless condition\n  false\nelse\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 281,
+    "source": "if condition\n  false\nelse\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 291,
+    "source": "unless condition\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 303,
+    "source": "if foo && bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 313,
+    "source": "if foo || bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 323,
+    "source": "unless foo && bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 333,
+    "source": "unless foo || bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 343,
+    "source": "if foo && bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 353,
+    "source": "if foo || bar\n  false\nelse\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 363,
+    "source": "unless foo && bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 373,
+    "source": "unless foo || bar\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 385,
+    "source": "if foo? && bar && baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo? && bar && baz?\n"
+  },
+  {
+    "spec_line": 400,
+    "source": "if foo? || bar || baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 410,
+    "source": "if foo? || bar && baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo? || bar && baz?\n"
+  },
+  {
+    "spec_line": 425,
+    "source": "if foo? || (bar && baz?)\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo? || (bar && baz?)\n"
+  },
+  {
+    "spec_line": 440,
+    "source": "if (foo? || bar) && baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "(foo? || bar) && baz?\n"
+  },
+  {
+    "spec_line": 455,
+    "source": "if foo? && bar || baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 465,
+    "source": "if foo? && (bar || baz?)\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 475,
+    "source": "if (foo? && bar) || baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 487,
+    "source": "if foo? && bar?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo? && bar?\n"
+  },
+  {
+    "spec_line": 502,
+    "source": "if foo? && bar?\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "!(foo? && bar?)\n"
+  },
+  {
+    "spec_line": 517,
+    "source": "unless foo? || bar?\n  false\nelse\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "foo? || bar?\n"
+  },
+  {
+    "spec_line": 532,
+    "source": "unless foo? || bar?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `unless` with boolean literal branches."
+    ],
+    "correction": "!(foo? || bar?)\n"
+  },
+  {
+    "spec_line": 547,
+    "source": "if foo? && bar? && baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo? && bar? && baz?\n"
+  },
+  {
+    "spec_line": 562,
+    "source": "if foo? && bar? || baz?\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove redundant `if` with boolean literal branches."
+    ],
+    "correction": "foo? && bar? || baz?\n"
+  },
+  {
+    "spec_line": 579,
+    "source": "if foo\n  true\nelsif bar > baz\n  true\nelse\n  false\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `else` instead of redundant `elsif` with boolean literal branches."
+    ],
+    "correction": "if foo\n  true\nelse\n  bar > baz\nend\n"
+  },
+  {
+    "spec_line": 600,
+    "source": "if foo\n  true\nelsif bar > baz\n  true\nelsif qux > quux\n  true\nelse\n  false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

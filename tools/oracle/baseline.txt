@@ -1,0 +1,152 @@
+# Known deviations of rustocop from RuboCop's spec examples: the oracle
+# fails on any deviation not listed here, and on entries that no longer
+# deviate. Refresh with `tools/oracle/oracle.rb --write-baseline [COP ...]`,
+# then give every new entry a reason. Format, under a comment naming the
+# example: <id> <cop> <deviation> -- <reason>.
+# RuboCop revision: 97f30c4fe1ae5c11dd5844bbe00a822c25e6f255
+
+## Layout/LineLength
+# spec/rubocop/cop/layout/line_length_spec.rb:69 RuboCop::Cop::Layout::LineLength when line is indented with tabs registers an offense for a long line
+672f44d04f3b Layout/LineLength miss 1:1; fp 1:6 -- where leading tabs alone run past the limit, rustocop reports at the tab that does, RuboCop at column 1
+# spec/rubocop/cop/layout/line_length_spec.rb:1162 RuboCop::Cop::Layout::LineLength autocorrection string when over limit when SplitStrings: true when there is a multibyte character at the limit breaks the string at the limit
+fcb4146d5d8f Layout/LineLength miss 1:41; fp 1:40 -- length is display width: the wide character takes two columns
+
+## Lint/CopDirectiveSyntax
+# spec/rubocop/cop/lint/cop_directive_syntax_spec.rb:393 RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not register an offense for a single directive listing several cops
+24f89d6f7def Lint/CopDirectiveSyntax fp 1:7 -- Metrics/AbcSize is not implemented/registered in rustocop; syntax validates the landed registry, not RuboCop's larger universe.
+
+## Lint/DuplicateMethods
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files
+36bffeb3d9dd Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files
+7b98030e36bc Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files
+8deedd43e52b Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files
+960231fbb051 Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files
+d13222c0110a Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files
+d7b0f6e47e8a Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:939 RuboCop::Cop::Lint::DuplicateMethods registers an offense when the self-alias trick from a previous file is used without a redefinition in its own file
+e12c66d8b9f5 Lint/DuplicateMethods miss 2:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+# spec/rubocop/cop/lint/duplicate_methods_spec.rb:1084 RuboCop::Cop::Lint::DuplicateMethods registers an offense despite `silence_redefinition_of_method` when `ActiveSupportExtensionsEnabled` is disabled
+5497b478a2c1 Lint/DuplicateMethods miss 3:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
+
+## Lint/RedundantRequireStatement
+# spec/rubocop/cop/lint/redundant_require_statement_spec.rb:221 RuboCop::Cop::Lint::RedundantRequireStatement target ruby version >= 3.1 target ruby version >= 4.0 registers an offense and corrects when requiring `pathname`
+61b59b669faf Lint/RedundantRequireStatement miss 1:1 -- `pathname` is loaded by default only from Ruby 4.0; rustocop targets Ruby 3.4
+
+## Lint/UnreachableCode
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:32 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` before other statements
+0e41d1ba785a Lint/UnreachableCode miss 4:5; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:40 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` in `begin`
+7ec76d8c4c87 Lint/UnreachableCode miss 5:7; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:50 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` in all `if` branches
+a56e8a5167b9 Lint/UnreachableCode miss 8:5; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:62 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` in all `if` branches with other expressions
+2af5e7e89d04 Lint/UnreachableCode miss 10:5; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:76 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` in all `if` and `elsif` branches
+6d6bc8eb95c0 Lint/UnreachableCode miss 13:5; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:93 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` in all `case` branches
+51991b1bcb82 Lint/UnreachableCode miss 14:5; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:111 RuboCop::Cop::Lint::UnreachableCode registers an offense for `retry` in all `case` pattern branches
+26a8a60daece Lint/UnreachableCode miss 14:5; error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:129 RuboCop::Cop::Lint::UnreachableCode accepts code with conditional `retry`
+af03bb7c4d39 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:136 RuboCop::Cop::Lint::UnreachableCode accepts `retry` as the final expression
+ebe922a264dd Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:142 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is in all `if` branches
+06d4221ed160 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:152 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is in `if` branch only
+89c2303f3109 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:164 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is in `if`, and without `else`
+921c206e1cb0 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:174 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is in `else` branch only
+abf206f33e03 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:186 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is not in `elsif` branch
+367b83c43c9f Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:201 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is in `case` branch without else
+cb9af435f1c1 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/lint/unreachable_code_spec.rb:215 RuboCop::Cop::Lint::UnreachableCode accepts `retry` is in `case` pattern branch without else
+a70686608934 Lint/UnreachableCode error -- not valid Ruby: `retry` outside `rescue` is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+
+## Lint/UselessAssignment
+# spec/rubocop/cop/lint/useless_assignment_spec.rb:547 RuboCop::Cop::Lint::UselessAssignment when a referenced variable is reassigned in a block accepts
+70712d09e98e Lint/UselessAssignment fp 5:5 -- intentional reference-timing precision; the only eager read precedes the write-only block, so foo = 2 is unread
+
+## Style/ExplicitBlockArgument
+# spec/rubocop/cop/style/explicit_block_argument_spec.rb:286 RuboCop::Cop::Style::ExplicitBlockArgument does not register an offense when code is called outside of a method
+8f68a3502c5f Style/ExplicitBlockArgument error -- invalid Ruby: yield outside a method (upstream notes this is a haml/erb recovery example); Prism and ruby -c reject it, as for existing RedundantParentheses recovery cases
+
+## Style/IfWithSemicolon
+# spec/rubocop/cop/style/if_with_semicolon_spec.rb:47 RuboCop::Cop::Style::IfWithSemicolon registers an offense and corrects when a branch binds looser than the ternary operator
+78c166622ef4 Style/IfWithSemicolon miss 1:1 2:1 3:1 4:1; error -- pinned snippet has invalid top-level yield (native Ruby/Prism rejects); all four exact diagnostics and canonical corrections pass inside a method in Rust tests; not a detection gap.
+
+## Style/MethodCallWithArgsParentheses
+# spec/rubocop/cop/style/method_call_with_args_parentheses_spec.rb:268 RuboCop::Cop::Style::MethodCallWithArgsParentheses when EnforcedStyle is require_parentheses (default) registers no offense for yield without args
+1438d61e4d5d Style/MethodCallWithArgsParentheses error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through; valid in-method yield negatives are tested
+
+## Style/OneLineConditional
+# spec/rubocop/cop/style/one_line_conditional_spec.rb:117 RuboCop::Cop::Style::OneLineConditional when AlwaysCorrectToMultiline is false behaves like if/then/else/end with constructs changing precedence registers and corrects an offense with ternary operator and adding parentheses inside for if/then/else/end with `yield a` constructs inside inner branches
+ebc3e6f877e7 Style/OneLineConditional miss 1:1; error -- invalid Ruby: three yields outside a method (Prism and native Ruby reject it); exact method-wrapped diagnostics and canonical correction are tested
+# spec/rubocop/cop/style/one_line_conditional_spec.rb:238 RuboCop::Cop::Style::OneLineConditional when AlwaysCorrectToMultiline is false registers and corrects an offense with ternary operator without adding parentheses for if/then/else/end that contains method calls with parenthesized arguments
+0c01a581f230 Style/OneLineConditional miss 1:1; error -- invalid Ruby: yield(2) outside a method (Prism and native Ruby reject it); exact method-wrapped diagnostics and canonical correction are tested
+
+## Style/RaiseArgs
+# spec/rubocop/cop/style/raise_args_spec.rb:316 RuboCop::Cop::Style::RaiseArgs when enforced style is exploded with a raise with exception object when used as an argument of `yield` registers an offense and autocorrects
+c0b4cb8223df Style/RaiseArgs miss 1:12; error -- invalid top-level yield (production Prism and Ruby compilation reject it); method-wrapped detection and unsafe no-edit regression in raise_args.rs
+
+## Style/ReduceToHash
+# spec/rubocop/cop/style/reduce_to_hash_spec.rb:230 RuboCop::Cop::Style::ReduceToHash when targeting Ruby 2.6+ when the key or the value cannot be an array element as it is parenthesizes a value that is a `yield` with arguments
+ed3a04fb9406 Style/ReduceToHash miss 1:7; error -- invalid Ruby: yield outside a method (Prism and native Ruby reject it); valid in-method yield detection/no-write is tested
+
+## Style/RedundantCondition
+# spec/rubocop/cop/style/redundant_condition_spec.rb:192 RuboCop::Cop::Style::RedundantCondition when regular condition (if) when condition and if_branch are same registers an offense and corrects when `yield` with an argument is in `else`
+389dbe539f9c Style/RedundantCondition miss 1:5; error -- not valid Ruby: `yield` outside a method; valid in-method detection is tested
+# spec/rubocop/cop/style/redundant_condition_spec.rb:192 RuboCop::Cop::Style::RedundantCondition when regular condition (if) when condition and if_branch are same registers an offense and corrects when `break` with an argument is in `else`
+b0efd5787456 Style/RedundantCondition miss 1:5; error -- not valid Ruby: `break` outside a loop/block; valid in-block detection is tested
+# spec/rubocop/cop/style/redundant_condition_spec.rb:192 RuboCop::Cop::Style::RedundantCondition when regular condition (if) when condition and if_branch are same registers an offense and corrects when `next` with an argument is in `else`
+cf8614271d6e Style/RedundantCondition miss 1:5; error -- not valid Ruby: `next` outside a loop/block; valid in-block detection is tested
+# spec/rubocop/cop/style/redundant_condition_spec.rb:204 RuboCop::Cop::Style::RedundantCondition when regular condition (if) when condition and if_branch are same registers an offense and corrects when `yield` with parenthesized arguments is in `else`
+016ae8ab28c6 Style/RedundantCondition miss 1:5; error -- not valid Ruby: `yield(1)` outside a method; valid in-method detection is tested
+
+## Style/RedundantParentheses
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:6 RuboCop::Cop::Style::RedundantParentheses behaves like keyword with arguments behaves like redundant registers an offense for parentheses around a keyword
+7eb048a47565 Style/RedundantParentheses miss 1:1; error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:6 RuboCop::Cop::Style::RedundantParentheses behaves like keyword with arguments behaves like redundant registers an offense for parentheses around a keyword
+9d728d0c26a8 Style/RedundantParentheses miss 1:1; error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:6 RuboCop::Cop::Style::RedundantParentheses behaves like keyword with arguments behaves like redundant registers an offense for parentheses around a keyword
+c86389702374 Style/RedundantParentheses miss 1:1; error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:6 RuboCop::Cop::Style::RedundantParentheses behaves like redundant registers an offense for parentheses around a unary operation
+e1fd8dc8c6d0 Style/RedundantParentheses miss 1:1; error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:19 RuboCop::Cop::Style::RedundantParentheses behaves like keyword with arguments behaves like plausible accepts parentheses when arguments are unparenthesized
+051aeee01de6 Style/RedundantParentheses error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:19 RuboCop::Cop::Style::RedundantParentheses behaves like plausible accepts parentheses when arguments are unparenthesized
+4020ad23187e Style/RedundantParentheses error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:19 RuboCop::Cop::Style::RedundantParentheses behaves like plausible accepts parentheses when arguments are unparenthesized
+e0e923b4c3ae Style/RedundantParentheses error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:1881 RuboCop::Cop::Style::RedundantParentheses accepts parentheses in yield call with hash
+da2a8d135897 Style/RedundantParentheses error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+# spec/rubocop/cop/style/redundant_parentheses_spec.rb:1897 RuboCop::Cop::Style::RedundantParentheses accepts parentheses in yield call with multiline style argument
+1578cab3d448 Style/RedundantParentheses error -- not valid Ruby: `yield` outside a method is a syntax error (Prism, `ruby -c`), which RuboCop's Prism translation lets through
+
+## Style/SafeNavigation
+# spec/rubocop/cop/style/safe_navigation_spec.rb:222 RuboCop::Cop::Style::SafeNavigation behaves like all variable types modifier if behaves like safe guarding logical break keywords allows a method call being passed to yield safe guarded by an object check
+20713efdf6d0 Style/SafeNavigation error -- spec 222 uses yield foo.bar outside a method (invalid Ruby); method-wrapped no-offense adaptation tested
+# spec/rubocop/cop/style/safe_navigation_spec.rb:222 RuboCop::Cop::Style::SafeNavigation behaves like all variable types modifier if behaves like safe guarding logical break keywords allows a method call being passed to yield safe guarded by an object check
+35975efeb2f4 Style/SafeNavigation error -- spec 222 uses yield @@foo.bar outside a method (invalid Ruby); method-wrapped no-offense adaptation tested
+# spec/rubocop/cop/style/safe_navigation_spec.rb:222 RuboCop::Cop::Style::SafeNavigation behaves like all variable types modifier if behaves like safe guarding logical break keywords allows a method call being passed to yield safe guarded by an object check
+462d1f394b10 Style/SafeNavigation error -- spec 222 uses yield FOO.bar outside a method (invalid Ruby); method-wrapped no-offense adaptation tested
+# spec/rubocop/cop/style/safe_navigation_spec.rb:222 RuboCop::Cop::Style::SafeNavigation behaves like all variable types modifier if behaves like safe guarding logical break keywords allows a method call being passed to yield safe guarded by an object check
+51723be2cd56 Style/SafeNavigation error -- spec 222 uses yield @foo.bar outside a method (invalid Ruby); method-wrapped no-offense adaptation tested
+# spec/rubocop/cop/style/safe_navigation_spec.rb:222 RuboCop::Cop::Style::SafeNavigation behaves like all variable types modifier if behaves like safe guarding logical break keywords allows a method call being passed to yield safe guarded by an object check
+9e9b6626537e Style/SafeNavigation error -- spec 222 uses yield $FOO.bar outside a method (invalid Ruby); method-wrapped no-offense adaptation tested
+# spec/rubocop/cop/style/safe_navigation_spec.rb:222 RuboCop::Cop::Style::SafeNavigation behaves like all variable types modifier if behaves like safe guarding logical break keywords allows a method call being passed to yield safe guarded by an object check
+bea37911d012 Style/SafeNavigation error -- spec 222 uses yield FOO::BAR.bar outside a method (invalid Ruby); method-wrapped no-offense adaptation tested
+
+## Style/TernaryParentheses
+# spec/rubocop/cop/style/ternary_parentheses_spec.rb:252 RuboCop::Cop::Style::TernaryParentheses when configured to enforce parentheses omission with a simple condition registers an offense for yield in condition
+89ad1bbf7fc3 Style/TernaryParentheses miss 1:7; error -- invalid top-level yield (Prism and ruby -c reject it); method-wrapped detection and canonical correction covered in ternary_parentheses.rs
+# spec/rubocop/cop/style/ternary_parentheses_spec.rb:390 RuboCop::Cop::Style::TernaryParentheses when configured to enforce parentheses omission with a complex condition registers an offense but does not autocorrect `yield` with unparenthesized arguments
+7c0d6bf2d35f Style/TernaryParentheses miss 1:7; error -- invalid top-level yield (Prism and ruby -c reject it); method-wrapped detection and withheld low-precedence correction covered in ternary_parentheses.rs

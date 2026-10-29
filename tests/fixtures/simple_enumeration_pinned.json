@@ -1,0 +1,756 @@
+[
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 5,
+    "source": "(a..10).each {}",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 9,
+    "source": "(0..b).each {}",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 111,
+    "source": "('a'..'b').each {}",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 14,
+    "source": "(0...10).each { do_something }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "10.times { do_something }\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 27,
+    "source": "(0...10).each { |n| do_something(n) }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 35,
+    "source": "(0...10).each do\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "10.times do\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 52,
+    "source": "(0...10).each do |n|\n  do_something(n)\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 63,
+    "source": "(0...10)&.each { do_something }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "10.times { do_something }\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 76,
+    "source": "(0...10)&.each { |n| do_something(n) }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 84,
+    "source": "(0...10)&.each do\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "10.times do\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 101,
+    "source": "(0...10)&.each do |n|\n  do_something(n)\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 116,
+    "source": "(0..10).each {}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "11.times {}\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 127,
+    "source": "(0..10).each do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "11.times do\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 140,
+    "source": "(3..7).each do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "5.times do\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 168,
+    "source": "(3..7).each do |n|\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 154,
+    "source": "(3..7)&.each do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "5.times do\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 177,
+    "source": "(0...10).each {}\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "10.times {}\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 188,
+    "source": "(0...10).each do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "10.times do\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 201,
+    "source": "(3...7).each do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "4.times do\nend\n"
+  },
+  {
+    "cop": "Style/EachForSimpleLoop",
+    "spec_line": 214,
+    "source": "(3...7).each do |n|\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 5,
+    "source": "[].inject({}) { |a, e| a }\n\n[].reduce({}) do |a, e|\n  a[e] = 1\n  a[e] = 1\n  a\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "correction": "[].each_with_object({}) { |e, a|  }\n\n[].each_with_object({}) do |e, a|\n  a[e] = 1\n  a[e] = 1\nend\n"
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 28,
+    "source": "[]&.inject({}) { |a, e| a }\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "[]&.each_with_object({}) { |e, a|  }\n"
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 86,
+    "source": "[1, 2, 3].inject({}) do |h, i|\n  h[i] = i\n  h\nend\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "correction": "[1, 2, 3].each_with_object({}) do |i, h|\n  h[i] = i\nend\n"
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 102,
+    "source": "[1, 2, 3].inject({}) do |h, i|\n  h\nend\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "correction": "[1, 2, 3].each_with_object({}) do |i, h|\nend\n"
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 116,
+    "source": "[].inject({}) { $GLOBAL[rand] = rand; $GLOBAL }\n\n[].reduce({}) do\n   $GLOBAL[rand] = rand\n   $GLOBAL\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 127,
+    "source": "[].inject({}) { |h| h[rand] = rand; h }\n\n[].reduce({}) do |h|\n   h[rand] = rand\n   h\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 138,
+    "source": "[].inject({}) do |a, e|\n  a + e\nend\n\n[].reduce({}) do |a, e|\n  my_method e, a\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 150,
+    "source": "[].inject({}) do |a, e|\nend\n\n[].reduce({}) { |a, e| }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 159,
+    "source": "[].inject({}) do |a, e|\n  a = e if e\nend\n\n[].inject({}) do |a, e|\n  if e\n    a = e\n  end\nend\n\n[].reduce({}) do |a, e|\n  a = e ? e : 2\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 177,
+    "source": "[].inject(:+)",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 181,
+    "source": "[1, 2, 3].inject { |a, e| a + e }",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 185,
+    "source": "r = [1, 2, 3].reduce({}) do |memo, item|\n  memo += item > 2 ? item : 0\n  memo\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 40,
+    "source": "[].reduce({}) do\n  _1[_2] = 1\n  _1\nend\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "correction": "[].each_with_object({}) do\n  _2[_1] = 1\n  _2\nend\n"
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 57,
+    "source": "[]&.reduce({}) do\n  _1[_2] = 1\n  _1\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "[]&.each_with_object({}) do\n  _2[_1] = 1\n  _2\nend\n"
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 76,
+    "source": "[].inject({}) do\n  it[foo] = bar\n  it\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/EachWithObject",
+    "spec_line": 195,
+    "source": "array.reduce(0) { |a, e| a }",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 6,
+    "source": "foo.map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 23,
+    "source": "foo.filter_map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 40,
+    "source": "foo.filter_map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 57,
+    "source": "foo&.map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend&.compact\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 74,
+    "source": "foo.map do |item|\n  if item.bar? &&\n    bar.baz\n    item\n  else\n    next\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? &&\n    bar.baz }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 93,
+    "source": "foo.map do |item|\n  if item.bar?\n    next item\n  else\n    nil\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 110,
+    "source": "foo.map do |item|\n  if item.bar?\n    next\n  else\n    item\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 127,
+    "source": "foo.map do |item|\n  if item.bar?\n    nil\n  else\n    next item\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 144,
+    "source": "foo.map do |item|\n  item.bar? ? item : next\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 157,
+    "source": "foo.map do |item|\n  item.bar? ? next : item\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 170,
+    "source": "foo.map do |item|\n  item if item.bar?\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 183,
+    "source": "foo.map do |item|\n  item unless item.bar?\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 196,
+    "source": "foo.map do |item|\n  next if item.bar?\n\n  item\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 211,
+    "source": "foo.map do |item|\n  next unless item.bar?\n\n  item\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 226,
+    "source": "foo.map do |item|\n  next item if item.bar?\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 239,
+    "source": "foo.map do |item|\n  next item unless item.bar?\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 252,
+    "source": "foo.map do |item|\n  next item if item.bar?\n\n  nil\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 267,
+    "source": "foo.map do |item|\n  next item unless item.bar?\n\n  nil\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 282,
+    "source": "foo.map do |item|\n  next nil if item.bar?\n\n  item\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 297,
+    "source": "foo.map do |item|\n  next nil unless item.bar?\n\n  item\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 312,
+    "source": "foo.map do |item|\n  if item.bar?\n    item\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 327,
+    "source": "foo.map do |item|\n  unless item.bar?\n    item\n  end\nend.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 342,
+    "source": "foo.map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 354,
+    "source": "foo.map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend.do_something\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 366,
+    "source": "foo.map do |item|\n  if item.bar?\n    item\n  else\n    next\n  end\nend.compact(arg)\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 378,
+    "source": "foo.map do |item|\n  if item.bar?\n    1\n  else\n    2\n  end\nend.compact\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 390,
+    "source": "foo.map do |item|\n  if item.bar?\n    item\n  elsif\n    baz\n  else\n    next\n  end\nend.compact\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 404,
+    "source": "return unless item.bar?\nreturn unless item.baz?\n\nitem\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 415,
+    "source": "foo.map { |item| item.bar? ? item : next }.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 426,
+    "source": "foo.map { |item| item.bar? ? next : item }.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 437,
+    "source": "foo.map { |item| item if item.bar? }.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.select { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 448,
+    "source": "foo.map { |item| item unless item.bar? }.compact\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.reject { |item| item.bar? }\n"
+  },
+  {
+    "cop": "Style/MapCompactWithConditionalBlock",
+    "spec_line": 459,
+    "source": "foo.map { |item| item if item.bar }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  }
+]

@@ -1,0 +1,81 @@
+[
+  {
+    "fixture": "mixed",
+    "selection": "default-style",
+    "passes": [
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values( value=1 )\n    # This comment belongs to the returned collection.\n    [ \"héllo\" ,value+1,{key: \"v\"}, 12_345, 0xFF, %w[one two], %w[cat dog], 'text', :word, /[a]/.match?(\"a\") ]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total += item\n    end\n    total\n  end\n\n  def self.failure\n    raise \"controlled\"\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1,2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts \"#{ \"message\".upcase }: #{error.class}: #{error.message}\"\nend\n",
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values( value=1 )\n    # This comment belongs to the returned collection.\n    [ \"héllo\" ,value+1,{key: \"v\"}, 12_345, 0xFF, %w[one two], %w[cat dog], \"text\", :word, /[a]/.match?(\"a\") ]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total += item\n    end\n    total\n  end\n\n  def self.failure\n    raise \"controlled\"\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1,2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts \"#{ \"message\".upcase }: #{error.class}: #{error.message}\"\nend\n",
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values( value=1 )\n    # This comment belongs to the returned collection.\n    [ \"héllo\" ,value+1,{key: \"v\"}, 12_345, 0xFF, %w[one two], %w[cat dog], \"text\", :word, /[a]/.match?(\"a\") ]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total += item\n    end\n    total\n  end\n\n  def self.failure\n    raise \"controlled\"\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1,2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts \"#{ \"message\".upcase }: #{error.class}: #{error.message}\"\nend\n"
+    ]
+  },
+  {
+    "fixture": "mixed",
+    "selection": "default-style-layout",
+    "passes": [
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values(value = 1)\n    # This comment belongs to the returned collection.\n    [\"héllo\", value + 1, { :key => \"v\"}, 12_345, 0xFF, %w[one two], %w[cat dog], 'text', :word, /[a]/.match?(\"a\")]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total = total + item\n    end\n    total\n  end\n\n  def self.failure\n    raise \"controlled\"\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1, 2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts \"#{ \"message\".upcase }: #{error.class}: #{error.message}\"\nend\n",
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values(value = 1)\n    # This comment belongs to the returned collection.\n    [\"héllo\", value + 1, { key: \"v\" }, 12_345, 0xFF, %w[one two], %w[cat dog], \"text\", :word, /[a]/.match?(\"a\")]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total = total + item\n    end\n    total\n  end\n\n  def self.failure\n    raise \"controlled\"\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1, 2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts \"#{ \"message\".upcase }: #{error.class}: #{error.message}\"\nend\n",
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values(value = 1)\n    # This comment belongs to the returned collection.\n    [\"héllo\", value + 1, { key: \"v\" }, 12_345, 0xFF, %w[one two], %w[cat dog], \"text\", :word, /[a]/.match?(\"a\")]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total = total + item\n    end\n    total\n  end\n\n  def self.failure\n    raise \"controlled\"\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1, 2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts \"#{ \"message\".upcase }: #{error.class}: #{error.message}\"\nend\n"
+    ]
+  },
+  {
+    "fixture": "mixed",
+    "selection": "all-style-layout",
+    "passes": [
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values(value = 1)\n    # This comment belongs to the returned collection.\n    [\"héllo\", value + 1, { :key => \"v\"}, 12_345, 0xFF, %w[one two], %w[cat dog], 'text', :word, /[a]/.match?(\"a\")]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total = total + item\n    end\n    total\n  end\n\n  def self.failure\n    raise('controlled')\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1, 2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts(\"#{ 'message'.upcase }: #{error.class}: #{error.message}\")\nend\n",
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values(value = 1)\n    # This comment belongs to the returned collection.\n    [\"héllo\", value + 1, { key: \"v\" }, 12_345, 0xFF, %w[one two], %w[cat dog], \"text\", :word, /[a]/.match?(\"a\")]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total = total + item\n    end\n    total\n  end\n\n  def self.failure\n    raise(\"controlled\")\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1, 2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts(\"#{ \"message\".upcase }: #{error.class}: #{error.message}\")\nend\n",
+      "# Copyright 2026 Test\n# Controlled declarations, evaluation order, exception results and literals.\nclass CorrectionProbe\n  attr_reader :one\n  attr_reader :two\n\n  def self.values(value = 1)\n    # This comment belongs to the returned collection.\n    [\"héllo\", value + 1, { key: \"v\" }, 12_345, 0xFF, %w[one two], %w[cat dog], \"text\", :word, /[a]/.match?(\"a\")]\n  end\n\n  def self.accumulate(items)\n    total = 0\n    items.each do |item|\n      total = total + item\n    end\n    total\n  end\n\n  def self.failure\n    raise(\"controlled\")\n  end\nend\n\nevents = []\nrecord = ->(value) { events << value\n value }\na = 1\nb = 2\nresult = record.call(a) + record.call(b)\nputs [CorrectionProbe.values, CorrectionProbe.accumulate([1, 2]), result, events].inspect\nbegin\n  CorrectionProbe.failure\nrescue => error\n  puts(\"#{ \"message\".upcase }: #{error.class}: #{error.message}\")\nend\n"
+    ]
+  },
+  {
+    "fixture": "binding",
+    "selection": "default-style",
+    "passes": [
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield x }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3,1].sort_by { |x| x }, [\"one\",\"two\"], [:one,:two]].inspect\nputs [1,2].map { puts _1 }.inspect\nputs (1 rescue nil).inspect\n",
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield x }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3,1].sort_by { |x| x }, [\"one\",\"two\"], [:one,:two]].inspect\nputs [1,2].map { puts _1 }.inspect\nputs (1 rescue nil).inspect\n"
+    ]
+  },
+  {
+    "fixture": "binding",
+    "selection": "default-style-layout",
+    "passes": [
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield x }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3, 1].sort_by { |x| x }, [\"one\", 'two'], [:one, :two]].inspect\nputs [1, 2].map { puts _1 }.inspect\nputs (1 rescue nil).inspect\n",
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield x }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3, 1].sort_by { |x| x }, [\"one\", \"two\"], [:one, :two]].inspect\nputs [1, 2].map { puts _1 }.inspect\nputs (1 rescue nil).inspect\n",
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield x }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3, 1].sort_by { |x| x }, [\"one\", \"two\"], [:one, :two]].inspect\nputs [1, 2].map { puts _1 }.inspect\nputs (1 rescue nil).inspect\n"
+    ]
+  },
+  {
+    "fixture": "binding",
+    "selection": "all-style-layout",
+    "passes": [
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield(x) }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3, 1].sort_by { |x| x }, [\"one\", 'two'], [:one, :two]].inspect\nputs [1, 2].map { puts(_1) }.inspect\nputs (1 rescue nil).inspect\n",
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield(x) }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3, 1].sort_by { |x| x }, [\"one\", \"two\"], [:one, :two]].inspect\nputs [1, 2].map { puts(_1) }.inspect\nputs (1 rescue nil).inspect\n",
+      "# Copyright 2026 Test\n# Controlled block binding, guards, rescue, forwarding and numbered parameters.\ndef collect(*args)\n  args.map { |x| yield(x) }\nend\n\ndef forward(...)\n  collect(...)\nend\n\ndef guarded(ready)\n  if ready\n    :yes\n  else\n    :no\n  end\nend\n\nvalues = forward(1, 2) { |x| x + 1 }\nputs [values, guarded(true), guarded(false), [3, 1].sort_by { |x| x }, [\"one\", \"two\"], [:one, :two]].inspect\nputs [1, 2].map { puts(_1) }.inspect\nputs (1 rescue nil).inspect\n"
+    ]
+  },
+  {
+    "fixture": "bytes",
+    "selection": "default-style",
+    "passes": [
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample( value=1 )\n\n\t[ 'é  \ntext' ,value+1,{key: \"v\"}, __LINE__ ]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n",
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample( value=1 )\n\n\t[ 'é  \ntext' ,value+1,{key: \"v\"}, __LINE__ ]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n"
+    ]
+  },
+  {
+    "fixture": "bytes",
+    "selection": "default-style-layout",
+    "passes": [
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample(value = 1)\n\n  ['é  \ntext', value + 1, { :key => \"v\"}, __LINE__]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n",
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample(value = 1)\n\n  ['é  \ntext', value + 1, { key: \"v\" }, __LINE__]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n",
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample(value = 1)\n\n  ['é  \ntext', value + 1, { key: \"v\" }, __LINE__]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n"
+    ]
+  },
+  {
+    "fixture": "bytes",
+    "selection": "all-style-layout",
+    "passes": [
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample(value = 1)\n\n  ['é  \ntext', value + 1, { :key => \"v\"}, __LINE__]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n",
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample(value = 1)\n\n  ['é  \ntext', value + 1, { key: \"v\" }, __LINE__]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n",
+      "# coding: utf-8\n# Copyright 2026 Test\ndef sample(value = 1)\n\n  ['é  \ntext', value + 1, { key: \"v\" }, __LINE__]\n\nend\nputs sample.inspect\nputs __LINE__\n__END__\nraw  \n\n"
+    ]
+  }
+]

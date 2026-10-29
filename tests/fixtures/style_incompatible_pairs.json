@@ -1,0 +1,726 @@
+[
+  {
+    "cop": "Style/AccessModifierDeclarations",
+    "peer": "Style/EndlessMethod",
+    "reason": "Style/AccessModifierDeclarations is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "class Foo\n  private def foo; end\nend\n",
+    "passes": [
+      "class Foo\n  private def foo; end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/AccessModifierDeclarations",
+    "peer": "Style/SingleLineMethods",
+    "reason": "Style/AccessModifierDeclarations is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "class Foo\n  private def foo; end\nend\n",
+    "passes": [
+      "class Foo\n  private def foo; end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/AndOr",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Style/AndOr is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "if a and b; end\n",
+    "passes": [
+      "if a and b; end\n"
+    ]
+  },
+  {
+    "cop": "Style/AndOr",
+    "peer": "Style/ReturnNil",
+    "reason": "Style/AndOr is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "if a and b; end\n",
+    "passes": [
+      "if a and b; end\n"
+    ]
+  },
+  {
+    "cop": "Style/AndOr",
+    "peer": "Style/ReturnNilInPredicateMethodDefinition",
+    "reason": "Style/AndOr is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "if a and b; end\n",
+    "passes": [
+      "if a and b; end\n"
+    ]
+  },
+  {
+    "cop": "Style/ArgumentsForwarding",
+    "peer": "Naming/BlockForwarding",
+    "reason": "Naming/BlockForwarding is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "def foo(*args)\n  bar(*args)\nend\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/ArgumentsForwarding",
+    "peer": "Style/EndlessMethod",
+    "reason": "Fixed allow_single_line expands multiline endless definitions, never creates one; atomic signature/use replacement overlaps are deferred as whole edits.",
+    "available": true,
+    "before": "def foo(*args) = bar(\n  *args)\n",
+    "passes": [
+      "def foo(*args)\n  bar(\n  *args)\nend\n",
+      "def foo(*)\n  bar(\n  *)\nend\n",
+      "def foo(*)\n  bar(\n  *)\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/ArgumentsForwarding",
+    "peer": "Style/MethodDefParentheses",
+    "reason": "Fixed require_parentheses and anonymous forwarding agree; overlapping signature envelopes defer one complete edit to an explicit later pass.",
+    "available": true,
+    "before": "def foo *args\n  bar(*args)\nend\n",
+    "passes": [
+      "def foo(*args)\n  bar(*args)\nend\n",
+      "def foo(*)\n  bar(*)\nend\n",
+      "def foo(*)\n  bar(*)\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/BlockDelimiters",
+    "peer": "Layout/SpaceBeforeBlockBraces",
+    "reason": "Layout/SpaceBeforeBlockBraces is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "each { |x|\n  x\n}\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/BlockDelimiters",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Both emit atomic binding-preserving envelopes; command-argument block conversion is withheld until the parenthesized call is established.",
+    "available": true,
+    "before": "each { |x|\n  object.call x\n}\n",
+    "passes": [
+      "each do |x|\n  object.call x\nend\n",
+      "each do |x|\n  object.call(x)\nend\n",
+      "each do |x|\n  object.call(x)\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/BlockDelimiters",
+    "peer": "Style/RedundantBegin",
+    "reason": "RedundantBegin withholds when BlockDelimiters is selected; detection remains active.",
+    "available": true,
+    "before": "each { |x|\n  begin\n    x\n  end\n}\n",
+    "passes": [
+      "each do |x|\n  begin\n    x\n  end\nend\n",
+      "each do |x|\n  begin\n    x\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/CaseLikeIf",
+    "peer": "Style/IfInsideElse",
+    "reason": "Style/CaseLikeIf is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "if x == 1; elsif x == 2; elsif x == 3; end\n",
+    "passes": [
+      "if x == 1; elsif x == 2; elsif x == 3; end\n"
+    ]
+  },
+  {
+    "cop": "Style/ClassAndModuleChildren",
+    "peer": "Style/StructInheritance",
+    "reason": "Style/ClassAndModuleChildren is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "class ::Foo::Bar < Base\nend\n",
+    "passes": [
+      "class ::Foo::Bar < Base\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/ColonMethodCall",
+    "peer": "Style/RedundantSelf",
+    "reason": "RedundantSelf withholds when ColonMethodCall is selected; colon-token correction still runs.",
+    "available": true,
+    "before": "self::object_id\n",
+    "passes": [
+      "self.object_id\n",
+      "self.object_id\n"
+    ]
+  },
+  {
+    "cop": "Style/CombinableLoops",
+    "peer": "Layout/BlockEndNewline",
+    "reason": "Layout/BlockEndNewline is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "items.each { foo }\nitems.each { bar }\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/CombinableLoops",
+    "peer": "Layout/RedundantLineBreak",
+    "reason": "Layout/RedundantLineBreak is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "items.each { foo }\nitems.each { bar }\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/ConcatArrayLiterals",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Style/ConcatArrayLiterals is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "arr.concat([a], [], [b])\n",
+    "passes": [
+      "arr.concat([a], [], [b])\n"
+    ]
+  },
+  {
+    "cop": "Style/ConcatArrayLiterals",
+    "peer": "Style/TrailingCommaInArguments",
+    "reason": "Style/ConcatArrayLiterals is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "arr.concat([a], [], [b])\n",
+    "passes": [
+      "arr.concat([a], [], [b])\n"
+    ]
+  },
+  {
+    "cop": "Style/ConditionalAssignment",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "ConditionalAssignment withholds its envelope whenever this opt-in parenthesizing peer is selected.",
+    "available": true,
+    "before": "if ready\n  x = work 1\nelse\n  x = work 2\nend\n",
+    "passes": [
+      "if ready\n  x = work(1)\nelse\n  x = work(2)\nend\n",
+      "if ready\n  x = work(1)\nelse\n  x = work(2)\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/EndlessMethod",
+    "peer": "Style/GuardClause",
+    "reason": "Fixed allow_single_line expands multiline endless methods, never wraps a guard in a new endless method.",
+    "available": true,
+    "before": "def foo = if ready\n  1\nend\n",
+    "passes": [
+      "def foo\n  if ready\n  1\nend\nend\n",
+      "def foo\n  return unless ready\n  1\n\nend\n",
+      "def foo\n  return unless ready\n  1\n\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/EndlessMethod",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Fixed allow_single_line expands multiline endless definitions; whole-definition and argument envelopes conflict deterministically, not partially.",
+    "available": true,
+    "before": "def foo = object.call value,\n  2\n",
+    "passes": [
+      "def foo\n  object.call value,\n  2\nend\n",
+      "def foo\n  object.call(value,\n  2)\nend\n",
+      "def foo\n  object.call(value,\n  2)\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/EndlessMethod",
+    "peer": "Style/MethodDefParentheses",
+    "reason": "Fixed allow_single_line never introduces endless definitions or duplicate parameter parentheses.",
+    "available": true,
+    "before": "def foo(a) = [\n  a]\n",
+    "passes": [
+      "def foo(a)\n  [\n  a]\nend\n",
+      "def foo(a)\n  [\n  a]\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "peer": "Lint/UnusedMethodArgument",
+    "reason": "Lint/UnusedMethodArgument is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "def f\n  if block_given?; [1].each { |x| yield x }; end\nend\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "peer": "Style/LambdaCall",
+    "reason": "Detection sees the yield wrapper, but correction requires proven core iteration; arbitrary Proc-call wrapping is withheld. LambdaCall can still normalize call sugar without changing block attachment.",
+    "available": true,
+    "before": "def f\n  if block_given?; ->(x) { x }.(1) { |x| yield x }; end\nend\n",
+    "passes": [
+      "def f\n  if block_given?; ->(x) { x }.call(1) { |x| yield x }; end\nend\n",
+      "def f\n  if block_given?; ->(x) { x }.call(1) { |x| yield x }; end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "peer": "Style/TrailingCommaInArguments",
+    "reason": "Fixed no_comma only removes commas. The argument-bearing each call is not a proven core iteration for block forwarding, so ExplicitBlockArgument withholds rather than appending a block at an uncertain comma site.",
+    "available": true,
+    "before": "def f\n  if block_given?; [1].each(1,) { |x| yield x }; end\nend\n",
+    "passes": [
+      "def f\n  if block_given?; [1].each(1) { |x| yield x }; end\nend\n",
+      "def f\n  if block_given?; [1].each(1) { |x| yield x }; end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/For",
+    "peer": "Style/RedundantBegin",
+    "reason": "Style/For is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "def func\n  for n in [1, 2, 3] do\n    puts n\n  end\nend\n",
+    "passes": [
+      "def func\n  for n in [1, 2, 3] do\n    puts n\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/For",
+    "peer": "Style/ItBlockParameter",
+    "reason": "Style/For is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "def func\n  for n in [1, 2, 3] do\n    puts n\n  end\nend\n",
+    "passes": [
+      "def func\n  for n in [1, 2, 3] do\n    puts n\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/GuardClause",
+    "peer": "Style/MissingElse",
+    "reason": "GuardClause withholds when opt-in MissingElse is selected; fixed EmptyElse=both also withholds MissingElse insertions.",
+    "available": true,
+    "before": "def foo\n  if condition\n    work\n  end\nend\n",
+    "passes": [
+      "def foo\n  if condition\n    work\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/HashAsLastArrayItem",
+    "peer": "Style/TrailingCommaInArrayLiteral",
+    "reason": "Fixed braces plus no_comma agree; brace insertion and comma removal preserve the last hash item.",
+    "available": true,
+    "before": "[1, a: 2,]\n",
+    "passes": [
+      "[1, {a: 2}]\n",
+      "[1, {a: 2}]\n"
+    ]
+  },
+  {
+    "cop": "Style/HashConversion",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Style/HashConversion is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "Hash[ary]\n",
+    "passes": [
+      "Hash[ary]\n"
+    ]
+  },
+  {
+    "cop": "Style/HashSyntax",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Fixed shorthand=either never introduces value omission or call parentheses; ruby19 key edits compose with parenthesizing.",
+    "available": true,
+    "before": "object.work :a => 1\n",
+    "passes": [
+      "object.work(:a => 1)\n",
+      "object.work(a: 1)\n",
+      "object.work(a: 1)\n"
+    ]
+  },
+  {
+    "cop": "Style/HashSyntax",
+    "peer": "Style/SuperWithArgsParentheses",
+    "reason": "Fixed shorthand=either never introduces value omission or super parentheses; key edits and super wrapper do not duplicate delimiters.",
+    "available": true,
+    "before": "super :a => 1\n",
+    "passes": [
+      "super(:a => 1)\n",
+      "super(a: 1)\n",
+      "super(a: 1)\n"
+    ]
+  },
+  {
+    "cop": "Style/IfUnlessModifier",
+    "peer": "Style/Next",
+    "reason": "IfUnlessModifier withholds with Next selected; both detectors remain active.",
+    "available": true,
+    "before": "[].each do\n  if ready\n    a\n  end\nend\n",
+    "passes": [
+      "[].each do\n  if ready\n    a\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/IfUnlessModifier",
+    "peer": "Style/SoleNestedConditional",
+    "reason": "IfUnlessModifier withholds with SoleNestedConditional selected; both detectors remain active.",
+    "available": true,
+    "before": "if a\n  work\nend\nif b\n  work if c\nend\n",
+    "passes": [
+      "if a\n  work\nend\nif b && c\n  work\nend\n",
+      "if a\n  work\nend\nif b && c\n  work\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/IfUnlessModifierOfIfUnless",
+    "peer": "Style/SoleNestedConditional",
+    "reason": "Modifier-of-conditional expansion withholds with SoleNestedConditional selected.",
+    "available": true,
+    "before": "a ? b : c if d\n",
+    "passes": [
+      "a ? b : c if d\n"
+    ]
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "peer": "Style/Not",
+    "reason": "Style/InverseMethods is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "!foo.none?\n",
+    "passes": [
+      "!foo.none?\n"
+    ]
+  },
+  {
+    "cop": "Style/InverseMethods",
+    "peer": "Style/SymbolProc",
+    "reason": "Style/InverseMethods is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "!foo.none?\n",
+    "passes": [
+      "!foo.none?\n"
+    ]
+  },
+  {
+    "cop": "Style/ItBlockParameter",
+    "peer": "Style/Lambda",
+    "reason": "Fixed only_numbered_parameters removes no explicit lambda argument list, unlike upstream always. The fixture separately exercises multiline lambda conversion and a normal numbered block; neither adds an explicit empty list.",
+    "available": true,
+    "before": "f = -> do\n  1\nend\nfoo { puts _1 }\n",
+    "passes": [
+      "f = lambda do\n  1\nend\nfoo { puts it }\n",
+      "f = lambda do\n  1\nend\nfoo { puts it }\n"
+    ]
+  },
+  {
+    "cop": "Style/ItBlockParameter",
+    "peer": "Style/StabbyLambdaParentheses",
+    "reason": "Fixed only_numbered_parameters never removes the named parameter wrapped by StabbyLambdaParentheses; numbered parameters need no parentheses.",
+    "available": true,
+    "before": "->a { a }\nfoo { puts _1 }\n",
+    "passes": [
+      "->(a) { a }\nfoo { puts it }\n",
+      "->(a) { a }\nfoo { puts it }\n"
+    ]
+  },
+  {
+    "cop": "Style/Lambda",
+    "peer": "Style/SymbolProc",
+    "reason": "SymbolProc is unsafe detection-only; no competing block-to-symbol rewrite is emitted.",
+    "available": true,
+    "before": "f = -> do\n  1\nend\n",
+    "passes": [
+      "f = lambda do\n  1\nend\n",
+      "f = lambda do\n  1\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/LineEndConcatenation",
+    "peer": "Style/RedundantInterpolation",
+    "reason": "Style/LineEndConcatenation is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "\"a\" +\n  \"b\"\n",
+    "passes": [
+      "\"a\" +\n  \"b\"\n"
+    ]
+  },
+  {
+    "cop": "Style/MapToHash",
+    "peer": "Layout/SingleLineBlockChain",
+    "reason": "Layout/SingleLineBlockChain is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "array.map { |x| [x,x] }.to_h\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/MethodCallWithArgsParentheses",
+    "peer": "Style/NestedParenthesizedCalls",
+    "reason": "Fixed require_parentheses agrees with nested-call parenthesizing; overlapping call envelopes defer complete edits.",
+    "available": true,
+    "before": "puts(compute something)\n",
+    "passes": [
+      "puts(compute(something))\n",
+      "puts(compute(something))\n"
+    ]
+  },
+  {
+    "cop": "Style/MethodCallWithArgsParentheses",
+    "peer": "Style/RedundantParentheses",
+    "reason": "Literal grouping removal and required call parentheses compose through complete-envelope overlap deferral.",
+    "available": true,
+    "before": "object.work value, (1)\n",
+    "passes": [
+      "object.work(value, (1))\n",
+      "object.work(value, 1)\n",
+      "object.work(value, 1)\n"
+    ]
+  },
+  {
+    "cop": "Style/MethodCallWithArgsParentheses",
+    "peer": "Style/RescueModifier",
+    "reason": "RescueModifier withholds when opt-in MethodCallWithArgsParentheses is selected.",
+    "available": true,
+    "before": "object.call value\n",
+    "passes": [
+      "object.call(value)\n",
+      "object.call(value)\n"
+    ]
+  },
+  {
+    "cop": "Style/MethodCallWithArgsParentheses",
+    "peer": "Style/TernaryParentheses",
+    "reason": "Fixed require_no_parentheses strips only condition grouping; required call argument wrappers remain distinct.",
+    "available": true,
+    "before": "object.work value, ((true) ? 1 : 2)\n",
+    "passes": [
+      "object.work(value, ((true) ? 1 : 2))\n",
+      "object.work(value, (true ? 1 : 2))\n",
+      "object.work(value, (true ? 1 : 2))\n"
+    ]
+  },
+  {
+    "cop": "Style/MethodCallWithArgsParentheses",
+    "peer": "Style/TrailingCommaInArguments",
+    "reason": "Fixed no_comma removes trailing commas rather than inserting them at a newly wrapped call boundary.",
+    "available": true,
+    "before": "object.work inner(1,)\n",
+    "passes": [
+      "object.work(inner(1,))\n",
+      "object.work(inner(1))\n",
+      "object.work(inner(1))\n"
+    ]
+  },
+  {
+    "cop": "Style/MethodDefParentheses",
+    "peer": "Style/ArgumentsForwarding",
+    "reason": "Fixed require_parentheses and anonymous forwarding agree; overlapping signature envelopes defer whole edits.",
+    "available": true,
+    "before": "def foo *args\n  bar(*args)\nend\n",
+    "passes": [
+      "def foo(*args)\n  bar(*args)\nend\n",
+      "def foo(*)\n  bar(*)\nend\n",
+      "def foo(*)\n  bar(*)\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/MutableConstant",
+    "peer": "Style/HashAsLastArrayItem",
+    "reason": "Style/MutableConstant is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "A = []\n::B ||= {}\n",
+    "passes": [
+      "A = []\n::B ||= {}\n"
+    ]
+  },
+  {
+    "cop": "Style/MutableConstant",
+    "peer": "Style/TrailingCommaInArrayLiteral",
+    "reason": "Style/MutableConstant is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "A = []\n::B ||= {}\n",
+    "passes": [
+      "A = []\n::B ||= {}\n"
+    ]
+  },
+  {
+    "cop": "Style/MutableConstant",
+    "peer": "Style/TrailingCommaInHashLiteral",
+    "reason": "Style/MutableConstant is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "A = []\n::B ||= {}\n",
+    "passes": [
+      "A = []\n::B ||= {}\n"
+    ]
+  },
+  {
+    "cop": "Style/NegatedIfElseCondition",
+    "peer": "Style/InverseMethods",
+    "reason": "NegatedIfElseCondition withholds with InverseMethods selected, even though the latter is unsafe detection-only.",
+    "available": true,
+    "before": "if !false\n work\nelse\n other\nend\n",
+    "passes": [
+      "if !false\n work\nelse\n other\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/NegatedIfElseCondition",
+    "peer": "Style/Not",
+    "reason": "NegatedIfElseCondition withholds with Not selected.",
+    "available": true,
+    "before": "if !false\n work\nelse\n other\nend\n",
+    "passes": [
+      "if !false\n work\nelse\n other\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/NestedParenthesizedCalls",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Both fixed policies require argument parentheses; overlapping call envelopes defer whole edits without duplicated parentheses.",
+    "available": true,
+    "before": "puts(compute something)\n",
+    "passes": [
+      "puts(compute(something))\n",
+      "puts(compute(something))\n"
+    ]
+  },
+  {
+    "cop": "Style/Next",
+    "peer": "Style/SafeNavigation",
+    "reason": "Next withholds with unsafe detection-only SafeNavigation selected; no guard/receiver rewrite is hidden.",
+    "available": true,
+    "before": "[].each do\n  if ready?\n    a\n    b\n    c\n  end\nend\n",
+    "passes": [
+      "[].each do\n  if ready?\n    a\n    b\n    c\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/RedundantBegin",
+    "peer": "Style/BlockDelimiters",
+    "reason": "RedundantBegin withholds with BlockDelimiters selected.",
+    "available": true,
+    "before": "each { |x|\n  begin\n    x\n  end\n}\n",
+    "passes": [
+      "each do |x|\n  begin\n    x\n  end\nend\n",
+      "each do |x|\n  begin\n    x\n  end\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/RedundantDoubleSplatHashBraces",
+    "peer": "Style/TrailingCommaInHashLiteral",
+    "reason": "Fixed no_comma only removes commas; it cannot add the upstream dangling comma after brace removal.",
+    "available": true,
+    "before": "f(**{a: 1,})\n",
+    "passes": [
+      "f(a: 1)\n",
+      "f(a: 1)\n"
+    ]
+  },
+  {
+    "cop": "Style/RedundantInterpolation",
+    "peer": "Style/LineEndConcatenation",
+    "reason": "Style/RedundantInterpolation is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "\"#{x}\"\n",
+    "passes": [
+      "\"#{x}\"\n"
+    ]
+  },
+  {
+    "cop": "Style/RedundantRegexpEscape",
+    "peer": "Style/RegexpLiteral",
+    "reason": "Delimiter-aware escape removal and whole-literal delimiter conversion defer overlapping edits atomically; decoded regexp bytes stay protected by feature proofs.",
+    "available": true,
+    "before": "%r{a\\-b}\n",
+    "passes": [
+      "/a\\-b/\n",
+      "/a-b/\n",
+      "/a-b/\n"
+    ]
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "peer": "Style/ColonMethodCall",
+    "reason": "RedundantSelf withholds with ColonMethodCall selected.",
+    "available": true,
+    "before": "self::object_id\n",
+    "passes": [
+      "self.object_id\n",
+      "self.object_id\n"
+    ]
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "peer": "Layout/DotPosition",
+    "reason": "Layout/DotPosition is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "self.object_id\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/RescueModifier",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "RescueModifier withholds with the opt-in parenthesizing peer selected.",
+    "available": true,
+    "before": "1 rescue nil\n",
+    "passes": [
+      "1 rescue nil\n"
+    ]
+  },
+  {
+    "cop": "Style/SelfAssignment",
+    "peer": "Layout/SpaceAroundOperators",
+    "reason": "SelfAssignment withholds when Layout/SpaceAroundOperators is selected; Layout still fixes spacing.",
+    "available": true,
+    "before": "def f(x)\n  x=x+1\nend\n",
+    "passes": [
+      "def f(x)\n  x = x + 1\nend\n",
+      "def f(x)\n  x = x + 1\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/Semicolon",
+    "peer": "Style/SingleLineMethods",
+    "reason": "Fixed allow_single_line uses endless conversion for eligible one-line methods; whole-definition envelopes defer overlapping semicolon edits without introducing a reverse preference.",
+    "available": true,
+    "before": "def foo; 1; end;\n",
+    "passes": [
+      "def foo; 1; end\n",
+      "def foo() = 1\n",
+      "def foo() = 1\n"
+    ]
+  },
+  {
+    "cop": "Style/SendWithLiteralMethodName",
+    "peer": "Layout/MultilineMethodArgumentLineBreaks",
+    "reason": "Layout/MultilineMethodArgumentLineBreaks is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "obj&.public_send(:foo)\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/SoleNestedConditional",
+    "peer": "Style/NegatedIf",
+    "reason": "SoleNestedConditional withholds with NegatedIf selected.",
+    "available": true,
+    "before": "if a\n  work if b\nend\n",
+    "passes": [
+      "if a\n  work if b\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/SoleNestedConditional",
+    "peer": "Style/NegatedUnless",
+    "reason": "SoleNestedConditional withholds with NegatedUnless selected.",
+    "available": true,
+    "before": "if a\n  work if b\nend\n",
+    "passes": [
+      "if a\n  work if b\nend\n"
+    ]
+  },
+  {
+    "cop": "Style/StructInheritance",
+    "peer": "Style/MethodCallWithArgsParentheses",
+    "reason": "Style/StructInheritance is unsafe/noncorrectable detection-only under fixed policy, so its side of the upstream correction conflict cannot emit edits.",
+    "available": true,
+    "before": "class Person < ::Struct.new(:a); end\n",
+    "passes": [
+      "class Person < ::Struct.new(:a); end\n"
+    ]
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "peer": "Layout/SpaceBeforeBlockBraces",
+    "reason": "Layout/SpaceBeforeBlockBraces is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "xs.map { |x| x.upcase }\n",
+    "passes": []
+  },
+  {
+    "cop": "Style/TrailingCommaInArguments",
+    "peer": "Layout/HeredocArgumentClosingParenthesis",
+    "reason": "Layout/HeredocArgumentClosingParenthesis is outside the unchanged 67 non-Style cops; no such correction can run in this registry.",
+    "available": false,
+    "before": "f(a:,)\nobj[key,] += value\n",
+    "passes": []
+  }
+]

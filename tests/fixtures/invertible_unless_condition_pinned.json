@@ -1,0 +1,182 @@
+[
+  {
+    "spec_line": 106,
+    "source": "foo unless odd?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if even?` over `unless odd?`."
+    ],
+    "correction": "foo if even?\n"
+  },
+  {
+    "spec_line": 139,
+    "source": "foo unless begin x != y end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 145,
+    "source": "foo unless (x != y; x.odd?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 151,
+    "source": "foo unless x != y || x.awesome?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 157,
+    "source": "foo unless x < Foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 163,
+    "source": "foo if !condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 169,
+    "source": "foo unless ()\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 175,
+    "source": "foo if !()\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 22,
+    "source": "foo unless !x\nfoo unless !!x\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if x` over `unless !x`.",
+      "Prefer `if !x` over `unless !!x`."
+    ],
+    "correction": "foo if x\nfoo if !x\n"
+  },
+  {
+    "spec_line": 36,
+    "source": "foo unless x != y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if x == y` over `unless x != y`."
+    ],
+    "correction": "foo if x == y\n"
+  },
+  {
+    "spec_line": 47,
+    "source": "foo unless x.odd?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if x.even?` over `unless x.odd?`."
+    ],
+    "correction": "foo if x.even?\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "foo unless ((x != y))\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if ((x == y))` over `unless ((x != y))`."
+    ],
+    "correction": "foo if ((x == y))\n"
+  },
+  {
+    "spec_line": 83,
+    "source": "foo unless x != y && (((x.odd?) || (((y >= 5)))) || z.zero?)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if x == y || (((x.even?) && (((y < 5)))) && z.nonzero?)` over `unless x != y && (((x.odd?) || (((y >= 5)))) || z.zero?)`."
+    ],
+    "correction": "foo if x == y || (((x.even?) && (((y < 5)))) && z.nonzero?)\n"
+  },
+  {
+    "spec_line": 94,
+    "source": "foo unless x != y && y >= 5 || x.odd?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `if (x == y || y < 5) && x.even?` over `unless x != y && y >= 5 || x.odd?`."
+    ],
+    "correction": "foo if (x == y || y < 5) && x.even?\n"
+  }
+]

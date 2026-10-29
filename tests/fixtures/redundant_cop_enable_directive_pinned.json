@@ -1,0 +1,481 @@
+[
+  {
+    "spec_line": 25,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers an offense and corrects unnecessary enable",
+    "source": "foo\n# rubocop:enable Layout/LineLength\n",
+    "positions": [
+      [
+        2,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength."
+    ],
+    "disabled": false,
+    "correction": "foo\n"
+  },
+  {
+    "spec_line": 39,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers an offense and removes the `--` reason with the directive",
+    "source": "foo\n# rubocop:enable Layout/LineLength -- no longer needed\n",
+    "positions": [
+      [
+        2,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength."
+    ],
+    "disabled": false,
+    "correction": "foo\n"
+  },
+  {
+    "spec_line": 51,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers an offense and corrects when the first cop is unnecessarily enabled",
+    "source": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Metrics/AbcSize, Layout/LineLength\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength\n"
+  },
+  {
+    "spec_line": 66,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers multiple offenses and corrects the same comment",
+    "source": "foo\n# rubocop:enable Metrics/ModuleLength, Metrics/AbcSize\nbar\n",
+    "positions": [
+      [
+        2,
+        18
+      ],
+      [
+        2,
+        40
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/ModuleLength.",
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "foo\nbar\n"
+  },
+  {
+    "spec_line": 81,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers correct offense when combined with necessary enable",
+    "source": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Metrics/AbcSize, Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout/LineLength\nbar\n"
+  },
+  {
+    "spec_line": 98,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers correct offense when combined with necessary enable, no white-space after comma",
+    "source": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Metrics/AbcSize,Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout/LineLength\nbar\n"
+  },
+  {
+    "spec_line": 115,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective registers an offense and corrects redundant enabling of same cop",
+    "source": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout/LineLength\n\nbar\n\n# rubocop:enable Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        7,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout/LineLength\n\nbar\n\nbar\n"
+  },
+  {
+    "spec_line": 8,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when cop is disabled in the configuration registers no offense when enabling the cop",
+    "source": "foo\n# rubocop:enable Layout/LineLength\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "disabled": true,
+    "correction": null
+  },
+  {
+    "spec_line": 15,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when cop is disabled in the configuration registers an offense if enabling it twice",
+    "source": "foo\n# rubocop:enable Layout/LineLength\n# rubocop:enable Layout/LineLength\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength."
+    ],
+    "disabled": true,
+    "correction": null
+  },
+  {
+    "spec_line": 140,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective all switch registers an offense and corrects unnecessary enable all",
+    "source": "foo\n# rubocop:enable all\n",
+    "positions": [
+      [
+        2,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of all cops."
+    ],
+    "disabled": false,
+    "correction": "foo\n"
+  },
+  {
+    "spec_line": 153,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective all switch when at least one cop was disabled does not register offense",
+    "source": "# rubocop:disable Layout/LineLength\nfoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo\n# rubocop:enable all\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "disabled": false,
+    "correction": null
+  },
+  {
+    "spec_line": 164,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when last cop is unnecessarily enabled registers an offense and corrects",
+    "source": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength, Metrics/AbcSize\n",
+    "positions": [
+      [
+        3,
+        37
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength\n"
+  },
+  {
+    "spec_line": 179,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when last cop is unnecessarily enabled registers an offense and corrects when there is no space between the cops and the comma",
+    "source": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength,Metrics/AbcSize\n",
+    "positions": [
+      [
+        3,
+        36
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength\n"
+  },
+  {
+    "spec_line": 194,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when last cop is unnecessarily enabled locates the right cop when a redundant one shares a prefix with a necessary one",
+    "source": "# rubocop:disable Layout/EmptyLinesAroundClassBody\nfoo\n# rubocop:enable Layout/EmptyLinesAroundClassBody, Layout/EmptyLines\n",
+    "positions": [
+      [
+        3,
+        52
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/EmptyLines."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/EmptyLinesAroundClassBody\nfoo\n# rubocop:enable Layout/EmptyLinesAroundClassBody\n"
+  },
+  {
+    "spec_line": 211,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when middle cop is unnecessarily enabled registers an offense and corrects",
+    "source": "# rubocop:disable Layout/LineLength, Lint/Debugger\nfoo\n# rubocop:enable Layout/LineLength, Metrics/AbcSize, Lint/Debugger\n",
+    "positions": [
+      [
+        3,
+        37
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength, Lint/Debugger\nfoo\n# rubocop:enable Layout/LineLength, Lint/Debugger\n"
+  },
+  {
+    "spec_line": 226,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when middle cop is unnecessarily enabled registers an offense and corrects when there is extra white space",
+    "source": "# rubocop:disable Layout/LineLength,  Lint/Debugger\nfoo\n# rubocop:enable Layout/LineLength,  Metrics/AbcSize,  Lint/Debugger\n",
+    "positions": [
+      [
+        3,
+        38
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/AbcSize."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength,  Lint/Debugger\nfoo\n# rubocop:enable Layout/LineLength,  Lint/Debugger\n"
+  },
+  {
+    "spec_line": 244,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all cops are unnecessarily enabled on the same line registers an offense and corrects",
+    "source": "foo\n# rubocop:enable Layout/LineLength, Metrics/AbcSize, Lint/Debugger\n",
+    "positions": [
+      [
+        2,
+        18
+      ],
+      [
+        2,
+        37
+      ],
+      [
+        2,
+        54
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength.",
+      "Unnecessary enabling of Metrics/AbcSize.",
+      "Unnecessary enabling of Lint/Debugger."
+    ],
+    "disabled": false,
+    "correction": "foo\n"
+  },
+  {
+    "spec_line": 260,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all cops are unnecessarily enabled on separate lines registers an offense and corrects when there is extra white space",
+    "source": "foo\n# rubocop:enable Metrics/ModuleSize\n# rubocop:enable Layout/LineLength, Metrics/ClassSize\n# rubocop:enable Metrics/AbcSize, Lint/Debugger\n",
+    "positions": [
+      [
+        2,
+        18
+      ],
+      [
+        3,
+        18
+      ],
+      [
+        3,
+        37
+      ],
+      [
+        4,
+        18
+      ],
+      [
+        4,
+        35
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics/ModuleSize.",
+      "Unnecessary enabling of Layout/LineLength.",
+      "Unnecessary enabling of Metrics/ClassSize.",
+      "Unnecessary enabling of Metrics/AbcSize.",
+      "Unnecessary enabling of Lint/Debugger."
+    ],
+    "disabled": false,
+    "correction": "foo\n"
+  },
+  {
+    "spec_line": 281,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers an offense and corrects unnecessary enable",
+    "source": "foo\n# rubocop:enable Layout\n",
+    "positions": [
+      [
+        2,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout."
+    ],
+    "disabled": false,
+    "correction": "foo\n"
+  },
+  {
+    "spec_line": 293,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers an offense and corrects when the first department is unnecessarily enabled",
+    "source": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Metrics, Layout/LineLength\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfoo\n# rubocop:enable Layout/LineLength\n"
+  },
+  {
+    "spec_line": 308,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers multiple offenses and corrects the same comment",
+    "source": "foo\n# rubocop:enable Metrics, Layout\nbar\n",
+    "positions": [
+      [
+        2,
+        18
+      ],
+      [
+        2,
+        27
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics.",
+      "Unnecessary enabling of Layout."
+    ],
+    "disabled": false,
+    "correction": "foo\nbar\n"
+  },
+  {
+    "spec_line": 323,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers correct offense when combined with necessary enable",
+    "source": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Metrics, Layout/LineLength\nbar\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Metrics."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout/LineLength\nbar\n"
+  },
+  {
+    "spec_line": 340,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers an offense and corrects redundant enabling of same department",
+    "source": "# rubocop:disable Layout\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout\n\nbar\n\n# rubocop:enable Layout\nbar\n",
+    "positions": [
+      [
+        7,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout\n\nbar\n\nbar\n"
+  },
+  {
+    "spec_line": 364,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers an offense and corrects redundant enabling of cop of same department",
+    "source": "# rubocop:disable Layout\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout, Layout/LineLength\n",
+    "positions": [
+      [
+        3,
+        26
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout\n"
+  },
+  {
+    "spec_line": 379,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective when all department enabled registers an offense and corrects redundant enabling of department of same cop",
+    "source": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n# rubocop:enable Layout\nsome_code\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:disable Layout/LineLength\nfooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo = barrrrrrrrrrrrrrrrrrrrrrrrrr\n\nsome_code\n"
+  },
+  {
+    "spec_line": 398,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective with `rubocop:pop` directives registers an offense and corrects a `pop` without a matching `push`",
+    "source": "foo = 1\n# rubocop:pop\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Unnecessary `rubocop:pop` without a matching `rubocop:push`."
+    ],
+    "disabled": false,
+    "correction": "foo = 1\n"
+  },
+  {
+    "spec_line": 410,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective with `rubocop:pop` directives registers an offense for a second `pop` after a matched pair",
+    "source": "# rubocop:push -Style/StringLiterals\nfoo = \"1\"\n# rubocop:pop\n# rubocop:pop\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Unnecessary `rubocop:pop` without a matching `rubocop:push`."
+    ],
+    "disabled": false,
+    "correction": "# rubocop:push -Style/StringLiterals\nfoo = \"1\"\n# rubocop:pop\n"
+  },
+  {
+    "spec_line": 426,
+    "description": "RuboCop::Cop::Lint::RedundantCopEnableDirective with `rubocop:pop` directives does not register an offense for a matched `push` / `pop` pair",
+    "source": "# rubocop:push -Style/StringLiterals\nfoo = \"1\"\n# rubocop:pop\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "disabled": false,
+    "correction": null
+  }
+]

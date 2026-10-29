@@ -1,0 +1,277 @@
+[
+  {
+    "spec_line": 6,
+    "source": "a = cond ?\n  b : c\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "a = if cond\n  b\nelse\n  c\nend\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "a = cond ? b :\n    c\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "a = if cond\n  b\nelse\n  c\nend\n"
+  },
+  {
+    "spec_line": 38,
+    "source": "cond ? b :\nc\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "if cond\n  b\nelse\n  c\nend\n"
+  },
+  {
+    "spec_line": 54,
+    "source": "cond_a? ? foo :\n  cond_b? ? bar :\n    cond_c? ? baz : qux\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead.",
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "if cond_a?\n  foo\nelse\n  if cond_b?\n  bar\nelse\n  cond_c? ? baz : qux\nend\nend\n"
+  },
+  {
+    "spec_line": 76,
+    "source": "a = cond ?\n    b :\n    c\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "a = if cond\n  b\nelse\n  c\nend\n"
+  },
+  {
+    "spec_line": 93,
+    "source": "a =\n  b ==\n    c ? d : e\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "a =\n  if b ==\n    c\n  d\nelse\n  e\nend\n"
+  },
+  {
+    "spec_line": 112,
+    "source": "a[:a] =\n  b ==\n    c ? d : e\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "a[:a] =\n  if b ==\n    c\n  d\nelse\n  e\nend\n"
+  },
+  {
+    "spec_line": 131,
+    "source": "a.foo =\n  b ==\n    c ? d : e\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "a.foo =\n  if b ==\n    c\n  d\nelse\n  e\nend\n"
+  },
+  {
+    "spec_line": 152,
+    "source": "do_something(arg\n               .foo ? bar : baz)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 159,
+    "source": "return cond ?\n       foo :\n       bar\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use single-line instead."
+    ],
+    "correction": "return cond ? foo : bar\n"
+  },
+  {
+    "spec_line": 200,
+    "source": "do_something cond ?\n             foo :\n             bar\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use single-line instead."
+    ],
+    "correction": "do_something cond ? foo : bar\n"
+  },
+  {
+    "spec_line": 213,
+    "source": "obj&.do_something cond ?\n                  foo :\n                  bar\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use single-line instead."
+    ],
+    "correction": "obj&.do_something cond ? foo : bar\n"
+  },
+  {
+    "spec_line": 226,
+    "source": "def foo\n  yield cond ?\n        foo :\n        bar\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use single-line instead."
+    ],
+    "correction": "def foo\n  yield cond ? foo : bar\nend\n"
+  },
+  {
+    "spec_line": 243,
+    "source": "def foo\n  super cond ?\n        foo :\n        bar\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use single-line instead."
+    ],
+    "correction": "def foo\n  super cond ? foo : bar\nend\n"
+  },
+  {
+    "spec_line": 260,
+    "source": "defined? cond ?\n         foo :\n         bar\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use single-line instead."
+    ],
+    "correction": "defined? cond ? foo : bar\n"
+  },
+  {
+    "spec_line": 273,
+    "source": "defined?(cond ?\n         foo :\n         bar)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "defined?(if cond\n  foo\nelse\n  bar\nend)\n"
+  },
+  {
+    "spec_line": 290,
+    "source": "a = cond ? b : c",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 295,
+    "source": "# comment a\na = cond ?\n  b : c # comment b\n# comment c\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "# comment a\na = if cond\n  b\nelse\n  c\nend # comment b\n# comment c\n"
+  },
+  {
+    "spec_line": 316,
+    "source": "a = cond ? # comment a\n  # comment b\n  b : c\n\na = cond ?\n  b : # comment\n  c\n\na = cond ? b : # comment\n  c\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        9,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid multi-line ternary operators, use `if` or `unless` instead.",
+      "Avoid multi-line ternary operators, use `if` or `unless` instead.",
+      "Avoid multi-line ternary operators, use `if` or `unless` instead."
+    ],
+    "correction": "# comment a\n# comment b\na = if cond\n  b\nelse\n  c\nend\n\n# comment\na = if cond\n  b\nelse\n  c\nend\n\n# comment\na = if cond\n  b\nelse\n  c\nend\n"
+  }
+]

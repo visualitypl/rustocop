@@ -1,0 +1,473 @@
+[
+  {
+    "spec_line": 5,
+    "source": "if !x\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 24,
+    "source": "if not x\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 43,
+    "source": "if !x then\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x then\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 62,
+    "source": "if !x then do_something else do_something_else end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x then do_something_else else do_something end\n"
+  },
+  {
+    "spec_line": 73,
+    "source": "if !x; do_something; else do_something_else; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x; do_something_else; else do_something; end\n"
+  },
+  {
+    "spec_line": 84,
+    "source": "!x ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "x ? do_something_else : do_something\n"
+  },
+  {
+    "spec_line": 95,
+    "source": "!x ?\n  do_something :\n  do_something_else # comment\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "x ?\n  do_something_else :\n  do_something # comment\n"
+  },
+  {
+    "spec_line": 213,
+    "source": "if !x\n  do_something\nelse\n  if !y\n    do_something_else_1\n  else\n    do_something_else_2\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches.",
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x\n  if y\n    do_something_else_2\n  else\n    do_something_else_1\n  end\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 241,
+    "source": "if !condition.nil?\nelse\n  foo = 42\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if condition.nil?\n  foo = 42\nend\n"
+  },
+  {
+    "spec_line": 257,
+    "source": "if !condition.nil?\n  foo = 42\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 266,
+    "source": "if !condition.nil?\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 274,
+    "source": "if ()\n  foo\nelse\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 284,
+    "source": "if !condition.nil?\n  # part B\n  # and foo is 39\n  foo = 39\nelse\n  # part A\n  # and foo is 42\n  foo = 42\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if condition.nil?\n  # part A\n  # and foo is 42\n  foo = 42\nelse\n  # part B\n  # and foo is 39\n  foo = 39\nend\n"
+  },
+  {
+    "spec_line": 311,
+    "source": "if !condition.nil?\n  # part A\n  # and foo is 1 and bar is 2\n  foo = 1\n  bar = 2\nelse\n  # part B\n  # and foo is 3 and bar is 4\n  foo = 3\n  bar = 4\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if condition.nil?\n  # part B\n  # and foo is 3 and bar is 4\n  foo = 3\n  bar = 4\nelse\n  # part A\n  # and foo is 1 and bar is 2\n  foo = 1\n  bar = 2\nend\n"
+  },
+  {
+    "spec_line": 342,
+    "source": "if !condition\n  # comment\n  do_a\n  do_b\nelse\n  do_c\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if condition\n  do_c\nelse\n  # comment\n  do_a\n  do_b\nend\n"
+  },
+  {
+    "spec_line": 365,
+    "source": "if !condition\n  # comment\n  do_b\nelse\n  do_c\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if condition\n  do_c\nelse\n  # comment\n  do_b\nend\n"
+  },
+  {
+    "spec_line": 386,
+    "source": "# outer comment\ndo_a\n\nif !condition\n  # comment\n  do_a\nelse\n  do_c\nend\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "# outer comment\ndo_a\n\nif condition\n  do_c\nelse\n  # comment\n  do_a\nend\n"
+  },
+  {
+    "spec_line": 413,
+    "source": "if !condition\n  do_a\n  # comment\nelse\n  do_c\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if condition\n  do_c\nelse\n  do_a\n  # comment\nend\n"
+  },
+  {
+    "spec_line": 434,
+    "source": "if !x\n  do_something\nelsif !y\n  do_something_else\nelse\n  do_another_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 446,
+    "source": "if !x && y\n  do_something\nelse\n  do_another_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 456,
+    "source": "if !!x\n  do_something\nelse\n  do_another_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 466,
+    "source": "if !x\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 474,
+    "source": "if foo.!=(bar, baz)\n  do_a\nelse\n  do_c\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 111,
+    "source": "if x != y\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x == y\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 130,
+    "source": "x != y ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "x == y ? do_something_else : do_something\n"
+  },
+  {
+    "spec_line": 141,
+    "source": "if (x != y)\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if (x == y)\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 160,
+    "source": "(x != y) ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "(x == y) ? do_something_else : do_something\n"
+  },
+  {
+    "spec_line": 171,
+    "source": "if begin\n  x != y\nend\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if begin\n  x == y\nend\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 194,
+    "source": "begin\n  x != y\nend ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "begin\n  x == y\nend ? do_something_else : do_something\n"
+  },
+  {
+    "spec_line": 111,
+    "source": "if x !~ y\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if x =~ y\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 130,
+    "source": "x !~ y ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "x =~ y ? do_something_else : do_something\n"
+  },
+  {
+    "spec_line": 141,
+    "source": "if (x !~ y)\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if (x =~ y)\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 160,
+    "source": "(x !~ y) ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "(x =~ y) ? do_something_else : do_something\n"
+  },
+  {
+    "spec_line": 171,
+    "source": "if begin\n  x !~ y\nend\n  do_something\nelse\n  do_something_else\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the if-else branches."
+    ],
+    "correction": "if begin\n  x =~ y\nend\n  do_something_else\nelse\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 194,
+    "source": "begin\n  x !~ y\nend ? do_something : do_something_else\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Invert the negated condition and swap the ternary branches."
+    ],
+    "correction": "begin\n  x =~ y\nend ? do_something_else : do_something\n"
+  }
+]

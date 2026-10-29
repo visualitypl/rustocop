@@ -1,0 +1,151 @@
+[
+  {
+    "spec_line": 27,
+    "source": "if a; foo else end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 33,
+    "source": "if a; foo elsif b; bar else nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 39,
+    "source": "if cond; foo else bar; nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 45,
+    "source": "if cond; foo end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "`if` condition requires an `else`-clause."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 58,
+    "source": "unless cond; foo else end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 64,
+    "source": "unless cond; foo else nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 70,
+    "source": "unless cond; foo else bar; nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 76,
+    "source": "unless cond; foo end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 84,
+    "source": "case v; when a; foo else end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 90,
+    "source": "case v; when a; foo; when b; bar; else nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 96,
+    "source": "case v; when a; foo; else b; nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 102,
+    "source": "case v; when a; foo; when b; bar; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "`case` condition requires an `else`-clause."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 9,
+    "source": "case pattern; in a; foo; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

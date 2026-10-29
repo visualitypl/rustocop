@@ -1,0 +1,1245 @@
+[
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 12,
+    "example": "",
+    "label": "bad",
+    "source": "def καλημερα # Greek alphabet (non-ascii)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in identifiers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use only ascii symbols in identifiers."
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 16,
+    "example": "",
+    "label": "bad",
+    "source": "def こんにちはと言う # Japanese character (non-ascii)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in identifiers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use only ascii symbols in identifiers."
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 20,
+    "example": "",
+    "label": "bad",
+    "source": "def hello_🍣 # Emoji (non-ascii)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in identifiers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "declared_messages": [
+      "Use only ascii symbols in identifiers."
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 24,
+    "example": "",
+    "label": "good",
+    "source": "def say_hello\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 28,
+    "example": "",
+    "label": "bad",
+    "source": "신장 = 10 # Hangul character (non-ascii)\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in identifiers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "declared_messages": [
+      "Use only ascii symbols in identifiers."
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 31,
+    "example": "",
+    "label": "good",
+    "source": "height = 10\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 34,
+    "example": "",
+    "label": "bad",
+    "source": "params[:عرض_gteq] # Arabic character (non-ascii)\n",
+    "configuration": {
+    },
+    "policy_note": "Source prose labels this symbol-key example bad, but the actual pinned token scanner reports nothing: symbols are not identifiers. Preserve the exact source; actual reference semantics govern.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 37,
+    "example": "",
+    "label": "good",
+    "source": "params[:width_gteq]\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 41,
+    "example": "AsciiConstants: true (default)",
+    "label": "bad",
+    "source": "class Foö\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in constants."
+    ],
+    "declared_positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "declared_messages": [
+      "Use only ascii symbols in constants."
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 44,
+    "example": "AsciiConstants: true (default)",
+    "label": "bad",
+    "source": "FOÖ = \"foo\"\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in constants."
+    ],
+    "declared_positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "declared_messages": [
+      "Use only ascii symbols in constants."
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 48,
+    "example": "AsciiConstants: false",
+    "label": "good",
+    "source": "class Foö\nend\n",
+    "configuration": {
+      "AsciiConstants": false
+    },
+    "policy_note": "AsciiConstants=false is unchosen; fixed true reports this constant. Execute both, exclude only the alternate clean expectation.",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in constants."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AsciiIdentifiers",
+    "source_line": 51,
+    "example": "AsciiConstants: false",
+    "label": "good",
+    "source": "FOÖ = \"foo\"\n",
+    "configuration": {
+      "AsciiConstants": false
+    },
+    "policy_note": "AsciiConstants=false is unchosen; fixed true reports this constant. Execute both, exclude only the alternate clean expectation.",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use only ascii symbols in constants."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/BlockParameterName",
+    "source_line": 20,
+    "example": "",
+    "label": "bad",
+    "source": "bar do |varOne, varTwo|\n  varOne + varTwo\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Only use lowercase characters for block parameter.",
+      "Only use lowercase characters for block parameter."
+    ],
+    "declared_positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        17
+      ]
+    ],
+    "declared_messages": [
+      "Only use lowercase characters for block parameter.",
+      "Only use lowercase characters for block parameter."
+    ]
+  },
+  {
+    "cop": "Naming/BlockParameterName",
+    "source_line": 25,
+    "example": "",
+    "label": "With `AllowNamesEndingInNumbers` set to false",
+    "source": "foo { |num1, num2| num1 * num2 }\n",
+    "configuration": {
+      "AllowNamesEndingInNumbers": false
+    },
+    "policy_note": "Numeric names are allowed by the actual pinned YAML default true (contrary to source prose saying false). Execute both; exclude only the alternate numeric offenses.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        14
+      ]
+    ],
+    "declared_messages": [
+      "Do not end block parameter with a number.",
+      "Do not end block parameter with a number."
+    ]
+  },
+  {
+    "cop": "Naming/BlockParameterName",
+    "source_line": 28,
+    "example": "",
+    "label": "With `MinNameLength` set to number greater than 1",
+    "source": "baz { |a, b, c| do_stuff(a, b, c) }\n",
+    "configuration": {
+      "MinNameLength": 2
+    },
+    "policy_note": "Source requests a minimum greater than 1; use 2 as the representative alternate setting. Fixed minimum1 accepts these one-character names. Execute both; exclude only alternate minimum-length offenses.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        14
+      ]
+    ],
+    "declared_messages": [
+      "Block parameter must be at least 2 characters long.",
+      "Block parameter must be at least 2 characters long.",
+      "Block parameter must be at least 2 characters long."
+    ]
+  },
+  {
+    "cop": "Naming/BlockParameterName",
+    "source_line": 31,
+    "example": "",
+    "label": "good",
+    "source": "bar do |thud, fred|\n  thud + fred\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/BlockParameterName",
+    "source_line": 35,
+    "example": "",
+    "label": "good",
+    "source": "foo { |speed, distance| speed * distance }\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/BlockParameterName",
+    "source_line": 37,
+    "example": "",
+    "label": "good",
+    "source": "baz { |age, height, gender| do_stuff(age, height, gender) }\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 16,
+    "example": "EnforcedStyle: normalcase (default)",
+    "label": "bad",
+    "source": ":some_sym_1\nvariable_1 = 1\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use normalcase for symbol numbers.",
+      "Use normalcase for variable numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "declared_messages": [
+      "Use normalcase for symbol numbers.",
+      "Use normalcase for variable numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 19,
+    "example": "EnforcedStyle: normalcase (default)",
+    "label": "bad",
+    "source": "def some_method_1; end\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use normalcase for method name numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 21,
+    "example": "EnforcedStyle: normalcase (default)",
+    "label": "bad",
+    "source": "def some_method1(arg_1); end\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Use normalcase for variable numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "declared_messages": [
+      "Use normalcase for variable numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 24,
+    "example": "EnforcedStyle: normalcase (default)",
+    "label": "good",
+    "source": ":some_sym1\nvariable1 = 1\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 27,
+    "example": "EnforcedStyle: normalcase (default)",
+    "label": "good",
+    "source": "def some_method1; end\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 29,
+    "example": "EnforcedStyle: normalcase (default)",
+    "label": "good",
+    "source": "def some_method1(arg1); end\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 33,
+    "example": "EnforcedStyle: snake_case",
+    "label": "bad",
+    "source": ":some_sym1\nvariable1 = 1\n",
+    "configuration": {
+      "EnforcedStyle": "snake_case"
+    },
+    "policy_note": "Unchosen snake_case section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "declared_messages": [
+      "Use snake_case for symbol numbers.",
+      "Use snake_case for variable numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 36,
+    "example": "EnforcedStyle: snake_case",
+    "label": "bad",
+    "source": "def some_method1; end\n",
+    "configuration": {
+      "EnforcedStyle": "snake_case"
+    },
+    "policy_note": "Unchosen snake_case section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use snake_case for method name numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 38,
+    "example": "EnforcedStyle: snake_case",
+    "label": "bad",
+    "source": "def some_method_1(arg1); end\n",
+    "configuration": {
+      "EnforcedStyle": "snake_case"
+    },
+    "policy_note": "Unchosen snake_case section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "declared_messages": [
+      "Use snake_case for variable numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 41,
+    "example": "EnforcedStyle: snake_case",
+    "label": "good",
+    "source": ":some_sym_1\nvariable_1 = 1\n",
+    "configuration": {
+      "EnforcedStyle": "snake_case"
+    },
+    "policy_note": "Unchosen snake_case section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use normalcase for symbol numbers.",
+      "Use normalcase for variable numbers."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 44,
+    "example": "EnforcedStyle: snake_case",
+    "label": "good",
+    "source": "def some_method_1; end\n",
+    "configuration": {
+      "EnforcedStyle": "snake_case"
+    },
+    "policy_note": "Unchosen snake_case section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 46,
+    "example": "EnforcedStyle: snake_case",
+    "label": "good",
+    "source": "def some_method_1(arg_1); end\n",
+    "configuration": {
+      "EnforcedStyle": "snake_case"
+    },
+    "policy_note": "Unchosen snake_case section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers.",
+      "Use normalcase for variable numbers."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 50,
+    "example": "EnforcedStyle: non_integer",
+    "label": "bad",
+    "source": ":some_sym1\n:some_sym_1\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use normalcase for symbol numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "declared_messages": [
+      "Use non_integer for symbol numbers.",
+      "Use non_integer for symbol numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 53,
+    "example": "EnforcedStyle: non_integer",
+    "label": "bad",
+    "source": "variable1 = 1\nvariable_1 = 1\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use normalcase for variable numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "declared_messages": [
+      "Use non_integer for variable numbers.",
+      "Use non_integer for variable numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 56,
+    "example": "EnforcedStyle: non_integer",
+    "label": "bad",
+    "source": "def some_method1; end\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use non_integer for method name numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 58,
+    "example": "EnforcedStyle: non_integer",
+    "label": "bad",
+    "source": "def some_method_1; end\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use non_integer for method name numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 60,
+    "example": "EnforcedStyle: non_integer",
+    "label": "bad",
+    "source": "def some_methodone(arg1); end\ndef some_methodone(arg_1); end\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+      [
+        2,
+        20
+      ]
+    ],
+    "messages": [
+      "Use normalcase for variable numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        20
+      ],
+      [
+        2,
+        20
+      ]
+    ],
+    "declared_messages": [
+      "Use non_integer for variable numbers.",
+      "Use non_integer for variable numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 64,
+    "example": "EnforcedStyle: non_integer",
+    "label": "good",
+    "source": ":some_symone\n:some_sym_one\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 67,
+    "example": "EnforcedStyle: non_integer",
+    "label": "good",
+    "source": "variableone = 1\nvariable_one = 1\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 70,
+    "example": "EnforcedStyle: non_integer",
+    "label": "good",
+    "source": "def some_methodone; end\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 72,
+    "example": "EnforcedStyle: non_integer",
+    "label": "good",
+    "source": "def some_method_one; end\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 74,
+    "example": "EnforcedStyle: non_integer",
+    "label": "good",
+    "source": "def some_methodone(argone); end\ndef some_methodone(arg_one); end\n",
+    "configuration": {
+      "EnforcedStyle": "non_integer"
+    },
+    "policy_note": "Unchosen non_integer section; execute fixed normalcase and declared reference. Only differing alternate expectations are excluded, not the source.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 81,
+    "example": "CheckMethodNames: true (default)",
+    "label": "bad",
+    "source": "def some_method_1; end\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Use normalcase for method name numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 85,
+    "example": "CheckMethodNames: false",
+    "label": "good",
+    "source": "def some_method_1; end\n",
+    "configuration": {
+      "CheckMethodNames": false
+    },
+    "policy_note": "Fixed CheckMethodNames=true reports this name. Execute both; exclude only the disabled-check clean expectation.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use normalcase for method name numbers."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 89,
+    "example": "CheckSymbols: true (default)",
+    "label": "bad",
+    "source": ":some_sym_1\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default settings.",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use normalcase for symbol numbers."
+    ],
+    "declared_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "declared_messages": [
+      "Use normalcase for symbol numbers."
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 93,
+    "example": "CheckSymbols: false",
+    "label": "good",
+    "source": ":some_sym_1\n",
+    "configuration": {
+      "CheckSymbols": false
+    },
+    "policy_note": "Fixed CheckSymbols=true reports this symbol. Execute both; exclude only the disabled-check clean expectation.",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use normalcase for symbol numbers."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 97,
+    "example": "AllowedIdentifiers: [capture3]",
+    "label": "good",
+    "source": "expect(Open3).to receive(:capture3)\n",
+    "configuration": {
+      "AllowedIdentifiers": [
+        "capture3"
+      ]
+    },
+    "policy_note": "The default allowlist already includes capture3; this exact example is applicable and clean under both settings.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/VariableNumber",
+    "source_line": 101,
+    "example": "AllowedPatterns: ['_v\\d+\\z']",
+    "label": "good",
+    "source": ":some_sym_v1\n",
+    "configuration": {
+      "AllowedPatterns": [
+        "_v\\d+\\z"
+      ]
+    },
+    "policy_note": "The custom pattern is unchosen, but some_sym_v1 already satisfies normalcase. Applicable with identical clean results, not excluded.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  }
+]

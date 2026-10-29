@@ -1,0 +1,1163 @@
+[
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 5,
+    "source": "[1, 2, 3].sort.first\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "[1, 2, 3].min\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 16,
+    "source": "[1, 2, 3]&.sort.first\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "[1, 2, 3]&.min\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 27,
+    "source": "[1, 2, 3]&.sort&.first\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "[1, 2, 3]&.min\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 38,
+    "source": "[1, 2].sort.last\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "[1, 2].max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 49,
+    "source": "[1, 2]&.sort.last\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "[1, 2]&.max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 60,
+    "source": "[1, 2]&.sort&.last\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "[1, 2]&.max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 71,
+    "source": "foo.sort { |a, b| b <=> a }.last\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "foo.max { |a, b| b <=> a }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 82,
+    "source": "foo&.sort { |a, b| b <=> a }.last\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "foo&.max { |a, b| b <=> a }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 93,
+    "source": "foo&.sort { |a, b| b <=> a }&.last\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "foo&.max { |a, b| b <=> a }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 104,
+    "source": "[1, 2, 3].sort_by { |x| x.length }.first\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3].min_by { |x| x.length }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 115,
+    "source": "[1, 2, 3]&.sort_by { |x| x.length }.first\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]&.min_by { |x| x.length }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 126,
+    "source": "[1, 2, 3]&.sort_by { |x| x.length }&.first\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]&.min_by { |x| x.length }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 137,
+    "source": "foo.sort_by { |x| x.something }.last\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `max_by` instead of `sort_by...last`."
+    ],
+    "correction": "foo.max_by { |x| x.something }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 148,
+    "source": "[1, 2, 3]\n  .sort_by { |x| x.length }\n  .first\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]\n  .min_by { |x| x.length }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 162,
+    "source": "[1, 2, 3]\n  .sort_by { |x| x.length }\n  .first || []\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]\n  .min_by { |x| x.length } || []\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 176,
+    "source": "[1, 2, 3]\n  .sort_by { |x| x.length }\n  .first && []\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]\n  .min_by { |x| x.length } && []\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 190,
+    "source": "[1, 2, 3]\n  .sort_by { |x| x.length }\n  .first or []\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]\n  .min_by { |x| x.length } or []\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 204,
+    "source": "[1, 2, 3]\n  .sort_by { |x| x.length }\n  .first and []\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3]\n  .min_by { |x| x.length } and []\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 218,
+    "source": "x = obj.sort { |a, b| a <=> b }\n  .first if foo\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "x = obj.min { |a, b| a <=> b } if foo\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 230,
+    "source": "x = obj&.sort\n  &.first unless foo\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "x = obj&.min unless foo\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 242,
+    "source": "x = obj.sort_by { |a| a.include?(<<~STR) }\n  foo\nSTR\n  .first\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "x = obj.min_by { |a| a.include?(<<~STR) }\n  foo\nSTR\n  \n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 259,
+    "source": "obj.sort # comment\n  .first || []\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "obj.min || # comment\n    []\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 272,
+    "source": "x = obj.sort # comment\n  .first\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...first`."
+    ],
+    "correction": "x = obj.min # comment\n  \n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 285,
+    "source": "x = obj.sort # comment\n  .first if foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 292,
+    "source": "x = obj.sort\n  # comment\n  .first if foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 300,
+    "source": "x = obj.sort # comment\n  .first + 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 307,
+    "source": "[1, 2].sort_by(&:something).first\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2].min_by(&:something)\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 318,
+    "source": "[1, 2, 3].sort_by(&:length).last\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `max_by` instead of `sort_by...last`."
+    ],
+    "correction": "[1, 2, 3].max_by(&:length)\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 329,
+    "source": "[1, 2].sort.at(-1)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...at(-1)`."
+    ],
+    "correction": "[1, 2].max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 340,
+    "source": "[1, 2]&.sort.at(-1)\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...at(-1)`."
+    ],
+    "correction": "[1, 2]&.max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 351,
+    "source": "[1, 2]&.sort&.at(-1)\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...at(-1)`."
+    ],
+    "correction": "[1, 2]&.max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 362,
+    "source": "[1, 2, 3].sort.slice(0)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...slice(0)`."
+    ],
+    "correction": "[1, 2, 3].min\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 373,
+    "source": "[1, 2, 3].sort[0]\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...[0]`."
+    ],
+    "correction": "[1, 2, 3].min\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 384,
+    "source": "[1, 2, 3].sort.[](0)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `sort...[](0)`."
+    ],
+    "correction": "[1, 2, 3].min\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 395,
+    "source": "foo.sort_by { |x| x.foo }.[](-1)\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `max_by` instead of `sort_by...[](-1)`."
+    ],
+    "correction": "foo.max_by { |x| x.foo }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 406,
+    "source": "[1, 2, 3].sort_by(&:foo).at(0)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...at(0)`."
+    ],
+    "correction": "[1, 2, 3].min_by(&:foo)\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 417,
+    "source": "[1, 2].sort_by(&:foo).slice(0)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...slice(0)`."
+    ],
+    "correction": "[1, 2].min_by(&:foo)\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 428,
+    "source": "[1, 2, 3].sort_by(&:foo).slice(-1)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `max_by` instead of `sort_by...slice(-1)`."
+    ],
+    "correction": "[1, 2, 3].max_by(&:foo)\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 439,
+    "source": "[1, 2, 3].sort[-1]\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...[-1]`."
+    ],
+    "correction": "[1, 2, 3].max\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 450,
+    "source": "[1, 2].sort_by(&:foo)[0]\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...[0]`."
+    ],
+    "correction": "[1, 2].min_by(&:foo)\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 461,
+    "source": "foo.sort_by { |x| x.foo }[-1]\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `max_by` instead of `sort_by...[-1]`."
+    ],
+    "correction": "foo.max_by { |x| x.foo }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 475,
+    "source": "[1, 2, 3].sort.first(1)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 480,
+    "source": "mongo_client[\"users\"].find.sort(_id: 1).first",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 484,
+    "source": "[1, 2, 3].sort!.first",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 488,
+    "source": "[1, 2, 3].sort_by!(&:something).last",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 492,
+    "source": "[1, 2, 3].sort_by { |x| -x }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 496,
+    "source": "[1, 2, 3].first",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 500,
+    "source": "[[1, 2], [3, 4]].first.sort",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 506,
+    "source": "[2, 1, 3].sort_by.first",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 510,
+    "source": "x.sort_by { |y| y.foo || bar }.last\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `max_by` instead of `sort_by...last`."
+    ],
+    "correction": "x.max_by { |y| y.foo || bar }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 522,
+    "source": "[1, 2, 3].sort[1]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 526,
+    "source": "[1, 2, 3].sort_by(&:foo).at(-2)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 530,
+    "source": "mongo_client[\"users\"].find.sort(_id: 1)[-1]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 537,
+    "source": "foo.sort { _2 <=> _1 }.last\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `sort...last`."
+    ],
+    "correction": "foo.max { _2 <=> _1 }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 548,
+    "source": "[1, 2, 3].sort_by { _1.length }.first\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...first`."
+    ],
+    "correction": "[1, 2, 3].min_by { _1.length }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 559,
+    "source": "[1, 2, 3].sort_by { _1.foo }.at(0)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...at(0)`."
+    ],
+    "correction": "[1, 2, 3].min_by { _1.foo }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 570,
+    "source": "[1, 2, 3]&.sort_by { _1.foo }.at(0)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...at(0)`."
+    ],
+    "correction": "[1, 2, 3]&.min_by { _1.foo }\n"
+  },
+  {
+    "cop": "Style/RedundantSort",
+    "spec_line": 581,
+    "source": "[1, 2, 3]&.sort_by { _1.foo }&.at(0)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use `min_by` instead of `sort_by...at(0)`."
+    ],
+    "correction": "[1, 2, 3]&.min_by { _1.foo }\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 5,
+    "source": "array.sort_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { |x| x }`."
+    ],
+    "correction": "array.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 16,
+    "source": "array&.sort_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { |x| x }`."
+    ],
+    "correction": "array&.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 75,
+    "source": "array.sort_by { |y| y }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { |y| y }`."
+    ],
+    "correction": "array.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 86,
+    "source": "array.sort_by do |x|\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { |x| x }`."
+    ],
+    "correction": "array.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 28,
+    "source": "array.sort_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { _1 }`."
+    ],
+    "correction": "array.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 39,
+    "source": "array&.sort_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { _1 }`."
+    ],
+    "correction": "array&.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 52,
+    "source": "array.sort_by { it }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { it }`."
+    ],
+    "correction": "array.sort\n"
+  },
+  {
+    "cop": "Style/RedundantSortBy",
+    "spec_line": 63,
+    "source": "array&.sort_by { it }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `sort` instead of `sort_by { it }`."
+    ],
+    "correction": "array&.sort\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "x >= min && x <= max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "x >= min && max >= x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "min <= x && x <= max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "min <= x && max >= x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "x <= max && x >= min\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "x <= max && min <= x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "max >= x && x >= min\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 15,
+    "source": "max >= x && min <= x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 27,
+    "source": "x >= min and x <= max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(min, max)` over logical comparison."
+    ],
+    "correction": "x.between?(min, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 38,
+    "source": "x >= x and x <= max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(x, max)` over logical comparison."
+    ],
+    "correction": "x.between?(x, max)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 49,
+    "source": "x >= x and x <= x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `x.between?(x, x)` over logical comparison."
+    ],
+    "correction": "x.between?(x, x)\n"
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 60,
+    "source": "x >= min && x < max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 66,
+    "source": "x > min && x <= max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 72,
+    "source": "x > min && x < max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ComparableBetween",
+    "spec_line": 78,
+    "source": "x >= min && y <= max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

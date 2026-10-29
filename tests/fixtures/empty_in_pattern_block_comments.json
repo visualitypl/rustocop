@@ -1,0 +1,1286 @@
+[
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push -Lint/EmptyInPattern\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 1,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push -Lint/EmptyInPattern\n=end\nend # rubocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 2,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push -Lint/EmptyInPattern\n=end\nend\n# rubocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 3,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push -Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 4,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:push -Lint/EmptyInPattern\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 5,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:push -Lint/EmptyInPattern\nend # rubocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 6,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:push -Lint/EmptyInPattern\nend\n# rubocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 7,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:push -Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 8,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:push -Lint/EmptyInPattern\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 9,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:push -Lint/EmptyInPattern\nend # rubocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 10,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:push -Lint/EmptyInPattern\nend\n# rubocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 11,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:push -Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 12,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable Lint/EmptyInPattern\n=end\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 13,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable Lint/EmptyInPattern\n=end\nend # rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 14,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable Lint/EmptyInPattern\n=end\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 15,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 16,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:disable Lint/EmptyInPattern\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 17,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:disable Lint/EmptyInPattern\nend # rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:disable Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:disable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:disable Lint/EmptyInPattern\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 21,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:disable Lint/EmptyInPattern\nend # rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 22,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:disable Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 23,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:disable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 24,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo Lint/EmptyInPattern\n=end\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 25,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo Lint/EmptyInPattern\n=end\nend # rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 26,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo Lint/EmptyInPattern\n=end\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 27,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 28,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:todo Lint/EmptyInPattern\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 29,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:todo Lint/EmptyInPattern\nend # rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 30,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:todo Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 31,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rubocop:todo Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:todo Lint/EmptyInPattern\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 33,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:todo Lint/EmptyInPattern\nend # rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 34,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:todo Lint/EmptyInPattern\nend\n# rubocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 35,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rubocop:todo Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 36,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:next -Lint/EmptyInPattern\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:next -Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 38,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:next -Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 39,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable-next Lint/EmptyInPattern\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable-next Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 41,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable-next Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 42,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo-next Lint/EmptyInPattern\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 43,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo-next Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 44,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:todo-next Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:enable-next Lint/EmptyInPattern\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 46,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:enable-next Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 47,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:enable-next Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 48,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 49,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 50,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 51,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:pop\n=end\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:pop\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:pop\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\nordinary prose\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# no marker\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 56,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# # rubocop:disable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 57,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable Lint/Debugger\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 58,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:enable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:next -Lint/EmptyInPattern\n# rubocop:disable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:push -Lint/EmptyInPattern\n=end\nin [a, b] then nil\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "=begin\n# rubocop:push -Lint/EmptyInPattern\n=end\ncase x\nin [a] # explanation\n# rubocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rubocop:disable Lint/EmptyInPattern\n=end\nin [a, b] then nil\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 63,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "=begin\n# rubocop:disable Lint/EmptyInPattern\n=end\ncase x\nin [a] # explanation\n# rubocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 64,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push -Lint/EmptyInPattern\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 65,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push -Lint/EmptyInPattern\n=end\nend # rustocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 66,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push -Lint/EmptyInPattern\n=end\nend\n# rustocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push -Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:push -Lint/EmptyInPattern\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 69,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:push -Lint/EmptyInPattern\nend # rustocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 70,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:push -Lint/EmptyInPattern\nend\n# rustocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:push -Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:push -Lint/EmptyInPattern\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 73,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:push -Lint/EmptyInPattern\nend # rustocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 74,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:push -Lint/EmptyInPattern\nend\n# rustocop:pop\n",
+    "origin": "block-comment-retry",
+    "line": 75,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:push -Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 76,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable Lint/EmptyInPattern\n=end\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 77,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable Lint/EmptyInPattern\n=end\nend # rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 78,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable Lint/EmptyInPattern\n=end\nend\n# rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 79,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 80,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:disable Lint/EmptyInPattern\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 81,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:disable Lint/EmptyInPattern\nend # rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 82,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:disable Lint/EmptyInPattern\nend\n# rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 83,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:disable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 84,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:disable Lint/EmptyInPattern\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 85,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:disable Lint/EmptyInPattern\nend # rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 86,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:disable Lint/EmptyInPattern\nend\n# rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 87,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:disable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 88,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo Lint/EmptyInPattern\n=end\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 89,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo Lint/EmptyInPattern\n=end\nend # rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 90,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo Lint/EmptyInPattern\n=end\nend\n# rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 91,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 92,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:todo Lint/EmptyInPattern\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 93,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:todo Lint/EmptyInPattern\nend # rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 94,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:todo Lint/EmptyInPattern\nend\n# rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 95,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# rustocop:todo Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 96,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:todo Lint/EmptyInPattern\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 97,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:todo Lint/EmptyInPattern\nend # rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 98,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:todo Lint/EmptyInPattern\nend\n# rustocop:enable Lint/EmptyInPattern\n",
+    "origin": "block-comment-retry",
+    "line": 99,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n# prose # rustocop:todo Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 100,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:next -Lint/EmptyInPattern\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 101,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:next -Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 102,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:next -Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 103,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable-next Lint/EmptyInPattern\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 104,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable-next Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 105,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable-next Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 106,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo-next Lint/EmptyInPattern\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 107,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo-next Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 108,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:todo-next Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 109,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:enable-next Lint/EmptyInPattern\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 110,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:enable-next Lint/EmptyInPattern\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 111,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:enable-next Lint/EmptyInPattern\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 112,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 113,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 114,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 115,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:pop\n=end\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 116,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:pop\n=end\n\nend\n",
+    "origin": "block-comment-retry",
+    "line": 117,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:pop\n=end\nin [a, b] then nil\nend\n",
+    "origin": "block-comment-retry",
+    "line": 118,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\nordinary prose\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 119,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# no marker\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 120,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# # rustocop:disable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 121,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable Lint/Debugger\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 122,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:enable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 123,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:next -Lint/EmptyInPattern\n# rustocop:disable Lint/EmptyInPattern\n=end\nend\n",
+    "origin": "block-comment-retry",
+    "line": 124,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:push -Lint/EmptyInPattern\n=end\nin [a, b] then nil\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 125,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "=begin\n# rustocop:push -Lint/EmptyInPattern\n=end\ncase x\nin [a] # explanation\n# rustocop:pop\nend\n",
+    "origin": "block-comment-retry",
+    "line": 126,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "case x\nin [a]\n=begin\n# rustocop:disable Lint/EmptyInPattern\n=end\nin [a, b] then nil\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 127,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Avoid `in` branches without a body."
+      ]
+    ]
+  },
+  {
+    "source": "=begin\n# rustocop:disable Lint/EmptyInPattern\n=end\ncase x\nin [a] # explanation\n# rustocop:enable Lint/EmptyInPattern\nend\n",
+    "origin": "block-comment-retry",
+    "line": 128,
+    "findings": [
+
+    ]
+  }
+]

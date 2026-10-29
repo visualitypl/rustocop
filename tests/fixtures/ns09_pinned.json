@@ -1,0 +1,1046 @@
+[
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 8,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage when `FlaggedTerms` is nil does not crash and registers no offenses",
+    "source": "whitelist = 1\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms=nil"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 18,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage when `FlaggedTerms` is empty does not crash and registers no offenses",
+    "source": "whitelist = 1\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 30,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching registers an offense when using a flagged term",
+    "source": "whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 39,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching registers an offense when using a flagged term with mixed case",
+    "source": "class WhiteList\nend\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'WhiteList' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WhiteList' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 49,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching registers an offense for a partial word match",
+    "source": "class Nodewhitelist\nend\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 64,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching disable default flagged term ignores flagged terms that are set to nil",
+    "source": "# working on replacing whitelist and blacklist\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        38
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'blacklist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>nil, \"blacklist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        24
+      ],
+      [
+        1,
+        38
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'.",
+      "Consider replacing 'blacklist' with 'denylist' or 'block'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 82,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching multiple offenses on a line registers an offense for each word",
+    "source": "master, slave = nodes\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        9
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' with 'main', 'primary', or 'leader'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{\"Suggestions\"=>[\"main\", \"primary\", \"leader\"]}, \"slave\"=>{\"Suggestions\"=>[\"replica\", \"secondary\", \"follower\"]}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 98,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching regex registers an offense for a flagged term matched with a regexp",
+    "source": "# white-list of IPs\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'white-list' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{\"Regex\"=>/white[-_\\s]?list/}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'white-list' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 113,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage flagged term matching WholeWord: true only flags when the term is a whole word",
+    "source": "# infix allowed\nTeslaVehicle\nSLAVersion\n:teslavehicle\n\n# prefix allowed\nDatabaseSlave\n\n# suffix allowed\nSlave1\n\n# not allowed\nSlave\n:database_slave\n'database@slave'\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        13,
+        1
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        15,
+        11
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'Slave' with another term.",
+      "Consider replacing 'slave' with another term.",
+      "Consider replacing 'slave' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckStrings=true",
+      "Naming/InclusiveLanguage FlaggedTerms={\"slave\"=>{\"WholeWord\"=>true}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        13,
+        1
+      ],
+      [
+        14,
+        11
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'Slave' with 'replica', 'secondary', or 'follower'.",
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 147,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage allowed use does not register an offense for an allowed use",
+    "source": "# They had a Master's Degree\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{\"AllowedRegex\"=>\"master's degree\"}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 161,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage allowed use offense after an allowed use registers an offense at the correct location",
+    "source": "barx, foo = method_call\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'foo' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"foo\"=>{}, \"bar\"=>{\"AllowedRegex\"=>\"barx\"}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 180,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage suggestions flagged term with one suggestion includes the suggestion in the offense message",
+    "source": "whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with 'allowlist'."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{\"Suggestions\"=>\"allowlist\"}}"
+    ],
+    "alternate_config_correction": "allowlist = %w(user1 user2)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 199,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage suggestions flagged term with one suggestion in array includes both suggestions in the offense message",
+    "source": "whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with 'allowlist'."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{\"Suggestions\"=>[\"allowlist\"]}}"
+    ],
+    "alternate_config_correction": "allowlist = %w(user1 user2)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 218,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage suggestions flagged term with two suggestions includes both suggestions in the offense message",
+    "source": "whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{\"Suggestions\"=>[\"allowlist\", \"permit\"]}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 238,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage suggestions flagged term with three or more suggestions includes all suggestions in the message",
+    "source": "default_branch = 'master'\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' with 'main', 'primary', or 'leader'."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckStrings=true",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{\"Suggestions\"=>[\"main\", \"primary\", \"leader\"]}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 257,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage identifiers when CheckIdentifiers config is true registers an offense",
+    "source": "whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 270,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage identifiers when CheckIdentifiers config is false does not register offenses for identifiers",
+    "source": "whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckIdentifiers=false",
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 286,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage variables when CheckVariables config is true registers offenses for instance variables",
+    "source": "@whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 295,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage variables when CheckVariables config is true registers offenses for class variables",
+    "source": "@@whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 304,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage variables when CheckVariables config is true registers offenses for global variables",
+    "source": "$whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'whitelist' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 317,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage variables when CheckVariables config is false does not register offenses for variables",
+    "source": "@whitelist = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckVariables=false",
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'whitelist' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 333,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage constants when CheckConstants config is true registers offenses for constants",
+    "source": "WHITELIST = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'WHITELIST' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WHITELIST' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 346,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage constants when CheckConstants config is false does not register offenses for constants",
+    "source": "WHITELIST = %w(user1 user2)\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckConstants=false",
+      "Naming/InclusiveLanguage FlaggedTerms={\"whitelist\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'WHITELIST' with 'allowlist' or 'permit'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 360,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage strings registers an offense for an interpolated string",
+    "source": "puts \"master node #{node}\"\n\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckStrings=true",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}, \"slave\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 368,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage strings registers an offense for a multiline string",
+    "source": "node_types = \"master\n  slave\n  primary\n  secondary\"\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        15
+      ],
+      [
+        2,
+        3
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' with another term.",
+      "Consider replacing 'slave' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckStrings=true",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}, \"slave\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 381,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage strings registers an offense in a heredoc",
+    "source": "node_text = <<~TEXT\n  master\n  primary\n  slave\n  secondary\nTEXT\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' with another term.",
+      "Consider replacing 'slave' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckStrings=true",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}, \"slave\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 396,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage strings does not register offenses and not raise `ArgumentError` for invalid byte sequence in UTF-8",
+    "source": "%W(\"a\\255\\255\")\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckStrings=true",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}, \"slave\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 405,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage strings when CheckStrings config is false does not register offenses for strings",
+    "source": "puts \"master node #{node}\"\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}, \"slave\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 421,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage symbols when CheckSymbols is true registers an offense",
+    "source": "config[:master] = {}\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 434,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage symbols when CheckSymbols is false does not register an offense",
+    "source": "config[:master] = {}\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckSymbols=false",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 448,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage comments registers an offense in a single line comment",
+    "source": "# is it a foo?\nbar = baz # it's a foo!\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        1,
+        11
+      ],
+      [
+        2,
+        20
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'foo' with another term.",
+      "Consider replacing 'foo' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"foo\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 459,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage comments registers an offense in a block comment",
+    "source": "=begin\nfoo\nbar\n=end\n",
+    "file": "a.rb",
+    "original_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'foo' with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"foo\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 474,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage comments when CheckComments is false does not register an offense",
+    "source": "# is it a foo?\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckComments=false",
+      "Naming/InclusiveLanguage FlaggedTerms={\"foo\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 488,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage filepath one offense in filename registers an offense",
+    "source": "",
+    "file": "/some/dir/master.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' in file path with 'main'."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{\"Suggestions\"=>\"main\"}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 501,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage filepath multiple offenses in filename registers an offense with all problematic words",
+    "source": "",
+    "file": "/some/config/master-slave.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master', 'slave' in file path with other terms."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}, \"slave\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' in file path with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 513,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage filepath offense in directory name registers an offense for a director",
+    "source": "",
+    "file": "/db/master/config.yml",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "Consider replacing 'master' in file path with another term."
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/InclusiveLanguage",
+    "spec_line": 525,
+    "description": "RuboCop::Cop::Naming::InclusiveLanguage filepath CheckFilepaths is false does not register an offense",
+    "source": "",
+    "file": "/some/dir/master.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/InclusiveLanguage CheckFilepaths=false",
+      "Naming/InclusiveLanguage FlaggedTerms={\"master\"=>{}}"
+    ],
+    "alternate_config_correction": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

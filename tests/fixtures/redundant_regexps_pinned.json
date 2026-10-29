@@ -1,0 +1,1644 @@
+[
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.byteindex(/f/)\n",
+    "positions": [
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.byteindex('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.byteindex(/f/)\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.byteindex('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.byterindex(/f/)\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.byterindex('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.byterindex(/f/)\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.byterindex('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.gsub(/f/)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.gsub('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.gsub(/f/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.gsub('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.gsub!(/f/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.gsub!('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.gsub!(/f/)\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.gsub!('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.partition(/f/)\n",
+    "positions": [
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.partition('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.partition(/f/)\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.partition('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.rpartition(/f/)\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.rpartition('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.rpartition(/f/)\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.rpartition('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.scan(/f/)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.scan('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.scan(/f/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.scan('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.split(/f/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.split('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.split(/f/)\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.split('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.start_with?(/f/)\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.start_with?('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.start_with?(/f/)\n",
+    "positions": [
+      [
+        1,
+        20
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.start_with?('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.sub(/f/)\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.sub('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.sub(/f/)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.sub('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 6,
+    "source": "'foo'.sub!(/f/)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'.sub!('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 17,
+    "source": "'foo'&.sub!(/f/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `'f'` as argument instead of regexp `/f/`."
+    ],
+    "correction": "'foo'&.sub!('f')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 29,
+    "source": "str.gsub(/\"''/, '')\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use string `'\"\\'\\''` as argument instead of regexp `/\"''/`."
+    ],
+    "correction": "str.gsub('\"\\'\\'', '')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 40,
+    "source": "str.gsub(/\"/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use string `'\"'` as argument instead of regexp `/\"/`."
+    ],
+    "correction": "str.gsub('\"')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 51,
+    "source": "str.gsub(/'/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use string `'\\''` as argument instead of regexp `/'/`."
+    ],
+    "correction": "str.gsub('\\'')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 62,
+    "source": "str.gsub(/\\'/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use string `'\\''` as argument instead of regexp `/\\'/`."
+    ],
+    "correction": "str.gsub('\\'')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 119,
+    "source": "str.gsub(/\\\"/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use string `'\"'` as argument instead of regexp `/\\\"/`."
+    ],
+    "correction": "str.gsub('\"')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 130,
+    "source": "str.gsub(/\\\\\"/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use string `'\\\"'` as argument instead of regexp `/\\\\\"/`."
+    ],
+    "correction": "str.gsub('\\\"')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 141,
+    "source": "'a,b,c'.split(/\\./)\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Use string `'.'` as argument instead of regexp `/\\./`."
+    ],
+    "correction": "'a,b,c'.split('.')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 152,
+    "source": "\"foo\\nbar\\nbaz\\n\".split(/\\n/)\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\n\"` as argument instead of regexp `/\\n/`."
+    ],
+    "correction": "\"foo\\nbar\\nbaz\\n\".split(\"\\n\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 163,
+    "source": "'foo'.gsub(/\\\\\\#\\{/, 'x')\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\\\\\#{\"` as argument instead of regexp `/\\\\\\#\\{/`."
+    ],
+    "correction": "'foo'.gsub(\"\\\\\\#{\", 'x')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 174,
+    "source": "\"foo\\n\\nbar\\n\\nbaz\\n\\n\".split(/\\n\\n/)\n",
+    "positions": [
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\n\\n\"` as argument instead of regexp `/\\n\\n/`."
+    ],
+    "correction": "\"foo\\n\\nbar\\n\\nbaz\\n\\n\".split(\"\\n\\n\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 185,
+    "source": "\"foo\\nbar\\nbaz\\n\".split(/\\u3000/)\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\u3000\"` as argument instead of regexp `/\\u3000/`."
+    ],
+    "correction": "\"foo\\nbar\\nbaz\\n\".split(\"\\u3000\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 196,
+    "source": "\"foo\\\\\\.bar\".split(/\\\\\\./)\n",
+    "positions": [
+      [
+        1,
+        20
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\\\.\"` as argument instead of regexp `/\\\\\\./`."
+    ],
+    "correction": "\"foo\\\\\\.bar\".split(\"\\\\.\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 207,
+    "source": "\"foo\\nbar\\nbaz\\n\".split(/foo\\n\\.\\n/)\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Use string `\"foo\\n.\\n\"` as argument instead of regexp `/foo\\n\\.\\n/`."
+    ],
+    "correction": "\"foo\\nbar\\nbaz\\n\".split(\"foo\\n.\\n\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 218,
+    "source": "'foo         bar'.split(/  /)\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Use string `'  '` as argument instead of regexp `/  /`."
+    ],
+    "correction": "'foo         bar'.split('  ')\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 229,
+    "source": "'a,b,c'.insert(2, 'a')",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 233,
+    "source": "hash[/regexp/]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 237,
+    "source": "hash[/regexp/] = value",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 241,
+    "source": "'a,b,c'.split(',')",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 245,
+    "source": "'a,b,c'.split(/,+/)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 249,
+    "source": "'fooSplitbar'.split(/split/i)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 253,
+    "source": "'fooSplitbar'.split(/split/x)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 257,
+    "source": "'foo         bar'.split(/ /)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 74,
+    "source": "str.gsub!(/\\\\'/, \"'\")\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use string `'\\\\\\''` as argument instead of regexp `/\\\\'/`."
+    ],
+    "correction": "str.gsub!('\\\\\\'', \"'\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 85,
+    "source": "str.gsub!(/\\\\\\'/, \"'\")\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use string `'\\\\\\''` as argument instead of regexp `/\\\\\\'/`."
+    ],
+    "correction": "str.gsub!('\\\\\\'', \"'\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 96,
+    "source": "str.gsub!(/\\\\\\\\'/, \"'\")\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use string `'\\\\\\\\\\''` as argument instead of regexp `/\\\\\\\\'/`."
+    ],
+    "correction": "str.gsub!('\\\\\\\\\\'', \"'\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 107,
+    "source": "str.gsub!(/\\\\\\\\\\'/, \"'\")\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Use string `'\\\\\\\\\\''` as argument instead of regexp `/\\\\\\\\\\'/`."
+    ],
+    "correction": "str.gsub!('\\\\\\\\\\'', \"'\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 303,
+    "source": "'foo'.split(/\\#\\{/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\#{\"` as argument instead of regexp `/\\#\\{/`."
+    ],
+    "correction": "'foo'.split(\"\\#{\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 314,
+    "source": "'foo'.split(/\\#\\$/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\#$\"` as argument instead of regexp `/\\#\\$/`."
+    ],
+    "correction": "'foo'.split(\"\\#$\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 6,
+    "source": "foo = /[a]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = /a/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 19,
+    "source": "foo = /[a]b[c]d/\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`.",
+      "Redundant single-element character class, `[c]` can be replaced with `c`."
+    ],
+    "correction": "foo = /abcd/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 33,
+    "source": "foo = /([a])/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = /(a)/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 46,
+    "source": "foo = /[a]+/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = /a+/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 59,
+    "source": "foo = /[a]{2,10}/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = /a{2,10}/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 73,
+    "source": "foo = %r{[a]}\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = %r{a}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 86,
+    "source": "foo = %r{[a]b[c]d}\n",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`.",
+      "Redundant single-element character class, `[c]` can be replaced with `c`."
+    ],
+    "correction": "foo = %r{abcd}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 100,
+    "source": "foo = %r{([a])}\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = %r{(a)}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 113,
+    "source": "foo = %r{[a]+}\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = %r{a+}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 126,
+    "source": "foo = %r{[a]{2,10}}\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = %r{a{2,10}}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 140,
+    "source": "foo = /[a-z]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 146,
+    "source": "foo = /[[:alnum:]]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 152,
+    "source": "foo = /[[:^alnum:]]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 158,
+    "source": "foo = /[[:alnum:]&&a-d]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 166,
+    "source": "foo = /[a]\\g/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = /a\\g/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 179,
+    "source": "foo = /[\\]]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\]]` can be replaced with `\\]`."
+    ],
+    "correction": "foo = /\\]/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 192,
+    "source": "foo = /[\\[]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\[]` can be replaced with `\\[`."
+    ],
+    "correction": "foo = /\\[/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 205,
+    "source": "foo = /[\\s]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\s]` can be replaced with `\\s`."
+    ],
+    "correction": "foo = /\\s/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 218,
+    "source": "foo = /[\\S]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\S]` can be replaced with `\\S`."
+    ],
+    "correction": "foo = /\\S/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 231,
+    "source": "foo = /[\\u{06F2}]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\u{06F2}]` can be replaced with `\\u{06F2}`."
+    ],
+    "correction": "foo = /\\u{06F2}/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 244,
+    "source": "foo = /[\\u{0061 0062}]/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 252,
+    "source": "foo = /[\\p{Digit}]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\p{Digit}]` can be replaced with `\\p{Digit}`."
+    ],
+    "correction": "foo = /\\p{Digit}/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 265,
+    "source": "foo = /[\\P{Digit}]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\P{Digit}]` can be replaced with `\\P{Digit}`."
+    ],
+    "correction": "foo = /\\P{Digit}/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 278,
+    "source": "foo = /[\\#]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\#]` can be replaced with `\\#`."
+    ],
+    "correction": "foo = /\\#/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 291,
+    "source": "foo = /[#]{0}/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[#]` can be replaced with `\\#`."
+    ],
+    "correction": "foo = /\\#{0}/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 306,
+    "source": "foo = /[\\b]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 317,
+    "source": "foo = /[\\032]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\032]` can be replaced with `\\032`."
+    ],
+    "correction": "foo = /\\032/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 332,
+    "source": "foo = /[\\1]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 340,
+    "source": "foo = /[\\8]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 344,
+    "source": "foo = /[\\9]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 352,
+    "source": "foo = /[+]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 358,
+    "source": "foo = /[\\+]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[\\+]` can be replaced with `\\+`."
+    ],
+    "correction": "foo = /\\+/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 371,
+    "source": "foo = /a#{/[b]/}c/\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[b]` can be replaced with `b`."
+    ],
+    "correction": "foo = /a#{/b/}c/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 384,
+    "source": "foo = /[\\])]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 390,
+    "source": "foo = /[^x]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 396,
+    "source": "foo = /[#{foo}]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 402,
+    "source": "foo = /\\[\\]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 408,
+    "source": "foo = /[\\[\\]]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 414,
+    "source": "foo = /\\[x\\]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 420,
+    "source": "foo = /[ab]/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 426,
+    "source": "foo = /a#{b[0]}c/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 432,
+    "source": "foo = /#{x}[a]/\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[a]` can be replaced with `a`."
+    ],
+    "correction": "foo = /#{x}a/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 445,
+    "source": "/#{Regexp.union(\n  %w\"( ) { } [ ] < > $ ! ^ ` ... + * ? ,\"\n)}/o\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 456,
+    "source": "foo = /[ ]/\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[ ]` can be replaced with ` `."
+    ],
+    "correction": "foo = / /\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 469,
+    "source": "foo = /\n  a # This comment shouldn't affect the position of the offense\n  [b]\n/x\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant single-element character class, `[b]` can be replaced with `b`."
+    ],
+    "correction": "foo = /\n  a # This comment shouldn't affect the position of the offense\n  b\n/x\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 489,
+    "source": "foo = /foo # [a]/x",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 495,
+    "source": "foo = /[ ]/x",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 499,
+    "source": "foo = /[ ]/ix",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpCharacterClass",
+    "spec_line": 503,
+    "source": "foo = /[ ]/iux",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 5,
+    "source": "Regexp.new(/regexp/)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "/regexp/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 16,
+    "source": "::Regexp.new(/regexp/)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "/regexp/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 27,
+    "source": "Regexp.new(/regexp/i)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "/regexp/i\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 38,
+    "source": "Regexp.new(/\\A#{regexp}\\z/io)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "/\\A#{regexp}\\z/io\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 49,
+    "source": "Regexp.compile(/regexp/)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.compile`."
+    ],
+    "correction": "/regexp/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 60,
+    "source": "Regexp.new(%r{foo/bar})\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "%r{foo/bar}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 71,
+    "source": "p Regexp.new(/ a/)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 80,
+    "source": "foo&.bar Regexp.new(/=a/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 89,
+    "source": "p Regexp.new(/ a/).source\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 98,
+    "source": "p(Regexp.new(/ a/))\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "p(/ a/)\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 109,
+    "source": "foo x, Regexp.new(/ a/)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "foo x, / a/\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 120,
+    "source": "p Regexp.new(%r{ a})\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Remove the redundant `Regexp.new`."
+    ],
+    "correction": "p %r{ a}\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 131,
+    "source": "Regexp.new('regexp')\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 137,
+    "source": "Regexp.new('regexp', Regexp::IGNORECASE)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 143,
+    "source": "Regexp.new('regexp', Regexp::IGNORECASE | Regexp::IGNORECASE)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 149,
+    "source": "Regexp.compile('regexp')\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantRegexpConstructor",
+    "spec_line": 155,
+    "source": "/regexp/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

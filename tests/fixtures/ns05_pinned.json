@@ -1,0 +1,507 @@
+{
+  "calls": [
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 9,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an offense when using explicit block forwarding",
+      "source": "def foo(&block)\n  bar(&block)\n  baz(qux, &block)\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          12
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  bar(&)\n  baz(qux, &)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 28,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an offense when using explicit block forwarding in singleton method",
+      "source": "def self.foo(&block)\n  self.bar(&block)\n  self.baz(qux, &block)\nend\n",
+      "positions": [
+        [
+          1,
+          14
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          3,
+          17
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def self.foo(&)\n  self.bar(&)\n  self.baz(qux, &)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 47,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an offense when using symbol proc argument in method body",
+      "source": "def foo(&block)\n  bar(&:do_something)\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  bar(&:do_something)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 62,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an offense when using `yield` in method body",
+      "source": "def foo(&block)\n  yield\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  yield\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 77,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an offense when using explicit block forwarding without method body",
+      "source": "def foo(&block)\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 90,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an offense when using explicit block forwarding without method definition parentheses",
+      "source": "def foo arg, &block\n  bar &block\n  baz qux, &block\nend\n",
+      "positions": [
+        [
+          1,
+          14
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          12
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(arg, &)\n  bar(&)\n  baz(qux, &)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 109,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 registers and corrects an only explicit block forwarding when using multiple proc arguments",
+      "source": "def foo(bar, &block)\n  delegator.foo(&bar).each(&block)\nend\n",
+      "positions": [
+        [
+          1,
+          14
+        ],
+        [
+          2,
+          28
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(bar, &)\n  delegator.foo(&bar).each(&)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 125,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when using anonymous block forwarding",
+      "source": "def foo(&)\n  bar(&)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 133,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when using anonymous block forwarding without method body",
+      "source": "def foo(&)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 140,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when using block argument as a variable",
+      "source": "def foo(&block)\n  bar(&block) if block\nend\n\ndef foo(&block)\n  block.call\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 152,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when method just returns the block argument",
+      "source": "def foo(&block)\n  block\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 160,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when defining without block argument method",
+      "source": "def foo(arg1, arg2)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 173,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when defining kwarg with block args method",
+      "source": "def foo(k:, &block)\n  bar(&block)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 187,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when defining kwoptarg with block args method",
+      "source": "def foo(k: v, &block)\n  bar(&block)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 242,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when defining no arguments method",
+      "source": "def foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 249,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 does not register an offense when assigning the block arg",
+      "source": "def example(&block)\n  block ||= -> { :foo }\n  bar(&block)\nend\n\ndef example(&block)\n  block = proc {} unless block_given?\n  bar(&block)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 265,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.4 registers an offense when using explicit block forwarding in block method",
+      "source": "def foo(&block)\n  block_method do\n    bar(&block)\n  end\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  block_method do\n    bar(&)\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 285,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.4 registers an offense when using explicit block forwarding in numbered block method",
+      "source": "def foo(&block)\n  block_method do\n    bar(&block)\n    baz(_1)\n  end\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  block_method do\n    bar(&)\n    baz(_1)\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 307,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.4 registers an offense when using explicit block forwarding in block method and after",
+      "source": "def foo(&block)\n  block_method do\n    bar(&block)\n  end\n  baz(&block)\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          5,
+          7
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  block_method do\n    bar(&)\n  end\n  baz(&)\nend\n"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 330,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.4 registers an offense when using explicit block forwarding in block method and before",
+      "source": "def foo(&block)\n  bar(&block)\n  block_method do\n    baz(&block)\n  end\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          4,
+          9
+        ]
+      ],
+      "messages": [
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding.",
+        "Use anonymous block forwarding."
+      ],
+      "correction": "def foo(&)\n  bar(&)\n  block_method do\n    baz(&)\n  end\nend\n"
+    }
+  ],
+  "excluded": [
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 198,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 when accessing the block inside of a block does not register an offense when using explicit block forwarding in block method",
+      "source": "def foo(&block)\n  block_method do\n    bar(&block)\n  end\nend\n",
+      "reason": [
+        "Ruby behavior: anonymous forwarding in blocks differs before fixed Ruby 3.4 (ruby-lang #20090)"
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 208,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 when accessing the block inside of a block does not register an offense when using explicit block forwarding in numbered block method",
+      "source": "def foo(&block)\n  block_method do\n    bar(&block)\n    baz(_1)\n  end\nend\n",
+      "reason": [
+        "Ruby behavior: anonymous forwarding in blocks differs before fixed Ruby 3.4 (ruby-lang #20090)"
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 219,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 when accessing the block inside of a block does not register an offense when using explicit block forwarding in block method and after",
+      "source": "def foo(&block)\n  block_method do\n    bar(&block)\n  end\n  baz(&block)\nend\n",
+      "reason": [
+        "Ruby behavior: anonymous forwarding in blocks differs before fixed Ruby 3.4 (ruby-lang #20090)"
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 230,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby >= 3.1 when accessing the block inside of a block does not register an offense when using explicit block forwarding in block method and before",
+      "source": "def foo(&block)\n  bar(&block)\n  block_method do\n    baz(&block)\n  end\nend\n",
+      "reason": [
+        "Ruby behavior: anonymous forwarding in blocks differs before fixed Ruby 3.4 (ruby-lang #20090)"
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 355,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: anonymous Ruby < 3.0 does not register an offense when not using anonymous block forwarding",
+      "source": "def foo(&block)\n  bar(&block)\nend\n",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 372,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 registers and corrects an offense when using anonymous block forwarding",
+      "source": "def foo(&)\n  bar(&)\n  baz(qux, &)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 391,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 registers and corrects an offense when using anonymous block forwarding in singleton method",
+      "source": "def self.foo(&)\n  self.bar(&)\n  self.baz(qux, &)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 410,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 registers and corrects an offense when using symbol proc argument in method body",
+      "source": "def foo(&)\n  bar(&:do_something)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 425,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 registers and corrects an offense when using `yield` in method body",
+      "source": "def foo(&)\n  yield\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 440,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 registers and corrects and corrects an offense when using anonymous block forwarding without method body",
+      "source": "def foo(&)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 453,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 does not register an offense when using explicit block forwarding",
+      "source": "def foo(&block)\n  bar(&block)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 461,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 does not register an offense when using explicit block forwarding without method body",
+      "source": "def foo(&block)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 468,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 does not register an offense when defining without block argument method",
+      "source": "def foo(arg1, arg2)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 475,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 does not register an offense when assigning the block arg",
+      "source": "def example(&block)\n  block ||= -> { :foo }\n  bar(&block)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 485,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 when `BlockForwardingName: block` is already in use registers and no corrects an offense when using anonymous block forwarding",
+      "source": "def foo(block, &)\n  bar(block, &)\n  baz(block, qux, &)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\""
+      ]
+    },
+    {
+      "cop": "Naming/BlockForwarding",
+      "spec_line": 503,
+      "description": "RuboCop::Cop::Naming::BlockForwarding when `EnforcedStyle: explicit Ruby >= 3.1 when `BlockForwardingName: proc registers and corrects an offense when using anonymous block forwarding",
+      "source": "def foo(&)\n  bar(&)\n  baz(qux, &)\nend\n",
+      "reason": [
+        "Naming/BlockForwarding EnforcedStyle=\"explicit\"",
+        "Naming/BlockForwarding BlockForwardingName=\"proc\""
+      ]
+    }
+  ]
+}

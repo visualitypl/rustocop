@@ -1,0 +1,56 @@
+[
+  {
+    "cop": "Naming/FileName",
+    "source_line": 31,
+    "source": "print 1\n",
+    "file": "lib/layoutManager.rb",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`layoutManager.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source_line": 33,
+    "source": "print 1\n",
+    "file": "anything/usingCamelCase",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`usingCamelCase`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source_line": 36,
+    "source": "print 1\n",
+    "file": "lib/layout_manager.rb",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "source_line": 38,
+    "source": "print 1\n",
+    "file": "anything/using_snake_case.rake",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

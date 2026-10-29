@@ -1,0 +1,893 @@
+[
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 7,
+    "source": "[foo.min, foo.max]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `foo.minmax` instead of `[foo.min, foo.max]`."
+    ],
+    "correction": "foo.minmax\n"
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 18,
+    "source": "[foo.min, bar.max]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 24,
+    "source": "[foo.min, foo.baz, foo.max]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 30,
+    "source": "[min, max]\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 38,
+    "source": "bar = foo.min, foo.max\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `foo.minmax` instead of `foo.min, foo.max`."
+    ],
+    "correction": "bar = foo.minmax\n"
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 49,
+    "source": "baz = foo.min, bar.max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 55,
+    "source": "bar = foo.min, foo.baz, foo.max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 61,
+    "source": "bar = min, max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 69,
+    "source": "return foo.min, foo.max\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `foo.minmax` instead of `foo.min, foo.max`."
+    ],
+    "correction": "return foo.minmax\n"
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 80,
+    "source": "return foo.min, bar.max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 86,
+    "source": "return foo.min, foo.baz, foo.max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMax",
+    "spec_line": 92,
+    "source": "return min, max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 5,
+    "source": "a > b ? a : b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].max` instead."
+    ],
+    "correction": "[a, b].max\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 16,
+    "source": "a >= b ? a : b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].max` instead."
+    ],
+    "correction": "[a, b].max\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 27,
+    "source": "a < b ? b : a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].max` instead."
+    ],
+    "correction": "[a, b].max\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 38,
+    "source": "a <= b ? b : a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].max` instead."
+    ],
+    "correction": "[a, b].max\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 49,
+    "source": "a < b ? a : b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 60,
+    "source": "a <= b ? a : b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 71,
+    "source": "a > b ? b : a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 82,
+    "source": "a >= b ? b : a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 94,
+    "source": "(a >= b) ? b : a\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 105,
+    "source": "if a > b\n  a\nelse\n  b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].max` instead."
+    ],
+    "correction": "[a, b].max\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 120,
+    "source": "if a < b\n  a\nelse\n  b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 135,
+    "source": "unless a > b\n  a\nelse\n  b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "[a, b].min\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 150,
+    "source": "unless a < b\n  a\nelse\n  b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].max` instead."
+    ],
+    "correction": "[a, b].max\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 165,
+    "source": "if x\nelsif a < b\n  a\nelse\n  b\nend\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `[a, b].min` instead."
+    ],
+    "correction": "if x\nelse\n  [a, b].min\nend\n"
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 184,
+    "source": "a > b ? c : d\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 190,
+    "source": "condition ? a : b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 196,
+    "source": "if a\nelsif foo(b)\n  b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 205,
+    "source": "[a, b].max\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MinMaxComparison",
+    "spec_line": 211,
+    "source": "[a, b].min\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 6,
+    "source": "array.max_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { |x| x }`."
+    ],
+    "correction": "array.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 17,
+    "source": "array&.max_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { |x| x }`."
+    ],
+    "correction": "array&.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 28,
+    "source": "array.max_by { |y| y }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { |y| y }`."
+    ],
+    "correction": "array.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 39,
+    "source": "array.max_by do |x|\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { |x| x }`."
+    ],
+    "correction": "array.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 52,
+    "source": "array.max_by { |x| x.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 58,
+    "source": "array.max_by { |x| -x }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 64,
+    "source": "array.max_by(&:foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 6,
+    "source": "array.min_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { |x| x }`."
+    ],
+    "correction": "array.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 17,
+    "source": "array&.min_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { |x| x }`."
+    ],
+    "correction": "array&.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 28,
+    "source": "array.min_by { |y| y }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { |y| y }`."
+    ],
+    "correction": "array.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 39,
+    "source": "array.min_by do |x|\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { |x| x }`."
+    ],
+    "correction": "array.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 52,
+    "source": "array.min_by { |x| x.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 58,
+    "source": "array.min_by { |x| -x }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 64,
+    "source": "array.min_by(&:foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 6,
+    "source": "array.minmax_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { |x| x }`."
+    ],
+    "correction": "array.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 17,
+    "source": "array&.minmax_by { |x| x }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { |x| x }`."
+    ],
+    "correction": "array&.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 28,
+    "source": "array.minmax_by { |y| y }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { |y| y }`."
+    ],
+    "correction": "array.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 39,
+    "source": "array.minmax_by do |x|\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { |x| x }`."
+    ],
+    "correction": "array.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 52,
+    "source": "array.minmax_by { |x| x.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 58,
+    "source": "array.minmax_by { |x| -x }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 64,
+    "source": "array.minmax_by(&:foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 72,
+    "source": "array.max_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { _1 }`."
+    ],
+    "correction": "array.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 83,
+    "source": "array&.max_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { _1 }`."
+    ],
+    "correction": "array&.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 72,
+    "source": "array.min_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { _1 }`."
+    ],
+    "correction": "array.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 83,
+    "source": "array&.min_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { _1 }`."
+    ],
+    "correction": "array&.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 72,
+    "source": "array.minmax_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { _1 }`."
+    ],
+    "correction": "array.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 83,
+    "source": "array&.minmax_by { _1 }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { _1 }`."
+    ],
+    "correction": "array&.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 96,
+    "source": "array.max_by { it }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { it }`."
+    ],
+    "correction": "array.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 107,
+    "source": "array&.max_by { it }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `max` instead of `max_by { it }`."
+    ],
+    "correction": "array&.max\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 96,
+    "source": "array.min_by { it }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { it }`."
+    ],
+    "correction": "array.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 107,
+    "source": "array&.min_by { it }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `min` instead of `min_by { it }`."
+    ],
+    "correction": "array&.min\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 96,
+    "source": "array.minmax_by { it }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { it }`."
+    ],
+    "correction": "array.minmax\n"
+  },
+  {
+    "cop": "Style/RedundantMinMaxBy",
+    "spec_line": 107,
+    "source": "array&.minmax_by { it }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `minmax` instead of `minmax_by { it }`."
+    ],
+    "correction": "array&.minmax\n"
+  }
+]

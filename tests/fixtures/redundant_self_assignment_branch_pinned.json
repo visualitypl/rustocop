@@ -1,0 +1,427 @@
+[
+  {
+    "spec_line": 5,
+    "source": "foo = condition ? bar : foo\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = bar if condition\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "foo = condition ? bar(arg) : foo\n",
+    "positions": [
+      [
+        1,
+        30
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = bar(arg) if condition\n"
+  },
+  {
+    "spec_line": 29,
+    "source": "foo = condition ? bar.\n  baz : foo\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = bar.\n  baz if condition\n"
+  },
+  {
+    "spec_line": 43,
+    "source": "foo = condition ? (\n  ) : foo\n",
+    "positions": [
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = (\n  ) if condition\n"
+  },
+  {
+    "spec_line": 56,
+    "source": "foo = condition ? foo : bar\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = bar unless condition\n"
+  },
+  {
+    "spec_line": 67,
+    "source": "foo = if condition\n        bar\n      else\n        foo\n      end\n",
+    "positions": [
+      [
+        4,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = bar if condition\n"
+  },
+  {
+    "spec_line": 82,
+    "source": "foo = if condition\n        foo\n      else\n        bar\n      end\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = bar unless condition\n"
+  },
+  {
+    "spec_line": 97,
+    "source": "foo = if condition\n        foo\n      else\n        <<~TEXT\n          bar\n        TEXT\n      end\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = <<~TEXT unless condition\n          bar\n        TEXT\n"
+  },
+  {
+    "spec_line": 116,
+    "source": "foo = if condition\n        bar\n        baz\n      else\n        foo\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 127,
+    "source": "foo = if condition\n        foo\n      else\n        bar\n        baz\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 138,
+    "source": "foo = if condition\n      else\n        foo\n      end\n",
+    "positions": [
+      [
+        3,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = nil if condition\n"
+  },
+  {
+    "spec_line": 152,
+    "source": "foo = if condition\n        foo\n      else\n      end\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "foo = nil unless condition\n"
+  },
+  {
+    "spec_line": 166,
+    "source": "def do_something\n  foo = condition ? foo : bar\nend\n",
+    "positions": [
+      [
+        2,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "def do_something\n  foo = bar unless condition\nend\n"
+  },
+  {
+    "spec_line": 181,
+    "source": "if other_condition\n  foo = condition ? foo : bar\nend\n",
+    "positions": [
+      [
+        2,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "if other_condition\n  foo = bar unless condition\nend\n"
+  },
+  {
+    "spec_line": 196,
+    "source": "case other\nwhen 1\n  do_something\nelse\n  foo = condition ? foo : bar\nend\n",
+    "positions": [
+      [
+        5,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "case other\nwhen 1\n  do_something\nelse\n  foo = bar unless condition\nend\n"
+  },
+  {
+    "spec_line": 217,
+    "source": "case other\nin Integer\n  foo = condition ? foo : bar\nend\n",
+    "positions": [
+      [
+        3,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "case other\nin Integer\n  foo = bar unless condition\nend\n"
+  },
+  {
+    "spec_line": 234,
+    "source": "for x in items\n  foo = condition ? foo : bar\nend\n",
+    "positions": [
+      [
+        2,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "for x in items\n  foo = bar unless condition\nend\n"
+  },
+  {
+    "spec_line": 249,
+    "source": "begin\n  foo = condition ? foo : bar\nrescue StandardError\n  do_something\nend\n",
+    "positions": [
+      [
+        2,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "begin\n  foo = bar unless condition\nrescue StandardError\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 268,
+    "source": "def do_something\n  foo = condition ? foo : bar\nrescue StandardError\n  do_something_else\nend\n",
+    "positions": [
+      [
+        2,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove the self-assignment branch."
+    ],
+    "correction": "def do_something\n  foo = bar unless condition\nrescue StandardError\n  do_something_else\nend\n"
+  },
+  {
+    "spec_line": 287,
+    "source": "do_something rescue foo = condition ? foo : bar\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 293,
+    "source": "if foo = condition ? foo : bar\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 301,
+    "source": "do_something(foo = condition ? foo : bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 307,
+    "source": "baz = foo = condition ? foo : bar\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 313,
+    "source": "do_something if (foo = condition ? foo : bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 319,
+    "source": "@foo = condition ? @bar : @foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 325,
+    "source": "@@foo = condition ? @@bar : @@foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 331,
+    "source": "$foo = condition ? $bar : $foo\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 337,
+    "source": "foo = condition ? bar : baz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 343,
+    "source": "foo = if condition\n        bar\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 351,
+    "source": "foo, bar = baz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 358,
+    "source": "foo.do_something = condition ? foo.do_something : bar.do_something\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 364,
+    "source": "foo = if condition\n  foo\nelsif another_condition\n  bar\nelse\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 376,
+    "source": "foo = if condition\n        bar\n      elsif another_condition\n        foo\n      else\n        baz\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 388,
+    "source": "foo = if condition\n        bar\n      elsif another_condition\n        baz\n      else\n        foo\n      end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

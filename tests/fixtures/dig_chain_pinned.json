@@ -1,0 +1,401 @@
+[
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 5,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for unchained `dig` without a receiver",
+    "source": "dig\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 11,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for `X::dig`",
+    "source": "X::dig(:foo, :bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 17,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for dig chained to something else",
+    "source": "x.dig(:foo).bar\nx.bar.dig(:foo)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 24,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense when the chain is broken up",
+    "source": "x.dig(:foo).first.dig(:bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 30,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for dig without arguments",
+    "source": "x.dig\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 36,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for chained dig without arguments",
+    "source": "x.dig(:foo, :bar).dig\nx.dig.dig(:foo, :bar)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 43,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for a hash",
+    "source": "x.dig({ foo: 1, bar: 2 }).dig({ baz: 3, quux: 4 })\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 49,
+    "description": "RuboCop::Cop::Style::DigChain does not register an offense for kwargs",
+    "source": "x.dig(foo: 1, bar: 2).dig(baz: 3, quux: 4)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 56,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects with single values",
+    "source": "x.dig(:foo).dig(:bar).dig(:baz)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz)` instead of chaining."
+    ],
+    "correction": "x.dig(:foo, :bar, :baz)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 67,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects when attached to a chain of non-dig receivers",
+    "source": "x.y.z.dig(:foo).dig(:bar).dig(:baz)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz)` instead of chaining."
+    ],
+    "correction": "x.y.z.dig(:foo, :bar, :baz)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 78,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects with multiple values",
+    "source": "x.dig(:foo, :bar).dig(:baz, :quux)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz, :quux)` instead of chaining."
+    ],
+    "correction": "x.dig(:foo, :bar, :baz, :quux)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 89,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects with safe navigation",
+    "source": "x.dig(:foo, :bar)&.dig(:baz, :quux)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz, :quux)` instead of chaining."
+    ],
+    "correction": "x.dig(:foo, :bar, :baz, :quux)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 100,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects with safe navigation method chain",
+    "source": "x&.dig(:foo, :bar)&.dig(:baz, :quux)\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz, :quux)` instead of chaining."
+    ],
+    "correction": "x&.dig(:foo, :bar, :baz, :quux)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 111,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects without a receiver",
+    "source": "dig(:foo, :bar).dig(:baz, :quux)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz, :quux)` instead of chaining."
+    ],
+    "correction": "dig(:foo, :bar, :baz, :quux)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 122,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects with `::` instead of dot",
+    "source": "x.dig(:foo, :bar)::dig(:baz, :quux)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz, :quux)` instead of chaining."
+    ],
+    "correction": "x.dig(:foo, :bar, :baz, :quux)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 133,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects with splat",
+    "source": "x.dig(:foo).dig(*names).dig(:bar)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, *names, :bar)` instead of chaining."
+    ],
+    "correction": "x.dig(:foo, *names, :bar)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 144,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects when split over multiple lines",
+    "source": "x.dig(:foo)\n .dig(:bar)\n .dig(:baz)\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz)` instead of chaining."
+    ],
+    "correction": "x.dig(:foo, :bar, :baz)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 157,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls registers an offense and corrects when split over multiple lines with comments",
+    "source": "x.dig(:foo) # comment 1\n .dig(:bar) # comment 2\n .dig(:baz) # comment 3\n",
+    "positions": [
+      [
+        1,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, :bar, :baz)` instead of chaining."
+    ],
+    "correction": "# comment 1\n# comment 2\nx.dig(:foo, :bar, :baz) # comment 3\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 172,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls keeps a trailing comment in place and preserves indentation inside a method",
+    "source": "def m\n  foo.dig(:a).dig(:b) # c\nend\n",
+    "positions": [
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `dig(:a, :b)` instead of chaining."
+    ],
+    "correction": "def m\n  foo.dig(:a, :b) # c\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 188,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls `...` argument forwarding registers an offense and corrects with forwarded args",
+    "source": "def foo(...)\n  x.dig(:foo).dig(...)\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `dig(:foo, ...)` instead of chaining."
+    ],
+    "correction": "def foo(...)\n  x.dig(:foo, ...)\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 203,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls `...` argument forwarding does not register an offense when combining would add a syntax error",
+    "source": "def foo(...)\n  x.dig(...).dig(:foo)\n  x.dig(...).dig(...)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 213,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls `...` argument forwarding Ruby >= 3.1 does not register an offense when `dig` is given a forwarded anonymous block",
+    "source": "def foo(&)\n  x.dig(&).dig(:foo)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 223,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls `...` argument forwarding Ruby >= 3.2 registers an offense and corrects with forwarded anonymous splat",
+    "source": "def foo(*)\n  x.dig(*).dig(*)\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `dig(*, *)` instead of chaining."
+    ],
+    "correction": "def foo(*)\n  x.dig(*, *)\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/DigChain",
+    "spec_line": 238,
+    "description": "RuboCop::Cop::Style::DigChain with chained `dig` calls `...` argument forwarding Ruby >= 3.2 does not register an offense with forwarded anonymous kwsplat",
+    "source": "def foo(**)\n  x.dig(**).dig(:foo)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  }
+]

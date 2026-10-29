@@ -1,0 +1,344 @@
+[
+  {
+    "spec_line": 7,
+    "source": "method rescue handle\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  method\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 22,
+    "source": "method(<<~EOS) rescue handle\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  method(<<~EOS)\n  str\nEOS\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 41,
+    "source": "obj&.method(<<~EOS) rescue handle\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  obj&.method(<<~EOS)\n  str\nEOS\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 60,
+    "source": "foo(bar(<<~EOS)) rescue handle\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  foo(bar(<<~EOS))\n  str\nEOS\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 79,
+    "source": "x = <<~EOS.strip rescue handle\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "x = begin\n      <<~EOS.strip\n  str\nEOS\n    rescue\n      handle\n    end\n"
+  },
+  {
+    "spec_line": 98,
+    "source": "<<~EOS rescue handle\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  <<~EOS\n  str\nEOS\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "raise rescue puts(<<~EOS)\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 128,
+    "source": "method(<<~EOS, var) rescue handle\n  str\nEOS\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  method(<<~EOS, var)\n  str\nEOS\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 147,
+    "source": "method(<<~EOS1, <<~EOS2) rescue handle\n  str1\nEOS1\n  str2\nEOS2\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  method(<<~EOS1, <<~EOS2)\n  str1\nEOS1\n  str2\nEOS2\nrescue\n  handle\nend\n"
+  },
+  {
+    "spec_line": 185,
+    "source": "a, b = 1, 2 rescue nil\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "a, b = begin\n         [1, 2]\n       rescue\n         nil\n       end\n"
+  },
+  {
+    "spec_line": 200,
+    "source": "method1 or method2 rescue handle\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 207,
+    "source": "begin\n  test rescue modifier_handle\nrescue\n  normal_handle\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  begin\n    test\n  rescue\n    modifier_handle\n  end\nrescue\n  normal_handle\nend\n"
+  },
+  {
+    "spec_line": 230,
+    "source": "def a_method\n  test rescue nil\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "def a_method\n  begin\n    test\n  rescue\n    nil\n  end\nend\n"
+  },
+  {
+    "spec_line": 249,
+    "source": "(foo rescue nil)\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  foo\nrescue\n  nil\nend\n"
+  },
+  {
+    "spec_line": 264,
+    "source": "begin\n  test\nrescue\n  handle\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 274,
+    "source": "begin\n  test\nrescue\n  handle\nensure\n  cleanup\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 286,
+    "source": "begin\n  begin\n    test\n  rescue\n    handle_inner\n  end\nrescue\n  handle_outer\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 301,
+    "source": "def some_method\n  test\nrescue\n  handle\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 311,
+    "source": "def some_method\n  test rescue modifier_handle\nrescue\n  normal_handle\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 324,
+    "source": "def self.some_method\n  test\nrescue\n  handle\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 334,
+    "source": "def self.some_method\n  test rescue modifier_handle\nrescue\n  normal_handle\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 347,
+    "source": "foo || bar rescue bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  foo || bar\nrescue\n  bar\nend\n"
+  },
+  {
+    "spec_line": 362,
+    "source": "blah rescue 1 rescue 2\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form.",
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  begin\n  blah\nrescue\n  1\nend\nrescue\n  2\nend\n"
+  },
+  {
+    "spec_line": 382,
+    "source": "foo rescue (bar rescue baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Avoid using `rescue` in its modifier form.",
+      "Avoid using `rescue` in its modifier form."
+    ],
+    "correction": "begin\n  foo\nrescue\n  (bar rescue baz)\nend\n"
+  },
+  {
+    "spec_line": 404,
+    "source": "foo rescue bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

@@ -1,0 +1,490 @@
+[
+  {
+    "spec_line": 64,
+    "source": "raise RuntimeError, \"#{message}\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise \"#{message}\"\n"
+  },
+  {
+    "spec_line": 75,
+    "source": "raise RuntimeError, `command`\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise `command`\n"
+  },
+  {
+    "spec_line": 86,
+    "source": "raise RuntimeError, Object.new\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise Object.new.to_s\n"
+  },
+  {
+    "spec_line": 97,
+    "source": "raise RuntimeError, nil\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 103,
+    "source": "raise RuntimeError.new(nil)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 109,
+    "source": "raise RuntimeError.new(Object.new)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise Object.new.to_s\n"
+  },
+  {
+    "spec_line": 120,
+    "source": "raise RuntimeError.new Object.new\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise Object.new.to_s\n"
+  },
+  {
+    "spec_line": 131,
+    "source": "raise RuntimeError, variable\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise variable.to_s\n"
+  },
+  {
+    "spec_line": 142,
+    "source": "raise RuntimeError, 1 + 2\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise (1 + 2).to_s\n"
+  },
+  {
+    "spec_line": 153,
+    "source": "raise RuntimeError.new(a || b)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise (a || b).to_s\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "raise RuntimeError.new(foo.bar baz)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise (foo.bar baz).to_s\n"
+  },
+  {
+    "spec_line": 175,
+    "source": "raise RuntimeError, !foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise (!foo).to_s\n"
+  },
+  {
+    "spec_line": 186,
+    "source": "raise RuntimeError, foo[1]\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise foo[1].to_s\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "raise RuntimeError, \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise \"message\"\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "raise(RuntimeError, \"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise(\"message\")\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "raise RuntimeError.new \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise \"message\"\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "raise RuntimeError.new(\"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise \"message\"\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "raise RuntimeError, 'message', caller",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 54,
+    "source": "raise OtherError, 'message'",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "raise ::RuntimeError, \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise \"message\"\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "raise(::RuntimeError, \"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "raise(\"message\")\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "raise ::RuntimeError.new \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise \"message\"\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "raise ::RuntimeError.new(\"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "raise \"message\"\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "raise ::RuntimeError, 'message', caller",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 54,
+    "source": "raise OtherError, 'message'",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "fail RuntimeError, \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "fail \"message\"\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "fail(RuntimeError, \"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "fail(\"message\")\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "fail RuntimeError.new \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "fail \"message\"\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "fail RuntimeError.new(\"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "fail \"message\"\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "fail RuntimeError, 'message', caller",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 54,
+    "source": "fail OtherError, 'message'",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 6,
+    "source": "fail ::RuntimeError, \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "fail \"message\"\n"
+  },
+  {
+    "spec_line": 17,
+    "source": "fail(::RuntimeError, \"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError` argument can be removed."
+    ],
+    "correction": "fail(\"message\")\n"
+  },
+  {
+    "spec_line": 28,
+    "source": "fail ::RuntimeError.new \"message\"\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "fail \"message\"\n"
+  },
+  {
+    "spec_line": 39,
+    "source": "fail ::RuntimeError.new(\"message\")\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `RuntimeError.new` call can be replaced with just the message."
+    ],
+    "correction": "fail \"message\"\n"
+  },
+  {
+    "spec_line": 50,
+    "source": "fail ::RuntimeError, 'message', caller",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 54,
+    "source": "fail OtherError, 'message'",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

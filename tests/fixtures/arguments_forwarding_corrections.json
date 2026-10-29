@@ -1,0 +1,650 @@
+[
+  {
+    "spec_lines": [
+      51,
+      2282
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  bar(*args, **kwargs, &block)\nend\n",
+    "after": "def foo(...)\n  bar(...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      68,
+      2299
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  bar(*args, **kwargs, &block)\n  baz(1, 2, 3)\nend\n",
+    "after": "def foo(...)\n  bar(...)\n  baz(1, 2, 3)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      87,
+      2318
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  bar(*args, **kwargs, &block)\n  baz(*args, **kwargs, &block)\nend\n",
+    "after": "def foo(...)\n  bar(...)\n  baz(...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      209,
+      1323
+    ],
+    "before": "def foo(&block)\n  bar(&block)\nend\n",
+    "after": "def foo(&)\n  bar(&)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      784,
+      1653
+    ],
+    "before": "def method_missing(m, *args, **kwargs, &block)\n  if @template.respond_to?(m)\n    @template.send(m, *args, **kwargs, &block)\n  else\n    super\n  end\nend\n",
+    "after": "def method_missing(m, ...)\n  if @template.respond_to?(m)\n    @template.send(m, ...)\n  else\n    super\n  end\nend\n",
+    "withheld": "Dynamic send and method_missing callback metadata cannot be proved safe."
+  },
+  {
+    "spec_lines": [
+      804
+    ],
+    "before": "def method_missing(m, *args, **kwargs, &block)\n  obj.foo(m, *args, **kwargs, &block)\nend\n",
+    "after": "def method_missing(m, ...)\n  obj.foo(m, ...)\nend\n",
+    "withheld": "Dynamic send and method_missing callback metadata cannot be proved safe."
+  },
+  {
+    "spec_lines": [
+      820
+    ],
+    "before": "def method_missing(m, *args, **kwargs, &block)\n  super(m, *args, **kwargs, &block)\nend\n",
+    "after": "def method_missing(m, ...)\n  super(m, ...)\nend\n",
+    "withheld": "Dynamic send and method_missing callback metadata cannot be proved safe."
+  },
+  {
+    "spec_lines": [
+      860,
+      983
+    ],
+    "before": "def foo(m, *args, **kwargs, &block)\n  bar(m, *args, **kwargs, &block)\nend\n",
+    "after": "def foo(m, ...)\n  bar(m, ...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      884,
+      1080,
+      1745
+    ],
+    "before": "def self.get(*args, **kwargs, &block)\n  CanvasHttp.request(Net::HTTP::Get, *args, **kwargs, &block)\nend\n",
+    "after": "def self.get(...)\n  CanvasHttp.request(Net::HTTP::Get, ...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      913
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  baz(*args, **kwargs, &block)\n\n  if something?\n    baz(*args, **kwargs, &block)\n  end\nend\n",
+    "after": "def foo(...)\n  baz(...)\n\n  if something?\n    baz(...)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      480
+    ],
+    "before": "def foo(*args)\n  bar(*args)\nend\n",
+    "after": "def foo(*)\n  bar(*)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      496
+    ],
+    "before": "def foo(**kwargs)\n  bar(**kwargs)\nend\n",
+    "after": "def foo(**)\n  bar(**)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1004
+    ],
+    "before": "def foo(m, *args, **kwargs, &block)\n  baz(m, *args, **kwargs, &block)\n\n  if something?\n    baz(m, *args, **kwargs, &block)\n  end\nend\n",
+    "after": "def foo(m, ...)\n  baz(m, ...)\n\n  if something?\n    baz(m, ...)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1307
+    ],
+    "before": "def foo *args, &block\n  bar *args, &block\nend\n",
+    "after": "def foo(*, &)\n  bar(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1342
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  args = new_args\n  bar(*args, **kwargs, &block)\nend\n",
+    "after": "def foo(*args, **, &)\n  args = new_args\n  bar(*args, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1362
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  kwargs = new_kwargs\n  bar(*args, **kwargs, &block)\nend\n",
+    "after": "def foo(*, **kwargs, &)\n  kwargs = new_kwargs\n  bar(*, **kwargs, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1382
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  args.do_something\n  bar(*args, **kwargs, &block)\nend\n",
+    "after": "def foo(*args, **, &)\n  args.do_something\n  bar(*args, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1401
+    ],
+    "before": "def foo(m, **kwargs, &block)\n  bar(m, **kwargs, &block)\nend\n",
+    "after": "def foo(m, **, &)\n  bar(m, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1421
+    ],
+    "before": "def foo(m, *args, **kwargs, &block)\n  bar(*args, m, **kwargs, &block)\nend\n",
+    "after": "def foo(m, *, **, &)\n  bar(*, m, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1441
+    ],
+    "before": "def foo(m, *args, **kwargs, &block)\n  bar(m, *args, extra: :kwarg, **kwargs, &block)\nend\n",
+    "after": "def foo(m, *, **, &)\n  bar(m, *, extra: :kwarg, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1461
+    ],
+    "before": "def foo(m, *args, **kwargs, &block)\n  bar(m, *args, **kwargs, extra: :kwarg, &block)\nend\n",
+    "after": "def foo(m, *, **, &)\n  bar(m, *, **, extra: :kwarg, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1479
+    ],
+    "before": "def foo(x, *args, &block)\n  bar(*args, &block)\nend\n",
+    "after": "def foo(x, *, &)\n  bar(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1497
+    ],
+    "before": "def foo(x, y = 42, *args, &block)\n  bar(x, y, *args, &block)\nend\n",
+    "after": "def foo(x, y = 42, *, &)\n  bar(x, y, *, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1515
+    ],
+    "before": "def foo(**kwargs, &block)\n  baz(**kwargs, &block)\nend\n",
+    "after": "def foo(**, &)\n  baz(**, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1533
+    ],
+    "before": "def foo(x, **kwargs, &block)\n  baz(x, **kwargs, &block)\nend\n",
+    "after": "def foo(x, **, &)\n  baz(x, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1551
+    ],
+    "before": "def foo(*args, **kwargs)\n  bar(*args, **kwargs)\nend\n",
+    "after": "def foo(*, **)\n  bar(*, **)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1570
+    ],
+    "before": "def foo(*args, **kwargs)\n  args_only(*args)\n  kwargs_only(**kwargs)\nend\n",
+    "after": "def foo(*, **)\n  args_only(*)\n  kwargs_only(**)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1587
+    ],
+    "before": "def foo(*args, &)\n  bar(*args, &)\nend\n",
+    "after": "def foo(*, &)\n  bar(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1606
+    ],
+    "before": "def foo(arg, *args, kwarg:, **kwargs)\n  args_only(*args)\n  kwargs_only(**kwargs)\nend\n",
+    "after": "def foo(arg, *, kwarg:, **)\n  args_only(*)\n  kwargs_only(**)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1629
+    ],
+    "before": "def method_missing(m, *args, **kwargs)\n  if @template.respond_to?(m)\n    @template.send(m, *args, **kwargs)\n  else\n    super\n  end\nend\n",
+    "after": "def method_missing(m, *, **)\n  if @template.respond_to?(m)\n    @template.send(m, *, **)\n  else\n    super\n  end\nend\n",
+    "withheld": "Dynamic send and method_missing callback metadata cannot be proved safe."
+  },
+  {
+    "spec_lines": [
+      1675
+    ],
+    "before": "def foo(m, *args, &block)\n  bar(*args, m, &block)\nend\n",
+    "after": "def foo(m, *, &)\n  bar(*, m, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1693
+    ],
+    "before": "def foo(m, *args, &block)\n  obj&.bar(*args, m, &block)\nend\n",
+    "after": "def foo(m, *, &)\n  obj&.bar(*, m, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1711
+    ],
+    "before": "def foo(m, *args, &block)\n  super(*args, m, &block)\nend\n",
+    "after": "def foo(m, *, &)\n  super(*, m, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1729
+    ],
+    "before": "def post(*args, &block)\n  future_on(executor, *args, &block)\nend\n",
+    "after": "def post(*, &)\n  future_on(executor, *, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1765
+    ],
+    "before": "def foo(m, *args, foo:, **kwargs, &block)\n  bar(m, *args, foo:, extra: :kwarg, **kwargs, &block)\nend\n",
+    "after": "def foo(m, *, foo:, **, &)\n  bar(m, *, foo:, extra: :kwarg, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1788
+    ],
+    "before": "def foo(*args, **kwargs)\n  args_only(:another_arg, *args)\n  args_only(*args, :another_arg)\n  kwargs_only(another: :kwarg, **kwargs)\n  kwargs_only(**kwargs, another: :kwarg)\nend\n",
+    "after": "def foo(*, **)\n  args_only(:another_arg, *)\n  args_only(*, :another_arg)\n  kwargs_only(another: :kwarg, **)\n  kwargs_only(**, another: :kwarg)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1810
+    ],
+    "before": "def foo(*args, **kwargs)\n  args_only(1, *args)\n  kwargs_only(foo: :bar, **kwargs)\nend\n",
+    "after": "def foo(*, **)\n  args_only(1, *)\n  kwargs_only(foo: :bar, **)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1830
+    ],
+    "before": "def foo(*args, **kwargs)\n  args_only(*args, 1)\n  kwargs_only(**kwargs, foo: :bar)\nend\n",
+    "after": "def foo(*, **)\n  args_only(*, 1)\n  kwargs_only(**, foo: :bar)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1850
+    ],
+    "before": "def foo(*args, **kwargs)\n  args_only(1, *args, 2)\n  kwargs_only(foo: :bar, **kwargs, bar: :baz)\nend\n",
+    "after": "def foo(*, **)\n  args_only(1, *, 2)\n  kwargs_only(foo: :bar, **, bar: :baz)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1867
+    ],
+    "before": "def foo((bar, baz), **kwargs)\n  forwarded(bar, baz, **kwargs)\nend\n",
+    "after": "def foo((bar, baz), **)\n  forwarded(bar, baz, **)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1884
+    ],
+    "before": "def foo(*args, **kwargs)\n  args.do_something\n  bar(*args, **kwargs)\nend\n",
+    "after": "def foo(*args, **)\n  args.do_something\n  bar(*args, **)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1902
+    ],
+    "before": "def foo(*args, **kwargs)\n  args = new_args\n  bar(*args, **kwargs)\nend\n",
+    "after": "def foo(*args, **)\n  args = new_args\n  bar(*args, **)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1920
+    ],
+    "before": "def foo(*args, **kwargs)\n  kwargs.do_something\n  bar(*args, **kwargs)\nend\n",
+    "after": "def foo(*, **kwargs)\n  kwargs.do_something\n  bar(*, **kwargs)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1938
+    ],
+    "before": "def foo(*args, **kwargs)\n  kwargs = new_kwargs\n  bar(*args, **kwargs)\nend\n",
+    "after": "def foo(*, **kwargs)\n  kwargs = new_kwargs\n  bar(*, **kwargs)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      1958
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  block = new_block\n  bar(*args, **kwargs, &block)\nend\n",
+    "after": "def foo(*, **, &block)\n  block = new_block\n  bar(*, **, &block)\nend\n",
+    "withheld": "Reassigned block value may dynamically dispatch a metadata observer; no value-flow proof."
+  },
+  {
+    "spec_lines": [
+      1979
+    ],
+    "before": "def foo(*args, &block)\n  bar(*args, &block)\n  baz(*args)\nend\n",
+    "after": "def foo(*, &)\n  bar(*, &)\n  baz(*)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2000
+    ],
+    "before": "def foo(**kwargs, &block)\n  bar(**kwargs, &block)\n  baz(**kwargs)\nend\n",
+    "after": "def foo(**, &)\n  bar(**, &)\n  baz(**)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2027
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  bar(*args, **kwargs, &block)\n  bar(*args, &block)\n  bar(**kwargs, &block)\nend\n",
+    "after": "def foo(*, **, &)\n  bar(*, **, &)\n  bar(*, &)\n  bar(**, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2047
+    ],
+    "before": "def foo(*, &block)\n  bar(*, &block)\n  bar(&block)\nend\n",
+    "after": "def foo(*, &)\n  bar(*, &)\n  bar(&)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2069
+    ],
+    "before": "def foo(bar, *args)\n  baz(*args)\n\n  if something?\n    baz(*args)\n  end\nend\n",
+    "after": "def foo(bar, *)\n  baz(*)\n\n  if something?\n    baz(*)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2094
+    ],
+    "before": "def foo(bar, **kwargs)\n  baz(**kwargs)\n\n  if something?\n    baz(**kwargs)\n  end\nend\n",
+    "after": "def foo(bar, **)\n  baz(**)\n\n  if something?\n    baz(**)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2116
+    ],
+    "before": "def foo(*args, &block)\n  bar(*args).baz(&block)\nend\n",
+    "after": "def foo(*, &)\n  bar(*).baz(&)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2136
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  bar(*args, **kwargs).baz(&block)\nend\n",
+    "after": "def foo(*, **, &)\n  bar(*, **).baz(&)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2156
+    ],
+    "before": "def foo(*args, **kwargs, &block)\n  bar(first(*args), second(**kwargs), third(&block))\nend\n",
+    "after": "def foo(*, **, &)\n  bar(first(*), second(**), third(&))\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2174
+    ],
+    "before": "def foo(first:, **kwargs, &block)\n  forwarded(**kwargs, &block)\nend\n",
+    "after": "def foo(first:, **, &)\n  forwarded(**, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2192
+    ],
+    "before": "def foo(first:, **kwargs, &block)\n  forwarded(first: first, **kwargs, &block)\nend\n",
+    "after": "def foo(first:, **, &)\n  forwarded(first: first, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2210
+    ],
+    "before": "def foo(first: nil, **kwargs, &block)\n  forwarded(first:, **kwargs, &block)\nend\n",
+    "after": "def foo(first: nil, **, &)\n  forwarded(first:, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2228
+    ],
+    "before": "def foo(first: nil, **kwargs, &block)\n  forwarded(first: first, **kwargs, &block)\nend\n",
+    "after": "def foo(first: nil, **, &)\n  forwarded(first: first, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2248
+    ],
+    "before": "def foo(*args, first: nil, **kwargs, &block)\n  forwarded(*args, first: first, **kwargs, &block)\nend\n",
+    "after": "def foo(*, first: nil, **, &)\n  forwarded(*, first: first, **, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2266
+    ],
+    "before": "def foo(*args, &block)\n  bar(*args, &block)\nend\n",
+    "after": "def foo(*, &)\n  bar(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2337
+    ],
+    "before": "def self.foo(*args, &block)\n  bar(*args, &block)\nend\n",
+    "after": "def self.foo(*, &)\n  bar(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2353
+    ],
+    "before": "def foo *args\n  bar *args\nend\n",
+    "after": "def foo(*)\n  bar(*)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2369
+    ],
+    "before": "def foo **kwargs\n  bar **kwargs\nend\n",
+    "after": "def foo(**)\n  bar(**)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2387
+    ],
+    "before": "def foo *args, **kwargs\n  bar *args, **kwargs\nend\n",
+    "after": "def foo(*, **)\n  bar(*, **)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2406
+    ],
+    "before": "def foo *args, &block\n  bar(&block)\n  baz(*args)\nend\n",
+    "after": "def foo(*, &)\n  bar(&)\n  baz(*)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2423
+    ],
+    "before": "def foo(*, **, &)\n  bar(*, **, &)\nend\n",
+    "after": "def foo(...)\n  bar(...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2451
+    ],
+    "before": "def foo(*, **, &)\n  bar(*, **, &).baz\nend\n",
+    "after": "def foo(...)\n  bar(...).baz\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2467
+    ],
+    "before": "def foo(m, *, **, &)\n  bar(m, *, **, &)\nend\n",
+    "after": "def foo(m, ...)\n  bar(m, ...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2483
+    ],
+    "before": "def foo(m, *, **, &)\n  bar(self, *, **, &)\nend\n",
+    "after": "def foo(m, ...)\n  bar(self, ...)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2569
+    ],
+    "before": "def foo(*args, &block)\n  obj.bar(*args, &block)\nend\n",
+    "after": "def foo(*, &)\n  obj.bar(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2587
+    ],
+    "before": "def foo(*args, &block)\n  bar.(*args, &block)\nend\n",
+    "after": "def foo(*, &)\n  bar.(*, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2603
+    ],
+    "before": "def foo(*args, &block)\n  bar(*args)\nend\n",
+    "after": "def foo(*, &block)\n  bar(*)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2635
+    ],
+    "before": "def foo(*args, &block)\n  bar(*arguments, &block)\nend\n",
+    "after": "def foo(*args, &)\n  bar(*arguments, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2651
+    ],
+    "before": "def foo(**kwargs, &block)\n  bar(**kwarguments, &block)\nend\n",
+    "after": "def foo(**kwargs, &)\n  bar(**kwarguments, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2668
+    ],
+    "before": "def foo(*args, &block)\n  var = args\n  foo(*args, &block)\nend\n",
+    "after": "def foo(*args, &)\n  var = args\n  foo(*args, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2686
+    ],
+    "before": "def foo(*args, &block)\n  args\n  foo(*args, &block)\nend\n",
+    "after": "def foo(*args, &)\n  args\n  foo(*args, &)\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2910
+    ],
+    "before": "def foo(*args, &block)\n  do_something do\n    bar(*args, &block)\n    baz(_1)\n  end\nend\n",
+    "after": "def foo(*, &)\n  do_something do\n    bar(*, &)\n    baz(_1)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2933
+    ],
+    "before": "def foo(**kwargs, &block)\n  do_something do\n    bar(**kwargs, &block)\n  end\nend\n",
+    "after": "def foo(**, &)\n  do_something do\n    bar(**, &)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2956
+    ],
+    "before": "def foo(**kwargs, &block)\n  do_something do\n    bar(**kwargs, &block)\n    baz(_1)\n  end\nend\n",
+    "after": "def foo(**, &)\n  do_something do\n    bar(**, &)\n    baz(_1)\n  end\nend\n",
+    "withheld": null
+  },
+  {
+    "spec_lines": [
+      2979
+    ],
+    "before": "def foo(*args, **kwargs)\n  block_method do\n    bar(*args, **kwargs)\n  end\nend\n",
+    "after": "def foo(*, **)\n  block_method do\n    bar(*, **)\n  end\nend\n",
+    "withheld": null
+  }
+]

@@ -1,0 +1,1429 @@
+{
+  "calls": [
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 41,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is true registers an offense for a constant name with non-ascii chars",
+      "source": "class Foö\nend\n",
+      "positions": [
+        [
+          1,
+          9
+        ]
+      ],
+      "messages": [
+        "Use only ascii symbols in constants."
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is true behaves like checks identifiers registers an offense for a variable name with non-ascii chars",
+      "source": "älg = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use only ascii symbols in identifiers."
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 13,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is true behaves like checks identifiers registers an offense for a variable name with mixed chars",
+      "source": "foo∂∂bar = baz\n",
+      "positions": [
+        [
+          1,
+          4
+        ]
+      ],
+      "messages": [
+        "Use only ascii symbols in identifiers."
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 20,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is true behaves like checks identifiers accepts identifiers with only ascii chars",
+      "source": "x.empty?",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 24,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is true behaves like checks identifiers does not get confused by a byte order mark",
+      "source": "﻿\nputs 'foo'\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is true behaves like checks identifiers does not get confused by an empty file",
+      "source": "",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 55,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is false accepts constants with only ascii chars",
+      "source": "class Foo\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is false behaves like checks identifiers registers an offense for a variable name with non-ascii chars",
+      "source": "älg = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use only ascii symbols in identifiers."
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 13,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is false behaves like checks identifiers registers an offense for a variable name with mixed chars",
+      "source": "foo∂∂bar = baz\n",
+      "positions": [
+        [
+          1,
+          4
+        ]
+      ],
+      "messages": [
+        "Use only ascii symbols in identifiers."
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 20,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is false behaves like checks identifiers accepts identifiers with only ascii chars",
+      "source": "x.empty?",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 24,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is false behaves like checks identifiers does not get confused by a byte order mark",
+      "source": "﻿\nputs 'foo'\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AsciiIdentifiers",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::AsciiIdentifiers when AsciiConstants is false behaves like checks identifiers does not get confused by an empty file",
+      "source": "",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 7,
+      "description": "RuboCop::Cop::Naming::BlockParameterName does not register for block without parameters",
+      "source": "something do\n  do_stuff\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 15,
+      "description": "RuboCop::Cop::Naming::BlockParameterName does not register for brace block without parameters",
+      "source": "something { do_stuff }\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 21,
+      "description": "RuboCop::Cop::Naming::BlockParameterName does not register offense for valid parameter names",
+      "source": "something { |foo, bar| do_stuff }\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 55,
+      "description": "RuboCop::Cop::Naming::BlockParameterName registers an offense when param contains uppercase characters",
+      "source": "something { |number_One| do_stuff }\n",
+      "positions": [
+        [
+          1,
+          14
+        ]
+      ],
+      "messages": [
+        "Only use lowercase characters for block parameter."
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 81,
+      "description": "RuboCop::Cop::Naming::BlockParameterName with AllowedNames accepts specified block param names",
+      "source": "something { |foo1, foo2| do_things }\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 105,
+      "description": "RuboCop::Cop::Naming::BlockParameterName with ForbiddenNames accepts param that uses a forbidden name's letters",
+      "source": "something { |foo_arg| do_stuff }\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 115,
+      "description": "RuboCop::Cop::Naming::BlockParameterName with AllowNamesEndingInNumbers accepts params that end in numbers",
+      "source": "something { |foo1, bar2, qux3| do_that_stuff }\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 160,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal registers an offense for snake case numbering in symbol",
+      "source": ":sym_1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for symbol numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 167,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal does not register an offense for normal case numbering in symbol",
+      "source": ":sym1",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 171,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal registers an offense for snake case numbering in method parameter",
+      "source": "def method(arg_1); end\n",
+      "positions": [
+        [
+          1,
+          12
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 178,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal registers an offense for snake case numbering in method camel case parameter",
+      "source": "def method(funnyArg_1); end\n",
+      "positions": [
+        [
+          1,
+          12
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 185,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal registers an offense for snake case numbering in method name",
+      "source": "def method_1; end\n",
+      "positions": [
+        [
+          1,
+          5
+        ]
+      ],
+      "messages": [
+        "Use normalcase for method name numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 192,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal registers an offense for snake case numbering in a global variable name",
+      "source": "$arg_1 = :foo\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for local_1 in normalcase",
+      "source": "local_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for sha_256 in normalcase",
+      "source": "sha_256 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for @local_1 in normalcase",
+      "source": "@local_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for @@local_1 in normalcase",
+      "source": "@@local_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for myAttribute_1 in normalcase",
+      "source": "myAttribute_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for @myAttribute_1 in normalcase",
+      "source": "@myAttribute_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for _myLocal_1 in normalcase",
+      "source": "_myLocal_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for localFOO_1 in normalcase",
+      "source": "localFOO_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense registers an offense for local_FOO_1 in normalcase",
+      "source": "local_FOO_1 = 1\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 22,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like offense_array registers an offense for [\"a_1\", \"a2\"] in normalcase",
+      "source": "a_1 = 1\na2 = 1",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Use normalcase for variable numbers."
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 37,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts integer symbols accepts integer symbol",
+      "source": ":\"42\"",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 41,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts integer symbols accepts integer symbol array literal",
+      "source": "%i[1 2 3]",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 49,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts empty symbol accepts an empty symbol hash key",
+      "source": "x = { \"\": [] }\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 27,
+      "description": "RuboCop::Cop::Naming::BlockParameterName registers an offense when param ends in number",
+      "source": "something { |foo1, bar| do_stuff }\n",
+      "reason": [
+        "Naming/BlockParameterName MinNameLength=2",
+        "Naming/BlockParameterName AllowNamesEndingInNumbers=false"
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 34,
+      "description": "RuboCop::Cop::Naming::BlockParameterName registers an offense when param is less than minimum length",
+      "source": "something do |x|\n  do_stuff\nend\n",
+      "reason": [
+        "Naming/BlockParameterName MinNameLength=2",
+        "Naming/BlockParameterName AllowNamesEndingInNumbers=false"
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 43,
+      "description": "RuboCop::Cop::Naming::BlockParameterName registers an offense when param with prefix is less than minimum length",
+      "source": "something do |_a, __b, *c, **__d|\n  do_stuff\nend\n",
+      "reason": [
+        "Naming/BlockParameterName MinNameLength=2",
+        "Naming/BlockParameterName AllowNamesEndingInNumbers=false"
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 62,
+      "description": "RuboCop::Cop::Naming::BlockParameterName can register multiple offenses in one block",
+      "source": "something do |y, num1, oFo|\n  do_stuff\nend\n",
+      "reason": [
+        "Naming/BlockParameterName MinNameLength=2",
+        "Naming/BlockParameterName AllowNamesEndingInNumbers=false"
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 87,
+      "description": "RuboCop::Cop::Naming::BlockParameterName with AllowedNames registers unlisted offensive names",
+      "source": "something { |bar, bar1| do_things }\n",
+      "reason": [
+        "Naming/BlockParameterName AllowNamesEndingInNumbers=false",
+        "Naming/BlockParameterName AllowedNames=[\"foo1\", \"foo2\"]"
+      ]
+    },
+    {
+      "cop": "Naming/BlockParameterName",
+      "spec_line": 98,
+      "description": "RuboCop::Cop::Naming::BlockParameterName with ForbiddenNames registers an offense for param listed as forbidden",
+      "source": "something { |arg| do_stuff }\n",
+      "reason": [
+        "Naming/BlockParameterName ForbiddenNames=[\"arg\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 85,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case registers an offense for normal case numbering in symbol",
+      "source": ":sym1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 92,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case does not register an offense for snake case numbering in symbol",
+      "source": ":sym_1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 98,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case registers an offense for normal case numbering in method parameter",
+      "source": "def method(arg1); end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 105,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case registers an offense for normal case numbering in method camel case parameter",
+      "source": "def method(funnyArg1); end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 112,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case registers an offense for normal case numbering in method name",
+      "source": "def method1; end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 119,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case registers an offense for normal case numbering in a global variable name",
+      "source": "$arg1 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for local1 in snake_case",
+      "source": "local1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for @local1 in snake_case",
+      "source": "@local1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for @@local1 in snake_case",
+      "source": "@@local1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for camelCase1 in snake_case",
+      "source": "camelCase1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for @camelCase1 in snake_case",
+      "source": "@camelCase1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for _unused1 in snake_case",
+      "source": "_unused1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense registers an offense for aB1 in snake_case",
+      "source": "aB1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 22,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like offense_array registers an offense for [\"a1\", \"a_2\"] in snake_case",
+      "source": "a1 = 1\na_2 = 1",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts local_1 in snake_case",
+      "source": "local_1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts local_12 in snake_case",
+      "source": "local_12 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts local_123 in snake_case",
+      "source": "local_123 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts local_ in snake_case",
+      "source": "local_ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts aB_1 in snake_case",
+      "source": "aB_1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts a_1_b in snake_case",
+      "source": "a_1_b = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts a_1_b_1 in snake_case",
+      "source": "a_1_b_1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts _ in snake_case",
+      "source": "_ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts _foo in snake_case",
+      "source": "_foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts @foo in snake_case",
+      "source": "@foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts @__foo__ in snake_case",
+      "source": "@__foo__ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts emparejó in snake_case",
+      "source": "emparejó = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts accepts _1 in snake_case",
+      "source": "_1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 37,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts integer symbols accepts integer symbol",
+      "source": ":\"42\"",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 41,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts integer symbols accepts integer symbol array literal",
+      "source": "%i[1 2 3]",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 49,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for snake_case behaves like accepts empty symbol accepts an empty symbol hash key",
+      "source": "x = { \"\": [] }\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts local1 in normalcase",
+      "source": "local1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts local_ in normalcase",
+      "source": "local_ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts user1_id in normalcase",
+      "source": "user1_id = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts sha256 in normalcase",
+      "source": "sha256 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts foo10_bar in normalcase",
+      "source": "foo10_bar = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts target_u2f_device in normalcase",
+      "source": "target_u2f_device = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts localFOO1 in normalcase",
+      "source": "localFOO1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts snake_case in normalcase",
+      "source": "snake_case = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts user_1_id in normalcase",
+      "source": "user_1_id = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts _ in normalcase",
+      "source": "_ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts _foo in normalcase",
+      "source": "_foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts @foo in normalcase",
+      "source": "@foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts @__foo__ in normalcase",
+      "source": "@__foo__ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts emparejó in normalcase",
+      "source": "emparejó = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for normal behaves like accepts accepts _1 in normalcase",
+      "source": "_1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 230,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for snake case numbering in symbol",
+      "source": ":sym_1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 237,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for normal case numbering in symbol",
+      "source": ":sym1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 244,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for snake case numbering in method parameter",
+      "source": "def method(arg_1); end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 251,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for normal case numbering in method parameter",
+      "source": "def method(arg1); end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 258,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for snake case numbering in method camel case parameter",
+      "source": "def method(myArg_1); end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 265,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for normal case numbering in method camel case parameter",
+      "source": "def method(myArg1); end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 272,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for snake case numbering in method name",
+      "source": "def method_1; end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 279,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer registers an offense for normal case numbering in method name",
+      "source": "def method1; end\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for local_1 in non_integer",
+      "source": "local_1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for local1 in non_integer",
+      "source": "local1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for @local_1 in non_integer",
+      "source": "@local_1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for @local1 in non_integer",
+      "source": "@local1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for myAttribute_1 in non_integer",
+      "source": "myAttribute_1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for myAttribute1 in non_integer",
+      "source": "myAttribute1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for @myAttribute_1 in non_integer",
+      "source": "@myAttribute_1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for @myAttribute1 in non_integer",
+      "source": "@myAttribute1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for _myLocal_1 in non_integer",
+      "source": "_myLocal_1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 6,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense registers an offense for _myLocal1 in non_integer",
+      "source": "_myLocal1 = 1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 22,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like offense_array registers an offense for [\"a_1\", \"aone\"] in non_integer",
+      "source": "a_1 = 1\naone = 1",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts localone in non_integer",
+      "source": "localone = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts local_one in non_integer",
+      "source": "local_one = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts local_ in non_integer",
+      "source": "local_ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts @foo in non_integer",
+      "source": "@foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts @@foo in non_integer",
+      "source": "@@foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts fooBar in non_integer",
+      "source": "fooBar = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts _ in non_integer",
+      "source": "_ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts _foo in non_integer",
+      "source": "_foo = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts @__foo__ in non_integer",
+      "source": "@__foo__ = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts emparejó in non_integer",
+      "source": "emparejó = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts accepts _1 in non_integer",
+      "source": "_1 = 1",
+      "reason": "not run on Prism"
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 37,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts integer symbols accepts integer symbol",
+      "source": ":\"42\"",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 41,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts integer symbols accepts integer symbol array literal",
+      "source": "%i[1 2 3]",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 49,
+      "description": "RuboCop::Cop::Naming::VariableNumber when configured for non integer behaves like accepts empty symbol accepts an empty symbol hash key",
+      "source": "x = { \"\": [] }\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"non_integer\""
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 290,
+      "description": "RuboCop::Cop::Naming::VariableNumber when CheckMethodNames is false does not register an offense for snake case numbering in method name",
+      "source": "def method_1; end",
+      "reason": [
+        "Naming/VariableNumber CheckMethodNames=false"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 298,
+      "description": "RuboCop::Cop::Naming::VariableNumber when CheckSymbols is false does not register an offense for snake case numbering in symbol",
+      "source": ":sym_1",
+      "reason": [
+        "Naming/VariableNumber CheckSymbols=false"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 313,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedIdentifiers is set does not register an offense for a local variable name that is allowed",
+      "source": "capture3 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[\"capture3\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 319,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedIdentifiers is set does not register an offense for an instance variable name that is allowed",
+      "source": "@capture3 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[\"capture3\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 325,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedIdentifiers is set does not register an offense for a class variable name that is allowed",
+      "source": "@@capture3 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[\"capture3\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 331,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedIdentifiers is set does not register an offense for a global variable name that is allowed",
+      "source": "$capture3 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[\"capture3\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 337,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedIdentifiers is set does not register an offense for a method name that is allowed",
+      "source": "def capture3\nend\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[\"capture3\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 344,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedIdentifiers is set does not register an offense for a symbol that is allowed",
+      "source": ":capture3",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[\"capture3\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 363,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set registers an offense for a local variable name that does not match an allowed pattern",
+      "source": "foo_a1 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 370,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for a local variable name that matches an allowed pattern",
+      "source": "foo_v1 = :foo\nfoo_allow_me_a1 = :allowed\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 377,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set registers an offense for an instance variable name that does not match an allowed pattern",
+      "source": "@foo_a1 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 384,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for an instance variable name that matches an allowed pattern",
+      "source": "@foo_v1 = :foo\n@foo_allow_me_a1 = :allowed\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 391,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set registers an offense for a class variable name that does not match an allowed pattern",
+      "source": "@@foo_a1 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 398,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for a class variable name that matches an allowed pattern",
+      "source": "@@foo_v1 = :foo\n@@foo_allow_me_a1 = :allowed\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 405,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set registers an offense for a global variable name that does not match an allowed pattern",
+      "source": "$foo_a1 = :foo\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 412,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for a global variable name that matches an allowed pattern",
+      "source": "$foo_v1 = :foo\n$foo_allow_me_a1 = :allowed\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 419,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set registers an offense for a method name that does not match an allowed pattern",
+      "source": "def foo_a1\nend\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 427,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for a method name that matches an allowed pattern",
+      "source": "def foo_v1\nend\n\ndef foo_allow_me_a1\nend\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 437,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set registers an offense for a symbol that does not match an allowed pattern",
+      "source": ":foo_a1\n",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 444,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for a symbol that matches an allowed pattern",
+      "source": ":foo_v1",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    },
+    {
+      "cop": "Naming/VariableNumber",
+      "spec_line": 445,
+      "description": "RuboCop::Cop::Naming::VariableNumber when AllowedPatterns is set does not register an offense for a symbol that matches an allowed pattern",
+      "source": ":foo_allow_me_a1",
+      "reason": [
+        "Naming/VariableNumber EnforcedStyle=\"snake_case\"",
+        "Naming/VariableNumber AllowedIdentifiers=[]",
+        "Naming/VariableNumber AllowedPatterns=[\"_v\\\\d+\\\\z\", \"allow_me\"]"
+      ]
+    }
+  ]
+}

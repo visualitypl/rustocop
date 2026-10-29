@@ -1,0 +1,377 @@
+[
+  {
+    "spec_line": 431,
+    "source": "raise MyCustomError.new(a1, a2, a3)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 435,
+    "source": "raise MyKwArgError.new(a: 1, b: 2)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 439,
+    "source": "raise MyCustomError.new(*args)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 459,
+    "source": "raise Ex.new(entity), message",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 463,
+    "source": "raise RuntimeError, msg, caller",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 467,
+    "source": "raise RuntimeError, msg",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 471,
+    "source": "raise error_class, msg",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 475,
+    "source": "raise msg",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 479,
+    "source": "raise new",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 160,
+    "source": "raise Ex.new(msg)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "raise Ex, msg\n"
+  },
+  {
+    "spec_line": 173,
+    "source": "raise Ex.new\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "raise Ex\n"
+  },
+  {
+    "spec_line": 186,
+    "source": "foo ? raise(Ex.new('error')) : bar\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "foo ? raise(Ex, 'error') : bar\n"
+  },
+  {
+    "spec_line": 199,
+    "source": "bar && raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "bar && raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 212,
+    "source": "bar || raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "bar || raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 225,
+    "source": "foo bar, raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "foo bar, raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 238,
+    "source": "raise(Ex.new('error')).foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "raise(Ex, 'error').foo\n"
+  },
+  {
+    "spec_line": 251,
+    "source": "[raise(Ex.new('error'))]\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "[raise(Ex, 'error')]\n"
+  },
+  {
+    "spec_line": 264,
+    "source": "{ foo: raise(Ex.new('error')) }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "{ foo: raise(Ex, 'error') }\n"
+  },
+  {
+    "spec_line": 277,
+    "source": "private def foo = raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "private def foo = raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 290,
+    "source": "private def self.foo = raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        24
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "private def self.foo = raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 303,
+    "source": "super bar, raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "super bar, raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 316,
+    "source": "yield bar, raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "yield bar, raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 329,
+    "source": "def foo = raise(Ex.new('error'))\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "def foo = raise(Ex, 'error')\n"
+  },
+  {
+    "spec_line": 343,
+    "source": "if a\n  raise RuntimeError, msg\nelse\n  raise Ex.new(msg)\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "if a\n  raise RuntimeError, msg\nelse\n  raise Ex, msg\nend\n"
+  },
+  {
+    "spec_line": 362,
+    "source": "if a\n  raise RuntimeError, msg\nelsif b\n  raise Ex.new(msg)\nelse\n  raise ArgumentError.new(msg)\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ],
+      [
+        6,
+        3
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`.",
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "if a\n  raise RuntimeError, msg\nelsif b\n  raise Ex, msg\nelse\n  raise ArgumentError, msg\nend\n"
+  },
+  {
+    "spec_line": 388,
+    "source": "def do_something\n  klass = RuntimeError\n  raise klass.new('hi')\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Provide an exception class and message as arguments to `raise`."
+    ],
+    "correction": "def do_something\n  klass = RuntimeError\n  raise klass, 'hi'\nend\n"
+  },
+  {
+    "spec_line": 444,
+    "source": "def foo(*) raise MyCustomError.new(*) end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 448,
+    "source": "def foo(**) raise MyCustomError.new(**) end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 454,
+    "source": "def foo(...) raise MyCustomError.new(...) end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

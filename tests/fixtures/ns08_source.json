@@ -1,0 +1,281 @@
+[
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 39,
+    "example": "Mode: conservative (default)",
+    "source": "def foo\n  bar == baz\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 44,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  bar == baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 49,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  5\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 54,
+    "example": "Mode: conservative (default)",
+    "source": "def foo\n  5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 59,
+    "example": "Mode: conservative (default)",
+    "source": "def foo\n  x == y\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 64,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  x == y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 69,
+    "example": "Mode: conservative (default)",
+    "source": "def foo\n  !x\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 74,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  !x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 79,
+    "example": "Mode: conservative (default)",
+    "source": "def foo\n  bar?\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 84,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 89,
+    "example": "Mode: conservative (default)",
+    "source": "def ==(other)\n  hash == other.hash\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 94,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  return unless bar?\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 100,
+    "example": "Mode: conservative (default)",
+    "source": "def foo?\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 105,
+    "example": "Mode: conservative (default)",
+    "source": "def foo\n  bar?\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 111,
+    "example": "Mode: aggressive",
+    "source": "def foo?\n  return unless bar?\n  true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 118,
+    "example": "AllowedMethods: [call] (default)",
+    "source": "def call\n  foo == bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 124,
+    "example": "AllowedPatterns: [\\Afoo]",
+    "source": "def foo?\n  'foo'\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 130,
+    "example": "AllowBangMethods: false (default)",
+    "source": "def save!\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 136,
+    "example": "AllowBangMethods: true",
+    "source": "def save!\n  true\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 142,
+    "example": "WaywardPredicates: ['infinite?', 'nonzero?'] (default)",
+    "source": "def non_predicate_method(num)\n  num.infinite?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "source_line": 147,
+    "example": "WaywardPredicates: ['infinite?', 'nonzero?'] (default)",
+    "source": "def non_predicate_method(num)\n  num.nonzero?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

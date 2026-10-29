@@ -1,0 +1,416 @@
+[
+  {
+    "spec_line": 8,
+    "source": "FooError = Class.new(StandardError)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the `class` keyword instead of `Class.new` to define an empty class."
+    ],
+    "correction": "class FooError < StandardError\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 20,
+    "source": "Foo::BarError = Class.new(StandardError)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the `class` keyword instead of `Class.new` to define an empty class."
+    ],
+    "correction": "class Foo::BarError < StandardError\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 32,
+    "source": "MyClass = Class.new\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 38,
+    "source": "module Foo\n  BarError = Class.new(StandardError)\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use the `class` keyword instead of `Class.new` to define an empty class."
+    ],
+    "correction": "module Foo\n  class BarError < StandardError\n  end\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 54,
+    "source": "MyClass = Class.new(Alchemy::Admin::PreviewUrl)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the `class` keyword instead of `Class.new` to define an empty class."
+    ],
+    "correction": "class MyClass < Alchemy::Admin::PreviewUrl\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 66,
+    "source": "MyClass = Class.new(::Safemode::Jail)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the `class` keyword instead of `Class.new` to define an empty class."
+    ],
+    "correction": "class MyClass < ::Safemode::Jail\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 78,
+    "source": "class FooError < StandardError; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 84,
+    "source": "class MyClass; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 90,
+    "source": "module Foo\n  class Bar < Baz; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 98,
+    "source": "class FooError < StandardError\n  def initialize(message)\n    super\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 108,
+    "source": "class FooError < StandardError; def initialize; end; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 114,
+    "source": "class FooError < StandardError\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 121,
+    "source": "class MyClass\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 128,
+    "source": "Class.new(Settings::Base) do\n  def repositories(*_args); end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 136,
+    "source": "Class.new(Settings::Base) { setting :var }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 142,
+    "source": "MyClass = Class.new(StandardError) { }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 148,
+    "source": "MyClass = Class.new(StandardError) do end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 154,
+    "source": "Class.new do\n  def method\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 163,
+    "source": "local_var = Class.new(Base)\n@instance_var = Class.new(Base)\n@@class_var = Class.new(Base)\n$global_var = Class.new(Base)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 172,
+    "source": "local_var ||= Class.new(Base)\n@instance_var ||= Class.new(Base)\n@@class_var ||= Class.new(Base)\n$global_var ||= Class.new(Base)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 181,
+    "source": "raise Class.new(StandardError)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 187,
+    "source": "foo(Class.new(Base))\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 193,
+    "source": "return Class.new(Error)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 199,
+    "source": "Class.new(Resolvers::BaseResolver).tap do |c|\n  c.const_set('MODEL_CLASS', model_class)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 207,
+    "source": "stub_const('FakeService', Class.new)\n\nstub_const(\"MicrosoftSync::TestErrorNotPublic\", Class.new(StandardError))\n\nstub_const(\"MicrosoftSync::TestError\",\n           Class.new(MicrosoftSync::Errors::PublicError) do\n             def self.public_message\n               I18n.t \"oops, this is a public error\"\n             end\n           end)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 222,
+    "source": "Class.new(local_var)\nClass.new(@instance_var)\nClass.new(@@class_var)\nClass.new($global_var)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 231,
+    "source": "MyClass = Class.new(self)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 237,
+    "source": "CONST ||= %i{user port proxy}.freeze\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 243,
+    "source": "BOOLEAN = ActiveRecord::Type::Boolean.new\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 249,
+    "source": "CONST = condition\nprivate_constant :CONST\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 256,
+    "source": "MyClass = Class.new(Foreman::Renderer).send(:new)\nMyClass = Class.new(Foreman::Renderer).public_send(:new)\nMyClass = Class.new(StandardError).any_method\nMyClass = Class.new(StandardError).tap { }\nMyClass = Class.new(StandardError).send(:new).another_method\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 266,
+    "source": "let(:application_mailer) { Class.new(ActionMailer::Base) }\nlet(:my_class) { Class.new }\nlet(:view_component) do\n  Class.new(ViewComponent::Base)\nend\nlet_it_be(:custom_config_class) { Class.new }\nsubject { Class.new(ViewComponent::Base) }\nlet(:my_class) { Class.new do\n  def method\n  end\nend }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 493,
+    "source": "FooError = Class.new(StandardError)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use the `class` keyword instead of `Class.new` to define an empty class."
+    ],
+    "correction": "class FooError < StandardError\nend\n",
+    "frozen_comment": false
+  }
+]

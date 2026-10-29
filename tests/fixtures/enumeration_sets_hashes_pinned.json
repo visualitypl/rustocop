@@ -1,0 +1,1110 @@
+[
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 7,
+    "source": "foo.map { |x| [x, x * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 20,
+    "source": "foo.map { |x, y| [x.to_s, y.to_i] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x, y| [x.to_s, y.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 34,
+    "source": "foo.map { [_1, _1 * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { [_1, _1 * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 47,
+    "source": "foo.map { [_1.to_s, _2.to_i] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { [_1.to_s, _2.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 61,
+    "source": "foo.map(&:do_something).to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set(&:do_something)\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 74,
+    "source": "[1, 2, 3].map { |x| [x, x * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "correction": "[1, 2, 3].to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 87,
+    "source": "{ foo: :bar }.map { |x, y| [x.to_s, y.to_s] }.to_set\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "correction": "{ foo: :bar }.to_set { |x, y| [x.to_s, y.to_s] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 100,
+    "source": "foo.map { |x| x * 2 }.to_set.bar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x| x * 2 }.bar\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 113,
+    "source": "foo.map { |x| x * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 121,
+    "source": "foo.map { |x| x * 2 }.to_set { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 129,
+    "source": "foo.map { |x| x * 2 }.to_set { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 137,
+    "source": "foo.map { |x| x * 2 }.to_set { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 145,
+    "source": "{foo: bar}\n  .map { |k, v| [k.to_s, v.do_something] }\n  .to_set\n  .freeze\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "correction": "{foo: bar}\n  .to_set { |k, v| [k.to_s, v.do_something] }\n  .freeze\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 163,
+    "source": "foo&.map { |x| [x, x * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 174,
+    "source": "foo.map { |x| [x, x * 2] }&.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 185,
+    "source": "foo&.map { |x| [x, x * 2] }&.to_set\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 7,
+    "source": "foo.collect { |x| [x, x * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 20,
+    "source": "foo.collect { |x, y| [x.to_s, y.to_i] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x, y| [x.to_s, y.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 34,
+    "source": "foo.collect { [_1, _1 * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { [_1, _1 * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 47,
+    "source": "foo.collect { [_1.to_s, _2.to_i] }.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { [_1.to_s, _2.to_i] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 61,
+    "source": "foo.collect(&:do_something).to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set(&:do_something)\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 74,
+    "source": "[1, 2, 3].collect { |x| [x, x * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "correction": "[1, 2, 3].to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 87,
+    "source": "{ foo: :bar }.collect { |x, y| [x.to_s, y.to_s] }.to_set\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "correction": "{ foo: :bar }.to_set { |x, y| [x.to_s, y.to_s] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 100,
+    "source": "foo.collect { |x| x * 2 }.to_set.bar\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x| x * 2 }.bar\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 113,
+    "source": "foo.collect { |x| x * 2 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 121,
+    "source": "foo.collect { |x| x * 2 }.to_set { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 129,
+    "source": "foo.collect { |x| x * 2 }.to_set { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 137,
+    "source": "foo.collect { |x| x * 2 }.to_set { |x| [x.to_s, x] }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 145,
+    "source": "{foo: bar}\n  .collect { |k, v| [k.to_s, v.do_something] }\n  .to_set\n  .freeze\n",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "correction": "{foo: bar}\n  .to_set { |k, v| [k.to_s, v.do_something] }\n  .freeze\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 163,
+    "source": "foo&.collect { |x| [x, x * 2] }.to_set\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 174,
+    "source": "foo.collect { |x| [x, x * 2] }&.to_set\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "correction": "foo.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/MapToSet",
+    "spec_line": 185,
+    "source": "foo&.collect { |x| [x, x * 2] }&.to_set\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "correction": "foo&.to_set { |x| [x, x * 2] }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 6,
+    "source": "positives = arr.select { |x| x > 0 }\nnegatives = arr.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { |x| x > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 18,
+    "source": "negatives = arr.reject { |x| x > 0 }\npositives = arr.select { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { |x| x > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 30,
+    "source": "positives = arr.filter { |x| x > 0 }\nnegatives = arr.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { |x| x > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 42,
+    "source": "positives = arr.find_all { |x| x > 0 }\nnegatives = arr.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { |x| x > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 54,
+    "source": "positives = arr.select do |x|\n  x > 0\nend\nnegatives = arr.reject do |x|\n  x > 0\nend\n",
+    "positions": [
+      [
+        4,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition do |x|\n  x > 0\nend\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 72,
+    "source": "positives = arr.select { _1 > 0 }\nnegatives = arr.reject { _1 > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { _1 > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 84,
+    "source": "positives = arr.select { it > 0 }\nnegatives = arr.reject { it > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { it > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 96,
+    "source": "positives = foo.bar.select { |x| x > 0 }\nnegatives = foo.bar.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = foo.bar.partition { |x| x > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 108,
+    "source": "positives = arr&.select { |x| x > 0 }\nnegatives = arr&.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr&.partition { |x| x > 0 }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 120,
+    "source": "arr.select { |x| x > 0 }\narr.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 130,
+    "source": "@positives = arr.select { |x| x > 0 }\n@negatives = arr.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 140,
+    "source": "positives = arr.select { |x| x > 0 }\n@negatives = arr.reject { |x| x > 0 }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 150,
+    "source": "before_code\npositives = arr.select { |x| x > 0 }\nnegatives = arr.reject { |x| x > 0 }\nafter_code\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "correction": "before_code\npositives, negatives = arr.partition { |x| x > 0 }\nafter_code\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 168,
+    "source": "positives = arr.select(&:positive?)\nnegatives = arr.reject(&:positive?)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition(&:positive?)\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 180,
+    "source": "negatives = arr.reject(&:positive?)\npositives = arr.select(&:positive?)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition(&:positive?)\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 192,
+    "source": "positives = arr.filter(&:positive?)\nnegatives = arr.reject(&:positive?)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition(&:positive?)\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 204,
+    "source": "positives = arr&.select(&:positive?)\nnegatives = arr&.reject(&:positive?)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr&.partition(&:positive?)\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 216,
+    "source": "arr.select(&:positive?)\narr.reject(&:positive?)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 226,
+    "source": "positives = arr.select(&:positive?)\nnegatives = arr.reject(&:negative?)\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 233,
+    "source": "positives = arr1.select(&:positive?)\nnegatives = arr2.reject(&:positive?)\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 240,
+    "source": "positives = arr.select(&:positive?)\nnegatives = arr.reject { |x| x.positive? }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition(&:positive?)\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 252,
+    "source": "positives = arr.select { |x| x.positive? }\nnegatives = arr.reject(&:positive?)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "positives, negatives = arr.partition { |x| x.positive? }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 264,
+    "source": "positives = arr.select(&:positive?)\nnegatives = arr.reject { |x| x.negative? }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 273,
+    "source": "a = arr.select { |x| x.positive? }\nb = arr.select { |x| !x.positive? }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "a, b = arr.partition { |x| x.positive? }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 285,
+    "source": "b = arr.select { |x| !x.positive? }\na = arr.select { |x| x.positive? }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "a, b = arr.partition { |x| x.positive? }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 297,
+    "source": "a = arr.reject { |x| x.positive? }\nb = arr.reject { |x| !x.positive? }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "b, a = arr.partition { |x| x.positive? }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 309,
+    "source": "a = arr.select { _1.positive? }\nb = arr.select { !_1.positive? }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": "a, b = arr.partition { _1.positive? }\n"
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 321,
+    "source": "arr.select { |x| x.positive? }\narr.select { |x| !x.positive? }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 331,
+    "source": "a = arr.select { |x| x.positive? }\nb = arr.select { |x| !x.negative? }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 338,
+    "source": "a = arr.select { |x| x > 0 }\nb = arr.select { |x| x > 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 345,
+    "source": "a = arr.reject { |x| x > 0 }\nb = arr.reject { |x| x > 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 354,
+    "source": "positives = arr.select { |x| x > 0 }\nnegatives = arr.reject { |x| x < 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 361,
+    "source": "positives = arr.select { |x| x > 0 }\nnegatives = arr.reject { |y| y > 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 368,
+    "source": "positives = arr.select { |x| x > 0 }\nnegatives = arr.reject { _1 > 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 377,
+    "source": "positives = arr1.select { |x| x > 0 }\nnegatives = arr2.reject { |x| x > 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 386,
+    "source": "positives = arr.select { |x| x > 0 }\ndo_something\nnegatives = arr.reject { |x| x > 0 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/PartitionInsteadOfDoubleSelect",
+    "spec_line": 396,
+    "source": "if condition\n  arr.select { |x| x > 0 }\nelse\n  arr.reject { |x| x > 0 }\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 7,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id] = elem.name }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, elem.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 18,
+    "source": "tables.each_with_object({}) { |table, h|\n  h[table.node] = table.columns.each_with_object({}) { |column, i| i[column.name] = column.alias }\n}\n",
+    "positions": [
+      [
+        2,
+        33
+      ]
+    ],
+    "correction": "tables.to_h { |table| [table.node, table.columns.to_h { |column| [column.name, column.alias] }] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 31,
+    "source": "array.each_with_object({}) do |elem, hash|\n  hash[elem.id] = elem.name\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h do |elem|\n  [elem.id, elem.name]\nend\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 46,
+    "source": "array&.each_with_object({}) { |elem, hash| hash[elem.id] = elem.name }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "correction": "array&.to_h { |elem| [elem.id, elem.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 57,
+    "source": "each_with_object({}) { |elem, hash| hash[elem] = elem.to_s }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "correction": "to_h { |elem| [elem, elem.to_s] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 68,
+    "source": "array.each_with_object({}) { |x, h| h[x] = true }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |x| [x, true] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 79,
+    "source": "array.each_with_object({}) do |elem, hash|\n  hash[elem.id] = elem.name\n  puts elem\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 88,
+    "source": "hash.each_with_object({}) { |(k, v), h| h[k.to_s] = v }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 94,
+    "source": "array.each_with_object(Hash.new(0)) { |elem, hash| hash[elem] += 1 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 100,
+    "source": "array.each_with_object({}) { |elem, hash| hash.merge!(elem => true) }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 106,
+    "source": "array.each_with_object({}) { |elem, hash| other[elem] = true }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 112,
+    "source": "array.each_with_object({}) do |elem, hash|\n  hash[elem.id] = hash[elem.id].to_i + 1\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 120,
+    "source": "array.each_with_object({}) do |elem, hash|\n  hash[hash.size] = elem\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 130,
+    "source": "array.inject({}) { |hash, elem| hash[elem.id] = elem.name; hash }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, elem.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 141,
+    "source": "array.inject({}) do |hash, elem|\n  hash[elem.id] = elem.name\n  hash\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h do |elem|\n  [elem.id, elem.name]\nend\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 157,
+    "source": "array&.inject({}) { |hash, elem| hash[elem.id] = elem.name; hash }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "correction": "array&.to_h { |elem| [elem.id, elem.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 168,
+    "source": "array.inject({}) { |hash, elem| hash[elem] = true; other }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 174,
+    "source": "array.inject({}) do |hash, elem|\n  puts elem\n  hash[elem] = true\n  hash\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 184,
+    "source": "array.inject({}) do |hash, elem|\n  hash[elem.id] = hash[elem.id].to_i + 1\n  hash\nend\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 195,
+    "source": "array.reduce({}) { |hash, elem| hash[elem.id] = elem.name; hash }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, elem.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 208,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id] = do_something elem }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, (do_something elem)] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 219,
+    "source": "array.reduce({}) { |hash, elem| hash[obj.do_something elem] = elem.name; hash }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [(obj.do_something elem), elem.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 230,
+    "source": "def example\narray.each_with_object({}) { |elem, hash| hash[elem.id] = yield elem }\nend\n",
+    "positions": [
+      [
+        2,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, (yield elem)] }\n",
+    "adaptation": "Native Ruby rejects top-level yield; execute in a method instead."
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 241,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id] = elem.name, elem.value }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, [elem.name, elem.value]] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 252,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id] = *elem }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, [*elem]] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 263,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id] = x = do_something elem }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, (x = do_something elem)] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 274,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id] = do_something(elem) rescue nil }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id, (do_something(elem) rescue nil)] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 285,
+    "source": "array.each_with_object({}) { |elem, hash| hash[elem.id + 1] = do_something(elem) }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { |elem| [elem.id + 1, do_something(elem)] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 298,
+    "source": "array.each_with_object({}) { _2[_1.id] = _1.name }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { [_1.id, _1.name] }\n"
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 309,
+    "source": "array.each_with_object({}) { _2[_1.id] = _2[_1.id].to_i + 1 }\n",
+    "positions": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ReduceToHash",
+    "spec_line": 315,
+    "source": "array.inject({}) { _1[_2.id] = _2.name; _1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "correction": "array.to_h { [_1.id, _1.name] }\n"
+  }
+]

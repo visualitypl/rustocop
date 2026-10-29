@@ -1,0 +1,1441 @@
+[
+  {
+    "source": "def omg_wow(msg = msg)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def omg_wow(msg = msg = msg)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def omg_wow(msg = foo = msg)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def omg_wow(msg = foo = msg2 = foo)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def omg_wow(msg = foo = self.msg)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def omg_wow(msg)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def omg_wow(msg = self.msg)\n  puts msg\nend\n",
+    "origin": "spec",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def some_method(some_arg: nil)\n  puts some_arg\nend\n",
+    "origin": "spec",
+    "line": 84,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def some_method(some_arg: some_method)\n  puts some_arg\nend\n",
+    "origin": "spec",
+    "line": 94,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def some_method(some_arg: some_arg)\n  puts some_arg\nend\n",
+    "origin": "spec",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Circular argument reference - `some_arg`."
+      ]
+    ]
+  },
+  {
+    "source": "def puts_value(value: self.class.value, smile: self.smile)\n  puts value\nend\n",
+    "origin": "spec",
+    "line": 116,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def puts_length(length: mystring.length)\n  puts length\nend\n",
+    "origin": "spec",
+    "line": 127,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def some_method(some_arg: some_arg, other_arg: other_arg)\n  puts [some_arg, other_arg]\nend\n",
+    "origin": "spec",
+    "line": 137,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Circular argument reference - `some_arg`."
+      ],
+      [
+        1,
+        48,
+        1,
+        "Circular argument reference - `other_arg`."
+      ]
+    ]
+  },
+  {
+    "source": "# bad\ndef bake(pie: pie)\n  pie.heat_up\nend\n",
+    "origin": "source",
+    "line": 14,
+    "findings": [
+      [
+        2,
+        15,
+        2,
+        "Circular argument reference - `pie`."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ndef bake(pie:)\n  pie.refrigerate\nend\n",
+    "origin": "source",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# good\ndef bake(pie: self.pie)\n  pie.feed_to(user)\nend\n",
+    "origin": "source",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad\ndef cook(dry_ingredients = dry_ingredients)\n  dry_ingredients.reduce(&:+)\nend\n",
+    "origin": "source",
+    "line": 29,
+    "findings": [
+      [
+        2,
+        28,
+        2,
+        "Circular argument reference - `dry_ingredients`."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ndef cook(dry_ingredients = self.dry_ingredients)\n  dry_ingredients.combine\nend\n",
+    "origin": "source",
+    "line": 34,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad\ndef foo(pie = pie = pie)\n  pie.heat_up\nend\n",
+    "origin": "source",
+    "line": 39,
+    "findings": [
+      [
+        2,
+        21,
+        2,
+        "Circular argument reference - `pie`."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ndef foo(pie)\n  pie.heat_up\nend\n",
+    "origin": "source",
+    "line": 44,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad\ndef foo(pie = cake = pie)\n  [pie, cake].each(&:heat_up)\nend\n",
+    "origin": "source",
+    "line": 49,
+    "findings": [
+      [
+        2,
+        22,
+        2,
+        "Circular argument reference - `pie`."
+      ]
+    ]
+  },
+  {
+    "source": "# good\ndef foo(cake = pie)\n  [pie, cake].each(&:heat_up)\nend\n",
+    "origin": "source",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg); end\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: msg); end\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = msg = msg); end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: msg = msg); end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = foo = msg); end\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: foo = msg); end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = foo = mid = foo); end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: foo = mid = foo); end\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = foo = mid = mid); end\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: foo = mid = mid); end\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = foo = mid = msg); end\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: foo = mid = msg); end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = foo = mid = other); end\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo = mid = other); end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo = mid = self.msg); end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo = mid = self.msg); end\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = self.msg); end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: self.msg); end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = obj.msg); end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: obj.msg); end\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = self&.msg); end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: self&.msg); end\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg()); end\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg()); end\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = ::Msg); end\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: ::Msg); end\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = @msg); end\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: @msg); end\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = $msg); end\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: $msg); end\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = (msg)); end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: (msg)); end\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = ((msg))); end\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: ((msg))); end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo = (msg)); end\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo = (msg)); end\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = (foo = msg)); end\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: (foo = msg)); end\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo = (bar = foo)); end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo = (bar = foo)); end\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = begin msg end); end\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: begin msg end); end\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = begin foo = msg end); end\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: begin foo = msg end); end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg || nil); end\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg || nil); end\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg && msg); end\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg && msg); end\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg + 1); end\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg + 1); end\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = [msg]); end\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: [msg]); end\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = { msg: msg }); end\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: { msg: msg }); end\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = -> { msg }); end\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: -> { msg }); end\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = proc { msg }); end\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: proc { msg }); end\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = \"#{msg}\"); end\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: \"#{msg}\"); end\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo ||= msg); end\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo ||= msg); end\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo &&= msg); end\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo &&= msg); end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo += msg); end\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo += msg); end\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = self.foo = msg); end\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: self.foo = msg); end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo[0] = msg); end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: foo[0] = msg); end\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = @foo = msg); end\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: @foo = msg); end\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = (msg rescue nil)); end\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: (msg rescue nil)); end\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = defined?(msg)); end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: defined?(msg)); end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg.nil?); end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg.nil?); end\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg&.foo); end\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg&.foo); end\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = msg ? msg : nil); end\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg: msg ? msg : nil); end\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def self.f(msg = msg); end\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def obj.f(msg: foo = msg); end\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "each { |msg = msg| msg }\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "msg = 1; each { |msg = msg| msg }\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "->(msg = msg) { msg }\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "msg = 1; ->(msg: msg) { msg }\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "proc { |msg: (foo = mid = foo)| msg }\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "proc { |msg: msg| msg }\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "->(msg: foo = mid = foo) { msg }\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def outer(msg = ->(msg = msg) { msg }); end\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def outer(msg = (def inner(msg: msg); end)); end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(other, msg = other); end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(other, msg: foo = other); end\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = foo, other: msg); end\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg:); end\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "msg = msg\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg); msg = msg; end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# def f(msg = msg); end\n'def f(msg = msg); end'\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(\n msg = foo =\n   msg\n); end\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        3,
+        4,
+        3,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = # comment\n msg); end\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: msg, other: other); end\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Circular argument reference - `msg`."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Circular argument reference - `other`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg: foo = mid = foo, other: foo); end\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(é = é, 日本語: 日本語); end\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Circular argument reference - `é`."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Circular argument reference - `日本語`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = msg); end\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v0); end\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v0); end\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = other); end\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = (msg)); end\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = msg); end\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        1,
+        53,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v0); end\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        1,
+        53,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v7); end\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        53,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = other); end\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = (msg)); end\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = msg); end\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        243,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v0); end\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        243,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v39); end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+      [
+        1,
+        243,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = other); end\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = (msg)); end\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v40 = v41 = v42 = v43 = v44 = v45 = v46 = v47 = v48 = v49 = msg); end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        303,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v40 = v41 = v42 = v43 = v44 = v45 = v46 = v47 = v48 = v49 = v0); end\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+      [
+        1,
+        303,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v40 = v41 = v42 = v43 = v44 = v45 = v46 = v47 = v48 = v49 = v49); end\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+      [
+        1,
+        303,
+        1,
+        "Circular argument reference - `msg`."
+      ]
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v40 = v41 = v42 = v43 = v44 = v45 = v46 = v47 = v48 = v49 = other); end\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "def f(msg = v0 = v1 = v2 = v3 = v4 = v5 = v6 = v7 = v8 = v9 = v10 = v11 = v12 = v13 = v14 = v15 = v16 = v17 = v18 = v19 = v20 = v21 = v22 = v23 = v24 = v25 = v26 = v27 = v28 = v29 = v30 = v31 = v32 = v33 = v34 = v35 = v36 = v37 = v38 = v39 = v40 = v41 = v42 = v43 = v44 = v45 = v46 = v47 = v48 = v49 = (msg)); end\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ]
+  }
+]

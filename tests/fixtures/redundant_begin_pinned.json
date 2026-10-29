@@ -1,0 +1,995 @@
+[
+  {
+    "spec_line": 5,
+    "source": "def func; begin; x; y; rescue; z end; end\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def func; ; x; y; rescue; z ; end\n",
+    "max": 120
+  },
+  {
+    "spec_line": 16,
+    "source": "def func\n  begin\n    ala\n  rescue => e\n    bala\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def func\n  \n    ala\n  rescue => e\n    bala\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 39,
+    "source": "def Test.func\n  begin\n    ala\n  rescue => e\n    bala\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def Test.func\n  \n    ala\n  rescue => e\n    bala\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 62,
+    "source": "def func\n  begin\n    ala\n  rescue => e\n    bala\n  end\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 75,
+    "source": "def Test.func\n  begin\n    ala\n  rescue => e\n    bala\n  end\n  something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 88,
+    "source": "def Test.func\n  something\n  begin\n    ala\n  rescue => e\n    bala\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 101,
+    "source": "def method\n  begin\n    BlockA do |strategy|\n      foo\n    end\n\n    BlockB do |portfolio|\n      foo\n    end\n\n  rescue => e # some problem\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def method\n  \n    BlockA do |strategy|\n      foo\n    end\n\n    BlockB do |portfolio|\n      foo\n    end\n\n  rescue => e # some problem\n    bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 138,
+    "source": "def method\n  begin # comment 1\n    do_some_stuff\n  rescue # comment 2\n  end # comment 3\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def method\n   # comment 1\n    do_some_stuff\n  rescue # comment 2\n   # comment 3\nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 159,
+    "source": "begin\n  do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "\n  do_something\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 170,
+    "source": "begin\n  foo\n  bar\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "\n  foo\n  bar\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 182,
+    "source": "begin\n  do_something\nrescue\n  handle_exception\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 192,
+    "source": "begin\n  do_something\nensure\n  finalize\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 202,
+    "source": "var = begin\n  foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 211,
+    "source": "# outer comment\nvar ||= begin # inner comment 1\n  # inner comment 2\n  foo\n  # inner comment 3\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "# outer comment\n # inner comment 1\n  # inner comment 2\n  var ||= foo\n  # inner comment 3\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 232,
+    "source": "var ||= begin\n  foo do |arg|\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var ||= foo do |arg|\n    bar\n  end\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 250,
+    "source": "var ||= begin\n  foo if condition\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var ||= (foo if condition)\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 298,
+    "source": "var ||= begin\n  if condition\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var ||= if condition\n    foo\n  end\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 315,
+    "source": "if condition\n  begin\n    foo\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "if condition\n  \n    foo\n    bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 336,
+    "source": "unless condition\n  begin\n    foo\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "unless condition\n  \n    foo\n    bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 357,
+    "source": "if condition\n  foo\nelsif condition2\n  begin\n    bar\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "if condition\n  foo\nelsif condition2\n  \n    bar\n    baz\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 382,
+    "source": "if condition\n  foo\nelse\n  begin\n    bar\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "if condition\n  foo\nelse\n  \n    bar\n    baz\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 407,
+    "source": "case condition\n  when foo\n    begin\n      bar\n      baz\n    end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "case condition\n  when foo\n    \n      bar\n      baz\n    \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 430,
+    "source": "case condition\n  when foo\n    bar\n  else\n    begin\n      baz\n      quux\n    end\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "case condition\n  when foo\n    bar\n  else\n    \n      baz\n      quux\n    \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 457,
+    "source": "case condition\n  in foo\n    begin\n      bar\n      baz\n    end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "case condition\n  in foo\n    \n      bar\n      baz\n    \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 480,
+    "source": "case condition\n  in foo\n    bar\n  else\n    begin\n      baz\n      quux\n    end\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "case condition\n  in foo\n    bar\n  else\n    \n      baz\n      quux\n    \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 507,
+    "source": "while condition\n  begin\n    foo\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "while condition\n  \n    foo\n    bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 528,
+    "source": "until condition\n  begin\n    foo\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "until condition\n  \n    foo\n    bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 549,
+    "source": "if condition\n  begin\n    foo\n    bar\n  rescue StandardError\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 562,
+    "source": "if condition\n  begin\n    foo\n    bar\n  ensure\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 575,
+    "source": "case condition\n  when foo\n    begin\n      bar\n      baz\n    rescue StandardError\n      quux\n    end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 589,
+    "source": "case condition\n  when foo\n    begin\n      bar\n      baz\n    ensure\n      quux\n    end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 603,
+    "source": "while condition\n  begin\n    foo\n    bar\n  rescue StandardError\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 616,
+    "source": "while condition\n  begin\n    foo\n    bar\n  ensure\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 629,
+    "source": "until condition\n  begin\n    foo\n    bar\n  rescue StandardError\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 642,
+    "source": "until condition\n  begin\n    foo\n    bar\n  ensure\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 655,
+    "source": "var ||= begin\n  foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 664,
+    "source": "var ||= begin\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 671,
+    "source": "begin\n  do_first_thing\n  some_value = do_second_thing\nend while some_value\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 680,
+    "source": "begin\n  do_first_thing\n  some_value = do_second_thing\nend until some_value\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 689,
+    "source": "begin\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 696,
+    "source": "var ||= begin\n  foo\n  bar\nend.baz do\n  qux\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 707,
+    "source": "do_something begin\n  foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 716,
+    "source": "condition && begin\n  foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 725,
+    "source": "condition and begin\n  foo\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 822,
+    "source": "begin foo; bar; end unless condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 828,
+    "source": "begin\n  foo; bar\nend unless condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 836,
+    "source": "begin foo end unless condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": " foo  unless condition\n",
+    "max": 120
+  },
+  {
+    "spec_line": 845,
+    "source": "begin\n  foo\nend unless condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "\n  foo unless condition\n",
+    "max": 120
+  },
+  {
+    "spec_line": 856,
+    "source": "unless condition\n  begin\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "unless condition\n  \n    foo\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 869,
+    "source": "@foo ||= begin\n  @bar ||= begin\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        12
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "@foo ||= @bar ||= baz\n  \n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 886,
+    "source": "var = do_something do\n  begin\n    do_something do\n      begin\n        foo\n      ensure\n        bar\n      end\n    end\n  ensure\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected.",
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var = do_something do\n  \n    do_something do\n      \n        foo\n      ensure\n        bar\n      \n    end\n  ensure\n    baz\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1037,
+    "source": "var = begin\n  a and b\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var = (a and b)\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1051,
+    "source": "var = begin\n  a || b\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var = a || b\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1065,
+    "source": "var = begin\n  i += 1 until i > 2\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var = (i += 1 until i > 2)\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1079,
+    "source": "def foo\n  return begin\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def foo\n  return bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1097,
+    "source": "def foo\n  return begin\n    not a\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def foo\n  return (not a)\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1116,
+    "source": "loop do\n  next begin\n    a or b\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "loop do\n  next (a or b)\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1116,
+    "source": "loop do\n  break begin\n    a or b\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "loop do\n  break (a or b)\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 267,
+    "source": "var ||= begin\n  foo_bar_baz if condition\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 30
+  },
+  {
+    "spec_line": 275,
+    "source": "var ||= begin\n  foo_bar_b and baz_quxx\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 30
+  },
+  {
+    "spec_line": 283,
+    "source": "var ||= begin\n  foo if condition\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var ||= (foo if condition)\n\n",
+    "max": 30
+  },
+  {
+    "spec_line": 749,
+    "source": "do_something do\n  begin\n    foo\n  rescue => e\n    bar\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "do_something do\n  \n    foo\n  rescue => e\n    bar\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 772,
+    "source": "do_something {\n  begin\n    foo\n  rescue => e\n    bar\n  end\n}\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 784,
+    "source": "do_something do\n  something\n  begin\n    ala\n  rescue => e\n    bala\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 797,
+    "source": "-> do\n  begin\n    foo\n  rescue => e\n    bar\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 809,
+    "source": "def a_method\n  super do |arg|\n    foo\n  rescue => e\n    bar\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 923,
+    "source": "var = do_something do\n  begin\n    do_something do\n      begin\n        _1\n      ensure\n        bar\n      end\n    end\n  ensure\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected.",
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var = do_something do\n  \n    do_something do\n      \n        _1\n      ensure\n        bar\n      \n    end\n  ensure\n    baz\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 961,
+    "source": "var = do_something do\n  begin\n    do_something do\n      begin\n        it\n      ensure\n        bar\n      end\n    end\n  ensure\n    baz\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        7
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected.",
+      "Redundant `begin` block detected."
+    ],
+    "correction": "var = do_something do\n  \n    do_something do\n      \n        it\n      ensure\n        bar\n      \n    end\n  ensure\n    baz\n  \nend\n",
+    "max": 120
+  },
+  {
+    "spec_line": 999,
+    "source": "def foo = begin\n  bar\nend\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant `begin` block detected."
+    ],
+    "correction": "def foo =  bar\n\n",
+    "max": 120
+  },
+  {
+    "spec_line": 1010,
+    "source": "def foo = begin\n  bar\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 1019,
+    "source": "def foo = begin\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  },
+  {
+    "spec_line": 1026,
+    "source": "def func = begin\n  foo\nrescue\n  bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "max": 120
+  }
+]

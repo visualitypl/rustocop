@@ -1,0 +1,976 @@
+[
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 8,
+    "source": "return unless a && b || c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 13,
+    "source": "return unless a || b && c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 20,
+    "source": "return unless a && b and c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 25,
+    "source": "return unless a and b && c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 32,
+    "source": "return unless a && b or c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 37,
+    "source": "return unless a or b && c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 44,
+    "source": "return unless a || b or c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 49,
+    "source": "return unless a or b || c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 56,
+    "source": "return unless a || b and c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 61,
+    "source": "return unless a and b || c\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 68,
+    "source": "return unless a || (b && c) || d\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use mixed logical operators in an `unless`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 75,
+    "source": "return unless a && b && c\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 81,
+    "source": "return unless a || b || c\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 87,
+    "source": "return unless a and b and c\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 93,
+    "source": "return unless a or b or c\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 99,
+    "source": "return if a || b && c || d\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 105,
+    "source": "def condition?\n  a or b && c || d\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 113,
+    "source": "return unless a?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 119,
+    "source": "unless condition\n  includes_or_in_the_name\n\n  foo || bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/UnlessLogicalOperators",
+    "spec_line": 129,
+    "source": "unless condition\n  includes_and_in_the_name\n\n  foo && bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 8,
+    "source": "2 == foo(1 == bar)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `2 == foo(1 == bar)`.",
+      "Reverse the order of the operands `1 == bar`."
+    ],
+    "correction": "foo(bar == 1) == 2\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 20,
+    "source": "b.value == 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 24,
+    "source": "b&.value == 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 28,
+    "source": "@value == 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 32,
+    "source": "@@value == 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 36,
+    "source": "b = 1; b == 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 40,
+    "source": "$var == 5",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 44,
+    "source": "foo == \"bar\"",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 48,
+    "source": "foo == BAR",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 52,
+    "source": "\"#{interpolation}\" == foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 56,
+    "source": "/#{interpolation}/ == foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 60,
+    "source": "foo[0] > \"bar\" || baz != \"baz\"",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 64,
+    "source": "node = last_node.parent",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 68,
+    "source": "(first_line - second_line) > 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 72,
+    "source": "5 == 6",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 76,
+    "source": "[1, 2, 3] <=> [4, 5, 6]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 80,
+    "source": "[x] == [x].do_something",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 84,
+    "source": "{a: x} == foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 88,
+    "source": "def foo(*)\n  [*] == [*].do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 96,
+    "source": "!true",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 97,
+    "source": "not true",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 101,
+    "source": "0 <=> val",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 105,
+    "source": "\"foo\" === bar",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 109,
+    "source": "__FILE__ == $0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 110,
+    "source": "__FILE__ == $PROGRAM_NAME",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 114,
+    "source": "__FILE__ != $0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 115,
+    "source": "__FILE__ != $PROGRAM_NAME",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 119,
+    "source": "\"foo\" == bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `\"foo\" == bar`."
+    ],
+    "correction": "bar == \"foo\"\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 130,
+    "source": "nil == bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `nil == bar`."
+    ],
+    "correction": "bar == nil\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 141,
+    "source": "false == active?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `false == active?`."
+    ],
+    "correction": "active? == false\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 152,
+    "source": "15 != @foo\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `15 != @foo`."
+    ],
+    "correction": "@foo != 15\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 163,
+    "source": "42 < bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `42 < bar`."
+    ],
+    "correction": "bar > 42\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 174,
+    "source": "FOO < bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `FOO < bar`."
+    ],
+    "correction": "bar > FOO\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 186,
+    "source": "if 10 == my_var; end\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `10 == my_var`."
+    ],
+    "correction": "if my_var == 10; end\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 197,
+    "source": "if 2 < bar;end\n",
+    "positions": [
+      [
+        1,
+        4
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `2 < bar`."
+    ],
+    "correction": "if bar > 2;end\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 208,
+    "source": "foo = 42 if 42 > bar\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `42 > bar`."
+    ],
+    "correction": "foo = 42 if bar < 42\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 219,
+    "source": "42 <= foo ? bar : baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `42 <= foo`."
+    ],
+    "correction": "foo >= 42 ? bar : baz\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 230,
+    "source": "42 >= foo ? bar : baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `42 >= foo`."
+    ],
+    "correction": "foo <= 42 ? bar : baz\n"
+  },
+  {
+    "cop": "Style/YodaCondition",
+    "spec_line": 241,
+    "source": "nil != foo ? bar : baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Reverse the order of the operands `nil != foo`."
+    ],
+    "correction": "foo != nil ? bar : baz\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 7,
+    "source": "1 + x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`x`) should be first."
+    ],
+    "correction": "x + 1\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 18,
+    "source": "CONST + x\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`x`) should be first."
+    ],
+    "correction": "x + CONST\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 29,
+    "source": "2 + (1 + x)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`(1 + x)`) should be first."
+    ],
+    "correction": "(x + 1) + 2\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 40,
+    "source": "TWO + (ONE + x)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`(ONE + x)`) should be first."
+    ],
+    "correction": "(x + ONE) + TWO\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 51,
+    "source": "x + 42\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 57,
+    "source": "x + FORTY_TWO\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 63,
+    "source": "x + y\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 75,
+    "source": "1 + CONST.+(ary)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`CONST.+(ary)`) should be first."
+    ],
+    "correction": "ary.+(CONST) + 1\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 86,
+    "source": "1 + CONST.*\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`CONST.*`) should be first."
+    ],
+    "correction": "CONST.* + 1\n"
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 97,
+    "source": "CONST.+(*ary)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 103,
+    "source": "CONST.+(&block)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 109,
+    "source": "CONST.+(key: value)\nCONST.+(**options)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 116,
+    "source": "def do_something(...)\n  CONST.+(...)\nend\n\ndef do_something_else(*)\n  CONST.+(*)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/YodaExpression",
+    "spec_line": 128,
+    "source": "CONST.+({ key: value })\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Non-literal operand (`{ key: value }`) should be first."
+    ],
+    "correction": "{ key: value }.+(CONST)\n"
+  }
+]

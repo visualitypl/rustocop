@@ -1,0 +1,268 @@
+[
+  {
+    "spec_line": 6,
+    "source": "if x < low\n  low\nelsif high < x\n  high\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 23,
+    "source": "if low > x\n  low\nelsif high < x\n  high\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 40,
+    "source": "if x < low\n  low\nelsif x > high\n  high\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 57,
+    "source": "if low > x\n  low\nelsif x > high\n  high\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 74,
+    "source": "if high < x\n  high\nelsif x < low\n  low\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 91,
+    "source": "if x > high\n  high\nelsif x < low\n  low\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 108,
+    "source": "if high < x\n  high\nelsif low > x\n  low\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 125,
+    "source": "if x > high\n  high\nelsif low > x\n  low\nelse\n  x\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "x.clamp(low, high)\n"
+  },
+  {
+    "spec_line": 142,
+    "source": "if condition\n  do_something\nelsif x > high\n  high\nelsif low > x\n  low\nelse\n  x\nend\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `x.clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "if condition\n  do_something\nelse\n  x.clamp(low, high)\nend\n"
+  },
+  {
+    "spec_line": 165,
+    "source": "if x < low\n  x\nelsif high < x\n  x\nelse\n  x\nend\n",
+    "positions": [],
+    "messages": [],
+    "correction": null
+  },
+  {
+    "spec_line": 177,
+    "source": "[[x, low].max, high].min\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 186,
+    "source": "[[low, x].max, high].min\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 195,
+    "source": "[high, [x, low].max].min\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 204,
+    "source": "[high, [low, x].max].min\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 213,
+    "source": "[[x, high].min, low].max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 222,
+    "source": "[[high, x].min, low].max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 231,
+    "source": "[low, [x, high].min].max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 240,
+    "source": "[low, [high, x].min].max\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `Comparable#clamp` instead."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 249,
+    "source": "if a + b < low\n  low\nelsif high < a + b\n  high\nelse\n  a + b\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(a + b).clamp(low, high)` instead of `if/elsif/else`."
+    ],
+    "correction": "(a + b).clamp(low, high)\n"
+  },
+  {
+    "spec_line": 293,
+    "source": "[low, high].min\n",
+    "positions": [],
+    "messages": [],
+    "correction": null
+  }
+]

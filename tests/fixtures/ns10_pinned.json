@@ -1,0 +1,2955 @@
+[
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 24,
+    "description": "RuboCop::Cop::Naming::FileName with camelCase file names ending in .rb registers an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/testCase.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "The name of this source file (`testCase.rb`) should use snake_case."
+    ],
+    "config_exclusion": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`testCase.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 33,
+    "description": "RuboCop::Cop::Naming::FileName with camelCase file names without file extension registers an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/testCase",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "The name of this source file (`testCase`) should use snake_case."
+    ],
+    "config_exclusion": null,
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`testCase`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 42,
+    "description": "RuboCop::Cop::Naming::FileName with snake_case file names ending in .rb does not register an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/test_case.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 50,
+    "description": "RuboCop::Cop::Naming::FileName with snake_case file names without file extension does not register an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/test_case",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 58,
+    "description": "RuboCop::Cop::Naming::FileName with snake_case file names with non-rb extension does not register an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/test_case.rake",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 66,
+    "description": "RuboCop::Cop::Naming::FileName with snake_case file names with multiple extensions does not register an offense",
+    "source": "print 1\n",
+    "file": "some/dir/some_view.html.slim_spec.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 74,
+    "description": "RuboCop::Cop::Naming::FileName with snake_case names which use ? and ! does not register an offense",
+    "source": "print 1\n",
+    "file": "some/dir/file?!.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 82,
+    "description": "RuboCop::Cop::Naming::FileName with snake_case names which use + does not register an offense",
+    "source": "print 1\n",
+    "file": "some/dir/some_file.xlsx+mobile.axlsx",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 90,
+    "description": "RuboCop::Cop::Naming::FileName with non-snake-case file names with a shebang does not register an offense",
+    "source": "#!/usr/bin/env ruby\nprint 1\n",
+    "file": "/some/dir/test-case",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 100,
+    "description": "RuboCop::Cop::Naming::FileName with non-snake-case file names with a shebang when IgnoreExecutableScripts is disabled registers an offense",
+    "source": "#!/usr/bin/env ruby\nprint 1\n",
+    "file": "/some/dir/test-case",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "The name of this source file (`test-case`) should use snake_case."
+    ],
+    "config_exclusion": [
+      "Naming/FileName IgnoreExecutableScripts=false"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 114,
+    "description": "RuboCop::Cop::Naming::FileName when the file is specified in AllCops/Include with a non-snake_case file name does not register an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/Gemfile",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 128,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines no class or module at all under lib registers an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/lib/file/test_case.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`test_case.rb` should define a class or module called `File::TestCase`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 128,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines no class or module at all under src registers an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/src/file/test_case.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`test_case.rb` should define a class or module called `File::TestCase`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 128,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines no class or module at all under test registers an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/test/file/test_case.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`test_case.rb` should define a class or module called `File::TestCase`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 128,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines no class or module at all under spec registers an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/spec/file/test_case.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`test_case.rb` should define a class or module called `File::TestCase`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 140,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines no class or module at all under lib when not added to root registers an offense",
+    "source": "print 1\n",
+    "file": "/some/other/dir/test_case.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`test_case.rb` should define a class or module called `TestCase`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchyRoots=[\"foo\"]",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 149,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines no class or module at all under some other random directory registers an offense",
+    "source": "print 1\n",
+    "file": "/some/other/dir/test_case.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`test_case.rb` should define a class or module called `TestCase`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 159,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on an empty file registers an offense",
+    "source": "",
+    "file": "/lib/rubocop/blah.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`blah.rb` should define a class or module called `Rubocop::Blah`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 167,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on an empty file with a space in its filename registers an offense",
+    "source": "",
+    "file": "a file.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "The name of this source file (`a file.rb`) should use snake_case."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "The name of this source file (`a file.rb`) should use snake_case."
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a matching directory under lib does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a non-matching directory under lib registers an offense",
+    "source": "# b.rb\nmodule A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/lib/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a directory with multiple instances of lib does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/lib/project/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a matching directory under src does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a non-matching directory under src registers an offense",
+    "source": "# b.rb\nmodule A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/src/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a directory with multiple instances of src does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/src/project/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a matching directory under test does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a non-matching directory under test registers an offense",
+    "source": "# b.rb\nmodule A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/test/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a directory with multiple instances of test does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/test/project/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a matching directory under spec does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a non-matching directory under spec registers an offense",
+    "source": "# b.rb\nmodule A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/spec/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a directory with multiple instances of spec does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/spec/project/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 204,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a directory elsewhere which only matches the module name does not register an offense",
+    "source": "module A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 212,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested module behaves like matching module or class in a directory elsewhere which does not match the module name registers an offense",
+    "source": "# start of file\nmodule A\n  module B\n  end\nend\n\n",
+    "file": "/some/dir/e.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`e.rb` should define a class or module called `E`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a matching directory under lib does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a non-matching directory under lib registers an offense",
+    "source": "# b.rb\nmodule A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/lib/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a directory with multiple instances of lib does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/lib/project/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a matching directory under src does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a non-matching directory under src registers an offense",
+    "source": "# b.rb\nmodule A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/src/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a directory with multiple instances of src does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/src/project/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a matching directory under test does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a non-matching directory under test registers an offense",
+    "source": "# b.rb\nmodule A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/test/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a directory with multiple instances of test does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/test/project/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a matching directory under spec does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a non-matching directory under spec registers an offense",
+    "source": "# b.rb\nmodule A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/spec/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a directory with multiple instances of spec does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/spec/project/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 204,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a directory elsewhere which only matches the module name does not register an offense",
+    "source": "module A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 212,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a nested class behaves like matching module or class in a directory elsewhere which does not match the module name registers an offense",
+    "source": "# start of file\nmodule A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/e.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`e.rb` should define a class or module called `E`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a matching directory under lib does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a non-matching directory under lib registers an offense",
+    "source": "# b.rb\nbegin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/lib/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a directory with multiple instances of lib does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/lib/project/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a matching directory under src does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a non-matching directory under src registers an offense",
+    "source": "# b.rb\nbegin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/src/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a directory with multiple instances of src does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/src/project/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a matching directory under test does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a non-matching directory under test registers an offense",
+    "source": "# b.rb\nbegin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/test/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a directory with multiple instances of test does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/test/project/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a matching directory under spec does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a non-matching directory under spec registers an offense",
+    "source": "# b.rb\nbegin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/spec/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a directory with multiple instances of spec does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/spec/project/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 204,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a directory elsewhere which only matches the module name does not register an offense",
+    "source": "begin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 212,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which uses Name::Spaced::Module syntax behaves like matching module or class in a directory elsewhere which does not match the module name registers an offense",
+    "source": "# start of file\nbegin\n  module A::B\n  end\nend\n\n",
+    "file": "/some/dir/e.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`e.rb` should define a class or module called `E`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a matching directory under lib does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a non-matching directory under lib registers an offense",
+    "source": "# b.rb\nclass X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/lib/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a directory with multiple instances of lib does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/lib/project/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a matching directory under src does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a non-matching directory under src registers an offense",
+    "source": "# b.rb\nclass X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/src/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a directory with multiple instances of src does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/src/project/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a matching directory under test does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a non-matching directory under test registers an offense",
+    "source": "# b.rb\nclass X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/test/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a directory with multiple instances of test does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/test/project/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a matching directory under spec does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a non-matching directory under spec registers an offense",
+    "source": "# b.rb\nclass X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/spec/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a directory with multiple instances of spec does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/spec/project/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 204,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a directory elsewhere which only matches the module name does not register an offense",
+    "source": "class X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 212,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines multiple classes behaves like matching module or class in a directory elsewhere which does not match the module name registers an offense",
+    "source": "# start of file\nclass X\nend\nmodule M\nend\nclass A\n  class B\n  end\nend\n\n",
+    "file": "/some/dir/e.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`e.rb` should define a class or module called `E`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a matching directory under lib does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a non-matching directory under lib registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/lib/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a directory with multiple instances of lib does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/lib/project/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a matching directory under src does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a non-matching directory under src registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/src/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a directory with multiple instances of src does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/src/project/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a matching directory under test does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a non-matching directory under test registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/test/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a directory with multiple instances of test does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/test/project/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a matching directory under spec does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a non-matching directory under spec registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/spec/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a directory with multiple instances of spec does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/spec/project/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 204,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a directory elsewhere which only matches the module name does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 212,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct without a block behaves like matching module or class in a directory elsewhere which does not match the module name registers an offense",
+    "source": "# start of file\nmodule A\n  B = Struct.new(:foo, :bar)\nend\n\n",
+    "file": "/some/dir/e.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`e.rb` should define a class or module called `E`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a matching directory under lib does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a non-matching directory under lib registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/lib/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a directory with multiple instances of lib does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/lib/project/lib/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a matching directory under src does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a non-matching directory under src registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/src/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a directory with multiple instances of src does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/src/project/src/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a matching directory under test does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a non-matching directory under test registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/test/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a directory with multiple instances of test does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/test/project/test/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 177,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a matching directory under spec does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a non-matching directory under spec registers an offense",
+    "source": "# b.rb\nmodule A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/spec/c/b.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`b.rb` should define a class or module called `C::B`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 195,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a directory with multiple instances of spec does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/spec/project/spec/a/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 204,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a directory elsewhere which only matches the module name does not register an offense",
+    "source": "module A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/b.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 212,
+    "description": "RuboCop::Cop::Naming::FileName when ExpectMatchingDefinition is true on a file which defines a Struct with a block behaves like matching module or class in a directory elsewhere which does not match the module name registers an offense",
+    "source": "# start of file\nmodule A\n  B = Struct.new(:foo, :bar) do\n  end\nend\n\n",
+    "file": "/some/dir/e.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`e.rb` should define a class or module called `E`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 286,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false on a file with a matching class does not register an offense",
+    "source": "begin\n  class ImageCollection\n  end\nend\n",
+    "file": "/lib/image_collection.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 297,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false on a file with a non-matching class registers an offense",
+    "source": "begin\n  class PictureCollection\n  end\nend\n",
+    "file": "/lib/image_collection.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`image_collection.rb` should define a class or module called `ImageCollection`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 309,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false on a file with a matching struct does not register an offense",
+    "source": "ImageCollection = Struct.new\n",
+    "file": "/lib/image_collection.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 317,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false on a file with a non-matching struct registers an offense",
+    "source": "PictureCollection = Struct.new\n",
+    "file": "/lib/image_collection.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`image_collection.rb` should define a class or module called `ImageCollection`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 326,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false on an empty file registers an offense",
+    "source": "",
+    "file": "/lib/rubocop/foo.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`foo.rb` should define a class or module called `Foo`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 334,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false in a non-matching directory, but with a matching class does not register an offense",
+    "source": "begin\n  module Foo\n  end\nend\n",
+    "file": "/lib/some/path/foo.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 345,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false with a non-matching module containing a matching class does not register an offense",
+    "source": "begin\n  module NonMatching\n    class Foo\n    end\n  end\nend\n",
+    "file": "lib/foo.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 358,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false with a matching module containing a non-matching class does not register an offense",
+    "source": "begin\n  module Foo\n    class NonMatching\n    end\n  end\nend\n",
+    "file": "lib/foo.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 371,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false with a non-matching module containing a matching struct does not register an offense",
+    "source": "begin\n  module NonMatching\n    Foo = Struct.new\n  end\nend\n",
+    "file": "lib/foo.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 383,
+    "description": "RuboCop::Cop::Naming::FileName when CheckDefinitionPathHierarchy is false with a matching module containing a non-matching struct does not register an offense",
+    "source": "begin\n  module Foo\n    NonMatching = Struct.new\n  end\nend\n",
+    "file": "lib/foo.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName CheckDefinitionPathHierarchy=false",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 399,
+    "description": "RuboCop::Cop::Naming::FileName when Regex is set with a matching name does not register an offense",
+    "source": "print 1\n",
+    "file": "a.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName Regex=/\\A[aeiou]\\z/i",
+      "Naming/FileName CheckDefinitionPathHierarchy=nil",
+      "Naming/FileName CheckDefinitionPathHierarchyRoots=nil",
+      "Naming/FileName IgnoreExecutableScripts=nil",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 407,
+    "description": "RuboCop::Cop::Naming::FileName when Regex is set with a non-matching name registers an offense",
+    "source": "print 1\n",
+    "file": "z.rb",
+    "original_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "original_messages": [
+      "`z.rb` should match `(?i-mx:\\A[aeiou]\\z)`."
+    ],
+    "config_exclusion": [
+      "Naming/FileName Regex=/\\A[aeiou]\\z/i",
+      "Naming/FileName CheckDefinitionPathHierarchy=nil",
+      "Naming/FileName CheckDefinitionPathHierarchyRoots=nil",
+      "Naming/FileName IgnoreExecutableScripts=nil",
+      "Naming/FileName AllowedAcronyms=nil"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 421,
+    "description": "RuboCop::Cop::Naming::FileName with acronym namespace does not register an offense",
+    "source": "module My\n  module CLI\n    class AdminUser\n    end\n  end\nend\n",
+    "file": "/lib/my/cli/admin_user.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=[\"CLI\"]"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 438,
+    "description": "RuboCop::Cop::Naming::FileName with acronym class name does not register an offense",
+    "source": "module My\n  class CLI\n  end\nend\n",
+    "file": "/lib/my/cli.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=[\"CLI\"]"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 453,
+    "description": "RuboCop::Cop::Naming::FileName with include acronym name does not register an offense",
+    "source": "module My\n  class HTTPServer\n  end\nend\n",
+    "file": "/lib/my/http_server.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=[\"HTTP\"]"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 468,
+    "description": "RuboCop::Cop::Naming::FileName with multiple consecutive acronyms in class name does not register an offense when all acronyms are uppercased",
+    "source": "class MyFOOBAR\nend\n",
+    "file": "/lib/my_foo_bar.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=[\"FOO\", \"BAR\"]"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 475,
+    "description": "RuboCop::Cop::Naming::FileName with multiple consecutive acronyms in class name does not register an offense when only the first acronym is uppercased",
+    "source": "class MyFOOBar\nend\n",
+    "file": "/lib/my_foo_bar.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=[\"FOO\", \"BAR\"]"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 482,
+    "description": "RuboCop::Cop::Naming::FileName with multiple consecutive acronyms in class name does not register an offense when only the last acronym is uppercased",
+    "source": "class MyFooBAR\nend\n",
+    "file": "/lib/my_foo_bar.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": [
+      "Naming/FileName ExpectMatchingDefinition=true",
+      "Naming/FileName AllowedAcronyms=[\"FOO\", \"BAR\"]"
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 491,
+    "description": "RuboCop::Cop::Naming::FileName with dotfiles does not register an offense",
+    "source": "print 1\n",
+    "file": ".pryrc",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/FileName",
+    "spec_line": 499,
+    "description": "RuboCop::Cop::Naming::FileName with non-ascii characters in filename does not register an offense",
+    "source": "print 1\n",
+    "file": "/some/dir/ünbound_sérvér.rb",
+    "original_positions": [
+
+    ],
+    "original_messages": [
+
+    ],
+    "config_exclusion": null,
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

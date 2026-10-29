@@ -1,0 +1,261 @@
+[
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 10,
+    "before": "foo(x, **options.merge(y: 1))\n",
+    "after": "foo(x, **options, y: 1)\n",
+    "withheld_reason": "Unknown receiver may override merge; mutation/order during appended evaluation is unproved."
+  },
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 21,
+    "before": "foo(x, **options.merge(other_options))\n",
+    "after": "foo(x, **options, **other_options)\n",
+    "withheld_reason": "Unknown receiver merge and other_options.to_hash dispatch are unproved."
+  },
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 32,
+    "before": "foo(x, **options.merge(y: 1, **other_options, z: 2))\n",
+    "after": "foo(x, **options, y: 1, **other_options, z: 2)\n",
+    "withheld_reason": "Unknown receiver and spread conversion may mutate receiver or reorder keys."
+  },
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 43,
+    "before": "foo(x, **options.merge({ y: 1 }))\n",
+    "after": "foo(x, **options,  y: 1 )\n",
+    "withheld_reason": "Unknown receiver may override merge even with a literal appended hash."
+  },
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 54,
+    "before": "foo(x, **options.merge(other_options, y: 1, **yet_another_options))\n",
+    "after": "foo(x, **options, **other_options, y: 1, **yet_another_options)\n",
+    "withheld_reason": "Unknown receiver and multiple custom hash conversions/effects are unproved."
+  },
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 65,
+    "before": "foo(x, **options.merge(other_options, yet_another_options))\n",
+    "after": "foo(x, **options, **other_options, **yet_another_options)\n",
+    "withheld_reason": "Unknown merge and custom to_hash/Hash-subclass inputs are unproved."
+  },
+  {
+    "cop": "Style/KeywordArgumentsMerging",
+    "line": 76,
+    "before": "foo(x, **options.merge(other_options).merge(more_options))\n",
+    "after": "foo(x, **options, **other_options, **more_options)\n",
+    "withheld_reason": "Both merge dispatches and intermediate return type are unknown."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 12,
+    "before": "def m\n  items.something(first_arg) { |i| yield i }\nend\n",
+    "after": "def m(&block)\n  items.something(first_arg, &block)\nend\n",
+    "withheld_reason": "Unknown iterator may inspect/store the caller Proc or yield incompatible arity."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 27,
+    "before": "def m\n  items.something(first_arg) { |i, j| yield i, j }\nend\n",
+    "after": "def m(&block)\n  items.something(first_arg, &block)\nend\n",
+    "withheld_reason": "Unknown iterator may change lambda arity, keyword channels and destructuring."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 50,
+    "before": "def m(&blk)\n  items.something { |i| yield i }\nend\n",
+    "after": "def m(&blk)\n  items.something(&blk)\nend\n",
+    "withheld_reason": "Existing block parameter does not prove unknown iterator semantics or block absence."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 65,
+    "before": "def m\n  items.something(a, b,) { |i| yield i }\nend\n",
+    "after": "def m(&block)\n  items.something(a, b, &block)\nend\n",
+    "withheld_reason": "Trailing comma does not prove iterator semantics or argument evaluation safety."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 82,
+    "before": "def do_something\n  array&.each do |row|\n    yield row\n  end\nend\n",
+    "after": "def do_something(&block)\n  array&.each(&block)\nend\n",
+    "withheld_reason": "Safe navigation does not prove array type or block-absence behavior."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 97,
+    "before": "def do_something\n  callable.() { |row| yield row }\nend\n",
+    "after": "def do_something(&block)\n  callable.(&block)\nend\n",
+    "withheld_reason": "Unknown callable may inspect/store Proc identity or use strict call semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 112,
+    "before": "def do_something\n  array.each() { |row| yield row }\nend\n",
+    "after": "def do_something(&block)\n  array.each(&block)\nend\n",
+    "withheld_reason": "Unknown array type and unguarded block absence can change behavior to Enumerator."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 127,
+    "before": "def do_something\n  foo[] { |row| yield row }\nend\n",
+    "after": "def do_something(&block)\n  foo[&block]\nend\n",
+    "withheld_reason": "Unknown index method may inspect/store the forwarded Proc."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 142,
+    "before": "def do_something\n  foo.[] { |row| yield row }\nend\n",
+    "after": "def do_something(&block)\n  foo.[](&block)\nend\n",
+    "withheld_reason": "Unknown explicit index method may inspect/store the forwarded Proc."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 157,
+    "before": "def []\n  foo { |row| yield row }\nend\n",
+    "after": "def [](&block)\n  foo(&block)\nend\n",
+    "withheld_reason": "Operator definition does not prove the called iterator semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 182,
+    "before": "def m\n  items.something { |i| yield i }\n\n  if condition\n    yield 2\n  elsif other_condition\n    3.times { yield }\n  else\n    other_items.something { |i, j| yield i, j }\n  end\nend\n",
+    "after": "def m(&block)\n  items.something(&block)\n\n  if condition\n    yield 2\n  elsif other_condition\n    3.times(&block)\n  else\n    other_items.something(&block)\n  end\nend\n",
+    "withheld_reason": "Multiple wrappers include unknown iterators and 3.times truncates its yielded index."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 213,
+    "before": "def m\n  3.times { yield }\nend\n",
+    "after": "def m(&block)\n  3.times(&block)\nend\n",
+    "withheld_reason": "3.times yields an index that the original wrapper discards."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 251,
+    "before": "def do_something\n  super { yield }\nend\n",
+    "after": "def do_something(&block)\n  super(&block)\nend\n",
+    "withheld_reason": "Inherited super may inspect block identity, block_given? or yield arbitrary channels."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 301,
+    "before": "def my_method()\n  foo() { yield }\nend\n",
+    "after": "def my_method(&block)\n  foo(&block)\nend\n",
+    "withheld_reason": "Unknown foo dispatch and unguarded block absence are unproved."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 316,
+    "before": "def my_method\n  super() { yield }\nend\n",
+    "after": "def my_method(&block)\n  super(&block)\nend\n",
+    "withheld_reason": "Explicit super() still has unknown inherited block behavior."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 331,
+    "before": "def my_method(x)\n  foo(x) { yield }\nend\n",
+    "after": "def my_method(x, &block)\n  foo(x, &block)\nend\n",
+    "withheld_reason": "Positional arguments do not prove unknown foo block semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 346,
+    "before": "def my_method(x, y = 42, *args, **options)\n  super { yield }\nend\n",
+    "after": "def my_method(x, y = 42, *args, **options, &block)\n  super(x, y, *args, **options, &block)\nend\n",
+    "withheld_reason": "Implicit super with defaults/rest/keywords has unknown parent semantics and forwarding order."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 361,
+    "before": "def self.my_method(x, y = 42, *args, **options)\n  super { yield }\nend\n",
+    "after": "def self.my_method(x, y = 42, *args, **options, &block)\n  super(x, y, *args, **options, &block)\nend\n",
+    "withheld_reason": "Singleton implicit super with defaults/rest/keywords has unknown inherited block semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 376,
+    "before": "def my_method(x, k: 1, j:)\n  super { yield }\nend\n",
+    "after": "def my_method(x, k: 1, j:, &block)\n  super(x, k: k, j: j, &block)\nend\n",
+    "withheld_reason": "Implicit super can change keyword ordering as well as parent block behavior."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 407,
+    "before": "def my_method(x, **nil)\n  super { yield }\nend\n",
+    "after": "def my_method(x, **nil, &block)\n  super(x, &block)\nend\n",
+    "withheld_reason": "No-keywords signature does not prove parent block semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 422,
+    "before": "def my_method(x, &blk)\n  super { yield }\nend\n",
+    "after": "def my_method(x, &blk)\n  super(x, &blk)\nend\n",
+    "withheld_reason": "Named block parameter does not prove parent Proc identity/absence behavior."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 483,
+    "before": "def foo\n  bar { |baz| yield baz }\nend\n\ndef foo\n  bar { |baz| yield baz }\nend\n",
+    "after": "def foo(&block)\n  bar(&block)\nend\n\ndef foo(&block)\n  bar(&block)\nend\n",
+    "withheld_reason": "Neither same-named method proves unknown bar block semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 504,
+    "before": "def foo\n  def bar.baz\n    qux { |quux| yield quux }\n  end\nend\n",
+    "after": "def foo\n  def bar.baz(&block)\n    qux(&block)\n  end\nend\n",
+    "withheld_reason": "Nested singleton definition does not prove qux block semantics."
+  },
+  {
+    "cop": "Style/ExplicitBlockArgument",
+    "line": 449,
+    "before": "def my_method(*, **)\n  super { yield }\nend\n",
+    "after": "def my_method(*, **, &block)\n  super(*, **, &block)\nend\n",
+    "withheld_reason": "Anonymous rest/keyword forwarding does not prove inherited block semantics."
+  },
+  {
+    "cop": "Style/RedundantArgument",
+    "line": 33,
+    "before": "foo.join('')\nfoo.sum(0)\nexit(true)\nexit!(false)\nfoo.to_i(10)\nfoo.split(' ')\nfoo.chomp(\"\\n\")\nfoo.chomp!(\"\\n\")\n",
+    "after": "foo.join\nfoo.sum\nexit\nexit!\nfoo.to_i\nfoo.split\nfoo.chomp\nfoo.chomp!\n",
+    "withheld_reason": "Unsafe method-name-only rule: globals and user-defined methods can change defaults; detection only."
+  },
+  {
+    "cop": "Style/RedundantArgument",
+    "line": 59,
+    "before": "foo&.join('')\nfoo&.sum(0)\nfoo&.split(' ')\nfoo&.chomp(\"\\n\")\nfoo&.chomp!(\"\\n\")\n",
+    "after": "foo&.join\nfoo&.sum\nfoo&.split\nfoo&.chomp\nfoo&.chomp!\n",
+    "withheld_reason": "Unsafe method-name-only rule: globals and user-defined methods can change defaults; detection only."
+  },
+  {
+    "cop": "Style/RedundantArgument",
+    "line": 76,
+    "before": "foo.join ''\nfoo.split ' '\n",
+    "after": "foo.join\nfoo.split\n",
+    "withheld_reason": "Unsafe method-name-only rule: globals and user-defined methods can change defaults; detection only."
+  },
+  {
+    "cop": "Style/RedundantArgument",
+    "line": 90,
+    "before": "[1, 2, 3].join('')\n\"first second\".split(' ')\n",
+    "after": "[1, 2, 3].join\n\"first second\".split\n",
+    "withheld_reason": "Unsafe method-name-only rule: globals and user-defined methods can change defaults; detection only."
+  },
+  {
+    "cop": "Style/RedundantArgument",
+    "line": 102,
+    "before": "[1, 2, 3].join ''\n",
+    "after": "[1, 2, 3].join\n",
+    "withheld_reason": "Unsafe method-name-only rule: globals and user-defined methods can change defaults; detection only."
+  },
+  {
+    "cop": "Style/RedundantArgument",
+    "line": 115,
+    "before": "foo.join(\"\")\n\"first second\".split(\" \")\n",
+    "after": "foo.join\n\"first second\".split\n",
+    "withheld_reason": "Unsafe method-name-only rule: globals and user-defined methods can change defaults; detection only."
+  }
+]

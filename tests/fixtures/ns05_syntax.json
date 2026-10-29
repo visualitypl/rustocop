@@ -1,0 +1,691 @@
+[
+  {
+    "case": "lead differential 0",
+    "source": "def foo(&callback); xs.each { |callback| callback }; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "lead differential 1",
+    "source": "def foo(&callback); xs.each { |;callback| callback=1; callback }; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "lead differential 2",
+    "source": "def foo(&callback); def inner(callback); callback; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "lead differential 3",
+    "source": "def foo(&callback); def inner; callback=1; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "lead differential 4",
+    "source": "def outer(&callback); def inner(&other); foo(&callback); end; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        11
+      ],
+      [
+        1,
+        33
+      ],
+      [
+        1,
+        46
+      ],
+      [
+        1,
+        67
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "lead differential 5",
+    "source": "def foo(&callback); xs.each { |callback| bar(&callback) }; end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        46
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "lead differential 6",
+    "source": "def foo(&callback); baz(& callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "lead differential 7",
+    "source": "def foo(&callback); baz(&\n callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "lead differential 8",
+    "source": "def foo(&callback); baz(&(callback)); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "lead differential 9",
+    "source": "def foo(&callback); alias value callback; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        47
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "nested same-name method deduplicates its pass",
+    "source": "def foo(&callback); def inner(&callback); bar(&callback); end; end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        31
+      ],
+      [
+        1,
+        47
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "nested optional parameter local read suppresses outer",
+    "source": "def foo(&callback); def inner(callback, arg=callback); end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested method assignment in default suppresses outer",
+    "source": "def foo(&callback); def inner(arg=(callback=1)); end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "outer default closure assignment does not suppress detection",
+    "source": "def foo(arg=-> { callback=1 }, &callback); bar(&callback); end",
+    "positions": [
+      [
+        1,
+        32
+      ],
+      [
+        1,
+        48
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "outer default shadowed local read does not suppress detection",
+    "source": "def foo(arg=->(callback) { callback }, &callback); bar(&callback); end",
+    "positions": [
+      [
+        1,
+        40
+      ],
+      [
+        1,
+        56
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "outer default pass is a syntactic descendant",
+    "source": "def foo(arg=-> { bar(&callback) }, &callback); bar(&callback); end",
+    "positions": [
+      [
+        1,
+        22
+      ],
+      [
+        1,
+        36
+      ],
+      [
+        1,
+        52
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "nested default pass belongs to outer syntactic body",
+    "source": "def foo(&callback); def inner(arg=bar(&callback)); end; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        39
+      ],
+      [
+        1,
+        61
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "closed nested read with different spelling does not suppress",
+    "source": "def foo(&callback); def inner(other); other; end; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        55
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "shadowed lambda read suppresses",
+    "source": "def foo(&callback); ->(callback) { callback }; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "shadowed lambda pass is reported",
+    "source": "def foo(&callback); ->(callback) { bar(&callback) }; end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        40
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "block local pass is reported without changing identity",
+    "source": "def foo(&callback); xs.each { |;callback| bar(&callback) }; end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        47
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "block local assignment without read suppresses",
+    "source": "def foo(&callback); xs.each { |;callback| callback=1 }; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "block local compound assignment suppresses",
+    "source": "def foo(&callback); xs.each { |;callback| callback||=1 }; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested operator write suppresses",
+    "source": "def foo(&callback); def inner(callback); callback+=1; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested multiple write suppresses",
+    "source": "def foo(&callback); def inner; callback,other=values; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested rescue target suppresses",
+    "source": "def foo(&callback); def inner; begin; work; rescue => callback; end; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "nested for target suppresses",
+    "source": "def foo(&callback); def inner; for callback in values; end; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "pattern binding is not lvasgn",
+    "source": "def foo(&callback); :value => callback; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        45
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "nested pattern binding is not lvasgn",
+    "source": "def foo(&callback); def inner; :value => callback; end; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        61
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "pattern local read suppresses",
+    "source": "def foo(&callback); case :value; in callback; callback; end; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "regexp capture is not lvasgn",
+    "source": "def foo(&callback); /(?<callback>x)/ =~ value; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        52
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "spaced signature does not match normal local spelling",
+    "source": "def foo(& callback); callback; end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "spaced signature and pass exact match",
+    "source": "def foo(& callback); bar(& callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "spaced signature and unspaced pass mismatch",
+    "source": "def foo(& callback); bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "split signature and pass exact match",
+    "source": "def foo(&\n callback); bar(&\n callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        17
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "commented signature and pass exact match",
+    "source": "def foo(& # keep\n callback); bar(& # keep\n callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        17
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "commented pass mismatch",
+    "source": "def foo(&callback); bar(& # keep\n callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "different identifiers do not match by substring",
+    "source": "def foo(&callback); bar(&callback_other); end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "symbol pass is not a match",
+    "source": "def foo(&callback); bar(&:callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "ordinary own read suppresses all passes",
+    "source": "def foo(&callback); callback; bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "parenthesized signature use suppresses",
+    "source": "def foo(&callback); bar(&((callback))); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "required nested keyword default suppresses",
+    "source": "def foo(arg=->(key:) {}, &callback); bar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "keyword in body is not signature exception",
+    "source": "def foo(&callback); ->(key:) {}; bar(&callback); end",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        38
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "heredoc outer capture preserves structural ownership",
+    "source": "def foo(&callback); consume(<<~TEXT)\n#{bar(&callback)}\nTEXT\nend",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "heredoc shadowed read suppresses despite physical end offsets",
+    "source": "def foo(&callback); def inner(callback); consume(<<~TEXT); end\n#{callback}\nTEXT\nbar(&callback); end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "case": "heredoc nested pass is syntactic descendant",
+    "source": "def foo(&callback); def inner(&callback); consume(<<~TEXT); end\n#{bar(&callback)}\nTEXT\nend",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        31
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  },
+  {
+    "case": "heredoc receiver pass belongs to outer identity",
+    "source": "def foo(&callback); def (make(<<~TEXT)).inner; end\n#{bar(&callback)}\nTEXT\nend",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ]
+  }
+]

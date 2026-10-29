@@ -1,0 +1,74 @@
+[
+  {
+    "spec_line": 6,
+    "source": "unless x # negative 1\n  a = 1 # negative 2\nelse # positive 1\n  a = 0 # positive 2\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless` with `else`. Rewrite these with the positive case first."
+    ],
+    "correction": "if x # positive 1\n  a = 0 # positive 2\nelse # negative 1\n  a = 1 # negative 2\nend\n"
+  },
+  {
+    "spec_line": 26,
+    "source": "unless abc\n  a\nelse\n  unless cde\n    b\n  else\n    c\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use `unless` with `else`. Rewrite these with the positive case first.",
+      "Do not use `unless` with `else`. Rewrite these with the positive case first."
+    ],
+    "correction": "if abc\n  unless cde\n    b\n  else\n    c\n  end\nelse\n  a\nend\n"
+  },
+  {
+    "spec_line": 57,
+    "source": "unless(x)\n  if(y == 0)\n    a = 0\n  elsif(z == 0)\n    a = 1\n  else\n    a = 2\n  end\nelse\n  a = 3\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless` with `else`. Rewrite these with the positive case first."
+    ],
+    "correction": "if(x)\n  a = 3\nelse\n  if(y == 0)\n    a = 0\n  elsif(z == 0)\n    a = 1\n  else\n    a = 2\n  end\nend\n"
+  },
+  {
+    "spec_line": 90,
+    "source": "unless x then\n  a = 1\nelse\n  a = 0\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Do not use `unless` with `else`. Rewrite these with the positive case first."
+    ],
+    "correction": "if x then\n  a = 0\nelse\n  a = 1\nend\n"
+  },
+  {
+    "spec_line": 111,
+    "source": "unless x\n  a = 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

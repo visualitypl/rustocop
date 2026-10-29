@@ -1,0 +1,205 @@
+[
+  {
+    "encoding": "UTF-8",
+    "source_hex": "2320636f64696e673a205554462d380a2320c3a9736c61766520736c617665c3a90a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "UTF-8",
+    "source_hex": "2320636f64696e673a205554462d380a2320626c6163e284aa6c69c5bf742077686974656c69efac8520c5bf6c6176650a",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        2,
+        22
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacKliſt' with 'denylist' or 'block'.",
+      "Consider replacing 'whiteliﬅ' with 'allowlist' or 'permit'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "UTF8-MAC",
+    "source_hex": "2320636f64696e673a20555446382d4d41430a232065cc81736c61766520736c61766565cc810a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ],
+    "rustocop_positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "position_policy": "Shared rustocop columns count raw encoded characters; RuboCop normalizes decomposed UTF8-MAC source before locating the token (2:4). Preserve the accepted original-source column convention (2:5)."
+  },
+  {
+    "encoding": "UTF8-MAC",
+    "source_hex": "2320636f64696e673a20555446382d4d41430a2320626c6163e284aa6c69c5bf742077686974656c69efac8520c5bf6c6176650a",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        2,
+        22
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacKliſt' with 'denylist' or 'block'.",
+      "Consider replacing 'whiteliﬅ' with 'allowlist' or 'permit'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "CESU-8",
+    "source_hex": "2320636f64696e673a20434553552d380a2320c3a9736c61766520736c617665c3a90a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "CESU-8",
+    "source_hex": "2320636f64696e673a20434553552d380a2320626c6163e284aa6c69c5bf742077686974656c69efac8520c5bf6c6176650a",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        2,
+        22
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacKliſt' with 'denylist' or 'block'.",
+      "Consider replacing 'whiteliﬅ' with 'allowlist' or 'permit'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "GB18030",
+    "source_hex": "2320636f64696e673a20474231383033300a2320a8a6736c61766520736c617665a8a60a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "GB18030",
+    "source_hex": "2320636f64696e673a20474231383033300a2320626c61638136bf326c6981309737742077686974656c698430b23720813097376c6176650a",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        2,
+        22
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'blacKliſt' with 'denylist' or 'block'.",
+      "Consider replacing 'whiteliﬅ' with 'allowlist' or 'permit'.",
+      "Consider replacing 'ſlave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "ISO-8859-1",
+    "source_hex": "2320636f64696e673a2049534f2d383835392d310a2320e9736c61766520736c617665e90a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "Windows-1252",
+    "source_hex": "2320636f64696e673a2057696e646f77732d313235320a2320e9736c61766520736c617665e90a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "EUC-JP",
+    "source_hex": "2320636f64696e673a204555432d4a500a23208fabb1736c61766520736c6176658fabb10a",
+    "positions": [
+      [
+        2,
+        4
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  },
+  {
+    "encoding": "Shift_JIS",
+    "source_hex": "2320636f64696e673a2053686966745f4a49530a232083736c61766520736c6176650a",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Consider replacing 'slave' with 'replica', 'secondary', or 'follower'."
+    ]
+  }
+]

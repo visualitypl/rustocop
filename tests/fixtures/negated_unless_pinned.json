@@ -1,0 +1,131 @@
+[
+  {
+    "spec_line": 156,
+    "source": "a ? b : c",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 160,
+    "source": "!foo.empty? ? :bar : :baz",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 164,
+    "source": "if ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 171,
+    "source": "unless ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 16,
+    "source": "unless !a_condition\n  some_method\nend\nsome_method unless !a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `if` over `unless` for negative conditions.",
+      "Favor `if` over `unless` for negative conditions."
+    ],
+    "correction": "if a_condition\n  some_method\nend\nsome_method if a_condition\n"
+  },
+  {
+    "spec_line": 34,
+    "source": "unless not a_condition\n  some_method\nend\nsome_method unless not a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `if` over `unless` for negative conditions.",
+      "Favor `if` over `unless` for negative conditions."
+    ],
+    "correction": "if a_condition\n  some_method\nend\nsome_method if a_condition\n"
+  },
+  {
+    "spec_line": 52,
+    "source": "unless !a_condition\n  some_method\nelse\n  something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 62,
+    "source": "unless !condition && another_condition\n  some_method\nend\nunless not condition or another_condition\n  some_method\nend\nsome_method unless not condition or another_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 74,
+    "source": "unless !!condition\n  some_method\nend\nsome_method unless !!condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 83,
+    "source": "something unless (!x.even?)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `if` over `unless` for negative conditions."
+    ],
+    "correction": "something if (x.even?)\n"
+  }
+]

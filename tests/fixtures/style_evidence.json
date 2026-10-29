@@ -1,0 +1,2459 @@
+[
+  {
+    "name": "Style/IpAddresses",
+    "cases": [
+      {"source":"'255.255.255.255'\n","expected":[{"line":1,"col":1,"message":"Do not hardcode IP addresses."}]},
+      {"source":"def f\n  '2001:db8::1'\nend\n","expected":[{"line":2,"col":3,"message":"Do not hardcode IP addresses."}]},
+      {"source":"'::'\n'578.194.591.059'\n'My IP is 192.168.1.1'\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/SafeNavigationChainLength",
+    "cases": [
+      {"source":"x&.a&.b&.c\n","expected":[{"line":1,"col":1,"message":"Avoid safe navigation chains longer than 2 calls."}]},
+      {"source":"def f(x)\n  x&.a&.b&.c\nend\n","expected":[{"line":2,"col":3,"message":"Avoid safe navigation chains longer than 2 calls."}]},
+      {"source":"x&.a&.b\nx.a.b.c\nx&.a.b&.c\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/SafeNavigation",
+    "cases": [
+      {"source":"foo && foo.bar\n","expected":[{"line":1,"col":1,"message":"Use safe navigation (`&.`) instead of checking if an object exists before calling the method."}]},
+      {"source":"def f(x)\n  x.foo unless x.nil?\nend\n","expected":[{"line":2,"col":3,"message":"Use safe navigation (`&.`) instead of checking if an object exists before calling the method."}]},
+      {"source":"!x.nil? && x.foo\nx && x.a.b.c\nx && x.empty?\nx&.foo\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/SingleArgumentDig",
+    "cases": [
+      {"source":"data.dig(:key)\n","expected":[{"line":1,"col":1,"message":"Use `data[:key]` instead of `data.dig(:key)`."}]},
+      {"source":"def f\n  [false].dig(0)\nend\n","expected":[{"line":2,"col":3,"message":"Use `[false][0]` instead of `[false].dig(0)`."}]},
+      {"source":"data&.dig(:key)\ndata.dig(*keys)\ndata.dig(:a).dig(:b)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/DigChain",
+    "cases": [
+      {"source":"data.dig(:a).dig(:b)\n","expected":[{"line":1,"col":6,"message":"Use `dig(:a, :b)` instead of chaining."}]},
+      {"source":"# header\n  data&.dig(:a)&.dig(:b)\n","expected":[{"line":2,"col":9,"message":"Use `dig(:a, :b)` instead of chaining."}]},
+      {"source":"data.dig(:a).first.dig(:b)\ndata.dig({a: 1}).dig(:b)\ndata.dig(:a).dig\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantFreeze",
+    "cases": [
+      {"source":"1.freeze\n","expected":[{"line":1,"col":1,"message":"Do not freeze immutable objects, as freezing them has no effect."}]},
+      {"source":"# frozen_string_literal: true\n  'a'.freeze\n","expected":[{"line":2,"col":3,"message":"Do not freeze immutable objects, as freezing them has no effect."}]},
+      {"source":"[].freeze\nfalse&.freeze\n'abc'.freeze\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantInitialize",
+    "cases": [
+      {"source":"def initialize; end\n","expected":[{"line":1,"col":1,"message":"Remove unnecessary empty `initialize` method."}]},
+      {"source":"class C\n  def initialize(a); super(a); end\nend\n","expected":[{"line":2,"col":3,"message":"Remove unnecessary `initialize` method."}]},
+      {"source":"def self.initialize; end\ndef initialize(*)\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantSelf",
+    "cases": [
+      {"source":"self.object_id\n","expected":[{"line":1,"col":1,"message":"Redundant `self` detected."}]},
+      {"source":"a = self.b\n","expected":[{"line":1,"col":5,"message":"Redundant `self` detected."}]},
+      {"source":"def f(a)\n self.a\nend\nself.a = 1\nself.open\nself&.foo\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/EmptyMethod",
+    "cases": [
+      {"source":"def f\nend\n","expected":[{"line":1,"col":1,"message":"Put empty method definitions on a single line."}]},
+      {"source":"class C\n  def self.f(a)\n  end\nend\n","expected":[{"line":2,"col":3,"message":"Put empty method definitions on a single line."}]},
+      {"source":"def f; end\ndef g\n # keep\nend\ndef h\n nil\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantConstantBase",
+    "cases": [
+      {"source":"::A::B\n","expected":[{"line":1,"col":1,"message":"Remove redundant `::`."}]},
+      {"source":"class Foo < ::Bar\n ::Baz\nend\n","expected":[{"line":1,"col":13,"message":"Remove redundant `::`."}]},
+      {"source":"module M\n ::A\n class C < ::B; end\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantFetchBlock",
+    "cases": [
+      {"source":"hash.fetch(:key) { false }\n","expected":[{"line":1,"col":6,"message":"Use `fetch(:key, false)` instead of `fetch(:key) { false }`."}]},
+      {"source":"# frozen_string_literal: true\nhash&.fetch(:key) { 'value' }\n","expected":[{"line":2,"col":7,"message":"Use `fetch(:key, 'value')` instead of `fetch(:key) { 'value' }`."}]},
+      {"source":"hash.fetch(:key) { VALUE }\nhash.fetch(:key) { 'value' }\nRails.cache.fetch(:key) { 5 }\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/EmptyLiteral",
+    "cases": [
+      {"source":"Array.new\n","expected":[{"line":1,"col":1,"message":"Use array literal `[]` instead of `Array.new`."}]},
+      {"source":"# header\n  Hash.new\n","expected":[{"line":2,"col":3,"message":"Use hash literal `{}` instead of `Hash.new`."}]},
+      {"source":"Other::Array.new\nHash.new { false }\nArray&.new\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/EmptyClassDefinition",
+    "cases": [
+      {"source":"FooError = Class.new(StandardError)\n","expected":[{"line":1,"col":1,"message":"Use the `class` keyword instead of `Class.new` to define an empty class."}]},
+      {"source":"module M\n  Error = Class.new(::StandardError)\nend\n","expected":[{"line":2,"col":3,"message":"Use the `class` keyword instead of `Class.new` to define an empty class."}]},
+      {"source":"MyClass = Class.new\nOther = Class.new(StandardError) {}\nclass FooError < StandardError; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/BeginBlock",
+    "cases": [
+      {"source":"BEGIN { test }\n","expected":[{"line":1,"col":1,"message":"Avoid the use of `BEGIN` blocks."}]},
+      {"source":"# hook\n  BEGIN {\n    work\n  }\n","expected":[{"line":2,"col":3,"message":"Avoid the use of `BEGIN` blocks."}]},
+      {"source":"begin; work; rescue; fallback; end\nbegin_block { test }\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/EndBlock",
+    "cases": [
+      {"source":"END { test }\n","expected":[{"line":1,"col":1,"message":"Avoid the use of `END` blocks. Use `Kernel#at_exit` instead."}]},
+      {"source":"# exit\n  END {\n    :work\n  }\n","expected":[{"line":2,"col":3,"message":"Avoid the use of `END` blocks. Use `Kernel#at_exit` instead."}]},
+      {"source":"end_block { test }\nat_exit { test }\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantBegin",
+    "cases": [
+      {"source":"begin\n  work\nend\n","expected":[{"line":1,"col":1,"message":"Redundant `begin` block detected."}]},
+      {"source":"def f\n  begin\n    work\n  rescue => e\n    e\n  end\nend\n","expected":[{"line":2,"col":3,"message":"Redundant `begin` block detected."}]},
+      {"source":"begin; work; rescue; fallback; end\nx = begin; a; b; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RescueModifier",
+    "cases": [
+      {"source":"1 rescue nil\n","expected":[{"line":1,"col":1,"message":"Avoid using `rescue` in its modifier form."}]},
+      {"source":"def f\n  work rescue nil\nend\n","expected":[{"line":2,"col":3,"message":"Avoid using `rescue` in its modifier form."}]},
+      {"source":"begin\n  work\nrescue\n  fallback\nend\nobject.rescue\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RescueStandardError",
+    "cases": [
+      {"source":"begin\n  work\nrescue\n  fallback\nend\n","expected":[{"line":3,"col":1,"message":"Avoid rescuing without specifying an error class."}]},
+      {"source":"def f\n  work\nrescue => e\n  e\nend\n","expected":[{"line":3,"col":1,"message":"Avoid rescuing without specifying an error class."}]},
+      {"source":"work rescue fallback\nbegin; work; rescue ::StandardError, Other; fallback; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/ReturnNil",
+    "cases": [
+      {"source":"return nil\n","expected":[{"line":1,"col":1,"message":"Use `return` instead of `return nil`."}]},
+      {"source":"def f\n  return nil if x\nend\n","expected":[{"line":2,"col":3,"message":"Use `return` instead of `return nil`."}]},
+      {"source":"return false\nreturn(nil)\nitems.each { |x| return nil }\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/ReturnNilInPredicateMethodDefinition",
+    "cases": [
+      {"source":"def f?\n  return nil if x\nend\n","expected":[{"line":2,"col":3,"message":"Return `false` instead of `nil` in predicate methods."}]},
+      {"source":"def self.f?\n  nil\nend\n","expected":[{"line":2,"col":3,"message":"Return `false` instead of `nil` in predicate methods."}]},
+      {"source":"def f; nil; end\ndef f?; x = nil; end\ndef g?; true; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/ImplicitRuntimeError",
+    "cases": [
+      {
+        "source": "raise 'x'\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Use `raise` with an explicit exception class and message, rather than just a message."
+          }
+        ]
+      },
+      {
+        "source": "def f\n  raise 'x'\nend\n",
+        "expected": [
+          {
+            "line": 2,
+            "col": 3,
+            "message": "Use `raise` with an explicit exception class and message, rather than just a message."
+          }
+        ]
+      },
+      {
+        "source": "Kernel.raise RuntimeError, 'x'\nraise\nraise ArgumentError, 'x'\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/RaiseArgs",
+    "cases": [
+      {
+        "source": "raise Error.new('x')\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Provide an exception class and message as arguments to `raise`."
+          }
+        ]
+      },
+      {
+        "source": "def f\n  raise Error.new('x')\nend\n",
+        "expected": [
+          {
+            "line": 2,
+            "col": 3,
+            "message": "Provide an exception class and message as arguments to `raise`."
+          }
+        ]
+      },
+      {
+        "source": "Kernel.raise RuntimeError, 'x'\nraise\nraise ArgumentError, 'x'\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/RedundantException",
+    "cases": [
+      {
+        "source": "raise RuntimeError, 'x'\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Redundant `RuntimeError` argument can be removed."
+          }
+        ]
+      },
+      {
+        "source": "def f\n  raise RuntimeError, 'x'\nend\n",
+        "expected": [
+          {
+            "line": 2,
+            "col": 3,
+            "message": "Redundant `RuntimeError` argument can be removed."
+          }
+        ]
+      },
+      {
+        "source": "Kernel.raise RuntimeError, 'x'\nraise\nraise ArgumentError, 'x'\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/SelfAssignment",
+    "cases": [
+      {"source":"def f(x)\n  x = x + 1\nend\n","expected":[{"line":2,"col":3,"message":"Use self-assignment shorthand `+=`."}]},
+      {"source":"@x = (@x || 1)\n","expected":[{"line":1,"col":1,"message":"Use self-assignment shorthand `||=`."}]},
+      {"source":"$x = $x + 1\nX = X + 1\nobj.x = obj.x + 1\nx = y + x\nx,y = y,x\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/SwapValues",
+    "cases": [
+      {"source":"tmp=x\nx=y\ny=tmp\n","expected":[{"line":1,"col":1,"message":"Replace this and assignments at lines 2 and 3 with `x, y = y, x`."}]},
+      {"source":"@tmp=::X; ::X=Foo::Y; Foo::Y=@tmp\n","expected":[{"line":1,"col":1,"message":"Replace this and assignments at lines 1 and 1 with `::X, Foo::Y = Foo::Y, ::X`."}]},
+      {"source":"tmp=x; barrier; x=y; y=tmp\nx,y=y,x\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantAssignment",
+    "cases": [
+      {"source":"def f\n  x = work\n  x\nend\n","expected":[{"line":2,"col":3,"message":"Redundant assignment before returning detected."}]},
+      {"source":"def self.f; x = 1; x; end\n","expected":[{"line":1,"col":13,"message":"Redundant assignment before returning detected."}]},
+      {"source":"x=1; x\ndef f; @x=1; @x; end\ndef g; a,b=1,2; a; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantSelfAssignment",
+    "cases": [
+      {"source":"foo = foo.concat(ary)\n","expected":[{"line":1,"col":5,"message":"Redundant self assignment detected. Method `concat` modifies its receiver in place."}]},
+      {"source":"other.foo = other.foo&.merge!(hash)\n","expected":[{"line":1,"col":11,"message":"Redundant self assignment detected. Method `merge!` modifies its receiver in place."}]},
+      {"source":"C = C.concat(ary)\nfoo = foo.strip!\nself.foo = foo.concat(ary)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantSelfAssignmentBranch",
+    "cases": [
+      {"source":"foo = cond ? foo : bar\n","expected":[{"line":1,"col":14,"message":"Remove the self-assignment branch."}]},
+      {"source":"foo = cond ? bar : foo\n","expected":[{"line":1,"col":20,"message":"Remove the self-assignment branch."}]},
+      {"source":"@foo = cond ? @foo : 1\nfoo = cond ? bar : baz\nconsume(foo = cond ? foo : 1)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/ParallelAssignment",
+    "cases": [
+      {"source":"  a,b=1,2\n","expected":[{"line":1,"col":3,"message":"Do not use parallel assignment."}]},
+      {"source":"@a,@b=1,2\n","expected":[{"line":1,"col":1,"message":"Do not use parallel assignment."}]},
+      {"source":"a,b=b,a\na,b=values\na,*b=1,2,3\na,b=1,2,3\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultilineMemoization",
+    "cases": [
+      {"source":"foo ||= (\n bar\n baz\n)\n","expected":[{"line":1,"col":1,"message":"Wrap multiline memoization blocks in `begin` and `end`."}]},
+      {"source":"  object[index] ||= (\n work\n)\n","expected":[{"line":1,"col":3,"message":"Wrap multiline memoization blocks in `begin` and `end`."}]},
+      {"source":"foo ||= begin\n bar\n baz\nend\nfoo ||= (bar)\nfoo &&= (\n bar\n)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/OrAssignment",
+    "cases": [
+      {"source":"  foo = foo ? foo : 3\n","expected":[{"line":1,"col":3,"message":"Use the double pipe equals operator `||=` instead."}]},
+      {"source":"unless @foo\n @foo = 3\nend\n","expected":[{"line":1,"col":1,"message":"Use the double pipe equals operator `||=` instead."}]},
+      {"source":"foo = bar ? foo : 3\nC = C ? C : 3\nobj.x = obj.x ? obj.x : 3\na,b = values\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/InPatternThen",
+    "cases": [
+      {"source":"case a\nin b; c\nend\n","expected":[{"line":2,"col":5,"message":"Do not use `in b;`. Use `in b then` instead."}]},
+      {"source":"case a\nin 0|1|2; x\nend\n","expected":[{"line":2,"col":9,"message":"Do not use `in 0 | 1 | 2;`. Use `in 0 | 1 | 2 then` instead."}]},
+      {"source":"case a\nin b then c; d\nin [x, y];\n work\nend\nx in [b]; work\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultilineInPatternThen",
+    "cases": [
+      {"source":"case foo\nin bar then\nend\n","expected":[{"line":2,"col":8,"message":"Do not use `then` for multiline `in` statement."}]},
+      {"source":"case foo\nin bar\n  then work\nend\n","expected":[{"line":3,"col":3,"message":"Do not use `then` for multiline `in` statement."}]},
+      {"source":"case a\nin b then c\nin [x,\n y] then\n work\nin 500.. then\n work\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/InfiniteLoop",
+    "cases": [
+      {"source":"def f\n  while true\n    break\n  end\nend\n","expected":[{"line":2,"col":3,"message":"Use `Kernel#loop` for infinite loops."}]},
+      {"source":"begin\n work\nend until false\n","expected":[{"line":3,"col":5,"message":"Use `Kernel#loop` for infinite loops."}]},
+      {"source":"while true; a = 1; break; end; p a\nloop { break }; work while ready\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/For",
+    "cases": [
+      {"source":"def func\n  for n in [1, 2, 3] do\n    puts n\n  end\nend\n","expected":[{"line":2,"col":3,"message":"Prefer `each` over `for`."}]},
+      {"source":"  for @item in items; end\n","expected":[{"line":1,"col":3,"message":"Prefer `each` over `for`."}]},
+      {"source":"items.each { work(_1) }; items.each { work(it) }\ndef for; end\n[:for]\n# for x in items; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/CombinableLoops",
+    "cases": [
+      {"source":"items.each { foo }\nitems.each { bar }\n","expected":[{"line":2,"col":1,"message":"Combine this loop with the previous loop."}]},
+      {"source":"for x in items; foo; end\n  for y in items; bar; end\n","expected":[{"line":2,"col":3,"message":"Combine this loop with the previous loop."}]},
+      {"source":"items.each {}; items.each { foo }; barrier\nitems.each { bar }; barrier; items.each { baz }\nfor x in items; foo; end; for y in other; bar; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NegatedWhile",
+    "cases": [
+      {"source":"while !true\n work\nend\n","expected":[{"line":1,"col":1,"message":"Favor `until` over `while` for negative conditions."}]},
+      {"source":"  work until not cond\n","expected":[{"line":1,"col":3,"message":"Favor `while` over `until` for negative conditions."}]},
+      {"source":"while !!cond; work; end\nwork until !cond && other\nwhile (); end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/WhileUntilDo",
+    "cases": [
+      {"source":"while cond do\n work\nend\n","expected":[{"line":1,"col":12,"message":"Do not use `do` with multi-line `while`."}]},
+      {"source":"until cond do\nend\n","expected":[{"line":1,"col":12,"message":"Do not use `do` with multi-line `until`."}]},
+      {"source":"while cond do work end\nuntil cond do work\nend\nwhile cond\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/WhileUntilModifier",
+    "cases": [
+      {"source":"while cond\n work\nend\n","expected":[{"line":1,"col":1,"message":"Favor modifier `while` usage when having a single-line body."}]},
+      {"source":"  until cond\n   work\n  end\n","expected":[{"line":1,"col":3,"message":"Favor modifier `until` usage when having a single-line body."}]},
+      {"source":"begin\n work\nend while cond\nwhile cond\n work if ready\nend\nuntil (x = next_value)\n work\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/EmptyElse",
+    "cases": [
+      {"source":"if ready\n work\nelse\n nil\nend\n","expected":[{"line":3,"col":1,"message":"Redundant `else`-clause."}]},
+      {"source":"case x\nwhen 1\nelse\nend\n","expected":[{"line":3,"col":1,"message":"Redundant `else`-clause."}]},
+      {"source":"if a; b; else c; nil; end\na ? b : nil\nbegin; b; rescue; c; else nil; end\ncase x; in 1; b; else nil; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/UnlessElse",
+    "cases": [
+      {"source":"unless ready\n negative\nelse\n positive\nend\n","expected":[{"line":1,"col":1,"message":"Do not use `unless` with `else`. Rewrite these with the positive case first."}]},
+      {"source":"  unless ready then negative else positive end\n","expected":[{"line":1,"col":3,"message":"Do not use `unless` with `else`. Rewrite these with the positive case first."}]},
+      {"source":"unless ready; work; end\nwork unless ready\nif ready; a; else b; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/WhenThen",
+    "cases": [
+      {"source":"case x\nwhen a; b\nend\n","expected":[{"line":2,"col":7,"message":"Do not use `when a;`. Use `when a then` instead."}]},
+      {"source":"case x\nwhen a, b; c\nend\n","expected":[{"line":2,"col":10,"message":"Do not use `when a, b;`. Use `when a, b then` instead."}]},
+      {"source":"case x\nwhen a then b; c\nwhen b;\n c\nwhen c\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/EmptyCaseCondition",
+    "cases": [
+      {"source":"case\nwhen ready\n work\nend\n","expected":[{"line":1,"col":1,"message":"Do not use empty `case` condition, instead use an `if` expression."}]},
+      {"source":"  case\n  when ready, other then work\n  end\n","expected":[{"line":1,"col":3,"message":"Do not use empty `case` condition, instead use an `if` expression."}]},
+      {"source":"case x; when a; b; end\nconsume case; when a; b; end\ndef f; case; when a; return b; end; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/OneLineConditional",
+    "cases": [
+      {"source":"if a then b else c end\n","expected":[{"line":1,"col":1,"message":"Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."}]},
+      {"source":"  if a then b elsif c then d end\n","expected":[{"line":1,"col":3,"message":"Favor multi-line `if` over single-line `if/then/else/end` constructs."}]},
+      {"source":"if a then b end\nif a then b; c else d end\nif a\n b\nelse\n c\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/ParenthesesAroundCondition",
+    "cases": [
+      {"source":"if (a); end\n","expected":[{"line":1,"col":4,"message":"Don't use parentheses around the condition of an `if`."}]},
+      {"source":"work while (ready)\n","expected":[{"line":1,"col":12,"message":"Don't use parentheses around the condition of a `while`."}]},
+      {"source":"if(a); end\nif (x = 1); end\nif (a; b); end\nbegin work end while (ready)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NestedModifier",
+    "cases": [
+      {"source":"work if a if b\n","expected":[{"line":1,"col":6,"message":"Avoid using nested modifiers."}]},
+      {"source":"  work while a unless b\n","expected":[{"line":1,"col":8,"message":"Avoid using nested modifiers."}]},
+      {"source":"work if a && b\nif a\n work if b\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NestedTernaryOperator",
+    "cases": [
+      {"source":"a ? (b ? 1 : 2) : 3\n","expected":[{"line":1,"col":6,"message":"Ternary operators must not be nested. Prefer `if` or `else` constructs instead."}]},
+      {"source":"a ? b : call(c ? d : e)\n","expected":[{"line":1,"col":14,"message":"Ternary operators must not be nested. Prefer `if` or `else` constructs instead."}]},
+      {"source":"a ? b : c\nif a\n b ? c : d\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NegatedIf",
+    "cases": [
+      {"source":"if !false\n work\nend\n","expected":[{"line":1,"col":1,"message":"Favor `unless` over `if` for negative conditions."}]},
+      {"source":"  work if not x\n","expected":[{"line":1,"col":3,"message":"Favor `unless` over `if` for negative conditions."}]},
+      {"source":"if !!x; work; end\nif !x; work; else other; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NegatedUnless",
+    "cases": [
+      {"source":"unless !false\n work\nend\n","expected":[{"line":1,"col":1,"message":"Favor `if` over `unless` for negative conditions."}]},
+      {"source":"  work unless (!x)\n","expected":[{"line":1,"col":3,"message":"Favor `if` over `unless` for negative conditions."}]},
+      {"source":"unless !!x; work; end\nunless !x; work; else other; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NegatedIfElseCondition",
+    "cases": [
+      {"source":"if !false\n work\nelse\n other\nend\n","expected":[{"line":1,"col":1,"message":"Invert the negated condition and swap the if-else branches."}]},
+      {"source":"  x != y ? a : b\n","expected":[{"line":1,"col":3,"message":"Invert the negated condition and swap the ternary branches."}]},
+      {"source":"if !!x; work; else other; end\nif !x; work; elsif !y; other; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultilineIfThen",
+    "cases": [
+      {"source":"if cond then\n work\nend\n","expected":[{"line":1,"col":9,"message":"Do not use `then` for multi-line `if`."}]},
+      {"source":"unless cond then\nend\n","expected":[{"line":1,"col":13,"message":"Do not use `then` for multi-line `unless`."}]},
+      {"source":"if cond then work\nelsif other\n more\nend\nif cond then end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultilineTernaryOperator",
+    "cases": [
+      {"source":"a = cond ?\n yes : no\n","expected":[{"line":1,"col":5,"message":"Avoid multi-line ternary operators, use `if` or `unless` instead."}]},
+      {"source":"return cond ?\n yes : no\n","expected":[{"line":1,"col":8,"message":"Avoid multi-line ternary operators, use single-line instead."}]},
+      {"source":"a = cond ? yes : no\nconsume(arg\n .ready? ? yes : no)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultilineWhenThen",
+    "cases": [
+      {"source":"case x\nwhen one then\n work\nend\n","expected":[{"line":2,"col":10,"message":"Do not use `then` for multiline `when` statement."}]},
+      {"source":"case x\nwhen one\n then work\nend\n","expected":[{"line":3,"col":2,"message":"Do not use `then` for multiline `when` statement."}]},
+      {"source":"case x\nwhen one then work\nwhen 1.. then\n work\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MissingElse",
+    "cases": [
+      {"source":"if ready; work; end\n","expected":[{"line":1,"col":1,"message":"`if` condition requires an `else`-clause."}]},
+      {"source":"case value; when 1; work; end\n","expected":[{"line":1,"col":1,"message":"`case` condition requires an `else`-clause."}]},
+      {"source":"unless ready; work; end\nif ready; raise 'boom'; end\ncase value; in 1; work; end\nif ready; work; else; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultilineIfModifier",
+    "cases": [
+      {"source":"[\n] if ready\n","expected":[{"line":1,"col":1,"message":"Favor a normal if-statement over a modifier clause in a multiline statement."}]},
+      {"source":"  [\n  ] unless ready\n","expected":[{"line":1,"col":3,"message":"Favor a normal unless-statement over a modifier clause in a multiline statement."}]},
+      {"source":"work if ready\nwork unless ready &&\n other\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/IfWithSemicolon",
+    "cases": [
+      {"source":"if cond; run else dont end\n","expected":[{"line":1,"col":1,"message":"Do not use `if cond;` - use a ternary operator instead."}]},
+      {"source":"unless cond; return value end\n","expected":[{"line":1,"col":1,"message":"Do not use `unless cond;` - use a newline instead."}]},
+      {"source":"if cond then run end\nrun if cond\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/InvertibleUnlessCondition",
+    "cases": [
+      {"source":"foo unless x != y\n","expected":[{"line":1,"col":1,"message":"Prefer `if x == y` over `unless x != y`."}]},
+      {"source":"unless odd?\n work\nend\n","expected":[{"line":1,"col":1,"message":"Prefer `if even?` over `unless odd?`."}]},
+      {"source":"foo if !x\nfoo unless x < Foo\nfoo unless array.include?(x)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/IfUnlessModifierOfIfUnless",
+    "cases": [
+      {"source":"a ? b : c if d\n","expected":[{"line":1,"col":11,"message":"Avoid modifier `if` after another conditional."}]},
+      {"source":"unless a\n b\nend unless d\n","expected":[{"line":3,"col":5,"message":"Avoid modifier `unless` after another conditional."}]},
+      {"source":"if a\n b if c\nend\n(a ? b : c) if d\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/IfWithBooleanLiteralBranches",
+    "cases": [
+      {"source":"if a?\n true\nelse\n false\nend\n","expected":[{"line":1,"col":1,"message":"Remove redundant `if` with boolean literal branches."}]},
+      {"source":"x == y ? false : true\n","expected":[{"line":1,"col":7,"message":"Remove redundant ternary operator with boolean literal branches."}]},
+      {"source":"x.nonzero? ? true : false\nx.infinite? ? true : false\nx&.ready? ? true : false\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/IfInsideElse",
+    "cases": [
+      {"source":"if a\nelse\n  if b\n    work\n  end\nend\n","expected":[{"line":3,"col":3,"message":"Convert `if` nested inside `else` to `elsif`."}]},
+      {"source":"if a\nelse\n  work if b\nend\n","expected":[{"line":3,"col":8,"message":"Convert `if` nested inside `else` to `elsif`."}]},
+      {"source":"if a\nelse\n  # keep this nesting\n  if b\n    work\n  end\nend\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/IdenticalConditionalBranches",
+    "cases": [
+      {"source":"if test\n  work\nelse\n  work\nend\n","expected":[{"line":2,"col":3,"message":"Move `work` out of the conditional."},{"line":4,"col":3,"message":"Move `work` out of the conditional."}]},
+      {"source":"case test\nwhen 1\n  first\n  finish\nelse\n  second\n  finish\nend\n","expected":[{"line":4,"col":3,"message":"Move `finish` out of the conditional."},{"line":7,"col":3,"message":"Move `finish` out of the conditional."}]},
+      {"source":"if test; work(1); else; work(2); end\nif test; work; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/CaseLikeIf",
+    "cases": [
+      {"source":"if x == 1; elsif x == 2; elsif x == 3; end\n","expected":[{"line":1,"col":1,"message":"Convert `if-elsif` to `case-when`."}]},
+      {"source":"if x == 1; elsif x == 2; else; end\n","expected":[]},
+      {"source":"if x == 1; elsif y == 2; elsif x == 3; end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/UnlessLogicalOperators",
+    "cases": [
+      {"source":"work unless a || b && c\n","expected":[{"line":1,"col":1,"message":"Do not use mixed logical operators in an `unless`."}]},
+      {"source":"return unless a && b and c\n","expected":[{"line":1,"col":1,"message":"Do not use mixed logical operators in an `unless`."}]},
+      {"source":"work unless a && b && c\nwork if a || b && c\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/YodaCondition",
+    "cases": [
+      {"source":"1 == x\n","expected":[{"line":1,"col":1,"message":"Reverse the order of the operands `1 == x`."}]},
+      {"source":"CONST < x\n","expected":[{"line":1,"col":1,"message":"Reverse the order of the operands `CONST < x`."}]},
+      {"source":"x == 1\n__FILE__ == $0\n\"#{x}\" == y\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/YodaExpression",
+    "cases": [
+      {"source":"1 | x\n","expected":[{"line":1,"col":1,"message":"Non-literal operand (`x`) should be first."}]},
+      {"source":"2 + (1 + x)\n","expected":[{"line":1,"col":1,"message":"Non-literal operand (`(1 + x)`) should be first."}]},
+      {"source":"x + 1\n60 * 24\nCONST.+(*ary)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NilComparison",
+    "cases": [
+      {"source":"nil == nil\n","expected":[{"line":1,"col":5,"message":"Prefer the use of the `nil?` predicate."}]},
+      {"source":"x == nil\n","expected":[{"line":1,"col":3,"message":"Prefer the use of the `nil?` predicate."}]},
+      {"source":"x.===(nil)\n","expected":[{"line":1,"col":3,"message":"Prefer the use of the `nil?` predicate."}]},
+      {"source":"x.nil?\nx&.==(nil)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/NonNilCheck",
+    "cases": [
+      {"source":"false != nil\n","expected":[{"line":1,"col":1,"message":"Prefer `!false.nil?` over `false != nil`."}]},
+      {"source":"x != nil\n","expected":[{"line":1,"col":1,"message":"Prefer `!x.nil?` over `x != nil`."}]},
+      {"source":"def signed_in?; x != nil; end\n","expected":[]},
+      {"source":"!x.nil?\nx&.!=(nil)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/Not",
+    "cases": [
+      {"source":"not test\n","expected":[{"line":1,"col":1,"message":"Use `!` instead of `not`."}]},
+      {"source":"x if not a = 5\n","expected":[{"line":1,"col":6,"message":"Use `!` instead of `not`."}]},
+      {"source":"!test\nobject.not\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/InverseMethods",
+    "cases": [
+      {"source":"!foo.none?\n","expected":[{"line":1,"col":1,"message":"Use `any?` instead of inverting `none?`."}]},
+      {"source":"foo.select { |e| !e }\n","expected":[{"line":1,"col":1,"message":"Use `reject` instead of inverting `select`."}]},
+      {"source":"!!foo.none?\n","expected":[]},
+      {"source":"!foo&.none?\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/MultipleComparison",
+    "cases": [
+      {"source":"a=1; a == 1 || a == 2\n","expected":[{"line":1,"col":6,"message":"Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."}]},
+      {"source":"foo == 1 || foo == 2\n","expected":[{"line":1,"col":1,"message":"Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."}]},
+      {"source":"a=1; a == 1 || a == foo || a == 2\n","expected":[]},
+      {"source":"a=1; a == foo || a == bar\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/DoubleNegation",
+    "cases": [
+      {"source":"!!value\n","expected":[{"line":1,"col":1,"message":"Avoid the use of double negation (`!!`)."}]},
+      {"source":"def f\n!!value\nfinish\nend\n","expected":[{"line":2,"col":1,"message":"Avoid the use of double negation (`!!`)."}]},
+      {"source":"def f\n!!value\nend\n","expected":[]},
+      {"source":"def f\nreturn !!value\nfinish\nend\n","expected":[]},
+      {"source":"!!!value\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/AndOr",
+    "cases": [
+      {"source":"if a and b; end\n","expected":[{"line":1,"col":6,"message":"Use `&&` instead of `and`."}]},
+      {"source":"work unless a or b\n","expected":[{"line":1,"col":15,"message":"Use `||` instead of `or`."}]},
+      {"source":"a and b\n","expected":[]},
+      {"source":"case x; in y if (a or b); end\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/CaseEquality",
+    "cases": [
+      {"source":"(1..10) === 7\n","expected":[{"line":1,"col":9,"message":"Avoid the use of the case equality operator `===`."}]},
+      {"source":"Array === x\n","expected":[{"line":1,"col":7,"message":"Avoid the use of the case equality operator `===`."}]},
+      {"source":"self.class === x\n","expected":[{"line":1,"col":12,"message":"Avoid the use of the case equality operator `===`."}]},
+      {"source":"REGEXP_CONSTANT === x\n","expected":[]},
+      {"source":"/x/ === x\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/CombinableDefined",
+    "cases": [
+      {"source":"module Foo; Bar=1; end; defined?(Foo) && defined?(Foo::Bar)\n","expected":[{"line":1,"col":25,"message":"Combine nested `defined?` calls."}]},
+      {"source":"defined?(Foo) && defined?(Foo::Bar)\n","expected":[{"line":1,"col":1,"message":"Combine nested `defined?` calls."}]},
+      {"source":"defined?(foo) and defined?(foo&.bar)\n","expected":[{"line":1,"col":1,"message":"Combine nested `defined?` calls."}]},
+      {"source":"defined?(Foo) && defined?(Foo::Bar::Baz)\n","expected":[]},
+      {"source":"defined?(Foo) && other && defined?(Foo::Bar)\n","expected":[]}
+    ]
+  },
+  {
+    "name": "Style/RedundantRegexpEscape",
+    "cases": [
+      { "source": "/a\\-b/\n", "expected": [{ "line": 1, "col": 3, "message": "Redundant escape inside regexp literal" }] },
+      { "source": "/[\\+]/\n", "expected": [{ "line": 1, "col": 3, "message": "Redundant escape inside regexp literal" }] },
+      { "source": "/[a\\-z]\\+/\n", "expected": [] },
+      { "source": "/[#\\@ivar]/\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantRegexpArgument",
+    "cases": [
+      { "source": "\"foo\".scan(/f/)\n", "expected": [{ "line": 1, "col": 12, "message": "Use string `\"f\"` as argument instead of regexp `/f/`." }] },
+      { "source": "\"foo\".scan(/f/i)\n", "expected": [] },
+      { "source": "\"foo\".scan(/(f)/)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantRegexpCharacterClass",
+    "cases": [
+      { "source": "/[a]/\n", "expected": [{ "line": 1, "col": 2, "message": "Redundant single-element character class, `[a]` can be replaced with `a`." }] },
+      { "source": "/[^a]/\n", "expected": [] },
+      { "source": "/[\\b]/\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantRegexpConstructor",
+    "cases": [
+      { "source": "Regexp.new(/a/)\n", "expected": [{ "line": 1, "col": 1, "message": "Remove the redundant `Regexp.new`." }] },
+      { "source": "Regexp.new(\"a\")\n", "expected": [] },
+      { "source": "Other::Regexp.new(/a/)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RegexpLiteral",
+    "cases": [
+      { "source": "%r{a}\n", "expected": [{ "line": 1, "col": 1, "message": "Use `//` around regular expression." }] },
+      { "source": "/home\\//\n", "expected": [{ "line": 1, "col": 1, "message": "Use `%r` around regular expression." }] },
+      { "source": "%r{home/}\n", "expected": [] },
+      { "source": "/a/\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/ExactRegexpMatch",
+    "cases": [
+      {"source": "string =~ /\\Astring\\z/\n", "expected": [{"line": 1, "col": 1, "message": "Use `string == 'string'`."}]},
+      {"source": "'x'.match?(/\\Ax\\z/)\n", "expected": [{"line": 1, "col": 1, "message": "Use `'x' == 'x'`."}]},
+      {"source": "string.match?(/\\Afoo\\z/i)\n", "expected": []},
+      {"source": "string.match?(/\\Afoo.*\\z/)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ZeroLengthPredicate",
+    "cases": [
+      {"source": "collection.size == 0\n", "expected": [{"line": 1, "col": 1, "message": "Use `empty?` instead of `size == 0`."}]},
+      {"source": "collection.length.zero?\n", "expected": [{"line": 1, "col": 12, "message": "Use `empty?` instead of `length.zero?`."}]},
+      {"source": "0 != collection.size\n", "expected": [{"line": 1, "col": 1, "message": "Use `!empty?` instead of `0 != size`."}]},
+      {"source": "File::Stat.new(path).size == 0\n", "expected": []},
+      {"source": "collection&.size > 0\n", "expected": []},
+      {"source": "collection.size == 0.0\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NumericPredicate",
+    "cases": [
+      {"source": "number == 0\n", "expected": [{"line": 1, "col": 1, "message": "Use `number.zero?` instead of `number == 0`."}]},
+      {"source": "0 < foo - 1\n", "expected": [{"line": 1, "col": 1, "message": "Use `(foo - 1).positive?` instead of `0 < foo - 1`."}]},
+      {"source": "$CHILD_STATUS == 0\n", "expected": []},
+      {"source": "(x & flags) == 0\n", "expected": []},
+      {"source": "number == 0.0\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FloatDivision",
+    "cases": [
+      {"source": "a.to_f / b.to_f\n", "expected": [{"line": 1, "col": 1, "message": "Prefer using `.to_f` on one side only."}]},
+      {"source": "a.to_f / b\n", "expected": []},
+      {"source": "$1.to_f / $2.to_f\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NumericLiteralPrefix",
+    "cases": [
+      {"source": "-01234\n", "expected": [{"line": 1, "col": 1, "message": "Use 0o for octal literals."}]},
+      {"source": "0XABC\n", "expected": [{"line": 1, "col": 1, "message": "Use 0x for hexadecimal literals."}]},
+      {"source": "0d0008\n", "expected": [{"line": 1, "col": 1, "message": "Do not use prefixes for decimal literals."}]},
+      {"source": "0o1234\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NumericLiterals",
+    "cases": [
+      {"source": "-12345.6E3\n", "expected": [{"line": 1, "col": 1, "message": "Use underscores(_) as thousands separator and separate every 3 digits with them."}]},
+      {"source": "123_456_00\n", "expected": []},
+      {"source": "12345r\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/BitwisePredicate",
+    "cases": [
+      {"source": "(x & flags).positive?\n", "expected": [{"line": 1, "col": 1, "message": "Replace with `x.anybits?(flags)` for comparison with bit flags."}]},
+      {"source": "(flags & x) == flags\n", "expected": [{"line": 1, "col": 1, "message": "Replace with `x.allbits?(flags)` for comparison with bit flags."}]},
+      {"source": "(x & flags) == 0\n", "expected": [{"line": 1, "col": 1, "message": "Replace with `x.nobits?(flags)` for comparison with bit flags."}]},
+      {"source": "(x & flags) > 1\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EvenOdd",
+    "cases": [
+      {"source": "1 % 2 != 1\n", "expected": [{"line": 1, "col": 1, "message": "Replace with `Integer#even?`."}]},
+      {"source": "(x % 2) == 1\n", "expected": [{"line": 1, "col": 1, "message": "Replace with `Integer#odd?`."}]},
+      {"source": "x % 2.0 == 0\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ExponentialNotation",
+    "cases": [
+      {"source": "10e6\n", "expected": [{"line": 1, "col": 1, "message": "Use a mantissa >= 1 and < 10."}]},
+      {"source": "1e6\n", "expected": []},
+      {"source": "10E6\n", "expected": []},
+      {"source": "10e6i\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ComparableClamp",
+    "cases": [
+      {"source": "if x < low; low; elsif high < x; high; else; x; end\n", "expected": [{"line": 1, "col": 1, "message": "Use `x.clamp(low, high)` instead of `if/elsif/else`."}]},
+      {"source": "[[x, low].max, high].min\n", "expected": [{"line": 1, "col": 1, "message": "Use `Comparable#clamp` instead."}]},
+      {"source": "if 2 < 1; 1; elsif 3 < 2; 3; else; 2; end\n", "expected": [{"line": 1, "col": 1, "message": "Use `2.clamp(1, 3)` instead of `if/elsif/else`."}]},
+      {"source": "[low, high].min\n", "expected": []},
+      {"source": "if x <= low; low; elsif high < x; high; else; x; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantSort",
+    "cases": [
+      {"source": "xs.sort.first\n", "expected": [{"line": 1, "col": 4, "message": "Use `min` instead of `sort...first`."}]},
+      {"source": "xs.sort_by { |x| x.key }.last\n", "expected": [{"line": 1, "col": 4, "message": "Use `max_by` instead of `sort_by...last`."}]},
+      {"source": "xs.sort.first(2)\n", "expected": []},
+      {"source": "xs.sort_by.first\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantSortBy",
+    "cases": [
+      {"source": "array.sort_by { it }\n", "expected": [{"line": 1, "col": 7, "message": "Use `sort` instead of `sort_by { it }`."}]},
+      {"source": "[3,1].sort_by { |x| x }\n", "expected": [{"line": 1, "col": 7, "message": "Use `sort` instead of `sort_by { |x| x }`."}]},
+      {"source": "array.sort_by { |x| x.key }\n", "expected": []},
+      {"source": "array.sort_by { |x,y| x }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ComparableBetween",
+    "cases": [
+      {"source": "x >= min && x <= max\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `x.between?(min, max)` over logical comparison."}]},
+      {"source": "max >= x and min <= x\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `x.between?(min, max)` over logical comparison."}]},
+      {"source": "x > min && x <= max\n", "expected": []},
+      {"source": "x >= min && y <= max\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MinMax",
+    "cases": [
+      {
+        "source": "[foo.min, foo.max]\n",
+        "expected": [{"line": 1, "col": 1, "message": "Use `foo.minmax` instead of `[foo.min, foo.max]`."}]
+      },
+      {"source": "[[3,1].min,[3,1].max]\n", "expected": [{"line": 1, "col": 1, "message": "Use `[3,1].minmax` instead of `[[3,1].min,[3,1].max]`."}]},
+      {"source": "[foo.min, bar.max]\n", "expected": []},
+      {"source": "[foo.min { |a,b| b <=> a }, foo.max]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MinMaxComparison",
+    "cases": [
+      {
+        "source": "a > b ? a : b\n",
+        "expected": [{"line": 1, "col": 1, "message": "Use `[a, b].max` instead."}]
+      },
+      {"source": "a > b ? c : d\n", "expected": []},
+      {"source": "[a, b].max\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantMinMaxBy",
+    "cases": [
+      {
+        "source": "array.min_by { it }\n",
+        "expected": [{"line": 1, "col": 7, "message": "Use `min` instead of `min_by { it }`."}]
+      },
+      {"source": "[3,1].min_by { it }\n", "expected": [{"line": 1, "col": 7, "message": "Use `min` instead of `min_by { it }`."}]},
+      {"source": "array.min_by { |x| x.foo }\n", "expected": []},
+      {"source": "array.min_by(2) { |x| x }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ObjectThen",
+    "cases": [
+      {
+        "source": "obj.yield_self { it }\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 5,
+            "message": "Prefer `then` over `yield_self`."
+          }
+        ]
+      },
+      {
+        "source": "obj.yield_self\nobj.then { it }\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/ReverseFind",
+    "cases": [
+      {
+        "source": "array.reverse.find { it }\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 7,
+            "message": "Use `rfind` instead."
+          }
+        ]
+      },
+      {
+        "source": "array.rfind { it }\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/MapToSet",
+    "cases": [
+      {
+        "source": "array.map { it*2 }.to_set\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 7,
+            "message": "Pass a block to `to_set` instead of calling `map.to_set`."
+          }
+        ]
+      },
+      {
+        "source": "array&.collect(&:pair)&.to_set\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 8,
+            "message": "Pass a block to `to_set` instead of calling `collect.to_set`."
+          }
+        ]
+      },
+      {
+        "source": "array.map.to_set\narray.map { it }.to_set { it }\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/PartitionInsteadOfDoubleSelect",
+    "cases": [
+      {
+        "source": "a=arr.select(&:ok?)\nb=arr.reject(&:ok?)\n",
+        "expected": [
+          {
+            "line": 2,
+            "col": 1,
+            "message": "Use `partition` instead of consecutive `select` and `reject` calls."
+          }
+        ]
+      },
+      {
+        "source": "arr.filter { it.ok? }\narr.filter { !it.ok? }\n",
+        "expected": [
+          {
+            "line": 2,
+            "col": 1,
+            "message": "Use `partition` instead of consecutive `filter` and `filter` calls."
+          }
+        ]
+      },
+      {
+        "source": "arr.select(&:ok?)\nother.reject(&:ok?)\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/ReduceToHash",
+    "cases": [
+      {
+        "source": "array.each_with_object({}) { |e,h| h[e]=e.to_s }\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 7,
+            "message": "Use `to_h { ... }` instead of `each_with_object`."
+          }
+        ]
+      },
+      {
+        "source": "array&.reduce({}) { _1[_2]=true; _1 }\n",
+        "expected": [
+          {
+            "line": 1,
+            "col": 8,
+            "message": "Use `to_h { ... }` instead of `reduce`."
+          }
+        ]
+      },
+      {
+        "source": "array.each_with_object({}) { |e,h| h[e]=h.size }\narray.inject({}) { |h,e| h[e]=true }\n",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "name": "Style/MapIntoArray",
+    "cases": [
+      {"source": "dest=[]\nsrc.each { |e| dest << e }\n", "expected": [{"line": 2, "col": 1, "message": "Use `map` instead of `each` to map elements into an array."}]},
+      {"source": "[].tap do |dest|\n  src.each { dest << it }\nend\n", "expected": [{"line": 2, "col": 3, "message": "Use `map` instead of `each` to map elements into an array."}]},
+      {"source": "dest=[]; src.each { |dest| dest << 1 }\ndest=[]; src.each { |e| dest << dest.size }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MapJoin",
+    "cases": [
+      {"source": "array.map(&:to_s).join\n", "expected": [{"line": 1, "col": 7, "message": "Remove redundant `map(&:to_s)` before `join`."}]},
+      {"source": "array&.collect { |x| x.to_s }&.join\n", "expected": [{"line": 1, "col": 8, "message": "Remove redundant `collect(&:to_s)` before `join`."}]},
+      {"source": "array.map { |x| x.to_s(16) }.join\narray.map(&:to_i).join\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MapToHash",
+    "cases": [
+      {"source": "array.map { |x| [x,x] }.to_h\n", "expected": [{"line": 1, "col": 7, "message": "Pass a block to `to_h` instead of calling `map.to_h`."}]},
+      {"source": "array&.collect(&:pair)&.to_h\n", "expected": [{"line": 1, "col": 8, "message": "Pass a block to `to_h` instead of calling `collect&.to_h`."}]},
+      {"source": "array.map.to_h\narray.map { |x| x }.to_h { |x| [x,x] }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EachForSimpleLoop",
+    "cases": [
+      {"source": "(0...10).each {}\n", "expected": [{"line": 1, "col": 1, "message": "Use `Integer#times` for a simple loop which iterates a fixed number of times."}]},
+      {"source": "(3..7)&.each do\nend\n", "expected": [{"line": 1, "col": 1, "message": "Use `Integer#times` for a simple loop which iterates a fixed number of times."}]},
+      {"source": "(0..3).each { |i| p i }\n(a..b).each {}\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EachWithObject",
+    "cases": [
+      {"source": "[].inject({}) { |a,e| a }\n", "expected": [{"line": 1, "col": 4, "message": "Use `each_with_object` instead of `inject`."}]},
+      {"source": "[].reduce({}) { _1[_2]=1; _1 }\n", "expected": [{"line": 1, "col": 4, "message": "Use `each_with_object` instead of `reduce`."}]},
+      {"source": "[].reduce(0) { |a,e| a }\n[].reduce({}) { |a,e| a=e; a }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MapCompactWithConditionalBlock",
+    "cases": [
+      {"source": "foo.map { |e| e if e.ok? }.compact\n", "expected": [{"line": 1, "col": 5, "message": "Replace `map { ... }.compact` with `select`."}]},
+      {"source": "foo.filter_map { |e| e unless e.ok? }\n", "expected": [{"line": 1, "col": 5, "message": "Replace `filter_map { ... }` with `reject`."}]},
+      {"source": "foo.map { |e| e if e.ok? }\nfoo.map { |e| other if e.ok? }.compact\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/CollectionCompact",
+    "cases": [
+      {"source": "a.reject { |e| e.nil? }\n", "expected": [{"line": 1, "col": 3, "message": "Use `compact` instead of `reject { |e| e.nil? }`."}]},
+      {"source": "a.grep_v(::NilClass)\n", "expected": [{"line": 1, "col": 3, "message": "Use `compact` instead of `grep_v(::NilClass)`."}]},
+      {"source": "reject { |e| e.nil? }\na.reject { |k,v| k.nil? }\na.reject { |e| next e.nil? }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/CollectionMethods",
+    "cases": [
+      {"source": "a.collect { it + 1 }\n", "expected": [{"line": 1, "col": 3, "message": "Prefer `map` over `collect`."}]},
+      {"source": "a&.inject(0, :+)\n", "expected": [{"line": 1, "col": 4, "message": "Prefer `reduce` over `inject`."}]},
+      {"source": "a.collect\na.collect(:+)\na.inject(op: :+)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/CollectionQuerying",
+    "cases": [
+      {"source": "x.count.positive?\n", "expected": [{"line": 1, "col": 3, "message": "Use `!empty?` instead."}]},
+      {"source": "x.count { it.foo? } == 1\n", "expected": [{"line": 1, "col": 3, "message": "Use `one?` instead."}]},
+      {"source": "x.count(foo: bar).positive?\nx.count == 1\nx.count.positive?.to_s\nx.count(&:foo?) > 1\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantDoubleSplatHashBraces",
+    "cases": [
+      {"source": "f(**{a: 1})\n", "expected": [{"line": 1, "col": 3, "message": "Remove the redundant double splat and braces, use keyword arguments directly."}]},
+      {"source": "f(**{a: 1}.merge(options))\n", "expected": [{"line": 1, "col": 3, "message": "Remove the redundant double splat and braces, use keyword arguments directly."}]},
+      {"source": "f(a: 1)\nf({a: 1})\nf(**options.merge({a: 1}))\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StringHashKeys",
+    "cases": [
+      {"source": "{ 'one' => 1 }\n", "expected": [{"line": 1, "col": 3, "message": "Prefer symbols instead of strings as hash keys."}]},
+      {"source": "{ 'one two :' => 1 }\n", "expected": [{"line": 1, "col": 3, "message": "Prefer symbols instead of strings as hash keys."}]},
+      {"source": "{one: 1}\nIO.popen({'x'=>1})\nOpen3.pipeline([{'x'=>1}])\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashTransformKeys",
+    "cases": [
+      {"source": "{}.each_with_object({}) { |(k,v),h| h[k.to_s]=v }\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `transform_keys` over `each_with_object`."}]},
+      {"source": "Hash[{}.map { |k,v| [k.to_s,v] }]\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `transform_keys` over `Hash[_.map {...}]`."}]},
+      {"source": "unknown.map { |k,v| [k.to_s,v] }.to_h\n{}.map { |k,v| [k,v] }.to_h\n{}.to_h { |k,v| [k.to_s + v,v] }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashTransformValues",
+    "cases": [
+      {"source": "{}.each_with_object({}) { |(k,v),h| h[k]=v.to_s }\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `transform_values` over `each_with_object`."}]},
+      {"source": "{}.to_h { |k,v| [k,value: v] }\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `transform_values` over `to_h {...}`."}]},
+      {"source": "unknown.map { |k,v| [k,v.to_s] }.to_h\n{}.map { |k,v| [k,v] }.to_h\n{}.to_h { |k,v| [k,v.to_s + k] }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/PreferredHashMethods",
+    "cases": [
+      {"source": "o.has_key?(:a)\n", "expected": [{"line": 1, "col": 3, "message": "Use `Hash#key?` instead of `Hash#has_key?`."}]},
+      {"source": "o&.has_value?(value)\n", "expected": [{"line": 1, "col": 4, "message": "Use `Hash#value?` instead of `Hash#has_value?`."}]},
+      {"source": "o.has_key?\no.has_value?(a,b)\no.key?(a)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashSlice",
+    "cases": [
+      {"source": "hash.select { |k,v| k == :bar }\n", "expected": [{"line": 1, "col": 6, "message": "Use `slice(:bar)` instead."}]},
+      {"source": "hash&.reject { |k,v| !%i[foo bar].include?(k) }\n", "expected": [{"line": 1, "col": 7, "message": "Use `slice(:foo, :bar)` instead."}]},
+      {"source": "hash.select { |k,v| v == :bar }\nhash.select { |k,v| k == 0.0 }\nhash.reject { |k,v| k == :bar }\nhash.select(&:predicate)\nhash.select { k = it; k == :bar }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashFetchChain",
+    "cases": [
+      {"source": "hash.fetch(:a, {}).fetch(:b, nil)\n", "expected": [{"line": 1, "col": 6, "message": "Use `dig(:a, :b)` instead."}]},
+      {"source": "hash&.fetch('a', Hash.new)&.fetch(key, nil)\n", "expected": [{"line": 1, "col": 7, "message": "Use `dig('a', key)` instead."}]},
+      {"source": "hash.fetch(:a, {}).fetch(:b, {})\nhash.fetch(:a).fetch(:b)\nhash.fetch(:a, {x: 1}).fetch(:b, nil)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashLikeCase",
+    "cases": [
+      {"source": "case x\nwhen :a; 1\nwhen :b; 2\nwhen :c; 3\nend\n", "expected": [{"line": 1, "col": 1, "message": "Consider replacing `case-when` with a hash lookup."}]},
+      {"source": "case x\nwhen 'a'; []\nwhen 'b'; [1]\nwhen 'c'; [2]\nend\n", "expected": [{"line": 1, "col": 1, "message": "Consider replacing `case-when` with a hash lookup."}]},
+      {"source": "case x; when :a; 1; when :b; 2; end\ncase x; when :a; 1; when :b; 2; when :c; effect(); end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashLookupMethod",
+    "cases": [
+      {"source": "hash.fetch(key)\n", "expected": [{"line": 1, "col": 6, "message": "Use `Hash#[]` instead of `Hash#fetch`."}]},
+      {"source": "a.fetch(b.fetch(:key))\n", "expected": [{"line": 1, "col": 3, "message": "Use `Hash#[]` instead of `Hash#fetch`."}]},
+      {"source": "ENV.fetch(key)\nhash&.fetch(key)\nhash.fetch(key, nil)\nhash.fetch(key) { default }\nhash[key]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashExcept",
+    "cases": [
+      {"source": "hash.reject { |k,v| k == :bar }\n", "expected": [{"line": 1, "col": 6, "message": "Use `except(:bar)` instead."}]},
+      {"source": "hash&.filter { |k,v| !%i[foo bar].include?(k) }\n", "expected": [{"line": 1, "col": 7, "message": "Use `except(:foo, :bar)` instead."}]},
+      {"source": "hash.reject { |k,v| v == :bar }\nhash.reject { |k,v| k == 0.0 }\nhash.select { |k,v| k == :bar }\nhash.reject(&:predicate)\nhash.reject { k = it; k == :bar }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashEachMethods",
+    "cases": [
+      {"source": "foo.keys.each { |k| p k }\n", "expected": [{"line": 1, "col": 5, "message": "Use `each_key` instead of `keys.each`."}]},
+      {"source": "foo&.values&.each(&:bar)\n", "expected": [{"line": 1, "col": 6, "message": "Use `each_value` instead of `values&.each`."}]},
+      {"source": "foo.each { |k,v| p k }\n", "expected": [{"line": 1, "col": 1, "message": "Use `each_key` instead of `each` and remove the unused `v` block argument."}]},
+      {"source": "Thread.current.keys.each { p it }\nfoo.keys.each(&callback)\nfoo.each { |k,v| p(k,v) }\nfoo.each_pair { |k,v| p k }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashAsLastArrayItem",
+    "cases": [
+      {"source": "[1, a: 2]\n", "expected": [{"line": 1, "col": 5, "message": "Wrap hash in `{` and `}`."}]},
+      {"source": "[a: 1, **options]\n", "expected": [{"line": 1, "col": 2, "message": "Wrap hash in `{` and `}`."}]},
+      {"source": "[{}, a: 1]\n[**nil]\n[**{}]\n[{a: 1}]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/HashConversion",
+    "cases": [
+      {"source": "Hash[ary]\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `ary.to_h` to `Hash[ary]`."}]},
+      {"source": "::Hash[]\nHash[a: 1]\n", "expected": [{"line": 1, "col": 1, "message": "Prefer literal hash to `Hash[arg1, arg2, ...]`."}, {"line": 2, "col": 1, "message": "Prefer literal hash to `Hash[key: value, ...]`."}]},
+      {"source": "Hash[*ary]\nHash[*ary, x]\nOther::Hash[ary]\nHash[ary] = value\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/SymbolArray",
+    "cases": [
+      {"source": "[:one,:two]\n", "expected": [{"line": 1, "col": 1, "message": "Use `%i` or `%I` for an array of symbols."}]},
+      {"source": "%i[one two\\ three]\n", "expected": [{"line": 1, "col": 1, "message": "Use `[:one, :\"two three\"]` for an array of symbols."}]},
+      {"source": "[]\n[:one]\n[:one,*other]\n[:one,:\"#{effect}\"]\n%i[one two]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Sample",
+    "cases": [
+      {"source": "[42].shuffle.first\n", "expected": [{"line": 1, "col": 6, "message": "Use `sample` instead of `shuffle.first`."}]},
+      {"source": "ary.shuffle[0..3]\n", "expected": [{"line": 1, "col": 5, "message": "Use `sample(4)` instead of `shuffle[0..3]`."}]},
+      {"source": "ary.shuffle[2]\nary.shuffle[0] = 1\nary.shuffle.firstly\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/SlicingWithRange",
+    "cases": [
+      {"source": "ary[0..-1]\nary[1..nil]\nary[nil..42]\n", "expected": [{"line": 1, "col": 4, "message": "Remove the useless `[0..-1]`."}, {"line": 2, "col": 4, "message": "Prefer `[1..]` over `[1..nil]`."}, {"line": 3, "col": 4, "message": "Prefer `[..42]` over `[nil..42]`."}]},
+      {"source": "ary[1..-1] ||= rhs\n", "expected": [{"line": 1, "col": 4, "message": "Prefer `[1..]` over `[1..-1]`."}]},
+      {"source": "ary[0...-1]\nary[..-1]\nary.[] 1..-1\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/WordArray",
+    "cases": [
+      {"source": "['one','two']\n", "expected": [{"line": 1, "col": 1, "message": "Use `%w` or `%W` for an array of words."}]},
+      {"source": "%w[one\\ two three\\ four]\n", "expected": [{"line": 1, "col": 1, "message": "Use `[\"one two\", \"three four\"]` for an array of words."}]},
+      {"source": "[]\n['one']\n[['one','two'], ['complex content','two']]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NegativeArrayIndex",
+    "cases": [
+      {"source": "arr[arr.size - 2]\n", "expected": [{"line": 1, "col": 5, "message": "Use `arr[-2]` instead of `arr[arr.size - 2]`."}]},
+      {"source": "arr[(0..(arr.length - 2))]\n", "expected": [{"line": 1, "col": 9, "message": "Use `arr[(0..-2)]` instead of `arr[(0..(arr.length - 2))]`."}]},
+      {"source": "arr[arr.reverse.size - 2]\narr[0, arr.size - 2]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantArrayConstructor",
+    "cases": [
+      {"source": "Array.new([])\n::Array[]\nArray(%w[a b])\n", "expected": [{"line": 1, "col": 1, "message": "Remove the redundant `Array` constructor."}, {"line": 2, "col": 1, "message": "Remove the redundant `Array` constructor."}, {"line": 3, "col": 1, "message": "Remove the redundant `Array` constructor."}]},
+      {"source": "Array.new([effect])\n", "expected": [{"line": 1, "col": 1, "message": "Remove the redundant `Array` constructor."}]},
+      {"source": "Array.new(3) { effect }\nKernel.Array([])\nOther::Array.new([])\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantArrayFlatten",
+    "cases": [
+      {"source": "x.flatten(1).join\nx&.flatten&.join(nil)\n", "expected": [{"line": 1, "col": 2, "message": "Remove the redundant `flatten`."}, {"line": 2, "col": 2, "message": "Remove the redundant `flatten`."}]},
+      {"source": "[[[1]]].flatten(depth).join\n", "expected": [{"line": 1, "col": 8, "message": "Remove the redundant `flatten`."}]},
+      {"source": "x.flatten.join(separator)\nx.flatten(1, 2).join\nflatten.join\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ArrayIntersectWithSingleElement",
+    "cases": [
+      {"source": "arr.intersect?([x])\n", "expected": [{"line": 1, "col": 5, "message": "Use `include?(element)` instead of `intersect?([element])`."}]},
+      {"source": "arr&.intersect?([x])\narr.intersect?([*x])\narr.intersect?([])\n", "expected": []},
+      {"source": "arr.intersect?(%i[x])\n", "expected": [{"line": 1, "col": 5, "message": "Use `include?(element)` instead of `intersect?([element])`."}]}
+    ]
+  },
+  {
+    "name": "Style/ArrayJoin",
+    "cases": [
+      {"source": "%w[a b] * ','\n", "expected": [{"line": 1, "col": 9, "message": "Favor `Array#join` over `Array#*`."}]},
+      {"source": "[[], [nil, x]] * ','\n", "expected": [{"line": 1, "col": 16, "message": "Favor `Array#join` over `Array#*`."}]},
+      {"source": "[1] * 3\n[1] * x\nx * ','\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ConcatArrayLiterals",
+    "cases": [
+      {"source": "arr.concat([a], [], [b])\n", "expected": [{"line": 1, "col": 5, "message": "Use `push(a, b)` instead of `concat([a], [], [b])`."}]},
+      {"source": "arr&.concat(%w[a])\n", "expected": [{"line": 1, "col": 6, "message": "Use `push(\"a\")` instead of `concat(%w[a])`."}]},
+      {"source": "arr.concat([a], value)\narr.concat([a], &block)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ArrayCoercion",
+    "cases": [
+      {"source": "[*paths]\n", "expected": [{"line": 1, "col": 1, "message": "Use `Array(paths)` instead of `[*paths]`."}]},
+      {"source": "paths = [paths] unless paths.is_a?(Array)\n", "expected": [{"line": 1, "col": 1, "message": "Use `Array(paths)` instead of explicit `Array` check."}]},
+      {"source": "[]\n[*paths, other]\nother = [paths] unless paths.is_a?(Array)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ArrayFirstLast",
+    "cases": [
+      {"source": "arr[0]\narr&.[](-1)\n", "expected": [{"line": 1, "col": 4, "message": "Use `first`."}, {"line": 2, "col": 6, "message": "Use `last`."}]},
+      {"source": "arr[0] += 1\narr[0][-1]\narr[1]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ArrayIntersect",
+    "cases": [
+      {"source": "(a & b).any?\n", "expected": [{"line": 1, "col": 1, "message": "Use `a.intersect?(b)` instead of `(a & b).any?`."}]},
+      {"source": "a.none? { b.member?(it) }\n", "expected": [{"line": 1, "col": 1, "message": "Use `!a.intersect?(b)` instead of `a.none? { b.member?(it) }`."}]},
+      {"source": "a&.intersection(b)&.none?\na.any? { b.include?(_1) }\n(a & b).any? { false }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/UnpackFirst",
+    "cases": [
+      {"source": "x.unpack('h*').first\n", "expected": [{"line": 1, "col": 3, "message": "Use `unpack1('h*')` instead of `unpack('h*').first`."}]},
+      {"source": "''.unpack(y).at(0)\n", "expected": [{"line": 1, "col": 4, "message": "Use `unpack1(y)` instead of `unpack(y).at(0)`."}]},
+      {"source": "x.unpack1(y)\nx.unpack(y)[1]\n", "expected": []},
+      {"source": "'abc'.unpack('h*').first\n", "expected": [{"line": 1, "col": 7, "message": "Use `unpack1('h*')` instead of `unpack('h*').first`."}]}
+    ]
+  },
+  {
+    "name": "Style/StringChars",
+    "cases": [
+      {"source": "string.split('')\n", "expected": [{"line": 1, "col": 8, "message": "Use `chars` instead of `split('')`."}]},
+      {"source": "string.split(//i)\nstring.chars\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StringMethods",
+    "cases": [
+      {"source": "'name'.intern\n", "expected": [{"line": 1, "col": 8, "message": "Prefer `to_sym` over `intern`."}]},
+      {"source": "'name'.to_sym\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Strip",
+    "cases": [
+      {"source": "str.lstrip.rstrip\n", "expected": [{"line": 1, "col": 5, "message": "Use `strip` instead of `lstrip.rstrip`."}]},
+      {"source": "str.strip\nstr.lstrip(1).rstrip\n", "expected": []},
+      {"source": "' x '.lstrip.rstrip\n", "expected": [{"line": 1, "col": 7, "message": "Use `strip` instead of `lstrip.rstrip`."}]}
+    ]
+  },
+  {
+    "name": "Style/RedundantLineContinuation",
+    "cases": [
+      {"source": "foo(1, \\\n 2)\n", "expected": [{"line": 1, "col": 8, "message": "Redundant line continuation."}]},
+      {"source": "def foo\n bar \\\nend\n", "expected": [{"line": 2, "col": 6, "message": "Redundant line continuation."}]},
+      {"source": "foo +\\\n bar\nfoo('a' \\\n 'b')\n1 \\\n + 2\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/LineEndConcatenation",
+    "cases": [
+      {"source": "\"a\" +\n  \"b\"\n", "expected": [{"line": 1, "col": 5, "message": "Use `\\` instead of `+` to concatenate multiline strings."}]},
+      {"source": "array << \"a\" <<\n  \"b\"\n", "expected": [{"line": 1, "col": 14, "message": "Use `\\` instead of `<<` to concatenate multiline strings."}]},
+      {"source": "\"a\" + \"b\"\n\"a\" +\n \"b\".reverse\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantFormat",
+    "cases": [
+      {"source": "format(\"hello\")\n", "expected": [{"line": 1, "col": 1, "message": "Use `\"hello\"` directly instead of `format`."}]},
+      {"source": "sprintf(\"%2$s %1$s\", \"a\", \"b\")\n", "expected": [{"line": 1, "col": 1, "message": "Use literal values directly instead of `sprintf`."}]},
+      {"source": "[format(\"%%\"), format(\"%s\"), object.format(\"hi\"), format(\"%s\", x)]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StringConcatenation",
+    "cases": [
+      {"source": "user.name + \" <\" + user.email + \">\"\n", "expected": [{"line": 1, "col": 1, "message": "Prefer string interpolation to string concatenation."}]},
+      {"source": "\"a\" +\n  \"b\"\nx + y\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FormatStringToken",
+    "cases": [
+      {"source": "format(\"%{x}\", x: 1)\n", "expected": [{"line": 1, "col": 9, "message": "Prefer annotated tokens (like `%<foo>s`) over template tokens (like `%{foo}`)."}]},
+      {"source": "format(\"%s %s\", 1, 2)\n", "expected": [{"line": 1, "col": 9, "message": "Prefer annotated tokens (like `%<foo>s`) over unannotated tokens (like `%s`)."}, {"line": 1, "col": 12, "message": "Prefer annotated tokens (like `%<foo>s`) over unannotated tokens (like `%s`)."}]},
+      {"source": "[format(\"%s\", 1), \"%s %s\", format(\"%<x>s/%%\", x: 1)]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FormatString",
+    "cases": [
+      {"source": "\"%s\" % 1\n", "expected": [{"line": 1, "col": 6, "message": "Favor `format` over `String#%`."}]},
+      {"source": "sprintf(\"%d\", 1)\n", "expected": [{"line": 1, "col": 1, "message": "Favor `format` over `sprintf`."}]},
+      {"source": "[format(\"%s\", 1), 10 % 4, x % y, Kernel.sprintf(\"%s\", 1)]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/CommandLiteral",
+    "cases": [
+      {"source": "foo = %x(ls)\n", "expected": [{"line": 1, "col": 7, "message": "Use backticks around command string."}]},
+      {"source": "[`ls`, %x(echo `ls`)]\n", "expected": []},
+      {"source": "foo = `echo \\`ls\\``\n", "expected": [{"line": 1, "col": 7, "message": "Use `%x` around command string."}]}
+    ]
+  },
+  {
+    "name": "Style/EmptyStringInsideInterpolation",
+    "cases": [
+      {"source": "\"#{true ? 'foo' : ''}\"\n", "expected": [{"line": 1, "col": 4, "message": "Do not return empty strings in string interpolation."}]},
+      {"source": "\"#{'foo' if condition}\"\n", "expected": []},
+      {"source": "\"#{true ? 'foo' : nil}\"\n", "expected": [{"line": 1, "col": 4, "message": "Do not return empty strings in string interpolation."}]}
+    ]
+  },
+  {
+    "name": "Style/RedundantInterpolation",
+    "cases": [
+      {"source": "\"#{x}\"\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `to_s` over string interpolation."}]},
+      {"source": "\"prefix #{x}\"\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantInterpolationUnfreeze",
+    "cases": [
+      {"source": "+\"#{1}\"\n", "expected": [{"line": 1, "col": 1, "message": "Don't unfreeze interpolated strings as they are already unfrozen."}]},
+      {"source": "+\"plain\"\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/BarePercentLiterals",
+    "cases": [
+      {"source": "%Q(#{x})\n", "expected": [{"line": 1, "col": 1, "message": "Use `%` instead of `%Q`."}]},
+      {"source": "%(hi); %q(hi); %w[%Q(hi)]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/PercentLiteralDelimiters",
+    "cases": [
+      {"source": "%w(one two)\n", "expected": [{"line": 1, "col": 1, "message": "`%w`-literals should be delimited by `[` and `]`."}]},
+      {"source": "%w[one two]; %r{foo}; %q(a); %w(\\(a\\))\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/PercentQLiterals",
+    "cases": [
+      {"source": "%Q(hi)\n", "expected": [{"line": 1, "col": 1, "message": "Do not use `%Q` unless interpolation is needed. Use `%q`."}]},
+      {"source": "%q(hi); %Q(\\t); %Q(#{x})\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TrailingUnderscoreVariable",
+    "cases": [
+      {"source": "a, _ = rhs\n", "expected": [{"line": 1, "col": 4, "message": "Do not use trailing `_`s in parallel assignment. Prefer `a, = rhs`."}]},
+      {"source": "a, _named = rhs; a, *rest, _ = rhs; f { |a, _| a }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TrailingCommaInArrayLiteral",
+    "cases": [
+      {"source": "[1,]\n", "expected": [{"line": 1, "col": 3, "message": "Avoid comma after the last item of an array."}]},
+      {"source": "%w[a, b,]; f(1,); {a: 1,}; [1]\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TrailingCommaInHashLiteral",
+    "cases": [
+      {"source": "{a:,}\n", "expected": [{"line": 1, "col": 4, "message": "Avoid comma after the last item of a hash."}]},
+      {"source": "[a:,]; f(a:,); {a:}; {**kw}\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TrailingCommaInBlockArgs",
+    "cases": [
+      {"source": "f { |(a,b),| a }\n", "expected": [{"line": 1, "col": 11, "message": "Useless trailing comma present in block arguments."}]},
+      {"source": "f { |a,| a }; f { |a,b,;c| a }; ->(a,b) { a }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TrailingCommaInArguments",
+    "cases": [
+      {"source": "f(a:,)\nobj[key,] += value\n", "expected": [{"line": 1, "col": 5, "message": "Avoid comma after the last parameter of a method call."}, {"line": 2, "col": 8, "message": "Avoid comma after the last parameter of a method call."}]},
+      {"source": "f([1,], {a: 2,}); f(1, &block); obj[key,] = value; super(1,)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NumberedParametersLimit",
+    "cases": [
+      {"source": "foo { [_1, _2, _2] }\n", "expected": [{"line": 1, "col": 1, "message": "Avoid using more than 1 numbered parameter; 2 detected."}]},
+      {"source": "foo { _9 }; foo { it }; foo { |a,b| [a,b] }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NilLambda",
+    "cases": [
+      {"source": "f = -> { return nil }\n", "expected": [{"line": 1, "col": 5, "message": "Use an empty lambda instead of always returning nil."}]},
+      {"source": "proc { break nil }\n", "expected": [{"line": 1, "col": 1, "message": "Use an empty proc instead of always returning nil."}]},
+      {"source": "proc { return nil }; -> { nil if x }; foo { nil }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ItAssignment",
+    "cases": [
+      {"source": "def f(it:)\nend\n", "expected": [{"line": 1, "col": 7, "message": "`it` is the default block parameter; consider another name."}]},
+      {"source": "foo { puts it }; self.it = 5\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ItBlockParameter",
+    "cases": [
+      {"source": "foo { puts _1 }\n", "expected": [{"line": 1, "col": 12, "message": "Use `it` block parameter."}]},
+      {"source": "foo { puts it }; foo { puts _2 }; foo { |x| x }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NumberedParameters",
+    "cases": [
+      {"source": "foo do\n puts _2\nend\n", "expected": [{"line": 1, "col": 1, "message": "Avoid using numbered parameters for multi-line blocks."}]},
+      {"source": "foo { puts _1 }; foo do\n puts it\nend\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/SingleLineBlockParams",
+    "cases": [
+      {"source": "items.reduce { |memo, item| memo + item }\n", "expected": [{"line": 1, "col": 16, "message": "Name `reduce` block params `|acc, elem|`."}]},
+      {"source": "items.inject { |acc, _elem| acc }; items.reduce { it }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/SingleLineDoEndBlock",
+    "cases": [
+      {"source": "foo do bar(it) end\n", "expected": [{"line": 1, "col": 1, "message": "Prefer multiline `do`...`end` block."}]},
+      {"source": "foo do\n bar\nend\nfoo { it }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MultilineBlockChain",
+    "cases": [
+      {"source": "foo do\n it\nend&.map { it }\n", "expected": [{"line": 3, "col": 1, "message": "Avoid multi-line chains of blocks."}]},
+      {"source": "foo { it }.map { it }; foo do\n it\nend.map(&:to_s)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/LambdaCall",
+    "cases": [
+      {"source": "x.(a, b)\n", "expected": [{"line": 1, "col": 1, "message": "Prefer the use of `x.call(a, b)` over `x.(a, b)`."}]},
+      {"source": "x.call(a); x[1]; call(2)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Proc",
+    "cases": [
+      {"source": "f = Proc.new { it }\n", "expected": [{"line": 1, "col": 5, "message": "Use `proc` instead of `Proc.new`."}]},
+      {"source": "Proc.new; Proc.new(&blk); Other::Proc.new { 1 }; proc { _1 }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StabbyLambdaParentheses",
+    "cases": [
+      {"source": "->a,b { a + b }\n", "expected": [{"line": 1, "col": 3, "message": "Wrap stabby lambda arguments with parentheses."}]},
+      {"source": "->(a,b) { a + b }; -> { it }; -> { _1 }; ->() { 1 }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Lambda",
+    "cases": [
+      {"source": "f = lambda { |x| x }\n", "expected": [{"line": 1, "col": 5, "message": "Use the `-> { ... }` lambda literal syntax for single line lambdas."}]},
+      {"source": "f = -> do\n  1\nend\n", "expected": [{"line": 1, "col": 5, "message": "Use the `lambda` method for multiline lambdas."}]},
+      {"source": "f = ->(x) { x }; g = lambda do\n  _1\nend\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EmptyBlockParameter",
+    "cases": [
+      {"source": "proc { || 42 }\n", "expected": [{"line": 1, "col": 8, "message": "Omit pipes for the empty block parameters."}]},
+      {"source": "proc { |x; y| x }; ->() { 42 }; proc { _1 }; proc { it }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EmptyLambdaParameter",
+    "cases": [
+      {"source": "-> () { 42 }\n", "expected": [{"line": 1, "col": 4, "message": "Omit parentheses for the empty lambda parameters."}]},
+      {"source": "lambda { || 42 }; ->(x) { x }; -> { _1 }; -> { it }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MethodDefParentheses",
+    "cases": [
+      {"source": "def foo a, b\nend\n", "expected": [{"line": 1, "col": 9, "message": "Use def with parentheses when there are parameters."}]},
+      {"source": "def foo(a, b); end\ndef bar = true\ndef baz; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/AmbiguousEndlessMethodDefinition",
+    "cases": [
+      {"source": "def foo = true if bar\n", "expected": [{"line": 1, "col": 1, "message": "Avoid using `if` statements with endless methods."}]},
+      {"source": "def foo = (true if bar)\n(def bar = true) and baz\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Alias",
+    "cases": [
+      {"source": "alias :ala :bala\nalias_method :foo, :bar\n", "expected": [{"line": 1, "col": 7, "message": "Use `alias ala bala` instead of `alias :ala :bala`."}, {"line": 2, "col": 1, "message": "Use `alias` instead of `alias_method` at the top level."}]},
+      {"source": "alias ala bala\ndef foo; alias :ala :bala; end\nreceiver.alias_method :ala, :bala\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ColonMethodDefinition",
+    "cases": [
+      {"source": "def self::foo; end\n", "expected": [{"line": 1, "col": 9, "message": "Do not use `::` for defining class methods."}]},
+      {"source": "def self.foo; end\ndef foo; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DefWithParentheses",
+    "cases": [
+      {"source": "def foo()\nend\n", "expected": [{"line": 1, "col": 8, "message": "Omit the parentheses in defs when the method doesn't accept any arguments."}]},
+      {"source": "def foo()end\ndef bar()=1\ndef baz(a); end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ColonMethodCall",
+    "cases": [
+      {"source": "object::method_name(arg)\nobject::value ||= rhs\n", "expected": [{"line": 1, "col": 7, "message": "Do not use `::` for method calls."}, {"line": 2, "col": 7, "message": "Do not use `::` for method calls."}]},
+      {"source": "Tip::Top::VALUE\nTip::Top(arg)\nJava::com::method_name\nobject&.method_name\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TrivialAccessors",
+    "cases": [
+      {"source": "class Foo\n  def foo; @foo; end\n  def self.bar=(value); @bar=value; end\nend\n", "expected": [{"line": 2, "col": 3, "message": "Use `attr_reader` to define trivial reader methods."}, {"line": 3, "col": 3, "message": "Use `attr_writer` to define trivial writer methods."}]},
+      {"source": "module Foo; def foo; @foo; end; end\nclass Foo; def foo?; @foo; end; def bar(val); @bar=val; end; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/AccessorGrouping",
+    "cases": [
+      {"source": "class Foo\n  attr_reader :one\n  attr_reader :two\nend\n", "expected": [{"line": 2, "col": 3, "message": "Group together all `attr_reader` attributes."}, {"line": 3, "col": 3, "message": "Group together all `attr_reader` attributes."}]},
+      {"source": "class Foo\n  # docs for one\n  attr_reader :one\n  attr_reader :two\nend\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Attr",
+    "cases": [
+      {"source": "class Foo\n  attr :one, true\nend\n", "expected": [{"line": 2, "col": 3, "message": "Do not use `attr`. Use `attr_accessor` instead."}]},
+      {"source": "class Foo; factory { attr :one }; end\nx.attr :two\nfunc(attr)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/BisectedAttrAccessor",
+    "cases": [
+      {"source": "class Foo\n  attr_reader :one\n  attr_writer :one\nend\n", "expected": [{"line": 2, "col": 15, "message": "Combine both accessors into `attr_accessor :one`."}, {"line": 3, "col": 15, "message": "Combine both accessors into `attr_accessor :one`."}]},
+      {"source": "class Foo\nattr_reader :one\nprivate\nattr_writer :one\nend\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/AccessModifierDeclarations",
+    "cases": [
+      {"source": "class Foo\n  private def foo; end\nend\n", "expected": [{"line": 2, "col": 3, "message": "`private` should not be inlined in method definitions."}]},
+      {"source": "class Foo\nprivate\ndef foo; end\npublic :foo\nprivate attr_reader :bar\nend\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/OpenStructUse",
+    "cases": [
+      {"source": "a = ::OpenStruct.new(a: 42)\n", "expected": [{"line": 1, "col": 5, "message": "Avoid using `OpenStruct`; use `Struct`, `Hash`, a class or test doubles instead."}]},
+      {"source": "module M; class OpenStruct; end; end\nOther::OpenStruct.new\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ClassMethods",
+    "cases": [
+      {"source": "class Test\n  def Test.foo; end\nend\n", "expected": [{"line": 2, "col": 7, "message": "Use `self.foo` instead of `Test.foo`."}]},
+      {"source": "class Test; def self.foo; end; end\ndef Test.foo; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ClassMethodsDefinitions",
+    "cases": [
+      {"source": "class A\n  class << self\n    def one; end\n  end\nend\n", "expected": [{"line": 2, "col": 3, "message": "Do not define public methods within class << self."}]},
+      {"source": "class A\nclass << self\nprivate\ndef one; end\nend\nend\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DataInheritance",
+    "cases": [
+      {"source": "class Person < Data.define(:a); end\n", "expected": [{"line": 1, "col": 16, "message": "Don't extend an instance initialized by `Data.define`. Use a block to customize the class."}]},
+      {"source": "class Person < Data.define(:a); VALUE = 1; end\nPerson = Other::Data.define(:a)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StructInheritance",
+    "cases": [
+      {"source": "class Person < ::Struct.new(:a); end\n", "expected": [{"line": 1, "col": 16, "message": "Don't extend an instance initialized by `Struct.new`. Use a block to customize the struct."}]},
+      {"source": "class Person < Struct.new(:a); module Helpers; end; end\nPerson = Struct.new(:a)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantStructKeywordInit",
+    "cases": [
+      {"source": "Struct.new(:a, keyword_init: true)\n", "expected": [{"line": 1, "col": 16, "message": "Remove the redundant `keyword_init: true`."}]},
+      {"source": "Struct.new(:a, keyword_init: false, keyword_init: true)\nOther::Struct.new(keyword_init: nil)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MutableConstant",
+    "cases": [
+      {"source": "A = []\n::B ||= {}\n", "expected": [{"line": 1, "col": 5, "message": "Freeze mutable objects assigned to constants."}, {"line": 2, "col": 9, "message": "Freeze mutable objects assigned to constants."}]},
+      {"source": "# frozen_string_literal: true\nA = 'str'\nB = [{ a: [] }].freeze\nC = Something.new\nD = /x/\nE = (1..2)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ModuleMemberExistenceCheck",
+    "cases": [
+      {"source": "Array.instance_methods(false).include?(:size)\n", "expected": [{"line": 1, "col": 7, "message": "Use `method_defined?(:size, false)` instead."}]},
+      {"source": "x.constants.include?(:String)\nx.class_variables(false).include?(:@@foo)\nx.instance_methods.include?(*args)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ConstantVisibility",
+    "cases": [
+      {"source": "module M\n  X = 1\nend\n", "expected": [{"line": 2, "col": 3, "message": "Explicitly make `X` public or private using either `#public_constant` or `#private_constant`."}]},
+      {"source": "X = 1\nclass << self; Y = 2; end\nmodule M; X = 1; private_constant :X; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ModuleFunction",
+    "cases": [
+      {"source": "module M\n  extend self\nend\n", "expected": [{"line": 2, "col": 3, "message": "Use `module_function` instead of `extend self`."}]},
+      {"source": "module M; extend self; private; end\nclass C; extend self; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MixinUsage",
+    "cases": [
+      {"source": "include M\n", "expected": [{"line": 1, "col": 1, "message": "`include` is used at the top level. Use inside `class` or `module`."}]},
+      {"source": "class C; include M; end\nClass.new { include M }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MixinGrouping",
+    "cases": [
+      {"source": "class C\n  include M, N\nend\n", "expected": [{"line": 2, "col": 3, "message": "Put `include` mixins in separate statements."}]},
+      {"source": "class C; include N; include M; end\nobj.include M, N\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/OneClassPerFile",
+    "cases": [
+      {"source": "class A; end\nmodule ::B; end\n", "expected": [{"line": 2, "col": 1, "message": "Do not define multiple classes/modules at the top level in a single file."}]},
+      {"source": "module A; class B; end; class C; end; end\nclass << self; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ClassVars",
+    "cases": [
+      {"source": "@@a ||= 1\nclass_variable_set(:@@b, 2)\n", "expected": [{"line": 1, "col": 1, "message": "Replace class var @@a with a class instance var."}, {"line": 2, "col": 20, "message": "Replace class var :@@b with a class instance var."}]},
+      {"source": "@@a\nclass_variable_get(:@@a)\nobj&.class_variable_set(:@@a, 1)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StaticClass",
+    "cases": [
+      {"source": "class C; def self.foo; end; end\n", "expected": [{"line": 1, "col": 1, "message": "Prefer modules to classes with only class methods."}]},
+      {"source": "class C < B; def self.foo; end; end\nclass D; include M; def self.foo; end; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ClassAndModuleChildren",
+    "cases": [
+      {"source": "class ::Foo::Bar < Base\nend\n", "expected": [{"line": 1, "col": 7, "message": "Use nested module/class definitions instead of compact style."}]},
+      {"source": "module Z\n  class Foo::Bar\n  end\nend\nclass self.class::Foo; end\nmodule ::Z; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/PredicateWithKind",
+    "cases": [
+      {"source": "array.any? { |x| x.is_a?(Integer) }\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `any?(Integer)` to `any? { ... }` with a kind check."}]},
+      {"source": "array.any?(Integer)\narray.any? { |x| other.is_a?(Integer) }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ClassCheck",
+    "cases": [
+      {"source": "x&.kind_of?(String)\n", "expected": [{"line": 1, "col": 4, "message": "Prefer `Object#is_a?` over `Object#kind_of?`."}]},
+      {"source": "x.is_a?(String)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ClassEqualityComparison",
+    "cases": [
+      {"source": "var.class == Date\n", "expected": [{"line": 1, "col": 5, "message": "Use `instance_of?(Date)` instead of comparing classes."}]},
+      {"source": "def ==(other); self.class == other.class; end\nvar.instance_of?(Date)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/MissingRespondToMissing",
+    "cases": [
+      {"source": "class C\n  def method_missing(name); end\nend\n", "expected": [{"line": 2, "col": 3, "message": "When using `method_missing`, define `respond_to_missing?`."}]},
+      {"source": "class C; private def respond_to_missing?(name, priv = false); end; def method_missing(name); end; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EvalWithLocation",
+    "cases": [
+      {"source": "eval('42', binding)\n", "expected": [{"line": 1, "col": 1, "message": "Pass a binding, `__FILE__`, and `__LINE__` to `eval`."}]},
+      {"source": "eval('42', binding, __FILE__, __LINE__)\nother.eval('42')\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Send",
+    "cases": [
+      {"source": "obj.send(:secret)\n", "expected": [{"line": 1, "col": 5, "message": "Prefer `Object#__send__` or `Object#public_send` to `send`."}]},
+      {"source": "obj.send\nobj.__send__(:secret)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/SendWithLiteralMethodName",
+    "cases": [
+      {"source": "obj&.public_send(:foo)\n", "expected": [{"line": 1, "col": 6, "message": "Use `foo` method call directly instead."}]},
+      {"source": "obj.send(:foo)\nobj.public_send(:name=, 1)\nobj.public_send(dynamic)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/GlobalVars",
+    "cases": [
+      {"source": "$custom = 1\n", "expected": [{"line": 1, "col": 1, "message": "Do not introduce global variables."}]},
+      {"source": "$stdin.read\n$1\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/SpecialGlobalVars",
+    "cases": [
+      {"source": "puts $:\n", "expected": [{"line": 1, "col": 6, "message": "Prefer `$LOAD_PATH` over `$:`."}]},
+      {"source": "$LOAD_PATH\n$1\n$/ = 'x'\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/PerlBackrefs",
+    "cases": [
+      {"source": "puts $1\n", "expected": [{"line": 1, "col": 6, "message": "Prefer `Regexp.last_match(1)` over `$1`."}]},
+      {"source": "$+\n$LAST_PAREN_MATCH\nRegexp.last_match(1)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/AutoResourceCleanup",
+    "cases": [
+      {"source": "f = ::Tempfile.open('file')\n", "expected": [{"line": 1, "col": 5, "message": "Use the block version of `::Tempfile.open`."}]},
+      {"source": "File.open('file') { |f| f.read }\nFile.open('file', &:read)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/GlobalStdStream",
+    "cases": [
+      {"source": "STDOUT.puts('hello')\n", "expected": [{"line": 1, "col": 1, "message": "Use `$stdout` instead of `STDOUT`."}]},
+      {"source": "$stdin = STDIN\nOther::STDOUT\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/StderrPuts",
+    "cases": [
+      {"source": "$stderr.puts('hello')\n", "expected": [{"line": 1, "col": 1, "message": "Use `warn` instead of `$stderr.puts` to allow such output to be disabled."}]},
+      {"source": "$stderr.puts\nOther::STDERR.puts('hello')\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/TimeNow",
+    "cases": [
+      {"source": "::Time.new()\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `Time.now` over `Time.new` to retrieve the current time."}]},
+      {"source": "Time.new(in: '+09:00')\nFoo::Time.new\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RandomWithOffset",
+    "cases": [
+      {"source": "Kernel.rand(6).succ\n", "expected": [{"line": 1, "col": 1, "message": "Prefer ranges when generating random numbers instead of integers with offsets."}]},
+      {"source": "rng.rand(6) + 1\nrand(0..limit).succ\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/EnvHome",
+    "cases": [
+      {"source": "::ENV['HOME']\n", "expected": [{"line": 1, "col": 1, "message": "Use `Dir.home` instead."}]},
+      {"source": "ENV.fetch('HOME') { fallback }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FetchEnvVar",
+    "cases": [
+      {"source": "ENV['X']\n", "expected": [{"line": 1, "col": 1, "message": "Use `ENV.fetch('X', nil)` instead of `ENV['X']`."}]},
+      {"source": "if ENV['X']; puts ENV['X']; end\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DateTime",
+    "cases": [
+      {"source": "::DateTime.now\n", "expected": [{"line": 1, "col": 1, "message": "Prefer `Time` over `DateTime`."}]},
+      {"source": "DateTime.iso8601('1751-04-23', Date::ENGLAND)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantFileExtensionInRequire",
+    "cases": [
+      {"source": "require 'foo.rb'\n", "expected": [{"line": 1, "col": 13, "message": "Redundant `.rb` file extension detected."}]},
+      {"source": "require 'foo.so'\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RequireOrder",
+    "cases": [
+      {"source": "require 'b'\nrequire 'a'\n", "expected": [{"line": 2, "col": 1, "message": "Sort `require` in alphabetical order."}]},
+      {"source": "require 'a'\nrequire 'b'\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/NestedFileDirname",
+    "cases": [
+      {"source": "File.dirname(File.dirname(path))\n", "expected": [{"line": 1, "col": 6, "message": "Use `dirname(path, 2)` instead."}]},
+      {"source": "File.dirname(path, 2)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/ExpandPathArguments",
+    "cases": [
+      {"source": "File.expand_path('..', __FILE__)\n", "expected": [{"line": 1, "col": 6, "message": "Use `expand_path(__dir__)` instead of `expand_path('..', __FILE__)`."}]},
+      {"source": "Pathname(__FILE__).parent.expand_path\n", "expected": [{"line": 1, "col": 1, "message": "Use `Pathname(__dir__).expand_path` instead of `Pathname(__FILE__).parent.expand_path`."}]},
+      {"source": "File.expand_path('..', __dir__)\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/RedundantCurrentDirectoryInPath",
+    "cases": [
+      {"source": "require_relative './feature'\n", "expected": [{"line": 1, "col": 19, "message": "Remove the redundant current directory path."}]},
+      {"source": "require_relative '../feature'\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FileTouch",
+    "cases": [
+      {"source": "File.open('file', 'a') {}\n", "expected": [{"line": 1, "col": 1, "message": "Use `FileUtils.touch('file')` instead of `File.open` in append mode with empty block."}]},
+      {"source": "File.open('file', 'a') { nil }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FileWrite",
+    "cases": [
+      {"source": "File.open('file', 'wb') { |f| f.write('data') }\n", "expected": [{"line": 1, "col": 1, "message": "Use `File.binwrite`."}]},
+      {"source": "File.open('file', 'w') { |f| other.write('data') }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/YAMLFileRead",
+    "cases": [
+      {"source": "YAML.safe_load(File.read('file.yml'))\n", "expected": [{"line": 1, "col": 6, "message": "Use `safe_load_file('file.yml')` instead."}]},
+      {"source": "YAML.safe_load(File.read(File::NULL))\n", "expected": [{"line": 1, "col": 6, "message": "Use `safe_load_file(File::NULL)` instead."}]},
+      {"source": "YAML.safe_load(File.read(path, 10))\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FileNull",
+    "cases": [
+      {"source": "'/dev/null'\n", "expected": [{"line": 1, "col": 1, "message": "Use `File::NULL` instead of `/dev/null`."}]},
+      {"source": "['/dev/null', 'NUL']\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FileOpen",
+    "cases": [
+      {"source": "File.open('file')\n", "expected": [{"line": 1, "col": 1, "message": "`File.open` without a block may leak a file descriptor; use the block form."}]},
+      {"source": "process(io: File.open('file'))\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FileRead",
+    "cases": [
+      {"source": "File.open(filename).read\n", "expected": [{"line": 1, "col": 1, "message": "Use `File.read`."}]},
+      {"source": "File.open(filename) { |f| something_else.read }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/Dir",
+    "cases": [
+      {"source": "File.expand_path(File.dirname(__FILE__))\n", "expected": [{"line": 1, "col": 1, "message": "Use `__dir__` to get an absolute path to the current file's directory."}]},
+      {"source": "File.expand_path(File.dirname('__FILE__'))\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DirEmpty",
+    "cases": [
+      {"source": "Dir.children(path).empty?\n", "expected": [{"line": 1, "col": 1, "message": "Use `Dir.empty?(path)` instead."}]},
+      {"source": "Dir.each_child(path).none? { |f| f.start_with?('.') }\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/FileEmpty",
+    "cases": [
+      {"source": "File.size(path) == 0\n", "expected": [{"line": 1, "col": 1, "message": "Use `File.empty?(path)` instead."}]},
+      {"source": "File.read(path, 0).empty?\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DirectiveScope",
+    "cases": [
+      {"source": "# rubocop:disable Metrics/AbcSize\nwork\n# rubocop:enable Metrics/AbcSize\n", "expected": [{"line": 1, "col": 1, "message": "Use `disable-next` instead of a `disable`/`enable` pair around a single statement."}]},
+      {"source": "# rustocop:disable Metrics/AbcSize\nwork\nother\n# rustocop:enable Metrics/AbcSize\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DisableCopsWithinSourceCodeDirective",
+    "cases": [
+      {"source": "work # rustocop:todo Metrics/AbcSize\n", "expected": [{"line": 1, "col": 6, "message": "RuboCop disable/enable directives are not permitted."}]},
+      {"source": "# mention rubocop:disable Metrics/AbcSize\n", "expected": []}
+    ]
+  },
+  {
+    "name": "Style/DocumentDynamicEvalDefinition",
+    "cases": [
+      { "source": "object.instance_eval(\"def #{name}; end\")\n", "expected": [{ "line": 1, "col": 8, "message": "Add a comment block showing its appearance if interpolated." }] },
+      { "source": "eval(\"#{code}\") # example\n", "expected": [] },
+      { "source": "class_eval <<~RUBY\n  # def foo; end\n  def #{name}; end\nRUBY\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/DocumentationMethod",
+    "cases": [
+      { "source": "class Person\n  def foo; end\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Missing method documentation comment." }] },
+      { "source": "# A method.\ndef foo; end\n", "expected": [] },
+      { "source": "def initialize; end\nprivate\ndef foo; end\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/Documentation",
+    "cases": [
+      { "source": "class Person\n  def foo; end\nend\n", "expected": [{ "line": 1, "col": 1, "message": "Missing top-level documentation comment for `class Person`." }] },
+      { "source": "# A person.\nclass Person\n  def foo; end\nend\n", "expected": [] },
+      { "source": "class Person; end\nmodule Namespace; A = 1; end\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/Encoding",
+    "cases": [
+      { "source": "# encoding: utf-8\nx\n", "expected": [{ "line": 1, "col": 1, "message": "Unnecessary utf-8 encoding comment." }] },
+      { "source": "# encoding: us-ascii\nx\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/MagicCommentFormat",
+    "cases": [
+      { "source": "# frozen-string-literal: true\nx\n", "expected": [{ "line": 1, "col": 3, "message": "Prefer lower snake case for magic comments." }] },
+      { "source": "# frozen_string_literal: true\nx\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/InlineComment",
+    "cases": [
+      { "source": "x # comment\n", "expected": [{ "line": 1, "col": 3, "message": "Avoid trailing inline comments." }] },
+      { "source": "# comment\nx = \"# comment\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/CommentedKeyword",
+    "cases": [
+      { "source": "def x; end # comment\n", "expected": [{ "line": 1, "col": 12, "message": "Do not place comments on the same line as the `def` keyword." }] },
+      { "source": "def x #: String\nend\n\"end # comment\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/Copyright",
+    "cases": [
+      { "source": "names = []\n# Copyright 2026 X\n", "expected": [{ "line": 1, "col": 1, "message": "Include a copyright notice matching /^Copyright (\\(c\\) )?2[0-9]{3} .+/ before any code." }] },
+      { "source": "# Copyright (c) 2026 X\nnames = []\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/AsciiComments",
+    "cases": [
+      { "source": "# foo ∂ bar\n", "expected": [{ "line": 1, "col": 7, "message": "Use only ascii symbols in comments." }] },
+      { "source": "# © copyright\n\"# 日本語\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/BlockComments",
+    "cases": [
+      { "source": "=begin\ncomment\n=end\n", "expected": [{ "line": 1, "col": 1, "message": "Do not use block comments." }] },
+      { "source": "# comment\n\"=begin\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/CommentAnnotation",
+    "cases": [
+      { "source": "# TODO improve this\n", "expected": [{ "line": 1, "col": 3, "message": "Annotation keywords like `TODO` should be all upper case, followed by a colon, and a space, then a note describing the problem." }] },
+      { "source": "# TODO: improve this\n\"# TODO text\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SuperArguments",
+    "cases": [
+      { "source": "def foo(a)\n  super(a)\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Call `super` without arguments and parentheses when the signature is identical." }] },
+      { "source": "def foo(a)\n  super()\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SuperWithArgsParentheses",
+    "cases": [
+      { "source": "super name, age\n", "expected": [{ "line": 1, "col": 1, "message": "Use parentheses for `super` with arguments." }] },
+      { "source": "super(name, age)\nsuper()\nsuper\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/OptionalArguments",
+    "cases": [
+      { "source": "def f(a = 1, b)\nend\n", "expected": [{ "line": 1, "col": 7, "message": "Optional arguments should appear at the end of the argument list." }] },
+      { "source": "def f(a = 1, b:, **kw, &block)\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/OptionalBooleanParameter",
+    "cases": [
+      { "source": "def f(flag = false)\nend\n", "expected": [{ "line": 1, "col": 7, "message": "Prefer keyword arguments for arguments with a boolean default value; use `flag: false` instead of `flag = false`." }] },
+      { "source": "def respond_to_missing?(name, flag = false)\nend\ndef f(flag: false)\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/OptionHash",
+    "cases": [
+      { "source": "def f(options = {})\nend\n", "expected": [{ "line": 1, "col": 7, "message": "Prefer keyword arguments to options hashes." }] },
+      { "source": "def f(options = {})\n  super\nend\ndef g(options = {}, **kw)\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/KeywordArgumentsMerging",
+    "cases": [
+      { "source": "foo(x, **options.merge(y: 1))\n", "expected": [{ "line": 1, "col": 10, "message": "Provide additional arguments directly rather than using `merge`." }] },
+      { "source": "foo(**options.merge!(y: 1))\nfoo(**options.merge(y: 1, &block))\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/ExplicitBlockArgument",
+    "cases": [
+      { "source": "def f\n  foo { |x| yield x }\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Consider using explicit block argument in the surrounding method's signature over `yield`." }] },
+      { "source": "def f\n  foo { |x,y| yield y,x }\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantArgument",
+    "cases": [
+      { "source": "foo.sum(0)\n", "expected": [{ "line": 1, "col": 8, "message": "Argument 0 is redundant because it is implied by default." }] },
+      { "source": "foo.sum(1)\njoin('')\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/KeywordParametersOrder",
+    "cases": [
+      { "source": "def m(arg, optional: 1, required:)\nend\n", "expected": [{ "line": 1, "col": 12, "message": "Place optional keyword parameters at the end of the parameters list." }] },
+      { "source": "def m(arg, required:, optional: 1)\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/ArgumentsForwarding",
+    "cases": [
+      { "source": "def foo(*args, **kwargs, &block)\n  bar(*args, **kwargs, &block)\nend\n", "expected": [{ "line": 1, "col": 9, "message": "Use shorthand syntax `...` for arguments forwarding." }, { "line": 2, "col": 7, "message": "Use shorthand syntax `...` for arguments forwarding." }] },
+      { "source": "def foo(*args)\n  bar(*args)\nend\n", "expected": [{ "line": 1, "col": 9, "message": "Use anonymous positional arguments forwarding (`*`)." }, { "line": 2, "col": 7, "message": "Use anonymous positional arguments forwarding (`*`)." }] },
+      { "source": "def foo(*items, **settings, &callback)\n  bar(*items, **settings, &callback)\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/BlockDelimiters",
+    "cases": [
+      { "source": "each do |x| x end\n", "expected": [{ "line": 1, "col": 6, "message": "Prefer `{...}` over `do...end` for single-line blocks." }] },
+      { "source": "each { |x|\n  x\n}\n", "expected": [{ "line": 1, "col": 6, "message": "Avoid using `{...}` for multi-line blocks." }] },
+      { "source": "each { |x| x }\neach do |x|\n  x\nend\nproc {\n  x\n}\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/ConditionalAssignment",
+    "cases": [
+      { "source": "if condition\n  value = 1\nelse\n  value = 2\nend\n", "expected": [{ "line": 1, "col": 1, "message": "Use the return of the conditional for variable assignment and comparison." }] },
+      { "source": "condition ? value = 1 : value = 2\n", "expected": [{ "line": 1, "col": 1, "message": "Use the return of the conditional for variable assignment and comparison." }] },
+      { "source": "value = if condition\n  1\nelse\n  2\nend\n", "expected": [] },
+      { "source": "if condition\n  side_effect\n  value = 1\nelse\n  value = 2\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TrailingBodyOnMethodDefinition",
+    "cases": [
+      { "source": "def f; 1\nend\n", "expected": [{ "line": 1, "col": 8, "message": "Place the first line of a multi-line method definition's body on its own line." }] },
+      { "source": "def f; 1; end\ndef self.g = (\n  2\n)\ndef h\n  3\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TrailingMethodEndStatement",
+    "cases": [
+      { "source": "def f\n  1 end\n", "expected": [{ "line": 2, "col": 5, "message": "Place the end statement of a multi-line method on its own line." }] },
+      { "source": "def f; 1; end\ndef g = 2\ndef h\n  3\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TrailingBodyOnClass",
+    "cases": [
+      { "source": "class C; 1\nend\n", "expected": [{ "line": 1, "col": 10, "message": "Place the first line of class body on its own line." }] },
+      { "source": "class C; 1; end\nclass << self\n  2\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TrailingBodyOnModule",
+    "cases": [
+      { "source": "module M; 1\nend\n", "expected": [{ "line": 1, "col": 11, "message": "Place the first line of module body on its own line." }] },
+      { "source": "module M; 1; end\nmodule N\n  2\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SingleLineMethods",
+    "cases": [
+      { "source": "def f; body; end\n", "expected": [{ "line": 1, "col": 1, "message": "Avoid single-line method definitions." }] },
+      { "source": "def f; end\ndef g = 1\ndef h\n  body\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TopLevelMethodDefinition",
+    "cases": [
+      { "source": "def f; end\n", "expected": [{ "line": 1, "col": 1, "message": "Do not define methods at the top-level." }] },
+      { "source": "class C\n  def f; end\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/MultilineMethodSignature",
+    "cases": [
+      { "source": "def f(a,\n  b)\nend\n", "expected": [{ "line": 1, "col": 1, "message": "Avoid multi-line method signatures." }] },
+      { "source": "def f(a, b)\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/EndlessMethod",
+    "cases": [
+      { "source": "def foo = [\n  1]\n", "expected": [{ "line": 1, "col": 1, "message": "Avoid endless method definitions with multiple lines." }] },
+      { "source": "def foo = 1\ndef bar\n  2\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/FrozenStringLiteralComment",
+    "cases": [
+      { "source": "puts 1\n", "expected": [{ "line": 1, "col": 1, "message": "Missing frozen string literal comment." }] },
+      { "source": "# frozen_string_literal: true\nputs 1\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/GuardClause",
+    "cases": [
+      { "source": "def foo\n  if condition\n    work\n  end\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Use a guard clause (`return unless condition`) instead of wrapping the code inside a conditional expression." }] },
+      { "source": "if condition\n  work\nelse\n  raise 'error'\nend\n", "expected": [{ "line": 1, "col": 1, "message": "Use a guard clause (`raise 'error' unless condition`) instead of wrapping the code inside a conditional expression." }] },
+      { "source": "def foo\n  work if condition\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/Next",
+    "cases": [
+      { "source": "[].each do\n  if ready?\n    a\n    b\n    c\n  end\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Use `next` to skip iteration." }] },
+      { "source": "until done\n  unless ready?\n    a\n    b\n    c\n  end\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Use `next` to skip iteration." }] },
+      { "source": "each { work if ready? }\neach do\n if ready?\n  work\n end\nend\n", "expected": [] },
+      { "source": "each do\n if ready?\n  a\n  b\n  c\n else\n  fallback\n end\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/HashSyntax",
+    "cases": [
+      { "source": "{ :a => 1 }\n", "expected": [{ "line": 1, "col": 3, "message": "Use the new Ruby 1.9 hash syntax." }] },
+      { "source": "{ a: 1 }\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/IfUnlessModifier",
+    "cases": [
+      { "source": "if condition\n  work\nend\n", "expected": [{ "line": 1, "col": 1, "message": "Favor modifier `if` usage when having a single-line body. Another good alternative is the usage of control flow `&&`/`||`." }] },
+      { "source": "value = unless condition\n  work\nend\n", "expected": [{ "line": 1, "col": 9, "message": "Favor modifier `unless` usage when having a single-line body. Wrap the expression in parentheses to keep the current behavior, as it is part of a larger expression." }] },
+      { "source": "if (value = work)\n  value\nend\nwork if condition\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/MethodCallWithArgsParentheses",
+    "cases": [
+      { "source": "object.call value\n", "expected": [{ "line": 1, "col": 1, "message": "Use parentheses for method calls with arguments." }] },
+      { "source": "object.call(value)\nclass Example\n  macro :value\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/MethodCalledOnDoEndBlock",
+    "cases": [
+      { "source": "a do\n  b\nend.c\n", "expected": [{ "line": 3, "col": 1, "message": "Avoid chaining a method call on a do...end block." }] },
+      { "source": "a { b }.c\na do b end.c do d end\n(a do b end).c\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/MethodCallWithoutArgsParentheses",
+    "cases": [
+      { "source": "object.test()\n", "expected": [{ "line": 1, "col": 12, "message": "Do not use parentheses for method calls with no arguments." }] },
+      { "source": "test = 1; test()\nobject.test(1)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/OperatorMethodCall",
+    "cases": [
+      { "source": "foo.+ bar\n", "expected": [{ "line": 1, "col": 4, "message": "Redundant dot detected." }] },
+      { "source": "foo + bar\nFoo.+(bar)\nfoo&.+(bar)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/NestedParenthesizedCalls",
+    "cases": [
+      { "source": "puts(compute something)\n", "expected": [{ "line": 1, "col": 6, "message": "Add parentheses to nested method call `compute something`." }] },
+      { "source": "puts(compute(something))\nexpect(obj).to(eq true)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantConditional",
+    "cases": [
+      { "source": "x == y ? true : false\n", "expected": [{ "line": 1, "col": 1, "message": "This conditional expression can just be replaced by `x == y`." }] },
+      { "source": "unless 1 < 2\n  true\nelse\n  false\nend\n", "expected": [{ "line": 1, "col": 1, "message": "This conditional expression can just be replaced by `!(1 < 2)`." }] },
+      { "source": "x == y ? 1 : 10\ntrue if x == y\nx&.==(y) ? true : false\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantCondition",
+    "cases": [
+      { "source": "@b ? @b : c\n", "expected": [{ "line": 1, "col": 4, "message": "Use double pipes `||` instead." }] },
+      { "source": "if @b then @v = @b else @v = c end\n", "expected": [{ "line": 1, "col": 1, "message": "Use double pipes `||` instead." }] },
+      { "source": "if @b then consume(@b) else consume(c) end\n", "expected": [{ "line": 1, "col": 1, "message": "Use double pipes `||` instead." }] },
+      { "source": "if b\n  b\nelse\n  c\nend\n", "expected": [{ "line": 1, "col": 1, "message": "Use double pipes `||` instead." }] },
+      { "source": "b ? b : c\n", "expected": [{ "line": 1, "col": 3, "message": "Use double pipes `||` instead." }] },
+      { "source": "if b\n  b\nend\n", "expected": [{ "line": 1, "col": 1, "message": "This condition is not needed." }] },
+      { "source": "b ? d : c\nnum.nonzero? ? true : false\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/QuotedSymbols",
+    "cases": [
+      { "source": ":'a-b'\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer double-quoted symbols unless you need single quotes to avoid extra backslashes for escaping." }] },
+      { "source": ":\"a-b\"\n:'\\n'\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SymbolLiteral",
+    "cases": [
+      { "source": ":\"word\"\n", "expected": [{ "line": 1, "col": 1, "message": "Do not use strings for word-like symbol literals." }] },
+      { "source": ":\"two words\"\n:word\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/VariableInterpolation",
+    "cases": [
+      { "source": "\"#@word\"\n", "expected": [{ "line": 1, "col": 3, "message": "Replace interpolated variable `@word` with expression `#{@word}`." }] },
+      { "source": "\"#{@word}\"\n'#$word'\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantPercentQ",
+    "cases": [
+      { "source": "x = %q(hi)\n", "expected": [{ "line": 1, "col": 5, "message": "Use `%q` only for strings that contain both single quotes and double quotes." }] },
+      { "source": "%q(it's #{foo})\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantStringEscape",
+    "cases": [
+      { "source": "p \"\\#hi\"\n", "expected": [{ "line": 1, "col": 4, "message": "Redundant escape of # inside string literal." }] },
+      { "source": "p \"\\#{hi}\"\n'\\#hi'\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantHeredocDelimiterQuotes",
+    "cases": [
+      { "source": "p <<~'EOS'\n  hi\nEOS\n", "expected": [{ "line": 1, "col": 3, "message": "Remove the redundant heredoc delimiter quotes, use `<<~EOS` instead." }] },
+      { "source": "p <<~'EOS'\n#{hi}\nEOS\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/EmptyHeredoc",
+    "cases": [
+      { "source": "p <<~EOS\nEOS\n", "expected": [{ "line": 1, "col": 3, "message": "Use an empty string literal instead of heredoc." }] },
+      { "source": "p <<~EOS\n\nEOS\np <<~`SH`\nSH\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantEach",
+    "cases": [
+      { "source": "array.each.each { |x| x }\n", "expected": [{ "line": 1, "col": 7, "message": "Remove redundant `each`." }] },
+      { "source": "node.each_child.each_with_index {}\n", "expected": [{ "line": 1, "col": 17, "message": "Use `with_index` to remove redundant `each`." }] },
+      { "source": "array.each(&:foo).each {}\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantFilterChain",
+    "cases": [
+      { "source": "array.select { |x| x.odd? }.any?\n", "expected": [{ "line": 1, "col": 7, "message": "Use `any?` instead of `select.any?`." }] },
+      { "source": "array&.filter(&:odd?)&.empty?\n", "expected": [{ "line": 1, "col": 8, "message": "Use `none?` instead of `filter.empty?`." }] },
+      { "source": "array.select { it }.many?\narray.select { it }.present?\narray.select(&:odd?).any?(&:even?)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SelectByKind",
+    "cases": [
+      { "source": "array.select { |x| x.is_a?(Foo) }\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer `grep` to `select` with a kind check." }] },
+      { "source": "array.reject { !it.kind_of?(Foo) }\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer `grep` to `reject` with a kind check." }] },
+      { "source": "Hash.new.select { _1.is_a?(Foo) }\narray.select { _1.is_a?(_2) }\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SymbolProc",
+    "cases": [
+      { "source": "xs.map { |x| x.upcase }\n", "expected": [{ "line": 1, "col": 8, "message": "Pass `&:upcase` as an argument to `map` instead of a block." }] },
+      { "source": "xs.map { |x,| x.upcase }\n", "expected": [] },
+      { "source": "define_method(:foo) { |x| x.upcase }\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TallyMethod",
+    "cases": [
+      { "source": "xs.each_with_object(Hash.new(0)) { |x,h| h[x] += 1 }\n", "expected": [{ "line": 1, "col": 4, "message": "Use `tally` instead of `each_with_object`." }] },
+      { "source": "xs.group_by { it }.transform_values(&:size)\n", "expected": [{ "line": 1, "col": 4, "message": "Use `tally` instead of `group_by` and `transform_values`." }] },
+      { "source": "xs.group_by(&:name).transform_values(&:count)\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SelectByRegexp",
+    "cases": [
+      { "source": "array.select { |x| x.match?(/r/) }\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer `grep` to `select` with a regexp match." }] },
+      { "source": "array.reject { !( /(?<capture>a)/ =~ it ) }\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer `grep` to `reject` with a regexp match." }] },
+      { "source": "Hash.new.select { _1.match?(/r/) }\narray.select { |x| y.match?(/r/) }\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SelectByRange",
+    "cases": [
+      { "source": "array.select { |x| x.between?(1, 10) }\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer `grep` to `select` with a range check." }] },
+      { "source": "array.detect { !(1..10).cover?(it) }\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer `grep_v(...).first` to `detect` with a range check." }] },
+      { "source": "Hash.new.select { _1.between?(1,10) }\narray.select { |x| y.between?(1,10) }\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantCapitalW",
+    "cases": [
+      { "source": "%W(cat dog)\n", "expected": [{ "line": 1, "col": 1, "message": "Do not use `%W` unless interpolation is needed. If not, use `%w`." }] },
+      { "source": "%W(cat #{dog})\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/CharacterLiteral",
+    "cases": [
+      { "source": "x = ?x\n", "expected": [{ "line": 1, "col": 5, "message": "Do not use the character literal - use string literal instead." }] },
+      { "source": "?\\C-\\M-d\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantParentheses",
+    "cases": [
+      { "source": "x = (1)\n", "expected": [{ "line": 1, "col": 5, "message": "Don't use parentheses around a literal." }] },
+      { "source": "x = (a + b) * c\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/RedundantReturn",
+    "cases": [
+      { "source": "def f\n  return 1\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Redundant `return` detected." }] },
+      { "source": "def f\n  return 1 if x\n  2\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/Semicolon",
+    "cases": [
+      { "source": "x; y\n", "expected": [{ "line": 1, "col": 2, "message": "Do not use semicolons to terminate expressions." }] },
+      { "source": "x = \";\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SignalException",
+    "cases": [
+      { "source": "fail \"oops\"\n", "expected": [{ "line": 1, "col": 1, "message": "Always use `raise` to signal exceptions." }] },
+      { "source": "object.fail \"oops\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/SoleNestedConditional",
+    "cases": [
+      { "source": "if a\n  work if b\nend\n", "expected": [{ "line": 2, "col": 8, "message": "Consider merging nested conditions into outer `if` conditions." }] },
+      { "source": "if a\n  work\nend if b\n", "expected": [{ "line": 1, "col": 1, "message": "Consider merging nested conditions into outer `if` conditions." }] },
+      { "source": "if a && b\n  work\nend\n", "expected": [] },
+      { "source": "if first\n  if second\n    work\n  end\nend\n", "expected": [{ "line": 2, "col": 3, "message": "Consider merging nested conditions into outer `if` conditions." }] },
+      { "source": "unless first\n  work if second\nend\n", "expected": [{ "line": 2, "col": 8, "message": "Consider merging nested conditions into outer `unless` conditions." }] },
+      { "source": "if var = foo\n  work if var\nend\nif first\n  work if second\nelse\n  fallback\nend\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/TernaryParentheses",
+    "cases": [
+      { "source": "result = (ready) ? yes : no\n", "expected": [{ "line": 1, "col": 10, "message": "Omit parentheses for ternary conditions." }] },
+      { "source": "(a or b) ? yes : no\n", "expected": [{ "line": 1, "col": 1, "message": "Omit parentheses for ternary conditions." }] },
+      { "source": "(a = work) ? a : b\n(a if guard) ? yes : no\n(value in Integer) ? yes : no\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/StringLiterals",
+    "cases": [
+      { "source": "'hello'\n", "expected": [{ "line": 1, "col": 1, "message": "Prefer double-quoted strings unless you need single quotes to avoid extra backslashes for escaping." }] },
+      { "source": "\"hello\"\n", "expected": [] }
+    ]
+  },
+  {
+    "name": "Style/StringLiteralsInInterpolation",
+    "cases": [
+      { "source": "\"#{'hi'}\"\n", "expected": [{ "line": 1, "col": 4, "message": "Prefer double-quoted strings inside interpolations." }] },
+      { "source": "\"#{\"hi\"}\"\n", "expected": [] }
+    ]
+  }
+]

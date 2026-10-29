@@ -1,0 +1,605 @@
+[
+  {
+    "spec_line": 692,
+    "source": "(foo..bar).include?(baz) ? a : b",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 241,
+    "source": "foo = (bar?) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar? ? a : b\n"
+  },
+  {
+    "spec_line": 252,
+    "source": "foo = (yield) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = yield ? a : b\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "foo = (bar[:baz]) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar[:baz] ? a : b\n"
+  },
+  {
+    "spec_line": 274,
+    "source": "(foo ||\n  bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo ||\n  bar ? a : b\n"
+  },
+  {
+    "spec_line": 287,
+    "source": "(\n  foo || bar\n) ? a : b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 297,
+    "source": "foo = (1 + 1 == 2) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = 1 + 1 == 2 ? a : b\n"
+  },
+  {
+    "spec_line": 308,
+    "source": "foo = (foo1 == foo2) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = foo1 == foo2 ? a : b\n"
+  },
+  {
+    "spec_line": 319,
+    "source": "foo = (bar && baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar && baz ? a : b\n"
+  },
+  {
+    "spec_line": 330,
+    "source": "foo = (bar.baz?) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar.baz? ? a : b\n"
+  },
+  {
+    "spec_line": 341,
+    "source": "foo = bar && (baz || bar) ? a : b",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 345,
+    "source": "foo = (foo or bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 354,
+    "source": "foo = (not bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 363,
+    "source": "foo = (n += 1) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 372,
+    "source": "foo = (bar || n = 3) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 381,
+    "source": "foo = (x ? y : z) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 390,
+    "source": "foo = (yield 1) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 399,
+    "source": "foo = (bar; baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 408,
+    "source": "foo = (bar rescue baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 417,
+    "source": "foo = (!bar baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 426,
+    "source": "foo = (a if b) ? a : b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 432,
+    "source": "foo = (a unless b) ? a : b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 438,
+    "source": "foo = (defined? bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = defined?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 449,
+    "source": "foo = (defined? bar.baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = defined?(bar.baz) ? a : b\n"
+  },
+  {
+    "spec_line": 460,
+    "source": "foo = (defined? Bar.baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = defined?(Bar.baz) ? a : b\n"
+  },
+  {
+    "spec_line": 471,
+    "source": "foo = (defined? Bar::BAZ) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = defined?(Bar::BAZ) ? a : b\n"
+  },
+  {
+    "spec_line": 497,
+    "source": "(foo in bar) ? a : b\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 505,
+    "source": "foo = (bar = find_bar) ? a : b",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 509,
+    "source": "foo = bar = (baz = find_baz) ? a : b",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 513,
+    "source": "foo = bar = (baz == 1) ? a : b\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar = baz == 1 ? a : b\n"
+  },
+  {
+    "spec_line": 524,
+    "source": "foo = (bar = baz = find_baz) ? a : b",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 534,
+    "source": "foo = (defined?(bar)) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = defined?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 545,
+    "source": "foo = (baz?(bar)) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = baz?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 556,
+    "source": "foo = (bar.<(10)) ? 1000 : 2000\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar.<(10) ? 1000 : 2000\n"
+  },
+  {
+    "spec_line": 567,
+    "source": "foo = (bar&.<(10)) ? 1000 : 2000\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar&.<(10) ? 1000 : 2000\n"
+  },
+  {
+    "spec_line": 580,
+    "source": "foo = (defined? bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = defined?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 591,
+    "source": "foo = (baz? bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = baz?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 602,
+    "source": "foo = (bar&.foo 10) ? 1000 : 2000\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar&.foo(10) ? 1000 : 2000\n"
+  },
+  {
+    "spec_line": 614,
+    "source": "foo = (baz.foo? bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = baz.foo?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 627,
+    "source": "foo = (\"bar\".foo? bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = \"bar\".foo?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 640,
+    "source": "foo = (Bar.foo? bar) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = Bar.foo?(bar) ? a : b\n"
+  },
+  {
+    "spec_line": 653,
+    "source": "foo = (baz.foo? bar, baz) ? a : b\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = baz.foo?(bar, baz) ? a : b\n"
+  },
+  {
+    "spec_line": 666,
+    "source": "foo = (bar.< 10) ? 1000 : 2000\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar.<(10) ? 1000 : 2000\n"
+  },
+  {
+    "spec_line": 679,
+    "source": "foo = (bar&.< 10) ? 1000 : 2000\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo = bar&.<(10) ? 1000 : 2000\n"
+  },
+  {
+    "spec_line": 697,
+    "source": "(foo)? a : b\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Omit parentheses for ternary conditions."
+    ],
+    "correction": "foo ? a : b\n"
+  }
+]

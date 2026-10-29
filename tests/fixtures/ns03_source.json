@@ -1,0 +1,591 @@
+[
+  {
+    "cop": "Naming/AccessorMethodName",
+    "source_line": 21,
+    "example": "",
+    "label": "bad",
+    "source": "def set_attribute(value)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not prefix writer method names with `set_`."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Do not prefix writer method names with `set_`."
+    ]
+  },
+  {
+    "cop": "Naming/AccessorMethodName",
+    "source_line": 25,
+    "example": "",
+    "label": "good",
+    "source": "def attribute=(value)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AccessorMethodName",
+    "source_line": 29,
+    "example": "",
+    "label": "bad",
+    "source": "def get_attribute\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not prefix reader method names with `get_`."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Do not prefix reader method names with `get_`."
+    ]
+  },
+  {
+    "cop": "Naming/AccessorMethodName",
+    "source_line": 33,
+    "example": "",
+    "label": "good",
+    "source": "def attribute\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AccessorMethodName",
+    "source_line": 37,
+    "example": "",
+    "label": "accepted, incorrect arity for getter",
+    "source": "def get_value(attr)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/AccessorMethodName",
+    "source_line": 41,
+    "example": "",
+    "label": "accepted, incorrect arity for setter",
+    "source": "def set_value\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 31,
+    "example": "NamePrefix: ['is_', 'has_', 'have_'] (default)",
+    "label": "bad",
+    "source": "def is_even(value)\nend\n",
+    "configuration": {
+      "NamePrefix": [
+        "is_",
+        "has_",
+        "have_"
+      ],
+      "ForbiddenPrefixes": [
+        "is_",
+        "has_",
+        "have_"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Rename `is_even` to `even?`."
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Rename `is_even` to `even?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 36,
+    "example": "NamePrefix: ['is_', 'has_', 'have_'] (default)",
+    "label": "good",
+    "source": "def even?(value)\nend\n",
+    "configuration": {
+      "NamePrefix": [
+        "is_",
+        "has_",
+        "have_"
+      ],
+      "ForbiddenPrefixes": [
+        "is_",
+        "has_",
+        "have_"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 41,
+    "example": "NamePrefix: ['is_', 'has_', 'have_'] (default)",
+    "label": "good",
+    "source": "def is_even?(value)\nend\n",
+    "configuration": {
+      "NamePrefix": [
+        "is_",
+        "has_",
+        "have_"
+      ],
+      "ForbiddenPrefixes": [
+
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Rename `is_even?` to `even?`."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 46,
+    "example": "NamePrefix: ['seems_to_be_']",
+    "label": "bad",
+    "source": "def seems_to_be_even(value)\nend\n",
+    "configuration": {
+      "NamePrefix": [
+        "seems_to_be_"
+      ],
+      "ForbiddenPrefixes": [
+        "seems_to_be_"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Rename `seems_to_be_even` to `even?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 51,
+    "example": "NamePrefix: ['seems_to_be_']",
+    "label": "good",
+    "source": "def even?(value)\nend\n",
+    "configuration": {
+      "NamePrefix": [
+        "seems_to_be_"
+      ],
+      "ForbiddenPrefixes": [
+        "seems_to_be_"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 56,
+    "example": "NamePrefix: ['seems_to_be_']",
+    "label": "good",
+    "source": "def seems_to_be_even?(value)\nend\n",
+    "configuration": {
+      "NamePrefix": [
+        "seems_to_be_"
+      ],
+      "ForbiddenPrefixes": [
+
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 62,
+    "example": "AllowedMethods: ['is_a?'] (default)",
+    "label": "good",
+    "source": "def is_a?(value)\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 67,
+    "example": "AllowedMethods: ['is_even?']",
+    "label": "good",
+    "source": "def is_even?(value)\nend\n",
+    "configuration": {
+      "AllowedMethods": [
+        "is_even?"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Rename `is_even?` to `even?`."
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 72,
+    "example": "UseSorbetSigs: false (default)",
+    "label": "bad",
+    "source": "sig { returns(String) }\ndef is_this_thing_on\n  \"yes\"\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Rename `is_this_thing_on` to `this_thing_on?`."
+    ],
+    "declared_positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Rename `is_this_thing_on` to `this_thing_on?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 78,
+    "example": "UseSorbetSigs: false (default)",
+    "label": "good - Sorbet signature is not evaluated",
+    "source": "sig { returns(String) }\ndef is_this_thing_on?\n  \"yes\"\nend\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Rename `is_this_thing_on?` to `this_thing_on?`."
+    ],
+    "declared_positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "declared_messages": [
+      "Rename `is_this_thing_on?` to `this_thing_on?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 85,
+    "example": "UseSorbetSigs: true",
+    "label": "bad",
+    "source": "sig { returns(T::Boolean) }\ndef odd(value)\nend\n",
+    "configuration": {
+      "UseSorbetSigs": true
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 90,
+    "example": "UseSorbetSigs: true",
+    "label": "good",
+    "source": "sig { returns(T::Boolean) }\ndef odd?(value)\nend\n",
+    "configuration": {
+      "UseSorbetSigs": true
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 96,
+    "example": "MethodDefinitionMacros: ['define_method', 'define_singleton_method'] (default)",
+    "label": "bad",
+    "source": "define_method(:is_even) { |value| }\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Rename `is_even` to `even?`."
+    ],
+    "declared_positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "declared_messages": [
+      "Rename `is_even` to `even?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 99,
+    "example": "MethodDefinitionMacros: ['define_method', 'define_singleton_method'] (default)",
+    "label": "good",
+    "source": "define_method(:even?) { |value| }\n",
+    "configuration": {
+    },
+    "policy_note": "Pinned default policy; actual reference result retained (not inferred from prose labels).",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 103,
+    "example": "MethodDefinitionMacros: ['def_node_matcher']",
+    "label": "bad",
+    "source": "def_node_matcher(:is_even) { |value| }\n",
+    "configuration": {
+      "MethodDefinitionMacros": [
+        "def_node_matcher"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "declared_messages": [
+      "Rename `is_even` to `even?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicatePrefix",
+    "source_line": 106,
+    "example": "MethodDefinitionMacros: ['def_node_matcher']",
+    "label": "good",
+    "source": "def_node_matcher(:even?) { |value| }\n",
+    "configuration": {
+      "MethodDefinitionMacros": [
+        "def_node_matcher"
+      ]
+    },
+    "policy_note": "Alternate declared settings are not public policy; execute unchanged source under both declared and fixed defaults.",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "declared_positions": [
+
+    ],
+    "declared_messages": [
+
+    ]
+  }
+]

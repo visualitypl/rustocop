@@ -1,0 +1,710 @@
+[
+  {
+    "cop": "Naming/ClassAndModuleCamelCase",
+    "source_line": 17,
+    "example": "",
+    "label": "# bad",
+    "source": "class My_Class\nend\nmodule My_Module\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ],
+      [
+        3,
+        8
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/ClassAndModuleCamelCase",
+    "source_line": 23,
+    "example": "",
+    "label": "# good",
+    "source": "class MyClass\nend\nmodule MyModule\nend\nclass module_parent::MyModule\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/ConstantName",
+    "source_line": 14,
+    "example": "",
+    "label": "# bad",
+    "source": "InchInCm = 2.54\nINCHinCM = 2.54\nInch_In_Cm = 2.54\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/ConstantName",
+    "source_line": 19,
+    "example": "",
+    "label": "# good",
+    "source": "INCH_IN_CM = 2.54\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 37,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# bad",
+    "source": "def fooBar; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 40,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# good",
+    "source": "def foo_bar; end\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 43,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# bad",
+    "source": "define_method :fooBar do\nend\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 47,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# good",
+    "source": "define_method :foo_bar do\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 51,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# bad",
+    "source": "Struct.new(:fooBar)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 54,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# good",
+    "source": "Struct.new(:foo_bar)\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 57,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# bad",
+    "source": "alias_method :fooBar, :some_method\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 60,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# good",
+    "source": "alias_method :foo_bar, :some_method\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 64,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# bad",
+    "source": "def foo_bar; end\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 67,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# good",
+    "source": "def fooBar; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 70,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# bad",
+    "source": "define_method :foo_bar do\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 74,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# good",
+    "source": "define_method :fooBar do\nend\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 78,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# bad",
+    "source": "Struct.new(:foo_bar)\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 81,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# good",
+    "source": "Struct.new(:fooBar)\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 84,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# bad",
+    "source": "alias_method :foo_bar, :some_method\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 87,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# good",
+    "source": "alias_method :fooBar, :some_method\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 91,
+    "example": "ForbiddenIdentifiers: ['def', 'super']",
+    "label": "# bad",
+    "source": "def def; end\ndef super; end\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodName",
+    "source_line": 96,
+    "example": "ForbiddenPatterns: ['_v1\\z', '_gen1\\z']",
+    "label": "# bad",
+    "source": "def release_v1; end\ndef api_gen1; end\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodParameterName",
+    "source_line": 20,
+    "example": "",
+    "label": "# bad",
+    "source": "def bar(varOne, varTwo)\n  varOne + varTwo\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        17
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodParameterName",
+    "source_line": 25,
+    "example": "",
+    "label": "# With `AllowNamesEndingInNumbers` set to false",
+    "source": "def foo(num1, num2)\n  num1 * num2\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodParameterName",
+    "source_line": 30,
+    "example": "",
+    "label": "# With `MinNameLength` set to number greater than 1",
+    "source": "def baz(a, b, c)\n  do_stuff(a, b, c)\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        1,
+        12
+      ],
+      [
+        1,
+        15
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodParameterName",
+    "source_line": 35,
+    "example": "",
+    "label": "# good",
+    "source": "def bar(thud, fred)\n  thud + fred\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodParameterName",
+    "source_line": 39,
+    "example": "",
+    "label": "# good",
+    "source": "def foo(speed, distance)\n  speed * distance\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/MethodParameterName",
+    "source_line": 43,
+    "example": "",
+    "label": "# good",
+    "source": "def baz(age_a, height_b, gender_c)\n  do_stuff(age_a, height_b, gender_c)\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 18,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# bad",
+    "source": "fooBar = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 21,
+    "example": "EnforcedStyle: snake_case (default)",
+    "label": "# good",
+    "source": "foo_bar = 1\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 25,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# bad",
+    "source": "foo_bar = 1\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 28,
+    "example": "EnforcedStyle: camelCase",
+    "label": "# good",
+    "source": "fooBar = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 32,
+    "example": "AllowedIdentifiers: ['fooBar']",
+    "label": "# good (with EnforcedStyle: snake_case)",
+    "source": "fooBar = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 36,
+    "example": "AllowedPatterns: ['_v\\d+\\z']",
+    "label": "# good (with EnforcedStyle: camelCase)",
+    "source": "release_v1 = true\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 40,
+    "example": "ForbiddenIdentifiers: ['fooBar']",
+    "label": "# bad (in all cases)",
+    "source": "fooBar = 1\n@fooBar = 1\n@@fooBar = 1\n$fooBar = 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Naming/VariableName",
+    "source_line": 47,
+    "example": "ForbiddenPatterns: ['_v\\d+\\z']",
+    "label": "# bad (in all cases)",
+    "source": "release_v1 = true\n@release_v1 = true\n@@release_v1 = true\n$release_v1 = true\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/CompoundHash",
+    "source_line": 22,
+    "example": "",
+    "label": "# bad",
+    "source": "def hash\n  @foo ^ @bar\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/CompoundHash",
+    "source_line": 27,
+    "example": "",
+    "label": "# good",
+    "source": "def hash\n  [@foo, @bar].hash\nend\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/IoMethods",
+    "source_line": 22,
+    "example": "",
+    "label": "# bad",
+    "source": "IO.read(path)\nIO.read('path')\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/IoMethods",
+    "source_line": 26,
+    "example": "",
+    "label": "# good",
+    "source": "File.read(path)\nFile.read('path')\nIO.read('| command') # Allow intentional command invocation.\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/JSONLoad",
+    "source_line": 13,
+    "example": "source,ruby documentation block",
+    "label": "",
+    "source": "require 'json/add/string'\nresult = JSON.load('{ \"json_class\": \"String\", \"raw\": [72, 101, 108, 108, 111] }')\npp result # => \"Hello\"\n",
+    "positions": [
+      [
+        2,
+        15
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/JSONLoad",
+    "source_line": 40,
+    "example": "",
+    "label": "# bad",
+    "source": "JSON.load('{}')\nJSON.restore('{}')\n",
+    "positions": [
+      [
+        1,
+        6
+      ],
+      [
+        2,
+        6
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/JSONLoad",
+    "source_line": 44,
+    "example": "",
+    "label": "# bad - ignored by `json` older than 2.17.0",
+    "source": "JSON.load('{}', create_additions: false)\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/JSONLoad",
+    "source_line": 47,
+    "example": "",
+    "label": "# good",
+    "source": "JSON.parse('{}')\nJSON.unsafe_load('{}')\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/JSONLoad",
+    "source_line": 51,
+    "example": "",
+    "label": "# good - explicit use of `create_additions` option",
+    "source": "JSON.load('{}', nil, create_additions: true)\nJSON.load('{}', nil, create_additions: false)\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/MarshalLoad",
+    "source_line": 12,
+    "example": "",
+    "label": "# bad",
+    "source": "Marshal.load(\"{}\")\nMarshal.restore(\"{}\")\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        9
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/MarshalLoad",
+    "source_line": 16,
+    "example": "",
+    "label": "# good",
+    "source": "Marshal.dump(\"{}\")\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/MarshalLoad",
+    "source_line": 19,
+    "example": "",
+    "label": "# okish - deep copy hack",
+    "source": "Marshal.load(Marshal.dump({}))\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/Open",
+    "source_line": 24,
+    "example": "",
+    "label": "# bad",
+    "source": "open(something)\nopen(\"| #{something}\")\nopen(\"| foo\")\nURI.open(something)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        5
+      ]
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/Open",
+    "source_line": 30,
+    "example": "",
+    "label": "# good",
+    "source": "File.open(something)\nIO.popen(something)\nURI.parse(something).open\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/Open",
+    "source_line": 35,
+    "example": "",
+    "label": "# good (literal strings)",
+    "source": "open(\"foo.text\")\nURI.open(\"http://example.com\")\nURI.parse(url).open\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/YAMLLoad",
+    "source_line": 18,
+    "example": "",
+    "label": "# bad",
+    "source": "YAML.load(\"--- !ruby/object:Foo {}\") # Psych 3 is unsafe by default\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  },
+  {
+    "cop": "Security/YAMLLoad",
+    "source_line": 21,
+    "example": "",
+    "label": "# good",
+    "source": "YAML.safe_load(\"--- !ruby/object:Foo {}\", [Foo])                    # Ruby 2.5  (Psych 3)\nYAML.safe_load(\"--- !ruby/object:Foo {}\", permitted_classes: [Foo]) # Ruby 3.0- (Psych 3)\nYAML.load(\"--- !ruby/object:Foo {}\", permitted_classes: [Foo])      # Ruby 3.1+ (Psych 4)\nYAML.dump(foo)\n",
+    "positions": [
+
+    ],
+    "policy": "Unchanged source, evaluated at fixed defaults/Ruby3.4; prose/alternate-style labels do not override policy."
+  }
+]

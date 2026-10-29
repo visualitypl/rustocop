@@ -1,0 +1,347 @@
+[
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 7,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an empty method not named `initialize`",
+    "source": "def do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 14,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for a method not named `initialize` that only calls super",
+    "source": "def do_something\n  super\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 22,
+    "description": "RuboCop::Cop::Style::RedundantInitialize registers and corrects an offense for an empty `initialize` method",
+    "source": "def initialize\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove unnecessary empty `initialize` method."
+    ],
+    "correction": "",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 32,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method with only a comment",
+    "source": "def initialize\n  # initializer\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 40,
+    "description": "RuboCop::Cop::Style::RedundantInitialize registers and corrects an offense for an `initialize` method that only calls `super`",
+    "source": "def initialize\n  super\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove unnecessary `initialize` method."
+    ],
+    "correction": "",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 51,
+    "description": "RuboCop::Cop::Style::RedundantInitialize registers and corrects an offense for an `initialize` method with arguments that only calls `super`",
+    "source": "def initialize(a, b)\n  super\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove unnecessary `initialize` method."
+    ],
+    "correction": "",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 62,
+    "description": "RuboCop::Cop::Style::RedundantInitialize registers and corrects an offense for an `initialize` method with arguments that only calls `super` with explicit args",
+    "source": "def initialize(a, b)\n  super(a, b)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove unnecessary `initialize` method."
+    ],
+    "correction": "",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 73,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method that calls another method",
+    "source": "def initialize(a, b)\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 81,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method that calls another method before `super`",
+    "source": "def initialize(a, b)\n  do_something\n  super\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 90,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method that calls another method after `super`",
+    "source": "def initialize(a, b)\n  super\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 99,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method that calls `super` with a different argument list",
+    "source": "def initialize(a, b)\n  super(a)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 107,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method that calls `super` with no arguments",
+    "source": "def initialize(a, b)\n  super()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 115,
+    "description": "RuboCop::Cop::Style::RedundantInitialize registers and corrects an offense for an `initialize` method with no arguments that calls `super` with no arguments",
+    "source": "def initialize()\n  super()\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Remove unnecessary `initialize` method."
+    ],
+    "correction": "",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 126,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method with a default argument that calls `super`",
+    "source": "def initialize(a, b = 5)\n  super\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 134,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method with a default keyword argument that calls `super`",
+    "source": "def initialize(a, b: 5)\n  super\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 142,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method with a default argument that does nothing",
+    "source": "def initialize(a, b = 5)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 149,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an `initialize` method with a default keyword argument that does nothing",
+    "source": "def initialize(a, b: 5)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 156,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an empty `initialize` method with an argument`",
+    "source": "def initialize(_)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 163,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an empty `initialize` method with a splat`",
+    "source": "def initialize(*)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 170,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an empty `initialize` method with a splat` and super",
+    "source": "def initialize(*args)\n  super(args.first)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 178,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an empty `initialize` method with a kwsplat`",
+    "source": "def initialize(**)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantInitialize",
+    "spec_line": 185,
+    "description": "RuboCop::Cop::Style::RedundantInitialize does not register an offense for an empty `initialize` method with an argument forwarding`",
+    "source": "def initialize(...)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  }
+]

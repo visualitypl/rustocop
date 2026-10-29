@@ -1,0 +1,102 @@
+[
+  {
+    "spec_line": 5,
+    "source": "raise 'message'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `raise` with an explicit exception class and message, rather than just a message."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 12,
+    "source": "fail 'message'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `fail` with an explicit exception class and message, rather than just a message."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 19,
+    "source": "raise 'message' \\\n      '2nd line'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `raise` with an explicit exception class and message, rather than just a message."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 27,
+    "source": "fail 'message' \\\n      '2nd line'\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `fail` with an explicit exception class and message, rather than just a message."
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 35,
+    "source": "raise StandardError, 'message'\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 41,
+    "source": "fail StandardError, 'message'\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 47,
+    "source": "raise",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 51,
+    "source": "fail",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

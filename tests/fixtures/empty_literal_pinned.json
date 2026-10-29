@@ -1,0 +1,708 @@
+[
+  {
+    "spec_line": 28,
+    "source": "test = Array.new(3)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 32,
+    "source": "puts { Array.new }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `Array.new`."
+    ],
+    "correction": "puts { [] }\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 43,
+    "source": "test = Array.new { 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 47,
+    "source": "test = ::Array.new { 1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 51,
+    "source": "puts { Array.new { 1 } }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 55,
+    "source": "Array[3]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 59,
+    "source": "Array [3]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 7,
+    "source": "test = Array.new()\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `Array.new()`."
+    ],
+    "correction": "test = []\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 7,
+    "source": "test = Array.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `Array.new`."
+    ],
+    "correction": "test = []\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 7,
+    "source": "test = ::Array.new()\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `::Array.new()`."
+    ],
+    "correction": "test = []\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 7,
+    "source": "test = Array.new([])\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `Array.new([])`."
+    ],
+    "correction": "test = []\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 7,
+    "source": "test = Array[]\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `Array[]`."
+    ],
+    "correction": "test = []\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 7,
+    "source": "test = Array([])\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use array literal `[]` instead of `Array([])`."
+    ],
+    "correction": "test = []\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 86,
+    "source": "Hash[3,4]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 90,
+    "source": "Hash [3,4]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 94,
+    "source": "test = Hash.new(3)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 98,
+    "source": "test = ::Hash.new(3)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 102,
+    "source": "test = Hash.new { block }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 106,
+    "source": "test = ::Hash.new { block }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 110,
+    "source": "Hash.new([])",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 138,
+    "source": "puts { Hash.new }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "puts { {} }\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 149,
+    "source": "test = Hash.new\nHash.new.merge(\"a\" => 3)\nyadayada.map { a }.reduce(Hash.new, :merge)\n",
+    "positions": [
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        27
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`.",
+      "Use hash literal `{}` instead of `Hash.new`.",
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "test = {}\n{}.merge(\"a\" => 3)\nyadayada.map { a }.reduce({}, :merge)\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 166,
+    "source": "yadayada.map { a }.reduce Hash.new\n",
+    "positions": [
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "yadayada.map { a }.reduce({})\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 177,
+    "source": "yadayada.map { a }.reduce Hash.new, :merge\n",
+    "positions": [
+      [
+        1,
+        27
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "yadayada.map { a }.reduce({}, :merge)\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 189,
+    "source": "def foo\n  super Hash.new\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "def foo\n  super({})\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 205,
+    "source": "assert_equal Hash[], foo\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash[]`."
+    ],
+    "correction": "assert_equal({}, foo)\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 217,
+    "source": "puts Hash([])\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash([])`."
+    ],
+    "correction": "puts({})\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 229,
+    "source": "def foo\n  super Hash.new, something\nend\n",
+    "positions": [
+      [
+        2,
+        9
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "def foo\n  super({}, something)\nend\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 66,
+    "source": "test = Hash.new()\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new()`."
+    ],
+    "correction": "test = {}\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 66,
+    "source": "test = Hash.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash.new`."
+    ],
+    "correction": "test = {}\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 66,
+    "source": "test = ::Hash.new()\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `::Hash.new()`."
+    ],
+    "correction": "test = {}\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 66,
+    "source": "test = Hash[]\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash[]`."
+    ],
+    "correction": "test = {}\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 66,
+    "source": "test = Hash([])\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use hash literal `{}` instead of `Hash([])`."
+    ],
+    "correction": "test = {}\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 115,
+    "source": "test = Hash.new { _1[_2] = [] }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 119,
+    "source": "test = ::Hash.new { _1[_2] = [] }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 123,
+    "source": "test = Array.new { _1 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 129,
+    "source": "test = Array.new { it }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 133,
+    "source": "test = Hash.new { it }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 248,
+    "source": "test = String.new()\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `''` instead of `String.new`."
+    ],
+    "correction": "test = ''\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 259,
+    "source": "test = String.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `''` instead of `String.new`."
+    ],
+    "correction": "test = ''\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 270,
+    "source": "test = ::String.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `''` instead of `String.new`."
+    ],
+    "correction": "test = ''\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 281,
+    "source": "test = String.new(\"top\")",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 285,
+    "source": "test = ::String.new(\"top\")",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 294,
+    "source": "test = String.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `\"\"` instead of `String.new`."
+    ],
+    "correction": "test = \"\"\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 305,
+    "source": "test = ::String.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `\"\"` instead of `String.new`."
+    ],
+    "correction": "test = \"\"\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 318,
+    "source": "# frozen_string_literal: true\ntest = String.new\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 330,
+    "source": "test = String.new\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": true
+  },
+  {
+    "spec_line": 338,
+    "source": "# frozen_string_literal: false\ntest = String.new\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `''` instead of `String.new`."
+    ],
+    "correction": "# frozen_string_literal: false\ntest = ''\n",
+    "frozen_comment": true
+  },
+  {
+    "spec_line": 397,
+    "source": "test = String.new\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `''` instead of `String.new`."
+    ],
+    "correction": "test = ''\n",
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 410,
+    "source": "# frozen_string_literal: true\n  test = String.new\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "frozen_comment": false
+  },
+  {
+    "spec_line": 419,
+    "source": "# frozen_string_literal: false\ntest = String.new\n",
+    "positions": [
+      [
+        2,
+        8
+      ]
+    ],
+    "messages": [
+      "Use string literal `''` instead of `String.new`."
+    ],
+    "correction": "# frozen_string_literal: false\ntest = ''\n",
+    "frozen_comment": false
+  }
+]

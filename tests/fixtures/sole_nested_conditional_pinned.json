@@ -1,0 +1,992 @@
+[
+  {
+    "spec_line": 7,
+    "source": "if foo\n  if bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 24,
+    "source": "if foo\n  unless bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 41,
+    "source": "unless foo\n  if bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !foo && bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 58,
+    "source": "unless foo == bar\n  if baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !(foo == bar) && baz\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 76,
+    "source": "if foo = bar\n  if baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (foo = bar) && baz\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 94,
+    "source": "if foo = bar and baz\n  if quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo = bar and baz && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 111,
+    "source": "if baz && foo = bar\n  if quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if baz && (foo = bar) && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 128,
+    "source": "if baz &&\n   foo = bar\n  if quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if baz &&\n   (foo = bar) && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 147,
+    "source": "if baz && foo = bar and fred = garply\n  if corge\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if baz && foo = bar and (fred = garply) && corge\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "if baz && (foo = bar)\n  if quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if baz && (foo = bar) && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 181,
+    "source": "if foo\n  if bar = baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && (bar = baz)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 198,
+    "source": "if foo\n  if quux && bar = baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && quux && (bar = baz)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 216,
+    "source": "if foo = bar or baz\n  if quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (foo = bar or baz) && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 233,
+    "source": "if baz || foo = bar\n  if quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (baz || foo = bar) && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 250,
+    "source": "unless foo & bar\n  if baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !(foo & bar) && baz\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 267,
+    "source": "if foo & bar\n  if baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (foo & bar) && baz\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 284,
+    "source": "unless foo\n  unless bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !foo && !bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 301,
+    "source": "if foo\nelsif bar\n  if baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 311,
+    "source": "if foo\n  do_something if bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 326,
+    "source": "if foo\n  do_something unless bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 341,
+    "source": "class A\n  def foo\n    if h[:a]\n      h[:b] = true unless h.has_key?(:b)\n    end\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        20
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "class A\n  def foo\n    if (h[:a]) && !h.has_key?(:b)\n      h[:b] = true\n    end\n  end\nend\n"
+  },
+  {
+    "spec_line": 365,
+    "source": "if foo\n  do_something unless bar && baz\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !(bar && baz)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 380,
+    "source": "if foo\n  if bar || baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && (bar || baz)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 397,
+    "source": "if foo\n  do_something if bar || baz\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && (bar || baz)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 412,
+    "source": "if foo || bar\n  if baz || qux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (foo || bar) && (baz || qux)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 429,
+    "source": "if foo || bar\n  do_something if baz || qux\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (foo || bar) && (baz || qux)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 445,
+    "source": "unless (foo || bar)\n  do_something if baz\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !(foo || bar) && baz\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 461,
+    "source": "unless foo || bar\n  do_something if baz\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !(foo || bar) && baz\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 477,
+    "source": "if result\n  do_something unless foo === bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if result && !(foo === bar)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 493,
+    "source": "unless foo && bar && baz\n  do_something unless qux\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !(foo && bar && baz) && !qux\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 509,
+    "source": "unless foo.is_a? Foo\n  do_something if bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !foo.is_a?(Foo) && bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 525,
+    "source": "unless foo.is_a?(Foo)\n  do_something if bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !foo.is_a?(Foo) && bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 541,
+    "source": "unless foo.bar arg1, arg2\n  do_something if baz\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !foo.bar(arg1, arg2) && baz\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 556,
+    "source": "if foo\n  if bar\n    if baz\n      do_something\n    end\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions.",
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && bar && baz\n      do_something\n    end\n"
+  },
+  {
+    "spec_line": 576,
+    "source": "if foo.is_a? Foo\n  if bar && baz\n    do_something if quux\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions.",
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo.is_a?(Foo) && bar && baz && quux\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 594,
+    "source": "if foo\n  # Comment.\n  if bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "# Comment.\nif foo && bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 613,
+    "source": "if foo\n  # Comments.\n  if bar\n    # More comments.\n    if baz\n      do_something\n    end\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions.",
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "# Comments.\n# More comments.\nif foo && bar && baz\n      do_something\n    end\n"
+  },
+  {
+    "spec_line": 637,
+    "source": "# Outer comment.\nif foo\n  # Comment.\n  if bar # nested condition\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "# Outer comment.\n# Comment.\nif foo && bar # nested condition\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 658,
+    "source": "if foo\n  if not bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && (not bar)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 675,
+    "source": "if not foo\n  if bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if (not foo) && bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 692,
+    "source": "if foo\n  if !bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !bar\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 709,
+    "source": "if foo; if bar; end; end\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && bar; end; \n"
+  },
+  {
+    "spec_line": 764,
+    "source": "# Comment.\nif foo\n  do_something if bar\nend\n",
+    "positions": [
+      [
+        3,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "# Comment.\nif foo && bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 781,
+    "source": "if foo\n  if bar\n    # Comments.\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && bar\n    # Comments.\n  end\n"
+  },
+  {
+    "spec_line": 798,
+    "source": "if foo\n  do_something\nend if bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if bar && foo\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 813,
+    "source": "if foo\n  do_something\nend unless bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !bar && foo\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 828,
+    "source": "unless foo\n  do_something\nend if bar\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if bar && !foo\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 843,
+    "source": "if foo\n  do_something\nend if bar && baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if bar && baz && foo\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 858,
+    "source": "if foo && bar\n  do_something\nend if baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if baz && foo && bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 873,
+    "source": "if foo\n  do_something\nend unless bar && baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !(bar && baz) && foo\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 888,
+    "source": "if foo && bar\n  do_something\nend unless baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if !baz && foo && bar\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 903,
+    "source": "unless foo && bar\n  do_something\nend if baz\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if baz && !(foo && bar)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 918,
+    "source": "if foo\n  unless bar & baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !(bar & baz)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 935,
+    "source": "if foo\n  unless bar || baz\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !(bar || baz)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 952,
+    "source": "if foo\n  do_something unless bar & baz\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && !(bar & baz)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 967,
+    "source": "if foo\n  bar ? baz : quux\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 975,
+    "source": "if foo\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 983,
+    "source": "if foo\n  if bar\n    do_something\n  end\n  do_something_more\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 994,
+    "source": "if foo\n  if bar\n    do_something\n  else\n    do_something_else\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1006,
+    "source": "if foo\n  do_something if bar\nelse\n  do_something_else\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1016,
+    "source": "if var = foo\n  do_something if var\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1024,
+    "source": "if cond && var = foo\n  do_something if var\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 1198,
+    "source": "if foo\n  unless bar\n    if baz\n      do_something\n    end\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions.",
+      "Consider merging nested conditions into outer `unless` conditions."
+    ],
+    "correction": "if foo && !bar && baz\n      do_something\n    end\n"
+  },
+  {
+    "spec_line": 1034,
+    "source": "if foo\n  do_something if ok? bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && ok?(bar)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 1050,
+    "source": "if foo\n  do_something if obj&.ok? bar\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && obj&.ok?(bar)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 1068,
+    "source": "if foo\n  if ok? bar\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && ok?(bar)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 1086,
+    "source": "if foo\n  if bar&.baz quux\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && bar&.baz(quux)\n    do_something\n  end\n"
+  },
+  {
+    "spec_line": 1105,
+    "source": "if foo\n  if ok? bar do\n      do_something\n    end\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && (ok? bar do\n      do_something\n    end)\n  end\n"
+  },
+  {
+    "spec_line": 1126,
+    "source": "if foo\n  if ok? bar do\n      _1\n    end\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && (ok? bar do\n      _1\n    end)\n  end\n"
+  },
+  {
+    "spec_line": 1150,
+    "source": "if foo\n  do_something if ok?(bar)\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && ok?(bar)\n  do_something\nend\n"
+  },
+  {
+    "spec_line": 1167,
+    "source": "if foo\n  if ok?(bar)\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Consider merging nested conditions into outer `if` conditions."
+    ],
+    "correction": "if foo && ok?(bar)\n    do_something\n  end\n"
+  }
+]

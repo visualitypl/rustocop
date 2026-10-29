@@ -1,0 +1,171 @@
+[
+  {
+    "spec_line": 5,
+    "source": "case foo\nwhen bar then\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multiline `when` statement."
+    ],
+    "correction": "case foo\nwhen bar\nend\n"
+  },
+  {
+    "spec_line": 20,
+    "source": "case foo\nwhen bar then\ndo_something\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multiline `when` statement."
+    ],
+    "correction": "case foo\nwhen bar\ndo_something\nend\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "case foo\nwhen bar then\ndo_something1\ndo_something2\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multiline `when` statement."
+    ],
+    "correction": "case foo\nwhen bar\ndo_something1\ndo_something2\nend\n"
+  },
+  {
+    "spec_line": 56,
+    "source": "case foo\nwhen bar then do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 64,
+    "source": "case cond\nwhen foo then do_something(arg1,\n                           arg2)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 74,
+    "source": "case foo\nwhen bar then do_something\n              do_another_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 83,
+    "source": "case foo\nwhen bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 91,
+    "source": "case foo\nwhen bar\ndo_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 100,
+    "source": "case condition\nwhen foo then {\n    key: 'value'\n  }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 110,
+    "source": "case condition\nwhen foo then [\n    'element'\n  ]\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 120,
+    "source": "case foo\nwhen bar\n  then do_something\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multiline `when` statement."
+    ],
+    "correction": "case foo\nwhen bar\n do_something\nend\n"
+  },
+  {
+    "spec_line": 137,
+    "source": "case foo\nwhen bar, baz then\nend\n",
+    "positions": [
+      [
+        2,
+        15
+      ]
+    ],
+    "messages": [
+      "Do not use `then` for multiline `when` statement."
+    ],
+    "correction": "case foo\nwhen bar, baz\nend\n"
+  },
+  {
+    "spec_line": 152,
+    "source": "case foo\nwhen bar,\n     baz then do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 161,
+    "source": "case foo\nwhen 500.. then\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

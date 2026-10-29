@@ -1,0 +1,433 @@
+[
+  {
+    "spec_line": 8,
+    "source": "def func\n  for n in [1, 2, 3] do\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  [1, 2, 3].each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 27,
+    "source": "def func\n  for n in [1, 2, 3] do\n    puts n\n  end\n  [1, 2, 3].each do |n|\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  [1, 2, 3].each do |n|\n    puts n\n  end\n  [1, 2, 3].each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 52,
+    "source": "for n in [1, 2, 3] do\n  puts n\nend\n[1, 2, 3].each do |n|\n  puts n\nend\nfor n in [1, 2, 3] do\n  puts n\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        7,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`.",
+      "Prefer `each` over `for`."
+    ],
+    "correction": "[1, 2, 3].each do |n|\n  puts n\nend\n[1, 2, 3].each do |n|\n  puts n\nend\n[1, 2, 3].each do |n|\n  puts n\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 488,
+    "source": "def func\n  [1, 2, 3].each do |n|\n    puts n\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 498,
+    "source": "[:for, :ala, :bala]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 502,
+    "source": "def for; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "no_correction": false
+  },
+  {
+    "spec_line": 81,
+    "source": "for _ in [1, 2, 3] do\n  puts _1\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 92,
+    "source": "for _ in [1, 2, 3] do\n  puts it\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 103,
+    "source": "[[9]].each do\n  for x in [1]\n    p _1, x\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 116,
+    "source": "[[9]].each do\n  for x in [1]\n    p it, x\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 129,
+    "source": "for x in [1, 2, 3] do\n  [x].each { puts _1 }\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "[1, 2, 3].each do |x|\n  [x].each { puts _1 }\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 144,
+    "source": "for @item in items do\n  puts @item\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 155,
+    "source": "for foo.bar in items do\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": null,
+    "no_correction": true
+  },
+  {
+    "spec_line": 165,
+    "source": "for a, (b, *c) in items do\n  puts a, b, c\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "items.each do |a, (b, *c)|\n  puts a, b, c\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 246,
+    "source": "def func\n  for (a, b) in {a: 1, b: 2, c: 3} do\n    puts a, b\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  {a: 1, b: 2, c: 3}.each do |(a, b)|\n    puts a, b\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 265,
+    "source": "def func\n  for n in [1, 2, 3]\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  [1, 2, 3].each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 284,
+    "source": "def func\n  a = [1, 2]\n  b = [3, 4]\n  c = [5]\n\n  for n in a + b + c\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        6,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  a = [1, 2]\n  b = [3, 4]\n  c = [5]\n\n  (a + b + c).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 311,
+    "source": "def func\n  a = [1, 2, 3, 4]\n  b = [3]\n\n  for n in a - b\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  a = [1, 2, 3, 4]\n  b = [3]\n\n  (a - b).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 336,
+    "source": "def func\n  for n in [1, 2, 3, 4] * 3\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  ([1, 2, 3, 4] * 3).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 355,
+    "source": "def func\n  a = [1, 2, 3, 4]\n  b = [4, 5]\n\n  for n in a | b\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  a = [1, 2, 3, 4]\n  b = [4, 5]\n\n  (a | b).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 380,
+    "source": "def func\n  a = [1, 2, 3, 4]\n  b = [4, 5]\n\n  for n in a & b\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  a = [1, 2, 3, 4]\n  b = [4, 5]\n\n  (a & b).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 405,
+    "source": "def func\n  a = []\n  b = [1, 2, 3]\n\n  for n in a && b\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  a = []\n  b = [1, 2, 3]\n\n  (a && b).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 430,
+    "source": "def func\n  a = nil\n  b = [1, 2, 3]\n\n  for n in a || b\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  a = nil\n  b = [1, 2, 3]\n\n  (a || b).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 455,
+    "source": "def func\n  for n in [1, 2, nil].compact\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  [1, 2, nil].compact.each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 474,
+    "source": "for item in foo&.items\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "foo&.items&.each do |item|\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 191,
+    "source": "def func\n  for n in (1...value) do\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  (1...value).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 204,
+    "source": "def func\n  for n in (1...value)\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  (1...value).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 218,
+    "source": "def func\n  for n in 1...value do\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  (1...value).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  },
+  {
+    "spec_line": 231,
+    "source": "def func\n  for n in 1...value\n    puts n\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Prefer `each` over `for`."
+    ],
+    "correction": "def func\n  (1...value).each do |n|\n    puts n\n  end\nend\n",
+    "no_correction": false
+  }
+]

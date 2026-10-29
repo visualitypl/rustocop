@@ -1,0 +1,284 @@
+[
+  {
+    "spec_line": 9,
+    "source": "if a; foo else end\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "if a; foo end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "if a; foo else end\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 9,
+    "source": "if a; foo elsif b; bar else nil end\n",
+    "positions": [
+      [
+        1,
+        24
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "if a; foo elsif b; bar end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "if a; foo elsif b; bar else nil end\n",
+    "positions": [
+      [
+        1,
+        24
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 9,
+    "source": "if a; foo elsif b; bar; elsif c; bar else nil end\n",
+    "positions": [
+      [
+        1,
+        38
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "if a; foo elsif b; bar; elsif c; bar end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "if a; foo elsif b; bar; elsif c; bar else nil end\n",
+    "positions": [
+      [
+        1,
+        38
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 445,
+    "source": "if cond; foo else bar; nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "missing_else": false
+  },
+  {
+    "spec_line": 451,
+    "source": "if cond; foo end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "missing_else": false
+  },
+  {
+    "spec_line": 9,
+    "source": "unless cond; foo else end\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "unless cond; foo end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "unless cond; foo else end\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 9,
+    "source": "unless cond; foo else nil end\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "unless cond; foo end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "unless cond; foo else nil end\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 483,
+    "source": "unless cond; foo else bar; nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "missing_else": false
+  },
+  {
+    "spec_line": 489,
+    "source": "unless cond; foo end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "missing_else": false
+  },
+  {
+    "spec_line": 9,
+    "source": "case v; when a; foo else end\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "case v; when a; foo end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "case v; when a; foo else end\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 9,
+    "source": "case v; when a; foo; when b; bar; else nil end\n",
+    "positions": [
+      [
+        1,
+        35
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": "case v; when a; foo; when b; bar; end\n",
+    "missing_else": false
+  },
+  {
+    "spec_line": 24,
+    "source": "case v; when a; foo; when b; bar; else nil end\n",
+    "positions": [
+      [
+        1,
+        35
+      ]
+    ],
+    "messages": [
+      "Redundant `else`-clause."
+    ],
+    "correction": null,
+    "missing_else": true
+  },
+  {
+    "spec_line": 521,
+    "source": "case v; when a; foo; else b; nil end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "missing_else": false
+  },
+  {
+    "spec_line": 527,
+    "source": "case v; when a; foo; when b; bar; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "missing_else": false
+  }
+]

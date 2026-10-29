@@ -1,0 +1,1546 @@
+[
+  {
+    "spec_line": 6,
+    "source": "x = x + y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "x += y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x + y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "@x += y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x + y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "@@x += y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x - y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `-=`."
+    ],
+    "correction": "x -= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x - y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `-=`."
+    ],
+    "correction": "@x -= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x - y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `-=`."
+    ],
+    "correction": "@@x -= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x * y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `*=`."
+    ],
+    "correction": "x *= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x * y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `*=`."
+    ],
+    "correction": "@x *= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x * y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `*=`."
+    ],
+    "correction": "@@x *= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x ** y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `**=`."
+    ],
+    "correction": "x **= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x ** y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `**=`."
+    ],
+    "correction": "@x **= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x ** y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `**=`."
+    ],
+    "correction": "@@x **= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x / y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `/=`."
+    ],
+    "correction": "x /= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x / y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `/=`."
+    ],
+    "correction": "@x /= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x / y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `/=`."
+    ],
+    "correction": "@@x /= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x % y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `%=`."
+    ],
+    "correction": "x %= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x % y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `%=`."
+    ],
+    "correction": "@x %= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x % y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `%=`."
+    ],
+    "correction": "@@x %= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x ^ y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `^=`."
+    ],
+    "correction": "x ^= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x ^ y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `^=`."
+    ],
+    "correction": "@x ^= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x ^ y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `^=`."
+    ],
+    "correction": "@@x ^= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x << y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `<<=`."
+    ],
+    "correction": "x <<= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x << y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `<<=`."
+    ],
+    "correction": "@x <<= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x << y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `<<=`."
+    ],
+    "correction": "@@x <<= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x >> y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `>>=`."
+    ],
+    "correction": "x >>= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x >> y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `>>=`."
+    ],
+    "correction": "@x >>= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x >> y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `>>=`."
+    ],
+    "correction": "@@x >>= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x | y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "x |= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x | y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "@x |= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x | y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "@@x |= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x & y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&=`."
+    ],
+    "correction": "x &= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x & y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&=`."
+    ],
+    "correction": "@x &= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x & y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&=`."
+    ],
+    "correction": "@@x &= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x || y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `||=`."
+    ],
+    "correction": "x ||= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x || y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `||=`."
+    ],
+    "correction": "@x ||= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x || y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `||=`."
+    ],
+    "correction": "@@x ||= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "x = x && y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&&=`."
+    ],
+    "correction": "x &&= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@x = @x && y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&&=`."
+    ],
+    "correction": "@x &&= y\n"
+  },
+  {
+    "spec_line": 6,
+    "source": "@@x = @@x && y\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&&=`."
+    ],
+    "correction": "@@x &&= y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "x = (x + y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "x += y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "@x = (@x + y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "@x += y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "@@x = (@@x + y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "@@x += y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "x = (x | y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "x |= y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "@x = (@x | y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "@x |= y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "@@x = (@@x | y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "@@x |= y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "x = (x || y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `||=`."
+    ],
+    "correction": "x ||= y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "@x = (@x || y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `||=`."
+    ],
+    "correction": "@x ||= y\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "@@x = (@@x || y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `||=`."
+    ],
+    "correction": "@@x ||= y\n"
+  },
+  {
+    "spec_line": 31,
+    "source": "x = ((x + y))\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "x += y\n"
+  },
+  {
+    "spec_line": 42,
+    "source": "x = (foo; x + y)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 48,
+    "source": "x = (x or y)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 54,
+    "source": "x = (x and y)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.+(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "x += y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.+(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.+(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "@x += y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.+(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.+(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `+=`."
+    ],
+    "correction": "@@x += y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.+(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.-(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `-=`."
+    ],
+    "correction": "x -= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.-(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.-(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `-=`."
+    ],
+    "correction": "@x -= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.-(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.-(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `-=`."
+    ],
+    "correction": "@@x -= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.-(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.*(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `*=`."
+    ],
+    "correction": "x *= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.*(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.*(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `*=`."
+    ],
+    "correction": "@x *= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.*(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.*(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `*=`."
+    ],
+    "correction": "@@x *= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.*(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.**(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `**=`."
+    ],
+    "correction": "x **= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.**(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.**(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `**=`."
+    ],
+    "correction": "@x **= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.**(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.**(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `**=`."
+    ],
+    "correction": "@@x **= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.**(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x./(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `/=`."
+    ],
+    "correction": "x /= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x./(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x./(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `/=`."
+    ],
+    "correction": "@x /= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x./(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x./(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `/=`."
+    ],
+    "correction": "@@x /= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x./(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.%(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `%=`."
+    ],
+    "correction": "x %= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.%(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.%(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `%=`."
+    ],
+    "correction": "@x %= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.%(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.%(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `%=`."
+    ],
+    "correction": "@@x %= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.%(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.^(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `^=`."
+    ],
+    "correction": "x ^= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.^(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.^(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `^=`."
+    ],
+    "correction": "@x ^= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.^(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.^(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `^=`."
+    ],
+    "correction": "@@x ^= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.^(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.<<(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `<<=`."
+    ],
+    "correction": "x <<= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.<<(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.<<(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `<<=`."
+    ],
+    "correction": "@x <<= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.<<(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.<<(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `<<=`."
+    ],
+    "correction": "@@x <<= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.<<(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.>>(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `>>=`."
+    ],
+    "correction": "x >>= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.>>(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.>>(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `>>=`."
+    ],
+    "correction": "@x >>= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.>>(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.>>(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `>>=`."
+    ],
+    "correction": "@@x >>= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.>>(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.|(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "x |= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.|(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.|(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "@x |= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.|(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.|(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `|=`."
+    ],
+    "correction": "@@x |= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.|(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "x = x.&(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&=`."
+    ],
+    "correction": "x &= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "x = x.&(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@x = @x.&(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&=`."
+    ],
+    "correction": "@x &= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@x = @x.&(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 61,
+    "source": "@@x = @@x.&(y)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use self-assignment shorthand `&=`."
+    ],
+    "correction": "@@x &= y\n"
+  },
+  {
+    "spec_line": 72,
+    "source": "@@x = @@x.&(y, z)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

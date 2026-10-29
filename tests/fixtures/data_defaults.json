@@ -1,0 +1,5786 @@
+[
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Bad = Data.define(:members)\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Bad = ::Data.define(:members)\n",
+    "origin": "spec",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Bad = Data.define(:name, :members, :address)\n",
+    "origin": "spec",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Bad = Data.define(:name, \"members\")\n",
+    "origin": "spec",
+    "line": 26,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "`\"members\"` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:members) do\n  def members?\n    !members.empty?\n  end\nend\n",
+    "origin": "spec",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:members, :clone, :to_s)\n",
+    "origin": "spec",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        1,
+        23,
+        1,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ],
+      [
+        1,
+        31,
+        1,
+        "`:to_s` member overrides `Data#to_s` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Good = Data.define(:id, :name)\n",
+    "origin": "spec",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Good = Data.define(:id, :name) do\n  def members\n    super.tap { |ret| pp \"members: \" + ret.to_s }\n  end\nend\n",
+    "origin": "spec",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "# bad\nBad = Data.define(:members, :clone, :to_s)\nb = Bad.new(members: [], clone: true, to_s: 'bad')\nb.members #=> [] (overriding `Data#members`)\nb.clone #=> true (overriding `Object#clone`)\nb.to_s #=> \"bad\" (overriding `Data#to_s`)\n",
+    "origin": "source",
+    "line": 10,
+    "findings": [
+      [
+        2,
+        19,
+        2,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        2,
+        29,
+        2,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ],
+      [
+        2,
+        37,
+        2,
+        "`:to_s` member overrides `Data#to_s` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "# good\nGood = Data.define(:id, :name)\ng = Good.new(id: 1, name: \"foo\")\ng.members #=> [:id, :name]\ng.clone #=> #<data Good id=1, name=\"foo\">\n",
+    "origin": "source",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:!)",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:!` member overrides `Data#!` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"!\")",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"!\"` member overrides `Data#!` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(!))",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:!` member overrides `Data#!` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:!=)",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:!=` member overrides `Data#!=` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"!=\")",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"!=\"` member overrides `Data#!=` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(!=))",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:!=` member overrides `Data#!=` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:!~)",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:!~` member overrides `Data#!~` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"!~\")",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"!~\"` member overrides `Data#!~` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(!~))",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:!~` member overrides `Data#!~` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:<=>)",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:<=>` member overrides `Data#<=>` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"<=>\")",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"<=>\"` member overrides `Data#<=>` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(<=>))",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:<=>` member overrides `Data#<=>` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:==)",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:==` member overrides `Data#==` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"==\")",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"==\"` member overrides `Data#==` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(==))",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:==` member overrides `Data#==` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:===)",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:===` member overrides `Data#===` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"===\")",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"===\"` member overrides `Data#===` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(===))",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:===` member overrides `Data#===` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:__id__)",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:__id__` member overrides `Data#__id__` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"__id__\")",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"__id__\"` member overrides `Data#__id__` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(__id__))",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:__id__` member overrides `Data#__id__` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:__send__)",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:__send__` member overrides `Data#__send__` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"__send__\")",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"__send__\"` member overrides `Data#__send__` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(__send__))",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:__send__` member overrides `Data#__send__` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:class)",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:class` member overrides `Data#class` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"class\")",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"class\"` member overrides `Data#class` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(class))",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:class` member overrides `Data#class` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:clone)",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"clone\")",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"clone\"` member overrides `Data#clone` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(clone))",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:deconstruct)",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:deconstruct` member overrides `Data#deconstruct` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"deconstruct\")",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"deconstruct\"` member overrides `Data#deconstruct` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(deconstruct))",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:deconstruct` member overrides `Data#deconstruct` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:deconstruct_keys)",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:deconstruct_keys` member overrides `Data#deconstruct_keys` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"deconstruct_keys\")",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"deconstruct_keys\"` member overrides `Data#deconstruct_keys` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(deconstruct_keys))",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:deconstruct_keys` member overrides `Data#deconstruct_keys` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:define_singleton_method)",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:define_singleton_method` member overrides `Data#define_singleton_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"define_singleton_method\")",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"define_singleton_method\"` member overrides `Data#define_singleton_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(define_singleton_method))",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:define_singleton_method` member overrides `Data#define_singleton_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:display)",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:display` member overrides `Data#display` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"display\")",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"display\"` member overrides `Data#display` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(display))",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:display` member overrides `Data#display` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:dup)",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:dup` member overrides `Data#dup` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"dup\")",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"dup\"` member overrides `Data#dup` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(dup))",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:dup` member overrides `Data#dup` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:enum_for)",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:enum_for` member overrides `Data#enum_for` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"enum_for\")",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"enum_for\"` member overrides `Data#enum_for` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(enum_for))",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:enum_for` member overrides `Data#enum_for` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:eql?)",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:eql?` member overrides `Data#eql?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"eql?\")",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"eql?\"` member overrides `Data#eql?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(eql?))",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:eql?` member overrides `Data#eql?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:equal?)",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:equal?` member overrides `Data#equal?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"equal?\")",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"equal?\"` member overrides `Data#equal?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(equal?))",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:equal?` member overrides `Data#equal?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:extend)",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:extend` member overrides `Data#extend` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"extend\")",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"extend\"` member overrides `Data#extend` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(extend))",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:extend` member overrides `Data#extend` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:freeze)",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:freeze` member overrides `Data#freeze` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"freeze\")",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"freeze\"` member overrides `Data#freeze` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(freeze))",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:freeze` member overrides `Data#freeze` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:frozen?)",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:frozen?` member overrides `Data#frozen?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"frozen?\")",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"frozen?\"` member overrides `Data#frozen?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(frozen?))",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:frozen?` member overrides `Data#frozen?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:hash)",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:hash` member overrides `Data#hash` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"hash\")",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"hash\"` member overrides `Data#hash` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(hash))",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:hash` member overrides `Data#hash` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:inspect)",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:inspect` member overrides `Data#inspect` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"inspect\")",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"inspect\"` member overrides `Data#inspect` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(inspect))",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:inspect` member overrides `Data#inspect` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_eval)",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_eval` member overrides `Data#instance_eval` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_eval\")",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_eval\"` member overrides `Data#instance_eval` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_eval))",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_eval` member overrides `Data#instance_eval` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_exec)",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_exec` member overrides `Data#instance_exec` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_exec\")",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_exec\"` member overrides `Data#instance_exec` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_exec))",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_exec` member overrides `Data#instance_exec` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_of?)",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_of?` member overrides `Data#instance_of?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_of?\")",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_of?\"` member overrides `Data#instance_of?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_of?))",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_of?` member overrides `Data#instance_of?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_variable_defined?)",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variable_defined?` member overrides `Data#instance_variable_defined?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_variable_defined?\")",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_variable_defined?\"` member overrides `Data#instance_variable_defined?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_variable_defined?))",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variable_defined?` member overrides `Data#instance_variable_defined?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_variable_get)",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variable_get` member overrides `Data#instance_variable_get` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_variable_get\")",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_variable_get\"` member overrides `Data#instance_variable_get` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_variable_get))",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variable_get` member overrides `Data#instance_variable_get` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_variable_set)",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variable_set` member overrides `Data#instance_variable_set` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_variable_set\")",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_variable_set\"` member overrides `Data#instance_variable_set` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_variable_set))",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variable_set` member overrides `Data#instance_variable_set` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:instance_variables)",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variables` member overrides `Data#instance_variables` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"instance_variables\")",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"instance_variables\"` member overrides `Data#instance_variables` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(instance_variables))",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:instance_variables` member overrides `Data#instance_variables` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:is_a?)",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:is_a?` member overrides `Data#is_a?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"is_a?\")",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"is_a?\"` member overrides `Data#is_a?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(is_a?))",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:is_a?` member overrides `Data#is_a?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:itself)",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:itself` member overrides `Data#itself` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"itself\")",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"itself\"` member overrides `Data#itself` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(itself))",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:itself` member overrides `Data#itself` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:kind_of?)",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:kind_of?` member overrides `Data#kind_of?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"kind_of?\")",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"kind_of?\"` member overrides `Data#kind_of?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(kind_of?))",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:kind_of?` member overrides `Data#kind_of?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:members)",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"members\")",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"members\"` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(members))",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:method)",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:method` member overrides `Data#method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"method\")",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"method\"` member overrides `Data#method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(method))",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:method` member overrides `Data#method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:methods)",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:methods` member overrides `Data#methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"methods\")",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"methods\"` member overrides `Data#methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(methods))",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:methods` member overrides `Data#methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:nil?)",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:nil?` member overrides `Data#nil?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"nil?\")",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"nil?\"` member overrides `Data#nil?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(nil?))",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:nil?` member overrides `Data#nil?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:object_id)",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:object_id` member overrides `Data#object_id` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"object_id\")",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"object_id\"` member overrides `Data#object_id` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(object_id))",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:object_id` member overrides `Data#object_id` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:private_methods)",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:private_methods` member overrides `Data#private_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"private_methods\")",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"private_methods\"` member overrides `Data#private_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(private_methods))",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:private_methods` member overrides `Data#private_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:protected_methods)",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:protected_methods` member overrides `Data#protected_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"protected_methods\")",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"protected_methods\"` member overrides `Data#protected_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(protected_methods))",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:protected_methods` member overrides `Data#protected_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:public_method)",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:public_method` member overrides `Data#public_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"public_method\")",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"public_method\"` member overrides `Data#public_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(public_method))",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:public_method` member overrides `Data#public_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:public_methods)",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:public_methods` member overrides `Data#public_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"public_methods\")",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"public_methods\"` member overrides `Data#public_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(public_methods))",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:public_methods` member overrides `Data#public_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:public_send)",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:public_send` member overrides `Data#public_send` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"public_send\")",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"public_send\"` member overrides `Data#public_send` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(public_send))",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:public_send` member overrides `Data#public_send` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:remove_instance_variable)",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:remove_instance_variable` member overrides `Data#remove_instance_variable` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"remove_instance_variable\")",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"remove_instance_variable\"` member overrides `Data#remove_instance_variable` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(remove_instance_variable))",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:remove_instance_variable` member overrides `Data#remove_instance_variable` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:respond_to?)",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:respond_to?` member overrides `Data#respond_to?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"respond_to?\")",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"respond_to?\"` member overrides `Data#respond_to?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(respond_to?))",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:respond_to?` member overrides `Data#respond_to?` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:send)",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:send` member overrides `Data#send` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"send\")",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"send\"` member overrides `Data#send` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(send))",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:send` member overrides `Data#send` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:singleton_class)",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:singleton_class` member overrides `Data#singleton_class` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"singleton_class\")",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"singleton_class\"` member overrides `Data#singleton_class` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(singleton_class))",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:singleton_class` member overrides `Data#singleton_class` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:singleton_method)",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:singleton_method` member overrides `Data#singleton_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"singleton_method\")",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"singleton_method\"` member overrides `Data#singleton_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(singleton_method))",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:singleton_method` member overrides `Data#singleton_method` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:singleton_methods)",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:singleton_methods` member overrides `Data#singleton_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"singleton_methods\")",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"singleton_methods\"` member overrides `Data#singleton_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(singleton_methods))",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:singleton_methods` member overrides `Data#singleton_methods` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:tap)",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:tap` member overrides `Data#tap` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"tap\")",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"tap\"` member overrides `Data#tap` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(tap))",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:tap` member overrides `Data#tap` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:then)",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:then` member overrides `Data#then` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"then\")",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"then\"` member overrides `Data#then` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(then))",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:then` member overrides `Data#then` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:to_enum)",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:to_enum` member overrides `Data#to_enum` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"to_enum\")",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"to_enum\"` member overrides `Data#to_enum` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(to_enum))",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:to_enum` member overrides `Data#to_enum` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:to_h)",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:to_h` member overrides `Data#to_h` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"to_h\")",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"to_h\"` member overrides `Data#to_h` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(to_h))",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:to_h` member overrides `Data#to_h` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:to_s)",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:to_s` member overrides `Data#to_s` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"to_s\")",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"to_s\"` member overrides `Data#to_s` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(to_s))",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:to_s` member overrides `Data#to_s` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:with)",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:with` member overrides `Data#with` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"with\")",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"with\"` member overrides `Data#with` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(with))",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:with` member overrides `Data#with` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:yield_self)",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:yield_self` member overrides `Data#yield_self` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data.define(\"yield_self\")",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`\"yield_self\"` member overrides `Data#yield_self` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(%s(yield_self))",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:yield_self` member overrides `Data#yield_self` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:count, :to_a, :[], :[]=, :values, :to_set)",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Other::Data.define(:members)",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data&.define(:members)",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.new(:members)",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Struct.define(:members)",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "define(:members)",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(members)",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(*%i[members])",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(&:members)",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:\"#{name}\")",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\"#{name}\")",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\"mem\\x62ers\", :\"cl\\u006fne\")",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`\"members\"` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        1,
+        27,
+        1,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\n :members,\n :clone\n) do\n def members; end\nend\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        3,
+        2,
+        3,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "foo(Data.define(:members))",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "def f; Data.define(:members); end",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:id) { Data.define(:members) }",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "begin; nil; rescue; Data.define(:members); ensure; Data.define(:clone); end",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        1,
+        64,
+        1,
+        "`:clone` member overrides `Data#clone` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "# Data.define(:members)\n'Data.define(:members)'",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\"mem\nbers\")",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define((:members))",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\"members\", :\"members\", %s(members))",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`\"members\"` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        1,
+        24,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ],
+      [
+        1,
+        36,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "module Other; Data.define(:members); end",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data = Other; Data.define(:members)",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "(Data).define(:members)",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data::define(:members)",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "::Data::define(:members)",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\"mem\" \"bers\")",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:\"mem\\u0062ers\")",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(\"mem\\\nbers\")",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+      [
+        1,
+        13,
+        2,
+        "`\"members\"` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(<<~NAME)\n members\\\n\nNAME\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:\"#{\"members\"}\")",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/DataDefineOverride",
+    "source": "Data.define(:\"\\u{6d 65 6d 62 65 72 73}\")",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`:members` member overrides `Data#members` and it may be unexpected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "[]\n{}\nArray.new\nHash.new\nHash.new { |h, k| h[k] = [] }\nHash.new { |h, k| h[k] = {} }\nHash.new { 0 }\nHash.new { Array.new }\nHash.new { Hash.new }\nHash.new { {} }\nHash.new { [] }\nHash.new(0)\nHash.new(false)\nHash.new(true)\nHash.new(nil)\nHash.new(BigDecimal(0))\nHash.new(BigDecimal(0.0))\nHash.new(0.0)\nHash.new(0.0.to_d)\n",
+    "origin": "spec",
+    "line": 6,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze)\nHash.new({}.freeze)\nHash.new(Array.new.freeze)\nHash.new(Hash.new.freeze)\n",
+    "origin": "spec",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(capacity: 42)\n",
+    "origin": "spec",
+    "line": 43,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], capacity: 42)\nHash.new(Array.new, capacity: 42)\nHash.new(Hash.new, capacity: 42)\n",
+    "origin": "spec",
+    "line": 49,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        2,
+        1,
+        2,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, capacity: 42)\n",
+    "origin": "spec",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([])\nHash.new Array.new\n",
+    "origin": "spec",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        2,
+        1,
+        2,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({})\nHash.new(Hash.new)\n",
+    "origin": "spec",
+    "line": 79,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        2,
+        1,
+        2,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, capacity: 42)\n",
+    "origin": "spec",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# bad\nHash.new([])\nHash.new({})\nHash.new(Array.new)\nHash.new(Hash.new)\n",
+    "origin": "source",
+    "line": 15,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# okay -- In rare cases that intentionally have this behavior,\n#   without disabling the cop, you can set the default explicitly.\nh = Hash.new\nh.default = []\nh[:a] << 1\nh[:b] << 2\nh # => {:a => [1, 2], :b => [1, 2]}\n",
+    "origin": "source",
+    "line": 21,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# okay -- beware this will discard mutations and only remember assignments\nHash.new { Array.new }\nHash.new { Hash.new }\nHash.new { {} }\nHash.new { [] }\n",
+    "origin": "source",
+    "line": 29,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# good - frozen solution will raise an error when mutation attempted\nHash.new([].freeze)\nHash.new({}.freeze)\n",
+    "origin": "source",
+    "line": 35,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# good - using a proc will create a new object for each key\nh = Hash.new\nh.default_proc = ->(h, k) { [] }\nh.default_proc = ->(h, k) { {} }\n",
+    "origin": "source",
+    "line": 39,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# good - using a block will create a new object for each key\nHash.new { |h, k| h[k] = [] }\nHash.new { |h, k| h[k] = {} }\n",
+    "origin": "source",
+    "line": 44,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([])\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], capacity: 42)\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], {capacity: 42})\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], capacity: nil)\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], unknown: 1)\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], &block)\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({})\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, capacity: 42)\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, {capacity: 42})\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, capacity: nil)\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, unknown: 1)\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}, &block)\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1])\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], capacity: 42)\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], {capacity: 42})\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], capacity: nil)\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], unknown: 1)\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([1], &block)\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1})\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, capacity: 42)\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, {capacity: 42})\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, capacity: nil)\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, unknown: 1)\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({a: 1}, &block)\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a])\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], capacity: 42)\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], {capacity: 42})\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], capacity: nil)\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], unknown: 1)\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%w[a], &block)\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a])\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], capacity: 42)\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], {capacity: 42})\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], capacity: nil)\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], unknown: 1)\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(%i[a], &block)\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new)\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, capacity: 42)\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, {capacity: 42})\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, capacity: nil)\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, unknown: 1)\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, &block)\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new())\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), capacity: 42)\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), {capacity: 42})\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), capacity: nil)\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), unknown: 1)\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Array.new(), &block)\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new)\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, capacity: 42)\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, {capacity: 42})\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, capacity: nil)\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, unknown: 1)\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new, &block)\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new())\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), capacity: 42)\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), {capacity: 42})\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), capacity: nil)\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), unknown: 1)\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash.new(), &block)\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2))\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), capacity: 42)\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), {capacity: 42})\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), capacity: nil)\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), unknown: 1)\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(2), &block)\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0))\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), capacity: 42)\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), {capacity: 42})\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), capacity: nil)\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), unknown: 1)\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new(0), &block)\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {})\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, capacity: 42)\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, {capacity: 42})\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, capacity: nil)\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, unknown: 1)\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new {}, &block)\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {})\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, capacity: 42)\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, {capacity: 42})\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, capacity: nil)\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, unknown: 1)\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Hash.new {}, &block)\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block))\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), capacity: 42)\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), {capacity: 42})\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), capacity: nil)\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), unknown: 1)\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new(&block), &block)\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new)\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, capacity: 42)\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, {capacity: 42})\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, capacity: nil)\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, unknown: 1)\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Other::Array.new, &block)\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new)\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, capacity: 42)\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, {capacity: 42})\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, capacity: nil)\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, unknown: 1)\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array&.new, &block)\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze)\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, capacity: 42)\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, {capacity: 42})\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, capacity: nil)\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, unknown: 1)\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([].freeze, &block)\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze)\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, capacity: 42)\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, {capacity: 42})\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, capacity: nil)\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, unknown: 1)\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({}.freeze, &block)\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new))\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), capacity: 42)\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), {capacity: 42})\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), capacity: nil)\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), unknown: 1)\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array.new), &block)\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]))\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), capacity: 42)\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), {capacity: 42})\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), capacity: nil)\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), unknown: 1)\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(([]), &block)\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\")\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", capacity: 42)\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", {capacity: 42})\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", capacity: nil)\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", unknown: 1)\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"\", &block)\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol)\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, capacity: 42)\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, {capacity: 42})\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, capacity: nil)\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, unknown: 1)\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(:symbol, &block)\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new)\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, capacity: 42)\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, {capacity: 42})\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, capacity: nil)\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, unknown: 1)\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(String.new, &block)\n",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil)\n",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, capacity: 42)\n",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, {capacity: 42})\n",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, capacity: nil)\n",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, unknown: 1)\n",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(nil, &block)\n",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false)\n",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, capacity: 42)\n",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, {capacity: 42})\n",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, capacity: nil)\n",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, unknown: 1)\n",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(false, &block)\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0)\n",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, capacity: 42)\n",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, {capacity: 42})\n",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, capacity: nil)\n",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, unknown: 1)\n",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(0, &block)\n",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default)\n",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, capacity: 42)\n",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, {capacity: 42})\n",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, capacity: nil)\n",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, unknown: 1)\n",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, capacity: 1, other: 2)\n",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, {\"capacity\" => 1})\n",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(default, &block)\n",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(capacity: 42)",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new({capacity: []})",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(capacity: 1, other: 2)",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\"capacity\" => 1)",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(**opts)",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], **opts)",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], **{capacity: 1})",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(*[[]])",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Other::Hash.new([])",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash&.new([])",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "::Hash.new([])",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.build([])",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Array.new([])",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(a: 1)",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(a: 1, capacity: 2)",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], capacity:)",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], { :\"capacity\" => 1 })",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], {capacity: 1, **opts})",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(\n []\n) do |h, k|\n Hash.new({})\nend\n",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        4,
+        2,
+        4,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([]) { |h, k| h[k] = [] }",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([]).freeze",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new { [] })",
+    "origin": "control",
+    "line": 246,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new, &block)",
+    "origin": "control",
+    "line": 247,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array.new { [] }, capacity: 1)",
+    "origin": "control",
+    "line": 248,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "foo(Hash.new([]))",
+    "origin": "control",
+    "line": 249,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "def f; Hash.new({}); end",
+    "origin": "control",
+    "line": 250,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "begin; nil; rescue; Hash.new([]); ensure; Hash.new({}); end",
+    "origin": "control",
+    "line": 251,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ],
+      [
+        1,
+        43,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "# Hash.new([])\n'Hash.new([])'",
+    "origin": "control",
+    "line": 252,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "default = []; Hash.new(default)",
+    "origin": "control",
+    "line": 253,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "h = Hash.new; h.default = []",
+    "origin": "control",
+    "line": 254,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash = Other; Hash.new([])",
+    "origin": "control",
+    "line": 255,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "(Hash).new([])",
+    "origin": "control",
+    "line": 256,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash::new([])",
+    "origin": "control",
+    "line": 257,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new((Array).new)",
+    "origin": "control",
+    "line": 258,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(Array::new)",
+    "origin": "control",
+    "line": 259,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new(::Hash::new)",
+    "origin": "control",
+    "line": 260,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], capacity: foo())",
+    "origin": "control",
+    "line": 261,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], :capacity => 1)",
+    "origin": "control",
+    "line": 262,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], :\"capa\\u0063ity\" => 1)",
+    "origin": "control",
+    "line": 263,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Do not create a Hash with a mutable default value as the default value can accidentally be changed."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/SharedMutableDefault",
+    "source": "Hash.new([], ({capacity: 1}))",
+    "origin": "control",
+    "line": 264,
+    "findings": [
+
+    ]
+  }
+]

@@ -1,0 +1,3726 @@
+[
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 348,
+    "source": "array.select { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 359,
+    "source": "array&.select { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 370,
+    "source": "array.select { /regexp/.match?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 381,
+    "source": "array.select { it =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 392,
+    "source": "array.select { /regexp/ =~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 403,
+    "source": "array.select { /regexp/.match?(foo(it)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 409,
+    "source": "array.select { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 348,
+    "source": "array.find_all { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 359,
+    "source": "array&.find_all { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 370,
+    "source": "array.find_all { /regexp/.match?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 381,
+    "source": "array.find_all { it =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 392,
+    "source": "array.find_all { /regexp/ =~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 403,
+    "source": "array.find_all { /regexp/.match?(foo(it)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 409,
+    "source": "array.find_all { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 348,
+    "source": "array.filter { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 359,
+    "source": "array&.filter { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 370,
+    "source": "array.filter { /regexp/.match?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 381,
+    "source": "array.filter { it =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 392,
+    "source": "array.filter { /regexp/ =~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 403,
+    "source": "array.filter { /regexp/.match?(foo(it)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 409,
+    "source": "array.filter { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 556,
+    "source": "array.reject { it !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 567,
+    "source": "array.reject { /regexp/ !~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 348,
+    "source": "array.reject { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 359,
+    "source": "array&.reject { it.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 370,
+    "source": "array.reject { /regexp/.match?(it) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 381,
+    "source": "array.reject { it =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 392,
+    "source": "array.reject { /regexp/ =~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 403,
+    "source": "array.reject { /regexp/.match?(foo(it)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 409,
+    "source": "array.reject { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 556,
+    "source": "array.select { it !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 567,
+    "source": "array.select { /regexp/ !~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 556,
+    "source": "array.find_all { it !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 567,
+    "source": "array.find_all { /regexp/ !~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 556,
+    "source": "array.filter { it !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 567,
+    "source": "array.filter { /regexp/ !~ it }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 271,
+    "source": "array.select { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 282,
+    "source": "array&.select { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 293,
+    "source": "array.select { /regexp/.match?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 304,
+    "source": "array.select { _1 =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 315,
+    "source": "array.select { /regexp/ =~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 326,
+    "source": "array.select { _1 =~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 332,
+    "source": "array.select { /regexp/.match?(foo(_1)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 338,
+    "source": "array.select { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 271,
+    "source": "array.find_all { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 282,
+    "source": "array&.find_all { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 293,
+    "source": "array.find_all { /regexp/.match?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 304,
+    "source": "array.find_all { _1 =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 315,
+    "source": "array.find_all { /regexp/ =~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 326,
+    "source": "array.find_all { _1 =~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 332,
+    "source": "array.find_all { /regexp/.match?(foo(_1)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 338,
+    "source": "array.find_all { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 271,
+    "source": "array.filter { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 282,
+    "source": "array&.filter { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 293,
+    "source": "array.filter { /regexp/.match?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 304,
+    "source": "array.filter { _1 =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 315,
+    "source": "array.filter { /regexp/ =~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 326,
+    "source": "array.filter { _1 =~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 332,
+    "source": "array.filter { /regexp/.match?(foo(_1)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 338,
+    "source": "array.filter { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 524,
+    "source": "array.reject { _1 !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 535,
+    "source": "array.reject { /regexp/ !~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 546,
+    "source": "array.reject { _1 !~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 271,
+    "source": "array.reject { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 282,
+    "source": "array&.reject { _1.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 293,
+    "source": "array.reject { /regexp/.match?(_1) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 304,
+    "source": "array.reject { _1 =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 315,
+    "source": "array.reject { /regexp/ =~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 326,
+    "source": "array.reject { _1 =~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 332,
+    "source": "array.reject { /regexp/.match?(foo(_1)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 338,
+    "source": "array.reject { |item| match?(item) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 524,
+    "source": "array.select { _1 !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 535,
+    "source": "array.select { /regexp/ !~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 546,
+    "source": "array.select { _1 !~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 524,
+    "source": "array.find_all { _1 !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 535,
+    "source": "array.find_all { /regexp/ !~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 546,
+    "source": "array.find_all { _1 !~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 524,
+    "source": "array.filter { _1 !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 535,
+    "source": "array.filter { /regexp/ !~ _1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 546,
+    "source": "array.filter { _1 !~ _2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 9,
+    "source": "array.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 20,
+    "source": "array.filter { |x| /regexp/.match? x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 31,
+    "source": "array.filter { |x| x =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 42,
+    "source": "lvar = /regexp/\narray.filter { |x| x =~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 55,
+    "source": "array.filter { |x| /regexp/ =~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 66,
+    "source": "lvar = /regexp/\narray.filter { |x| lvar =~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 79,
+    "source": "array.filter { |x| x =~ y }\narray.filter { |x| x =~ REGEXP }\narray.filter { |x| x =~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match.",
+      "Prefer `grep` to `filter` with a regexp match.",
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(y)\narray.grep(REGEXP)\narray.grep(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 96,
+    "source": "array.filter do |x|\n  x.match? /regexp/\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 109,
+    "source": "array.filter\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 115,
+    "source": "array.filter(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 121,
+    "source": "array.filter { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 127,
+    "source": "array.filter do |x|\n  next if x.even?\n  x.match? /regexp/\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 136,
+    "source": "obj.filter { |x, y| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 142,
+    "source": "array.filter { |x| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 148,
+    "source": "array.filter { |x| /regexp/.match?(foo(x)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 154,
+    "source": "array.filter { }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 160,
+    "source": "filter { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 171,
+    "source": "[].filter { |x| x.match?(/regexp/) }\nfoo.to_a.filter { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match.",
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "[].grep(/regexp/)\nfoo.to_a.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 185,
+    "source": "('aaa'...'abc').filter { |x| x.match?(/ab/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "('aaa'...'abc').grep(/ab/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 196,
+    "source": "Set.new.filter { |x| x.match?(/regexp/) }\n[].to_set.filter { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match.",
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "Set.new.grep(/regexp/)\n[].to_set.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 210,
+    "source": "{}.filter { |x| x.match? /regexp/ }\n{ foo: :bar }.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 217,
+    "source": "Hash.new.filter { |x| x.match? /regexp/ }\nHash.new(:default).filter { |x| x.match? /regexp/ }\nHash.new { |hash, key| :default }.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 225,
+    "source": "Hash[h].filter { |x| x.match? /regexp/ }\nHash[:foo, 0, :bar, 1].filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 232,
+    "source": "to_h.filter { |x| x.match? /regexp/ }\nfoo.to_h.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 239,
+    "source": "to_hash.filter { |x| x.match? /regexp/ }\nfoo.to_hash.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 248,
+    "source": "foo.to_h.bar.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "foo.to_h.bar.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 259,
+    "source": "ENV.filter { |x| x.match? /regexp/ }\n::ENV.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 419,
+    "source": "array&.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 430,
+    "source": "Hash&.new.filter { |x| x.match? /regexp/ }\nHash&.new { |hash, key| :default }.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 437,
+    "source": "foo&.to_h.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 443,
+    "source": "foo&.to_hash.filter { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 454,
+    "source": "array.filter { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 465,
+    "source": "lvar = /regexp/\narray.filter { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 478,
+    "source": "array.filter { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 489,
+    "source": "lvar = /regexp/\narray.filter { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 502,
+    "source": "array.filter { |x| x !~ y }\narray.filter { |x| x !~ REGEXP }\narray.filter { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match.",
+      "Prefer `grep_v` to `filter` with a regexp match.",
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array.grep_v(y)\narray.grep_v(REGEXP)\narray.grep_v(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 583,
+    "source": "array&.filter { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 594,
+    "source": "lvar = /regexp/\narray&.filter { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 607,
+    "source": "array&.filter { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 618,
+    "source": "lvar = /regexp/\narray&.filter { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 631,
+    "source": "array&.filter { |x| x !~ y }\narray&.filter { |x| x !~ REGEXP }\narray&.filter { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a regexp match.",
+      "Prefer `grep_v` to `filter` with a regexp match.",
+      "Prefer `grep_v` to `filter` with a regexp match."
+    ],
+    "correction": "array&.grep_v(y)\narray&.grep_v(REGEXP)\narray&.grep_v(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 9,
+    "source": "array.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 20,
+    "source": "array.select { |x| /regexp/.match? x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 31,
+    "source": "array.select { |x| x =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 42,
+    "source": "lvar = /regexp/\narray.select { |x| x =~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 55,
+    "source": "array.select { |x| /regexp/ =~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 66,
+    "source": "lvar = /regexp/\narray.select { |x| lvar =~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 79,
+    "source": "array.select { |x| x =~ y }\narray.select { |x| x =~ REGEXP }\narray.select { |x| x =~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match.",
+      "Prefer `grep` to `select` with a regexp match.",
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(y)\narray.grep(REGEXP)\narray.grep(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 96,
+    "source": "array.select do |x|\n  x.match? /regexp/\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 109,
+    "source": "array.select\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 115,
+    "source": "array.select(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 121,
+    "source": "array.select { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 127,
+    "source": "array.select do |x|\n  next if x.even?\n  x.match? /regexp/\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 136,
+    "source": "obj.select { |x, y| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 142,
+    "source": "array.select { |x| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 148,
+    "source": "array.select { |x| /regexp/.match?(foo(x)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 154,
+    "source": "array.select { }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 160,
+    "source": "select { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 171,
+    "source": "[].select { |x| x.match?(/regexp/) }\nfoo.to_a.select { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match.",
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "[].grep(/regexp/)\nfoo.to_a.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 185,
+    "source": "('aaa'...'abc').select { |x| x.match?(/ab/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "('aaa'...'abc').grep(/ab/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 196,
+    "source": "Set.new.select { |x| x.match?(/regexp/) }\n[].to_set.select { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match.",
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "Set.new.grep(/regexp/)\n[].to_set.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 210,
+    "source": "{}.select { |x| x.match? /regexp/ }\n{ foo: :bar }.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 217,
+    "source": "Hash.new.select { |x| x.match? /regexp/ }\nHash.new(:default).select { |x| x.match? /regexp/ }\nHash.new { |hash, key| :default }.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 225,
+    "source": "Hash[h].select { |x| x.match? /regexp/ }\nHash[:foo, 0, :bar, 1].select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 232,
+    "source": "to_h.select { |x| x.match? /regexp/ }\nfoo.to_h.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 239,
+    "source": "to_hash.select { |x| x.match? /regexp/ }\nfoo.to_hash.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 248,
+    "source": "foo.to_h.bar.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "foo.to_h.bar.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 259,
+    "source": "ENV.select { |x| x.match? /regexp/ }\n::ENV.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 419,
+    "source": "array&.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 430,
+    "source": "Hash&.new.select { |x| x.match? /regexp/ }\nHash&.new { |hash, key| :default }.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 437,
+    "source": "foo&.to_h.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 443,
+    "source": "foo&.to_hash.select { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 9,
+    "source": "array.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 20,
+    "source": "array.find_all { |x| /regexp/.match? x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 31,
+    "source": "array.find_all { |x| x =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 42,
+    "source": "lvar = /regexp/\narray.find_all { |x| x =~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 55,
+    "source": "array.find_all { |x| /regexp/ =~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 66,
+    "source": "lvar = /regexp/\narray.find_all { |x| lvar =~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 79,
+    "source": "array.find_all { |x| x =~ y }\narray.find_all { |x| x =~ REGEXP }\narray.find_all { |x| x =~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match.",
+      "Prefer `grep` to `find_all` with a regexp match.",
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(y)\narray.grep(REGEXP)\narray.grep(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 96,
+    "source": "array.find_all do |x|\n  x.match? /regexp/\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 109,
+    "source": "array.find_all\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 115,
+    "source": "array.find_all(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 121,
+    "source": "array.find_all { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 127,
+    "source": "array.find_all do |x|\n  next if x.even?\n  x.match? /regexp/\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 136,
+    "source": "obj.find_all { |x, y| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 142,
+    "source": "array.find_all { |x| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 148,
+    "source": "array.find_all { |x| /regexp/.match?(foo(x)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 154,
+    "source": "array.find_all { }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 160,
+    "source": "find_all { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 171,
+    "source": "[].find_all { |x| x.match?(/regexp/) }\nfoo.to_a.find_all { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match.",
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "[].grep(/regexp/)\nfoo.to_a.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 185,
+    "source": "('aaa'...'abc').find_all { |x| x.match?(/ab/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "('aaa'...'abc').grep(/ab/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 196,
+    "source": "Set.new.find_all { |x| x.match?(/regexp/) }\n[].to_set.find_all { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match.",
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "Set.new.grep(/regexp/)\n[].to_set.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 210,
+    "source": "{}.find_all { |x| x.match? /regexp/ }\n{ foo: :bar }.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 217,
+    "source": "Hash.new.find_all { |x| x.match? /regexp/ }\nHash.new(:default).find_all { |x| x.match? /regexp/ }\nHash.new { |hash, key| :default }.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 225,
+    "source": "Hash[h].find_all { |x| x.match? /regexp/ }\nHash[:foo, 0, :bar, 1].find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 232,
+    "source": "to_h.find_all { |x| x.match? /regexp/ }\nfoo.to_h.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 239,
+    "source": "to_hash.find_all { |x| x.match? /regexp/ }\nfoo.to_hash.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 248,
+    "source": "foo.to_h.bar.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "foo.to_h.bar.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 259,
+    "source": "ENV.find_all { |x| x.match? /regexp/ }\n::ENV.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 419,
+    "source": "array&.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 430,
+    "source": "Hash&.new.find_all { |x| x.match? /regexp/ }\nHash&.new { |hash, key| :default }.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 437,
+    "source": "foo&.to_h.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 443,
+    "source": "foo&.to_hash.find_all { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 454,
+    "source": "array.reject { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 465,
+    "source": "lvar = /regexp/\narray.reject { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 478,
+    "source": "array.reject { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 489,
+    "source": "lvar = /regexp/\narray.reject { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 502,
+    "source": "array.reject { |x| x !~ y }\narray.reject { |x| x !~ REGEXP }\narray.reject { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match.",
+      "Prefer `grep` to `reject` with a regexp match.",
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(y)\narray.grep(REGEXP)\narray.grep(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 583,
+    "source": "array&.reject { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 594,
+    "source": "lvar = /regexp/\narray&.reject { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 607,
+    "source": "array&.reject { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array&.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 618,
+    "source": "lvar = /regexp/\narray&.reject { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 631,
+    "source": "array&.reject { |x| x !~ y }\narray&.reject { |x| x !~ REGEXP }\narray&.reject { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match.",
+      "Prefer `grep` to `reject` with a regexp match.",
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array&.grep(y)\narray&.grep(REGEXP)\narray&.grep(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 654,
+    "source": "array.select { |x| !x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 665,
+    "source": "array.select { |x| !/regexp/.match?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 676,
+    "source": "array.select { |x| !(x =~ /regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 687,
+    "source": "array.select { |x| !(/regexp/ =~ x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 654,
+    "source": "array.find_all { |x| !x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 665,
+    "source": "array.find_all { |x| !/regexp/.match?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 676,
+    "source": "array.find_all { |x| !(x =~ /regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 687,
+    "source": "array.find_all { |x| !(/regexp/ =~ x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 654,
+    "source": "array.reject { |x| !x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 665,
+    "source": "array.reject { |x| !/regexp/.match?(x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 676,
+    "source": "array.reject { |x| !(x =~ /regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 687,
+    "source": "array.reject { |x| !(/regexp/ =~ x) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 9,
+    "source": "array.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 20,
+    "source": "array.reject { |x| /regexp/.match? x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 31,
+    "source": "array.reject { |x| x =~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 42,
+    "source": "lvar = /regexp/\narray.reject { |x| x =~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 55,
+    "source": "array.reject { |x| /regexp/ =~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 66,
+    "source": "lvar = /regexp/\narray.reject { |x| lvar =~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 79,
+    "source": "array.reject { |x| x =~ y }\narray.reject { |x| x =~ REGEXP }\narray.reject { |x| x =~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match.",
+      "Prefer `grep_v` to `reject` with a regexp match.",
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(y)\narray.grep_v(REGEXP)\narray.grep_v(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 96,
+    "source": "array.reject do |x|\n  x.match? /regexp/\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 109,
+    "source": "array.reject\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 115,
+    "source": "array.reject(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 121,
+    "source": "array.reject { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 127,
+    "source": "array.reject do |x|\n  next if x.even?\n  x.match? /regexp/\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 136,
+    "source": "obj.reject { |x, y| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 142,
+    "source": "array.reject { |x| y.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 148,
+    "source": "array.reject { |x| /regexp/.match?(foo(x)) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 154,
+    "source": "array.reject { }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 160,
+    "source": "reject { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 171,
+    "source": "[].reject { |x| x.match?(/regexp/) }\nfoo.to_a.reject { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match.",
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "[].grep_v(/regexp/)\nfoo.to_a.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 185,
+    "source": "('aaa'...'abc').reject { |x| x.match?(/ab/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "('aaa'...'abc').grep_v(/ab/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 196,
+    "source": "Set.new.reject { |x| x.match?(/regexp/) }\n[].to_set.reject { |x| x.match?(/regexp/) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match.",
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "Set.new.grep_v(/regexp/)\n[].to_set.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 210,
+    "source": "{}.reject { |x| x.match? /regexp/ }\n{ foo: :bar }.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 217,
+    "source": "Hash.new.reject { |x| x.match? /regexp/ }\nHash.new(:default).reject { |x| x.match? /regexp/ }\nHash.new { |hash, key| :default }.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 225,
+    "source": "Hash[h].reject { |x| x.match? /regexp/ }\nHash[:foo, 0, :bar, 1].reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 232,
+    "source": "to_h.reject { |x| x.match? /regexp/ }\nfoo.to_h.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 239,
+    "source": "to_hash.reject { |x| x.match? /regexp/ }\nfoo.to_hash.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 248,
+    "source": "foo.to_h.bar.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "foo.to_h.bar.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 259,
+    "source": "ENV.reject { |x| x.match? /regexp/ }\n::ENV.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 419,
+    "source": "array&.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 430,
+    "source": "Hash&.new.reject { |x| x.match? /regexp/ }\nHash&.new { |hash, key| :default }.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 437,
+    "source": "foo&.to_h.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 443,
+    "source": "foo&.to_hash.reject { |x| x.match? /regexp/ }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 454,
+    "source": "array.select { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 465,
+    "source": "lvar = /regexp/\narray.select { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 478,
+    "source": "array.select { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 489,
+    "source": "lvar = /regexp/\narray.select { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 502,
+    "source": "array.select { |x| x !~ y }\narray.select { |x| x !~ REGEXP }\narray.select { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match.",
+      "Prefer `grep_v` to `select` with a regexp match.",
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array.grep_v(y)\narray.grep_v(REGEXP)\narray.grep_v(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 583,
+    "source": "array&.select { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 594,
+    "source": "lvar = /regexp/\narray&.select { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 607,
+    "source": "array&.select { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 618,
+    "source": "lvar = /regexp/\narray&.select { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 631,
+    "source": "array&.select { |x| x !~ y }\narray&.select { |x| x !~ REGEXP }\narray&.select { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a regexp match.",
+      "Prefer `grep_v` to `select` with a regexp match.",
+      "Prefer `grep_v` to `select` with a regexp match."
+    ],
+    "correction": "array&.grep_v(y)\narray&.grep_v(REGEXP)\narray&.grep_v(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 454,
+    "source": "array.find_all { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 465,
+    "source": "lvar = /regexp/\narray.find_all { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 478,
+    "source": "array.find_all { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 489,
+    "source": "lvar = /regexp/\narray.find_all { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 502,
+    "source": "array.find_all { |x| x !~ y }\narray.find_all { |x| x !~ REGEXP }\narray.find_all { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match.",
+      "Prefer `grep_v` to `find_all` with a regexp match.",
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array.grep_v(y)\narray.grep_v(REGEXP)\narray.grep_v(foo.bar.baz(quux))\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 583,
+    "source": "array&.find_all { |x| x !~ /regexp/ }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 594,
+    "source": "lvar = /regexp/\narray&.find_all { |x| x !~ lvar }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 607,
+    "source": "array&.find_all { |x| /regexp/ !~ x }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array&.grep_v(/regexp/)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 618,
+    "source": "lvar = /regexp/\narray&.find_all { |x| lvar !~ x }\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "lvar = /regexp/\narray&.grep_v(lvar)\n"
+  },
+  {
+    "cop": "Style/SelectByRegexp",
+    "spec_line": 631,
+    "source": "array&.find_all { |x| x !~ y }\narray&.find_all { |x| x !~ REGEXP }\narray&.find_all { |x| x !~ foo.bar.baz(quux) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a regexp match.",
+      "Prefer `grep_v` to `find_all` with a regexp match.",
+      "Prefer `grep_v` to `find_all` with a regexp match."
+    ],
+    "correction": "array&.grep_v(y)\narray&.grep_v(REGEXP)\narray&.grep_v(foo.bar.baz(quux))\n"
+  }
+]

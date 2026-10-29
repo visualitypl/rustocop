@@ -1,0 +1,4197 @@
+[
+  {
+    "source": "FOO = :bar\nFOO = :baz\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "self::FOO = :bar\nself::FOO = :baz\n",
+    "origin": "spec",
+    "line": 13,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 21,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  self::FOO = :bar\n  self::FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 31,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  FOO = :bar\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 41,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  self::FOO = :bar\n  self::FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 51,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\nend\n\nA::FOO = :baz\n",
+    "origin": "spec",
+    "line": 61,
+    "findings": [
+      [
+        5,
+        1,
+        5,
+        "Constant `A::FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\nend\n\n::A::FOO = :baz\n",
+    "origin": "spec",
+    "line": 72,
+    "findings": [
+      [
+        5,
+        1,
+        5,
+        "Constant `A::FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  class B\n    FOO = :bar\n  end\nend\n\nA::B::FOO = :baz\n",
+    "origin": "spec",
+    "line": 83,
+    "findings": [
+      [
+        7,
+        1,
+        7,
+        "Constant `A::B::FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  class B\n    FOO = :bar\n  end\nend\n\n::A::B::FOO = :baz\n",
+    "origin": "spec",
+    "line": 96,
+    "findings": [
+      [
+        7,
+        1,
+        7,
+        "Constant `A::B::FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  ::FOO = :bar\nend\n\nFOO = :baz\n",
+    "origin": "spec",
+    "line": 109,
+    "findings": [
+      [
+        5,
+        1,
+        5,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  class B\n    FOO = :bar\n  end\n\n  B::FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 120,
+    "findings": [
+      [
+        6,
+        3,
+        6,
+        "Constant `B::FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  class B\n    FOO = :bar\n  end\n\n  class B\n    FOO = :baz\n  end\nend\n",
+    "origin": "spec",
+    "line": 133,
+    "findings": [
+      [
+        7,
+        5,
+        7,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  ALL = [\n    FOO = :a,\n    BAR = :b,\n    BAZ = :c,\n    FOO = :d,\n  ]\nend\n",
+    "origin": "spec",
+    "line": 148,
+    "findings": [
+      [
+        6,
+        5,
+        6,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  ALL = [\n    FOO = :a,\n    BAR = :b,\n    BAZ = :c,\n    FOO = :d,\n  ].freeze\nend\n",
+    "origin": "spec",
+    "line": 162,
+    "findings": [
+      [
+        6,
+        5,
+        6,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n  FOO = :baz\nend unless defined?(A)\n",
+    "origin": "spec",
+    "line": 176,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "FOO = :bar\nFOO ||= :baz\n",
+    "origin": "spec",
+    "line": 186,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\nend\n\nclass B\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 193,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  FOO = :bar\nend\n\nmodule B\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 205,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  class C\n    FOO = :bar\n  end\nend\n\nmodule B\n  class C\n    FOO = :baz\n  end\nend\n",
+    "origin": "spec",
+    "line": 217,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nclass A\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 233,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nclass A\n  self::FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 243,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nmodule A\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 253,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  FOO = :bar\n  ::FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 263,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  module B\n    FOO = :bar\n  end\n\n  ::B::FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 272,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nclass A\n  FOO = :baz\n\n  remove_const :FOO\n\n  FOO = :quux\nend\n",
+    "origin": "spec",
+    "line": 284,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nclass A\n  FOO = :baz\n\n  remove_const 'FOO'\n\n  FOO = :quux\nend\n",
+    "origin": "spec",
+    "line": 298,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n\n  constant = :FOO\n  remove_const constant\nend\n",
+    "origin": "spec",
+    "line": 313,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nclass A\n  FOO = :baz\n\n  self.remove_const :FOO\n\n  FOO = :quux\nend\n",
+    "origin": "spec",
+    "line": 325,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n\n  silence_warnings do\n    FOO = :baz\n  end\nend\n",
+    "origin": "spec",
+    "line": 339,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n\n  silence_warnings do\n    FOO = :baz\n    BAR = :quux\n  end\nend\n",
+    "origin": "spec",
+    "line": 351,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n",
+    "origin": "spec",
+    "line": 364,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\nFOO = :baz unless something\n",
+    "origin": "spec",
+    "line": 370,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "if something\n  FOO = :bar\nelse\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 377,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nif something\n  FOO = :baz\n  FOO = :quux\nelse\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 387,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class Foo\n  FOO = :bar\n\n  if something\n    FOO = :baz\n    FOO = :quux\n  end\nend\n",
+    "origin": "spec",
+    "line": 400,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class Foo\n  if something\n    FOO = :bar\n  end\nend\n",
+    "origin": "spec",
+    "line": 413,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = :bar\n\nClass.new do\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 423,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin\n  FOO = File.read(filename)\nrescue\n  FOO = nil\nend\n",
+    "origin": "spec",
+    "line": 433,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "lvar::FOO = 1\nlvar::FOO = 2\n",
+    "origin": "spec",
+    "line": 443,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "lvar::FOO::BAR = 1\nlvar::FOO::BAR = 2\n",
+    "origin": "spec",
+    "line": 450,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class FooError < StandardError; end\nFooError = Class.new(RuntimeError)\n",
+    "origin": "spec",
+    "line": 457,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `FooError` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  class FooError < StandardError; end\n  FooError = Class.new(RuntimeError)\nend\n",
+    "origin": "spec",
+    "line": 465,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FooError` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A::FooError < StandardError; end\nA::FooError = Class.new(RuntimeError)\n",
+    "origin": "spec",
+    "line": 475,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `A::FooError` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module Matcher\n  FOO = :bar\nend\n\nmodule Documentation::Matcher\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 483,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A::Matcher\n  FOO = :bar\nend\n\nmodule B::Matcher\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 495,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class Matcher\n  FOO = :bar\nend\n\nclass Documentation::Matcher\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 507,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A::B\n  FOO = :bar\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 519,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A\n  module B\n    FOO = :bar\n  end\nend\n\nmodule A::B\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 529,
+    "findings": [
+      [
+        8,
+        3,
+        8,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module Outer\n  FOO = :bar\nend\n\nmodule Outer\n  module ::Other::Outer\n    FOO = :baz\n  end\nend\n",
+    "origin": "spec",
+    "line": 544,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FooError = Class.new(StandardError)\nclass FooError < StandardError; end\n",
+    "origin": "spec",
+    "line": 558,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "if condition\n  class FooError < StandardError; end\nend\nFooError = Class.new(StandardError)\n",
+    "origin": "spec",
+    "line": 565,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  class FooError < StandardError; end\nend\nmodule B\n  FooError = Class.new(StandardError)\nend\n",
+    "origin": "spec",
+    "line": 574,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class ::A::FooError < StandardError; end\nA::FooError = Class.new(RuntimeError)\n",
+    "origin": "spec",
+    "line": 585,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `A::FooError` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class Parent\n  class FooError < StandardError; end\n  FooError = Class.new(RuntimeError)\nend\n",
+    "origin": "spec",
+    "line": 593,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `FooError` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module M; end\nM = 1\n",
+    "origin": "spec",
+    "line": 603,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `M` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  module M; end\n  M = 1\nend\n",
+    "origin": "spec",
+    "line": 611,
+    "findings": [
+      [
+        3,
+        3,
+        3,
+        "Constant `M` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n  Other.remove_const :FOO\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 621,
+    "findings": [
+      [
+        4,
+        3,
+        4,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A\n  FOO = :bar\n  remove_const :FOO\n  FOO = :baz\nend\n",
+    "origin": "spec",
+    "line": 632,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  module M; end\nend\nmodule B\n  M = 1\nend\n",
+    "origin": "spec",
+    "line": 642,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "M = Module.new\nmodule M; end\n",
+    "origin": "spec",
+    "line": 653,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "FOO = 1\nFOO, BAR = 2, 3\n",
+    "origin": "spec",
+    "line": 660,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Constant `FOO` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition\n  module M; end\nend\nM = 1\n",
+    "origin": "spec",
+    "line": 668,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# bad\nX = :foo\nX = :bar\n",
+    "origin": "source",
+    "line": 31,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "# bad\nclass A\n  X = :foo\n  X = :bar\nend\n",
+    "origin": "source",
+    "line": 35,
+    "findings": [
+      [
+        4,
+        3,
+        4,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "# bad\nmodule A\n  X = :foo\n  X = :bar\nend\n",
+    "origin": "source",
+    "line": 41,
+    "findings": [
+      [
+        4,
+        3,
+        4,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "# bad\nclass FooError < StandardError; end\nFooError = Class.new(RuntimeError)\n",
+    "origin": "source",
+    "line": 47,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Constant `FooError` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "# bad\nmodule M; end\nM = 1\n",
+    "origin": "source",
+    "line": 51,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Constant `M` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "# good - keep only one assignment\nX = :bar\n",
+    "origin": "source",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A\n  X = :bar\nend\n",
+    "origin": "source",
+    "line": 58,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A\n  X = :bar\nend\n",
+    "origin": "source",
+    "line": 62,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# good - use OR assignment\nX = :foo\nX ||= :bar\n",
+    "origin": "source",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# good - use conditional assignment\nX = :foo\nX = :bar unless defined?(X)\n",
+    "origin": "source",
+    "line": 70,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# good - remove the assigned constant first\nclass A\n  X = :foo\n  remove_const :X\n  X = :bar\nend\n",
+    "origin": "source",
+    "line": 74,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# frozen_string_literal: true\n\nCROSS_FILE_CONST = :first\n",
+    "origin": "index-fixed-default",
+    "line": "a.rb",
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# frozen_string_literal: true\n\nCROSS_FILE_CONST = :second\n",
+    "origin": "index-fixed-default",
+    "line": "b.rb",
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "Module = 1\n",
+    "origin": "index-fixed-default",
+    "line": "built_in.rb",
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "# frozen_string_literal: true\n",
+    "origin": "index-fixed-default",
+    "line": "cache-cleared-a.rb",
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1; X = 2\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { X = 1; X = 2 }\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { X = 1; X = 2 }\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { X = 1; X = 2 }; end\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(X = 1; X = 2)\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; X = 1; X = 2; rescue; nil; end\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; X = 1; X = 2; end if condition\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "task { class A; X = 1; X = 2; end }\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X = 1; X = 2)]\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X = 1; X = 2)].freeze\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (X = 1; X = 2)}\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(X = 1; X = 2)}\"\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(X = 1; X = 2)}/\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(X = 1; X = 2)}`\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class X; end; X = 2\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; class X; end; X = 2; end; end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; class X; end; X = 2; end; end\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { class X; end; X = 2 }\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { class X; end; X = 2 }\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { class X; end; X = 2 }; end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(class X; end; X = 2)\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; class X; end; X = 2; rescue; nil; end\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; class X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; class X; end; X = 2; end; end\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class X; end; X = 2; end if condition\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { class A; class X; end; X = 2; end }\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = [(class X; end; X = 2)]\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = [(class X; end; X = 2)].freeze\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "consume((class X; end; X = 2))\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((class X; end; X = 2))\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value&.freeze((class X; end; X = 2))\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (class X; end; X = 2)}\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(class X; end; X = 2)}\"\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = /#{(class X; end; X = 2)}/\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = `#{(class X; end; X = 2)}`\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module X; end; X = 2\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; module X; end; X = 2; end; end\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+      [
+        1,
+        41,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; module X; end; X = 2; end; end\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { module X; end; X = 2 }\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { module X; end; X = 2 }\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { module X; end; X = 2 }; end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(module X; end; X = 2)\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; module X; end; X = 2; rescue; nil; end\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; module X; end; X = 2; end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; module X; end; X = 2; end; end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; module X; end; X = 2; end if condition\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { class A; module X; end; X = 2; end }\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = [(module X; end; X = 2)]\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = [(module X; end; X = 2)].freeze\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "consume((module X; end; X = 2))\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((module X; end; X = 2))\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value&.freeze((module X; end; X = 2))\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (module X; end; X = 2)}\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(module X; end; X = 2)}\"\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = /#{(module X; end; X = 2)}/\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = `#{(module X; end; X = 2)}`\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "self::X = 1; X = 2\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; self::X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        39,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; self::X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { self::X = 1; X = 2 }\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { self::X = 1; X = 2 }\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { self::X = 1; X = 2 }; end\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(self::X = 1; X = 2)\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; self::X = 1; X = 2; rescue; nil; end\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; self::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; self::X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; self::X = 1; X = 2; end if condition\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "task { class A; self::X = 1; X = 2; end }\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(self::X = 1; X = 2)]\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(self::X = 1; X = 2)].freeze\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((self::X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((self::X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((self::X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (self::X = 1; X = 2)}\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(self::X = 1; X = 2)}\"\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(self::X = 1; X = 2)}/\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(self::X = 1; X = 2)}`\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "::X = 1; X = 2\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A::B; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; ::X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "if condition; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; ::X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { ::X = 1; X = 2 }\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { ::X = 1; X = 2 }\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { ::X = 1; X = 2 }; end\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(::X = 1; X = 2)\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; ::X = 1; X = 2; rescue; nil; end\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; ::X = 1; X = 2; end\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; ::X = 1; X = 2; end; end\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; ::X = 1; X = 2; end if condition\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { class A; ::X = 1; X = 2; end }\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = [(::X = 1; X = 2)]\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(::X = 1; X = 2)].freeze\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((::X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((::X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((::X = 1; X = 2))\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (::X = 1; X = 2)}\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(::X = 1; X = 2)}\"\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(::X = 1; X = 2)}/\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(::X = 1; X = 2)}`\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "A::X = 1; A::X = 2\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; A::X = 1; A::X = 2; end; end\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+      [
+        1,
+        36,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; A::X = 1; A::X = 2; end; end\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { A::X = 1; A::X = 2 }\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { A::X = 1; A::X = 2 }\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { A::X = 1; A::X = 2 }; end\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(A::X = 1; A::X = 2)\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; A::X = 1; A::X = 2; rescue; nil; end\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; A::X = 1; A::X = 2; end\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; A::X = 1; A::X = 2; end; end\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; A::X = 1; A::X = 2; end if condition\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "task { class A; A::X = 1; A::X = 2; end }\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(A::X = 1; A::X = 2)]\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(A::X = 1; A::X = 2)].freeze\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((A::X = 1; A::X = 2))\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((A::X = 1; A::X = 2))\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((A::X = 1; A::X = 2))\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (A::X = 1; A::X = 2)}\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(A::X = 1; A::X = 2)}\"\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(A::X = 1; A::X = 2)}/\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(A::X = 1; A::X = 2)}`\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X, Y = 1, 2; X = 3\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; X, Y = 1, 2; X = 3; end; end\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+      [
+        1,
+        39,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; X, Y = 1, 2; X = 3; end; end\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { X, Y = 1, 2; X = 3 }\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { X, Y = 1, 2; X = 3 }\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { X, Y = 1, 2; X = 3 }; end\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(X, Y = 1, 2; X = 3)\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; X, Y = 1, 2; X = 3; rescue; nil; end\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; X, Y = 1, 2; X = 3; end\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; X, Y = 1, 2; X = 3; end; end\n",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; X, Y = 1, 2; X = 3; end if condition\n",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "task { class A; X, Y = 1, 2; X = 3; end }\n",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X, Y = 1, 2; X = 3)]\n",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X, Y = 1, 2; X = 3)].freeze\n",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((X, Y = 1, 2; X = 3))\n",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((X, Y = 1, 2; X = 3))\n",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((X, Y = 1, 2; X = 3))\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (X, Y = 1, 2; X = 3)}\n",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(X, Y = 1, 2; X = 3)}\"\n",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(X, Y = 1, 2; X = 3)}/\n",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(X, Y = 1, 2; X = 3)}`\n",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = (X = 1)\n",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; X = (X = 1); end; end\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; X = (X = 1); end; end\n",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { X = (X = 1) }\n",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { X = (X = 1) }\n",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { X = (X = 1) }; end\n",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(X = (X = 1))\n",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; X = (X = 1); rescue; nil; end\n",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; X = (X = 1); end\n",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; X = (X = 1); end; end\n",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; X = (X = 1); end if condition\n",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "task { class A; X = (X = 1); end }\n",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X = (X = 1))]\n",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X = (X = 1))].freeze\n",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((X = (X = 1)))\n",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((X = (X = 1)))\n",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((X = (X = 1)))\n",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (X = (X = 1))}\n",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(X = (X = 1))}\"\n",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(X = (X = 1))}/\n",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(X = (X = 1))}`\n",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; X += 2; X = 3\n",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; module ::A::B; X = 1; X += 2; X = 3; end; end\n",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+      [
+        1,
+        41,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "if condition; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; if condition; X = 1; X += 2; X = 3; end; end\n",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "task { X = 1; X += 2; X = 3 }\n",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "-> { X = 1; X += 2; X = 3 }\n",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; task { X = 1; X += 2; X = 3 }; end\n",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "(X = 1; X += 2; X = 3)\n",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "begin; X = 1; X += 2; X = 3; rescue; nil; end\n",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; rescue; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 246,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "begin; nil; ensure; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 247,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "while condition; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 248,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class << self; X = 1; X += 2; X = 3; end\n",
+    "origin": "control",
+    "line": 249,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; class << self; X = 1; X += 2; X = 3; end; end\n",
+    "origin": "control",
+    "line": 250,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class A; X = 1; X += 2; X = 3; end if condition\n",
+    "origin": "control",
+    "line": 251,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "task { class A; X = 1; X += 2; X = 3; end }\n",
+    "origin": "control",
+    "line": 252,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X = 1; X += 2; X = 3)]\n",
+    "origin": "control",
+    "line": 253,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = [(X = 1; X += 2; X = 3)].freeze\n",
+    "origin": "control",
+    "line": 254,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "consume((X = 1; X += 2; X = 3))\n",
+    "origin": "control",
+    "line": 255,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "value.freeze((X = 1; X += 2; X = 3))\n",
+    "origin": "control",
+    "line": 256,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value&.freeze((X = 1; X += 2; X = 3))\n",
+    "origin": "control",
+    "line": 257,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "ALL = {k: (X = 1; X += 2; X = 3)}\n",
+    "origin": "control",
+    "line": 258,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "\"#{(X = 1; X += 2; X = 3)}\"\n",
+    "origin": "control",
+    "line": 259,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = /#{(X = 1; X += 2; X = 3)}/\n",
+    "origin": "control",
+    "line": 260,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "ALL = `#{(X = 1; X += 2; X = 3)}`\n",
+    "origin": "control",
+    "line": 261,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; remove_const :X; X = 2\n",
+    "origin": "control",
+    "line": 262,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const :X; X = 2; end\n",
+    "origin": "control",
+    "line": 263,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1; self.remove_const 'X'; X = 2\n",
+    "origin": "control",
+    "line": 264,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; self.remove_const 'X'; X = 2; end\n",
+    "origin": "control",
+    "line": 265,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1; Other.remove_const :X; X = 2\n",
+    "origin": "control",
+    "line": 266,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; Other.remove_const :X; X = 2; end\n",
+    "origin": "control",
+    "line": 267,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; remove_const variable; X = 2\n",
+    "origin": "control",
+    "line": 268,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const variable; X = 2; end\n",
+    "origin": "control",
+    "line": 269,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; remove_const :X, :Y; X = 2\n",
+    "origin": "control",
+    "line": 270,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const :X, :Y; X = 2; end\n",
+    "origin": "control",
+    "line": 271,
+    "findings": [
+      [
+        1,
+        38,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; remove_const :X, &block; X = 2\n",
+    "origin": "control",
+    "line": 272,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const :X, &block; X = 2; end\n",
+    "origin": "control",
+    "line": 273,
+    "findings": [
+      [
+        1,
+        42,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; remove_const :X do; end; X = 2\n",
+    "origin": "control",
+    "line": 274,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const :X do; end; X = 2; end\n",
+    "origin": "control",
+    "line": 275,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1; self&.remove_const :X; X = 2\n",
+    "origin": "control",
+    "line": 276,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; self&.remove_const :X; X = 2; end\n",
+    "origin": "control",
+    "line": 277,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; remove_const :X if condition; X = 2\n",
+    "origin": "control",
+    "line": 278,
+    "findings": [
+      [
+        1,
+        38,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const :X if condition; X = 2; end\n",
+    "origin": "control",
+    "line": 279,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1; task { remove_const :X }; X = 2\n",
+    "origin": "control",
+    "line": 280,
+    "findings": [
+      [
+        1,
+        34,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; task { remove_const :X }; X = 2; end\n",
+    "origin": "control",
+    "line": 281,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1; remove_const \"#{name}\"; X = 2\n",
+    "origin": "control",
+    "line": 282,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A; X = 1; remove_const \"#{name}\"; X = 2; end\n",
+    "origin": "control",
+    "line": 283,
+    "findings": [
+      [
+        1,
+        41,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; self::X = 2",
+    "origin": "control",
+    "line": 284,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "self::X = 1; ::X = 2",
+    "origin": "control",
+    "line": 285,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; module B; X = 1; end; end; :: A::B::X = 2",
+    "origin": "control",
+    "line": 286,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; module B; X = 1; end; end; ::A:: B::X = 2",
+    "origin": "control",
+    "line": 287,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "::A:: B::X = 1; ::A::B::X = 2",
+    "origin": "control",
+    "line": 288,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "::A:: B::X = 1; ::A:: B::X = 2",
+    "origin": "control",
+    "line": 289,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Constant `A::B::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; module B; X = 1; end; end; module A::B; X = 2; end",
+    "origin": "control",
+    "line": 290,
+    "findings": [
+      [
+        1,
+        51,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; module ::B; X = 1; end; end; B::X = 2",
+    "origin": "control",
+    "line": 291,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Constant `B::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; class ::A::B; end; end; A::B = 1",
+    "origin": "control",
+    "line": 292,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Constant `A::B` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module O; class self::A; end; A = 1; end",
+    "origin": "control",
+    "line": 293,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Constant `A` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A < (X = 1); X = 2; end",
+    "origin": "control",
+    "line": 294,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "class A < (class X; end); X = 1; end",
+    "origin": "control",
+    "line": 295,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; X, (Y, X) = 2, [3, 4]",
+    "origin": "control",
+    "line": 296,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ],
+      [
+        1,
+        15,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; X, *X = values",
+    "origin": "control",
+    "line": 297,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "A::X = 1; A::X, Y = 2, 3",
+    "origin": "control",
+    "line": 298,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X, Y = (X = 1), 2",
+    "origin": "control",
+    "line": 299,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; X &&= 2; X ||= 3; X = 4",
+    "origin": "control",
+    "line": 300,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; defined?(X = 2); X = 3",
+    "origin": "control",
+    "line": 301,
+    "findings": [
+      [
+        1,
+        25,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; case value; when 1; X = 2; else; X = 3; end; X = 4",
+    "origin": "control",
+    "line": 302,
+    "findings": [
+      [
+        1,
+        53,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const :X; end; module A; X = 2; X = 3; end",
+    "origin": "control",
+    "line": 303,
+    "findings": [
+      [
+        1,
+        57,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A::B; X = 1; remove_const :X; X = 2; end",
+    "origin": "control",
+    "line": 304,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const :\"::X\"; X = 2; end",
+    "origin": "control",
+    "line": 305,
+    "findings": [
+      [
+        1,
+        39,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; B::X = 1; remove_const :\"B::X\"; B::X = 2; end",
+    "origin": "control",
+    "line": 306,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; B::X = 1; remove_const \"B::X\"; B::X = 2; end",
+    "origin": "control",
+    "line": 307,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const \"::X\"; X = 2; end",
+    "origin": "control",
+    "line": 308,
+    "findings": [
+      [
+        1,
+        38,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "object::A::X = 1; object::A::X = 2",
+    "origin": "control",
+    "line": 309,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module object::A; X = 1; end; module other::A; X = 2; end",
+    "origin": "control",
+    "line": 310,
+    "findings": [
+      [
+        1,
+        48,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module object::A; X = 1; end; module other::B; X = 2; end",
+    "origin": "control",
+    "line": 311,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "class object::A::B; X = 1; end; A::B::X = 2",
+    "origin": "control",
+    "line": 312,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Constant `A::B::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module object::A; end; A = 1",
+    "origin": "control",
+    "line": 313,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Constant `A` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; X.freeze { X = 2 }; X = 3",
+    "origin": "control",
+    "line": 314,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "value.freeze((X = 1; X = 2)) {}",
+    "origin": "control",
+    "line": 315,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const(:X) {}; X = 2; end",
+    "origin": "control",
+    "line": 316,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const \"X\\x00\"; X = 2; end",
+    "origin": "control",
+    "line": 317,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const :X; X ||= 2; X = 3; end",
+    "origin": "control",
+    "line": 318,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X ||= 1; X = 2; X = 3",
+    "origin": "control",
+    "line": 319,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X += 1; X = 2; X = 3",
+    "origin": "control",
+    "line": 320,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = 1; remove_const :X; class X; end; X = 2; end",
+    "origin": "control",
+    "line": 321,
+    "findings": [
+      [
+        1,
+        49,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "module A; X = 1; end; module B; A::X = 2; ::A::X = 3; end",
+    "origin": "control",
+    "line": 322,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "Constant `A::X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1; X = <<~TEXT\nhello\nTEXT\n",
+    "origin": "control",
+    "line": 323,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "# X = 1\n\"X = 2\"\n",
+    "origin": "control",
+    "line": 324,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1\nvalue.freeze(X = 2, &block)\n",
+    "origin": "control",
+    "line": 325,
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1\nvalue.freeze(X = 2, &nil)\n",
+    "origin": "control",
+    "line": 326,
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1\nvalue.freeze(X = 2, &:method)\n",
+    "origin": "control",
+    "line": 327,
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Constant `X` is already assigned in this namespace."
+      ]
+    ]
+  },
+  {
+    "source": "X = 1\nvalue.freeze(X = 2) {}\n",
+    "origin": "control",
+    "line": 328,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1\nvalue.freeze(X = 2) do; end\n",
+    "origin": "control",
+    "line": 329,
+    "findings": [
+
+    ]
+  },
+  {
+    "source": "X = 1\nvalue&.freeze(X = 2, &block)\n",
+    "origin": "control",
+    "line": 330,
+    "findings": [
+
+    ]
+  }
+]

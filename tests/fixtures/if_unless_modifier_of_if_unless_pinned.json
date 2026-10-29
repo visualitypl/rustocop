@@ -1,0 +1,99 @@
+[
+  {
+    "spec_line": 5,
+    "source": "condition ? then_part : else_part unless external_condition\n",
+    "positions": [
+      [
+        1,
+        35
+      ]
+    ],
+    "messages": [
+      "Avoid modifier `unless` after another conditional."
+    ],
+    "correction": "unless external_condition\ncondition ? then_part : else_part\nend\n"
+  },
+  {
+    "spec_line": 19,
+    "source": "condition ? then_part : else_part unless external_condition\n",
+    "positions": [
+      [
+        1,
+        35
+      ]
+    ],
+    "messages": [
+      "Avoid modifier `unless` after another conditional."
+    ],
+    "correction": "unless external_condition\ncondition ? then_part : else_part\nend\n"
+  },
+  {
+    "spec_line": 34,
+    "source": "condition ? then_part : else_part if inner_condition if outer_condition\n",
+    "positions": [
+      [
+        1,
+        35
+      ],
+      [
+        1,
+        54
+      ]
+    ],
+    "messages": [
+      "Avoid modifier `if` after another conditional.",
+      "Avoid modifier `if` after another conditional."
+    ],
+    "correction": "if outer_condition\nif inner_condition\ncondition ? then_part : else_part\nend\nend\n"
+  },
+  {
+    "spec_line": 52,
+    "source": "unless condition\n  then_part\nend if external_condition\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid modifier `if` after another conditional."
+    ],
+    "correction": "if external_condition\nunless condition\n  then_part\nend\nend\n"
+  },
+  {
+    "spec_line": 71,
+    "source": "unless condition\n  then_part\nelse\n  else_part\nend if external_condition\n",
+    "positions": [
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Avoid modifier `if` after another conditional."
+    ],
+    "correction": "if external_condition\nunless condition\n  then_part\nelse\n  else_part\nend\nend\n"
+  },
+  {
+    "spec_line": 94,
+    "source": "if condition\n  then_part if maybe?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 104,
+    "source": "if external_condition\n  if condition\n    then_part\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

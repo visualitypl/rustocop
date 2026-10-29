@@ -1,0 +1,350 @@
+[
+  {
+    "cop": "Style/SuperArguments",
+    "line": 113,
+    "before": "def foo\n  super()\nend\n",
+    "after": "def foo\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 132,
+    "before": "def foo(a)\n  def bar(b:)\n    super(b: b)\n  end\n  super(a)\nend\n",
+    "after": "def foo(a)\n  def bar(b:)\n    super\n  end\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 152,
+    "before": "def foo(options, &block)\n  options[:key] ||= default\n\n  super(options, &block)\nend\n",
+    "after": "def foo(options, &block)\n  options[:key] ||= default\n\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method()\n  super()\nend\n",
+    "after": "def method()\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method()\n  super()\nend\n",
+    "after": "def self.method()\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a)\n  super(a)\nend\n",
+    "after": "def method(a)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a)\n  super(a)\nend\n",
+    "after": "def self.method(a)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a, b)\n  super(a, b)\nend\n",
+    "after": "def method(a, b)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a, b)\n  super(a, b)\nend\n",
+    "after": "def self.method(a, b)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a, b, c = 1)\n  super(a, b, c)\nend\n",
+    "after": "def method(a, b, c = 1)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a, b, c = 1)\n  super(a, b, c)\nend\n",
+    "after": "def self.method(a, b, c = 1)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a, b:)\n  super(a, b: b)\nend\n",
+    "after": "def method(a, b:)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a, b:)\n  super(a, b: b)\nend\n",
+    "after": "def self.method(a, b:)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a, b: 1)\n  super(a, b: b)\nend\n",
+    "after": "def method(a, b: 1)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a, b: 1)\n  super(a, b: b)\nend\n",
+    "after": "def self.method(a, b: 1)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a = 1, b: 2)\n  super(a, b: b)\nend\n",
+    "after": "def method(a = 1, b: 2)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a = 1, b: 2)\n  super(a, b: b)\nend\n",
+    "after": "def self.method(a = 1, b: 2)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(&blk)\n  super(&blk)\nend\n",
+    "after": "def method(&blk)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(&blk)\n  super(&blk)\nend\n",
+    "after": "def self.method(&blk)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(*args)\n  super(*args)\nend\n",
+    "after": "def method(*args)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(*args)\n  super(*args)\nend\n",
+    "after": "def self.method(*args)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(**kwargs)\n  super(**kwargs)\nend\n",
+    "after": "def method(**kwargs)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(**kwargs)\n  super(**kwargs)\nend\n",
+    "after": "def self.method(**kwargs)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(*args, **kwargs)\n  super(*args, **kwargs)\nend\n",
+    "after": "def method(*args, **kwargs)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(*args, **kwargs)\n  super(*args, **kwargs)\nend\n",
+    "after": "def self.method(*args, **kwargs)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(*args, **kwargs, &blk)\n  super(*args, **kwargs, &blk)\nend\n",
+    "after": "def method(*args, **kwargs, &blk)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(*args, **kwargs, &blk)\n  super(*args, **kwargs, &blk)\nend\n",
+    "after": "def self.method(*args, **kwargs, &blk)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a:, **kwargs)\n  super(a: a, **kwargs)\nend\n",
+    "after": "def method(a:, **kwargs)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a:, **kwargs)\n  super(a: a, **kwargs)\nend\n",
+    "after": "def self.method(a:, **kwargs)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(...)\n  super(...)\nend\n",
+    "after": "def method(...)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(...)\n  super(...)\nend\n",
+    "after": "def self.method(...)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a, ...)\n  super(a, ...)\nend\n",
+    "after": "def method(a, ...)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a, ...)\n  super(a, ...)\nend\n",
+    "after": "def self.method(a, ...)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(a:)\n  super(a:)\nend\n",
+    "after": "def method(a:)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(a:)\n  super(a:)\nend\n",
+    "after": "def self.method(a:)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(&)\n  super(&)\nend\n",
+    "after": "def method(&)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(&)\n  super(&)\nend\n",
+    "after": "def self.method(&)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(*)\n  super(*)\nend\n",
+    "after": "def method(*)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(*)\n  super(*)\nend\n",
+    "after": "def self.method(*)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 13,
+    "before": "def method(**)\n  super(**)\nend\n",
+    "after": "def method(**)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 28,
+    "before": "def self.method(**)\n  super(**)\nend\n",
+    "after": "def self.method(**)\n  super\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 212,
+    "before": "def test(a, b)\n  super(a, b) { x }\nend\n",
+    "after": "def test(a, b)\n  super { x }\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 227,
+    "before": "def test(a, &blk)\n  super(a) { x }\nend\n",
+    "after": "def test(a, &blk)\n  super { x }\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 267,
+    "before": "def test(a, b)\n  super(a, b) { _1 }\nend\n",
+    "after": "def test(a, b)\n  super { _1 }\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 282,
+    "before": "def test(a, &blk)\n  super(a) { _1 }\nend\n",
+    "after": "def test(a, &blk)\n  super { _1 }\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 308,
+    "before": "def foo(a)\n  super(a).foo\nend\n",
+    "after": "def foo(a)\n  super.foo\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 323,
+    "before": "def foo(a)\n  super(a).foo { x }\nend\n",
+    "after": "def foo(a)\n  super.foo { x }\nend\n"
+  },
+  {
+    "cop": "Style/SuperArguments",
+    "line": 338,
+    "before": "def foo(a)\n  super(a).foo { _1 }\nend\n",
+    "after": "def foo(a)\n  super.foo { _1 }\nend\n"
+  },
+  {
+    "cop": "Style/SuperWithArgsParentheses",
+    "line": 10,
+    "before": "super name, age\n",
+    "after": "super(name, age)\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 11,
+    "before": "def m(arg, optional: 1, required:)\nend\n",
+    "after": "def m(arg, required:, optional: 1)\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 25,
+    "before": "def m arg, optional: 1, required:\n  do_something\nend\n",
+    "after": "def m arg, required:, optional: 1\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 41,
+    "before": "def m arg, optional1: 1, optional2: 2, required:\n  do_something\nend\n",
+    "after": "def m arg, required:, optional1: 1, optional2: 2\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 56,
+    "before": "def m optional: 1, required:, other_optional: 2\n  do_something\nend\n",
+    "after": "def m required:, optional: 1, other_optional: 2\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 72,
+    "before": "def m(optional: 1, \n      required:, \n      other: 2)\nend\n",
+    "after": "def m(required:, optional: 1, \n      other: 2)\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 87,
+    "before": "def m(arg, optional1: 1, required1:, optional2: 2, required2:, **rest, &block)\nend\n",
+    "after": "def m(arg, required1:, required2:, optional1: 1, optional2: 2, **rest, &block)\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 103,
+    "before": "def m arg, optional1: 1, required1:, optional2: 2, required2:, **rest\n  do_something\nend\n",
+    "after": "def m arg, required1:, required2:, optional1: 1, optional2: 2, **rest\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 120,
+    "before": "def m arg, optional1: 1, required1:, optional2: 2, required2:, **rest, &block\n  do_something\nend\n",
+    "after": "def m arg, required1:, required2:, optional1: 1, optional2: 2, **rest, &block\n  do_something\nend\n"
+  },
+  {
+    "cop": "Style/KeywordParametersOrder",
+    "line": 154,
+    "before": "m(arg) do |block_arg, optional: 1, required:|\nend\n",
+    "after": "m(arg) do |block_arg, required:, optional: 1|\nend\n"
+  }
+]

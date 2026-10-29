@@ -1,0 +1,518 @@
+[
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 20,
+    "source": "x =~ /\\s{#{x[/\\s+/].length}}/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 24,
+    "source": "x =~ %r{^#{line[/^\\s+/]}\\s}\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "x =~ /^#{line[/^\\s+/]}\\s/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 39,
+    "source": "%r_ls_\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "/ls/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 86,
+    "source": "x = /{\\//",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 90,
+    "source": "x = /}\\//",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 94,
+    "source": "x = /{foo}\\//\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `%r` around regular expression."
+    ],
+    "correction": "x = %r{{foo}/}\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 105,
+    "source": "x = /\\{foo\\//\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `%r` around regular expression."
+    ],
+    "correction": "x = %r{\\{foo/}\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 116,
+    "source": "x = /\\/\\A#{\"{\"}\\z/\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `%r` around regular expression."
+    ],
+    "correction": "x = %r{/\\A#{\"{\"}\\z}\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 127,
+    "source": "x = /\\\\{\\//",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 152,
+    "source": "foo = /a/",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 158,
+    "source": "foo = /home\\//\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `%r` around regular expression."
+    ],
+    "correction": "foo = %r{home/}\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 179,
+    "source": "foo = /users\\/#{user.id}\\/forms/\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `%r` around regular expression."
+    ],
+    "correction": "foo = %r{users/#{user.id}/forms}\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 200,
+    "source": "foo = %r!(?\\!x)!\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /(?!x)/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 211,
+    "source": "foo = %r!a\\\\\\!b!\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /a\\\\!b/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 222,
+    "source": "foo = %r-[a\\-z]-\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /[a-z]/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 233,
+    "source": "foo = %r#a\\#b#x\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /a#b/x\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 244,
+    "source": "foo = %r#a\\#{b}#\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /a\\#{b}/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 255,
+    "source": "foo = %r#a\\#{b}#x\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /a#\\{b}/x\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 266,
+    "source": "foo = %r{a\\{b}\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /a\\{b/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 279,
+    "source": "foo = %r/\\//",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 300,
+    "source": "foo = /\n  foo\n  bar\n/x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 311,
+    "source": "foo = /\n  https?:\\/\\/\n  example\\.com\n/x\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `%r` around regular expression."
+    ],
+    "correction": "foo = %r{\n  https?://\n  example\\.com\n}x\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 343,
+    "source": "foo = %r{a}\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /a/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 356,
+    "source": "foo = %r{home/}",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 377,
+    "source": "foo = %r{\n  foo\n  bar\n}x\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo = /\n  foo\n  bar\n/x\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 396,
+    "source": "foo = %r{\n  https?://\n  example\\.com\n}x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 661,
+    "source": "do_something %r/regexp/\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "do_something /regexp/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 672,
+    "source": "foo&.do_something %r/regexp/\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo&.do_something /regexp/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 683,
+    "source": "%r/regexp/\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "/regexp/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 694,
+    "source": "do_something %r/ regexp/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 700,
+    "source": "foo&.do_something %r/ regexp/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 706,
+    "source": "%r/ regexp/\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "/ regexp/\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 717,
+    "source": "do_something %r/=regexp/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 723,
+    "source": "do_something %r{\n  regexp\n}x\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 731,
+    "source": "do_something(%r{\n  regexp\n}x)\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "do_something(/\n  regexp\n/x)\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 746,
+    "source": "do_something foo, %r{\n  regexp\n}x\n",
+    "positions": [
+      [
+        1,
+        19
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "do_something foo, /\n  regexp\n/x\n"
+  },
+  {
+    "cop": "Style/RegexpLiteral",
+    "spec_line": 761,
+    "source": "foo =~ %r{\n  regexp\n}x\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `//` around regular expression."
+    ],
+    "correction": "foo =~ /\n  regexp\n/x\n"
+  }
+]

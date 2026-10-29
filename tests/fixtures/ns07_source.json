@@ -1,0 +1,351 @@
+[
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 27,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "def foo\n  @something ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@something` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 31,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "def foo\n  return @something if defined?(@something)\n  @something = calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        33
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@something` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@something` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@something` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 37,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "def _foo\n  @foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 42,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "def foo\n  @foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 47,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "def foo\n  @foo ||= begin\n    calculate_expensive_thing\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 54,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "def foo\n  helper_variable = something_we_need_to_calculate_foo\n  @foo ||= calculate_expensive_thing(helper_variable)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 60,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "define_method(:foo) do\n  @foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 65,
+    "example": "EnforcedStyleForLeadingUnderscores: disallowed (default)",
+    "source": "define_method(:foo) do\n  return @foo if defined?(@foo)\n  @foo = calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 72,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "def foo\n  @something ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@something` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 77,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "def foo\n  @foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 81,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "def foo\n  return @foo if defined?(@foo)\n  @foo = calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 87,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "def foo\n  @_foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 92,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "def _foo\n  @_foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 96,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "def foo\n  return @_foo if defined?(@_foo)\n  @_foo = calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        28
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 102,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "define_method(:foo) do\n  @_foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 107,
+    "example": "EnforcedStyleForLeadingUnderscores: required",
+    "source": "define_method(:foo) do\n  return @_foo if defined?(@_foo)\n  @_foo = calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        28
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 114,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "def foo\n  @something ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@something` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 119,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "def foo\n  @foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 124,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "def foo\n  @_foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 129,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "def _foo\n  @_foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 134,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "def foo\n  return @_foo if defined?(@_foo)\n  @_foo = calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        10
+      ],
+      [
+        2,
+        28
+      ],
+      [
+        3,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead.",
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 140,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "define_method(:foo) do\n  @foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/MemoizedInstanceVariableName",
+    "source_line": 145,
+    "example": "EnforcedStyleForLeadingUnderscores: optional",
+    "source": "define_method(:foo) do\n  @_foo ||= calculate_expensive_thing\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Memoized variable `@_foo` does not match method name `foo`. Use `@foo` instead."
+    ]
+  }
+]

@@ -1,0 +1,323 @@
+[
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 10,
+    "source": "hash.fetch(:key) { 5 }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, 5)` instead of `fetch(:key) { 5 }`."
+    ],
+    "correction": "hash.fetch(:key, 5)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 21,
+    "source": "hash&.fetch(:key) { 5 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, 5)` instead of `fetch(:key) { 5 }`."
+    ],
+    "correction": "hash&.fetch(:key, 5)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 32,
+    "source": "hash.fetch(:key) { 2.5 }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, 2.5)` instead of `fetch(:key) { 2.5 }`."
+    ],
+    "correction": "hash.fetch(:key, 2.5)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 43,
+    "source": "hash.fetch(:key) { :value }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, :value)` instead of `fetch(:key) { :value }`."
+    ],
+    "correction": "hash.fetch(:key, :value)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 54,
+    "source": "hash.fetch(:key) { 2.0r }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, 2.0r)` instead of `fetch(:key) { 2.0r }`."
+    ],
+    "correction": "hash.fetch(:key, 2.0r)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 65,
+    "source": "hash.fetch(:key) { 1i }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, 1i)` instead of `fetch(:key) { 1i }`."
+    ],
+    "correction": "hash.fetch(:key, 1i)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 76,
+    "source": "hash.fetch(:key) {}\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, nil)` instead of `fetch(:key) {}`."
+    ],
+    "correction": "hash.fetch(:key, nil)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 98,
+    "source": "# frozen_string_literal: true\nhash.fetch(:key) { 'value' }\n",
+    "positions": [
+      [
+        2,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch(:key, 'value')` instead of `fetch(:key) { 'value' }`."
+    ],
+    "correction": "# frozen_string_literal: true\nhash.fetch(:key, 'value')\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 111,
+    "source": "hash.fetch(:key) { 'value' }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 117,
+    "source": "hash.fetch(:key, :value)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 123,
+    "source": "hash.fetch(:key) { :\"value_#{value}\" }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 127,
+    "source": "hash.fetch(:key) { |k| \"missing-#{k}\" }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 131,
+    "source": "Rails.cache.fetch(:key) { :value }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 137,
+    "source": "hash.fetch(*args) { 5 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 143,
+    "source": "hash&.fetch(*args) { 5 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 149,
+    "source": "hash.fetch(**options) { 5 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 155,
+    "source": "hash.fetch(key: :value) { 5 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 161,
+    "source": "def m(hash, *)\n  hash.fetch(*) { 5 }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 169,
+    "source": "def m(hash, **)\n  hash.fetch(**) { 5 }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 177,
+    "source": "hash.fetch({ key: :value }) { 5 }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `fetch({ key: :value }, 5)` instead of `fetch({ key: :value }) { 5 }`."
+    ],
+    "correction": "hash.fetch({ key: :value }, 5)\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantFetchBlock",
+    "spec_line": 194,
+    "source": "hash.fetch(:key) { CONSTANT }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  }
+]

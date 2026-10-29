@@ -1,0 +1,2112 @@
+[
+  {
+    "source": "begin\n  something\nrescue => StandardError\nend\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n  something\nrescue StandardError\nend\n",
+    "project_after": "begin\n  something\nrescue => StandardError\nend\n"
+  },
+  {
+    "source": "begin\n  something\nrescue => ::StandardError\nend\n",
+    "origin": "spec",
+    "line": 22,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n  something\nrescue ::StandardError\nend\n",
+    "project_after": "begin\n  something\nrescue => ::StandardError\nend\n"
+  },
+  {
+    "source": "begin\n  something\nrescue => foo.class::RESCUABLE_EXCEPTIONS\nend\n",
+    "origin": "spec",
+    "line": 39,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`foo.class::RESCUABLE_EXCEPTIONS` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n  something\nrescue foo.class::RESCUABLE_EXCEPTIONS\nend\n",
+    "project_after": "begin\n  something\nrescue => foo.class::RESCUABLE_EXCEPTIONS\nend\n"
+  },
+  {
+    "source": "var = Object\nbegin\n  something\nrescue => var::StandardError\nend\n",
+    "origin": "spec",
+    "line": 56,
+    "findings": [
+      [
+        4,
+        8,
+        4,
+        "`var::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "var = Object\nbegin\n  something\nrescue var::StandardError\nend\n",
+    "project_after": "var = Object\nbegin\n  something\nrescue => var::StandardError\nend\n"
+  },
+  {
+    "source": "begin\n  something\nrescue => MyNamespace::MyException\nend\n",
+    "origin": "spec",
+    "line": 75,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`MyNamespace::MyException` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n  something\nrescue MyNamespace::MyException\nend\n",
+    "project_after": "begin\n  something\nrescue => MyNamespace::MyException\nend\n"
+  },
+  {
+    "source": "begin\n  something\nrescue => ::MyNamespace::MyException\nend\n",
+    "origin": "spec",
+    "line": 92,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`::MyNamespace::MyException` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n  something\nrescue ::MyNamespace::MyException\nend\n",
+    "project_after": "begin\n  something\nrescue => ::MyNamespace::MyException\nend\n"
+  },
+  {
+    "source": "begin\n  something\nrescue StandardError\nend\n",
+    "origin": "spec",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "begin\n  something\nrescue StandardError\nend\n",
+    "project_after": "begin\n  something\nrescue StandardError\nend\n"
+  },
+  {
+    "source": "begin\n  something\nrescue StandardError => e\nend\n",
+    "origin": "spec",
+    "line": 118,
+    "findings": [
+
+    ],
+    "upstream_after": "begin\n  something\nrescue StandardError => e\nend\n",
+    "project_after": "begin\n  something\nrescue StandardError => e\nend\n"
+  },
+  {
+    "source": "# bad\nbegin\n  something\nrescue => StandardError\nend\n",
+    "origin": "source",
+    "line": 14,
+    "findings": [
+      [
+        4,
+        8,
+        4,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "# bad\nbegin\n  something\nrescue StandardError\nend\n",
+    "project_after": "# bad\nbegin\n  something\nrescue => StandardError\nend\n"
+  },
+  {
+    "source": "# good\nbegin\n  something\nrescue StandardError\nend\n",
+    "origin": "source",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nbegin\n  something\nrescue StandardError\nend\n",
+    "project_after": "# good\nbegin\n  something\nrescue StandardError\nend\n"
+  },
+  {
+    "source": "begin; ; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; ; rescue StandardError; end\n",
+    "project_after": "begin; ; rescue StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue StandardError; end\n",
+    "project_after": "begin; nil; rescue StandardError; end\n"
+  },
+  {
+    "source": "begin; true; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; true; rescue StandardError; end\n",
+    "project_after": "begin; true; rescue StandardError; end\n"
+  },
+  {
+    "source": "begin; false; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; false; rescue StandardError; end\n",
+    "project_after": "begin; false; rescue StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue StandardError; end\n",
+    "project_after": "begin; work; rescue => StandardError; end\n"
+  },
+  {
+    "source": "begin; raise \"boom\"; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; raise \"boom\"; rescue StandardError; end\n",
+    "project_after": "begin; raise \"boom\"; rescue => StandardError; end\n"
+  },
+  {
+    "source": "begin; []; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; []; rescue StandardError; end\n",
+    "project_after": "begin; []; rescue => StandardError; end\n"
+  },
+  {
+    "source": "begin; 1; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; 1; rescue StandardError; end\n",
+    "project_after": "begin; 1; rescue => StandardError; end\n"
+  },
+  {
+    "source": "begin; ; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; ; rescue ::StandardError; end\n",
+    "project_after": "begin; ; rescue ::StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue ::StandardError; end\n",
+    "project_after": "begin; nil; rescue ::StandardError; end\n"
+  },
+  {
+    "source": "begin; true; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; true; rescue ::StandardError; end\n",
+    "project_after": "begin; true; rescue ::StandardError; end\n"
+  },
+  {
+    "source": "begin; false; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; false; rescue ::StandardError; end\n",
+    "project_after": "begin; false; rescue ::StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue ::StandardError; end\n",
+    "project_after": "begin; work; rescue => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; raise \"boom\"; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; raise \"boom\"; rescue ::StandardError; end\n",
+    "project_after": "begin; raise \"boom\"; rescue => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; []; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; []; rescue ::StandardError; end\n",
+    "project_after": "begin; []; rescue => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; 1; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; 1; rescue ::StandardError; end\n",
+    "project_after": "begin; 1; rescue => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; ; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; ; rescue Missing::Error; end\n",
+    "project_after": "begin; ; rescue Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Missing::Error; end\n",
+    "project_after": "begin; nil; rescue Missing::Error; end\n"
+  },
+  {
+    "source": "begin; true; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; true; rescue Missing::Error; end\n",
+    "project_after": "begin; true; rescue Missing::Error; end\n"
+  },
+  {
+    "source": "begin; false; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; false; rescue Missing::Error; end\n",
+    "project_after": "begin; false; rescue Missing::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Missing::Error; end\n",
+    "project_after": "begin; work; rescue => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; raise \"boom\"; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; raise \"boom\"; rescue Missing::Error; end\n",
+    "project_after": "begin; raise \"boom\"; rescue => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; []; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; []; rescue Missing::Error; end\n",
+    "project_after": "begin; []; rescue => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; 1; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; 1; rescue Missing::Error; end\n",
+    "project_after": "begin; 1; rescue => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; ; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; ; rescue ::Missing::Error; end\n",
+    "project_after": "begin; ; rescue ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue ::Missing::Error; end\n",
+    "project_after": "begin; nil; rescue ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; true; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; true; rescue ::Missing::Error; end\n",
+    "project_after": "begin; true; rescue ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; false; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; false; rescue ::Missing::Error; end\n",
+    "project_after": "begin; false; rescue ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue ::Missing::Error; end\n",
+    "project_after": "begin; work; rescue => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; raise \"boom\"; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; raise \"boom\"; rescue ::Missing::Error; end\n",
+    "project_after": "begin; raise \"boom\"; rescue => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; []; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; []; rescue ::Missing::Error; end\n",
+    "project_after": "begin; []; rescue => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; 1; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; 1; rescue ::Missing::Error; end\n",
+    "project_after": "begin; 1; rescue => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; ; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; ; rescue factory.class::Error; end\n",
+    "project_after": "begin; ; rescue factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue factory.class::Error; end\n",
+    "project_after": "begin; nil; rescue factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; true; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; true; rescue factory.class::Error; end\n",
+    "project_after": "begin; true; rescue factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; false; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; false; rescue factory.class::Error; end\n",
+    "project_after": "begin; false; rescue factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue factory.class::Error; end\n",
+    "project_after": "begin; work; rescue => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; raise \"boom\"; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; raise \"boom\"; rescue factory.class::Error; end\n",
+    "project_after": "begin; raise \"boom\"; rescue => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; []; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; []; rescue factory.class::Error; end\n",
+    "project_after": "begin; []; rescue => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; 1; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; 1; rescue factory.class::Error; end\n",
+    "project_after": "begin; 1; rescue => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; ; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; ; rescue self::Error; end\n",
+    "project_after": "begin; ; rescue self::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue self::Error; end\n",
+    "project_after": "begin; nil; rescue self::Error; end\n"
+  },
+  {
+    "source": "begin; true; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; true; rescue self::Error; end\n",
+    "project_after": "begin; true; rescue self::Error; end\n"
+  },
+  {
+    "source": "begin; false; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; false; rescue self::Error; end\n",
+    "project_after": "begin; false; rescue self::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue self::Error; end\n",
+    "project_after": "begin; work; rescue => self::Error; end\n"
+  },
+  {
+    "source": "begin; raise \"boom\"; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; raise \"boom\"; rescue self::Error; end\n",
+    "project_after": "begin; raise \"boom\"; rescue => self::Error; end\n"
+  },
+  {
+    "source": "begin; []; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; []; rescue self::Error; end\n",
+    "project_after": "begin; []; rescue => self::Error; end\n"
+  },
+  {
+    "source": "begin; 1; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; 1; rescue self::Error; end\n",
+    "project_after": "begin; 1; rescue => self::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue => StandardError; nil; end\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => StandardError; nil; end\n",
+    "project_after": "begin; work; rescue => StandardError; nil; end\n"
+  },
+  {
+    "source": "begin; work; rescue => StandardError; handler; end\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => StandardError; handler; end\n",
+    "project_after": "begin; work; rescue => StandardError; handler; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError => StandardError; end\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError => StandardError; end\n",
+    "project_after": "begin; work; rescue StandardError => StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue *errors => StandardError; end\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue *errors => StandardError; end\n",
+    "project_after": "begin; work; rescue *errors => StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue Error; handler; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+      [
+        1,
+        44,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Error; handler; rescue StandardError; end\n",
+    "project_after": "begin; work; rescue Error; handler; rescue => StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; rescue Error; handler; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; handler; rescue StandardError; end\n",
+    "project_after": "begin; nil; rescue Error; handler; rescue => StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; rescue \\\n => StandardError; end\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue StandardError; end\n",
+    "project_after": "begin; nil; rescue \\\n => StandardError; end\n"
+  },
+  {
+    "source": "begin\n nil\nrescue => StandardError # retained\n # empty body comment\nend\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n nil\nrescue StandardError # retained\n # empty body comment\nend\n",
+    "project_after": "begin\n nil\nrescue StandardError # retained\n # empty body comment\nend\n"
+  },
+  {
+    "source": "consume(begin; nil; rescue => StandardError; end)\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "consume(begin; nil; rescue StandardError; end)\n",
+    "project_after": "consume(begin; nil; rescue StandardError; end)\n"
+  },
+  {
+    "source": "[begin; true; rescue => StandardError; end]\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "[begin; true; rescue StandardError; end]\n",
+    "project_after": "[begin; true; rescue StandardError; end]\n"
+  },
+  {
+    "source": "task do; nil; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "task do; nil; rescue StandardError; end\n",
+    "project_after": "task do; nil; rescue StandardError; end\n"
+  },
+  {
+    "source": "-> do; false; rescue => StandardError; end\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "-> do; false; rescue StandardError; end\n",
+    "project_after": "-> do; false; rescue StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; true; false; rescue\t=> StandardError; ensure; cleanup; end\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; true; false; rescue StandardError; ensure; cleanup; end\n",
+    "project_after": "begin; nil; true; false; rescue StandardError; ensure; cleanup; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => StandardError; else; result; end\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue StandardError; else; result; end\n",
+    "project_after": "begin; nil; rescue StandardError; else; result; end\n"
+  },
+  {
+    "source": "begin; work; rescue => ::StandardError; nil; end\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => ::StandardError; nil; end\n",
+    "project_after": "begin; work; rescue => ::StandardError; nil; end\n"
+  },
+  {
+    "source": "begin; work; rescue => ::StandardError; handler; end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => ::StandardError; handler; end\n",
+    "project_after": "begin; work; rescue => ::StandardError; handler; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError => ::StandardError; end\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError => ::StandardError; end\n",
+    "project_after": "begin; work; rescue StandardError => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue *errors => ::StandardError; end\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue *errors => ::StandardError; end\n",
+    "project_after": "begin; work; rescue *errors => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue Error; handler; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        44,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Error; handler; rescue ::StandardError; end\n",
+    "project_after": "begin; work; rescue Error; handler; rescue => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; rescue Error; handler; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; handler; rescue ::StandardError; end\n",
+    "project_after": "begin; nil; rescue Error; handler; rescue => ::StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; rescue \\\n => ::StandardError; end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue ::StandardError; end\n",
+    "project_after": "begin; nil; rescue \\\n => ::StandardError; end\n"
+  },
+  {
+    "source": "begin\n nil\nrescue => ::StandardError # retained\n # empty body comment\nend\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n nil\nrescue ::StandardError # retained\n # empty body comment\nend\n",
+    "project_after": "begin\n nil\nrescue ::StandardError # retained\n # empty body comment\nend\n"
+  },
+  {
+    "source": "consume(begin; nil; rescue => ::StandardError; end)\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "consume(begin; nil; rescue ::StandardError; end)\n",
+    "project_after": "consume(begin; nil; rescue ::StandardError; end)\n"
+  },
+  {
+    "source": "[begin; true; rescue => ::StandardError; end]\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "[begin; true; rescue ::StandardError; end]\n",
+    "project_after": "[begin; true; rescue ::StandardError; end]\n"
+  },
+  {
+    "source": "task do; nil; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "task do; nil; rescue ::StandardError; end\n",
+    "project_after": "task do; nil; rescue ::StandardError; end\n"
+  },
+  {
+    "source": "-> do; false; rescue => ::StandardError; end\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "-> do; false; rescue ::StandardError; end\n",
+    "project_after": "-> do; false; rescue ::StandardError; end\n"
+  },
+  {
+    "source": "begin; nil; true; false; rescue\t=> ::StandardError; ensure; cleanup; end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; true; false; rescue ::StandardError; ensure; cleanup; end\n",
+    "project_after": "begin; nil; true; false; rescue ::StandardError; ensure; cleanup; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => ::StandardError; else; result; end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`::StandardError` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue ::StandardError; else; result; end\n",
+    "project_after": "begin; nil; rescue ::StandardError; else; result; end\n"
+  },
+  {
+    "source": "begin; work; rescue => Missing::Error; nil; end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => Missing::Error; nil; end\n",
+    "project_after": "begin; work; rescue => Missing::Error; nil; end\n"
+  },
+  {
+    "source": "begin; work; rescue => Missing::Error; handler; end\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => Missing::Error; handler; end\n",
+    "project_after": "begin; work; rescue => Missing::Error; handler; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError => Missing::Error; end\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError => Missing::Error; end\n",
+    "project_after": "begin; work; rescue StandardError => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue *errors => Missing::Error; end\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue *errors => Missing::Error; end\n",
+    "project_after": "begin; work; rescue *errors => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue Error; handler; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+      [
+        1,
+        44,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Error; handler; rescue Missing::Error; end\n",
+    "project_after": "begin; work; rescue Error; handler; rescue => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue Error; handler; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; handler; rescue Missing::Error; end\n",
+    "project_after": "begin; nil; rescue Error; handler; rescue => Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue \\\n => Missing::Error; end\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Missing::Error; end\n",
+    "project_after": "begin; nil; rescue \\\n => Missing::Error; end\n"
+  },
+  {
+    "source": "begin\n nil\nrescue => Missing::Error # retained\n # empty body comment\nend\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n nil\nrescue Missing::Error # retained\n # empty body comment\nend\n",
+    "project_after": "begin\n nil\nrescue Missing::Error # retained\n # empty body comment\nend\n"
+  },
+  {
+    "source": "consume(begin; nil; rescue => Missing::Error; end)\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "consume(begin; nil; rescue Missing::Error; end)\n",
+    "project_after": "consume(begin; nil; rescue Missing::Error; end)\n"
+  },
+  {
+    "source": "[begin; true; rescue => Missing::Error; end]\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "[begin; true; rescue Missing::Error; end]\n",
+    "project_after": "[begin; true; rescue Missing::Error; end]\n"
+  },
+  {
+    "source": "task do; nil; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "task do; nil; rescue Missing::Error; end\n",
+    "project_after": "task do; nil; rescue Missing::Error; end\n"
+  },
+  {
+    "source": "-> do; false; rescue => Missing::Error; end\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "-> do; false; rescue Missing::Error; end\n",
+    "project_after": "-> do; false; rescue Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; true; false; rescue\t=> Missing::Error; ensure; cleanup; end\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; true; false; rescue Missing::Error; ensure; cleanup; end\n",
+    "project_after": "begin; nil; true; false; rescue Missing::Error; ensure; cleanup; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => Missing::Error; else; result; end\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Missing::Error; else; result; end\n",
+    "project_after": "begin; nil; rescue Missing::Error; else; result; end\n"
+  },
+  {
+    "source": "begin; work; rescue => ::Missing::Error; nil; end\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => ::Missing::Error; nil; end\n",
+    "project_after": "begin; work; rescue => ::Missing::Error; nil; end\n"
+  },
+  {
+    "source": "begin; work; rescue => ::Missing::Error; handler; end\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => ::Missing::Error; handler; end\n",
+    "project_after": "begin; work; rescue => ::Missing::Error; handler; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError => ::Missing::Error; end\n",
+    "project_after": "begin; work; rescue StandardError => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue *errors => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue *errors => ::Missing::Error; end\n",
+    "project_after": "begin; work; rescue *errors => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue Error; handler; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        44,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Error; handler; rescue ::Missing::Error; end\n",
+    "project_after": "begin; work; rescue Error; handler; rescue => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue Error; handler; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; handler; rescue ::Missing::Error; end\n",
+    "project_after": "begin; nil; rescue Error; handler; rescue => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue \\\n => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue ::Missing::Error; end\n",
+    "project_after": "begin; nil; rescue \\\n => ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin\n nil\nrescue => ::Missing::Error # retained\n # empty body comment\nend\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n nil\nrescue ::Missing::Error # retained\n # empty body comment\nend\n",
+    "project_after": "begin\n nil\nrescue ::Missing::Error # retained\n # empty body comment\nend\n"
+  },
+  {
+    "source": "consume(begin; nil; rescue => ::Missing::Error; end)\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "consume(begin; nil; rescue ::Missing::Error; end)\n",
+    "project_after": "consume(begin; nil; rescue ::Missing::Error; end)\n"
+  },
+  {
+    "source": "[begin; true; rescue => ::Missing::Error; end]\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "[begin; true; rescue ::Missing::Error; end]\n",
+    "project_after": "[begin; true; rescue ::Missing::Error; end]\n"
+  },
+  {
+    "source": "task do; nil; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "task do; nil; rescue ::Missing::Error; end\n",
+    "project_after": "task do; nil; rescue ::Missing::Error; end\n"
+  },
+  {
+    "source": "-> do; false; rescue => ::Missing::Error; end\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "-> do; false; rescue ::Missing::Error; end\n",
+    "project_after": "-> do; false; rescue ::Missing::Error; end\n"
+  },
+  {
+    "source": "begin; nil; true; false; rescue\t=> ::Missing::Error; ensure; cleanup; end\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; true; false; rescue ::Missing::Error; ensure; cleanup; end\n",
+    "project_after": "begin; nil; true; false; rescue ::Missing::Error; ensure; cleanup; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => ::Missing::Error; else; result; end\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`::Missing::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue ::Missing::Error; else; result; end\n",
+    "project_after": "begin; nil; rescue ::Missing::Error; else; result; end\n"
+  },
+  {
+    "source": "begin; work; rescue => factory.class::Error; nil; end\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => factory.class::Error; nil; end\n",
+    "project_after": "begin; work; rescue => factory.class::Error; nil; end\n"
+  },
+  {
+    "source": "begin; work; rescue => factory.class::Error; handler; end\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => factory.class::Error; handler; end\n",
+    "project_after": "begin; work; rescue => factory.class::Error; handler; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError => factory.class::Error; end\n",
+    "project_after": "begin; work; rescue StandardError => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue *errors => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue *errors => factory.class::Error; end\n",
+    "project_after": "begin; work; rescue *errors => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue Error; handler; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        1,
+        44,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Error; handler; rescue factory.class::Error; end\n",
+    "project_after": "begin; work; rescue Error; handler; rescue => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue Error; handler; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; handler; rescue factory.class::Error; end\n",
+    "project_after": "begin; nil; rescue Error; handler; rescue => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue \\\n => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue factory.class::Error; end\n",
+    "project_after": "begin; nil; rescue \\\n => factory.class::Error; end\n"
+  },
+  {
+    "source": "begin\n nil\nrescue => factory.class::Error # retained\n # empty body comment\nend\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n nil\nrescue factory.class::Error # retained\n # empty body comment\nend\n",
+    "project_after": "begin\n nil\nrescue factory.class::Error # retained\n # empty body comment\nend\n"
+  },
+  {
+    "source": "consume(begin; nil; rescue => factory.class::Error; end)\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "consume(begin; nil; rescue factory.class::Error; end)\n",
+    "project_after": "consume(begin; nil; rescue factory.class::Error; end)\n"
+  },
+  {
+    "source": "[begin; true; rescue => factory.class::Error; end]\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "[begin; true; rescue factory.class::Error; end]\n",
+    "project_after": "[begin; true; rescue factory.class::Error; end]\n"
+  },
+  {
+    "source": "task do; nil; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "task do; nil; rescue factory.class::Error; end\n",
+    "project_after": "task do; nil; rescue factory.class::Error; end\n"
+  },
+  {
+    "source": "-> do; false; rescue => factory.class::Error; end\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "-> do; false; rescue factory.class::Error; end\n",
+    "project_after": "-> do; false; rescue factory.class::Error; end\n"
+  },
+  {
+    "source": "begin; nil; true; false; rescue\t=> factory.class::Error; ensure; cleanup; end\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; true; false; rescue factory.class::Error; ensure; cleanup; end\n",
+    "project_after": "begin; nil; true; false; rescue factory.class::Error; ensure; cleanup; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => factory.class::Error; else; result; end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`factory.class::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue factory.class::Error; else; result; end\n",
+    "project_after": "begin; nil; rescue factory.class::Error; else; result; end\n"
+  },
+  {
+    "source": "begin; work; rescue => self::Error; nil; end\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => self::Error; nil; end\n",
+    "project_after": "begin; work; rescue => self::Error; nil; end\n"
+  },
+  {
+    "source": "begin; work; rescue => self::Error; handler; end\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => self::Error; handler; end\n",
+    "project_after": "begin; work; rescue => self::Error; handler; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError => self::Error; end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError => self::Error; end\n",
+    "project_after": "begin; work; rescue StandardError => self::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue *errors => self::Error; end\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue *errors => self::Error; end\n",
+    "project_after": "begin; work; rescue *errors => self::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue Error; handler; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+      [
+        1,
+        44,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Error; handler; rescue self::Error; end\n",
+    "project_after": "begin; work; rescue Error; handler; rescue => self::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue Error; handler; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+      [
+        1,
+        43,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; handler; rescue self::Error; end\n",
+    "project_after": "begin; nil; rescue Error; handler; rescue => self::Error; end\n"
+  },
+  {
+    "source": "begin; nil; rescue \\\n => self::Error; end\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue self::Error; end\n",
+    "project_after": "begin; nil; rescue \\\n => self::Error; end\n"
+  },
+  {
+    "source": "begin\n nil\nrescue => self::Error # retained\n # empty body comment\nend\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+      [
+        3,
+        8,
+        3,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin\n nil\nrescue self::Error # retained\n # empty body comment\nend\n",
+    "project_after": "begin\n nil\nrescue self::Error # retained\n # empty body comment\nend\n"
+  },
+  {
+    "source": "consume(begin; nil; rescue => self::Error; end)\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "consume(begin; nil; rescue self::Error; end)\n",
+    "project_after": "consume(begin; nil; rescue self::Error; end)\n"
+  },
+  {
+    "source": "[begin; true; rescue => self::Error; end]\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "[begin; true; rescue self::Error; end]\n",
+    "project_after": "[begin; true; rescue self::Error; end]\n"
+  },
+  {
+    "source": "task do; nil; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "task do; nil; rescue self::Error; end\n",
+    "project_after": "task do; nil; rescue self::Error; end\n"
+  },
+  {
+    "source": "-> do; false; rescue => self::Error; end\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "-> do; false; rescue self::Error; end\n",
+    "project_after": "-> do; false; rescue self::Error; end\n"
+  },
+  {
+    "source": "begin; nil; true; false; rescue\t=> self::Error; ensure; cleanup; end\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; true; false; rescue self::Error; ensure; cleanup; end\n",
+    "project_after": "begin; nil; true; false; rescue self::Error; ensure; cleanup; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => self::Error; else; result; end\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`self::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue self::Error; else; result; end\n",
+    "project_after": "begin; nil; rescue self::Error; else; result; end\n"
+  },
+  {
+    "source": "begin; work; rescue => e; end\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => e; end\n",
+    "project_after": "begin; work; rescue => e; end\n"
+  },
+  {
+    "source": "begin; work; rescue => @e; end\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => @e; end\n",
+    "project_after": "begin; work; rescue => @e; end\n"
+  },
+  {
+    "source": "begin; work; rescue => $e; end\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue => $e; end\n",
+    "project_after": "begin; work; rescue => $e; end\n"
+  },
+  {
+    "source": "begin; work; rescue StandardError; end\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ],
+    "upstream_after": "begin; work; rescue StandardError; end\n",
+    "project_after": "begin; work; rescue StandardError; end\n"
+  },
+  {
+    "source": "begin; work; rescue => Érror; end\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`Érror` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue Érror; end\n",
+    "project_after": "begin; work; rescue => Érror; end\n"
+  },
+  {
+    "source": "begin; work; rescue => (factory)::Error; end\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`(factory)::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue (factory)::Error; end\n",
+    "project_after": "begin; work; rescue => (factory)::Error; end\n"
+  },
+  {
+    "source": "begin; work; rescue => factory(\n  argument\n)::Error; end\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`factory(\n  argument\n)::Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; work; rescue factory(\n  argument\n)::Error; end\n",
+    "project_after": "begin; work; rescue => factory(\n  argument\n)::Error; end\n"
+  },
+  {
+    "source": "module Scope; begin; nil; rescue => Error; end; end\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+      [
+        1,
+        34,
+        1,
+        "`Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "module Scope; begin; nil; rescue Error; end; end\n",
+    "project_after": "module Scope; begin; nil; rescue Error; end; end\n"
+  },
+  {
+    "source": "begin; nil; rescue => Error; rescue Other; handler; end\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`Error` is overwritten by `rescue =>`."
+      ]
+    ],
+    "upstream_after": "begin; nil; rescue Error; rescue Other; handler; end\n",
+    "project_after": "begin; nil; rescue Error; rescue Other; handler; end\n"
+  }
+]

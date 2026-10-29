@@ -1,0 +1,2122 @@
+[
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each { |item| }\n",
+    "origin": "spec",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each do |item|\n  # TODO: implement later\nend\n",
+    "origin": "spec",
+    "line": 14,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each { |item| } # TODO: implement later\n",
+    "origin": "spec",
+    "line": 22,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each { |item| puts item }\n",
+    "origin": "spec",
+    "line": 28,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda do\nend\n",
+    "origin": "spec",
+    "line": 34,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "-> {}\n",
+    "origin": "spec",
+    "line": 41,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc do\nend\n",
+    "origin": "spec",
+    "line": 47,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new {}\n",
+    "origin": "spec",
+    "line": 54,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new {}\n",
+    "origin": "spec",
+    "line": 60,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Foo.proc {}\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each do |item|\n  # TODO: implement later\nend\n",
+    "origin": "spec",
+    "line": 76,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowComments=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each { |item| } # TODO: implement later\n",
+    "origin": "spec",
+    "line": 85,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowComments=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda do\nend\n",
+    "origin": "spec",
+    "line": 96,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowEmptyLambdas=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "-> {}\n",
+    "origin": "spec",
+    "line": 104,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowEmptyLambdas=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc do\nend\n",
+    "origin": "spec",
+    "line": 111,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowEmptyLambdas=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new {}\n",
+    "origin": "spec",
+    "line": 119,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowEmptyLambdas=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new {}\n",
+    "origin": "spec",
+    "line": 126,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyBlock AllowEmptyLambdas=false"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# bad\nitems.each { |item| }\n",
+    "origin": "source",
+    "line": 17,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# good\nitems.each { |item| puts item }\n",
+    "origin": "source",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# good\nitems.each do |item|\n  # TODO: implement later (inner comment)\nend\n",
+    "origin": "source",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each { |item| } # TODO: implement later (inline comment)\n",
+    "origin": "source",
+    "line": 29,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# bad\nitems.each do |item|\n  # TODO: implement later (inner comment)\nend\n",
+    "origin": "source",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "items.each { |item| } # TODO: implement later (inline comment)\n",
+    "origin": "source",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# good\nallow(subject).to receive(:callable).and_return(-> {})\n",
+    "origin": "source",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "placeholder = lambda do\nend\n(callable || placeholder).call\n",
+    "origin": "source",
+    "line": 43,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc { }\n",
+    "origin": "source",
+    "line": 47,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new { }\n",
+    "origin": "source",
+    "line": 49,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# bad\nallow(subject).to receive(:callable).and_return(-> {})\n",
+    "origin": "source",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "placeholder = lambda do\nend\n(callable || placeholder).call\n",
+    "origin": "source",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc { }\n",
+    "origin": "source",
+    "line": 59,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new { }\n",
+    "origin": "source",
+    "line": 61,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each {}\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { || }\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { |x = work| }\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each do; end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each do\n# reason\nend\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "obj&.each {}\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "obj&.each { || }\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "obj&.each { |x = work| }\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "obj&.each do; end\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "obj&.each do\n# reason\nend\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda {}\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda { || }\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda { |x = work| }\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda do; end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda do\n# reason\nend\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc {}\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc { || }\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc { |x = work| }\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc do; end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc do\n# reason\nend\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new {}\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new { || }\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new { |x = work| }\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new do; end\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new do\n# reason\nend\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new {}\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new { || }\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new { |x = work| }\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new do; end\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "::Proc.new do\n# reason\nend\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "self.proc {}\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "self.proc { || }\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "self.proc { |x = work| }\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "self.proc do; end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "self.proc do\n# reason\nend\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Kernel.lambda {}\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Kernel.lambda { || }\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Kernel.lambda { |x = work| }\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Kernel.lambda do; end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Kernel.lambda do\n# reason\nend\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Other::Proc.new {}\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Other::Proc.new { || }\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Other::Proc.new { |x = work| }\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Other::Proc.new do; end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Other::Proc.new do\n# reason\nend\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc&.new {}\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc&.new { || }\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc&.new { |x = work| }\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc&.new do; end\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc&.new do\n# reason\nend\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda(1) {}\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda(1) { || }\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda(1) { |x = work| }\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda(1) do; end\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "lambda(1) do\n# reason\nend\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc(1) {}\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc(1) { || }\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc(1) { |x = work| }\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc(1) do; end\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "proc(1) do\n# reason\nend\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new(1) {}\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new(1) { || }\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new(1) { |x = work| }\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new(1) do; end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Proc.new(1) do\n# reason\nend\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each do # header\nend\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each do\nend # tail\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each {}; other # line\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "# before\neach {}\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each {}\n# after\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each(\"# string\") {}\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each(<<~TEXT) {}\n# literal\nTEXT\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each do\n=begin\ncomment\n=end\nend\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { other {} }\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "consume(each {})\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "def f; super {}; end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "def f; super() do; end; end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "BEGIN {}\nEND {}\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { () }; each { begin; end }; each { nil }; each { false }\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { _1 }; each { it }; each { |x| x }\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "-> {}; ->(x = each {}) {}\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "[\"#{each {}}\"]\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:disable Lint/EmptyBlock\n}\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:disable Lint\n}\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:disable all\n}\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:enable Lint/EmptyBlock\n}\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:disable Lint/Debugger\n}\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each do\n# rubocop:disable Lint/EmptyBlock\nend\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "object.lambda {}; self.lambda {}; obj&.lambda(1) {}\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "Kernel.proc {}; ::Kernel.proc {}; self.proc {}\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty block detected."
+      ],
+      [
+        1,
+        17,
+        1,
+        "Empty block detected."
+      ],
+      [
+        1,
+        35,
+        1,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:disable-next Lint/EmptyBlock\n}\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        1,
+        2,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:todo-next Lint/EmptyBlock\n}\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        1,
+        2,
+        "Empty block detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyBlock",
+    "source": "each { # rubocop:todo Lint/EmptyBlock\n}\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\nend\n",
+    "origin": "spec",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        1,
+        2,
+        "Empty class detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n  class << self\n  end\nend\n",
+    "origin": "spec",
+    "line": 15,
+    "findings": [
+      [
+        2,
+        3,
+        3,
+        "Empty metaclass detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj\nend\n",
+    "origin": "spec",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        1,
+        2,
+        "Empty metaclass detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n  class << self\n    # Comment.\n  end\nend\n",
+    "origin": "spec",
+    "line": 33,
+    "findings": [
+      [
+        2,
+        3,
+        4,
+        "Empty metaclass detected."
+      ]
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n  attr_reader :bar\nend\n",
+    "origin": "spec",
+    "line": 44,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Child < Parent\nend\n",
+    "origin": "spec",
+    "line": 52,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n  class << self\n    attr_reader :bar\n  end\nend\n",
+    "origin": "spec",
+    "line": 59,
+    "findings": [
+
+    ],
+    "fixed_policy_exclusion": null
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n  # Comment.\nend\n",
+    "origin": "spec",
+    "line": 72,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty class detected."
+      ]
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyClass AllowComments=true"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n  class << self\n    # Comment.\n  end\nend\n",
+    "origin": "spec",
+    "line": 80,
+    "findings": [
+      [
+        2,
+        3,
+        4,
+        "Empty metaclass detected."
+      ]
+    ],
+    "fixed_policy_exclusion": [
+      "Lint/EmptyClass AllowComments=true"
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "# bad\nclass Foo\nend\n",
+    "origin": "source",
+    "line": 11,
+    "findings": [
+      [
+        2,
+        1,
+        3,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Bar\n  class << self\n  end\nend\n",
+    "origin": "source",
+    "line": 15,
+    "findings": [
+      [
+        2,
+        3,
+        3,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj\nend\n",
+    "origin": "source",
+    "line": 20,
+    "findings": [
+      [
+        1,
+        1,
+        2,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "# good\nclass Foo\n  def do_something\n    # ... code\n  end\nend\n",
+    "origin": "source",
+    "line": 23,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Bar\n  class << self\n    attr_reader :bar\n  end\nend\n",
+    "origin": "source",
+    "line": 30,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj\n  attr_reader :bar\nend\n",
+    "origin": "source",
+    "line": 36,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "# bad\nclass Foo\n  # TODO: implement later\nend\n",
+    "origin": "source",
+    "line": 41,
+    "findings": [
+      [
+        2,
+        1,
+        4,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Bar\n  class << self\n    # TODO: implement later\n  end\nend\n",
+    "origin": "source",
+    "line": 46,
+    "findings": [
+      [
+        2,
+        3,
+        4,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj\n  # TODO: implement later\nend\n",
+    "origin": "source",
+    "line": 52,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "# good\nclass Foo\n  # TODO: implement later\nend\n",
+    "origin": "source",
+    "line": 57,
+    "findings": [
+      [
+        2,
+        1,
+        4,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Bar\n  class << self\n    # TODO: implement later\n  end\nend\n",
+    "origin": "source",
+    "line": 62,
+    "findings": [
+      [
+        2,
+        3,
+        4,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj\n  # TODO: implement later\nend\n",
+    "origin": "source",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; end\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n# comment\nend\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; nil; end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; (); end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; begin; end; end\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; attr_reader :bar; end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; class Inner; end; end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar; end\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar\n# comment\nend\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar; nil; end\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar; (); end\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar; begin; end; end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar; attr_reader :bar; end\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class ::Foo::Bar; class Inner; end; end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent; end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent\n# comment\nend\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent; nil; end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent; (); end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent; begin; end; end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent; attr_reader :bar; end\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < Parent; class Inner; end; end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self; end\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self\n# comment\nend\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self; nil; end\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self; (); end\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self; begin; end; end\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self; attr_reader :bar; end\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << self; class Inner; end; end\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj; end\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj\n# comment\nend\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        1,
+        3,
+        "Empty metaclass detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj; nil; end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj; (); end\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj; begin; end; end\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj; attr_reader :bar; end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << obj; class Inner; end; end\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Outer < (class Inner; end); end\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class << (class Other; end); end\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        1,
+        1,
+        "Empty metaclass detected."
+      ],
+      [
+        1,
+        11,
+        1,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "module Foo; end\ndef foo; end\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\n=begin\ncomment\n=end\nend\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        1,
+        1,
+        5,
+        "Empty class detected."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo; end # rubocop:disable Lint/EmptyClass\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo\nend # rubocop:disable Lint/EmptyClass\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/EmptyClass",
+    "source": "class Foo < factory {}; end\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ]
+  }
+]

@@ -1,0 +1,5865 @@
+[
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(123.456, 3)\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(123.456, 3)\n",
+    "project_after": "BigDecimal.new(123.456, 3)\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 3.4,
+    "declared_findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "declared_after": "BigDecimal(123.456, 3)\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new(123.456, 3)\n",
+    "origin": "spec",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(123.456, 3)\n",
+    "project_after": "::BigDecimal.new(123.456, 3)\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 3.4,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "declared_after": "BigDecimal(123.456, 3)\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal(123.456, 3)\n",
+    "origin": "spec",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal(123.456, 3)\n",
+    "project_after": "BigDecimal(123.456, 3)\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 3.4,
+    "declared_findings": [
+
+    ],
+    "declared_after": "BigDecimal(123.456, 3)\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "# bad\nBigDecimal.new(123.456, 3)\n",
+    "origin": "source",
+    "line": 11,
+    "findings": [
+      [
+        2,
+        12,
+        2,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "# bad\nBigDecimal(123.456, 3)\n",
+    "project_after": "# bad\nBigDecimal.new(123.456, 3)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "# good\nBigDecimal(123.456, 3)\n",
+    "origin": "source",
+    "line": 14,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nBigDecimal(123.456, 3)\n",
+    "project_after": "# good\nBigDecimal(123.456, 3)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2)\n",
+    "project_after": "BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::new(1, 2)\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2)\n",
+    "project_after": "BigDecimal::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal&.new(1, 2)\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal&.new(1, 2)\n",
+    "project_after": "BigDecimal&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal \n (1, 2)\n",
+    "project_after": "BigDecimal .\n new(1, 2)\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new 1, 2\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal 1, 2\n",
+    "project_after": "BigDecimal.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) { work }\n",
+    "project_after": "BigDecimal.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) { _1 }\n",
+    "project_after": "BigDecimal.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) { it }\n",
+    "project_after": "BigDecimal.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2, &block)\n",
+    "project_after": "BigDecimal.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal.allocate(1, 2)\n",
+    "project_after": "BigDecimal.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2)\n",
+    "project_after": "::BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal::new(1, 2)\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2)\n",
+    "project_after": "::BigDecimal::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal&.new(1, 2)\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ],
+    "upstream_after": "::BigDecimal&.new(1, 2)\n",
+    "project_after": "::BigDecimal&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        2,
+        2,
+        2,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal \n (1, 2)\n",
+    "project_after": "::BigDecimal .\n new(1, 2)\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new 1, 2\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal 1, 2\n",
+    "project_after": "::BigDecimal.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) { work }\n",
+    "project_after": "::BigDecimal.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) { _1 }\n",
+    "project_after": "::BigDecimal.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) { it }\n",
+    "project_after": "::BigDecimal.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2, &block)\n",
+    "project_after": "::BigDecimal.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "::BigDecimal.allocate(1, 2)\n",
+    "project_after": "::BigDecimal.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new(1, 2)\n",
+    "project_after": "Other::BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal::new(1, 2)\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal::new(1, 2)\n",
+    "project_after": "Other::BigDecimal::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal&.new(1, 2)\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal&.new(1, 2)\n",
+    "project_after": "Other::BigDecimal&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal .\n new(1, 2)\n",
+    "project_after": "Other::BigDecimal .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new 1, 2\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new 1, 2\n",
+    "project_after": "Other::BigDecimal.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new(1, 2) { work }\n",
+    "project_after": "Other::BigDecimal.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new(1, 2) { _1 }\n",
+    "project_after": "Other::BigDecimal.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new(1, 2) { it }\n",
+    "project_after": "Other::BigDecimal.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new(1, 2, &block)\n",
+    "project_after": "Other::BigDecimal.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.allocate(1, 2)\n",
+    "project_after": "Other::BigDecimal.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new(1, 2)\n",
+    "project_after": "::Other::BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal::new(1, 2)\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal::new(1, 2)\n",
+    "project_after": "::Other::BigDecimal::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal&.new(1, 2)\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal&.new(1, 2)\n",
+    "project_after": "::Other::BigDecimal&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal .\n new(1, 2)\n",
+    "project_after": "::Other::BigDecimal .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new 1, 2\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new 1, 2\n",
+    "project_after": "::Other::BigDecimal.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new(1, 2) { work }\n",
+    "project_after": "::Other::BigDecimal.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new(1, 2) { _1 }\n",
+    "project_after": "::Other::BigDecimal.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new(1, 2) { it }\n",
+    "project_after": "::Other::BigDecimal.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new(1, 2, &block)\n",
+    "project_after": "::Other::BigDecimal.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.allocate(1, 2)\n",
+    "project_after": "::Other::BigDecimal.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new(1, 2)\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new(1, 2)\n",
+    "project_after": "(BigDecimal).new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal)::new(1, 2)\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal)::new(1, 2)\n",
+    "project_after": "(BigDecimal)::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal)&.new(1, 2)\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal)&.new(1, 2)\n",
+    "project_after": "(BigDecimal)&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal) .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal) .\n new(1, 2)\n",
+    "project_after": "(BigDecimal) .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new 1, 2\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new 1, 2\n",
+    "project_after": "(BigDecimal).new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new(1, 2) { work }\n",
+    "project_after": "(BigDecimal).new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new(1, 2) { _1 }\n",
+    "project_after": "(BigDecimal).new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new(1, 2) { it }\n",
+    "project_after": "(BigDecimal).new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new(1, 2, &block)\n",
+    "project_after": "(BigDecimal).new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).allocate(1, 2)\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).allocate(1, 2)\n",
+    "project_after": "(BigDecimal).allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new(1, 2)\n",
+    "project_after": "self.BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal::new(1, 2)\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal::new(1, 2)\n",
+    "project_after": "self.BigDecimal::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal&.new(1, 2)\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal&.new(1, 2)\n",
+    "project_after": "self.BigDecimal&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal .\n new(1, 2)\n",
+    "project_after": "self.BigDecimal .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new 1, 2\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new 1, 2\n",
+    "project_after": "self.BigDecimal.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new(1, 2) { work }\n",
+    "project_after": "self.BigDecimal.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new(1, 2) { _1 }\n",
+    "project_after": "self.BigDecimal.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new(1, 2) { it }\n",
+    "project_after": "self.BigDecimal.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new(1, 2, &block)\n",
+    "project_after": "self.BigDecimal.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.allocate(1, 2)\n",
+    "project_after": "self.BigDecimal.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new(1, 2)\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(1, 2)\n",
+    "project_after": "object.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object::new(1, 2)\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ],
+    "upstream_after": "object::new(1, 2)\n",
+    "project_after": "object::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object&.new(1, 2)\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "object&.new(1, 2)\n",
+    "project_after": "object&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ],
+    "upstream_after": "object .\n new(1, 2)\n",
+    "project_after": "object .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new 1, 2\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new 1, 2\n",
+    "project_after": "object.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(1, 2) { work }\n",
+    "project_after": "object.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(1, 2) { _1 }\n",
+    "project_after": "object.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(1, 2) { it }\n",
+    "project_after": "object.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(1, 2, &block)\n",
+    "project_after": "object.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ],
+    "upstream_after": "object.allocate(1, 2)\n",
+    "project_after": "object.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new(1, 2)\n",
+    "project_after": "bigdecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal::new(1, 2)\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal::new(1, 2)\n",
+    "project_after": "bigdecimal::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal&.new(1, 2)\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal&.new(1, 2)\n",
+    "project_after": "bigdecimal&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal .\n new(1, 2)\n",
+    "project_after": "bigdecimal .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new 1, 2\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new 1, 2\n",
+    "project_after": "bigdecimal.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new(1, 2) { work }\n",
+    "project_after": "bigdecimal.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new(1, 2) { _1 }\n",
+    "project_after": "bigdecimal.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new(1, 2) { it }\n",
+    "project_after": "bigdecimal.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new(1, 2, &block)\n",
+    "project_after": "bigdecimal.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.allocate(1, 2)\n",
+    "project_after": "bigdecimal.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new(1, 2)\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new(1, 2)\n",
+    "project_after": "BigDecimal::Nested.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested::new(1, 2)\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested::new(1, 2)\n",
+    "project_after": "BigDecimal::Nested::new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested&.new(1, 2)\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested&.new(1, 2)\n",
+    "project_after": "BigDecimal::Nested&.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested .\n new(1, 2)\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested .\n new(1, 2)\n",
+    "project_after": "BigDecimal::Nested .\n new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new 1, 2\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new 1, 2\n",
+    "project_after": "BigDecimal::Nested.new 1, 2\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new(1, 2) { work }\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new(1, 2) { work }\n",
+    "project_after": "BigDecimal::Nested.new(1, 2) { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new(1, 2) { _1 }\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new(1, 2) { _1 }\n",
+    "project_after": "BigDecimal::Nested.new(1, 2) { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new(1, 2) { it }\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new(1, 2) { it }\n",
+    "project_after": "BigDecimal::Nested.new(1, 2) { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new(1, 2, &block)\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new(1, 2, &block)\n",
+    "project_after": "BigDecimal::Nested.new(1, 2, &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.allocate(1, 2)\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.allocate(1, 2)\n",
+    "project_after": "BigDecimal::Nested.allocate(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "consume(BigDecimal.new(1, 2))\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "consume(BigDecimal(1, 2))\n",
+    "project_after": "consume(BigDecimal.new(1, 2))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def f; BigDecimal.new(1, 2); end\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def f; BigDecimal(1, 2); end\n",
+    "project_after": "def f; BigDecimal.new(1, 2); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "module M; BigDecimal.new(1, 2); end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "module M; BigDecimal(1, 2); end\n",
+    "project_after": "module M; BigDecimal.new(1, 2); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "class C; BigDecimal.new(1, 2); end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "class C; BigDecimal(1, 2); end\n",
+    "project_after": "class C; BigDecimal.new(1, 2); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "task { BigDecimal.new(1, 2) }\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "task { BigDecimal(1, 2) }\n",
+    "project_after": "task { BigDecimal.new(1, 2) }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "-> { BigDecimal.new(1, 2) }\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "-> { BigDecimal(1, 2) }\n",
+    "project_after": "-> { BigDecimal.new(1, 2) }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "defined?(BigDecimal.new(1, 2))\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "defined?(BigDecimal(1, 2))\n",
+    "project_after": "defined?(BigDecimal.new(1, 2))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "false && BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "false && BigDecimal(1, 2)\n",
+    "project_after": "false && BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "if false; BigDecimal.new(1, 2); end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "if false; BigDecimal(1, 2); end\n",
+    "project_after": "if false; BigDecimal.new(1, 2); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(1, 2) if condition\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(1, 2) if condition\n",
+    "project_after": "BigDecimal.new(1, 2) if condition\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "\"#{BigDecimal.new(1, 2)}\"\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "\"#{BigDecimal(1, 2)}\"\n",
+    "project_after": "\"#{BigDecimal.new(1, 2)}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "<<~DOC\n#{BigDecimal.new(1, 2)}\nDOC\n\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "<<~DOC\n#{BigDecimal(1, 2)}\nDOC\n\n",
+    "project_after": "<<~DOC\n#{BigDecimal.new(1, 2)}\nDOC\n\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "# BigDecimal.new(1, 2)\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ],
+    "upstream_after": "# BigDecimal.new(1, 2)\n",
+    "project_after": "# BigDecimal.new(1, 2)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "\"BigDecimal.new(1, 2)\"",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ],
+    "upstream_after": "\"BigDecimal.new(1, 2)\"",
+    "project_after": "\"BigDecimal.new(1, 2)\"",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def BigDecimal.new(*args); end",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ],
+    "upstream_after": "def BigDecimal.new(*args); end",
+    "project_after": "def BigDecimal.new(*args); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal",
+    "project_after": "BigDecimal.new",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new()",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal()",
+    "project_after": "BigDecimal.new()",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(*args)",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(*args)",
+    "project_after": "BigDecimal.new(*args)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(**kwargs)",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(**kwargs)",
+    "project_after": "BigDecimal.new(**kwargs)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new(&block)",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal(&block)",
+    "project_after": "BigDecimal.new(&block)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal = Object.new; BigDecimal.new(1, 2)",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        1,
+        37,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal = Object.new; BigDecimal(1, 2)",
+    "project_after": "BigDecimal = Object.new; BigDecimal.new(1, 2)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def f(...); BigDecimal.new(...); end",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def f(...); BigDecimal(...); end",
+    "project_after": "def f(...); BigDecimal.new(...); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def f(...); BigDecimal.new(str, ...); end",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def f(...); BigDecimal(str, ...); end",
+    "project_after": "def f(...); BigDecimal.new(str, ...); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "def f(*, **, &); BigDecimal.new(str, *, **, &); end",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "def f(*, **, &); BigDecimal(str, *, **, &); end",
+    "project_after": "def f(*, **, &); BigDecimal.new(str, *, **, &); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new ||= value\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal ||= value\n",
+    "project_after": "BigDecimal.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new &&= value\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal &&= value\n",
+    "project_after": "BigDecimal.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new += value\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal += value\n",
+    "project_after": "BigDecimal.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new ||= value\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal ||= value\n",
+    "project_after": "::BigDecimal.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new &&= value\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal &&= value\n",
+    "project_after": "::BigDecimal.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new += value\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
+      ]
+    ],
+    "upstream_after": "BigDecimal += value\n",
+    "project_after": "::BigDecimal.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new ||= value\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new ||= value\n",
+    "project_after": "Other::BigDecimal.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new &&= value\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new &&= value\n",
+    "project_after": "Other::BigDecimal.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new += value\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new += value\n",
+    "project_after": "Other::BigDecimal.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new ||= value\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new ||= value\n",
+    "project_after": "::Other::BigDecimal.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new &&= value\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new &&= value\n",
+    "project_after": "::Other::BigDecimal.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new += value\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new += value\n",
+    "project_after": "::Other::BigDecimal.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new ||= value\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new ||= value\n",
+    "project_after": "(BigDecimal).new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new &&= value\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new &&= value\n",
+    "project_after": "(BigDecimal).new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new += value\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new += value\n",
+    "project_after": "(BigDecimal).new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new ||= value\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new ||= value\n",
+    "project_after": "self.BigDecimal.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new &&= value\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new &&= value\n",
+    "project_after": "self.BigDecimal.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new += value\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new += value\n",
+    "project_after": "self.BigDecimal.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new ||= value\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new ||= value\n",
+    "project_after": "object.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new &&= value\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new &&= value\n",
+    "project_after": "object.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new += value\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new += value\n",
+    "project_after": "object.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new ||= value\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new ||= value\n",
+    "project_after": "bigdecimal.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new &&= value\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new &&= value\n",
+    "project_after": "bigdecimal.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new += value\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new += value\n",
+    "project_after": "bigdecimal.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new ||= value\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new ||= value\n",
+    "project_after": "BigDecimal::Nested.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new &&= value\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new &&= value\n",
+    "project_after": "BigDecimal::Nested.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new += value\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new += value\n",
+    "project_after": "BigDecimal::Nested.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal.new, other = values\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal.new, other = values\n",
+    "project_after": "BigDecimal.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::BigDecimal.new, other = values\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ],
+    "upstream_after": "::BigDecimal.new, other = values\n",
+    "project_after": "::BigDecimal.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "Other::BigDecimal.new, other = values\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::BigDecimal.new, other = values\n",
+    "project_after": "Other::BigDecimal.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "::Other::BigDecimal.new, other = values\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::BigDecimal.new, other = values\n",
+    "project_after": "::Other::BigDecimal.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "(BigDecimal).new, other = values\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ],
+    "upstream_after": "(BigDecimal).new, other = values\n",
+    "project_after": "(BigDecimal).new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "self.BigDecimal.new, other = values\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ],
+    "upstream_after": "self.BigDecimal.new, other = values\n",
+    "project_after": "self.BigDecimal.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "object.new, other = values\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new, other = values\n",
+    "project_after": "object.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "bigdecimal.new, other = values\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+
+    ],
+    "upstream_after": "bigdecimal.new, other = values\n",
+    "project_after": "bigdecimal.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/BigDecimalNew",
+    "source": "BigDecimal::Nested.new, other = values\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ],
+    "upstream_after": "BigDecimal::Nested.new, other = values\n",
+    "project_after": "BigDecimal::Nested.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@output_buffer')\n",
+    "origin": "spec",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "ERB.new(str, nil, '-', '@output_buffer')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.5,
+    "declared_findings": [
+
+    ],
+    "declared_after": "ERB.new(str, nil, '-', '@output_buffer')\n",
+    "ordinary_skip": "Ruby2.5/parser_whitequark: below the real >=2.6 gate; separately replayed, fixed3.4 source still detected."
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil)\n",
+    "origin": "spec",
+    "line": 14,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str)\n",
+    "project_after": "ERB.new(str, nil)\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "declared_after": "ERB.new(str)\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-')\n",
+    "origin": "spec",
+    "line": 25,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-')\n",
+    "project_after": "ERB.new(str, nil, '-')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "declared_after": "ERB.new(str, trim_mode: '-')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@output_buffer')\n",
+    "origin": "spec",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "ERB.new(str, nil, '-', '@output_buffer')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "declared_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@output_buffer', trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "origin": "spec",
+    "line": 52,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "ERB.new(str, nil, '-', '@output_buffer', trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "declared_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "origin": "spec",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "ERB.new(str, nil, '-', trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "declared_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new(str, nil, '-', '@output_buffer')\n",
+    "origin": "spec",
+    "line": 79,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "::ERB.new(str, nil, '-', '@output_buffer')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "declared_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "origin": "spec",
+    "line": 92,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+
+    ],
+    "declared_after": "ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str)\n",
+    "origin": "spec",
+    "line": 98,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str)\n",
+    "project_after": "ERB.new(str)\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+
+    ],
+    "declared_after": "ERB.new(str)\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, trim_mode: '-')\n",
+    "origin": "spec",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-')\n",
+    "project_after": "ERB.new(str, nil, trim_mode: '-')\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "declared_after": "ERB.new(str, trim_mode: '-')\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new\n",
+    "origin": "spec",
+    "line": 116,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new\n",
+    "project_after": "ERB.new\n",
+    "upstream_valid_syntax": true,
+    "declared_ruby": 2.6,
+    "declared_findings": [
+
+    ],
+    "declared_after": "ERB.new\n",
+    "ordinary_skip": null
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# Target codes supports Ruby 2.6 and higher only\n# bad\nERB.new(str, nil, '-', '@output_buffer')\n",
+    "origin": "source",
+    "line": 29,
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "# Target codes supports Ruby 2.6 and higher only\n# bad\nERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "# Target codes supports Ruby 2.6 and higher only\n# bad\nERB.new(str, nil, '-', '@output_buffer')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# good\nERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "origin": "source",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "# good\nERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# Target codes supports Ruby 2.5 and lower only\n# good\nERB.new(str, nil, '-', '@output_buffer')\n",
+    "origin": "source",
+    "line": 36,
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "# Target codes supports Ruby 2.5 and lower only\n# good\nERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "# Target codes supports Ruby 2.5 and lower only\n# good\nERB.new(str, nil, '-', '@output_buffer')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# Target codes supports Ruby 2.6, 2.5 and lower\n# bad\nERB.new(str, nil, '-', '@output_buffer')\n",
+    "origin": "source",
+    "line": 40,
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "# Target codes supports Ruby 2.6, 2.5 and lower\n# bad\nERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\n",
+    "project_after": "# Target codes supports Ruby 2.6, 2.5 and lower\n# bad\nERB.new(str, nil, '-', '@output_buffer')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# good\n# Ruby standard library style\n# https://github.com/ruby/ruby/commit/3406c5d\nif ERB.instance_method(:initialize).parameters.assoc(:key) # Ruby 2.6+\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nelse\n  ERB.new(str, nil, '-', '@output_buffer')\nend\n",
+    "origin": "source",
+    "line": 44,
+    "findings": [
+      [
+        7,
+        16,
+        7,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        7,
+        21,
+        7,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        7,
+        26,
+        7,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "# good\n# Ruby standard library style\n# https://github.com/ruby/ruby/commit/3406c5d\nif ERB.instance_method(:initialize).parameters.assoc(:key) # Ruby 2.6+\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nelse\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nend\n",
+    "project_after": "# good\n# Ruby standard library style\n# https://github.com/ruby/ruby/commit/3406c5d\nif ERB.instance_method(:initialize).parameters.assoc(:key) # Ruby 2.6+\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nelse\n  ERB.new(str, nil, '-', '@output_buffer')\nend\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# good\n# Use `RUBY_VERSION` style\nif RUBY_VERSION >= '2.6'\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nelse\n  ERB.new(str, nil, '-', '@output_buffer')\nend\n",
+    "origin": "source",
+    "line": 53,
+    "findings": [
+      [
+        6,
+        16,
+        6,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        6,
+        21,
+        6,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        6,
+        26,
+        6,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@output_buffer')` instead."
+      ]
+    ],
+    "upstream_after": "# good\n# Use `RUBY_VERSION` style\nif RUBY_VERSION >= '2.6'\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nelse\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nend\n",
+    "project_after": "# good\n# Use `RUBY_VERSION` style\nif RUBY_VERSION >= '2.6'\n  ERB.new(str, trim_mode: '-', eoutvar: '@output_buffer')\nelse\n  ERB.new(str, nil, '-', '@output_buffer')\nend\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        20,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        25,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB::new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "ERB::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB&.new(str, nil, '-', '@buf')\n",
+    "project_after": "ERB&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        2,
+        11,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        16,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB .\n new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "ERB .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new str, trim_mode: '-', eoutvar: '@buf'\n",
+    "project_after": "ERB.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf') { work }\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf') { _1 }\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf') { it }\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "ERB.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "::ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        22,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        27,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB::new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "::ERB::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ],
+    "upstream_after": "::ERB&.new(str, nil, '-', '@buf')\n",
+    "project_after": "::ERB&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        2,
+        11,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        16,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB .\n new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "::ERB .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new str, trim_mode: '-', eoutvar: '@buf'\n",
+    "project_after": "::ERB.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@buf') { work }\n",
+    "project_after": "::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@buf') { _1 }\n",
+    "project_after": "::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@buf') { it }\n",
+    "project_after": "::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "::ERB.new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "::ERB.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "::ERB.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new(str, nil, '-', '@buf')\n",
+    "project_after": "Other::ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB::new(str, nil, '-', '@buf')\n",
+    "project_after": "Other::ERB::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB&.new(str, nil, '-', '@buf')\n",
+    "project_after": "Other::ERB&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "Other::ERB .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new str, nil, '-', '@buf'\n",
+    "project_after": "Other::ERB.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "Other::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "Other::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "Other::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "Other::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "Other::ERB.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new(str, nil, '-', '@buf')\n",
+    "project_after": "::Other::ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB::new(str, nil, '-', '@buf')\n",
+    "project_after": "::Other::ERB::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB&.new(str, nil, '-', '@buf')\n",
+    "project_after": "::Other::ERB&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "::Other::ERB .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new str, nil, '-', '@buf'\n",
+    "project_after": "::Other::ERB.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "::Other::ERB.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "::Other::ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "::Other::ERB.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "::Other::ERB.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "::Other::ERB.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new(str, nil, '-', '@buf')\n",
+    "project_after": "(ERB).new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB)::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB)::new(str, nil, '-', '@buf')\n",
+    "project_after": "(ERB)::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB)&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB)&.new(str, nil, '-', '@buf')\n",
+    "project_after": "(ERB)&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB) .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB) .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "(ERB) .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new str, nil, '-', '@buf'\n",
+    "project_after": "(ERB).new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "(ERB).new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "(ERB).new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "(ERB).new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "(ERB).new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).allocate(str, nil, '-', '@buf')\n",
+    "project_after": "(ERB).allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new(str, nil, '-', '@buf')\n",
+    "project_after": "self.ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB::new(str, nil, '-', '@buf')\n",
+    "project_after": "self.ERB::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB&.new(str, nil, '-', '@buf')\n",
+    "project_after": "self.ERB&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "self.ERB .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new str, nil, '-', '@buf'\n",
+    "project_after": "self.ERB.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "self.ERB.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "self.ERB.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "self.ERB.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "self.ERB.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "self.ERB.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(str, nil, '-', '@buf')\n",
+    "project_after": "object.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ],
+    "upstream_after": "object::new(str, nil, '-', '@buf')\n",
+    "project_after": "object::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "object&.new(str, nil, '-', '@buf')\n",
+    "project_after": "object&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ],
+    "upstream_after": "object .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "object .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new str, nil, '-', '@buf'\n",
+    "project_after": "object.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "object.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "object.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "object.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "object.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ],
+    "upstream_after": "object.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "object.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new(str, nil, '-', '@buf')\n",
+    "project_after": "erb.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "erb::new(str, nil, '-', '@buf')\n",
+    "project_after": "erb::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "erb&.new(str, nil, '-', '@buf')\n",
+    "project_after": "erb&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ],
+    "upstream_after": "erb .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "erb .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new str, nil, '-', '@buf'\n",
+    "project_after": "erb.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "erb.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "erb.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "erb.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "erb.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "erb.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new(str, nil, '-', '@buf')\n",
+    "project_after": "ERB::Nested.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested::new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested::new(str, nil, '-', '@buf')\n",
+    "project_after": "ERB::Nested::new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested&.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested&.new(str, nil, '-', '@buf')\n",
+    "project_after": "ERB::Nested&.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested .\n new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested .\n new(str, nil, '-', '@buf')\n",
+    "project_after": "ERB::Nested .\n new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new str, nil, '-', '@buf'\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new str, nil, '-', '@buf'\n",
+    "project_after": "ERB::Nested.new str, nil, '-', '@buf'\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new(str, nil, '-', '@buf') { work }\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new(str, nil, '-', '@buf') { work }\n",
+    "project_after": "ERB::Nested.new(str, nil, '-', '@buf') { work }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new(str, nil, '-', '@buf') { _1 }\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new(str, nil, '-', '@buf') { _1 }\n",
+    "project_after": "ERB::Nested.new(str, nil, '-', '@buf') { _1 }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new(str, nil, '-', '@buf') { it }\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new(str, nil, '-', '@buf') { it }\n",
+    "project_after": "ERB::Nested.new(str, nil, '-', '@buf') { it }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new(str, nil, '-', '@buf', &block)\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new(str, nil, '-', '@buf', &block)\n",
+    "project_after": "ERB::Nested.new(str, nil, '-', '@buf', &block)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.allocate(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.allocate(str, nil, '-', '@buf')\n",
+    "project_after": "ERB::Nested.allocate(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "consume(ERB.new(str, nil, '-', '@buf'))\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        27,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        32,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "consume(ERB.new(str, trim_mode: '-', eoutvar: '@buf'))\n",
+    "project_after": "consume(ERB.new(str, nil, '-', '@buf'))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "def f; ERB.new(str, nil, '-', '@buf'); end\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        31,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "def f; ERB.new(str, trim_mode: '-', eoutvar: '@buf'); end\n",
+    "project_after": "def f; ERB.new(str, nil, '-', '@buf'); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "module M; ERB.new(str, nil, '-', '@buf'); end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        29,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        34,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "module M; ERB.new(str, trim_mode: '-', eoutvar: '@buf'); end\n",
+    "project_after": "module M; ERB.new(str, nil, '-', '@buf'); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "class C; ERB.new(str, nil, '-', '@buf'); end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        28,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        33,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "class C; ERB.new(str, trim_mode: '-', eoutvar: '@buf'); end\n",
+    "project_after": "class C; ERB.new(str, nil, '-', '@buf'); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "task { ERB.new(str, nil, '-', '@buf') }\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        26,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        31,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "task { ERB.new(str, trim_mode: '-', eoutvar: '@buf') }\n",
+    "project_after": "task { ERB.new(str, nil, '-', '@buf') }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "-> { ERB.new(str, nil, '-', '@buf') }\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        1,
+        19,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        29,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "-> { ERB.new(str, trim_mode: '-', eoutvar: '@buf') }\n",
+    "project_after": "-> { ERB.new(str, nil, '-', '@buf') }\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "defined?(ERB.new(str, nil, '-', '@buf'))\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        28,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        33,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "defined?(ERB.new(str, trim_mode: '-', eoutvar: '@buf'))\n",
+    "project_after": "defined?(ERB.new(str, nil, '-', '@buf'))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "false && ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        28,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        33,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "false && ERB.new(str, trim_mode: '-', eoutvar: '@buf')\n",
+    "project_after": "false && ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "if false; ERB.new(str, nil, '-', '@buf'); end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        29,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        34,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "if false; ERB.new(str, trim_mode: '-', eoutvar: '@buf'); end\n",
+    "project_after": "if false; ERB.new(str, nil, '-', '@buf'); end\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf') if condition\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf') if condition\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf') if condition\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "\"#{ERB.new(str, nil, '-', '@buf')}\"\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        22,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        27,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "\"#{ERB.new(str, trim_mode: '-', eoutvar: '@buf')}\"\n",
+    "project_after": "\"#{ERB.new(str, nil, '-', '@buf')}\"\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "<<~DOC\n#{ERB.new(str, nil, '-', '@buf')}\nDOC\n\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "<<~DOC\n#{ERB.new(str, trim_mode: '-', eoutvar: '@buf')}\nDOC\n\n",
+    "project_after": "<<~DOC\n#{ERB.new(str, nil, '-', '@buf')}\nDOC\n\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "# ERB.new(str, nil, '-', '@buf')\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ],
+    "upstream_after": "# ERB.new(str, nil, '-', '@buf')\n",
+    "project_after": "# ERB.new(str, nil, '-', '@buf')\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "\"ERB.new(str, nil, '-', '@buf')\"",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ],
+    "upstream_after": "\"ERB.new(str, nil, '-', '@buf')\"",
+    "project_after": "\"ERB.new(str, nil, '-', '@buf')\"",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "def ERB.new(*args); end",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ],
+    "upstream_after": "def ERB.new(*args); end",
+    "project_after": "def ERB.new(*args); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new",
+    "project_after": "ERB.new",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new()",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new()",
+    "project_after": "ERB.new()",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(*args)",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(*args)",
+    "project_after": "ERB.new(*args)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(**kwargs)",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(**kwargs)",
+    "project_after": "ERB.new(**kwargs)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(&block)",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(&block)",
+    "project_after": "ERB.new(&block)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB = Object.new; ERB.new(str, nil, '-', '@buf')",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        37,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        42,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB = Object.new; ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB = Object.new; ERB.new(str, nil, '-', '@buf')",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "def f(...); ERB.new(...); end",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ],
+    "upstream_after": "def f(...); ERB.new(...); end",
+    "project_after": "def f(...); ERB.new(...); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "def f(...); ERB.new(str, ...); end",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "def f(...); ERB.new(str); end",
+    "project_after": "def f(...); ERB.new(str, ...); end",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "def f(*, **, &); ERB.new(str, *, **, &); end",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        38,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &)` instead."
+      ]
+    ],
+    "upstream_after": "def f(*, **, &); ERB.new(str, eoutvar: &); end",
+    "project_after": "def f(*, **, &); ERB.new(str, *, **, &); end",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new ||= value\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new ||= value\n",
+    "project_after": "ERB.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new &&= value\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new &&= value\n",
+    "project_after": "ERB.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new += value\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new += value\n",
+    "project_after": "ERB.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new ||= value\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ],
+    "upstream_after": "::ERB.new ||= value\n",
+    "project_after": "::ERB.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new &&= value\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "::ERB.new &&= value\n",
+    "project_after": "::ERB.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new += value\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ],
+    "upstream_after": "::ERB.new += value\n",
+    "project_after": "::ERB.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new ||= value\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new ||= value\n",
+    "project_after": "Other::ERB.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new &&= value\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new &&= value\n",
+    "project_after": "Other::ERB.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new += value\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new += value\n",
+    "project_after": "Other::ERB.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new ||= value\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new ||= value\n",
+    "project_after": "::Other::ERB.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new &&= value\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new &&= value\n",
+    "project_after": "::Other::ERB.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new += value\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new += value\n",
+    "project_after": "::Other::ERB.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new ||= value\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new ||= value\n",
+    "project_after": "(ERB).new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new &&= value\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new &&= value\n",
+    "project_after": "(ERB).new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new += value\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new += value\n",
+    "project_after": "(ERB).new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new ||= value\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new ||= value\n",
+    "project_after": "self.ERB.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new &&= value\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new &&= value\n",
+    "project_after": "self.ERB.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new += value\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new += value\n",
+    "project_after": "self.ERB.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new ||= value\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new ||= value\n",
+    "project_after": "object.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new &&= value\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new &&= value\n",
+    "project_after": "object.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new += value\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new += value\n",
+    "project_after": "object.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new ||= value\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new ||= value\n",
+    "project_after": "erb.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new &&= value\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new &&= value\n",
+    "project_after": "erb.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new += value\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new += value\n",
+    "project_after": "erb.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new ||= value\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new ||= value\n",
+    "project_after": "ERB::Nested.new ||= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new &&= value\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new &&= value\n",
+    "project_after": "ERB::Nested.new &&= value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new += value\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new += value\n",
+    "project_after": "ERB::Nested.new += value\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new, other = values\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new, other = values\n",
+    "project_after": "ERB.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::ERB.new, other = values\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ],
+    "upstream_after": "::ERB.new, other = values\n",
+    "project_after": "::ERB.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "Other::ERB.new, other = values\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+
+    ],
+    "upstream_after": "Other::ERB.new, other = values\n",
+    "project_after": "Other::ERB.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "::Other::ERB.new, other = values\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+
+    ],
+    "upstream_after": "::Other::ERB.new, other = values\n",
+    "project_after": "::Other::ERB.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "(ERB).new, other = values\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ],
+    "upstream_after": "(ERB).new, other = values\n",
+    "project_after": "(ERB).new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "self.ERB.new, other = values\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ],
+    "upstream_after": "self.ERB.new, other = values\n",
+    "project_after": "self.ERB.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "object.new, other = values\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ],
+    "upstream_after": "object.new, other = values\n",
+    "project_after": "object.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "erb.new, other = values\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+
+    ],
+    "upstream_after": "erb.new, other = values\n",
+    "project_after": "erb.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB::Nested.new, other = values\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB::Nested.new, other = values\n",
+    "project_after": "ERB::Nested.new, other = values\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil)\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str)\n",
+    "project_after": "ERB.new(str, nil)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, nil)\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: nil)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: nil)\n",
+    "project_after": "ERB.new(str, nil, nil)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, nil, nil)\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: nil)` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: nil)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: nil, eoutvar: nil)\n",
+    "project_after": "ERB.new(str, nil, nil, nil)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, {})\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, {})\n",
+    "project_after": "ERB.new(str, {})\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, {}, {})\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, {}, {})\n",
+    "project_after": "ERB.new(str, {}, {})\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, {}, {}, {})\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, {}, {}, {})\n",
+    "project_after": "ERB.new(str, {}, {}, {})\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, {trim_mode: '-'})\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, {trim_mode: '-'})\n",
+    "project_after": "ERB.new(str, {trim_mode: '-'})\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, {trim_mode: '-'}, {trim_mode: '-'})\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, {trim_mode: '-'}, {trim_mode: '-'})\n",
+    "project_after": "ERB.new(str, {trim_mode: '-'}, {trim_mode: '-'})\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, {trim_mode: '-'}, {trim_mode: '-'}, {trim_mode: '-'})\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, {trim_mode: '-'}, {trim_mode: '-'}, {trim_mode: '-'})\n",
+    "project_after": "ERB.new(str, {trim_mode: '-'}, {trim_mode: '-'}, {trim_mode: '-'})\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, (nil))\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str)\n",
+    "project_after": "ERB.new(str, (nil))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, (nil), (nil))\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: (nil))` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: (nil))\n",
+    "project_after": "ERB.new(str, (nil), (nil))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, (nil), (nil), (nil))\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: (nil))` instead."
+      ],
+      [
+        1,
+        28,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: (nil))` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: (nil), eoutvar: (nil))\n",
+    "project_after": "ERB.new(str, (nil), (nil), (nil))\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, side_effect)\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str)\n",
+    "project_after": "ERB.new(str, side_effect)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, side_effect, side_effect)\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        27,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: side_effect)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: side_effect)\n",
+    "project_after": "ERB.new(str, side_effect, side_effect)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, side_effect, side_effect, side_effect)\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        27,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: side_effect)` instead."
+      ],
+      [
+        1,
+        40,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: side_effect)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: side_effect, eoutvar: side_effect)\n",
+    "project_after": "ERB.new(str, side_effect, side_effect, side_effect)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, *args)\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str)\n",
+    "project_after": "ERB.new(str, *args)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, *args, *args)\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: *args)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: *args)\n",
+    "project_after": "ERB.new(str, *args, *args)\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, *args, *args, *args)\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        21,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: *args)` instead."
+      ],
+      [
+        1,
+        28,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: *args)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: *args, eoutvar: *args)\n",
+    "project_after": "ERB.new(str, *args, *args, *args)\n",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, **kwargs)\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, **kwargs)\n",
+    "project_after": "ERB.new(str, **kwargs)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, **kwargs, **kwargs)\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, **kwargs, **kwargs)\n",
+    "project_after": "ERB.new(str, **kwargs, **kwargs)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, **kwargs, **kwargs, **kwargs)\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ],
+    "upstream_after": "ERB.new(str, **kwargs, **kwargs, **kwargs)\n",
+    "project_after": "ERB.new(str, **kwargs, **kwargs, **kwargs)\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', ignored, **kwargs)",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', ignored, **kwargs)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, trim_mode: side_effect)",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: side_effect)",
+    "project_after": "ERB.new(str, nil, trim_mode: side_effect)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', unknown: side_effect)",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', unknown: side_effect)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', :trim_mode => side_effect)",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', :trim_mode => side_effect)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', trim_mode: side_effect, eoutvar: side_effect)",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', trim_mode: side_effect, eoutvar: side_effect)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', {trim_mode: side_effect})",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', {trim_mode: side_effect})",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', **kwargs)",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', **kwargs)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, &block)",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: &block)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: &block)",
+    "project_after": "ERB.new(str, nil, &block)",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', &block)",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: &block)",
+    "project_after": "ERB.new(str, nil, '-', &block)",
+    "upstream_valid_syntax": false
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', &block)",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', &block)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', extra)",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', extra)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, <<~MODE)\n-\nMODE\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: <<~MODE)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: <<~MODE)\n-\nMODE\n",
+    "project_after": "ERB.new(str, nil, <<~MODE)\n-\nMODE\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, begin\n work\nend)",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n work\nend)` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: begin\n work\nend)",
+    "project_after": "ERB.new(str, nil, begin\n work\nend)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, task {\n work\n})",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: task {\n work\n})` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: task {\n work\n})",
+    "project_after": "ERB.new(str, nil, task {\n work\n})",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, (\n '-'\n))",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: (\n '-'\n))` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: (\n '-'\n))",
+    "project_after": "ERB.new(str, nil, (\n '-'\n))",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, x = '-')",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: x = '-')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: x = '-')",
+    "project_after": "ERB.new(str, nil, x = '-')",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, **kwargs)",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ]
+    ],
+    "upstream_after": "ERB.new(str)",
+    "project_after": "ERB.new(str, nil, **kwargs)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf', k: 1, **kwargs)",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')",
+    "project_after": "ERB.new(str, nil, '-', '@buf', k: 1, **kwargs)",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-', '@buf')\n__END__\ndata\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ],
+      [
+        1,
+        24,
+        1,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: '@buf')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-', eoutvar: '@buf')\n__END__\ndata\n",
+    "project_after": "ERB.new(str, nil, '-', '@buf')\n__END__\ndata\n",
+    "upstream_valid_syntax": true
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source": "ERB.new(str, nil, '-')\np __LINE__; File.read(__FILE__); GC.stat; RubyVM::InstructionSequence.of(method(:f))\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        1,
+        19,
+        1,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: '-')` instead."
+      ]
+    ],
+    "upstream_after": "ERB.new(str, trim_mode: '-')\np __LINE__; File.read(__FILE__); GC.stat; RubyVM::InstructionSequence.of(method(:f))\n",
+    "project_after": "ERB.new(str, nil, '-')\np __LINE__; File.read(__FILE__); GC.stat; RubyVM::InstructionSequence.of(method(:f))\n",
+    "upstream_valid_syntax": true
+  }
+]

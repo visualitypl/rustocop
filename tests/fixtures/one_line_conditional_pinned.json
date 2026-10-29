@@ -1,0 +1,866 @@
+[
+  {
+    "spec_line": 18,
+    "source": "if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "cond ? run : dont\n"
+  },
+  {
+    "spec_line": 29,
+    "source": "if cond then run else end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 34,
+    "source": "if cond then else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "cond ? nil : dont\n"
+  },
+  {
+    "spec_line": 45,
+    "source": "if cond then run end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 49,
+    "source": "if cond then x; y else z end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 55,
+    "source": "unless cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `unless/then/else/end` constructs."
+    ],
+    "correction": "cond ? dont : run\n"
+  },
+  {
+    "spec_line": 66,
+    "source": "if cond then foo else if cond2; bar else baz end; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        23
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs.",
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "cond ? foo : (if cond2; bar else baz end)\n"
+  },
+  {
+    "spec_line": 78,
+    "source": "if cond; foo; else bar; baz; end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor multi-line `if` over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "if cond\n  foo\nelse\n  bar; baz\nend\n"
+  },
+  {
+    "spec_line": 93,
+    "source": "unless cond then run else end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 97,
+    "source": "unless cond then run end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 103,
+    "source": "a | if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a | (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a ^ if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a ^ (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a & if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a & (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a <=> if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a <=> (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a == if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a == (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a === if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a === (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a =~ if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a =~ (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a > if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a > (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a >= if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a >= (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a < if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a < (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a <= if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a <= (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a << if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a << (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a >> if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a >> (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a + if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a + (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a - if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a - (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a * if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a * (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a / if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a / (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a % if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a % (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a ** if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a ** (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a ~ if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a ~ (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a ! if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a ! (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a != if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a != (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a !~ if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a !~ (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a && if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a && (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 103,
+    "source": "a || if cond then run else dont end\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a || (cond ? run : dont)\n"
+  },
+  {
+    "spec_line": 146,
+    "source": "if cond then a += 1 while a < 3 else a => b end\nif cond then a rescue b else c until d end\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs.",
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "cond ? (a += 1 while a < 3) : (a => b)\ncond ? (a rescue b) : (c until d)\n"
+  },
+  {
+    "spec_line": 160,
+    "source": "if cond then begin foo end while bar else baz end\nif cond then baz else begin foo end until bar end\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs.",
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "cond ? (begin foo end while bar) : baz\ncond ? baz : (begin foo end until bar)\n"
+  },
+  {
+    "spec_line": 175,
+    "source": "x = if cond then 1 else 2 end.to_s\ny = if cond then 1 else 2 end&.to_s\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs.",
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "x = (cond ? 1 : 2).to_s\ny = (cond ? 1 : 2)&.to_s\n"
+  },
+  {
+    "spec_line": 189,
+    "source": "x = if cond then Foo else Bar end::Baz\nif cond then Foo else Bar end::Baz = 1\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs.",
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "x = (cond ? Foo : Bar)::Baz\n(cond ? Foo : Bar)::Baz = 1\n"
+  },
+  {
+    "spec_line": 203,
+    "source": "Foo::Baz = if cond then foo else bar end\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "Foo::Baz = cond ? foo : bar\n"
+  },
+  {
+    "spec_line": 214,
+    "source": "x = if cond then foo else bar end ? baz : qux\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "x = (cond ? foo : bar) ? baz : qux\n"
+  },
+  {
+    "spec_line": 226,
+    "source": "if check 1 then run 2 else dont_run 3 end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(check 1) ? (run 2) : (dont_run 3)\n"
+  },
+  {
+    "spec_line": 238,
+    "source": "if a(0) then puts(1) else yield(2) end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "a(0) ? puts(1) : yield(2)\n"
+  },
+  {
+    "spec_line": 250,
+    "source": "if 0 + 0 then 1 + 1 else 2 + 2 end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "0 + 0 ? 1 + 1 : 2 + 2\n"
+  },
+  {
+    "spec_line": 285,
+    "source": "map { |line| if line.match(/^ *#/) || line.strip.empty? then next else line end }\n",
+    "positions": [
+      [
+        1,
+        14
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "map { |line| (line.match(/^ *#/) || line.strip.empty?) ? next : line }\n"
+  },
+  {
+    "spec_line": 296,
+    "source": "if cond1 then run elsif cond2 then maybe end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor multi-line `if` over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "if cond1\n  run\nelsif cond2\n  maybe\nend\n"
+  },
+  {
+    "spec_line": 312,
+    "source": "if cond1 then run elsif cond2 then maybe else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor multi-line `if` over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "if cond1\n  run\nelsif cond2\n  maybe\nelse\n  dont\nend\n"
+  },
+  {
+    "spec_line": 330,
+    "source": "if cond1 then run elsif cond2 then maybe elsif cond3 then perhaps else dont end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor multi-line `if` over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "if cond1\n  run\nelsif cond2\n  maybe\nelsif cond3\n  perhaps\nelse\n  dont\nend\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if puts 1 then puts 1 else puts 1 end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(puts 1) ? (puts 1) : (puts 1)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if defined? :A then defined? :A else defined? :A end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(defined? :A) ? (defined? :A) : (defined? :A)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if yield a then yield a else yield a end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(yield a) ? (yield a) : (yield a)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if super b then super b else super b end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(super b) ? (super b) : (super b)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if not a then not a else not a end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(not a) ? (not a) : (not a)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if a and b then a and b else a and b end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(a and b) ? (a and b) : (a and b)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if a or b then a or b else a or b end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(a or b) ? (a or b) : (a or b)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if a = b then a = b else a = b end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(a = b) ? (a = b) : (a = b)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if a ? b : c then a ? b : c else a ? b : c end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(a ? b : c) ? (a ? b : c) : (a ? b : c)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if a&.b c then a&.b c else a&.b c end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(a&.b c) ? (a&.b c) : (a&.b c)\n"
+  },
+  {
+    "spec_line": 117,
+    "source": "if a in b then a in b else a in b end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "(a in b) ? (a in b) : (a in b)\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "if true then self else 7 end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "true ? self : 7\n"
+  },
+  {
+    "spec_line": 263,
+    "source": "if true then raise else 7 end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor the ternary operator (`?:`) over single-line `if/then/else/end` constructs."
+    ],
+    "correction": "true ? raise : 7\n"
+  }
+]

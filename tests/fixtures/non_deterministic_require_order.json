@@ -1,0 +1,1942 @@
+[
+  {
+    "origin": "spec",
+    "line": 8,
+    "source": "Dir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 17,
+    "source": "Dir[\"./lib/**/*.rb\"].each do |file|\n  if file.start_with?('_')\n    puts \"Not required.\"\n  else\n    require file\n  end\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].each do |file|\n  if file.start_with?('_')\n    puts \"Not required.\"\n  else\n    require file\n  end\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 31,
+    "source": "Dir[\"./lib/**/*.rb\"].each(&method(:require))\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 39,
+    "source": "::Dir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 50,
+    "source": "Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), File::FNM_DOTMATCH).each do |file|\n  require file\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), File::FNM_DOTMATCH).each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 59,
+    "source": "Dir.glob(Rails.root.join('test', '*.rb')).each(&method(:require))\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob(Rails.root.join('test', '*.rb')).each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 67,
+    "source": "::Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), ::File::FNM_DOTMATCH).each do |file|\n  require file\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), ::File::FNM_DOTMATCH).each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 77,
+    "source": "Dir.glob(Rails.root.join('test', '*.rb'), sort: false).each(&method(:require))\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob(Rails.root.join('test', '*.rb'), sort: false).each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 86,
+    "source": "Dir.glob(\"./lib/**/*.rb\") do |file|\n  require file\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob(\"./lib/**/*.rb\") do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 95,
+    "source": "Dir.glob(\n  Rails.root.join('./lib/**/*.rb'),\n  File::FNM_DOTMATCH,\n  &method(:require)\n)\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob(\n  Rails.root.join('./lib/**/*.rb'),\n  File::FNM_DOTMATCH,\n  &method(:require)\n)\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 107,
+    "source": "::Dir.glob(\"./lib/**/*.rb\") do |file|\n  require file\nend\n",
+    "legacy_version": 3.0,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob(\"./lib/**/*.rb\") do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 120,
+    "source": "Dir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 135,
+    "source": "Dir[\"./lib/**/*.rb\"].each do\n  require _1\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each do\n  require _1\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 150,
+    "source": "Dir[\"./lib/**/*.rb\"].each do |file|\n  require_relative file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each do |file|\n  require_relative file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 165,
+    "source": "Dir[\"./lib/**/*.rb\"].each do |file|\n  if file.start_with?('_')\n    puts \"Not required.\"\n  else\n    require file\n  end\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each do |file|\n  if file.start_with?('_')\n    puts \"Not required.\"\n  else\n    require file\n  end\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 189,
+    "source": "Dir[\"./lib/**/*.rb\"].each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 202,
+    "source": "Dir[\"./lib/**/*.rb\"].each(&method(:require_relative))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each(&method(:require_relative))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 215,
+    "source": "::Dir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 233,
+    "source": "Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), File::FNM_DOTMATCH).each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), File::FNM_DOTMATCH).sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 249,
+    "source": "Dir.glob(Rails.root.join('test', '*.rb')).each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob(Rails.root.join('test', '*.rb')).sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 262,
+    "source": "::Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), ::File::FNM_DOTMATCH).each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), ::File::FNM_DOTMATCH).sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 280,
+    "source": "Dir.glob(\"./lib/**/*.rb\") do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob(\"./lib/**/*.rb\").sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 296,
+    "source": "Dir.glob(\n  Rails.root.join('./lib/**/*.rb'),\n  File::FNM_DOTMATCH,\n  &method(:require)\n)\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob(\n  Rails.root.join('./lib/**/*.rb'),\n  File::FNM_DOTMATCH\n).sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 316,
+    "source": "Dir.glob(\n  Rails.root.join('./lib/**/*.rb'),\n  File::FNM_DOTMATCH,\n  &method(:require_relative)\n)\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob(\n  Rails.root.join('./lib/**/*.rb'),\n  File::FNM_DOTMATCH\n).sort.each(&method(:require_relative))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 336,
+    "source": "::Dir.glob(\"./lib/**/*.rb\") do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob(\"./lib/**/*.rb\").sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 355,
+    "source": "Dir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "legacy_version": 3.4,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 365,
+    "source": "Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), File::FNM_DOTMATCH).sort.each do |file|\n  require file\nend\n",
+    "legacy_version": 3.4,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob(Rails.root.join(__dir__, 'test', '*.rb'), File::FNM_DOTMATCH).sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "spec",
+    "line": 376,
+    "source": "Dir[\"./lib/**/*.rb\"].each do |file|\n  puts file\nend\n",
+    "legacy_version": 3.4,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir[\"./lib/**/*.rb\"].each do |file|\n  puts file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 25,
+    "source": "# bad\nDir[\"./lib/**/*.rb\"].each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "# bad\nDir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 30,
+    "source": "# good\nDir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "# good\nDir[\"./lib/**/*.rb\"].sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 35,
+    "source": "# bad\nDir.glob(Rails.root.join(__dir__, 'test', '*.rb')) do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "# bad\nDir.glob(Rails.root.join(__dir__, 'test', '*.rb')).sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 40,
+    "source": "# good\nDir.glob(Rails.root.join(__dir__, 'test', '*.rb')).sort.each do |file|\n  require file\nend\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "# good\nDir.glob(Rails.root.join(__dir__, 'test', '*.rb')).sort.each do |file|\n  require file\nend\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 45,
+    "source": "# bad\nDir['./lib/**/*.rb'].each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "# bad\nDir['./lib/**/*.rb'].sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 48,
+    "source": "# good\nDir['./lib/**/*.rb'].sort.each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "# good\nDir['./lib/**/*.rb'].sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 51,
+    "source": "# bad\nDir.glob(Rails.root.join('test', '*.rb'), &method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "# bad\nDir.glob(Rails.root.join('test', '*.rb')).sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 54,
+    "source": "# good\nDir.glob(Rails.root.join('test', '*.rb')).sort.each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "# good\nDir.glob(Rails.root.join('test', '*.rb')).sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "source",
+    "line": 57,
+    "source": "# good - Respect intent if `sort` keyword option is specified in Ruby 3.0 or higher.\nDir.glob(Rails.root.join(__dir__, 'test', '*.rb'), sort: false).each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "# good - Respect intent if `sort` keyword option is specified in Ruby 3.0 or higher.\nDir.glob(Rails.root.join(__dir__, 'test', '*.rb'), sort: false).sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 1,
+    "source": "Dir['*.rb'].each { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 2,
+    "source": "Dir['*.rb'].each { |file| require_relative file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| require_relative file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 3,
+    "source": "Dir['*.rb'].each { require _1 }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { require _1 }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 4,
+    "source": "Dir['*.rb'].each { require _2; require _1 }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { require _2; require _1 }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 5,
+    "source": "Dir['*.rb'].each { |file| if file; require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| if file; require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 6,
+    "source": "Dir['*.rb'].each { |file| begin; work; rescue; require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| begin; work; rescue; require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 7,
+    "source": "Dir['*.rb'].each { |file| inner { |file| require file } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| inner { |file| require file } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 8,
+    "source": "Dir['*.rb'].each { |file| def helper(file); require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| def helper(file); require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 9,
+    "source": "Dir['*.rb'].each { |file| file = other; require file; require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| file = other; require file; require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 10,
+    "source": "Dir['*.rb'].each { |file| Kernel.require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file| Kernel.require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 11,
+    "source": "Dir['*.rb'].each { |file| require other }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file| require other }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 12,
+    "source": "Dir['*.rb'].each { |file| require \"file\" }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file| require \"file\" }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 13,
+    "source": "Dir['*.rb'].each { |file| require file, other }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file| require file, other }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 14,
+    "source": "Dir['*.rb'].each { |file| require(file, &block) }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file| require(file, &block) }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 15,
+    "source": "Dir['*.rb'].each { |file, other| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file, other| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 16,
+    "source": "Dir['*.rb'].each { |*files| require files }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |*files| require files }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 17,
+    "source": "Dir['*.rb'].each { |file = nil| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file = nil| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 18,
+    "source": "Dir['*.rb'].each { |(file)| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |(file)| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 19,
+    "source": "Dir['*.rb'].each { |file; other| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file; other| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 20,
+    "source": "Dir['*.rb'].each { || require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { || require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 21,
+    "source": "Dir['*.rb'].each { |file,| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file,| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 22,
+    "source": "Dir['*.rb'].each { |file| }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each { |file| }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 23,
+    "source": "Dir['*.rb'].each { |file| require(file) { work } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| require(file) { work } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 24,
+    "source": "Dir['*.rb'].each { |file| consume(require(file)) }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| consume(require(file)) }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 25,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 26,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require_relative file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| require_relative file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 27,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { require _1 }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { require _1 }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 28,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { require _2; require _1 }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { require _2; require _1 }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 29,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| if file; require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| if file; require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 30,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| begin; work; rescue; require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| begin; work; rescue; require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 31,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| inner { |file| require file } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| inner { |file| require file } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 32,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| def helper(file); require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| def helper(file); require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 33,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| file = other; require file; require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| file = other; require file; require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 34,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| Kernel.require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| Kernel.require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 35,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require other }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require other }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 36,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require \"file\" }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require \"file\" }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 37,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require file, other }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require file, other }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 38,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require(file, &block) }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require(file, &block) }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 39,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file, other| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file, other| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 40,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |*files| require files }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |*files| require files }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 41,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file = nil| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file = nil| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 42,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |(file)| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |(file)| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 43,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file; other| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file; other| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 44,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { || require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { || require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 45,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file,| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file,| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 46,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 47,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| require(file) { work } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| require(file) { work } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 48,
+    "source": "::Dir.glob('*.rb', File::FNM_DOTMATCH).each { |file| consume(require(file)) }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "::Dir.glob('*.rb', File::FNM_DOTMATCH).sort.each { |file| consume(require(file)) }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 49,
+    "source": "Dir.glob('*.rb') { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 50,
+    "source": "Dir.glob('*.rb') { |file| require_relative file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| require_relative file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 51,
+    "source": "Dir.glob('*.rb') { require _1 }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { require _1 }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 52,
+    "source": "Dir.glob('*.rb') { require _2; require _1 }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { require _2; require _1 }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 53,
+    "source": "Dir.glob('*.rb') { |file| if file; require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| if file; require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 54,
+    "source": "Dir.glob('*.rb') { |file| begin; work; rescue; require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| begin; work; rescue; require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 55,
+    "source": "Dir.glob('*.rb') { |file| inner { |file| require file } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| inner { |file| require file } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 56,
+    "source": "Dir.glob('*.rb') { |file| def helper(file); require file; end }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| def helper(file); require file; end }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 57,
+    "source": "Dir.glob('*.rb') { |file| file = other; require file; require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| file = other; require file; require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 58,
+    "source": "Dir.glob('*.rb') { |file| Kernel.require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file| Kernel.require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 59,
+    "source": "Dir.glob('*.rb') { |file| require other }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file| require other }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 60,
+    "source": "Dir.glob('*.rb') { |file| require \"file\" }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file| require \"file\" }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 61,
+    "source": "Dir.glob('*.rb') { |file| require file, other }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file| require file, other }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 62,
+    "source": "Dir.glob('*.rb') { |file| require(file, &block) }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file| require(file, &block) }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 63,
+    "source": "Dir.glob('*.rb') { |file, other| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file, other| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 64,
+    "source": "Dir.glob('*.rb') { |*files| require files }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |*files| require files }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 65,
+    "source": "Dir.glob('*.rb') { |file = nil| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file = nil| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 66,
+    "source": "Dir.glob('*.rb') { |(file)| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |(file)| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 67,
+    "source": "Dir.glob('*.rb') { |file; other| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file; other| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 68,
+    "source": "Dir.glob('*.rb') { || require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { || require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 69,
+    "source": "Dir.glob('*.rb') { |file,| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file,| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 70,
+    "source": "Dir.glob('*.rb') { |file| }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb') { |file| }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 71,
+    "source": "Dir.glob('*.rb') { |file| require(file) { work } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| require(file) { work } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 72,
+    "source": "Dir.glob('*.rb') { |file| consume(require(file)) }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each { |file| consume(require(file)) }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 73,
+    "source": "Dir['*.rb'].sort.each { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 74,
+    "source": "Dir.glob('*.rb').sort.each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb').sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 75,
+    "source": "Dir['*.rb'].each(&Kernel.method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(&Kernel.method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 76,
+    "source": "Dir['*.rb'].each(&method('require'))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(&method('require'))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 77,
+    "source": "Dir['*.rb'].each(&method(:load))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(&method(:load))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 78,
+    "source": "Dir['*.rb'].each(&method(:require, :extra))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(&method(:require, :extra))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 79,
+    "source": "Dir['*.rb'].each(&method(:require) { work })\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(&method(:require) { work })\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 80,
+    "source": "Dir['*.rb'].each(1, &method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(1, &method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 81,
+    "source": "Other::Dir['*.rb'].each { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Other::Dir['*.rb'].each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 82,
+    "source": "dir.glob('*.rb').each { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "dir.glob('*.rb').each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 83,
+    "source": "Dir['*.rb']&.each { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb']&.each { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 84,
+    "source": "Dir&.glob('*.rb') { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir&.glob('*.rb') { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 85,
+    "source": "Dir['*.rb'].each(1) { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].each(1) { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 86,
+    "source": "Dir['*.rb'].map { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].map { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 87,
+    "source": "Dir['*.rb'] { |file| require file }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+
+    ],
+    "legacy_messages": [
+
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'] { |file| require file }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 88,
+    "source": "Dir.glob('*.rb', sort: false).each(&method(:require))\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir.glob('*.rb', sort: false).sort.each(&method(:require))\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  },
+  {
+    "origin": "control",
+    "line": 89,
+    "source": "Dir['*.rb'].each { |file| require file; Dir.glob('*.rb') { |other| require other } }\n",
+    "legacy_version": 2.7,
+    "legacy_positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        41
+      ]
+    ],
+    "legacy_messages": [
+      "Sort files before requiring them.",
+      "Sort files before requiring them."
+    ],
+    "unsafe_upstream_after": "Dir['*.rb'].sort.each { |file| require file; Dir.glob('*.rb').sort.each { |other| require other } }\n",
+    "exclusion": "Ruby applicability: maximum 2.7; fixed target 3.4, even when force-enabled. No edits."
+  }
+]

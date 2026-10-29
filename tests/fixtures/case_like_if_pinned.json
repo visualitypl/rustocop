@@ -1,0 +1,560 @@
+[
+  {
+    "spec_line": 7,
+    "source": "if Integer === x\nelsif /foo/ === x\nelsif (1..10) === x\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen Integer\nwhen /foo/\nwhen (1..10)\nelse\nend\n",
+    "adapted": null
+  },
+  {
+    "spec_line": 27,
+    "source": "if x == 1\nelsif 'str' == x\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen 1\nwhen 'str'\nelse\nend\n",
+    "adapted": "if x == 1\nelsif 'str' == x\nelsif x == 1\nelse\nend\n"
+  },
+  {
+    "spec_line": 45,
+    "source": "if x == CONSTANT1\nelsif CONSTANT2 == x\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen CONSTANT1\nwhen CONSTANT2\nelse\nend\n",
+    "adapted": "if x == CONSTANT1\nelsif CONSTANT2 == x\nelsif x == CONSTANT1\nelse\nend\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "if foo == 1\nelsif foo == 2\nelse\n  foo == 3 ? bar : baz\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case foo\nwhen 1\nwhen 2\nelse\n  foo == 3 ? bar : baz\nend\n",
+    "adapted": "if foo == 1\nelsif foo == 2\nelsif foo == 1\nelse\n  foo == 3 ? bar : baz\nend\n"
+  },
+  {
+    "spec_line": 83,
+    "source": "if x == foo(1)\nelsif bar(1) == x\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 92,
+    "source": "if x == Foo\nelsif Bar == x\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 101,
+    "source": "if x == 1\nelsif x == Foo\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 110,
+    "source": "if x == F\nelsif B == x\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 119,
+    "source": "if equal?(Foo)\nelsif Bar == x\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 128,
+    "source": "if x.is_a?(Foo)\nelsif x.is_a?(Bar)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen Foo\nwhen Bar\nelse\nend\n",
+    "adapted": "if x.is_a?(Foo)\nelsif x.is_a?(Bar)\nelsif x.is_a?(Foo)\nelse\nend\n"
+  },
+  {
+    "spec_line": 146,
+    "source": "if /foo/.match?(x)\nelsif x.match?(/bar/)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen /foo/\nwhen /bar/\nelse\nend\n",
+    "adapted": "if /foo/.match?(x)\nelsif x.match?(/bar/)\nelsif /foo/.match?(x)\nelse\nend\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "if y.match?(x)\nelsif x.match?('str')\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 173,
+    "source": "if match?(/foo/)\nelsif x.match?(/bar/)\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 182,
+    "source": "if include?(Foo)\nelsif include?(Bar)\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 191,
+    "source": "if x == 1\nelsif cover?(Bar)\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 200,
+    "source": "if /foo/ =~ x\nelsif x =~ returns_regexp(arg)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen /foo/\nwhen returns_regexp(arg)\nelse\nend\n",
+    "adapted": "if /foo/ =~ x\nelsif x =~ returns_regexp(arg)\nelsif /foo/ =~ x\nelse\nend\n"
+  },
+  {
+    "spec_line": 218,
+    "source": "if x =~ returns_regexp(arg)\nelsif x =~ /foo/\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 227,
+    "source": "if returns_regexp(arg).match?(x)\nelsif x.match?(/bar/)\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 236,
+    "source": "if /foo/.match?(x)\nelsif returns_regexp(arg).match?(x)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen /foo/\nwhen returns_regexp(arg)\nelse\nend\n",
+    "adapted": "if /foo/.match?(x)\nelsif returns_regexp(arg).match?(x)\nelsif /foo/.match?(x)\nelse\nend\n"
+  },
+  {
+    "spec_line": 254,
+    "source": "if (1..10).include?(x)\nelsif (11...100).include?(x)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen 1..10\nwhen 11...100\nelse\nend\n",
+    "adapted": "if (1..10).include?(x)\nelsif (11...100).include?(x)\nelsif (1..10).include?(x)\nelse\nend\n"
+  },
+  {
+    "spec_line": 272,
+    "source": "if Integer === x || x == 2\nelsif 1 == x || (1..10) === x || x.match?(/foo/)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen Integer, 2\nwhen 1, (1..10), /foo/\nelse\nend\n",
+    "adapted": "if Integer === x || x == 2\nelsif 1 == x || (1..10) === x || x.match?(/foo/)\nelsif Integer === x || x == 2\nelse\nend\n"
+  },
+  {
+    "spec_line": 290,
+    "source": "if Integer === x || (x == 2 && x == 3)\nelsif 1 == x || (1..10) === x || x.match?(/foo/)\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 299,
+    "source": "if Integer === x || ((x == 2) || (3 == x)) || x =~ /foo/\nelsif 1 == x || (1..10) === x || x.match?(/bar/)\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen Integer, 2, 3, /foo/\nwhen 1, (1..10), /bar/\nelse\nend\n",
+    "adapted": "if Integer === x || ((x == 2) || (3 == x)) || x =~ /foo/\nelsif 1 == x || (1..10) === x || x.match?(/bar/)\nelsif Integer === x || ((x == 2) || (3 == x)) || x =~ /foo/\nelse\nend\n"
+  },
+  {
+    "spec_line": 317,
+    "source": "if x.type == 1 || x.type == 2\nelsif /foo/ === x.type\nelse\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x.type\nwhen 1, 2\nwhen /foo/\nelse\nend\n",
+    "adapted": "if x.type == 1 || x.type == 2\nelsif /foo/ === x.type\nelsif x.type == 1 || x.type == 2\nelse\nend\n"
+  },
+  {
+    "spec_line": 335,
+    "source": "if x == 2\nelsif 3 == y\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 344,
+    "source": "if x == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 351,
+    "source": "if x == 1\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 359,
+    "source": "unless x == 1\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 367,
+    "source": "x == 1 ? y : z\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 373,
+    "source": "foo if x == 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 379,
+    "source": "if x.equal?\nelsif y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 461,
+    "source": "if x == 1\n  :one\nelsif x == 2\n  :two\nelse\n  if x == 3\n    :three\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen 1\n  :one\nwhen 2\n  :two\nelse\n  if x == 3\n    :three\n  end\nend\n",
+    "adapted": "if x == 1\n  :one\nelsif x == 2\n  :two\nelsif x == 1\nelse\n  if x == 3\n    :three\n  end\nend\n"
+  },
+  {
+    "spec_line": 489,
+    "source": "if x == 1\n  :one\nelsif x == 2\n  :two\nelse\n  :three if x == 3\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen 1\n  :one\nwhen 2\n  :two\nelse\n  :three if x == 3\nend\n",
+    "adapted": "if x == 1\n  :one\nelsif x == 2\n  :two\nelsif x == 1\nelse\n  :three if x == 3\nend\n"
+  },
+  {
+    "spec_line": 513,
+    "source": "if x == 1\n  :one\nelsif x == 2\n  :two\nelse\n  unless x == 3\n    :three\n  end\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case x\nwhen 1\n  :one\nwhen 2\n  :two\nelse\n  unless x == 3\n    :three\n  end\nend\n",
+    "adapted": "if x == 1\n  :one\nelsif x == 2\n  :two\nelsif x == 1\nelse\n  unless x == 3\n    :three\n  end\nend\n"
+  },
+  {
+    "spec_line": 388,
+    "source": "if /(?<name>.*)/ =~ foo\nelsif foo == 123\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 396,
+    "source": "if foo =~ /(?<name>.*)/\nelsif foo == 123\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case foo\nwhen /(?<name>.*)/\nwhen 123\nend\n",
+    "adapted": "if foo =~ /(?<name>.*)/\nelsif foo == 123\nelsif foo =~ /(?<name>.*)/\nend\n"
+  },
+  {
+    "spec_line": 412,
+    "source": "if /(?<name>.*)/.match(foo)\nelsif foo == 123\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 420,
+    "source": "if foo.match(/(?<name>.*)/)\nelsif foo == 123\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 428,
+    "source": "if /(?<name>.*)/.match?(foo)\nelsif foo == 123\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case foo\nwhen /(?<name>.*)/\nwhen 123\nend\n",
+    "adapted": "if /(?<name>.*)/.match?(foo)\nelsif foo == 123\nelsif /(?<name>.*)/.match?(foo)\nend\n"
+  },
+  {
+    "spec_line": 444,
+    "source": "if foo.match?(/(?<name>.*)/)\nelsif foo == 123\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Convert `if-elsif` to `case-when`."
+    ],
+    "correction": "case foo\nwhen /(?<name>.*)/\nwhen 123\nend\n",
+    "adapted": "if foo.match?(/(?<name>.*)/)\nelsif foo == 123\nelsif foo.match?(/(?<name>.*)/)\nend\n"
+  },
+  {
+    "spec_line": 544,
+    "source": "if x == 1\nelsif x == 2\nelse\n  foo if x == 3\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  },
+  {
+    "spec_line": 554,
+    "source": "if x == 1\nelsif x == 2\nelse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "adapted": null
+  }
+]

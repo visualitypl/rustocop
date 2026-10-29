@@ -1,0 +1,1176 @@
+[
+  {
+    "spec_line": 235,
+    "source": "def func\n  if something\n    a\n  elsif something_else\n    b\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 247,
+    "source": "define_method(:func) do\n  if something\n    a\n  elsif something_else\n    b\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 259,
+    "source": "def func\n  if something &&\n       something_else\n    work\n  end\nend\n\ndef func\n  unless something &&\n           something_else\n    work\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 277,
+    "source": "def func\n  if something\n    work\n  else\n    test\n  end\nend\n\ndef func\n  unless something\n    work\n  else\n    test\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 297,
+    "source": "def func\n  if something\n    work || raise('message')\n  else\n    test\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`work || raise('message') if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 312,
+    "source": "def func\n  if something\n    work\n  else\n    test || raise('message')\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`test || raise('message') unless something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 327,
+    "source": "if something then work else raise('message') end\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise('message') unless something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "raise('message') unless something \n work   \n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 339,
+    "source": "def func\n  if something\n    work and return\n  else\n    test\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`work and return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 354,
+    "source": "def func\n  if something\n    work\n  else\n    test and return\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`test and return unless something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 369,
+    "source": "def func\n  if something\n    work\n  end\n  test\nend\n\ndef func\n  unless something\n    work\n  end\n  test\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 387,
+    "source": "def func\n  work if something\nend\n\ndef func\n  work unless something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 427,
+    "source": "def func\n  ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 435,
+    "source": "def func\n  result = if something\n    work || raise('message')\n  else\n    test\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 447,
+    "source": "def func\n  if (foo = bar)\n    return foo\n  else\n    baz\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 459,
+    "source": "def func\n  if (foo = bar && baz = qux)\n    return [foo, baz]\n  else\n    quux\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 471,
+    "source": "def func\n  if (foo = bar)\n    return baz\n  else\n    qux\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return baz if (foo = bar)`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  return baz if (foo = bar)\n    \n  \n    qux\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 494,
+    "source": "def func\n  if condition\n    foo\n  else\n    raise <<~MESSAGE\n      oops\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise <<~MESSAGE unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise <<~MESSAGE unless condition\n      oops\n    MESSAGE\nfoo\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 520,
+    "source": "def func\n  if condition\n    foo\n  else\n    raise <<~MESSAGE.strip\n      oops\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise <<~MESSAGE.strip unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise <<~MESSAGE.strip unless condition\n      oops\n    MESSAGE\nfoo\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 546,
+    "source": "def func\n  if condition\n    foo\n  else\n    raise do_something(<<~MESSAGE)\n      text\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise do_something(<<~MESSAGE) unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise do_something(<<~MESSAGE) unless condition\n      text\n    MESSAGE\nfoo\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 572,
+    "source": "def func\n  unless condition\n    raise <<~MESSAGE\n      oops\n    MESSAGE\n  else\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise <<~MESSAGE unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise <<~MESSAGE unless condition\n      oops\n    MESSAGE\nfoo\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 598,
+    "source": "def func\n  if condition\n  else\n    raise <<~MESSAGE\n      oops\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise <<~MESSAGE unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise <<~MESSAGE unless condition\n      oops\n    MESSAGE\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 622,
+    "source": "def func\n  if condition\n    raise <<~MESSAGE\n      oops\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  return unless condition\n    raise <<~MESSAGE\n      oops\n    MESSAGE\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 646,
+    "source": "def func\n  unless condition\n    raise <<~`MESSAGE`\n      oops\n    MESSAGE\n  else\n    foo\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise <<~`MESSAGE` unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise <<~`MESSAGE` unless condition\n      oops\n    MESSAGE\nfoo\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 672,
+    "source": "def func\n  if condition\n    x = 1\n    do_something(x)\n  else\n    raise <<~MESSAGE\n      oops\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise <<~MESSAGE unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise <<~MESSAGE unless condition\n      oops\n    MESSAGE\nx = 1\n    do_something(x)\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 700,
+    "source": "def func\n  if condition\n    do_something\n  else\n    raise obj&.do_something(<<~MESSAGE)\n      oops\n    MESSAGE\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise obj&.do_something(<<~MESSAGE) unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise obj&.do_something(<<~MESSAGE) unless condition\n      oops\n    MESSAGE\ndo_something\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 726,
+    "source": "def func\n  if condition\n    raise 'oops'\n  else\n    do_something(<<~TEXT)\n      text\n    TEXT\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise 'oops' if condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise 'oops' if condition\n    \n  \n    do_something(<<~TEXT)\n      text\n    TEXT\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 753,
+    "source": "def func\n  if condition\n    do_something(<<~TEXT)\n      text\n    TEXT\n  else\n    raise 'oops'\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise 'oops' unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  raise 'oops' unless condition\n    do_something(<<~TEXT)\n      text\n    TEXT\n  \n    \n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 780,
+    "source": "if condition\n  do_something\nelse\n  raise e\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise e unless condition`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "raise e unless condition\n  do_something\n\n  \n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 16,
+    "source": "def func\n  if something\n    work\n  end\nend\n\ndef func\n  unless something\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  return unless something\n    work\n  \nend\n\ndef func\n  return if something\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "def func\n  test\n  if something\n    work\n  end\nend\n\ndef func\n  test\n  unless something\n    work\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        10,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  test\n  return unless something\n    work\n  \nend\n\ndef func\n  test\n  return if something\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 84,
+    "source": "define_method(:func) do\n  if _1\n    work\n  end\nend\n\ndefine_method(:func) do\n  unless _1\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless _1`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if _1`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless _1\n    work\n  \nend\n\ndefine_method(:func) do\n  return if _1\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 116,
+    "source": "define_method(:func) do\n  if it\n    work\n  end\nend\n\ndefine_method(:func) do\n  unless it\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless it`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if it`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless it\n    work\n  \nend\n\ndefine_method(:func) do\n  return if it\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 148,
+    "source": "define_singleton_method(:func) do\n  if _1\n    work\n  end\nend\n\ndefine_singleton_method(:func) do\n  unless _1\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless _1`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if _1`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_singleton_method(:func) do\n  return unless _1\n    work\n  \nend\n\ndefine_singleton_method(:func) do\n  return if _1\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 180,
+    "source": "define_method(:func) do\n  if something\n    work\n  end\nend\n\ndefine_method(:func) do\n  unless something\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless something\n    work\n  \nend\n\ndefine_method(:func) do\n  return if something\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 212,
+    "source": "foo do\n  test\n  if something\n    work\n  end\nend\n\nfoo do\n  test\n  unless something\n    work\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 16,
+    "source": "def func\n  if something\n    # TODO\n  end\nend\n\ndef func\n  unless something\n    # TODO\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  return unless something\n    # TODO\n  \nend\n\ndef func\n  return if something\n    # TODO\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "def func\n  test\n  if something\n    # TODO\n  end\nend\n\ndef func\n  test\n  unless something\n    # TODO\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        10,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  test\n  return unless something\n    # TODO\n  \nend\n\ndef func\n  test\n  return if something\n    # TODO\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 84,
+    "source": "define_method(:func) do\n  if _1\n    # TODO\n  end\nend\n\ndefine_method(:func) do\n  unless _1\n    # TODO\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless _1`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if _1`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless _1\n    # TODO\n  \nend\n\ndefine_method(:func) do\n  return if _1\n    # TODO\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 116,
+    "source": "define_method(:func) do\n  if it\n    # TODO\n  end\nend\n\ndefine_method(:func) do\n  unless it\n    # TODO\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless it`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if it`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless it\n    # TODO\n  \nend\n\ndefine_method(:func) do\n  return if it\n    # TODO\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 148,
+    "source": "define_singleton_method(:func) do\n  if _1\n    # TODO\n  end\nend\n\ndefine_singleton_method(:func) do\n  unless _1\n    # TODO\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless _1`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if _1`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_singleton_method(:func) do\n  return unless _1\n    # TODO\n  \nend\n\ndefine_singleton_method(:func) do\n  return if _1\n    # TODO\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 180,
+    "source": "define_method(:func) do\n  if something\n    # TODO\n  end\nend\n\ndefine_method(:func) do\n  unless something\n    # TODO\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless something\n    # TODO\n  \nend\n\ndefine_method(:func) do\n  return if something\n    # TODO\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 212,
+    "source": "foo do\n  test\n  if something\n    # TODO\n  end\nend\n\nfoo do\n  test\n  unless something\n    # TODO\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 16,
+    "source": "def func\n  if something\n    do_something(foo)\n  end\nend\n\ndef func\n  unless something\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  return unless something\n    do_something(foo)\n  \nend\n\ndef func\n  return if something\n    do_something(foo)\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 48,
+    "source": "def func\n  test\n  if something\n    do_something(foo)\n  end\nend\n\ndef func\n  test\n  unless something\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        3
+      ],
+      [
+        10,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  test\n  return unless something\n    do_something(foo)\n  \nend\n\ndef func\n  test\n  return if something\n    do_something(foo)\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 84,
+    "source": "define_method(:func) do\n  if _1\n    do_something(foo)\n  end\nend\n\ndefine_method(:func) do\n  unless _1\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless _1`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if _1`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless _1\n    do_something(foo)\n  \nend\n\ndefine_method(:func) do\n  return if _1\n    do_something(foo)\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 116,
+    "source": "define_method(:func) do\n  if it\n    do_something(foo)\n  end\nend\n\ndefine_method(:func) do\n  unless it\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless it`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if it`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless it\n    do_something(foo)\n  \nend\n\ndefine_method(:func) do\n  return if it\n    do_something(foo)\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 148,
+    "source": "define_singleton_method(:func) do\n  if _1\n    do_something(foo)\n  end\nend\n\ndefine_singleton_method(:func) do\n  unless _1\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless _1`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if _1`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_singleton_method(:func) do\n  return unless _1\n    do_something(foo)\n  \nend\n\ndefine_singleton_method(:func) do\n  return if _1\n    do_something(foo)\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 180,
+    "source": "define_method(:func) do\n  if something\n    do_something(foo)\n  end\nend\n\ndefine_method(:func) do\n  unless something\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "define_method(:func) do\n  return unless something\n    do_something(foo)\n  \nend\n\ndefine_method(:func) do\n  return if something\n    do_something(foo)\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 212,
+    "source": "foo do\n  test\n  if something\n    do_something(foo)\n  end\nend\n\nfoo do\n  test\n  unless something\n    do_something(foo)\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 400,
+    "source": "def func(c) = if c\n  work\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 408,
+    "source": "def func(c) = if c\n  raise 'error'\nelse\n  work\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 418,
+    "source": "def self.func(c) = if c\n  work\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 805,
+    "source": "def func\n  if something\n    work\n  end\nend\n\ndef func\n  unless something\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        8,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  return unless something\n    work\n  \nend\n\ndef func\n  return if something\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 883,
+    "source": "def func\n  if foo?\n    work\n  end\n\n  if bar?\n    work\n  end\nend\n",
+    "positions": [
+      [
+        6,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless bar?`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def func\n  if foo?\n    work\n  end\n\n  return unless bar?\n    work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1080,
+    "source": "def test\n  if something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n    work\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1092,
+    "source": "def test\n  if something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n    if something_else\n      work\n    end\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`unless something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line; return; end`) instead of wrapping the code inside a conditional expression.",
+      "Use a guard clause (`return unless something_else`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def test\n  unless something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n  return\nend\n    return unless something_else\n      work\n    \n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1120,
+    "source": "def test\n  if something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n    work\n    more_work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`unless something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line; return; end`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def test\n  unless something && something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n  return\nend\n    work\n    more_work\n  \nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1145,
+    "source": "if foo?\nelse\n  raise 'very long and detailed description of the error that makes it too long to fit on one line'\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`unless foo?; raise 'very long and detailed description of the error that makes it too long to fit on one line'; end`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "unless foo?\n  raise 'very long and detailed description of the error that makes it too long to fit on one line'\nend\n\n  \n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1166,
+    "source": "def test\n  if something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n    raise <<~MESSAGE\n      oops\n    MESSAGE\n  else\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`if something_that_makes_the_guard_clause_too_long_to_fit_on_one_line; raise <<~MESSAGE; end`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "def test\n  if something_that_makes_the_guard_clause_too_long_to_fit_on_one_line\n  raise <<~MESSAGE\n      oops\n    MESSAGE\nend\nwork\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 963,
+    "source": "if something\n  return\nelse\n  puts \"hello\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "return if something\n  \n\n  puts \"hello\"\n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 982,
+    "source": "if something\n puts \"hello\"\nelse\n  return\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "return unless something\n puts \"hello\"\n\n  \n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1001,
+    "source": "if something &&\n     something_else\n  return\nelse\n  puts \"hello\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1012,
+    "source": "if something\n  a\nelsif something_else\n  return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1022,
+    "source": "if something\n  return\nelsif something_else\n  a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1032,
+    "source": "if something\n  a\nelsif something_else\n  b\nelse\n  return\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1044,
+    "source": "if something\n  return 'blah blah blah' \\\n        'blah blah blah'\nelse\n  puts \"hello\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "if something\n  return\nelse\n  puts \"hello\" \\\n       \"blah blah blah\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "return if something\n  \n\n  puts \"hello\" \\\n       \"blah blah blah\"\n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 963,
+    "source": "if something\n  raise \"error\"\nelse\n  puts \"hello\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise \"error\" if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "raise \"error\" if something\n  \n\n  puts \"hello\"\n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 982,
+    "source": "if something\n puts \"hello\"\nelse\n  raise \"error\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise \"error\" unless something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "raise \"error\" unless something\n puts \"hello\"\n\n  \n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1001,
+    "source": "if something &&\n     something_else\n  raise \"error\"\nelse\n  puts \"hello\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1012,
+    "source": "if something\n  a\nelsif something_else\n  raise \"error\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1022,
+    "source": "if something\n  raise \"error\"\nelsif something_else\n  a\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1032,
+    "source": "if something\n  a\nelsif something_else\n  b\nelse\n  raise \"error\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1044,
+    "source": "if something\n  raise \"error\" 'blah blah blah' \\\n        'blah blah blah'\nelse\n  puts \"hello\"\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1055,
+    "source": "if something\n  raise \"error\"\nelse\n  puts \"hello\" \\\n       \"blah blah blah\"\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`raise \"error\" if something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "raise \"error\" if something\n  \n\n  puts \"hello\" \\\n       \"blah blah blah\"\n\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1228,
+    "source": "module CopTest\n  def test\n    if something\n      work\n    end\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "module CopTest\n  def test\n    return unless something\n      work\n    \n  end\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  },
+  {
+    "spec_line": 1251,
+    "source": "module CopTest\n  def self.test\n    if something && something_else\n      work\n    end\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Use a guard clause (`return unless something && something_else`) instead of wrapping the code inside a conditional expression."
+    ],
+    "correction": "module CopTest\n  def self.test\n    return unless something && something_else\n      work\n    \n  end\nend\n",
+    "toml": "[cops.\"Layout/LineLength\"]\nmax = 80\n"
+  }
+]

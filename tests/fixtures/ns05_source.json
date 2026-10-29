@@ -1,0 +1,91 @@
+[
+  {
+    "cop": "Naming/BlockForwarding",
+    "source_line": 23,
+    "example": "Ruby 3.3 bug note, executed at fixed 3.4",
+    "source": "def foo(&block)\n  # Using an anonymous block would be a syntax error on Ruby 3.3.0\n  block_method { bar(&block) }\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        3,
+        22
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ],
+    "policy_note": "Unchanged source at fixed anonymous/Ruby3.4 policy, including explicit-style illustrations and the pre-3.4 bug note."
+  },
+  {
+    "cop": "Naming/BlockForwarding",
+    "source_line": 33,
+    "example": "EnforcedStyle: anonymous (default)",
+    "source": "def foo(&block)\n  bar(&block)\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ],
+    "policy_note": "Unchanged source at fixed anonymous/Ruby3.4 policy, including explicit-style illustrations and the pre-3.4 bug note."
+  },
+  {
+    "cop": "Naming/BlockForwarding",
+    "source_line": 38,
+    "example": "EnforcedStyle: anonymous (default)",
+    "source": "def foo(&)\n  bar(&)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "policy_note": "Unchanged source at fixed anonymous/Ruby3.4 policy, including explicit-style illustrations and the pre-3.4 bug note."
+  },
+  {
+    "cop": "Naming/BlockForwarding",
+    "source_line": 45,
+    "example": "EnforcedStyle: explicit",
+    "source": "def foo(&)\n  bar(&)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "policy_note": "Unchanged source at fixed anonymous/Ruby3.4 policy, including explicit-style illustrations and the pre-3.4 bug note."
+  },
+  {
+    "cop": "Naming/BlockForwarding",
+    "source_line": 50,
+    "example": "EnforcedStyle: explicit",
+    "source": "def foo(&block)\n  bar(&block)\nend\n",
+    "positions": [
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "messages": [
+      "Use anonymous block forwarding.",
+      "Use anonymous block forwarding."
+    ],
+    "policy_note": "Unchanged source at fixed anonymous/Ruby3.4 policy, including explicit-style illustrations and the pre-3.4 bug note."
+  }
+]

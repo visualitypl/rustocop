@@ -1,0 +1,601 @@
+{
+  "calls": [
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 5,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName registers an offense for method get_something with no args",
+      "source": "def get_something\n  # ...\nend\n",
+      "positions": [
+        [
+          1,
+          5
+        ]
+      ],
+      "messages": [
+        "Do not prefix reader method names with `get_`."
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 14,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName registers an offense for singleton method get_something with no args",
+      "source": "def self.get_something\n  # ...\nend\n",
+      "positions": [
+        [
+          1,
+          10
+        ]
+      ],
+      "messages": [
+        "Do not prefix reader method names with `get_`."
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 23,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method get_something with args",
+      "source": "def get_something(arg)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 31,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts singleton method get_something with args",
+      "source": "def self.get_something(arg)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 39,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName registers an offense for method set_something with one arg",
+      "source": "def set_something(arg)\n  # ...\nend\n",
+      "positions": [
+        [
+          1,
+          5
+        ]
+      ],
+      "messages": [
+        "Do not prefix writer method names with `set_`."
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 48,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with optarg",
+      "source": "def set_something(arg = :default)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 56,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with restarg",
+      "source": "def set_something(*args)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 64,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with kwoptarg",
+      "source": "def set_something(k: v)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 72,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with kwarg",
+      "source": "def set_something(k:)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 80,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with kwrestarg",
+      "source": "def set_something(**options)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 88,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with blockarg",
+      "source": "def set_something(&block)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 106,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName registers an offense for singleton method set_something with one args",
+      "source": "def self.set_something(arg)\n  # ...\nend\n",
+      "positions": [
+        [
+          1,
+          10
+        ]
+      ],
+      "messages": [
+        "Do not prefix writer method names with `set_`."
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 115,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with no args",
+      "source": "def set_something\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 123,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts singleton method set_something with no args",
+      "source": "def self.set_something\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 131,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts method set_something with two args",
+      "source": "def set_something(arg1, arg2)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 139,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName accepts singleton method set_something with two args",
+      "source": "def self.get_something(arg1, arg2)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 147,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName does not register an offense for no args method name starts with `get_` and ends with `!`",
+      "source": "def get_attribute!\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 154,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName does not register an offense for no args method name starts with `get_` and ends with `?`",
+      "source": "def get_attribute?\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 161,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName does not register an offense for no args method name starts with `get_` and ends with `=`",
+      "source": "def get_attribute=\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 168,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName does not register an offense for one arg method name starts with `set_` and ends with `!`",
+      "source": "def set_attribute!(attribute)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 175,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName does not register an offense for one arg method name starts with `set_` and ends with `?`",
+      "source": "def set_attribute?(attribute)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 182,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName does not register an offense for one arg method name starts with `set_` and ends with `=`",
+      "source": "def set_attribute=(attribute)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 97,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName >= Ruby 2.7 accepts method set_something with arguments forwarding",
+      "source": "def set_something(...)\n  # ...\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 8,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with restricted prefixes registers an offense when method name starts with \"is\"",
+      "source": "def is_attr; end\n",
+      "positions": [
+        [
+          1,
+          5
+        ]
+      ],
+      "messages": [
+        "Rename `is_attr` to `attr?`."
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 15,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with restricted prefixes registers an offense when method name starts with \"has\"",
+      "source": "def has_attr; end\n",
+      "positions": [
+        [
+          1,
+          5
+        ]
+      ],
+      "messages": [
+        "Rename `has_attr` to `attr?`."
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 28,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with restricted prefixes accepts method name that is an assignment",
+      "source": "def is_hello=; end\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 34,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with restricted prefixes accepts method name when corrected name is invalid identifier",
+      "source": "def is_2d?; end\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 64,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without restricted prefixes accepts method name when corrected name is invalid identifier",
+      "source": "def is_2d?; end\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 77,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with permitted predicate names accepts method name which is in permitted list",
+      "source": "def is_a?; end\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 90,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with method definition macros registers an offense when using `define_method`",
+      "source": "define_method(:is_hello) do |method_name|\n  method_name == 'hello'\nend\n",
+      "positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "messages": [
+        "Rename `is_hello` to `hello?`."
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 110,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with method definition macros accepts method name when corrected name is invalid identifier",
+      "source": "define_method(:is_2d?) do |method_name|\n  method_name == 'hello'\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 122,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without method definition macros registers an offense when using `define_method`",
+      "source": "define_method(:is_hello) do |method_name|\n  method_name == 'hello'\nend\n",
+      "positions": [
+        [
+          1,
+          15
+        ]
+      ],
+      "messages": [
+        "Rename `is_hello` to `hello?`."
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 131,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without method definition macros does not register any offenses when using an internal affair macro",
+      "source": "def_node_matcher :is_hello, <<~PATTERN\n  (send\n    (send nil? :method_name) :==\n    (str 'hello'))\nPATTERN\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 141,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without method definition macros accepts method name when corrected name is invalid identifier",
+      "source": "define_method(:is_2d?) do |method_name|\n  method_name == 'hello'\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 189,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName with a project index does not register an offense when the method overrides an ancestor method",
+      "reason": "Optional project index is disabled at pinned defaults; no cross-file inference."
+    },
+    {
+      "cop": "Naming/AccessorMethodName",
+      "spec_line": 205,
+      "description": "RuboCop::Cop::Naming::AccessorMethodName with a project index registers an offense when no ancestor defines the method",
+      "reason": "Optional project index is disabled at pinned defaults; no cross-file inference."
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 228,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with a project index does not register an offense when the method overrides an ancestor method",
+      "reason": "Optional project index is disabled at pinned defaults; no cross-file inference."
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 244,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with a project index registers an offense when no ancestor defines the method",
+      "reason": "Optional project index is disabled at pinned defaults; no cross-file inference."
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 22,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with restricted prefixes accepts method name that starts with unknown prefix",
+      "source": "def have_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"has_\", \"is_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[\"has_\", \"is_\"]"
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 44,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without restricted prefixes registers an offense when method name starts with \"is\"",
+      "source": "def is_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"has_\", \"is_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]"
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 51,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without restricted prefixes registers an offense when method name starts with \"has\"",
+      "source": "def has_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"has_\", \"is_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]"
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 58,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix without restricted prefixes accepts method name that starts with unknown prefix",
+      "source": "def have_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"has_\", \"is_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]"
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 99,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix with method definition macros registers an offense when using an internal affair macro",
+      "source": "def_node_matcher :is_hello, <<~PATTERN\n  (send\n    (send nil? :method_name) :==\n    (str 'hello'))\nPATTERN\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[\"is_\"]",
+        "Naming/PredicatePrefix MethodDefinitionMacros=[\"define_method\", \"def_node_matcher\"]"
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 159,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs registers an offense if no ? when `sig { returns(T::Boolean) }` and variants",
+      "source": "sig { returns(T::Boolean) }\ndef is_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 165,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs registers an offense if no ? when `sig { returns(T::Boolean) }` and variants",
+      "source": "sig { returns(T::Boolean) }\n# Comment here.\ndef is_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 172,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs registers an offense if no ? when `sig { returns(T::Boolean) }` and variants",
+      "source": "sig { returns(T::Boolean) }\n\n\ndef is_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 180,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs registers an offense if no ? when `sig { returns(T::Boolean) }` and variants",
+      "source": "sig do\n  returns(T::Boolean)\nend\ndef is_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 190,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs does not register an offense if no ? when `sig { returns(T::Array[String]) }`",
+      "source": "sig { returns(T::Array[String]) }\ndef has_caused_error\n  errors.add(:base, 'This has caused an error')\nend\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 199,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs picks the correct sig when there are multiple",
+      "source": "sig { returns(T::Boolean) }\ndef is_attr?; end\n\nsig { returns(String) }\ndef has_caused_error\n  errors.add(:base, 'This has caused an error')\nend\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 211,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs works correctly when returns is chained on params",
+      "source": "sig { params(x: Integer).returns(T::Boolean) }\ndef is_even(x); end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    },
+    {
+      "cop": "Naming/PredicatePrefix",
+      "spec_line": 219,
+      "description": "RuboCop::Cop::Naming::PredicatePrefix using Sorbet sigs does not register an offense if no ? when no sigs but the config is enabled",
+      "source": "def is_attr; end\n",
+      "reason": [
+        "Naming/PredicatePrefix NamePrefix=[\"is_\", \"has_\"]",
+        "Naming/PredicatePrefix ForbiddenPrefixes=[]",
+        "Naming/PredicatePrefix UseSorbetSigs=\"true\""
+      ]
+    }
+  ]
+}

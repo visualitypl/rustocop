@@ -1,0 +1,5584 @@
+[
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "CONST ||= 1\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "CONST = 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def foo\n  M::CONST ||= 1\nend\n",
+    "origin": "spec",
+    "line": 16,
+    "findings": [
+      [
+        2,
+        12,
+        2,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def foo\n  M::CONST ||= 1\nend\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.foo\n  M::CONST ||= 1\nend\n",
+    "origin": "spec",
+    "line": 27,
+    "findings": [
+      [
+        2,
+        12,
+        2,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def self.foo\n  M::CONST ||= 1\nend\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method :foo do\n  M::CONST ||= 1\nend\n",
+    "origin": "spec",
+    "line": 38,
+    "findings": [
+      [
+        2,
+        12,
+        2,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "define_method :foo do\n  M::CONST = 1\nend\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "CONST = 1\n",
+    "origin": "spec",
+    "line": 53,
+    "findings": [
+
+    ],
+    "upstream_after": "CONST = 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "var ||= 1\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "var ||= 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "@var ||= 1\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "@var ||= 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "@@var ||= 1\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "@@var ||= 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "$var ||= 1\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "$var ||= 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "self.var ||= 1\n",
+    "origin": "spec",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "self.var ||= 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "# bad\nCONST ||= 1\n",
+    "origin": "source",
+    "line": 18,
+    "findings": [
+      [
+        2,
+        7,
+        2,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "# bad\nCONST = 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "# good\nCONST = 1\n",
+    "origin": "source",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nCONST = 1\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { @x ||= 1 }\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; @x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x ||= 1); end\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; @x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; @x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { @x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { @x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (@x ||= 1); end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; x ||= 1; end\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; x ||= 1; end\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; x ||= 1; end\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; x ||= 1; end\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; x ||= 1; end\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; x ||= 1; end\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { x ||= 1 }\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (x ||= 1); end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((x ||= 1)); end\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (x ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (x ||= 1)); end\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (x ||= 1); end\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @@x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { @@x ||= 1 }\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @@x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; @@x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @@x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@@x ||= 1); end\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((@@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@@x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@@x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@@x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@@x ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; @@x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @@x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @@x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @@x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; @@x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @@x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { @@x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @@x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { @@x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @@x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (@@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (@@x ||= 1); end\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; $x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { $x ||= 1 }\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { $x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; $x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; $x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ($x ||= 1); end\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ($x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (($x ||= 1)); end\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (($x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ($x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ($x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ($x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ($x ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; $x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; $x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; $x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; $x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; $x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; $x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { $x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { $x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { $x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { $x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = ($x ||= 1)); end\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = ($x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return ($x ||= 1); end\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return ($x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; M::X ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; before; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; super; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def self.initialize; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+      [
+        1,
+        28,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def other.initialize; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize_copy; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { M::X ||= 1 }\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "define_method(:initialize) { M::X = 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; M::X ||= 1; end; end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+      [
+        1,
+        37,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "class << self; def initialize; M::X ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (M::X ||= 1); end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; (M::X ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((M::X ||= 1)); end\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        24,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; ((M::X ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (M::X ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; (M::X ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (M::X ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; (M::X ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; M::X ||= 1; end; end\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; begin; M::X ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; M::X ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; M::X ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; M::X ||= 1; end; end\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; if ok; M::X ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { M::X ||= 1 }; end\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; task { M::X ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { M::X ||= 1 }; end\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        1,
+        27,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; -> { M::X ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (M::X ||= 1)); end\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+      [
+        1,
+        26,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize(x = (M::X ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (M::X ||= 1); end\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def initialize; return (M::X ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj.x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { obj.x ||= 1 }\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { obj.x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; obj.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; obj.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj.x ||= 1); end\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((obj.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((obj.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj.x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj.x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj.x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj.x ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; obj.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; obj.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj.x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj.x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; obj.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; obj.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { obj.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { obj.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { obj.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { obj.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (obj.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (obj.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (obj.x ||= 1); end\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (obj.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj&.x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { obj&.x ||= 1 }\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { obj&.x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; obj&.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; obj&.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj&.x ||= 1); end\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj&.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((obj&.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((obj&.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj&.x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj&.x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj&.x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj&.x ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; obj&.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; obj&.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj&.x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj&.x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; obj&.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; obj&.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { obj&.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { obj&.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { obj&.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { obj&.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (obj&.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (obj&.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (obj&.x ||= 1); end\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (obj&.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj[0] ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { obj[0] ||= 1 }\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { obj[0] ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; obj[0] ||= 1; end; end\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; obj[0] ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj[0] ||= 1); end\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj[0] ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((obj[0] ||= 1)); end\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((obj[0] ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj[0] ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj[0] ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (obj[0] ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj[0] ||= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; obj[0] ||= 1; end; end\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; obj[0] ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj[0] ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; obj[0] ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; obj[0] ||= 1; end; end\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; obj[0] ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { obj[0] ||= 1 }; end\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { obj[0] ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { obj[0] ||= 1 }; end\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { obj[0] ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (obj[0] ||= 1)); end\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (obj[0] ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (obj[0] ||= 1); end\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (obj[0] ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x = 1; end\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x = 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; @x = 1; end\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; @x = 1; end\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; @x = 1; end\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; @x = 1; end\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; @x = 1; end\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { @x = 1 }\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x = 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; @x = 1; end; end\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x = 1); end\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x = 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((@x = 1)); end\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x = 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x = 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x = 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x = 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x = 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; @x = 1; end; end\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x = 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x = 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; @x = 1; end; end\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { @x = 1 }; end\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x = 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { @x = 1 }; end\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x = 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (@x = 1)); end\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x = 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (@x = 1); end\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x = 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x &&= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { @x &&= 1 }\n",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x &&= 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; @x &&= 1; end; end\n",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x &&= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x &&= 1); end\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x &&= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((@x &&= 1)); end\n",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x &&= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x &&= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x &&= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x &&= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x &&= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; @x &&= 1; end; end\n",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x &&= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x &&= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x &&= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; @x &&= 1; end; end\n",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x &&= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { @x &&= 1 }; end\n",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x &&= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { @x &&= 1 }; end\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x &&= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (@x &&= 1)); end\n",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x &&= 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (@x &&= 1); end\n",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x &&= 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x += 1; end\n",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x += 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; before; @x += 1; end\n",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; super; @x += 1; end\n",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.initialize; @x += 1; end\n",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def other.initialize; @x += 1; end\n",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize_copy; @x += 1; end\n",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_method(:initialize) { @x += 1 }\n",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x += 1 }\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "class << self; def initialize; @x += 1; end; end\n",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x += 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x += 1); end\n",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x += 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; ((@x += 1)); end\n",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x += 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x += 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x += 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; (@x += 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x += 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; begin; @x += 1; end; end\n",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x += 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x += 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x += 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; if ok; @x += 1; end; end\n",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x += 1; end; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; task { @x += 1 }; end\n",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x += 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; -> { @x += 1 }; end\n",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x += 1 }; end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize(x = (@x += 1)); end\n",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x += 1)); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; return (@x += 1); end\n",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x += 1); end\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "X ||= 1",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+      [
+        1,
+        3,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "X = 1"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "::X ||= 1",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "::X = 1"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "factory::X ||= 1",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "factory::X = 1"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "X = 1",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+
+    ],
+    "upstream_after": "X = 1"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "X &&= 1",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+
+    ],
+    "upstream_after": "X &&= 1"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "X += 1",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+
+    ],
+    "upstream_after": "X += 1"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def foo; M::X ||= 1; end",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def foo; M::X ||= 1; end"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def self.foo; M::X ||= 1; end",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "def self.foo; M::X ||= 1; end"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "define_singleton_method(:foo) { M::X ||= 1 }",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+      [
+        1,
+        38,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "define_singleton_method(:foo) { M::X = 1 }"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "task { M::X ||= 1 }",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "task { M::X = 1 }"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "\"#{M::X ||= 1}\"",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "\"#{M::X = 1}\""
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= (@y ||= 1); @z ||= 2; end",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= (@y ||= 1); @z ||= 2; end"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= task { effect }; @y ||= 2; end",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= task { effect }; @y ||= 2; end"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize\n # leading comment\n @x ||=\n  1\n @y ||= 2 # tail\nend\n",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize\n # leading comment\n @x ||=\n  1\n @y ||= 2 # tail\nend\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; def initialize; @x ||= 1; end; @y ||= 2; end",
+    "origin": "control",
+    "line": 246,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; def initialize; @x ||= 1; end; @y ||= 2; end"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize; @x ||= begin; effect; end; @y ||= 2; end",
+    "origin": "control",
+    "line": 247,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= begin; effect; end; @y ||= 2; end"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "def initialize\n @x ||= <<~DOC\n text\nDOC\n @y ||= 2\nend\n",
+    "origin": "control",
+    "line": 248,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize\n @x ||= <<~DOC\n text\nDOC\n @y ||= 2\nend\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "X ||= <<~DOC\ntext\nDOC\n",
+    "origin": "control",
+    "line": 249,
+    "findings": [
+      [
+        1,
+        3,
+        1,
+        "Avoid using or-assignment with constants."
+      ]
+    ],
+    "upstream_after": "X = <<~DOC\ntext\nDOC\n"
+  },
+  {
+    "cop": "Lint/OrAssignmentToConstant",
+    "source": "# X ||= 1\n'@x ||= 1'\n",
+    "origin": "control",
+    "line": 250,
+    "findings": [
+
+    ],
+    "upstream_after": "# X ||= 1\n'@x ||= 1'\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n  end\nend\n",
+    "origin": "spec",
+    "line": 9,
+    "findings": [
+
+    ],
+    "upstream_after": "class Banana\n  def initialize\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n    @delicious = true\n  end\nend\n",
+    "origin": "spec",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "class Banana\n  def initialize\n    @delicious = true\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n    delicious ||= true\n  end\nend\n",
+    "origin": "spec",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "class Banana\n  def initialize\n    delicious ||= true\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n    @delicious ||= true\n  end\nend\n",
+    "origin": "spec",
+    "line": 45,
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "class Banana\n  def initialize\n    @delicious = true\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n    @delicious ||= true\n    super\n  end\nend\n",
+    "origin": "spec",
+    "line": 65,
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "class Banana\n  def initialize\n    @delicious = true\n    super\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n    super\n    @delicious ||= true\n  end\nend\n",
+    "origin": "spec",
+    "line": 88,
+    "findings": [
+
+    ],
+    "upstream_after": "class Banana\n  def initialize\n    super\n    @delicious ||= true\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Banana\n  def initialize\n    # With the limitations of static analysis, it's very difficult\n    # to determine, after this method call, whether the disjunctive\n    # assignment is necessary or not.\n    absolutely_any_method\n    @delicious ||= true\n  end\nend\n",
+    "origin": "spec",
+    "line": 101,
+    "findings": [
+
+    ],
+    "upstream_after": "class Banana\n  def initialize\n    # With the limitations of static analysis, it's very difficult\n    # to determine, after this method call, whether the disjunctive\n    # assignment is necessary or not.\n    absolutely_any_method\n    @delicious ||= true\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class Base\n  def initialize\n    @config ||= 'base'\n  end\nend\n\nclass Derived < Base\n  def initialize\n    @config = 'derived'\n    super\n  end\nend\n",
+    "origin": "source",
+    "line": 21,
+    "findings": [
+      [
+        3,
+        13,
+        3,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "class Base\n  def initialize\n    @config = 'base'\n  end\nend\n\nclass Derived < Base\n  def initialize\n    @config = 'derived'\n    super\n  end\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "# bad\ndef initialize\n  @x ||= 1\nend\n",
+    "origin": "source",
+    "line": 39,
+    "findings": [
+      [
+        3,
+        6,
+        3,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "# bad\ndef initialize\n  @x = 1\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "# good\ndef initialize\n  @x = 1\nend\n",
+    "origin": "source",
+    "line": 44,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\ndef initialize\n  @x = 1\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        1,
+        30,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; @x = 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; @x ||= 1; end\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { @x ||= 1 }\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; @x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "class << self; def initialize; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x ||= 1); end\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (@x = 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+      [
+        1,
+        21,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        1,
+        31,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (@x = 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; @x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; @x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { @x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { @x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (@x ||= 1); end\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; x ||= 1; end\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+      [
+        1,
+        29,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; x ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; x ||= 1; end\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; x ||= 1; end\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; x ||= 1; end\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; x ||= 1; end\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; x ||= 1; end\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { x ||= 1 }\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (x ||= 1); end\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((x ||= 1)); end\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (x ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (x ||= 1)); end\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (x ||= 1); end\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @@x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; @@x ||= 1; end\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @@x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { @@x ||= 1 }\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @@x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; @@x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @@x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@@x ||= 1); end\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((@@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@@x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@@x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@@x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (@@x ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; @@x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @@x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @@x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @@x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @@x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; @@x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @@x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { @@x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @@x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { @@x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @@x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (@@x ||= 1)); end\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@@x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (@@x ||= 1); end\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@@x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; $x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+      [
+        1,
+        30,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; $x ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; $x ||= 1; end\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; $x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { $x ||= 1 }\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { $x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; $x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; $x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ($x ||= 1); end\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ($x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (($x ||= 1)); end\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (($x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ($x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ($x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ($x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        1,
+        31,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; ($x ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; $x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; $x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; $x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; $x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; $x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; $x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; $x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { $x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { $x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { $x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { $x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = ($x ||= 1)); end\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = ($x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return ($x ||= 1); end\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return ($x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; M::X ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        32,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; M::X ||= 1; end\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; M::X ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { M::X ||= 1 }\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { M::X ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; M::X ||= 1; end; end\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; M::X ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (M::X ||= 1); end\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (M::X ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((M::X ||= 1)); end\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((M::X ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (M::X ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (M::X ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (M::X ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (M::X ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; M::X ||= 1; end; end\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; M::X ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; M::X ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; M::X ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; M::X ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; M::X ||= 1; end; end\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; M::X ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { M::X ||= 1 }; end\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { M::X ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { M::X ||= 1 }; end\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { M::X ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (M::X ||= 1)); end\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (M::X ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (M::X ||= 1); end\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (M::X ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj.x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        1,
+        33,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; obj.x ||= 1; end\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; obj.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { obj.x ||= 1 }\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { obj.x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; obj.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; obj.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj.x ||= 1); end\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((obj.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((obj.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj.x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj.x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj.x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+      [
+        1,
+        34,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (obj.x ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; obj.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; obj.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj.x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj.x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj.x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; obj.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; obj.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { obj.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { obj.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { obj.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { obj.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (obj.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (obj.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (obj.x ||= 1); end\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (obj.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj&.x ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+      [
+        1,
+        34,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; obj&.x ||= 1; end\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; obj&.x ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { obj&.x ||= 1 }\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { obj&.x ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; obj&.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; obj&.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj&.x ||= 1); end\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj&.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((obj&.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((obj&.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj&.x ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj&.x ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj&.x ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (obj&.x ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; obj&.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; obj&.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj&.x ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj&.x ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj&.x ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; obj&.x ||= 1; end; end\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; obj&.x ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { obj&.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { obj&.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { obj&.x ||= 1 }; end\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { obj&.x ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (obj&.x ||= 1)); end\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (obj&.x ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (obj&.x ||= 1); end\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (obj&.x ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj[0] ||= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+      [
+        1,
+        34,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; @y = 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; obj[0] ||= 1; end\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; obj[0] ||= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { obj[0] ||= 1 }\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { obj[0] ||= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; obj[0] ||= 1; end; end\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; obj[0] ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj[0] ||= 1); end\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj[0] ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((obj[0] ||= 1)); end\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((obj[0] ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj[0] ||= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (obj[0] ||= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (obj[0] ||= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+      [
+        1,
+        35,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; (obj[0] ||= 1; @y = 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; obj[0] ||= 1; end; end\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; obj[0] ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj[0] ||= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; obj[0] ||= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; obj[0] ||= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; obj[0] ||= 1; end; end\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; obj[0] ||= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { obj[0] ||= 1 }; end\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { obj[0] ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { obj[0] ||= 1 }; end\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { obj[0] ||= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (obj[0] ||= 1)); end\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (obj[0] ||= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (obj[0] ||= 1); end\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (obj[0] ||= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x = 1; end\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x = 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; @x = 1; end\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; @x = 1; end\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; @x = 1; end\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; @x = 1; end\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; @x = 1; end\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x = 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { @x = 1 }\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x = 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; @x = 1; end; end\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x = 1); end\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x = 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((@x = 1)); end\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x = 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x = 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x = 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x = 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x = 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; @x = 1; end; end\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x = 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x = 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x = 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; @x = 1; end; end\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x = 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { @x = 1 }; end\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x = 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { @x = 1 }; end\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x = 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (@x = 1)); end\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x = 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (@x = 1); end\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x = 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x &&= 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; @x &&= 1; end\n",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x &&= 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { @x &&= 1 }\n",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x &&= 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; @x &&= 1; end; end\n",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x &&= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x &&= 1); end\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x &&= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((@x &&= 1)); end\n",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x &&= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x &&= 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x &&= 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x &&= 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x &&= 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; @x &&= 1; end; end\n",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x &&= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x &&= 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x &&= 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x &&= 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; @x &&= 1; end; end\n",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x &&= 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { @x &&= 1 }; end\n",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x &&= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { @x &&= 1 }; end\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x &&= 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (@x &&= 1)); end\n",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x &&= 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (@x &&= 1); end\n",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x &&= 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x += 1; end\n",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x += 1; @y ||= 2; end\n",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; before; @x += 1; end\n",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; before; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; super; @x += 1; end\n",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; super; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.initialize; @x += 1; end\n",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.initialize; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def other.initialize; @x += 1; end\n",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+
+    ],
+    "upstream_after": "def other.initialize; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize_copy; @x += 1; end\n",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize_copy; @x += 1; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_method(:initialize) { @x += 1 }\n",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+
+    ],
+    "upstream_after": "define_method(:initialize) { @x += 1 }\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "class << self; def initialize; @x += 1; end; end\n",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+
+    ],
+    "upstream_after": "class << self; def initialize; @x += 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x += 1); end\n",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x += 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; ((@x += 1)); end\n",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; ((@x += 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x += 1); @y ||= 2; end\n",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x += 1); @y ||= 2; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; (@x += 1; @y ||= 2); end\n",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; (@x += 1; @y ||= 2); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; begin; @x += 1; end; end\n",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; begin; @x += 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x += 1; rescue; nil; end\n",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; rescue; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x += 1; ensure; nil; end\n",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; @x += 1; ensure; nil; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; if ok; @x += 1; end; end\n",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; if ok; @x += 1; end; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; task { @x += 1 }; end\n",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; task { @x += 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; -> { @x += 1 }; end\n",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; -> { @x += 1 }; end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize(x = (@x += 1)); end\n",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize(x = (@x += 1)); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; return (@x += 1); end\n",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+
+    ],
+    "upstream_after": "def initialize; return (@x += 1); end\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "X ||= 1",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+
+    ],
+    "upstream_after": "X ||= 1"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "::X ||= 1",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+
+    ],
+    "upstream_after": "::X ||= 1"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "factory::X ||= 1",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+
+    ],
+    "upstream_after": "factory::X ||= 1"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "X = 1",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+
+    ],
+    "upstream_after": "X = 1"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "X &&= 1",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+
+    ],
+    "upstream_after": "X &&= 1"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "X += 1",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+
+    ],
+    "upstream_after": "X += 1"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def foo; M::X ||= 1; end",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+
+    ],
+    "upstream_after": "def foo; M::X ||= 1; end"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def self.foo; M::X ||= 1; end",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+
+    ],
+    "upstream_after": "def self.foo; M::X ||= 1; end"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "define_singleton_method(:foo) { M::X ||= 1 }",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+
+    ],
+    "upstream_after": "define_singleton_method(:foo) { M::X ||= 1 }"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "task { M::X ||= 1 }",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+
+    ],
+    "upstream_after": "task { M::X ||= 1 }"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "\"#{M::X ||= 1}\"",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+
+    ],
+    "upstream_after": "\"#{M::X ||= 1}\""
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= (@y ||= 1); @z ||= 2; end",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        1,
+        39,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; @x = (@y ||= 1); @z = 2; end"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= task { effect }; @y ||= 2; end",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        1,
+        44,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; @x = task { effect }; @y = 2; end"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize\n # leading comment\n @x ||=\n  1\n @y ||= 2 # tail\nend\n",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+      [
+        3,
+        5,
+        3,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        5,
+        5,
+        5,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize\n # leading comment\n @x =\n  1\n @y = 2 # tail\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; def initialize; @x ||= 1; end; @y ||= 2; end",
+    "origin": "control",
+    "line": 246,
+    "findings": [
+      [
+        1,
+        36,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; def initialize; @x = 1; end; @y ||= 2; end"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize; @x ||= begin; effect; end; @y ||= 2; end",
+    "origin": "control",
+    "line": 247,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        1,
+        47,
+        1,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize; @x = begin; effect; end; @y = 2; end"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "def initialize\n @x ||= <<~DOC\n text\nDOC\n @y ||= 2\nend\n",
+    "origin": "control",
+    "line": 248,
+    "findings": [
+      [
+        2,
+        5,
+        2,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ],
+      [
+        5,
+        5,
+        5,
+        "Unnecessary disjunctive assignment. Use plain assignment."
+      ]
+    ],
+    "upstream_after": "def initialize\n @x = <<~DOC\n text\nDOC\n @y = 2\nend\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "X ||= <<~DOC\ntext\nDOC\n",
+    "origin": "control",
+    "line": 249,
+    "findings": [
+
+    ],
+    "upstream_after": "X ||= <<~DOC\ntext\nDOC\n"
+  },
+  {
+    "cop": "Lint/DisjunctiveAssignmentInConstructor",
+    "source": "# X ||= 1\n'@x ||= 1'\n",
+    "origin": "control",
+    "line": 250,
+    "findings": [
+
+    ],
+    "upstream_after": "# X ||= 1\n'@x ||= 1'\n"
+  }
+]

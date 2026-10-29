@@ -1,0 +1,94 @@
+[
+  {
+    "spec_line": 6,
+    "source": "case a\nin b; c\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Do not use `in b;`. Use `in b then` instead."
+    ],
+    "correction": "case a\nin b then c\nend\n"
+  },
+  {
+    "spec_line": 21,
+    "source": "case a\nin b, c, d; e\nend\n",
+    "positions": [
+      [
+        2,
+        11
+      ]
+    ],
+    "messages": [
+      "Do not use `in b, c, d;`. Use `in b, c, d then` instead."
+    ],
+    "correction": "case a\nin b, c, d then e\nend\n"
+  },
+  {
+    "spec_line": 36,
+    "source": "case a\nin 0 | 1 | 2; x\nend\n",
+    "positions": [
+      [
+        2,
+        13
+      ]
+    ],
+    "messages": [
+      "Do not use `in 0 | 1 | 2;`. Use `in 0 | 1 | 2 then` instead."
+    ],
+    "correction": "case a\nin 0 | 1 | 2 then x\nend\n"
+  },
+  {
+    "spec_line": 51,
+    "source": "case a\nin 0 | 1 | 2 | 3; x\nend\n",
+    "positions": [
+      [
+        2,
+        17
+      ]
+    ],
+    "messages": [
+      "Do not use `in 0 | 1 | 2 | 3;`. Use `in 0 | 1 | 2 | 3 then` instead."
+    ],
+    "correction": "case a\nin 0 | 1 | 2 | 3 then x\nend\n"
+  },
+  {
+    "spec_line": 66,
+    "source": "case a\nin 0, 1 | 2; x\nend\n",
+    "positions": [
+      [
+        2,
+        12
+      ]
+    ],
+    "messages": [
+      "Do not use `in 0, 1 | 2;`. Use `in 0, 1 | 2 then` instead."
+    ],
+    "correction": "case a\nin 0, 1 | 2 then x\nend\n"
+  },
+  {
+    "spec_line": 81,
+    "source": "case a\nin b then c; d\nend\n\ncase e\nin f\n  g; h\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 95,
+    "source": "case condition\nin pattern\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

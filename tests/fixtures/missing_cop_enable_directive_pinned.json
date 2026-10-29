@@ -1,0 +1,436 @@
+[
+  {
+    "spec_line": 9,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite registers an offense when a cop is disabled and never re-enabled",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# Some other code\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 18,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite does not register an offense when the disable cop is re-enabled",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# rubocop:enable Layout/SpaceAroundOperators\n# Some other code\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 27,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite registers an offense when a department is disabled and never re-enabled",
+    "source": "# rubocop:disable Layout\nx =   0\n# Some other code\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout department with `# rubocop:enable` after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout department with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 36,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite does not register an offense when the disable department is re-enabled",
+    "source": "# rubocop:disable Layout\nx =   0\n# rubocop:enable Layout\n# Some other code\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 45,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite registers an offense on the `disable` when an `enable-next` suspends it and it is never re-enabled",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# rubocop:enable-next Layout/SpaceAroundOperators\ny = 1\nz =   2\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 56,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite registers an offense on the `disable` when a `next +Cop` suspends it and it is never re-enabled",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# rubocop:next +Layout/SpaceAroundOperators\ny = 1\nz =   2\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 67,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is infinite does not register an offense when a `disable` suspended by an `enable-next` is re-enabled",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# rubocop:enable-next Layout/SpaceAroundOperators\ny = 1\nz =   2\n# rubocop:enable Layout/SpaceAroundOperators\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 82,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite registers an offense when a cop is disabled for too many lines",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\ny = 1\n# Some other code\n# rubocop:enable Layout/SpaceAroundOperators\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop within 2 lines after disabling it."
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 93,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite registers an offense when a cop is disabled and never re-enabled",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# Some other code\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop within 2 lines after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 102,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite does not register an offense when the disable cop is re-enabled within the limit",
+    "source": "# rubocop:disable Layout/SpaceAroundOperators\nx =   0\ny = 1\n# rubocop:enable Layout/SpaceAroundOperators\n# Some other code\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 112,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite registers an offense when a department is disabled for too many lines",
+    "source": "# rubocop:disable Layout\nx =   0\ny = 1\n# Some other code\n# rubocop:enable Layout\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout department within 2 lines after disabling it."
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 123,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite registers an offense when a department is disabled and never re-enabled",
+    "source": "# rubocop:disable Layout\nx =   0\n# Some other code\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout department within 2 lines after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout department with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 132,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite does not register an offense when the disable department is re-enabled within the limit",
+    "source": "# rubocop:disable Layout\nx =   0\ny = 1\n# rubocop:enable Layout\n# Some other code\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 142,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite does not register an offense for a `disable-next` scope larger than the limit",
+    "source": "# rubocop:disable-next Layout/SpaceAroundOperators\nx =   0 +\n      1 +\n      2 +\n      3\n# Some other code\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 153,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the maximum range size is finite does not register an offense for a `next -Cop` scope larger than the limit",
+    "source": "# rubocop:next -Layout/SpaceAroundOperators\nx =   0 +\n      1 +\n      2 +\n      3 +\n      4 +\n      5\n# Some other code\n",
+    "exclusion": "fixed-policy: MaxRangeSize=2 is not the infinite default",
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 170,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when a `# rubocop:disable` is wrapped in `# rubocop:push` / `# rubocop:pop` does not register an offense for a bare `push` / `pop` pair",
+    "source": "def test\n  # rubocop:push\n  # rubocop:disable Style/RescueStandardError\nrescue => e\n  print e\nend\n# rubocop:pop\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 182,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when a `# rubocop:disable` is wrapped in `# rubocop:push` / `# rubocop:pop` does not register an offense when the disable is closed by `# rubocop:pop` before EOF",
+    "source": "# rubocop:push\n# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n# rubocop:pop\ny = 1\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "spec_line": 192,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when a `# rubocop:disable` is wrapped in `# rubocop:push` / `# rubocop:pop` registers an offense when `# rubocop:push` has no matching `# rubocop:pop`",
+    "source": "# rubocop:push\n# rubocop:disable Layout/SpaceAroundOperators\nx =   0\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ],
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:enable` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 201,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when a `# rubocop:disable` is wrapped in `# rubocop:push` / `# rubocop:pop` suggests `# rubocop:pop` when a `push` with inline args has no matching `pop`",
+    "source": "# rubocop:push -Layout/SpaceAroundOperators\nx =   0\n",
+    "exclusion": null,
+    "disabled": false,
+    "spec_positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "spec_messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:pop` after disabling it."
+    ],
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Re-enable Layout/SpaceAroundOperators cop with `# rubocop:pop` after disabling it."
+    ]
+  },
+  {
+    "spec_line": 213,
+    "description": "RuboCop::Cop::Lint::MissingCopEnableDirective when the cop is disabled in the config reports no offense when re-disabling it until EOF",
+    "source": "# rubocop:enable Layout/LineLength\n# rubocop:disable Layout/LineLength\n",
+    "exclusion": "ordinary-shim: Layout/LineLength Enabled=false; covered by actual lifecycle and TOML",
+    "disabled": true,
+    "spec_positions": [
+
+    ],
+    "spec_messages": [
+
+    ],
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

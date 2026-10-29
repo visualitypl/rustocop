@@ -1,0 +1,353 @@
+[
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 5,
+    "source": "string =~ /\\Astring\\z/\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "string == 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 16,
+    "source": "string =~ /\\Afoo'bar\\z/\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'foo\\'bar'`."
+    ],
+    "correction": "string == 'foo\\'bar'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 27,
+    "source": "/\\Astring\\z/ === string\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "string == 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 38,
+    "source": "string === /\\Astring\\z/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 44,
+    "source": "string.match(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "string == 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 55,
+    "source": "string&.match(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "string == 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 66,
+    "source": "match(/\\Astring\\z/)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 70,
+    "source": "string.match?(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "string == 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 81,
+    "source": "string !~ /\\Astring\\z/\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string != 'string'`."
+    ],
+    "correction": "string != 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 92,
+    "source": "string =~ /\\Astring#{interpolation}\\z/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 98,
+    "source": "/\\A0+\\z/ === string\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 104,
+    "source": "string =~ /\\Astring.*\\z/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 110,
+    "source": "string =~ /^string$/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 116,
+    "source": "string =~ /\\Astring\\z/i\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 145,
+    "source": "!string.match?(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        2
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "!(string == 'string')\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 156,
+    "source": "string.match?(/\\Astring\\z/).to_s\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "(string == 'string').to_s\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 167,
+    "source": "result = string.match?(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "result = string == 'string'\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 178,
+    "source": "do_something if string =~ /\\Astring\\z/ && other\n",
+    "positions": [
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "do_something if string == 'string' && other\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 189,
+    "source": "do_something unless !string&.match(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        22
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "do_something unless !(string == 'string')\n"
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 200,
+    "source": "string.match(/\\Astring\\z/).nil?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 209,
+    "source": "index = string =~ /\\Astring\\z/\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 218,
+    "source": "result = string =~ /\\Astring\\z/ && other\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 227,
+    "source": "result = string&.match?(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 125,
+    "source": "string =~ /^\\P$/\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/ExactRegexpMatch",
+    "spec_line": 131,
+    "source": "string =~ /^\\P$/\nstring.match(/\\Astring\\z/)\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `string == 'string'`."
+    ],
+    "correction": "string =~ /^\\P$/\nstring == 'string'\n"
+  }
+]

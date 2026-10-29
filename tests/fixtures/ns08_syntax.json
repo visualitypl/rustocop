@@ -1,0 +1,3042 @@
+[
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true",
+    "source": "def foo\ntrue\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true",
+    "source": "def foo?\ntrue\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "5",
+    "source": "def foo\n5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "5",
+    "source": "def foo?\n5\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x",
+    "source": "def foo\nx\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x",
+    "source": "def foo?\nx\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "@x",
+    "source": "def foo\n@x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "@x",
+    "source": "def foo?\n@x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x = true",
+    "source": "def foo\nx = true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x = true",
+    "source": "def foo?\nx = true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return",
+    "source": "def foo\nreturn\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return",
+    "source": "def foo?\nreturn\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true",
+    "source": "def foo\nreturn true\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true",
+    "source": "def foo?\nreturn true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return x",
+    "source": "def foo\nreturn x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return x",
+    "source": "def foo?\nreturn x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 1, 2",
+    "source": "def foo\nreturn 1, 2\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 1, 2",
+    "source": "def foo?\nreturn 1, 2\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return *x",
+    "source": "def foo\nreturn *x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return *x",
+    "source": "def foo?\nreturn *x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return (true)",
+    "source": "def foo\nreturn (true)\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return (true)",
+    "source": "def foo?\nreturn (true)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return ((true))",
+    "source": "def foo\nreturn ((true))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return ((true))",
+    "source": "def foo?\nreturn ((true))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return (true; false)",
+    "source": "def foo\nreturn (true; false)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return (true; false)",
+    "source": "def foo?\nreturn (true; false)\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return ()",
+    "source": "def foo\nreturn ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return ()",
+    "source": "def foo?\nreturn ()\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(true)",
+    "source": "def foo\n(true)\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(true)",
+    "source": "def foo?\n(true)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "((true))",
+    "source": "def foo\n((true))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "((true))",
+    "source": "def foo?\n((true))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(5)",
+    "source": "def foo\n(5)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(5)",
+    "source": "def foo?\n(5)\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "((5))",
+    "source": "def foo\n((5))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "((5))",
+    "source": "def foo?\n((5))\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "()",
+    "source": "def foo\n()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "()",
+    "source": "def foo?\n()\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(true; false)",
+    "source": "def foo\n(true; false)\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(true; false)",
+    "source": "def foo?\n(true; false)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; true; end",
+    "source": "def foo\nbegin; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; true; end",
+    "source": "def foo?\nbegin; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; return true; end",
+    "source": "def foo\nbegin; return true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; return true; end",
+    "source": "def foo?\nbegin; return true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true rescue false",
+    "source": "def foo\ntrue rescue false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true rescue false",
+    "source": "def foo?\ntrue rescue false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5 if x; true",
+    "source": "def foo\nreturn 5 if x; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5 if x; true",
+    "source": "def foo?\nreturn 5 if x; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true if x; 5",
+    "source": "def foo\nreturn true if x; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true if x; 5",
+    "source": "def foo?\nreturn true if x; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return x if y; 5",
+    "source": "def foo\nreturn x if y; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return x if y; 5",
+    "source": "def foo?\nreturn x if y; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return @x if y; 5",
+    "source": "def foo\nreturn @x if y; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return @x if y; 5",
+    "source": "def foo?\nreturn @x if y; 5\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return @x if y; true",
+    "source": "def foo\nreturn @x if y; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return @x if y; true",
+    "source": "def foo?\nreturn @x if y; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return super if y; 5",
+    "source": "def foo\nreturn super if y; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return super if y; 5",
+    "source": "def foo?\nreturn super if y; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super {}",
+    "source": "def foo\nreturn 5; super {}\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super {}",
+    "source": "def foo?\nreturn 5; super {}\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super(&blk)",
+    "source": "def foo\nreturn 5; super(&blk)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super(&blk)",
+    "source": "def foo?\nreturn 5; super(&blk)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super",
+    "source": "def foo\nreturn 5; super\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super",
+    "source": "def foo?\nreturn 5; super\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super() {}",
+    "source": "def foo\nreturn 5; super() {}\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5; super() {}",
+    "source": "def foo?\nreturn 5; super() {}\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x == y",
+    "source": "def foo\nx == y\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x == y",
+    "source": "def foo?\nx == y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x != y",
+    "source": "def foo\nx != y\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x != y",
+    "source": "def foo?\nx != y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x =~ y",
+    "source": "def foo\nx =~ y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x =~ y",
+    "source": "def foo?\nx =~ y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x !~ y",
+    "source": "def foo\nx !~ y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x !~ y",
+    "source": "def foo?\nx !~ y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x <=> y",
+    "source": "def foo\nx <=> y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x <=> y",
+    "source": "def foo?\nx <=> y\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x&.ready?",
+    "source": "def foo\nx&.ready?\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x&.ready?",
+    "source": "def foo?\nx&.ready?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready? {}",
+    "source": "def foo\nx.ready? {}\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready? {}",
+    "source": "def foo?\nx.ready? {}\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready? { true }",
+    "source": "def foo\nx.ready? { true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready? { true }",
+    "source": "def foo?\nx.ready? { true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready? { return true }",
+    "source": "def foo\nx.ready? { return true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready? { return true }",
+    "source": "def foo?\nx.ready? { return true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready?(&:ok?)",
+    "source": "def foo\nx.ready?(&:ok?)\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.ready?(&:ok?)",
+    "source": "def foo?\nx.ready?(&:ok?)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.nonzero?",
+    "source": "def foo\nx.nonzero?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.nonzero?",
+    "source": "def foo?\nx.nonzero?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.infinite?",
+    "source": "def foo\nx.infinite?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.infinite?",
+    "source": "def foo?\nx.infinite?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "!x",
+    "source": "def foo\n!x\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "!x",
+    "source": "def foo?\n!x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "not x",
+    "source": "def foo\nnot x\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "not x",
+    "source": "def foo?\nnot x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.!@",
+    "source": "def foo\nx.!@\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.!@",
+    "source": "def foo?\nx.!@\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.nonzero? && true",
+    "source": "def foo\nx.nonzero? && true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "x.nonzero? && true",
+    "source": "def foo?\nx.nonzero? && true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && false",
+    "source": "def foo\ntrue && false\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && false",
+    "source": "def foo?\ntrue && false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && @x",
+    "source": "def foo\ntrue && @x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && @x",
+    "source": "def foo?\ntrue && @x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && x",
+    "source": "def foo\ntrue && x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && x",
+    "source": "def foo?\ntrue && x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && 5",
+    "source": "def foo\ntrue && 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true && 5",
+    "source": "def foo?\ntrue && 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true || false",
+    "source": "def foo\ntrue || false\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true || false",
+    "source": "def foo?\ntrue || false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true || x",
+    "source": "def foo\ntrue || x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true || x",
+    "source": "def foo?\ntrue || x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true || 5",
+    "source": "def foo\ntrue || 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true || 5",
+    "source": "def foo?\ntrue || 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "false && (true)",
+    "source": "def foo\nfalse && (true)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "false && (true)",
+    "source": "def foo?\nfalse && (true)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(true) && false",
+    "source": "def foo\n(true) && false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "(true) && false",
+    "source": "def foo?\n(true) && false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "false && (true || false)",
+    "source": "def foo\nfalse && (true || false)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "false && (true || false)",
+    "source": "def foo?\nfalse && (true || false)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; true; else; false; end",
+    "source": "def foo\nif x; true; else; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; true; else; false; end",
+    "source": "def foo?\nif x; true; else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; true; end",
+    "source": "def foo\nif x; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; true; end",
+    "source": "def foo?\nif x; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; 5; end",
+    "source": "def foo\nif x; 5; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; 5; end",
+    "source": "def foo?\nif x; 5; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "unless x; true; else; false; end",
+    "source": "def foo\nunless x; true; else; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "unless x; true; else; false; end",
+    "source": "def foo?\nunless x; true; else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; (true); else; false; end",
+    "source": "def foo\nif x; (true); else; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; (true); else; false; end",
+    "source": "def foo?\nif x; (true); else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; ((true)); else; false; end",
+    "source": "def foo\nif x; ((true)); else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; ((true)); else; false; end",
+    "source": "def foo?\nif x; ((true)); else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; return (true); else; false; end",
+    "source": "def foo\nif x; return (true); else; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "if x; return (true); else; false; end",
+    "source": "def foo?\nif x; return (true); else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; when 1; true; when 2; false; else; true; end",
+    "source": "def foo\ncase x; when 1; true; when 2; false; else; true; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; when 1; true; when 2; false; else; true; end",
+    "source": "def foo?\ncase x; when 1; true; when 2; false; else; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; when 1; true; end",
+    "source": "def foo\ncase x; when 1; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; when 1; true; end",
+    "source": "def foo?\ncase x; when 1; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; in 1; true; else; false; end",
+    "source": "def foo\ncase x; in 1; true; else; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; in 1; true; else; false; end",
+    "source": "def foo?\ncase x; in 1; true; else; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; in 1; (); end",
+    "source": "def foo\ncase x; in 1; (); end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; in 1; (); end",
+    "source": "def foo?\ncase x; in 1; (); end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; in 1; true; end",
+    "source": "def foo\ncase x; in 1; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "case x; in 1; true; end",
+    "source": "def foo?\ncase x; in 1; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "while x; true; end",
+    "source": "def foo\nwhile x; true; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "while x; true; end",
+    "source": "def foo?\nwhile x; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "until x; false; end",
+    "source": "def foo\nuntil x; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "until x; false; end",
+    "source": "def foo?\nuntil x; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "while x; end",
+    "source": "def foo\nwhile x; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "while x; end",
+    "source": "def foo?\nwhile x; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; true; end while x",
+    "source": "def foo\nbegin; true; end while x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; true; end while x",
+    "source": "def foo?\nbegin; true; end while x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true while x",
+    "source": "def foo\ntrue while x\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true while x",
+    "source": "def foo?\ntrue while x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "for x in xs; true; end",
+    "source": "def foo\nfor x in xs; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "for x in xs; true; end",
+    "source": "def foo?\nfor x in xs; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "for x in xs; return true; end",
+    "source": "def foo\nfor x in xs; return true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "for x in xs; return true; end",
+    "source": "def foo?\nfor x in xs; return true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "loop { true }",
+    "source": "def foo\nloop { true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "loop { true }",
+    "source": "def foo?\nloop { true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "loop { return true }",
+    "source": "def foo\nloop { return true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "loop { return true }",
+    "source": "def foo?\nloop { return true }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; true; end; 5",
+    "source": "def foo\ndef inner; true; end; 5\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; true; end; 5",
+    "source": "def foo?\ndef inner; true; end; 5\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`.",
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; return true; end; 5",
+    "source": "def foo\ndef inner; return true; end; 5\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; return true; end; 5",
+    "source": "def foo?\ndef inner; return true; end; 5\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; return 5; end; true",
+    "source": "def foo\ndef inner; return 5; end; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; return 5; end; true",
+    "source": "def foo?\ndef inner; return 5; end; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; return x; end; 5",
+    "source": "def foo\ndef inner; return x; end; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner; return x; end; 5",
+    "source": "def foo?\ndef inner; return x; end; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner(x = (return 5)); true; end; true",
+    "source": "def foo\ndef inner(x = -> { return 5 }); true; end; true\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def inner(x = (return 5)); true; end; true",
+    "source": "def foo?\ndef inner(x = -> { return 5 }); true; end; true\nend\n",
+    "positions": [
+      [
+        2,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def self.inner; return 5; end; true",
+    "source": "def foo\ndef self.inner; return 5; end; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "def self.inner; return 5; end; true",
+    "source": "def foo?\ndef self.inner; return 5; end; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "-> { true }; 5",
+    "source": "def foo\n-> { true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "-> { true }; 5",
+    "source": "def foo?\n-> { true }; 5\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "-> { return true }; 5",
+    "source": "def foo\n-> { return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "-> { return true }; 5",
+    "source": "def foo?\n-> { return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "lambda { return true }; 5",
+    "source": "def foo\nlambda { return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "lambda { return true }; 5",
+    "source": "def foo?\nlambda { return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "proc { return 5 }; true",
+    "source": "def foo\nproc { return 5 }; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "proc { return 5 }; true",
+    "source": "def foo?\nproc { return 5 }; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { return x }; 5",
+    "source": "def foo\nconsume { return x }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { return x }; 5",
+    "source": "def foo?\nconsume { return x }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { return @x }; 5",
+    "source": "def foo\nconsume { return @x }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { return @x }; 5",
+    "source": "def foo?\nconsume { return @x }; 5\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { return 5 }; true",
+    "source": "def foo\nconsume { return 5 }; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { return 5 }; true",
+    "source": "def foo?\nconsume { return 5 }; true\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { _1; return true }; 5",
+    "source": "def foo\nconsume { _1; return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { _1; return true }; 5",
+    "source": "def foo?\nconsume { _1; return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { it; return true }; 5",
+    "source": "def foo\nconsume { it; return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "consume { it; return true }; 5",
+    "source": "def foo?\nconsume { it; return true }; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true\nrescue\nfalse",
+    "source": "def foo\ntrue\nrescue\nfalse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true\nrescue\nfalse",
+    "source": "def foo?\ntrue\nrescue\nfalse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true\nrescue\nreturn false",
+    "source": "def foo\nreturn true\nrescue\nreturn false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true\nrescue\nreturn false",
+    "source": "def foo?\nreturn true\nrescue\nreturn false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5\nrescue\nfalse",
+    "source": "def foo\nreturn 5\nrescue\nfalse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5\nrescue\nfalse",
+    "source": "def foo?\nreturn 5\nrescue\nfalse\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true\nensure\nfalse",
+    "source": "def foo\ntrue\nensure\nfalse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "true\nensure\nfalse",
+    "source": "def foo?\ntrue\nensure\nfalse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true\nensure\nreturn false",
+    "source": "def foo\nreturn true\nensure\nreturn false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return true\nensure\nreturn false",
+    "source": "def foo?\nreturn true\nensure\nreturn false\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5\nensure\nfalse",
+    "source": "def foo\nreturn 5\nensure\nfalse\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "return 5\nensure\nfalse",
+    "source": "def foo?\nreturn 5\nensure\nfalse\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; true; rescue; false; ensure; true; end",
+    "source": "def foo\nbegin; true; rescue; false; ensure; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; true; rescue; false; ensure; true; end",
+    "source": "def foo?\nbegin; true; rescue; false; ensure; true; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; return 5; rescue; false; end",
+    "source": "def foo\nbegin; return 5; rescue; false; end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "begin; return 5; rescue; false; end",
+    "source": "def foo?\nbegin; return 5; rescue; false; end\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "\"#{return true}\"; 5",
+    "source": "def foo\n\"#{return true}\"; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "\"#{return true}\"; 5",
+    "source": "def foo?\n\"#{return true}\"; 5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "<<~TEXT\n#{return true}\nTEXT\n5",
+    "source": "def foo\n<<~TEXT\n#{return true}\nTEXT\n5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "<<~TEXT\n#{return true}\nTEXT\n5",
+    "source": "def foo?\n<<~TEXT\n#{return true}\nTEXT\n5\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "<<~TEXT\ntext\nTEXT",
+    "source": "def foo\n<<~TEXT\ntext\nTEXT\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "<<~TEXT\ntext\nTEXT",
+    "source": "def foo?\n<<~TEXT\ntext\nTEXT\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "nil",
+    "source": "def foo\nnil\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "nil",
+    "source": "def foo?\nnil\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "5r",
+    "source": "def foo\n5r\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "5r",
+    "source": "def foo?\n5r\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "5i",
+    "source": "def foo\n5i\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "5i",
+    "source": "def foo?\n5i\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "__FILE__",
+    "source": "def foo\n__FILE__\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "__FILE__",
+    "source": "def foo?\n__FILE__\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "__LINE__",
+    "source": "def foo\n__LINE__\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "__LINE__",
+    "source": "def foo?\n__LINE__\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "__ENCODING__",
+    "source": "def foo\n__ENCODING__\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "__ENCODING__",
+    "source": "def foo?\n__ENCODING__\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "/x/",
+    "source": "def foo\n/x/\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "/x/",
+    "source": "def foo?\n/x/\nend\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "/x/ =~ str",
+    "source": "def foo\n/x/ =~ str\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "/x/ =~ str",
+    "source": "def foo?\n/x/ =~ str\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "defined?(x)",
+    "source": "def foo\ndefined?(x)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "defined?(x)",
+    "source": "def foo?\ndefined?(x)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "self",
+    "source": "def foo\nself\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "self",
+    "source": "def foo?\nself\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption initialize true",
+    "source": "def initialize; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption initialize 5",
+    "source": "def initialize; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption initialize_copy true",
+    "source": "def initialize_copy; true; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption initialize_copy 5",
+    "source": "def initialize_copy; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption call true",
+    "source": "def call; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption call 5",
+    "source": "def call; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption call? true",
+    "source": "def call?; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption call? 5",
+    "source": "def call?; 5; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption save! true",
+    "source": "def save!; true; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Predicate method names should end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption save! 5",
+    "source": "def save!; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption == true",
+    "source": "def ==(x); true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption == 5",
+    "source": "def ==(x); 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption [] true",
+    "source": "def []; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption [] 5",
+    "source": "def []; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption []= true",
+    "source": "def []=(x); true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption []= 5",
+    "source": "def []=(x); 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption ! true",
+    "source": "def !; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption ! 5",
+    "source": "def !; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption !@ true",
+    "source": "def !@; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption !@ 5",
+    "source": "def !@; 5; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption nonzero? true",
+    "source": "def nonzero?; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption nonzero? 5",
+    "source": "def nonzero?; 5; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption infinite? true",
+    "source": "def infinite?; true; end\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "exemption infinite? 5",
+    "source": "def infinite?; 5; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "current default is not a body return",
+    "source": "def foo?(x = -> { return true }); 5; end\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "singleton receiver return is not a body return",
+    "source": "def (-> { return true }).foo?; 5; end\n",
+    "positions": [
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Non-predicate method names should not end with `?`."
+    ]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "wrapped first return argument replaces trailing arguments",
+    "source": "def foo; return (true), value; end\n",
+    "positions": [[1, 5]],
+    "messages": ["Predicate method names should end with `?`."]
+  },
+  {
+    "cop": "Naming/PredicateMethod",
+    "case": "wrapped boolean return with trailing argument permits predicate name",
+    "source": "def foo?; return (true), value; end\n",
+    "positions": [],
+    "messages": []
+  }
+]

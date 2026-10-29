@@ -1,0 +1,335 @@
+[
+  {
+    "spec_line": 9,
+    "source": "number == 0\n0 == number\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `number.zero?` instead of `number == 0`.",
+      "Use `number.zero?` instead of `0 == number`."
+    ],
+    "toml": "",
+    "correction": "number.zero?\nnumber.zero?\n"
+  },
+  {
+    "spec_line": 23,
+    "source": "-foo == 0\n~foo == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(-foo).zero?` instead of `-foo == 0`.",
+      "Use `(~foo).zero?` instead of `~foo == 0`."
+    ],
+    "toml": "",
+    "correction": "(-foo).zero?\n(~foo).zero?\n"
+  },
+  {
+    "spec_line": 37,
+    "source": "foo - 1 == 0\n0 == foo - 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(foo - 1).zero?` instead of `foo - 1 == 0`.",
+      "Use `(foo - 1).zero?` instead of `0 == foo - 1`."
+    ],
+    "toml": "",
+    "correction": "(foo - 1).zero?\n(foo - 1).zero?\n"
+  },
+  {
+    "spec_line": 84,
+    "source": "$CHILD_STATUS == 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 85,
+    "source": "0 == $CHILD_STATUS",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 54,
+    "source": "stat.mode & 0o077 == 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(stat.mode & 0o077).zero?` instead of `stat.mode & 0o077 == 0`."
+    ],
+    "toml": "[cops.\"Style/BitwisePredicate\"]\nenabled = false\n",
+    "correction": "(stat.mode & 0o077).zero?\n"
+  },
+  {
+    "spec_line": 70,
+    "source": "stat.mode & 0o077 == 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "[cops.\"Style/BitwisePredicate\"]\nenabled = true\n",
+    "correction": null
+  },
+  {
+    "spec_line": 90,
+    "source": "def m(foo)\n  foo == 0\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `foo.zero?` instead of `foo == 0`."
+    ],
+    "toml": "",
+    "correction": "def m(foo)\n  foo.zero?\nend\n"
+  },
+  {
+    "spec_line": 105,
+    "source": "def m(foo)\n  foo - 1 == 0\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `(foo - 1).zero?` instead of `foo - 1 == 0`."
+    ],
+    "toml": "",
+    "correction": "def m(foo)\n  (foo - 1).zero?\nend\n"
+  },
+  {
+    "spec_line": 123,
+    "source": "number != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 124,
+    "source": "0 != number",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 128,
+    "source": "foo - 1 != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 129,
+    "source": "0 != foo - 1",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 133,
+    "source": "$CHILD_STATUS != 0",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 134,
+    "source": "0 != $CHILD_STATUS",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "toml": "",
+    "correction": null
+  },
+  {
+    "spec_line": 141,
+    "source": "number > 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `number.positive?` instead of `number > 0`."
+    ],
+    "toml": "",
+    "correction": "number.positive?\n"
+  },
+  {
+    "spec_line": 152,
+    "source": "0 < number\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `number.positive?` instead of `0 < number`."
+    ],
+    "toml": "",
+    "correction": "number.positive?\n"
+  },
+  {
+    "spec_line": 164,
+    "source": "foo - 1 > 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(foo - 1).positive?` instead of `foo - 1 > 0`."
+    ],
+    "toml": "",
+    "correction": "(foo - 1).positive?\n"
+  },
+  {
+    "spec_line": 175,
+    "source": "0 < foo - 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(foo - 1).positive?` instead of `0 < foo - 1`."
+    ],
+    "toml": "",
+    "correction": "(foo - 1).positive?\n"
+  },
+  {
+    "spec_line": 197,
+    "source": "number < 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `number.negative?` instead of `number < 0`."
+    ],
+    "toml": "",
+    "correction": "number.negative?\n"
+  },
+  {
+    "spec_line": 208,
+    "source": "0 > number\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `number.negative?` instead of `0 > number`."
+    ],
+    "toml": "",
+    "correction": "number.negative?\n"
+  },
+  {
+    "spec_line": 220,
+    "source": "foo - 1 < 0\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(foo - 1).negative?` instead of `foo - 1 < 0`."
+    ],
+    "toml": "",
+    "correction": "(foo - 1).negative?\n"
+  },
+  {
+    "spec_line": 231,
+    "source": "0 > foo - 1\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `(foo - 1).negative?` instead of `0 > foo - 1`."
+    ],
+    "toml": "",
+    "correction": "(foo - 1).negative?\n"
+  }
+]

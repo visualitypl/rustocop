@@ -1,0 +1,405 @@
+[
+  {
+    "spec_line": 6,
+    "source": "def foo?\n  condition || return\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  condition || (return false)\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 25,
+    "source": "def foo?\n  condition or return\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        16
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  condition or return false\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 44,
+    "source": "def foo?\n  condition ? return : baz\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        15
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  condition ? (return false) : baz\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 63,
+    "source": "def foo?\n  condition ? baz : return\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        21
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  condition ? baz : (return false)\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 82,
+    "source": "def foo?\n  if condition\n    return\n  end\n\n  bar?\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  if condition\n    return false\n  end\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 105,
+    "source": "def foo?\n  return if condition\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  return false if condition\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 124,
+    "source": "def foo?\n  return nil if condition\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  return false if condition\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 143,
+    "source": "def foo?\n  return true if condition\n\n  nil\nend\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  return true if condition\n\n  false\nend\n"
+  },
+  {
+    "spec_line": 162,
+    "source": "def foo?\n  nil\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  false\nend\n"
+  },
+  {
+    "spec_line": 177,
+    "source": "def foo?\n  return true if condition\n\n  bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 187,
+    "source": "def foo?\n  return value if condition\n\n  bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 197,
+    "source": "def foo?\n  do_something\n\n  nil\n\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 209,
+    "source": "def foo?\n  bar&.baz(nil)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 217,
+    "source": "def foo?\n  bar.baz(nil)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 225,
+    "source": "def foo?\n  bar = nil\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 233,
+    "source": "def foo?\n  return false if condition\n\n  bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 243,
+    "source": "def foo?\n  do_something\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 251,
+    "source": "def foo?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 258,
+    "source": "def foo?\n  return false unless condition\nrescue\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 268,
+    "source": "def foo?\n  if bar\n    nil\n  else\n    true\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  if bar\n    false\n  else\n    true\n  end\nend\n"
+  },
+  {
+    "spec_line": 291,
+    "source": "def foo?\n  if bar\n    true\n  else\n    nil\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  if bar\n    true\n  else\n    false\n  end\nend\n"
+  },
+  {
+    "spec_line": 314,
+    "source": "def foo?\n  if bar\n    if baz\n      true\n    else\n      nil\n    end\n  end\nend\n",
+    "positions": [
+      [
+        6,
+        7
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def foo?\n  if bar\n    if baz\n      true\n    else\n      false\n    end\n  end\nend\n"
+  },
+  {
+    "spec_line": 341,
+    "source": "def foo?\n  if bar\n    true\n  else\n    nil\n  end\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 357,
+    "source": "def self.foo?\n  return if condition\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def self.foo?\n  return false if condition\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 376,
+    "source": "def self.foo?\n  return nil if condition\n\n  bar?\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def self.foo?\n  return false if condition\n\n  bar?\nend\n"
+  },
+  {
+    "spec_line": 395,
+    "source": "def self.foo?\n  return false if condition\n\n  bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 406,
+    "source": "def self.foo?\n  if bar\n    nil\n  else\n    true\n  end\nend\n",
+    "positions": [
+      [
+        3,
+        5
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def self.foo?\n  if bar\n    false\n  else\n    true\n  end\nend\n"
+  },
+  {
+    "spec_line": 429,
+    "source": "def self.foo?\n  if bar\n    true\n  else\n    nil\n  end\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def self.foo?\n  if bar\n    true\n  else\n    false\n  end\nend\n"
+  },
+  {
+    "spec_line": 452,
+    "source": "def self.foo?\n  if bar\n    if baz\n      true\n    else\n      nil\n    end\n  end\nend\n",
+    "positions": [
+      [
+        6,
+        7
+      ]
+    ],
+    "messages": [
+      "Return `false` instead of `nil` in predicate methods."
+    ],
+    "correction": "def self.foo?\n  if bar\n    if baz\n      true\n    else\n      false\n    end\n  end\nend\n"
+  },
+  {
+    "spec_line": 479,
+    "source": "def self.foo?\n  if bar\n    true\n  else\n    nil\n  end\n  baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 495,
+    "source": "def foo\n  return if condition\n\n  bar?\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 505,
+    "source": "def foo\n  if bar\n    nil\n  else\n    true\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

@@ -1,0 +1,373 @@
+[
+  {
+    "spec_line": 538,
+    "source": "loop do\n  if test # keep me\n    # keep me\n    something # keep me\n    # keep me\n\n  end # keep me\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "loop do\n  next unless test # keep me\n  # keep me\n  something # keep me\n  # keep me\n\n # keep me\nend\n"
+  },
+  {
+    "spec_line": 581,
+    "source": "loop do\n  if test\n    str = <<-BLAH\n  this is a heredoc\n   nice eh?\n    BLAH\n    something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "loop do\n  next unless test\n  str = <<-BLAH\n  this is a heredoc\n   nice eh?\n  BLAH\n  something\nend\n"
+  },
+  {
+    "spec_line": 607,
+    "source": "loop do\n  if test\n    str = <<-BLAH\n      this is a heredoc\n    BLAH\n    something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "loop do\n  next unless test\n  str = <<-BLAH\n      this is a heredoc\n  BLAH\n  something\nend\n"
+  },
+  {
+    "spec_line": 631,
+    "source": "loop do\n  if test\n    puts \"first\n    second #{third}\n    fourth\"\n    something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "loop do\n  next unless test\n  puts \"first\n    second #{third}\n    fourth\"\n  something\nend\n"
+  },
+  {
+    "spec_line": 684,
+    "source": "[].each do\nend\n[].each { }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 692,
+    "source": "[].each do |o|\n  o == x ? y : z\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 701,
+    "source": "def foo\n  super(a, a) { a }\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 709,
+    "source": "until sup; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 713,
+    "source": "while sup; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 717,
+    "source": "for x in y; end",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 721,
+    "source": "loop do\n  if true\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 730,
+    "source": "loop do\n  ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 357,
+    "source": "array.each do |item|\n  if\n     condition\n    next if item.zero?\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "array.each do |item|\n  next unless condition\n    next if item.zero?\n    do_something\nend\n"
+  },
+  {
+    "spec_line": 378,
+    "source": "loop do\n  puts ''\n  break if o == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 387,
+    "source": "loop do\n  puts ''\n  return if o == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 396,
+    "source": "[].each do |o|\n  if o == 1\n    puts o\n  else\n    puts 'no'\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 408,
+    "source": "[].each do |o|\n  if foo\n    if o == 1\n      puts o\n    else\n      puts 'no'\n    end\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "[].each do |o|\n  puts o\n  if o == 1\n    puts o\n  else\n    puts 'no'\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 435,
+    "source": "arr.each do |e|\n  if something\n    work\n    work\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "arr.each do |e|\n  next unless something\n  work\n  work\n  work\nend\n"
+  },
+  {
+    "spec_line": 512,
+    "source": "[1, 2, 3, 4].each do |num|\n  if !opts.nil?\n    puts num\n    if num != 2\n      puts 'hello'\n      puts 'world'\n    end\n end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "[1, 2, 3, 4].each do |num|\n  next unless !opts.nil?\n  puts num\n  next unless num != 2\n  puts 'hello'\n  puts 'world'\nend\n"
+  },
+  {
+    "spec_line": 460,
+    "source": "[].each do |o|\n  puts o if o == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 357,
+    "source": "array.each do |item|\n  if\n     condition\n    next if item.zero?\n    do_something\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "array.each do |item|\n  next unless condition\n    next if item.zero?\n    do_something\nend\n"
+  },
+  {
+    "spec_line": 378,
+    "source": "loop do\n  puts ''\n  break unless o == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 387,
+    "source": "loop do\n  puts ''\n  return unless o == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 396,
+    "source": "[].each do |o|\n  unless o == 1\n    puts o\n  else\n    puts 'no'\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 408,
+    "source": "[].each do |o|\n  if foo\n    unless o == 1\n      puts o\n    else\n      puts 'no'\n    end\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 422,
+    "source": "[].each do |o|\n  puts o\n  unless o == 1\n    puts o\n  else\n    puts 'no'\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 435,
+    "source": "arr.each do |e|\n  unless something\n    work\n    work\n    work\n  end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "arr.each do |e|\n  next if something\n  work\n  work\n  work\nend\n"
+  },
+  {
+    "spec_line": 512,
+    "source": "[1, 2, 3, 4].each do |num|\n  if !opts.nil?\n    puts num\n    if num != 2\n      puts 'hello'\n      puts 'world'\n    end\n end\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Use `next` to skip iteration."
+    ],
+    "correction": "[1, 2, 3, 4].each do |num|\n  next unless !opts.nil?\n  puts num\n  next unless num != 2\n  puts 'hello'\n  puts 'world'\nend\n"
+  },
+  {
+    "spec_line": 460,
+    "source": "[].each do |o|\n  puts o unless o == 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 741,
+    "source": "arr.each do |e|\n  if something\n    work\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

@@ -1,0 +1,760 @@
+{
+  "calls": [
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 5,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName registers an offense and corrects for `#+` when argument is not named other",
+      "source": "def +(foo); end\n",
+      "positions": [
+        [
+          1,
+          7
+        ]
+      ],
+      "messages": [
+        "When defining the `+` operator, name its argument `other`."
+      ],
+      "correction": "def +(other); end\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 16,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName registers an offense and corrects for `#eql?` when argument is not named other",
+      "source": "def eql?(foo); end\n",
+      "positions": [
+        [
+          1,
+          10
+        ]
+      ],
+      "messages": [
+        "When defining the `eql?` operator, name its argument `other`."
+      ],
+      "correction": "def eql?(other); end\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 27,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName registers an offense and corrects for `#equal?` when argument is not named other",
+      "source": "def equal?(foo); end\n",
+      "positions": [
+        [
+          1,
+          12
+        ]
+      ],
+      "messages": [
+        "When defining the `equal?` operator, name its argument `other`."
+      ],
+      "correction": "def equal?(other); end\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 38,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName works properly even if the argument not surrounded with braces",
+      "source": "def + another\n  another\nend\n",
+      "positions": [
+        [
+          1,
+          7
+        ]
+      ],
+      "messages": [
+        "When defining the `+` operator, name its argument `other`."
+      ],
+      "correction": "def + other\n  other\nend\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 53,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName registers an offense and corrects when argument is referenced in method body",
+      "source": "def +(arg)\n  lvar = 'lvar'\n  do_something(arg, lvar)\nend\n",
+      "positions": [
+        [
+          1,
+          7
+        ]
+      ],
+      "messages": [
+        "When defining the `+` operator, name its argument `other`."
+      ],
+      "correction": "def +(other)\n  lvar = 'lvar'\n  do_something(other, lvar)\nend\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 70,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not rename a reference to a block parameter that shadows the operator argument",
+      "source": "def +(foo)\n  result = foo\n  [1, 2, 3].each do |foo|\n    result += foo\n  end\n  result\nend\n",
+      "positions": [
+        [
+          1,
+          7
+        ]
+      ],
+      "messages": [
+        "When defining the `+` operator, name its argument `other`."
+      ],
+      "correction": "def +(other)\n  result = other\n  [1, 2, 3].each do |foo|\n    result += foo\n  end\n  result\nend\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 93,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName registers an offense and corrects when assigned to argument in method body",
+      "source": "def +(arg)\n  arg = do_something\nend\n",
+      "positions": [
+        [
+          1,
+          7
+        ]
+      ],
+      "messages": [
+        "When defining the `+` operator, name its argument `other`."
+      ],
+      "correction": "def +(other)\n  other = do_something\nend\n"
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 108,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for arg named other",
+      "source": "def +(other)\n  other\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 116,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for arg named _other",
+      "source": "def <=>(_other)\n  0\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 124,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for []",
+      "source": "def [](index)\n  other\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 132,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for []=",
+      "source": "def []=(index, value)\n  other\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 140,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for <<",
+      "source": "def <<(cop)\n  other\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 148,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for ===",
+      "source": "def ===(string)\n  string\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 156,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for multibyte character method name",
+      "source": "def ｄｏ＿ｓｏｍｅｔｈｉｎｇ(string)\n  string\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 164,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for non binary operators",
+      "source": "def -@; end\n              # This + is not a unary operator. It can only be\n              # called with dot notation.\ndef +; end\ndef *(a, b); end # Quite strange, but legal ruby.\ndef `(cmd); end\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/BinaryOperatorParameterName",
+      "spec_line": 175,
+      "description": "RuboCop::Cop::Naming::BinaryOperatorParameterName does not register an offense for the match operator",
+      "source": "def =~(regexp); end\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 8,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable registers an offense when using `exc`",
+      "source": "begin\n  something\nrescue MyException => exc\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          23
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `exc`."
+      ],
+      "correction": "begin\n  something\nrescue MyException => e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 27,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable registers an offense when using `_exc`",
+      "source": "begin\n  something\nrescue MyException => _exc\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          23
+        ]
+      ],
+      "messages": [
+        "Use `_e` instead of `_exc`."
+      ],
+      "correction": "begin\n  something\nrescue MyException => _e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 46,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable registers an offense when using `exc` and renames its usage",
+      "source": "begin\n  something\nrescue MyException => exc\n  exc\nend\n",
+      "positions": [
+        [
+          3,
+          23
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `exc`."
+      ],
+      "correction": "begin\n  something\nrescue MyException => e\n  e\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 65,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable registers offenses when using `foo` and `bar` in multiple rescues",
+      "source": "begin\n  something\nrescue FooException => foo\n  # do something\nrescue BarException => bar\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          24
+        ],
+        [
+          5,
+          24
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `foo`.",
+        "Use `e` instead of `bar`."
+      ],
+      "correction": "begin\n  something\nrescue FooException => e\n  # do something\nrescue BarException => e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 89,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable registers an offense when using `error` for an explicit hash value",
+      "source": "begin\nrescue => error\n  do_something(error: error)\nend\n",
+      "positions": [
+        [
+          2,
+          11
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `error`."
+      ],
+      "correction": "begin\nrescue => e\n  do_something(error: e)\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 106,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable registers an offense when using `error` for an omitted hash value",
+      "source": "begin\nrescue => error\n  do_something(error:)\nend\n",
+      "positions": [
+        [
+          2,
+          11
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `error`."
+      ],
+      "correction": "begin\nrescue => e\n  do_something(error: e)\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 123,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable does not register an offense when using `e`",
+      "source": "begin\n  something\nrescue MyException => e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 133,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable does not register an offense when using `_e`",
+      "source": "begin\n  something\nrescue MyException => _e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 143,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with `Exception` variable does not register an offense when using _e followed by e",
+      "source": "begin\n  something\nrescue MyException => _e\n  # do something\nrescue AnotherException => e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 157,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue without `Exception` variable does not register an offense",
+      "source": "begin\n  something\nrescue MyException\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 169,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue shadowing an external variable does not register an offense",
+      "source": "e = 'error message'\nbegin\n  something\nrescue StandardError => e1\n  log(e, e1)\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 182,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with lower letters class name does not register an offense",
+      "source": "begin\n  something\nrescue my_exception\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 194,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with method as `Exception` does not register an offense without variable name",
+      "source": "begin\n  something\nrescue ActiveSupport::JSON.my_method\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 204,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with method as `Exception` does not register an offense with expected variable name",
+      "source": "begin\n  something\nrescue ActiveSupport::JSON.my_method => e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 214,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with method as `Exception` registers an offense with unexpected variable name",
+      "source": "begin\n  something\nrescue ActiveSupport::JSON.my_method => exc\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          41
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `exc`."
+      ],
+      "correction": "begin\n  something\nrescue ActiveSupport::JSON.my_method => e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 235,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with splat operator as `Exception` list does not register an offense without variable name",
+      "source": "begin\n  something\nrescue *handled\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 245,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with splat operator as `Exception` list does not register an offense with expected variable name",
+      "source": "begin\n  something\nrescue *handled => e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 255,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with explicit rescue with splat operator as `Exception` list registers an offense with unexpected variable name",
+      "source": "begin\n  something\nrescue *handled => exc\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          20
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `exc`."
+      ],
+      "correction": "begin\n  something\nrescue *handled => e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 278,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with implicit rescue with `Exception` variable registers an offense when using `exc`",
+      "source": "begin\n  something\nrescue => exc\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          11
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `exc`."
+      ],
+      "correction": "begin\n  something\nrescue => e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 297,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with implicit rescue with `Exception` variable registers an offense when using `_exc`",
+      "source": "begin\n  something\nrescue => _exc\n  # do something\nend\n",
+      "positions": [
+        [
+          3,
+          11
+        ]
+      ],
+      "messages": [
+        "Use `_e` instead of `_exc`."
+      ],
+      "correction": "begin\n  something\nrescue => _e\n  # do something\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 316,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with implicit rescue with `Exception` variable does not register an offense when using `e`",
+      "source": "begin\n  something\nrescue => e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 326,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with implicit rescue with `Exception` variable does not register an offense when using `_e`",
+      "source": "begin\n  something\nrescue => _e\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 338,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with implicit rescue without `Exception` variable does not register an offense",
+      "source": "begin\n  something\nrescue\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 351,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with variable being referenced renames the variable references when autocorrecting",
+      "source": "begin\n  get something\nrescue ActiveResource::Redirection => redirection\n  redirect_to redirection.response['Location']\nend\n",
+      "positions": [
+        [
+          3,
+          39
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `redirection`."
+      ],
+      "correction": "begin\n  get something\nrescue ActiveResource::Redirection => e\n  redirect_to e.response['Location']\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 372,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config when the variable is reassigned only corrects uses of the exception",
+      "source": "def main\n  raise\nrescue StandardError => error\n  error = {\n    error_message: error.message\n  }\n  puts error\nend\n",
+      "positions": [
+        [
+          3,
+          25
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `error`."
+      ],
+      "correction": "def main\n  raise\nrescue StandardError => e\n  error = {\n    error_message: e.message\n  }\n  puts error\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 397,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config when the variable is reassigned only corrects the exception variable",
+      "source": "def main\n  raise\nrescue StandardError => error\n  message = error.message\n  puts message\nend\n",
+      "positions": [
+        [
+          3,
+          25
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `error`."
+      ],
+      "correction": "def main\n  raise\nrescue StandardError => e\n  message = e.message\n  puts message\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 418,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config when the variable is reassigned corrects only up to the reassignment, leaving later references untouched",
+      "source": "begin\n  do_something\nrescue StandardError => error\n  error = build_message(error)\nend\nputs error\n",
+      "positions": [
+        [
+          3,
+          25
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `error`."
+      ],
+      "correction": "begin\n  do_something\nrescue StandardError => e\n  error = build_message(e)\nend\nputs error\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 441,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config when the variable is reassigned using multiple assignment only corrects uses of the exception",
+      "source": "def main\n  raise\nrescue StandardError => error\n  error, foo = 1, error\n  puts error\nend\n",
+      "positions": [
+        [
+          3,
+          25
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `error`."
+      ],
+      "correction": "def main\n  raise\nrescue StandardError => e\n  error, foo = 1, e\n  puts error\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 464,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with multiple branches registers and corrects each offense",
+      "source": "begin\n  something\nrescue MyException => exc\n  # do something\nrescue OtherException => exc\n  # do something else\nend\n",
+      "positions": [
+        [
+          3,
+          23
+        ],
+        [
+          5,
+          26
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `exc`.",
+        "Use `e` instead of `exc`."
+      ],
+      "correction": "begin\n  something\nrescue MyException => e\n  # do something\nrescue OtherException => e\n  # do something else\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 490,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config with nested rescues handles it",
+      "source": "begin\nrescue StandardError => e1\n  begin\n    log(e1)\n  rescue StandardError => e2\n    log(e1, e2)\n  end\nend\n",
+      "positions": [
+        [
+          2,
+          25
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `e1`."
+      ],
+      "correction": "begin\nrescue StandardError => e\n  begin\n    log(e)\n  rescue StandardError => e2\n    log(e, e2)\n  end\nend\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 517,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config when the variable is referenced after `rescue` statement handles it",
+      "source": "begin\n  something\nrescue StandardError => e1\nend\nfoo(e1)\n",
+      "positions": [
+        [
+          3,
+          25
+        ]
+      ],
+      "messages": [
+        "Use `e` instead of `e1`."
+      ],
+      "correction": "begin\n  something\nrescue StandardError => e\nend\nfoo(e)\n"
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 538,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with default config when exception is assigned with writer method does not register an offense",
+      "source": "begin\n  something\nrescue => storage.exception\n  # do something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "correction": null
+    }
+  ],
+  "excluded": [
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 553,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with the `PreferredName` setup registers an offense when using `e`",
+      "source": "begin\n  something\nrescue MyException => e\n  # do something\nend\n",
+      "reason": [
+        "Naming/RescuedExceptionsVariableName PreferredName=\"exception\""
+      ]
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 572,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with the `PreferredName` setup registers an offense when using `_e`",
+      "source": "begin\n  something\nrescue MyException => _e\n  # do something\nend\n",
+      "reason": [
+        "Naming/RescuedExceptionsVariableName PreferredName=\"exception\""
+      ]
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 591,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with the `PreferredName` setup registers offenses when using `foo` and `bar` in multiple rescues",
+      "source": "begin\n  something\nrescue FooException => foo\n  # do something\nrescue BarException => bar\n  # do something\nend\n",
+      "reason": [
+        "Naming/RescuedExceptionsVariableName PreferredName=\"exception\""
+      ]
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 615,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with the `PreferredName` setup does not register an offense when using `exception`",
+      "source": "begin\n  something\nrescue MyException => exception\n  # do something\nend\n",
+      "reason": [
+        "Naming/RescuedExceptionsVariableName PreferredName=\"exception\""
+      ]
+    },
+    {
+      "cop": "Naming/RescuedExceptionsVariableName",
+      "spec_line": 625,
+      "description": "RuboCop::Cop::Naming::RescuedExceptionsVariableName with the `PreferredName` setup does not register an offense when using `_exception`",
+      "source": "begin\n  something\nrescue MyException => _exception\n  # do something\nend\n",
+      "reason": [
+        "Naming/RescuedExceptionsVariableName PreferredName=\"exception\""
+      ]
+    }
+  ]
+}

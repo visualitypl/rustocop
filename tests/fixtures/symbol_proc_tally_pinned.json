@@ -1,0 +1,1381 @@
+[
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 5,
+    "source": "coll.map { |e| e.upcase }\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Pass `&:upcase` as an argument to `map` instead of a block."
+    ],
+    "correction": "coll.map(&:upcase)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 16,
+    "source": "foo.map{ |a| a.nil? }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Pass `&:nil?` as an argument to `map` instead of a block."
+    ],
+    "correction": "foo.map(&:nil?)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 27,
+    "source": "coll&.map { |e| e.upcase }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Pass `&:upcase` as an argument to `map` instead of a block."
+    ],
+    "correction": "coll&.map(&:upcase)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 38,
+    "source": "something.map { |x| -x }\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Pass `&:-@` as an argument to `map` instead of a block."
+    ],
+    "correction": "something.map(&:-@)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 49,
+    "source": "something { |x, y| x.method }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 215,
+    "source": "something { x.method }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 219,
+    "source": "something { |x| }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 223,
+    "source": "something { |x| x.method; something_else }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 227,
+    "source": "something { |x| y.method }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 231,
+    "source": "something { |&x| x.call }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 235,
+    "source": "something { |*x| x.first }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 239,
+    "source": "something { |x,| x.first }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 243,
+    "source": "something { |_x| y.call }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 247,
+    "source": "y = Y.new\nsomething { |_x| y.call }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 267,
+    "source": "coll.map { |s| s.upcase }.map { |s| s.downcase }\n",
+    "positions": [
+      [
+        1,
+        10
+      ],
+      [
+        1,
+        31
+      ]
+    ],
+    "messages": [
+      "Pass `&:upcase` as an argument to `map` instead of a block.",
+      "Pass `&:downcase` as an argument to `map` instead of a block."
+    ],
+    "correction": "coll.map(&:upcase).map(&:downcase)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 279,
+    "source": "coll.map(   ) { |s| s.upcase }\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Pass `&:upcase` as an argument to `map` instead of a block."
+    ],
+    "correction": "coll.map(&:upcase)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 290,
+    "source": "coll.map { |s| bare_method }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 296,
+    "source": "[1, 2, 3].reject {|item| item.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `reject` instead of a block."
+    ],
+    "correction": "[1, 2, 3].reject(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 307,
+    "source": "[1, 2, 3].reject {|item| item.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `reject` instead of a block."
+    ],
+    "correction": "[1, 2, 3].reject(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 318,
+    "source": "{foo: 42}.reject {|item| item.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 296,
+    "source": "[1, 2, 3].select {|item| item.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `select` instead of a block."
+    ],
+    "correction": "[1, 2, 3].select(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 307,
+    "source": "[1, 2, 3].select {|item| item.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `select` instead of a block."
+    ],
+    "correction": "[1, 2, 3].select(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 318,
+    "source": "{foo: 42}.select {|item| item.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 326,
+    "source": "{foo: 42}.min {|item| item.foo }\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `min` instead of a block."
+    ],
+    "correction": "{foo: 42}.min(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 337,
+    "source": "[1, 2, 3].min {|item| item.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 326,
+    "source": "{foo: 42}.max {|item| item.foo }\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `max` instead of a block."
+    ],
+    "correction": "{foo: 42}.max(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 337,
+    "source": "[1, 2, 3].max {|item| item.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 475,
+    "source": "mail(\n  to: 'foo',\n  subject: 'bar',\n) { |format| format.text }\n",
+    "positions": [
+      [
+        4,
+        3
+      ]
+    ],
+    "messages": [
+      "Pass `&:text` as an argument to `mail` instead of a block."
+    ],
+    "correction": "mail(\n  to: 'foo',\n  subject: 'bar', &:text\n)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 80,
+    "source": "->(x) { x.method }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `lambda(&:method)` instead of `->(x) { x.method }`."
+    ],
+    "correction": "lambda(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 91,
+    "source": "->(arg) do\n  arg.do_something\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `lambda(&:do_something)` instead of a lambda literal with a block."
+    ],
+    "correction": "lambda(&:do_something)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 104,
+    "source": "lambda { |x| x.method }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `lambda` instead of a block."
+    ],
+    "correction": "lambda(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 115,
+    "source": "proc { |x| x.method }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `proc` instead of a block."
+    ],
+    "correction": "proc(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 126,
+    "source": "Proc.new { |x| x.method }\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `new` instead of a block."
+    ],
+    "correction": "Proc.new(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 137,
+    "source": "::Proc.new { |x| x.method }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `new` instead of a block."
+    ],
+    "correction": "::Proc.new(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 149,
+    "source": "case value\nin ->(x) { x.positive? } then 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 157,
+    "source": "case value\nin ->(x) do\n  x.positive?\nend\n  1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 168,
+    "source": "case value\nin [Integer, -> { _1.positive? }] then 1\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 176,
+    "source": "value in ->(x) { x.positive? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 182,
+    "source": "case value\nin ^(->(x) { x.positive? }) then 1\nend\n",
+    "positions": [
+      [
+        2,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `lambda(&:positive?)` instead of `->(x) { x.positive? }`."
+    ],
+    "correction": "case value\nin ^(lambda(&:positive?)) then 1\nend\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 255,
+    "source": "method(one, 2) { |x| x.test }\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Pass `&:test` as an argument to `method` instead of a block."
+    ],
+    "correction": "method(one, 2, &:test)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 364,
+    "source": "coll.map { |e| e.upcase }\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Pass `&:upcase` as an argument to `map` instead of a block."
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 377,
+    "source": "do_something(one, two) { |x| x.test }\n",
+    "positions": [
+      [
+        1,
+        24
+      ]
+    ],
+    "messages": [
+      "Pass `&:test` as an argument to `do_something` instead of a block."
+    ],
+    "correction": "do_something(one, two, &:test)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 390,
+    "source": "super(one, two) { |x| x.test }\n",
+    "positions": [
+      [
+        1,
+        17
+      ]
+    ],
+    "messages": [
+      "Pass `&:test` as an argument to `super` instead of a block."
+    ],
+    "correction": "super(one, two, &:test)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 407,
+    "source": "# comment a\nsomething do |e|\n  e.upcase\nend # comment b\n# comment c\n",
+    "positions": [
+      [
+        2,
+        11
+      ]
+    ],
+    "messages": [
+      "Pass `&:upcase` as an argument to `something` instead of a block."
+    ],
+    "correction": "# comment a\nsomething(&:upcase) # comment b\n# comment c\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 463,
+    "source": "super { |x| x.test }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Pass `&:test` as an argument to `super` instead of a block."
+    ],
+    "correction": "super(&:test)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 494,
+    "source": "[1, 2, 3].reject { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `reject` instead of a block."
+    ],
+    "correction": "[1, 2, 3].reject(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 505,
+    "source": "do_something.reject { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `reject` instead of a block."
+    ],
+    "correction": "do_something.reject(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 516,
+    "source": "{foo: 42}.reject { _1.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 494,
+    "source": "[1, 2, 3].select { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `select` instead of a block."
+    ],
+    "correction": "[1, 2, 3].select(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 505,
+    "source": "do_something.select { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `select` instead of a block."
+    ],
+    "correction": "do_something.select(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 516,
+    "source": "{foo: 42}.select { _1.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 524,
+    "source": "{foo: 42}.min { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `min` instead of a block."
+    ],
+    "correction": "{foo: 42}.min(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 535,
+    "source": "[1, 2, 3].min { _1.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 524,
+    "source": "{foo: 42}.max { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        15
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `max` instead of a block."
+    ],
+    "correction": "{foo: 42}.max(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 535,
+    "source": "[1, 2, 3].max { _1.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 542,
+    "source": "something { _1.foo }\n",
+    "positions": [
+      [
+        1,
+        11
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `something` instead of a block."
+    ],
+    "correction": "something(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 553,
+    "source": "something { _1 + _2 }",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 560,
+    "source": "[1, 2, 3].reject { it.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `reject` instead of a block."
+    ],
+    "correction": "[1, 2, 3].reject(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 571,
+    "source": "do_something.reject { it.foo }\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `reject` instead of a block."
+    ],
+    "correction": "do_something.reject(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 582,
+    "source": "{foo: 42}.reject { it.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 560,
+    "source": "[1, 2, 3].select { it.foo }\n",
+    "positions": [
+      [
+        1,
+        18
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `select` instead of a block."
+    ],
+    "correction": "[1, 2, 3].select(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 571,
+    "source": "do_something.select { it.foo }\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Pass `&:foo` as an argument to `select` instead of a block."
+    ],
+    "correction": "do_something.select(&:foo)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 582,
+    "source": "{foo: 42}.select { it.foo }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 620,
+    "source": "-> { _1.method }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `lambda(&:method)` instead of `-> { _1.method }`."
+    ],
+    "correction": "lambda(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 631,
+    "source": "-> { it.method }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `lambda(&:method)` instead of `-> { it.method }`."
+    ],
+    "correction": "lambda(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 642,
+    "source": "proc { _1.method }\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `proc` instead of a block."
+    ],
+    "correction": "proc(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 653,
+    "source": "something { _2.first }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 659,
+    "source": "Proc.new { _1.method }\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `new` instead of a block."
+    ],
+    "correction": "Proc.new(&:method)\n"
+  },
+  {
+    "cop": "Style/SymbolProc",
+    "spec_line": 670,
+    "source": "::Proc.new { _1.method }\n",
+    "positions": [
+      [
+        1,
+        12
+      ]
+    ],
+    "messages": [
+      "Pass `&:method` as an argument to `new` instead of a block."
+    ],
+    "correction": "::Proc.new(&:method)\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 7,
+    "source": "array.each_with_object(Hash.new(0)) { |item, counts| counts[item] += 1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `each_with_object`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 18,
+    "source": "array&.each_with_object(Hash.new(0)) { |item, counts| counts[item] += 1 }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `each_with_object`."
+    ],
+    "correction": "array&.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 29,
+    "source": "array.each_with_object(Hash.new(0)) do |item, counts|\n  counts[item] += 1\nend\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `each_with_object`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 42,
+    "source": "each_with_object(Hash.new(0)) { |item, counts| counts[item] += 1 }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `each_with_object`."
+    ],
+    "correction": "tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 53,
+    "source": "array.each_with_object(::Hash.new(0)) { |x, h| h[x] += 1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `each_with_object`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 64,
+    "source": "array.each_with_object(Hash.new(0)) { _2[_1] += 1 }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `each_with_object`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 75,
+    "source": "array.each_with_object(Hash.new(0)) { |item, counts| counts[item] += 2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 81,
+    "source": "array.each_with_object(Hash.new(0)) { |item, counts| counts[item.to_s] += 1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 87,
+    "source": "array.each_with_object({}) { |item, counts| counts[item] = true }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 93,
+    "source": "array.each_with_object(Hash.new(0)) do |item, counts|\n  counts[item] += 1\n  puts item\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 102,
+    "source": "array.each_with_object(Hash.new(0)) { _2[_1.to_s] += 1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 111,
+    "source": "array.group_by(&:itself).transform_values(&:count)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 111,
+    "source": "array.group_by(&:itself).transform_values(&:size)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 111,
+    "source": "array.group_by(&:itself).transform_values(&:length)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 123,
+    "source": "array&.group_by(&:itself)&.transform_values(&:count)\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array&.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 134,
+    "source": "group_by(&:itself).transform_values(&:count)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 145,
+    "source": "array.group_by(&:name).transform_values(&:count)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 151,
+    "source": "array.group_by(&:itself).transform_values(&:sum)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 159,
+    "source": "array.group_by { |x| x }.transform_values(&:count)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 170,
+    "source": "array.group_by { _1 }.transform_values(&:count)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 194,
+    "source": "array.group_by { |x| x.name }.transform_values(&:count)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 182,
+    "source": "array.group_by { it }.transform_values(&:count)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 203,
+    "source": "array.group_by { |x| x }.transform_values { |v| v.count }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 203,
+    "source": "array.group_by { |x| x }.transform_values { |v| v.size }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 203,
+    "source": "array.group_by { |x| x }.transform_values { |v| v.length }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 215,
+    "source": "array.group_by(&:itself).transform_values { |v| v.count }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 226,
+    "source": "array.group_by(&:itself).transform_values { _1.count }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 250,
+    "source": "array.group_by { |x| x }.transform_values { |v| v.sum }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 256,
+    "source": "array.group_by { |x| x }.transform_values { |v| v.count * 2 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/TallyMethod",
+    "spec_line": 238,
+    "source": "array.group_by(&:itself).transform_values { it.count }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Use `tally` instead of `group_by` and `transform_values`."
+    ],
+    "correction": "array.tally\n"
+  }
+]

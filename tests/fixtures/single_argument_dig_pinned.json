@@ -1,0 +1,255 @@
+[
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 7,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over literal with single argument registers an offense and corrects unsuitable use of dig",
+    "source": "{ key: 'value' }.dig(:key)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `{ key: 'value' }[:key]` instead of `{ key: 'value' }.dig(:key)`."
+    ],
+    "correction": "{ key: 'value' }[:key]\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 18,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over literal with single argument does not register an offense unsuitable use of dig with safe navigation operator",
+    "source": "{ key: 'value' }&.dig(:key)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 26,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over literal with multiple arguments does not register an offense",
+    "source": "{ key1: { key2: 'value' } }.dig(:key1, :key2)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 34,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over literal when using dig with splat operator does not register an offense",
+    "source": "{ key1: { key2: 'value' } }.dig(*%i[key1 key2])\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 44,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig >= Ruby 2.7 when using dig with arguments forwarding does not register an offense",
+    "source": "def foo(...)\n  { key: 'value' }.dig(...)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 56,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig >= Ruby 3.1 when using dig with anonymous block argument forwarding does not register an offense",
+    "source": "def foo(&)\n  { key: 'value' }.dig(&)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 68,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig Ruby <= 3.2 when using dig with anonymous rest argument forwarding does not register an offense",
+    "source": "def foo(*)\n  { key: 'value' }.dig(*)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 78,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig Ruby <= 3.2 when using dig with anonymous keyword argument forwarding does not register an offense",
+    "source": "def foo(**)\n  { key: 'value' }.dig(**)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 90,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over a variable as caller with single argument registers an offense and corrects unsuitable use of dig",
+    "source": "data.dig(var)\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `data[var]` instead of `data.dig(var)`."
+    ],
+    "correction": "data[var]\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 103,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over a variable as caller with multiple arguments does not register an offense",
+    "source": "data.dig(var1, var2)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 111,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over a variable as caller when using multiple `dig` in a method chain registers and corrects an offense",
+    "source": "data.dig(var1)[0].dig(var2)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `data[var1]` instead of `data.dig(var1)`.",
+      "Use `data.dig(var1)[0][var2]` instead of `data.dig(var1)[0].dig(var2)`."
+    ],
+    "correction": "data.dig(var1)[0][var2]\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 125,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig dig over a variable as caller when using dig with splat operator does not register an offense",
+    "source": "data.dig(*[var1, var2])\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 134,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig when without a receiver does not register an offense",
+    "source": "dig(:key)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 147,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig when there is a chain of digs and `Style/DigChain` is enabled does not register an offense for chained `dig` calls",
+    "source": "data.dig(var1).dig(var2)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+      "Style/DigChain": {
+        "enabled": true
+      }
+    }
+  },
+  {
+    "cop": "Style/SingleArgumentDig",
+    "spec_line": 159,
+    "description": "RuboCop::Cop::Style::SingleArgumentDig when there is a chain of digs and `Style/DigChain` is not enabled does registers an offense for chained `dig` calls",
+    "source": "data.dig(var1).dig(var2)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `data[var1]` instead of `data.dig(var1)`.",
+      "Use `data.dig(var1)[var2]` instead of `data.dig(var1).dig(var2)`."
+    ],
+    "correction": null,
+    "toml": {
+      "Style/DigChain": {
+        "enabled": false
+      }
+    }
+  }
+]

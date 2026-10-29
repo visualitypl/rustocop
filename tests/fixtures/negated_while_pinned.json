@@ -1,0 +1,170 @@
+[
+  {
+    "spec_line": 5,
+    "source": "while !a_condition\n  some_method\nend\nsome_method while !a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `until` over `while` for negative conditions.",
+      "Favor `until` over `while` for negative conditions."
+    ],
+    "correction": "until a_condition\n  some_method\nend\nsome_method until a_condition\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 23,
+    "source": "until !a_condition\n  some_method\nend\nsome_method until !a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `while` over `until` for negative conditions.",
+      "Favor `while` over `until` for negative conditions."
+    ],
+    "correction": "while a_condition\n  some_method\nend\nsome_method while a_condition\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 41,
+    "source": "while (not a_condition)\n  some_method\nend\nsome_method while not a_condition\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `until` over `while` for negative conditions.",
+      "Favor `until` over `while` for negative conditions."
+    ],
+    "correction": "until (a_condition)\n  some_method\nend\nsome_method until a_condition\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 59,
+    "source": "until (var = foo; !bar)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `while` over `until` for negative conditions."
+    ],
+    "correction": "while (var = foo; bar)\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 72,
+    "source": "while !a_condition && another_condition\n  some_method\nend\nwhile not a_condition or another_condition\n  some_method\nend\nsome_method while not a_condition or other_cond\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 84,
+    "source": "while !!a_condition\n  some_method\nend\nsome_method while !!a_condition\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 93,
+    "source": "something while !x.even?\nsomething while(!x.even?)\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `until` over `while` for negative conditions.",
+      "Favor `until` over `while` for negative conditions."
+    ],
+    "correction": "something until x.even?\nsomething until(x.even?)\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 107,
+    "source": "something until !x.even?\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Favor `while` over `until` for negative conditions."
+    ],
+    "correction": "something while x.even?\n",
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 118,
+    "source": "while ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "spec_line": 125,
+    "source": "until ()\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  }
+]

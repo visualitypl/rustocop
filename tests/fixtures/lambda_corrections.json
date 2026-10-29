@@ -1,0 +1,117 @@
+[
+  {
+    "line": 462,
+    "before": "f = lambda { |x| x }\n",
+    "after": "f = ->(x) { x }\n"
+  },
+  {
+    "line": 475,
+    "before": "f = lambda { x }\n",
+    "after": "f = -> { x }\n"
+  },
+  {
+    "line": 510,
+    "before": "f = lambda { _1 }\n",
+    "after": "f = -> { _1 }\n"
+  },
+  {
+    "line": 523,
+    "before": "-> {\n  _1.do_something\n}\n",
+    "after": "lambda {\n  _1.do_something\n}\n"
+  },
+  {
+    "line": 563,
+    "before": "f = lambda { it }\n",
+    "after": "f = -> { it }\n"
+  },
+  {
+    "line": 576,
+    "before": "-> {\n  it.do_something\n}\n",
+    "after": "lambda {\n  it.do_something\n}\n"
+  },
+  {
+    "line": 615,
+    "before": "f = ->(x) do\n  x\nend\n",
+    "after": "f = lambda do |x|\n  x\nend\n"
+  },
+  {
+    "line": 632,
+    "before": "f = -> do\n  x\nend\n",
+    "after": "f = lambda do\n  x\nend\n"
+  },
+  {
+    "line": 656,
+    "before": "->(x)do\n  x\nend\n",
+    "after": "lambda do |x|\n  x\nend\n"
+  },
+  {
+    "line": 673,
+    "before": "-> (x)do\n  x\nend\n",
+    "after": "lambda do |x|\n  x\nend\n"
+  },
+  {
+    "line": 690,
+    "before": "->(x) do\n  x\nend\n",
+    "after": "lambda do |x|\n  x\nend\n"
+  },
+  {
+    "line": 708,
+    "before": "->()do\n  x\nend\n",
+    "after": "lambda do\n  x\nend\n"
+  },
+  {
+    "line": 725,
+    "before": "-> ()do\n  x\nend\n",
+    "after": "lambda do\n  x\nend\n"
+  },
+  {
+    "line": 742,
+    "before": "->do\n  x\nend\n",
+    "after": "lambda do\n  x\nend\n"
+  },
+  {
+    "line": 759,
+    "before": "-> hello do\n  puts hello\nend\n",
+    "after": "lambda do |hello|\n  puts hello\nend\n"
+  },
+  {
+    "line": 776,
+    "before": "->   hello  do\n  puts hello\nend\n",
+    "after": "lambda do |hello|\n  puts hello\nend\n"
+  },
+  {
+    "line": 793,
+    "before": "->   hello, user  do\n  puts hello\nend\n",
+    "after": "lambda do |hello, user|\n  puts hello\nend\n"
+  },
+  {
+    "line": 818,
+    "before": "has_many :kittens, -> do\n  where(cats: Cat.young.where_values_hash)\nend, source: cats\n",
+    "after": "has_many :kittens, lambda {\n  where(cats: Cat.young.where_values_hash)\n}, source: cats\n"
+  },
+  {
+    "line": 859,
+    "before": "do_something :foo, ->(x) do\n  x.bar rescue nil\nend\n",
+    "after": "do_something :foo, lambda { |x|\n  x.bar rescue nil\n}\n"
+  },
+  {
+    "line": 876,
+    "before": "do_something(:foo, ->(x) do\n  x.bar\nrescue\n  nil\nend)\n",
+    "after": "do_something(:foo, lambda do |x|\n  x.bar\nrescue\n  nil\nend)\n"
+  },
+  {
+    "line": 897,
+    "before": "has_many opt: -> do\n  where(cats: Cat.young.where_values_hash)\nend\n",
+    "after": "has_many opt: lambda {\n  where(cats: Cat.young.where_values_hash)\n}\n"
+  },
+  {
+    "line": 914,
+    "before": "has_many opt: -> {\n  where(cats: Cat.young.where_values_hash)\n}\n",
+    "after": "has_many opt: lambda {\n  where(cats: Cat.young.where_values_hash)\n}\n"
+  },
+  {
+    "line": 931,
+    "before": "has_many(\n  opt: -> do\n    where(cats: Cat.young.where_values_hash)\n  end\n)\n",
+    "after": "has_many(\n  opt: lambda do\n    where(cats: Cat.young.where_values_hash)\n  end\n)\n"
+  }
+]

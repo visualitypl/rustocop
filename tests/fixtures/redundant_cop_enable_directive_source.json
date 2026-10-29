@@ -1,0 +1,71 @@
+[
+  {
+    "source_line": 14,
+    "source": "# bad\nfoo = 1\n# rubocop:enable Layout/LineLength\n",
+    "positions": [
+      [
+        3,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of Layout/LineLength."
+    ]
+  },
+  {
+    "source_line": 18,
+    "source": "# good\nfoo = 1\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 21,
+    "source": "# bad\n# rubocop:disable Style/StringLiterals\nfoo = \"1\"\n# rubocop:enable Style/StringLiterals\nbaz\n# rubocop:enable all\n",
+    "positions": [
+      [
+        6,
+        18
+      ]
+    ],
+    "messages": [
+      "Unnecessary enabling of all cops."
+    ]
+  },
+  {
+    "source_line": 28,
+    "source": "# good\n# rubocop:disable Style/StringLiterals\nfoo = \"1\"\n# rubocop:enable all\nbaz\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  },
+  {
+    "source_line": 34,
+    "source": "# bad\nfoo = 1\n# rubocop:pop\n",
+    "positions": [
+      [
+        3,
+        1
+      ]
+    ],
+    "messages": [
+      "Unnecessary `rubocop:pop` without a matching `rubocop:push`."
+    ]
+  },
+  {
+    "source_line": 38,
+    "source": "# good\n# rubocop:push -Style/StringLiterals\nfoo = \"1\"\n# rubocop:pop\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ]
+  }
+]

@@ -1,0 +1,1013 @@
+[
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 5,
+    "description": "RuboCop::Cop::Style::RedundantSelf reports an offense a self receiver on an rvalue",
+    "source": "a = self.b\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "a = b\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 16,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when receiver and lvalue have the same name",
+    "source": "a = self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 20,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when receiver and lvalue have the same name in or-assignment",
+    "source": "foo ||= self.foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 24,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when receiver and lvalue have the same name in and-assignment",
+    "source": "foo &&= self.foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 28,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts when nested receiver and lvalue have the same name",
+    "source": "a = self.a || b || c",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 32,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when receiver and multiple assigned lvalue have the same name",
+    "source": "a, b = self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 36,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when lvasgn name is used in `if`",
+    "source": "a = self.a if self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 40,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when masgn name is used in `if`",
+    "source": "a, b = self.a if self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 44,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when lvasgn name is used in nested `if`",
+    "source": "if self.a\n  a = self.a\nend if self.a\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 52,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when masgn name is used in nested `if`",
+    "source": "if self.a\n  a, b = self.a\nend if self.a\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 60,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when lvasgn name is used in `unless`",
+    "source": "a = self.a unless self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 64,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when masgn name is used in `unless`",
+    "source": "a, b = self.a unless self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 68,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when lvasgn name is used in `while`",
+    "source": "a = self.a while self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 72,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when masgn name is used in `while`",
+    "source": "a, b = self.a while self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 76,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when lvasgn name is used in `until`",
+    "source": "a = self.a until self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 80,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when masgn name is used in `until`",
+    "source": "a, b = self.a until self.a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 84,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when lvasgn name is nested below `if`",
+    "source": "a = self.a if foo(self.a)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 88,
+    "description": "RuboCop::Cop::Style::RedundantSelf reports an offense when a different lvasgn name is used in `if`",
+    "source": "a = x if self.b\n",
+    "positions": [
+      [
+        1,
+        10
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "a = x if b\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 99,
+    "description": "RuboCop::Cop::Style::RedundantSelf reports an offense when a different masgn name is used in `if`",
+    "source": "a, b, c = x if self.d\n",
+    "positions": [
+      [
+        1,
+        16
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "a, b, c = x if d\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 111,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when self receiver in a method argument and lvalue have the same name",
+    "source": "a = do_something(self.a)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 116,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not report an offense when self receiver in a method argument and multiple assigned lvalue have the same name",
+    "source": "a, b = do_something(self.a)",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 120,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver on an lvalue of an assignment",
+    "source": "self.a = b",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 124,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver on an lvalue of a parallel assignment",
+    "source": "a, self.b = c, d",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 128,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver on an lvalue of an or-assignment",
+    "source": "self.logger ||= Rails.logger",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 132,
+    "description": "RuboCop::Cop::Style::RedundantSelf registers an offense when a self receiver follows an or-assignment with the same left-hand side",
+    "source": "self.x ||= 42\nself.x\n",
+    "positions": [
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "self.x ||= 42\nx\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 145,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver on an lvalue of an and-assignment",
+    "source": "self.flag &&= value",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 149,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver on an lvalue of a plus-assignment",
+    "source": "self.sum += 10",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 153,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver with the square bracket operator",
+    "source": "self[a]",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 157,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver with the double less-than operator",
+    "source": "self << a",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 161,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver for methods named like ruby keywords",
+    "source": "a = self.class\nself.for(deps, [], true)\nself.and(other)\nself.or(other)\nself.alias\nself.begin\nself.break\nself.case\nself.def\nself.defined?\nself.do\nself.else\nself.elsif\nself.end\nself.ensure\nself.false\nself.if\nself.in\nself.module\nself.next\nself.nil\nself.not\nself.redo\nself.rescue\nself.retry\nself.return\nself.self\nself.super\nself.then\nself.true\nself.undef\nself.unless\nself.until\nself.when\nself.while\nself.yield\nself.__FILE__\nself.__LINE__\nself.__ENCODING__\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 205,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver used to distinguish from argument of block",
+    "source": "%w[draft preview moderation approved rejected].each do |state|\n  self.state == state\n  define_method \"#{state}?\" do\n    self.state == state\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 372,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver used to distinguish from constant",
+    "source": "self.Foo",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 376,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver of .()",
+    "source": "self.()",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 380,
+    "description": "RuboCop::Cop::Style::RedundantSelf reports an offense a self receiver of .call",
+    "source": "self.call\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "call\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 391,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver of methods also defined on `Kernel`",
+    "source": "self.open",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 395,
+    "description": "RuboCop::Cop::Style::RedundantSelf accepts a self receiver on an lvalue of mlhs arguments",
+    "source": "def do_something((a, b)) # This method expects Array that has 2 elements as argument.\n  self.a = a\n  self.b.some_method_call b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 405,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not register an offense when using `self.it` in the single line block",
+    "source": "0.times { self.it }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 412,
+    "description": "RuboCop::Cop::Style::RedundantSelf does not register an offense when using `self.it` in the multiline block",
+    "source": "0.times do\n  self.it\n  it = 1\n  it\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 422,
+    "description": "RuboCop::Cop::Style::RedundantSelf registers an offense when using `it` without arguments in `def` body",
+    "source": "def foo\n  self.it\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "def foo\n  it\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 437,
+    "description": "RuboCop::Cop::Style::RedundantSelf registers an offense when using `it` without arguments in the block with empty block parameter",
+    "source": "0.times { ||\n  self.it\n}\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "0.times { ||\n  it\n}\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 452,
+    "description": "RuboCop::Cop::Style::RedundantSelf registers an offense when using `it` without arguments in the block with useless block parameter",
+    "source": "0.times { |_n|\n  self.it\n}\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "0.times { |_n|\n  it\n}\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 217,
+    "description": "RuboCop::Cop::Style::RedundantSelf Ruby 2.7 registers an offense for self usage in numblocks",
+    "source": "%w[x y z].select do\n  self.axis == _1\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "%w[x y z].select do\n  axis == _1\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 234,
+    "description": "RuboCop::Cop::Style::RedundantSelf Ruby 3.4 registers an offense for self usage in itblocks",
+    "source": "%w[x y z].select do\n  self.axis == it\nend\n",
+    "positions": [
+      [
+        2,
+        3
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "%w[x y z].select do\n  axis == it\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 251,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from blockarg",
+    "source": "def requested_specs(&groups)\n  some_method(self.groups)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 259,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from argument",
+    "source": "def requested_specs(groups)\n  some_method(self.groups)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 267,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from optional argument",
+    "source": "def requested_specs(final = true)\n  something if self.final != final\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 275,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from local variable",
+    "source": "def requested_specs\n  @requested_specs ||= begin\n    groups = self.groups - Bundler.settings.without\n    groups.map! { |g| g.to_sym }\n    specs_for(groups)\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 287,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from a rescue exception variable",
+    "source": "def foo\n  do_something\nrescue => e\n  self.e\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 297,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from a rescue exception variable at the top level",
+    "source": "begin\n  do_something\nrescue => e\n  self.e\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 307,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from an argument",
+    "source": "def foo(bar)\n  puts bar, self.bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 316,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts a self receiver used to distinguish from an argument when an inner method is defined",
+    "source": "def foo(bar)\n  def inner_method(); end\n  puts bar, self.bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 325,
+    "description": "RuboCop::Cop::Style::RedundantSelf instance methods accepts `kwnilarg` argument node type",
+    "source": "def requested_specs(groups, **nil)\n  some_method(self.groups)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 335,
+    "description": "RuboCop::Cop::Style::RedundantSelf class methods accepts a self receiver used to distinguish from blockarg",
+    "source": "def self.requested_specs(&groups)\n  some_method(self.groups)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 343,
+    "description": "RuboCop::Cop::Style::RedundantSelf class methods accepts a self receiver used to distinguish from argument",
+    "source": "def self.requested_specs(groups)\n  some_method(self.groups)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 351,
+    "description": "RuboCop::Cop::Style::RedundantSelf class methods accepts a self receiver used to distinguish from optional argument",
+    "source": "def self.requested_specs(final = true)\n  something if self.final != final\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 359,
+    "description": "RuboCop::Cop::Style::RedundantSelf class methods accepts a self receiver used to distinguish from local variable",
+    "source": "def self.requested_specs\n  @requested_specs ||= begin\n    groups = self.groups - Bundler.settings.without\n    groups.map! { |g| g.to_sym }\n    specs_for(groups)\n  end\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 469,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver on an `match-var`",
+    "source": "case foo\n  in Integer => bar\n    self.bar + bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 478,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver on a `hash-pattern`",
+    "source": "case pattern\n  in {x: foo}\n    self.foo + foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 487,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver on a `array-pattern`",
+    "source": "case pattern\n  in [foo, bar]\n    self.foo + foo\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 496,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver with a `match-alt`",
+    "source": "case pattern\n  in _foo | _bar\n    self._foo + self._bar + _foo + _bar\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 505,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver in a nested pattern`",
+    "source": "case pattern\n  in { foo: [bar, baz] }\n    self.bar + self.baz\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 514,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver in a conditional pattern",
+    "source": "case pattern\n  in a, b if b == a * 2\n    self.a + b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 523,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching accepts a self receiver in a `if-guard`",
+    "source": "case pattern\n  in a, b if b == self.a * 2\n    a + b\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null,
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 532,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching registers an offense when using a self receiver with a pin",
+    "source": "foo = 17\ncase pattern\n  in ^foo, *bar\n    self.foo + self.bar + foo + bar\nend\n",
+    "positions": [
+      [
+        4,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "foo = 17\ncase pattern\n  in ^foo, *bar\n    foo + self.bar + foo + bar\nend\n",
+    "toml": {
+    }
+  },
+  {
+    "cop": "Style/RedundantSelf",
+    "spec_line": 551,
+    "description": "RuboCop::Cop::Style::RedundantSelf with ruby >= 2.7 with pattern matching registers an offense when using self with a different match var",
+    "source": "case foo\n  in Integer => bar\n    self.bar + bar\n  in Float => baz\n    self.bar + baz\nend\n",
+    "positions": [
+      [
+        5,
+        5
+      ]
+    ],
+    "messages": [
+      "Redundant `self` detected."
+    ],
+    "correction": "case foo\n  in Integer => bar\n    self.bar + bar\n  in Float => baz\n    bar + baz\nend\n",
+    "toml": {
+    }
+  }
+]

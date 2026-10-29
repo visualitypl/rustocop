@@ -1,0 +1,38 @@
+[
+  {
+    "spec_line": 15,
+    "source": "return nil\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Use `return` instead of `return nil`."
+    ],
+    "correction": "return\n"
+  },
+  {
+    "spec_line": 26,
+    "source": "return 2",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "spec_line": 30,
+    "source": "loop do\n  return if x\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]

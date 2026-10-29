@@ -1,0 +1,3076 @@
+[
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 5,
+    "source": "array.each.each { |v| do_something(v) }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array.each { |v| do_something(v) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 16,
+    "source": "array.each&.each { |v| do_something(v) }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array.each { |v| do_something(v) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 27,
+    "source": "array&.each.each { |v| do_something(v) }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array&.each { |v| do_something(v) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 38,
+    "source": "array&.each&.each { |v| do_something(v) }\n",
+    "positions": [
+      [
+        1,
+        8
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array&.each { |v| do_something(v) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 49,
+    "source": "array.each.each(&:foo)\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array.each(&:foo)\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 60,
+    "source": "array.each.each_with_index { |v| do_something(v) }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array.each.with_index { |v| do_something(v) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 71,
+    "source": "array.each.each_with_object([]) { |v, o| do_something(v, o) }\n",
+    "positions": [
+      [
+        1,
+        7
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "array.each.with_object([]) { |v, o| do_something(v, o) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 82,
+    "source": "context.each_child_node.each_with_index.any? do |node, index|\nend\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Use `with_index` to remove redundant `each`."
+    ],
+    "correction": "context.each_child_node.with_index.any? do |node, index|\nend\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 95,
+    "source": "context.each_child_node.each_with_object([]) do |node, object|\nend\n",
+    "positions": [
+      [
+        1,
+        25
+      ]
+    ],
+    "messages": [
+      "Use `with_object` to remove redundant `each`."
+    ],
+    "correction": "context.each_child_node.with_object([]) do |node, object|\nend\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 108,
+    "source": "context.reverse_each.each { |i| do_something(i) }\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "context.reverse_each { |i| do_something(i) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 119,
+    "source": "context.reverse_each.each\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "context.reverse_each\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 130,
+    "source": "context.reverse_each&.each { |i| do_something(i) }\n",
+    "positions": [
+      [
+        1,
+        21
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "context.reverse_each { |i| do_something(i) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 141,
+    "source": "context&.reverse_each.each { |i| do_something(i) }\n",
+    "positions": [
+      [
+        1,
+        22
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "context&.reverse_each { |i| do_something(i) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 152,
+    "source": "context.each.reverse_each { |i| do_something(i) }\n",
+    "positions": [
+      [
+        1,
+        9
+      ]
+    ],
+    "messages": [
+      "Remove redundant `each`."
+    ],
+    "correction": "context.reverse_each { |i| do_something(i) }\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 163,
+    "source": "context.reverse_each.each_with_index.any? do |node, index|\nend\n",
+    "positions": [
+      [
+        1,
+        22
+      ]
+    ],
+    "messages": [
+      "Use `with_index` to remove redundant `each`."
+    ],
+    "correction": "context.reverse_each.with_index.any? do |node, index|\nend\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 176,
+    "source": "scope_stack.reverse_each.each_with_object([]) do |scope, variables|\nend\n",
+    "positions": [
+      [
+        1,
+        26
+      ]
+    ],
+    "messages": [
+      "Use `with_object` to remove redundant `each`."
+    ],
+    "correction": "scope_stack.reverse_each.with_object([]) do |scope, variables|\nend\n"
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 189,
+    "source": "array.each { |v| do_something(v) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 195,
+    "source": "array.each { do_something(_1) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 201,
+    "source": "array.each_with_index { do_something(_1, _2) }.each { |v| v }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 207,
+    "source": "array.each\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 213,
+    "source": "array.each.with_index { |v, i| do_something(v, i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 219,
+    "source": "array.each_with_index { |v, i| do_something(v, i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 225,
+    "source": "string.each_char.map(&:to_i).reverse.each_with_index.map { |v, i| do_something(v, i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 231,
+    "source": "array.each.with_object { |v, o| do_something(v, o) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 237,
+    "source": "array.each_with_object { |v, o| do_something(v, o) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 243,
+    "source": "array.each_with_index.reverse_each do |value, index|\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 250,
+    "source": "node.each_ancestor(:def, :defs, :block).each do |ancestor|\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 257,
+    "source": "array.reverse_each { |i| foo(i) }.each { |i| bar(i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 263,
+    "source": "array.each { |i| foo(i) }.reverse_each { |i| bar(i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 269,
+    "source": "array.each { |i| foo(i) }.each_with_index { |i| bar(i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 275,
+    "source": "array.each { |i| foo(i) }.each_with_object([]) { |i| bar(i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 281,
+    "source": "array.each_foo { |i| foo(i) }.each_with_object([]) { |i| bar(i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 287,
+    "source": "[foo.each].each\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 293,
+    "source": "array.each(&:foo).each do |i|\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 300,
+    "source": "array.each(foo, &:bar).each do |i|\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantEach",
+    "spec_line": 307,
+    "source": "array.reverse_each(&:foo).each { |i| bar(i) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 10,
+    "source": "arr.select { |x| x > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `select.any?`."
+    ],
+    "correction": "arr.any? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 21,
+    "source": "arr.select { |x| x > 1 }.empty?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `select.empty?`."
+    ],
+    "correction": "arr.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 32,
+    "source": "arr.select { |x| x > 1 }.none?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `select.none?`."
+    ],
+    "correction": "arr.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 43,
+    "source": "arr.select(&:odd?).none?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `select.none?`."
+    ],
+    "correction": "arr.none?(&:odd?)\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 54,
+    "source": "arr.select { _1 > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `select.any?`."
+    ],
+    "correction": "arr.any? { _1 > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 65,
+    "source": "arr.select { it > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `select.any?`."
+    ],
+    "correction": "arr.any? { it > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 76,
+    "source": "arr.select { |x| x > 1 }.many?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 82,
+    "source": "arr.select { |x| x > 1 }.present?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 88,
+    "source": "relation.select(:name).any?\nfoo.select.any?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 95,
+    "source": "arr.select(&:odd?).any?(Integer)\narr.select(&:odd?).any? { |x| x > 10 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 10,
+    "source": "arr.filter { |x| x > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `filter.any?`."
+    ],
+    "correction": "arr.any? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 21,
+    "source": "arr.filter { |x| x > 1 }.empty?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `filter.empty?`."
+    ],
+    "correction": "arr.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 32,
+    "source": "arr.filter { |x| x > 1 }.none?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `filter.none?`."
+    ],
+    "correction": "arr.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 43,
+    "source": "arr.filter(&:odd?).none?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `filter.none?`."
+    ],
+    "correction": "arr.none?(&:odd?)\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 54,
+    "source": "arr.filter { _1 > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `filter.any?`."
+    ],
+    "correction": "arr.any? { _1 > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 65,
+    "source": "arr.filter { it > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `filter.any?`."
+    ],
+    "correction": "arr.any? { it > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 76,
+    "source": "arr.filter { |x| x > 1 }.many?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 82,
+    "source": "arr.filter { |x| x > 1 }.present?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 88,
+    "source": "relation.filter(:name).any?\nfoo.filter.any?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 95,
+    "source": "arr.filter(&:odd?).any?(Integer)\narr.filter(&:odd?).any? { |x| x > 10 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 10,
+    "source": "arr.find_all { |x| x > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `find_all.any?`."
+    ],
+    "correction": "arr.any? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 21,
+    "source": "arr.find_all { |x| x > 1 }.empty?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `find_all.empty?`."
+    ],
+    "correction": "arr.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 32,
+    "source": "arr.find_all { |x| x > 1 }.none?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `find_all.none?`."
+    ],
+    "correction": "arr.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 43,
+    "source": "arr.find_all(&:odd?).none?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `find_all.none?`."
+    ],
+    "correction": "arr.none?(&:odd?)\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 54,
+    "source": "arr.find_all { _1 > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `find_all.any?`."
+    ],
+    "correction": "arr.any? { _1 > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 65,
+    "source": "arr.find_all { it > 1 }.any?\n",
+    "positions": [
+      [
+        1,
+        5
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `find_all.any?`."
+    ],
+    "correction": "arr.any? { it > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 76,
+    "source": "arr.find_all { |x| x > 1 }.many?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 82,
+    "source": "arr.find_all { |x| x > 1 }.present?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 88,
+    "source": "relation.find_all(:name).any?\nfoo.find_all.any?\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 95,
+    "source": "arr.find_all(&:odd?).any?(Integer)\narr.find_all(&:odd?).any? { |x| x > 10 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 149,
+    "source": "arr.any? { |x| x > 1 }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 103,
+    "source": "arr&.select { |x| x > 1 }&.any?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `select.any?`."
+    ],
+    "correction": "arr&.any? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 114,
+    "source": "arr&.select { |x| x > 1 }&.empty?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `select.empty?`."
+    ],
+    "correction": "arr&.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 125,
+    "source": "arr&.select { |x| x > 1 }&.none?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `select.none?`."
+    ],
+    "correction": "arr&.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 136,
+    "source": "arr&.select(&:odd?)&.none?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `select.none?`."
+    ],
+    "correction": "arr&.none?(&:odd?)\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 103,
+    "source": "arr&.filter { |x| x > 1 }&.any?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `filter.any?`."
+    ],
+    "correction": "arr&.any? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 114,
+    "source": "arr&.filter { |x| x > 1 }&.empty?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `filter.empty?`."
+    ],
+    "correction": "arr&.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 125,
+    "source": "arr&.filter { |x| x > 1 }&.none?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `filter.none?`."
+    ],
+    "correction": "arr&.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 136,
+    "source": "arr&.filter(&:odd?)&.none?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `filter.none?`."
+    ],
+    "correction": "arr&.none?(&:odd?)\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 103,
+    "source": "arr&.find_all { |x| x > 1 }&.any?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `any?` instead of `find_all.any?`."
+    ],
+    "correction": "arr&.any? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 114,
+    "source": "arr&.find_all { |x| x > 1 }&.empty?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `find_all.empty?`."
+    ],
+    "correction": "arr&.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 125,
+    "source": "arr&.find_all { |x| x > 1 }&.none?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `find_all.none?`."
+    ],
+    "correction": "arr&.none? { |x| x > 1 }\n"
+  },
+  {
+    "cop": "Style/RedundantFilterChain",
+    "spec_line": 136,
+    "source": "arr&.find_all(&:odd?)&.none?\n",
+    "positions": [
+      [
+        1,
+        6
+      ]
+    ],
+    "messages": [
+      "Use `none?` instead of `find_all.none?`."
+    ],
+    "correction": "arr&.none?(&:odd?)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 275,
+    "source": "array.select { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 286,
+    "source": "array&.select { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 297,
+    "source": "array.select { it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 275,
+    "source": "array.find_all { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 286,
+    "source": "array&.find_all { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 297,
+    "source": "array.find_all { it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 275,
+    "source": "array.filter { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 286,
+    "source": "array&.filter { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 297,
+    "source": "array.filter { it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 312,
+    "source": "array.reject { !it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 323,
+    "source": "array.reject { !it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 312,
+    "source": "array.select { !it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 323,
+    "source": "array.select { !it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 312,
+    "source": "array.find_all { !it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 323,
+    "source": "array.find_all { !it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 312,
+    "source": "array.filter { !it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 323,
+    "source": "array.filter { !it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 275,
+    "source": "array.reject { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 286,
+    "source": "array&.reject { it.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array&.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 297,
+    "source": "array.reject { it.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 206,
+    "source": "array.select { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 217,
+    "source": "array&.select { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 228,
+    "source": "array.select { _1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 239,
+    "source": "array.select { _1.is_a?(_2) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 206,
+    "source": "array.find_all { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 217,
+    "source": "array&.find_all { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 228,
+    "source": "array.find_all { _1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 239,
+    "source": "array.find_all { _1.is_a?(_2) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 206,
+    "source": "array.filter { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 217,
+    "source": "array&.filter { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 228,
+    "source": "array.filter { _1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 239,
+    "source": "array.filter { _1.is_a?(_2) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 249,
+    "source": "array.reject { !_1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 260,
+    "source": "array.reject { !_1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 249,
+    "source": "array.select { !_1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 260,
+    "source": "array.select { !_1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 249,
+    "source": "array.find_all { !_1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 260,
+    "source": "array.find_all { !_1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 249,
+    "source": "array.filter { !_1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 260,
+    "source": "array.filter { !_1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 206,
+    "source": "array.reject { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 217,
+    "source": "array&.reject { _1.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array&.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 228,
+    "source": "array.reject { _1.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 239,
+    "source": "array.reject { _1.is_a?(_2) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 9,
+    "source": "array.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 20,
+    "source": "array.select { |x| x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 31,
+    "source": "array.select { |x| x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 42,
+    "source": "array.select do |x|\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 55,
+    "source": "array.select\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 61,
+    "source": "array.select(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 67,
+    "source": "array.select { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 73,
+    "source": "array.select do |x|\n  next if x.nil?\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 82,
+    "source": "obj.select { |x, y| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 88,
+    "source": "array.select { |x| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 94,
+    "source": "select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 105,
+    "source": "[].select { |x| x.is_a?(Foo) }\nfoo.to_a.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check.",
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "[].grep(Foo)\nfoo.to_a.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 119,
+    "source": "{}.select { |x| x.is_a?(Foo) }\n{ foo: :bar }.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 126,
+    "source": "Hash.new.select { |x| x.is_a?(Foo) }\nHash.new(:default).select { |x| x.is_a?(Foo) }\nHash.new { |hash, key| :default }.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 134,
+    "source": "Hash[h].select { |x| x.is_a?(Foo) }\nHash[:foo, 0, :bar, 1].select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 141,
+    "source": "to_h.select { |x| x.is_a?(Foo) }\nfoo.to_h.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 148,
+    "source": "to_hash.select { |x| x.is_a?(Foo) }\nfoo.to_hash.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 155,
+    "source": "ENV.select { |x| x.is_a?(Foo) }\n::ENV.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 338,
+    "source": "array&.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `select` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 349,
+    "source": "Hash&.new.select { |x| x.is_a?(Foo) }\nHash&.new { |hash, key| :default }.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 356,
+    "source": "foo&.to_h.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 362,
+    "source": "foo&.to_hash.select { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 9,
+    "source": "array.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 20,
+    "source": "array.find_all { |x| x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 31,
+    "source": "array.find_all { |x| x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 42,
+    "source": "array.find_all do |x|\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 55,
+    "source": "array.find_all\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 61,
+    "source": "array.find_all(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 67,
+    "source": "array.find_all { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 73,
+    "source": "array.find_all do |x|\n  next if x.nil?\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 82,
+    "source": "obj.find_all { |x, y| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 88,
+    "source": "array.find_all { |x| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 94,
+    "source": "find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 105,
+    "source": "[].find_all { |x| x.is_a?(Foo) }\nfoo.to_a.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check.",
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "[].grep(Foo)\nfoo.to_a.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 119,
+    "source": "{}.find_all { |x| x.is_a?(Foo) }\n{ foo: :bar }.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 126,
+    "source": "Hash.new.find_all { |x| x.is_a?(Foo) }\nHash.new(:default).find_all { |x| x.is_a?(Foo) }\nHash.new { |hash, key| :default }.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 134,
+    "source": "Hash[h].find_all { |x| x.is_a?(Foo) }\nHash[:foo, 0, :bar, 1].find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 141,
+    "source": "to_h.find_all { |x| x.is_a?(Foo) }\nfoo.to_h.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 148,
+    "source": "to_hash.find_all { |x| x.is_a?(Foo) }\nfoo.to_hash.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 155,
+    "source": "ENV.find_all { |x| x.is_a?(Foo) }\n::ENV.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 338,
+    "source": "array&.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `find_all` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 349,
+    "source": "Hash&.new.find_all { |x| x.is_a?(Foo) }\nHash&.new { |hash, key| :default }.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 356,
+    "source": "foo&.to_h.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 362,
+    "source": "foo&.to_hash.find_all { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 9,
+    "source": "array.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 20,
+    "source": "array.filter { |x| x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 31,
+    "source": "array.filter { |x| x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 42,
+    "source": "array.filter do |x|\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 55,
+    "source": "array.filter\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 61,
+    "source": "array.filter(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 67,
+    "source": "array.filter { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 73,
+    "source": "array.filter do |x|\n  next if x.nil?\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 82,
+    "source": "obj.filter { |x, y| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 88,
+    "source": "array.filter { |x| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 94,
+    "source": "filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 105,
+    "source": "[].filter { |x| x.is_a?(Foo) }\nfoo.to_a.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check.",
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "[].grep(Foo)\nfoo.to_a.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 119,
+    "source": "{}.filter { |x| x.is_a?(Foo) }\n{ foo: :bar }.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 126,
+    "source": "Hash.new.filter { |x| x.is_a?(Foo) }\nHash.new(:default).filter { |x| x.is_a?(Foo) }\nHash.new { |hash, key| :default }.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 134,
+    "source": "Hash[h].filter { |x| x.is_a?(Foo) }\nHash[:foo, 0, :bar, 1].filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 141,
+    "source": "to_h.filter { |x| x.is_a?(Foo) }\nfoo.to_h.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 148,
+    "source": "to_hash.filter { |x| x.is_a?(Foo) }\nfoo.to_hash.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 155,
+    "source": "ENV.filter { |x| x.is_a?(Foo) }\n::ENV.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 338,
+    "source": "array&.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `filter` with a kind check."
+    ],
+    "correction": "array&.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 349,
+    "source": "Hash&.new.filter { |x| x.is_a?(Foo) }\nHash&.new { |hash, key| :default }.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 356,
+    "source": "foo&.to_h.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 362,
+    "source": "foo&.to_hash.filter { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 168,
+    "source": "array.reject { |x| !x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 179,
+    "source": "array.reject { |x| !x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 190,
+    "source": "array.reject { |x| !x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep` to `reject` with a kind check."
+    ],
+    "correction": "array.grep(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 168,
+    "source": "array.select { |x| !x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 179,
+    "source": "array.select { |x| !x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 190,
+    "source": "array.select { |x| !x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `select` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 168,
+    "source": "array.find_all { |x| !x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 179,
+    "source": "array.find_all { |x| !x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 190,
+    "source": "array.find_all { |x| !x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `find_all` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 168,
+    "source": "array.filter { |x| !x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 179,
+    "source": "array.filter { |x| !x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 190,
+    "source": "array.filter { |x| !x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `filter` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 9,
+    "source": "array.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 20,
+    "source": "array.reject { |x| x.kind_of?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 31,
+    "source": "array.reject { |x| x.is_a?(Foo::Bar) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo::Bar)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 42,
+    "source": "array.reject do |x|\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 55,
+    "source": "array.reject\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 61,
+    "source": "array.reject(&:even?)\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 67,
+    "source": "array.reject { |x| x.even? }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 73,
+    "source": "array.reject do |x|\n  next if x.nil?\n  x.is_a?(Foo)\nend\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 82,
+    "source": "obj.reject { |x, y| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 88,
+    "source": "array.reject { |x| y.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 94,
+    "source": "reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 105,
+    "source": "[].reject { |x| x.is_a?(Foo) }\nfoo.to_a.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check.",
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "[].grep_v(Foo)\nfoo.to_a.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 119,
+    "source": "{}.reject { |x| x.is_a?(Foo) }\n{ foo: :bar }.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 126,
+    "source": "Hash.new.reject { |x| x.is_a?(Foo) }\nHash.new(:default).reject { |x| x.is_a?(Foo) }\nHash.new { |hash, key| :default }.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 134,
+    "source": "Hash[h].reject { |x| x.is_a?(Foo) }\nHash[:foo, 0, :bar, 1].reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 141,
+    "source": "to_h.reject { |x| x.is_a?(Foo) }\nfoo.to_h.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 148,
+    "source": "to_hash.reject { |x| x.is_a?(Foo) }\nfoo.to_hash.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 155,
+    "source": "ENV.reject { |x| x.is_a?(Foo) }\n::ENV.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 338,
+    "source": "array&.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+      [
+        1,
+        1
+      ]
+    ],
+    "messages": [
+      "Prefer `grep_v` to `reject` with a kind check."
+    ],
+    "correction": "array&.grep_v(Foo)\n"
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 349,
+    "source": "Hash&.new.reject { |x| x.is_a?(Foo) }\nHash&.new { |hash, key| :default }.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 356,
+    "source": "foo&.to_h.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  },
+  {
+    "cop": "Style/SelectByKind",
+    "spec_line": 362,
+    "source": "foo&.to_hash.reject { |x| x.is_a?(Foo) }\n",
+    "positions": [
+
+    ],
+    "messages": [
+
+    ],
+    "correction": null
+  }
+]
