@@ -124,13 +124,13 @@ fn native_ruby34_syntax_only_all_sources() {
 #[test]
 fn metadata_and_selectors_config_paths_strict_toml() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
-    assert!(!registry.has_cop("Lint/UnusedPrivateMethod"));
+    assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
     let dir = project();
     for (config, select, expected) in [
         (String::new(), vec![], 1),

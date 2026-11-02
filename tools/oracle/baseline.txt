@@ -33,6 +33,10 @@ e12c66d8b9f5 Lint/DuplicateMethods miss 2:3 -- intentional file-local detection:
 # spec/rubocop/cop/lint/duplicate_methods_spec.rb:1084 RuboCop::Cop::Lint::DuplicateMethods registers an offense despite `silence_redefinition_of_method` when `ActiveSupportExtensionsEnabled` is disabled
 5497b478a2c1 Lint/DuplicateMethods miss 3:3 -- intentional file-local detection: stateless cops lint files in parallel without RuboCop's file-order-dependent cross-file state
 
+## Lint/ParenthesesAsGroupedExpression
+# spec/rubocop/cop/lint/parentheses_as_grouped_expression_spec.rb:145 RuboCop::Cop::Lint::ParenthesesAsGroupedExpression accepts method with `yield` as arg to method without parens
+d4393f4ebf94 Lint/ParenthesesAsGroupedExpression error -- invalid top-level yield: native Ruby3.4 and production Prism reject `a yield(c)`; exact in-method negative and original-byte parser rejection are tested.
+
 ## Lint/RedundantRequireStatement
 # spec/rubocop/cop/lint/redundant_require_statement_spec.rb:221 RuboCop::Cop::Lint::RedundantRequireStatement target ruby version >= 3.1 target ruby version >= 4.0 registers an offense and corrects when requiring `pathname`
 61b59b669faf Lint/RedundantRequireStatement miss 1:1 -- `pathname` is loaded by default only from Ruby 4.0; rustocop targets Ruby 3.4

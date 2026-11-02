@@ -99,14 +99,14 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
 #[test]
 fn metadata_is_default_on_ruby34_eligible_detection_only_without_paths_or_settings() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     assert_eq!(
         registry
             .cops()
             .iter()
             .filter(|c| c.name().starts_with("Lint/"))
             .count(),
-        70
+        145
     );
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
@@ -114,7 +114,7 @@ fn metadata_is_default_on_ruby34_eligible_detection_only_without_paths_or_settin
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none());
     assert!(cop.max_setting().is_none());
-    assert!(!registry.has_cop("Lint/UnusedPrivateMethod"));
+    assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
 }
 
 #[test]

@@ -19,7 +19,7 @@ const SOURCE: &[u8] = b"X ||= 1\ndef initialize\n @x ||= 1\nend\n";
 #[test]
 fn live_metadata_is_default_on_ruby34_ungated_and_detection_only() {
     let registry = Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     for name in [CONSTANT, CONSTRUCTOR] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled() && !cop.safe_fixes());
@@ -27,7 +27,7 @@ fn live_metadata_is_default_on_ruby34_ungated_and_detection_only() {
         assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
         assert!(cop.autocorrect_incompatible_with().is_empty());
     }
-    assert!(!registry.has_cop("Lint/UnusedPrivateMethod"));
+    assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
 }
 
 #[test]

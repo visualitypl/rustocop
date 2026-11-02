@@ -105,7 +105,7 @@ fn every_pinned_source_and_control_runs_through_rebuilt_cli_and_canonical_fix() 
 #[test]
 fn metadata_and_current_only_admission_preserve_fixed_policy() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());
@@ -117,7 +117,7 @@ fn metadata_and_current_only_admission_preserve_fixed_policy() {
             "Style/RescueStandardError"
         ]
     );
-    assert!(!registry.has_cop("Lint/UnusedPrivateMethod"));
+    assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
 }
 #[test]
 fn selectors_strict_toml_department_precedence_and_exclusions() {

@@ -277,14 +277,39 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         "foo\n# rubocop:enable Layout/LineLength\n",
         "# rubocop:disable Style/For # rubocop:disable Style/For\n",
         "a + b * c\n",
+        "\"abc\" \"\"\n",
+        "\"\"\"a string\"\"\"\n",
         "def +(arg); arg; end\n",
         "def foo(&callback); bar(&callback); end\n",
         "p <<~sql\nvalue\nsql\n",
         "begin; rescue => error; error; end\n",
         "begin; nil; rescue => Error; end\n",
+        "begin; nil; rescue *[First, Second]; end\n",
         "NIL = nil; [::NIL]\n",
         "Fixnum = ::Integer; [::Fixnum]\n",
         "require 'uri'; [defined?(URI.regexp)]\n",
+        "[defined?(/[xyx]/)]\n",
+        "[defined?(/abc]123/)]\n",
+        "[defined?(/(?:a+)+/)]\n",
+        "[defined?(Hash.new(key: :value))]\n",
+        "if true\n  nil\nelse false\nend\n",
+        "if false\n  foo.object_id == bar.object_id\nend\n",
+        "if false\n  lambda(unreachable)\nend\n",
+        "if false\n  puts unreachable.to_s\nend\n",
+        "if false\n  unreachable.to_s.to_s\nend\n",
+        "if false\n  alpha.each_with_index { |v| v }\nend\n",
+        "if false\n  if !/foo/\n  end\nend\n",
+        "if false\n  if probe&.empty?\n  end\nend\n",
+        "if false\n  Foo.send(:include, Bar)\nend\n",
+        "if false\n  :foo.to_sym\nend\n",
+        "if false\nhash.each do |key, value|\n  puts key\nend\nend\n",
+        "if false\ndef some_method(foo, bar)\n  puts bar\nend\nend\n",
+        "if false\n  require_relative 'case'\nend\n",
+        "begin\n  raise StandardError\nrescue StandardError, nil\n  puts :caught\nend\n",
+        "if false\n  Class.new do\n    private\n  end\nend\n",
+        "if false\n  attr_reader :bar,\n  def baz; end\nend\n",
+        "[defined?(<<-SQL\n  foo\nSQL\n.strip_indent\n)]\n",
+        "# frozen_string_literal: true\n# frozen_string_literal: true\n",
         "require 'openssl'; [OpenSSL::Digest::SHA256.digest('foo')]\n",
         "require 'bigdecimal'; def BigDecimal.new(value); ::Kernel.BigDecimal(value); end; [BigDecimal.new('1.25')]\n",
         "require 'erb'; [defined?(ERB.new('task-literal', nil, '-'))]\n",
@@ -316,9 +341,17 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
     .unwrap();
     let path = dir.path().join("case.rb");
     let sibling = dir.path().join("safe.rb");
+    std::fs::create_dir(dir.path().join("safe")).unwrap();
     let mut missing = Vec::new();
     let mut correcting_families = 0;
     for cop in registry.cops().iter().filter(|c| c.safe_fixes()) {
+        // A path-sensitive detector must see the same supplied basename in
+        // both independent inputs, without changing the observer or source.
+        let sibling = if cop.name() == "Lint/RequireRelativeSelfPath" {
+            dir.path().join("safe/case.rb")
+        } else {
+            sibling.clone()
+        };
         let mut candidates: Vec<&str> = evidence
             .as_array()
             .unwrap()

@@ -92,7 +92,17 @@ fn selectors_config_excludes_and_strict_fixed_options() {
             format!("[cops.\"{cop}\"]\nenabled = false\n"),
         ] {
             fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            unchanged(d.path(), s.as_bytes(), &["--fix", "a.rb"], 0);
+            // Default-on Lint/SymbolConversion still reports the literal
+            // conversion when its opt-in Style/StringMethods peer is disabled.
+            let out = unchanged(
+                d.path(),
+                s.as_bytes(),
+                &["--fix", "a.rb"],
+                i32::from(cop == METHODS),
+            );
+            if cop == METHODS {
+                assert!(String::from_utf8_lossy(&out.stdout).contains("(Lint/SymbolConversion)"));
+            }
             unchanged(
                 d.path(),
                 s.as_bytes(),

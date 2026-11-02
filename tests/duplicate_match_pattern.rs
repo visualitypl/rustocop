@@ -176,7 +176,7 @@ fn byte_rows_match_cli(json: &str) {
 fn defaults_metadata_selectors_version_gate_strict_toml_and_precedence() {
     use rustocop::cops::{Registry, policy::RubyVersion};
     let registry = Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && !cop.safe_fixes());
     assert_eq!(cop.ruby_versions().minimum, Some(RubyVersion(2, 7)));

@@ -263,6 +263,8 @@ thread_local! {
     pub(crate) static VISIBLE_LOCAL_EDGES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
+type ScopeDeclarationPositions = std::collections::HashMap<Vec<u8>, Vec<usize>>;
+
 /// Source-order declarations for calls that would become local-variable reads
 /// after removing invocation parentheses. Built from the shared scope analysis,
 /// not a second, subtly different implementation of Ruby variable binding.
@@ -270,8 +272,7 @@ thread_local! {
 pub(crate) struct VisibleLocals {
     multiple_targets: std::collections::HashMap<Vec<u8>, Vec<usize>>,
     block_declarations: std::collections::HashMap<Vec<u8>, Vec<usize>>,
-    scopes:
-        std::collections::HashMap<(usize, usize, u8), std::collections::HashMap<Vec<u8>, usize>>,
+    scopes: std::collections::HashMap<(usize, usize, u8), ScopeDeclarationPositions>,
 }
 
 impl VisibleLocals {
@@ -304,7 +305,7 @@ impl VisibleLocals {
                 .variables()
                 .map(|id| {
                     let var = analysis.variable(id);
-                    (var.name.to_vec(), var.declaration_range.start)
+                    (var.name.to_vec(), var.declaration_positions.clone())
                 })
                 .collect();
             result.scopes.insert(
@@ -379,6 +380,14 @@ impl VisibleLocals {
         })
     }
 
+    /// Raw declaration spellings from the existing analysis. Consumers may
+    /// compare diagnostic/source-buffer identities without changing bindings.
+    pub(crate) fn declaration_names(&self) -> impl Iterator<Item = &[u8]> {
+        self.scopes
+            .values()
+            .flat_map(|names| names.keys().map(Vec::as_slice))
+    }
+
     pub(crate) fn shadows(
         &self,
         call: &CallNode<'_>,
@@ -401,6 +410,44 @@ impl VisibleLocals {
         cx: &crate::cops::NodeContext<'_, '_>,
         offset: usize,
     ) -> bool {
+        self.declared_before_with(name, node, cx, |start| start <= offset)
+    }
+
+    /// Same ownership query with a caller-supplied declaration-order predicate.
+    /// Physical offsets need not be lexical order (notably across heredocs).
+    pub(crate) fn declared_before_with(
+        &self,
+        name: &[u8],
+        node: &Node<'_>,
+        cx: &crate::cops::NodeContext<'_, '_>,
+        before: impl Fn(usize) -> bool,
+    ) -> bool {
+        self.declaration_before(name, node, cx, |positions| before(positions[0]))
+    }
+
+    /// All scope-owned declarations, rather than only the first one encountered
+    /// in value-flow order. Opt-in for source-buffer local/call projection:
+    /// modifier predicates execute first but lex after their body, and heredoc
+    /// declarations need the caller's lexical ordering rather than min(offset).
+    pub(crate) fn lexically_declared_before_with(
+        &self,
+        name: &[u8],
+        node: &Node<'_>,
+        cx: &crate::cops::NodeContext<'_, '_>,
+        before: impl Fn(usize) -> bool,
+    ) -> bool {
+        self.declaration_before(name, node, cx, |positions| {
+            positions.iter().copied().any(&before)
+        })
+    }
+
+    fn declaration_before(
+        &self,
+        name: &[u8],
+        node: &Node<'_>,
+        cx: &crate::cops::NodeContext<'_, '_>,
+        before: impl Fn(&[usize]) -> bool,
+    ) -> bool {
         let children = std::iter::once(node).chain(cx.ancestors());
         for (parent, child) in cx.ancestors().zip(children) {
             #[cfg(test)]
@@ -418,7 +465,7 @@ impl VisibleLocals {
             else {
                 continue;
             };
-            if names.get(name).is_some_and(|start| *start <= offset) {
+            if names.get(name).is_some_and(|positions| before(positions)) {
                 return true;
             }
             if !matches!(parent, Node::BlockNode { .. } | Node::LambdaNode { .. }) {
@@ -597,6 +644,9 @@ pub struct Variable<'pr> {
     pub declaration: Declaration,
     /// Where it was declared.
     pub declaration_range: Range<usize>,
+    /// All declaration occurrences, retaining the original analysis-first entry.
+    /// Used only by opt-in lexical queries; never changes binding/value flow.
+    declaration_positions: Vec<usize>,
     /// Its assignments, in source (analysis) order.
     pub assignments: Vec<AssignmentId>,
     /// Whether a pattern binds this variable. These writes are tracked
@@ -701,6 +751,9 @@ pub struct Reference {
     pub kind: ReferenceKind,
     /// The referencing node's range.
     pub range: Range<usize>,
+    /// Whether this reference reads an assignment rather than the incoming
+    /// parameter value. ShadowedArgument excludes these explicit references.
+    pub(crate) assignment_owned: bool,
 }
 
 impl Reference {
@@ -759,6 +812,8 @@ pub struct ScopeAnalysis<'pr> {
     /// Aliases/acquired mutation methods can cross closed lexical scopes.
     /// Conservatively invalidate correction proofs, not ordinary liveness.
     uncertain_binding_alias: bool,
+    /// Before-declaration visible identity pairs, only for the opt-in shadowing cop.
+    shadowing: Vec<(VariableId, VariableId)>,
 }
 
 impl<'pr> ScopeAnalysis<'pr> {
@@ -770,8 +825,56 @@ impl<'pr> ScopeAnalysis<'pr> {
     /// lint pipeline runs this same preflight before cops and reports a file
     /// error; standalone callers can use [`super::depth::check`] first.
     pub fn of(program: &ProgramNode<'pr>) -> Self {
+        Self::build(program, None, false, false)
+    }
+
+    /// Opt-in pinned VariableForce reference/declaration semantics for
+    /// ShadowedArgument. Original variable spellings and the main parse remain
+    /// intact; existing liveness/correction consumers retain `of` unchanged.
+    pub(crate) fn for_shadowed_arguments(
+        program: &ProgramNode<'pr>,
+        file: &crate::source::SourceFile,
+    ) -> Self {
+        Self::build(program, Some(file), false, false)
+    }
+
+    /// The pinned force's before-declaring-variable delivery and RHS-first
+    /// multiple-target declaration order. Isolated from raw liveness/corrections
+    /// and the landed ShadowedArgument projection.
+    pub(crate) fn for_outer_shadowing(
+        program: &ProgramNode<'pr>,
+        file: &crate::source::SourceFile,
+    ) -> Self {
+        Self::build(program, Some(file), true, false)
+    }
+
+    /// Explicit-reference consumer of the same pinned force order. Keep actual
+    /// sends distinct from lvars and the reference regexp adapter's binary
+    /// capture-name symbols distinct from encoded Ruby local names.
+    pub(crate) fn for_underscore_variables(
+        program: &ProgramNode<'pr>,
+        file: &crate::source::SourceFile,
+    ) -> Self {
+        Self::build(program, Some(file), false, true)
+    }
+
+    pub(crate) fn shadowing_declarations(
+        &self,
+    ) -> impl Iterator<Item = (VariableId, VariableId)> + '_ {
+        self.shadowing.iter().copied()
+    }
+
+    fn build(
+        program: &ProgramNode<'pr>,
+        source_file: Option<&crate::source::SourceFile>,
+        outer_shadowing: bool,
+        underscore_variables: bool,
+    ) -> Self {
         super::depth::check(program).unwrap_or_else(|error| panic!("{error}"));
         let mut analyzer = Analyzer {
+            source_file,
+            outer_shadowing,
+            underscore_variables,
             out: ScopeAnalysis {
                 scopes: Vec::new(),
                 exit_order: Vec::new(),
@@ -780,6 +883,7 @@ impl<'pr> ScopeAnalysis<'pr> {
                 references: Vec::new(),
                 branches: Vec::new(),
                 uncertain_binding_alias: false,
+                shadowing: Vec::new(),
             },
             scope_stack: Vec::new(),
             branch: None,
@@ -971,7 +1075,10 @@ struct LoopMark {
 }
 
 /// The walk building a [`ScopeAnalysis`].
-struct Analyzer<'pr> {
+struct Analyzer<'a, 'pr> {
+    source_file: Option<&'a crate::source::SourceFile>,
+    outer_shadowing: bool,
+    underscore_variables: bool,
     out: ScopeAnalysis<'pr>,
     scope_stack: Vec<ScopeId>,
     /// The innermost branch enclosing the current node within its scope.
@@ -1009,7 +1116,13 @@ fn covers(container: &Range<usize>, node: &Range<usize>) -> bool {
     container.start <= node.start && node.end <= container.end
 }
 
-impl<'pr> Analyzer<'pr> {
+impl<'pr> Analyzer<'_, 'pr> {
+    fn same_name(&self, a: &[u8], b: &[u8]) -> bool {
+        a == b
+            || self
+                .source_file
+                .is_some_and(|file| file.match_pattern_source(a) == file.match_pattern_source(b))
+    }
     // --- scopes -----------------------------------------------------------
 
     fn current_scope(&self) -> ScopeId {
@@ -1052,10 +1165,16 @@ impl<'pr> Analyzer<'pr> {
     ) -> VariableId {
         let scope = self.current_scope();
         let id = VariableId(self.out.variables.len());
+        if self.outer_shadowing
+            && let Some(outer) = self.find_variable(name)
+        {
+            self.out.shadowing.push((id, outer));
+        }
         self.out.variables.push(Variable {
             name,
             scope,
             declaration,
+            declaration_positions: vec![at.start],
             declaration_range: at,
             assignments: Vec::new(),
             has_pattern_bindings: false,
@@ -1065,8 +1184,12 @@ impl<'pr> Analyzer<'pr> {
             last_eager_reference: 0,
             uncertain_binding_mutation: false,
         });
+        let existing = self.out.scopes[scope.0]
+            .variables
+            .iter()
+            .position(|(known, _)| self.same_name(known, name));
         let variables = &mut self.out.scopes[scope.0].variables;
-        match variables.iter_mut().find(|(known, _)| *known == name) {
+        match existing.map(|index| &mut variables[index]) {
             Some(entry) => entry.1 = id,
             None => variables.push((name, id)),
         }
@@ -1095,7 +1218,10 @@ impl<'pr> Analyzer<'pr> {
         declaration: Declaration,
         at: Range<usize>,
     ) {
-        if depth == 0 {
+        let start = at.start;
+        if self.source_file.is_some() {
+            self.declare_unless_visible(name, declaration, at);
+        } else if depth == 0 {
             let scope = self.current_scope();
             if !self.out.scopes[scope.0]
                 .variables
@@ -1107,13 +1233,22 @@ impl<'pr> Analyzer<'pr> {
         } else {
             self.declare_unless_visible(name, declaration, at);
         }
+        let id = self.find_variable(name).expect("declared local");
+        let positions = &mut self.out.variables[id.0].declaration_positions;
+        if positions.last() != Some(&start) {
+            positions.push(start);
+        }
     }
 
     /// The variable a name refers to from the current scope.
     fn find_variable(&self, name: &[u8]) -> Option<VariableId> {
         for &scope in self.scope_stack.iter().rev() {
             let scope = &self.out.scopes[scope.0];
-            if let Some(&(_, id)) = scope.variables.iter().find(|(known, _)| *known == name) {
+            if let Some(&(_, id)) = scope
+                .variables
+                .iter()
+                .find(|(known, _)| self.same_name(known, name))
+            {
                 return Some(id);
             }
             if !scope.kind.is_block() {
@@ -1313,6 +1448,7 @@ impl<'pr> Analyzer<'pr> {
             variable,
             kind,
             range: at.clone(),
+            assignment_owned: false,
         });
         let current = self.current_scope();
         let record = &mut self.out.variables[variable.0];
@@ -1338,6 +1474,7 @@ impl<'pr> Analyzer<'pr> {
             }
             if !self.run_exclusively(branch, reference_branch) {
                 self.out.assignments[assignment.0].referenced = true;
+                self.out.references[id.0].assignment_owned = true;
             }
             // An assignment in a modifier condition does not put the
             // variable in scope for the modifier's body: look further back.
@@ -1701,6 +1838,12 @@ impl<'pr> Analyzer<'pr> {
     }
 
     fn parameter_header(&mut self, visit: impl FnOnce(&mut Self)) {
+        if self.source_file.is_some() {
+            // The pinned force declares each argument and visits its default
+            // immediately, unlike correction consumers' complete-header model.
+            visit(self);
+            return;
+        }
         let owns_defaults = self.parameter_defaults.is_none();
         if owns_defaults {
             self.parameter_defaults = Some(Vec::new());
@@ -1771,7 +1914,7 @@ fn contains_retry(node: &Node<'_>) -> bool {
     finder.0
 }
 
-impl<'pr> Visit<'pr> for Analyzer<'pr> {
+impl<'pr> Visit<'pr> for Analyzer<'_, 'pr> {
     // --- scopes -----------------------------------------------------------
 
     fn visit_program_node(&mut self, node: &ProgramNode<'pr>) {
@@ -1833,6 +1976,9 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
     fn visit_numbered_parameters_node(&mut self, node: &ruby_prism::NumberedParametersNode<'pr>) {
         // Implicit parameters still have binding identities. Their synthetic
         // declaration location must never be used as a source rename range.
+        if self.source_file.is_some() {
+            return;
+        }
         const NAMES: [&[u8]; 9] = [
             b"_1", b"_2", b"_3", b"_4", b"_5", b"_6", b"_7", b"_8", b"_9",
         ];
@@ -1846,6 +1992,9 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
     }
 
     fn visit_it_parameters_node(&mut self, node: &ruby_prism::ItParametersNode<'pr>) {
+        if self.source_file.is_some() {
+            return;
+        }
         self.declare(
             b"it",
             Declaration::Parameter(ParameterKind::Required),
@@ -1868,14 +2017,29 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
 
     fn visit_optional_parameter_node(&mut self, node: &ruby_prism::OptionalParameterNode<'pr>) {
         let kind = Declaration::Parameter(ParameterKind::Optional);
-        self.declare(node.name().as_slice(), kind, range(&node.name_loc()));
+        self.declare(
+            node.name().as_slice(),
+            kind,
+            if self.source_file.is_some() {
+                range(&node.location())
+            } else {
+                range(&node.name_loc())
+            },
+        );
         self.parameter_default(node.value());
     }
 
     fn visit_rest_parameter_node(&mut self, node: &ruby_prism::RestParameterNode<'pr>) {
         if let Some(name) = node.name() {
             let kind = Declaration::Parameter(ParameterKind::Rest);
-            self.declare(name.as_slice(), kind, range(&node.location()));
+            // Only this consumer reports the name rather than the full
+            // declaration. Whitespace/comments may separate it from the sigil.
+            let at = if self.underscore_variables {
+                range(&node.name_loc().expect("named rest parameter"))
+            } else {
+                range(&node.location())
+            };
+            self.declare(name.as_slice(), kind, at);
         }
     }
 
@@ -1892,7 +2056,15 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
         node: &ruby_prism::OptionalKeywordParameterNode<'pr>,
     ) {
         let kind = Declaration::Parameter(ParameterKind::OptionalKeyword);
-        self.declare(node.name().as_slice(), kind, range(&node.name_loc()));
+        self.declare(
+            node.name().as_slice(),
+            kind,
+            if self.source_file.is_some() {
+                range(&node.location())
+            } else {
+                range(&node.name_loc())
+            },
+        );
         self.parameter_default(node.value());
     }
 
@@ -1902,14 +2074,24 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
     ) {
         if let Some(name) = node.name() {
             let kind = Declaration::Parameter(ParameterKind::KeywordRest);
-            self.declare(name.as_slice(), kind, range(&node.location()));
+            let at = if self.underscore_variables {
+                range(&node.name_loc().expect("named keyword rest parameter"))
+            } else {
+                range(&node.location())
+            };
+            self.declare(name.as_slice(), kind, at);
         }
     }
 
     fn visit_block_parameter_node(&mut self, node: &ruby_prism::BlockParameterNode<'pr>) {
         if let Some(name) = node.name() {
             let kind = Declaration::Parameter(ParameterKind::Block);
-            self.declare(name.as_slice(), kind, range(&node.location()));
+            let at = if self.underscore_variables {
+                range(&node.name_loc().expect("named block parameter"))
+            } else {
+                range(&node.location())
+            };
+            self.declare(name.as_slice(), kind, at);
         }
     }
 
@@ -1984,13 +2166,15 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
     }
 
     fn visit_multi_write_node(&mut self, node: &MultiWriteNode<'pr>) {
-        for target in node
-            .lefts()
-            .iter()
-            .chain(node.rest())
-            .chain(node.rights().iter())
-        {
-            self.declare_target(&target);
+        if !self.outer_shadowing && !self.underscore_variables {
+            for target in node
+                .lefts()
+                .iter()
+                .chain(node.rest())
+                .chain(node.rights().iter())
+            {
+                self.declare_target(&target);
+            }
         }
         // Declaration is not assignment: values still run before target writes.
         self.visit(&node.value());
@@ -2012,6 +2196,16 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
         for target in node.targets().iter() {
             if let Some(target) = target.as_local_variable_target_node() {
                 let name = target.name().as_slice();
+                // RuboCop's regexp adapter returns ASCII-8BIT capture names.
+                // Non-ASCII symbols cannot equal locals in a nonbinary source.
+                // They never receive explicit lvar references. Do not let that
+                // phantom identity absorb a later real local declaration.
+                if self.underscore_variables
+                    && !name.is_ascii()
+                    && self.source_file.is_some_and(|file| !file.binary_encoding())
+                {
+                    continue;
+                }
                 if !names.contains(&name) {
                     self.declare_local(
                         name,
@@ -2074,6 +2268,44 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
     }
 
     fn visit_call_node(&mut self, node: &CallNode<'pr>) {
+        if self.source_file.is_some() {
+            // Pinned VariableForce does not treat send(:binding) as reflection,
+            // but any ordinary receiver.binding is a reference. csend is not
+            // a send; its receiver and arguments still get visited.
+            if node.is_variable_call()
+                && node.receiver().is_none()
+                && node.arguments().is_none()
+                && node.block().is_none()
+                && self
+                    .find_variable(node.name().as_slice())
+                    .is_some_and(|id| {
+                        !self.underscore_variables
+                            || self.out.variables[id.0].name != node.name().as_slice()
+                    })
+            {
+                self.read(
+                    node.name().as_slice(),
+                    range(&node.location()),
+                    ReferenceKind::Read,
+                );
+                return;
+            }
+            if node.name().as_slice() == b"binding"
+                && !node.is_safe_navigation()
+                && node.arguments().is_none()
+                && !node
+                    .block()
+                    .is_some_and(|b| b.as_block_argument_node().is_some())
+            {
+                self.reference_all(
+                    self.accessible_variables(),
+                    range(&node.location()),
+                    ReferenceKind::Binding,
+                );
+            }
+            ruby_prism::visit_call_node(self, node);
+            return;
+        }
         // Receiver/argument evaluation precedes acquisition. In particular an
         // assignment in &expression is visible to the resulting Binding.
         ruby_prism::visit_call_node(self, node);
@@ -2516,13 +2748,33 @@ impl<'pr> Visit<'pr> for Analyzer<'pr> {
     }
 }
 
-impl<'pr> Analyzer<'pr> {
+impl<'pr> Analyzer<'_, 'pr> {
     fn visit_compound_getter(
         &mut self,
         node: &Node<'pr>,
         receiver: Option<Node<'pr>>,
         name: &[u8],
     ) {
+        if self.source_file.is_some() {
+            let safe = node
+                .as_call_operator_write_node()
+                .is_some_and(|n| n.is_safe_navigation())
+                || node
+                    .as_call_or_write_node()
+                    .is_some_and(|n| n.is_safe_navigation())
+                || node
+                    .as_call_and_write_node()
+                    .is_some_and(|n| n.is_safe_navigation());
+            if name == b"binding" && !safe {
+                self.reference_all(
+                    self.accessible_variables(),
+                    range(&node.location()),
+                    ReferenceKind::Binding,
+                );
+            }
+            self.visit_optional(receiver);
+            return;
+        }
         if let Some(receiver) = &receiver {
             self.visit(receiver);
         }
@@ -2749,6 +3001,10 @@ mod tests {
     use super::*;
 
     fn shadowed_calls(source: &str) -> Vec<bool> {
+        declaration_calls(source, false)
+    }
+
+    fn declaration_calls(source: &str, lexical: bool) -> Vec<bool> {
         use crate::cops::{
             NodeContext,
             walk::{NodeVisitor, walk},
@@ -2758,6 +3014,7 @@ mod tests {
             locals: VisibleLocals,
             ancestors: Vec<Node<'pr>>,
             shadowed: Vec<bool>,
+            lexical: bool,
         }
         impl<'pr> NodeVisitor<'pr> for Calls<'pr> {
             fn enter(&mut self, node: Node<'pr>) {
@@ -2769,7 +3026,16 @@ mod tests {
                         corrections_requested: false,
                         require_order_reports: &Default::default(),
                     };
-                    self.shadowed.push(self.locals.shadows(&call, &cx));
+                    self.shadowed.push(if self.lexical {
+                        self.locals.lexically_declared_before_with(
+                            call.name().as_slice(),
+                            &node,
+                            &cx,
+                            |start| start <= node.location().start_offset(),
+                        )
+                    } else {
+                        self.locals.shadows(&call, &cx)
+                    });
                 }
                 self.ancestors.push(node);
             }
@@ -2783,9 +3049,51 @@ mod tests {
             locals: VisibleLocals::of(&parsed.node()),
             ancestors: Vec::new(),
             shadowed: Vec::new(),
+            lexical,
         };
         walk(&mut calls, &parsed.node());
         calls.shadowed
+    }
+
+    #[test]
+    fn visible_locals_lexical_redeclarations_do_not_change_analysis_first_queries() {
+        // Complete walk order is predicate then body; only the opt-in query
+        // accounts for the lexically earlier body's declaration.
+        for (source, analyzed, lexical) in [
+            (
+                "consume((foo = 1; foo())) unless consume((foo = 1; foo()))",
+                vec![true, false],
+                vec![true, true],
+            ),
+            (
+                "consume((foo(); foo = 1)) unless consume((foo(); foo = 1))",
+                vec![false, false],
+                vec![true, false],
+            ),
+            (
+                "consume((foo = 1; foo())) unless consume((foo = 1; foo())); def f; foo(); end",
+                vec![true, false, false],
+                vec![true, true, false],
+            ),
+        ] {
+            assert_eq!(declaration_calls(source, false), analyzed, "{source}");
+            assert_eq!(declaration_calls(source, true), lexical, "{source}");
+        }
+    }
+
+    #[test]
+    fn declaration_name_view_preserves_raw_mac_spellings_without_merging_bindings() {
+        let parsed = ruby_prism::parse(
+            "# coding: UTF8-MAC\né = 1; xs.reduce { |acc, e\u{301}| e\u{301} }\n".as_bytes(),
+        );
+        assert_eq!(parsed.errors().count(), 0);
+        let locals = VisibleLocals::of(&parsed.node());
+        let mut names: Vec<_> = locals.declaration_names().collect();
+        names.sort_unstable();
+        names.dedup();
+        let mut expected = vec![b"acc".as_slice(), "é".as_bytes(), "e\u{301}".as_bytes()];
+        expected.sort_unstable();
+        assert_eq!(names, expected);
     }
 
     #[test]
@@ -2904,6 +3212,230 @@ mod tests {
                 )
             })
             .collect()
+    }
+
+    #[test]
+    fn shadowed_argument_projection_does_not_change_existing_consumers() {
+        for (body, raw, projected) in [
+            ("foo=42; 1.binding", false, true),
+            ("foo=42; send(:binding)", true, false),
+            ("foo=42; object&.binding", true, false),
+        ] {
+            let source = format!("def f(foo); {body}; end");
+            let parsed = ruby_prism::parse(source.as_bytes());
+            let program = parsed.node().as_program_node().unwrap();
+            let file =
+                crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            let baseline = ScopeAnalysis::of(&program);
+            let pinned = ScopeAnalysis::for_shadowed_arguments(&program, &file);
+            assert_eq!(baseline.variables[0].is_referenced(), raw, "{body}");
+            assert_eq!(pinned.variables[0].is_referenced(), projected, "{body}");
+            assert_eq!(
+                ScopeAnalysis::of(&program).variables[0].is_referenced(),
+                raw
+            );
+        }
+        let source = "# coding: UTF8-MAC\ndef f(e\u{301}); é=42; puts é; end\n";
+        let parsed = ruby_prism::parse(source.as_bytes());
+        let program = parsed.node().as_program_node().unwrap();
+        let file = crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+        let raw = ScopeAnalysis::of(&program);
+        let pinned = ScopeAnalysis::for_shadowed_arguments(&program, &file);
+        assert_eq!(raw.variables.len(), 2);
+        assert_eq!(pinned.variables.len(), 1);
+        assert_eq!(pinned.variables[0].name, "e\u{301}".as_bytes());
+        assert!(!raw.variables[0].is_referenced());
+        assert!(pinned.variables[0].is_referenced());
+    }
+
+    #[test]
+    fn outer_shadowing_records_lookup_before_declaration_without_changing_other_projections() {
+        for (source, expected) in [
+            ("foo=1; xs.each { |foo| }; xs.each { |foo| }", 2),
+            ("xs.each { |foo| }; foo=1", 0),
+            ("foo=xs.each { |foo| }", 1),
+            ("foo,bar=xs.each { |foo| }", 0),
+            ("foo=1; foo,bar=xs.each { |foo| }", 1),
+            ("foo=1; def f(foo); xs.each { |foo| }; end", 1),
+            ("xs.each { it; xs.each { |it| } }", 0),
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            let program = parsed.node().as_program_node().unwrap();
+            let file =
+                crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            let snapshot = |analysis: ScopeAnalysis<'_>| {
+                analysis
+                    .variables
+                    .iter()
+                    .map(|v| {
+                        (
+                            v.name.to_vec(),
+                            v.declaration,
+                            v.declaration_range.clone(),
+                            v.assignments.len(),
+                            v.references.len(),
+                            v.captured_by_block,
+                        )
+                    })
+                    .collect::<Vec<_>>()
+            };
+            let raw = snapshot(ScopeAnalysis::of(&program));
+            let pinned = snapshot(ScopeAnalysis::for_shadowed_arguments(&program, &file));
+            let shadowing = ScopeAnalysis::for_outer_shadowing(&program, &file);
+            assert_eq!(
+                shadowing.shadowing_declarations().count(),
+                expected,
+                "{source}"
+            );
+            assert_eq!(snapshot(ScopeAnalysis::of(&program)), raw);
+            assert_eq!(
+                snapshot(ScopeAnalysis::for_shadowed_arguments(&program, &file)),
+                pinned
+            );
+            assert!(ScopeAnalysis::of(&program).shadowing.is_empty());
+            assert!(
+                ScopeAnalysis::for_shadowed_arguments(&program, &file)
+                    .shadowing
+                    .is_empty()
+            );
+        }
+    }
+
+    #[test]
+    fn underscore_parameter_name_ranges_do_not_change_other_consumer_ranges() {
+        for sigil in ["*", "**", "&"] {
+            let parameter = format!("{sigil} # spacer\n  _foo");
+            for source in [
+                format!("def f({parameter}); _foo; end"),
+                format!("xs.each {{ |{parameter}| _foo }}"),
+                format!("->({parameter}) {{ _foo }}"),
+            ] {
+                let parsed = ruby_prism::parse(source.as_bytes());
+                assert_eq!(parsed.errors().count(), 0, "{source}");
+                let program = parsed.node().as_program_node().unwrap();
+                let file =
+                    crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+                let name = source.find("_foo").unwrap();
+                let full_range = source.find(&parameter).unwrap()..name + 4;
+                for analysis in [
+                    ScopeAnalysis::of(&program),
+                    ScopeAnalysis::for_shadowed_arguments(&program, &file),
+                    ScopeAnalysis::for_outer_shadowing(&program, &file),
+                ] {
+                    assert_eq!(analysis.variables.len(), 1, "{source}");
+                    assert_eq!(
+                        analysis.variables[0].declaration_range, full_range,
+                        "{source}"
+                    );
+                }
+                let analysis = ScopeAnalysis::for_underscore_variables(&program, &file);
+                assert_eq!(analysis.variables.len(), 1, "{source}");
+                assert_eq!(
+                    analysis.variables[0].declaration_range,
+                    name..name + 4,
+                    "{source}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn underscore_projection_keeps_existing_force_modes_and_ids_unchanged() {
+        for source in [
+            "/(?<_foo>.)/=~(_foo); _foo",
+            "/(?<_é>.)/=~text; _é=1; _é",
+            "_foo,bar=(proc { _foo=1; _foo }; values); _foo",
+            "xs.each { |_foo=(_bar=1),_bar=2| _bar; _foo }",
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            let program = parsed.node().as_program_node().unwrap();
+            let file =
+                crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            // Include identity-bearing data and value-flow facts, not just counts.
+            let snapshot = |analysis: ScopeAnalysis<'_>| {
+                format!(
+                    "{:?}{:?}{:?}{:?}",
+                    analysis
+                        .variables
+                        .iter()
+                        .map(|v| (
+                            v.name,
+                            v.scope,
+                            v.declaration,
+                            &v.declaration_range,
+                            &v.assignments,
+                            &v.references,
+                            v.captured_by_block
+                        ))
+                        .collect::<Vec<_>>(),
+                    analysis
+                        .assignments
+                        .iter()
+                        .map(|a| (
+                            a.variable,
+                            a.kind,
+                            &a.name_range,
+                            a.referenced,
+                            a.reassigned
+                        ))
+                        .collect::<Vec<_>>(),
+                    analysis
+                        .references
+                        .iter()
+                        .map(|r| (r.variable, r.kind, &r.range, r.assignment_owned))
+                        .collect::<Vec<_>>(),
+                    analysis.shadowing
+                )
+            };
+            let before = [
+                snapshot(ScopeAnalysis::of(&program)),
+                snapshot(ScopeAnalysis::for_shadowed_arguments(&program, &file)),
+                snapshot(ScopeAnalysis::for_outer_shadowing(&program, &file)),
+            ];
+            let underscore = ScopeAnalysis::for_underscore_variables(&program, &file);
+            assert!(underscore.shadowing.is_empty());
+            let after = [
+                snapshot(ScopeAnalysis::of(&program)),
+                snapshot(ScopeAnalysis::for_shadowed_arguments(&program, &file)),
+                snapshot(ScopeAnalysis::for_outer_shadowing(&program, &file)),
+            ];
+            assert_eq!(before, after, "{source}");
+        }
+    }
+
+    #[test]
+    fn outer_shadowing_visits_defaults_before_later_parameters() {
+        for (source, expected) in [
+            ("xs.each { |bar=xs.each { |foo| },foo=1| }", 0),
+            ("xs.each { |foo=1,bar=xs.each { |foo| }| }", 1),
+            ("foo=1; xs.each { |bar=xs.each { |foo| },foo=1| }", 2),
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            let program = parsed.node().as_program_node().unwrap();
+            let file =
+                crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            assert_eq!(
+                ScopeAnalysis::for_outer_shadowing(&program, &file)
+                    .shadowing_declarations()
+                    .count(),
+                expected,
+                "{source}"
+            );
+        }
+    }
+
+    #[test]
+    fn reference_ownership_excludes_only_reads_that_observe_prior_assignments() {
+        let source = "def f(foo); foo; proc { foo=1; foo }; foo=42; foo; end";
+        let parsed = ruby_prism::parse(source.as_bytes());
+        let program = parsed.node().as_program_node().unwrap();
+        let analysis = ScopeAnalysis::of(&program);
+        let refs: Vec<_> = analysis
+            .references
+            .iter()
+            .map(|r| r.assignment_owned)
+            .collect();
+        assert_eq!(refs, [false, true, true]);
     }
 
     fn used(pairs: &[(&str, bool)]) -> Vec<(String, bool)> {

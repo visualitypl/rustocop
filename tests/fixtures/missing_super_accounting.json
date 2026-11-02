@@ -1,0 +1,568 @@
+[
+  {
+    "spec_line": 6,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 18,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 33,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 42,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 51,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 62,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 71,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 83,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 95,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 104,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 115,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 129,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 140,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 153,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 167,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 178,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 191,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 200,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to invoke callback defined in the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to invoke callback defined in the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 212,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        3,
+        5,
+        4,
+        "Call `super` to invoke callback defined in the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        3,
+        5,
+        4,
+        "Call `super` to invoke callback defined in the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 226,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to invoke callback defined in the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to invoke callback defined in the parent class."
+      ]
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 238,
+    "assigned_index": false,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "disposition": "Applicable fixed-default example."
+  },
+  {
+    "spec_line": 253,
+    "assigned_index": false,
+    "options": {
+      "AllowedParentClasses": [
+        "Array"
+      ]
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        3,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Custom AllowedParentClasses is outside fixed empty policy; default detection separately tested."
+  },
+  {
+    "spec_line": 280,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 288,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 304,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 320,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 333,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 348,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 363,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 378,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+      [
+        2,
+        3,
+        4,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  },
+  {
+    "spec_line": 396,
+    "assigned_index": true,
+    "options": {
+    },
+    "pinned_findings": [
+
+    ],
+    "default_findings": [
+      [
+        3,
+        5,
+        5,
+        "Call `super` to initialize state of the parent class."
+      ]
+    ],
+    "disposition": "Nondefault assigned index: independently replayed; production uses fixed UseProjectIndex=false fallback."
+  }
+]

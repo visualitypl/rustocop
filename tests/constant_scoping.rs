@@ -108,6 +108,9 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/forwarded_private_constants.json")).unwrap();
     assert_eq!(rows.len(), 49);
+    // These fixtures audit detection-only constant rules. Newly landed literal
+    // removals are independently covered by adjacent_strings composition tests.
+    let except = format!("{RESOLUTION},Lint/ImplicitStringConcatenation,Lint/TripleQuotes");
     for row in rows {
         let source = row["source"].as_str().unwrap();
         let expected: Vec<(u32, u32, u32, String)> =
@@ -115,14 +118,20 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
         for args in [
             vec!["--only", SCOPING, "lib/a.rb"],
             vec!["--only", SCOPING, "--fix", "lib/a.rb"],
-            vec![
-                "--only", "Lint", "--except", RESOLUTION, "--fix", "lib/a.rb",
-            ],
+            vec!["--only", "Lint", "--except", &except, "--fix", "lib/a.rb"],
         ] {
             let out = unchanged(dir.path(), source.as_bytes(), &args);
+            // All49 fixtures also have a private modifier without an instance
+            // method. Department selection must retain the newly landed peer.
+            let peer = usize::from(args.contains(&"Lint"));
+            assert_eq!(
+                count(&out, "Lint/UselessAccessModifier"),
+                peer,
+                "{row}\n{out:?}"
+            );
             assert_eq!(
                 out.status.code(),
-                Some(i32::from(!expected.is_empty())),
+                Some(i32::from(!expected.is_empty() || peer != 0)),
                 "{row}\n{out:?}"
             );
             assert_eq!(count(&out, SCOPING), expected.len(), "{row}\n{out:?}");
@@ -169,23 +178,23 @@ fn native_ruby34_accepts_fixture_syntax_without_executing_inputs() {
 #[test]
 fn exact_live_metadata_default_opt_in_and_no_new_capabilities() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     let lint: Vec<_> = registry
         .cops()
         .iter()
         .filter(|c| c.name().starts_with("Lint/"))
         .collect();
-    assert_eq!(lint.len(), 70);
-    assert_eq!(lint.iter().filter(|c| c.default_enabled()).count(), 69);
+    assert_eq!(lint.len(), 145);
+    assert_eq!(lint.iter().filter(|c| c.default_enabled()).count(), 140);
     let config = rustocop::config::ResolvedConfig::default();
-    // Three version-inactive and three genuinely absent-index prerequisites;
-    // registration/configuration is not the default-effective count (63).
+    // Three version-inactive and four genuinely absent-index prerequisites;
+    // registration/configuration is not the default-effective count (133).
     assert_eq!(
         rustocop::cops::select_active(&registry, &config, &[], &[])
             .iter()
             .filter(|c| c.name().starts_with("Lint/"))
             .count(),
-        66
+        137
     );
     for (name, _) in CASES {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
@@ -195,7 +204,7 @@ fn exact_live_metadata_default_opt_in_and_no_new_capabilities() {
         assert!(cop.path_policy().is_none());
         assert!(cop.max_setting().is_none());
     }
-    assert!(!registry.has_cop("Lint/UnusedPrivateMethod"));
+    assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
 }
 
 #[test]

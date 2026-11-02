@@ -10,7 +10,9 @@ pub(crate) mod heredoc_boundaries;
 mod literal_ranges;
 mod punctuation;
 
-pub(crate) use encoding::{SourceEncoding, unicode_lowercase};
+pub(crate) use encoding::{
+    SourceEncoding, projected_alphanumeric, unicode_lowercase, unicode_uppercase,
+};
 
 /// A Ruby source file: its display path, raw bytes, and a line index.
 pub struct SourceFile {
@@ -33,6 +35,9 @@ pub struct SourceFile {
     dig_calls: OnceLock<crate::cops::style::dig_chain::Facts>,
     word_array_matrices: OnceLock<std::sync::Mutex<std::collections::HashSet<usize>>>,
     visible_locals: OnceLock<crate::cops::variables::VisibleLocals>,
+    /// Detection-only UTF8-MAC aliases; built once, only for numeric candidates.
+    pub(crate) numeric_operation_local_aliases:
+        OnceLock<std::collections::HashMap<Vec<u8>, Vec<Vec<u8>>>>,
     local_rename_facts: OnceLock<crate::cops::naming::local_rename::Facts>,
     forwarding_safety: OnceLock<crate::cops::style::arguments_forwarding::Safety>,
     rescue_preferred_reads:
@@ -82,6 +87,14 @@ pub struct SourceFile {
     lambda_call_facts: OnceLock<crate::cops::style::lambda_call::Facts>,
     /// Distinct numbered-name masks folded once from the main AST.
     numbered_limit_facts: OnceLock<crate::cops::style::numbered_parameters_limit::Facts>,
+    /// Detection-only descendant symbol-call ranges for lexical visibility.
+    ineffective_private_names:
+        OnceLock<crate::cops::lint::ineffective_access_modifier::PrivateNames>,
+    useless_access_modifiers: OnceLock<crate::cops::lint::useless_access_modifier::Facts>,
+    missing_super_facts: OnceLock<crate::cops::lint::missing_super::Facts>,
+    /// Memoized syntactic Time/DateTime roots, only for the opt-in detector.
+    pub(crate) number_conversion_roots:
+        std::sync::Mutex<std::collections::HashMap<(usize, usize), bool>>,
     /// Byte offsets at which each line starts (line 1 starts at 0).
     line_starts: std::sync::Arc<Vec<usize>>,
     /// Byte ranges of the file's comments, in source order. Recorded by the
@@ -149,6 +162,9 @@ pub struct SourceFile {
     memoized_name_fingerprints: OnceLock<
         std::sync::Mutex<crate::cops::naming::memoized_instance_variable_name::Fingerprints>,
     >,
+    /// LiteralAssignmentInCondition's bounded, lazy structural scope-edge facts.
+    literal_assignment_scope_edges:
+        OnceLock<std::sync::Mutex<crate::cops::lint::literal_assignment_in_condition::ScopeEdges>>,
     /// Direct conditional guard keys, indexed once per condition for FetchEnvVar.
     fetch_env_conditions: OnceLock<std::sync::Mutex<crate::cops::style::fetch_env_var::Conditions>>,
     /// FileNull's detection evidence, distinct from correction-only bindings.
@@ -227,6 +243,10 @@ impl SourceFile {
             read_path: None,
             source_path: None,
             noncanonical_load_path: OnceLock::new(),
+            ineffective_private_names: OnceLock::new(),
+            useless_access_modifiers: OnceLock::new(),
+            missing_super_facts: OnceLock::new(),
+            number_conversion_roots: Default::default(),
             code_object_facts: OnceLock::new(),
             interpolation_facts: OnceLock::new(),
             format_string_facts: OnceLock::new(),
@@ -234,6 +254,7 @@ impl SourceFile {
             dig_calls: OnceLock::new(),
             word_array_matrices: OnceLock::new(),
             visible_locals: OnceLock::new(),
+            numeric_operation_local_aliases: OnceLock::new(),
             local_rename_facts: OnceLock::new(),
             forwarding_safety: OnceLock::new(),
             rescue_preferred_reads: OnceLock::new(),
@@ -296,6 +317,7 @@ impl SourceFile {
             predicate_method_returns: OnceLock::new(),
             memoized_name_fingerprints: OnceLock::new(),
             fetch_env_conditions: OnceLock::new(),
+            literal_assignment_scope_edges: OnceLock::new(),
             contains_dev_null: OnceLock::new(),
             redundant_conditions: OnceLock::new(),
             identical_branch_edges: OnceLock::new(),
@@ -365,6 +387,23 @@ impl SourceFile {
             .is_some_and(|&i| i < range.end)
     }
 
+    pub(crate) fn useless_access_modifiers(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::lint::useless_access_modifier::Facts {
+        self.useless_access_modifiers
+            .get_or_init(|| crate::cops::lint::useless_access_modifier::Facts::build(root))
+    }
+
+    pub(crate) fn ineffective_private_names(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::lint::ineffective_access_modifier::PrivateNames {
+        self.ineffective_private_names.get_or_init(|| {
+            crate::cops::lint::ineffective_access_modifier::PrivateNames::build(root, self)
+        })
+    }
+
     pub(crate) fn dig_calls(&self, root: &Node<'_>) -> &crate::cops::style::dig_chain::Facts {
         self.dig_calls
             .get_or_init(|| crate::cops::style::dig_chain::Facts::build(root))
@@ -421,6 +460,14 @@ impl SourceFile {
     pub(crate) fn proc_facts(&self, root: &Node<'_>) -> &crate::cops::style::proc::Facts {
         self.proc_facts
             .get_or_init(|| crate::cops::style::proc::Facts::build(root))
+    }
+
+    pub(crate) fn missing_super_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::lint::missing_super::Facts {
+        self.missing_super_facts
+            .get_or_init(|| crate::cops::lint::missing_super::Facts::build(root))
     }
 
     pub(crate) fn lambda_facts(&self, root: &Node<'_>) -> &crate::cops::style::lambda::Facts {
@@ -790,6 +837,13 @@ impl SourceFile {
             .get_or_init(Default::default)
     }
 
+    pub(crate) fn literal_assignment_scope_edges(
+        &self,
+    ) -> &std::sync::Mutex<crate::cops::lint::literal_assignment_in_condition::ScopeEdges> {
+        self.literal_assignment_scope_edges
+            .get_or_init(Default::default)
+    }
+
     pub(crate) fn fetch_env_conditions(
         &self,
     ) -> &std::sync::Mutex<crate::cops::style::fetch_env_var::Conditions> {
@@ -944,10 +998,16 @@ impl SourceFile {
         self.parsed_encoding().word(bytes, projected)
     }
 
-    /// Bounded reference-buffer projection for DuplicateMatchPattern identities
-    /// and column counts, not diagnostic text or a global decoded source view.
+    /// Bounded reference-buffer projection for DuplicateMatchPattern identities,
+    /// DuplicateMagicComment header tokens and column counts, not diagnostic
+    /// text or a global decoded source view.
     pub(crate) fn match_pattern_source<'a>(&self, bytes: &'a [u8]) -> std::borrow::Cow<'a, [u8]> {
         self.parsed_encoding().match_pattern_source(bytes)
+    }
+
+    /// Only this reference-buffer profile composes distinct identifier spellings.
+    pub(crate) fn match_pattern_composes_identifiers(&self) -> bool {
+        self.parsed_encoding().match_pattern_composes_identifiers()
     }
 
     pub(crate) fn match_pattern_binary(&self) -> bool {
@@ -1178,6 +1238,11 @@ impl SourceFile {
     /// separators. Unlike correction safety, these do not protect whole arrays.
     pub(crate) fn literal_token_ranges(&self, root: &Node<'_>) -> &[Range<usize>] {
         &self.token_ranges(root).protected
+    }
+
+    /// Original-byte heredoc excursions from the existing main-parse index.
+    pub(crate) fn heredocs(&self, root: &Node<'_>) -> &[heredoc_boundaries::Heredoc] {
+        &self.token_ranges(root).heredocs
     }
 
     /// Shared lazy physical heredoc evidence from this file's main parse.
@@ -1576,6 +1641,99 @@ fn parse_warnings(result: &ParseResult<'_>) -> Vec<ParseWarning> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn missing_super_facts_are_lazy_cached_and_source_local_in_both_modes() {
+        use crate::cops::{Cop, lint::MissingSuper, run_cops_with_corrections};
+        let cops: [&dyn Cop; 1] = [&MissingSuper];
+        for source in [
+            "nil",
+            "def ordinary; super; end",
+            "class C < Object; def initialize; end; end",
+            "Class.new(Parent) { def inherited; end }",
+        ] {
+            let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            for corrections in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections)
+                        .is_empty()
+                );
+                assert!(out.is_empty());
+                assert!(file.missing_super_facts.get().is_none());
+            }
+        }
+        // Nested overlapping def subtrees must share one postorder fact pass.
+        let mut source = "class C < Parent; def initialize;".to_string();
+        for i in 0..20 {
+            source.push_str(&format!("def nested_{i};"));
+        }
+        source.push_str("super;");
+        source.push_str(&"end;".repeat(22));
+        let file = SourceFile::new("x.rb".into(), source.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        for corrections in [false, true] {
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections).is_empty()
+            );
+            assert!(out.is_empty());
+            let facts = file.missing_super_facts.get().unwrap();
+            assert!(std::ptr::eq(
+                facts,
+                file.missing_super_facts(&parsed.node())
+            ));
+            assert!(file.useless_access_modifiers.get().is_none());
+            assert!(file.literal_assignment_scope_edges.get().is_none());
+        }
+        let other = SourceFile::new(
+            "x.rb".into(),
+            b"class C < Parent; def initialize; end; end".to_vec(),
+        );
+        let parsed = crate::parser::parse(&other.bytes);
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(&cops, &parsed, &other, &mut out, false).is_empty());
+        assert_eq!(out.len(), 1);
+        assert!(out[0].correction.is_none());
+    }
+
+    #[test]
+    fn ineffective_visibility_names_are_lazy_in_lint_and_fix_modes() {
+        use crate::cops::{Cop, lint::IneffectiveAccessModifier, run_cops_with_corrections};
+        let cops: [&dyn Cop; 1] = [&IneffectiveAccessModifier];
+        for source in [
+            "class C;public;def self.f;end;end",
+            "class C;private;def f;end;end",
+            "class C;begin;private;def self.f;end;end;end",
+        ] {
+            let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            for corrections in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections)
+                        .is_empty()
+                );
+                assert!(out.is_empty());
+                assert!(file.ineffective_private_names.get().is_none());
+            }
+        }
+        let file = SourceFile::new(
+            "x.rb".into(),
+            b"class C;private;def self.f;end;end".to_vec(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        for corrections in [false, true] {
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections).is_empty()
+            );
+            assert_eq!(out.len(), 1);
+            assert!(out[0].correction.is_none());
+            assert!(file.ineffective_private_names.get().is_some());
+        }
+    }
 
     #[test]
     fn formatting_proof_is_lazy_cached_file_local_and_linear() {

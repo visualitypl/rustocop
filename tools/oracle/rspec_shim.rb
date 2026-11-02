@@ -417,6 +417,15 @@ module Oracle
       @__example.record(self, plain, file, offenses)
     end
 
+    # This owner's specs batch source assertions in RSpec's failure wrapper.
+    # Yield every expectation; do not widen historical consumers' applicability.
+    def aggregate_failures(*)
+      unless cop_class.cop_name == 'Lint/UnmodifiedReduceAccumulator'
+        raise Unsupported, '`aggregate_failures` is only emulated for UnmodifiedReduceAccumulator'
+      end
+      yield
+    end
+
     def expect_no_offenses(source, file = nil)
       @__example.record(self, source, file, [])
     end

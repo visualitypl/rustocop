@@ -1,0 +1,4606 @@
+[
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "spec",
+    "line": 5,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: TRUE\n",
+    "origin": "spec",
+    "line": 17,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: TRUE\n"
+  },
+  {
+    "source": "# encoding: ascii\n# encoding: ascii\n",
+    "origin": "spec",
+    "line": 29,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# encoding: ascii\n",
+    "project_after": "# encoding: ascii\n# encoding: ascii\n"
+  },
+  {
+    "source": "# encoding: ascii\n# encoding: utf-8\n",
+    "origin": "spec",
+    "line": 41,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# encoding: ascii\n",
+    "project_after": "# encoding: ascii\n# encoding: utf-8\n"
+  },
+  {
+    "source": "# encoding: ascii\n# frozen_string_literal: true\n# encoding: ascii\n# frozen_string_literal: true\n",
+    "origin": "spec",
+    "line": 53,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# encoding: ascii\n# frozen_string_literal: true\n",
+    "project_after": "# encoding: ascii\n# frozen_string_literal: true\n# encoding: ascii\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n",
+    "origin": "spec",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# encoding: ascii\n",
+    "origin": "spec",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "# encoding: ascii\n",
+    "project_after": "# encoding: ascii\n"
+  },
+  {
+    "source": "# encoding: ascii\n# frozen_string_literal: true\n",
+    "origin": "spec",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "# encoding: ascii\n# frozen_string_literal: true\n",
+    "project_after": "# encoding: ascii\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# bad\n",
+    "origin": "source",
+    "line": 10,
+    "findings": [
+
+    ],
+    "upstream_after": "# bad\n",
+    "project_after": "# bad\n"
+  },
+  {
+    "source": "# encoding: ascii\n# encoding: ascii\n",
+    "origin": "source",
+    "line": 12,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# encoding: ascii\n",
+    "project_after": "# encoding: ascii\n# encoding: ascii\n"
+  },
+  {
+    "source": "# good\n",
+    "origin": "source",
+    "line": 15,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\n",
+    "project_after": "# good\n"
+  },
+  {
+    "source": "# encoding: ascii\n",
+    "origin": "source",
+    "line": 17,
+    "findings": [
+
+    ],
+    "upstream_after": "# encoding: ascii\n",
+    "project_after": "# encoding: ascii\n"
+  },
+  {
+    "source": "# bad\n",
+    "origin": "source",
+    "line": 19,
+    "findings": [
+
+    ],
+    "upstream_after": "# bad\n",
+    "project_after": "# bad\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "source",
+    "line": 21,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# good\n",
+    "origin": "source",
+    "line": 24,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\n",
+    "project_after": "# good\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n",
+    "origin": "source",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n#\n#\n",
+    "origin": "shared",
+    "line": 34,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n#\n#\n",
+    "project_after": "# ordinary\n#\n#\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: utf-8\n# encoding: utf-8\n",
+    "origin": "shared",
+    "line": 36,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: utf-8\n",
+    "project_after": "# ordinary\n# encoding: utf-8\n# encoding: utf-8\n"
+  },
+  {
+    "source": "# ordinary\n# ENCODING: utf-8\n# ENCODING: utf-8\n",
+    "origin": "shared",
+    "line": 38,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# ENCODING: utf-8\n",
+    "project_after": "# ordinary\n# ENCODING: utf-8\n# ENCODING: utf-8\n"
+  },
+  {
+    "source": "# ordinary\n# eNcOdInG: utf-8\n# eNcOdInG: utf-8\n",
+    "origin": "shared",
+    "line": 40,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# eNcOdInG: utf-8\n",
+    "project_after": "# ordinary\n# eNcOdInG: utf-8\n# eNcOdInG: utf-8\n"
+  },
+  {
+    "source": "# ordinary\n# coding: utf-8\n# coding: utf-8\n",
+    "origin": "shared",
+    "line": 42,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# coding: utf-8\n",
+    "project_after": "# ordinary\n# coding: utf-8\n# coding: utf-8\n"
+  },
+  {
+    "source": "# ordinary\n    # coding: utf-8\n    # coding: utf-8\n",
+    "origin": "shared",
+    "line": 44,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n    # coding: utf-8\n",
+    "project_after": "# ordinary\n    # coding: utf-8\n    # coding: utf-8\n"
+  },
+  {
+    "source": "# ordinary\n# incoding: utf-8\n# incoding: utf-8\n",
+    "origin": "shared",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# incoding: utf-8\n# incoding: utf-8\n",
+    "project_after": "# ordinary\n# incoding: utf-8\n# incoding: utf-8\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: stateless-iso-2022-jp-kddi\n# encoding: stateless-iso-2022-jp-kddi\n",
+    "origin": "shared",
+    "line": 48,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: stateless-iso-2022-jp-kddi\n",
+    "project_after": "# ordinary\n# encoding: stateless-iso-2022-jp-kddi\n# encoding: stateless-iso-2022-jp-kddi\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "shared",
+    "line": 52,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: true\n",
+    "project_after": "# ordinary\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n    # frozen_string_literal: true\n    # frozen_string_literal: true\n",
+    "origin": "shared",
+    "line": 54,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n    # frozen_string_literal: true\n",
+    "project_after": "# ordinary\n    # frozen_string_literal: true\n    # frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal:true\n# frozen_string_literal:true\n",
+    "origin": "shared",
+    "line": 56,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal:true\n",
+    "project_after": "# ordinary\n# frozen_string_literal:true\n# frozen_string_literal:true\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: false\n# frozen_string_literal: false\n",
+    "origin": "shared",
+    "line": 58,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: false\n",
+    "project_after": "# ordinary\n# frozen_string_literal: false\n# frozen_string_literal: false\n"
+  },
+  {
+    "source": "# ordinary\n# frozen-string-literal: true\n# frozen-string-literal: true\n",
+    "origin": "shared",
+    "line": 60,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen-string-literal: true\n",
+    "project_after": "# ordinary\n# frozen-string-literal: true\n# frozen-string-literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# FROZEN-STRING-LITERAL: true\n# FROZEN-STRING-LITERAL: true\n",
+    "origin": "shared",
+    "line": 62,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# FROZEN-STRING-LITERAL: true\n",
+    "project_after": "# ordinary\n# FROZEN-STRING-LITERAL: true\n# FROZEN-STRING-LITERAL: true\n"
+  },
+  {
+    "source": "# ordinary\n# fRoZeN-sTrInG_lItErAl: true\n# fRoZeN-sTrInG_lItErAl: true\n",
+    "origin": "shared",
+    "line": 64,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# fRoZeN-sTrInG_lItErAl: true\n",
+    "project_after": "# ordinary\n# fRoZeN-sTrInG_lItErAl: true\n# fRoZeN-sTrInG_lItErAl: true\n"
+  },
+  {
+    "source": "# ordinary\n# warn_indent: true\n# warn_indent: true\n",
+    "origin": "shared",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# warn_indent: true\n# warn_indent: true\n",
+    "project_after": "# ordinary\n# warn_indent: true\n# warn_indent: true\n"
+  },
+  {
+    "source": "# ordinary\n# warn-indent: false\n# warn-indent: false\n",
+    "origin": "shared",
+    "line": 67,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# warn-indent: false\n# warn-indent: false\n",
+    "project_after": "# ordinary\n# warn-indent: false\n# warn-indent: false\n"
+  },
+  {
+    "source": "# ordinary\n# WARN_INDENT: true\n# WARN_INDENT: true\n",
+    "origin": "shared",
+    "line": 68,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# WARN_INDENT: true\n# WARN_INDENT: true\n",
+    "project_after": "# ordinary\n# WARN_INDENT: true\n# WARN_INDENT: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- warn_indent: true -*-\n# -*- warn_indent: true -*-\n",
+    "origin": "shared",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- warn_indent: true -*-\n# -*- warn_indent: true -*-\n",
+    "project_after": "# ordinary\n# -*- warn_indent: true -*-\n# -*- warn_indent: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value: literal\n# shareable_constant_value: literal\n",
+    "origin": "shared",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value: literal\n# shareable_constant_value: literal\n",
+    "project_after": "# ordinary\n# shareable_constant_value: literal\n# shareable_constant_value: literal\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value:literal\n# shareable_constant_value:literal\n",
+    "origin": "shared",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value:literal\n# shareable_constant_value:literal\n",
+    "project_after": "# ordinary\n# shareable_constant_value:literal\n# shareable_constant_value:literal\n"
+  },
+  {
+    "source": "# ordinary\n# shareable-constant-value: literal\n# shareable-constant-value: literal\n",
+    "origin": "shared",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable-constant-value: literal\n# shareable-constant-value: literal\n",
+    "project_after": "# ordinary\n# shareable-constant-value: literal\n# shareable-constant-value: literal\n"
+  },
+  {
+    "source": "# ordinary\n# SHAREABLE-CONSTANT-VALUE: literal\n# SHAREABLE-CONSTANT-VALUE: literal\n",
+    "origin": "shared",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# SHAREABLE-CONSTANT-VALUE: literal\n# SHAREABLE-CONSTANT-VALUE: literal\n",
+    "project_after": "# ordinary\n# SHAREABLE-CONSTANT-VALUE: literal\n# SHAREABLE-CONSTANT-VALUE: literal\n"
+  },
+  {
+    "source": "# ordinary\n# sHaReaBLE-CoNstANT-ValUE: literal\n# sHaReaBLE-CoNstANT-ValUE: literal\n",
+    "origin": "shared",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# sHaReaBLE-CoNstANT-ValUE: literal\n# sHaReaBLE-CoNstANT-ValUE: literal\n",
+    "project_after": "# ordinary\n# sHaReaBLE-CoNstANT-ValUE: literal\n# sHaReaBLE-CoNstANT-ValUE: literal\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value: none\n# shareable_constant_value: none\n",
+    "origin": "shared",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value: none\n# shareable_constant_value: none\n",
+    "project_after": "# ordinary\n# shareable_constant_value: none\n# shareable_constant_value: none\n"
+  },
+  {
+    "source": "# ordinary\n# xyz shareable_constant_value: literal\n# xyz shareable_constant_value: literal\n",
+    "origin": "shared",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# xyz shareable_constant_value: literal\n# xyz shareable_constant_value: literal\n",
+    "project_after": "# ordinary\n# xyz shareable_constant_value: literal\n# xyz shareable_constant_value: literal\n"
+  },
+  {
+    "source": "# ordinary\n# xyz shareable_constant_value: literal xyz\n# xyz shareable_constant_value: literal xyz\n",
+    "origin": "shared",
+    "line": 85,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# xyz shareable_constant_value: literal xyz\n# xyz shareable_constant_value: literal xyz\n",
+    "project_after": "# ordinary\n# xyz shareable_constant_value: literal xyz\n# xyz shareable_constant_value: literal xyz\n"
+  },
+  {
+    "source": "# ordinary\n# typed: ignore\n# typed: ignore\n",
+    "origin": "shared",
+    "line": 87,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed: ignore\n# typed: ignore\n",
+    "project_after": "# ordinary\n# typed: ignore\n# typed: ignore\n"
+  },
+  {
+    "source": "# ordinary\n# typed: false\n# typed: false\n",
+    "origin": "shared",
+    "line": 89,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed: false\n# typed: false\n",
+    "project_after": "# ordinary\n# typed: false\n# typed: false\n"
+  },
+  {
+    "source": "# ordinary\n# typed: true\n# typed: true\n",
+    "origin": "shared",
+    "line": 91,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed: true\n# typed: true\n",
+    "project_after": "# ordinary\n# typed: true\n# typed: true\n"
+  },
+  {
+    "source": "# ordinary\n# typed: strict\n# typed: strict\n",
+    "origin": "shared",
+    "line": 93,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed: strict\n# typed: strict\n",
+    "project_after": "# ordinary\n# typed: strict\n# typed: strict\n"
+  },
+  {
+    "source": "# ordinary\n# typed: strong\n# typed: strong\n",
+    "origin": "shared",
+    "line": 95,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed: strong\n# typed: strong\n",
+    "project_after": "# ordinary\n# typed: strong\n# typed: strong\n"
+  },
+  {
+    "source": "# ordinary\n#typed:strict\n#typed:strict\n",
+    "origin": "shared",
+    "line": 97,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n#typed:strict\n#typed:strict\n",
+    "project_after": "# ordinary\n#typed:strict\n#typed:strict\n"
+  },
+  {
+    "source": "# ordinary\n#    typed:strict\n#    typed:strict\n",
+    "origin": "shared",
+    "line": 99,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n#    typed:strict\n#    typed:strict\n",
+    "project_after": "# ordinary\n#    typed:strict\n#    typed:strict\n"
+  },
+  {
+    "source": "# ordinary\n# @typed\n# @typed\n",
+    "origin": "shared",
+    "line": 101,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# @typed\n# @typed\n",
+    "project_after": "# ordinary\n# @typed\n# @typed\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value: experimental_everything\n# shareable_constant_value: experimental_everything\n",
+    "origin": "shared",
+    "line": 103,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value: experimental_everything\n# shareable_constant_value: experimental_everything\n",
+    "project_after": "# ordinary\n# shareable_constant_value: experimental_everything\n# shareable_constant_value: experimental_everything\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value: experimental_copy\n# shareable_constant_value: experimental_copy\n",
+    "origin": "shared",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value: experimental_copy\n# shareable_constant_value: experimental_copy\n",
+    "project_after": "# ordinary\n# shareable_constant_value: experimental_copy\n# shareable_constant_value: experimental_copy\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen-string-literal: true -*-\n# -*- frozen-string-literal: true -*-\n",
+    "origin": "shared",
+    "line": 115,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen-string-literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- frozen-string-literal: true -*-\n# -*- frozen-string-literal: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: invalid\n# frozen_string_literal: invalid\n",
+    "origin": "shared",
+    "line": 119,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: invalid\n",
+    "project_after": "# ordinary\n# frozen_string_literal: invalid\n# frozen_string_literal: invalid\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding : ascii-8bit -*-\n# -*- encoding : ascii-8bit -*-\n",
+    "origin": "shared",
+    "line": 123,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding : ascii-8bit -*-\n",
+    "project_after": "# ordinary\n# -*- encoding : ascii-8bit -*-\n# -*- encoding : ascii-8bit -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: ascii-8bit frozen_string_literal: true\n# encoding: ascii-8bit frozen_string_literal: true\n",
+    "origin": "shared",
+    "line": 128,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: ascii-8bit frozen_string_literal: true\n",
+    "project_after": "# ordinary\n# encoding: ascii-8bit frozen_string_literal: true\n# encoding: ascii-8bit frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: true encoding: ascii-8bit\n# frozen_string_literal: true encoding: ascii-8bit\n",
+    "origin": "shared",
+    "line": 133,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: true encoding: ascii-8bit\n",
+    "project_after": "# ordinary\n# frozen_string_literal: true encoding: ascii-8bit\n# frozen_string_literal: true encoding: ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n# -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n",
+    "origin": "shared",
+    "line": 143,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n# -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# coding: utf-8 -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n# coding: utf-8 -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n",
+    "origin": "shared",
+    "line": 150,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# coding: utf-8 -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n",
+    "project_after": "# ordinary\n# coding: utf-8 -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n# coding: utf-8 -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# -*- coding: ASCII-8BIT; typed: strict -*-\n# -*- coding: ASCII-8BIT; typed: strict -*-\n",
+    "origin": "shared",
+    "line": 157,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- coding: ASCII-8BIT; typed: strict -*-\n",
+    "project_after": "# ordinary\n# -*- coding: ASCII-8BIT; typed: strict -*-\n# -*- coding: ASCII-8BIT; typed: strict -*-\n"
+  },
+  {
+    "source": "# ordinary\n# vim: filetype=ruby, fileencoding=ascii-8bit\n# vim: filetype=ruby, fileencoding=ascii-8bit\n",
+    "origin": "shared",
+    "line": 163,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# vim: filetype=ruby, fileencoding=ascii-8bit\n",
+    "project_after": "# ordinary\n# vim: filetype=ruby, fileencoding=ascii-8bit\n# vim: filetype=ruby, fileencoding=ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n# vim: filetype=ruby,fileencoding=ascii-8bit\n# vim: filetype=ruby,fileencoding=ascii-8bit\n",
+    "origin": "shared",
+    "line": 167,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# vim: filetype=ruby,fileencoding=ascii-8bit\n# vim: filetype=ruby,fileencoding=ascii-8bit\n",
+    "project_after": "# ordinary\n# vim: filetype=ruby,fileencoding=ascii-8bit\n# vim: filetype=ruby,fileencoding=ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n# vim: filetype=ruby,  fileencoding=ascii-8bit\n# vim: filetype=ruby,  fileencoding=ascii-8bit\n",
+    "origin": "shared",
+    "line": 169,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# vim: filetype=ruby,  fileencoding=ascii-8bit\n",
+    "project_after": "# ordinary\n# vim: filetype=ruby,  fileencoding=ascii-8bit\n# vim: filetype=ruby,  fileencoding=ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n#vim: filetype=ruby, fileencoding=ascii-8bit\n#vim: filetype=ruby, fileencoding=ascii-8bit\n",
+    "origin": "shared",
+    "line": 173,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n#vim: filetype=ruby, fileencoding=ascii-8bit\n",
+    "project_after": "# ordinary\n#vim: filetype=ruby, fileencoding=ascii-8bit\n#vim: filetype=ruby, fileencoding=ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n#vim: filetype=ruby, fileencoding=ascii-8bit, typed=strict\n#vim: filetype=ruby, fileencoding=ascii-8bit, typed=strict\n",
+    "origin": "shared",
+    "line": 177,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n#vim: filetype=ruby, fileencoding=ascii-8bit, typed=strict\n",
+    "project_after": "# ordinary\n#vim: filetype=ruby, fileencoding=ascii-8bit, typed=strict\n#vim: filetype=ruby, fileencoding=ascii-8bit, typed=strict\n"
+  },
+  {
+    "source": "# ordinary\n# coding: utf-8 vim: filetype=ruby, fileencoding=ascii-8bit\n# coding: utf-8 vim: filetype=ruby, fileencoding=ascii-8bit\n",
+    "origin": "shared",
+    "line": 181,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# coding: utf-8 vim: filetype=ruby, fileencoding=ascii-8bit\n",
+    "project_after": "# ordinary\n# coding: utf-8 vim: filetype=ruby, fileencoding=ascii-8bit\n# coding: utf-8 vim: filetype=ruby, fileencoding=ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n# vim: filetype=python, fileencoding=ascii-8bit\n# vim: filetype=python, fileencoding=ascii-8bit\n",
+    "origin": "shared",
+    "line": 187,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# vim: filetype=python, fileencoding=ascii-8bit\n",
+    "project_after": "# ordinary\n# vim: filetype=python, fileencoding=ascii-8bit\n# vim: filetype=python, fileencoding=ascii-8bit\n"
+  },
+  {
+    "source": "# ordinary\n# vim:fileencoding=utf-8\n# vim:fileencoding=utf-8\n",
+    "origin": "shared",
+    "line": 191,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# vim:fileencoding=utf-8\n# vim:fileencoding=utf-8\n",
+    "project_after": "# ordinary\n# vim:fileencoding=utf-8\n# vim:fileencoding=utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\n# frozen_string_literal: true\n",
+    "project_after": "\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: true\n",
+    "project_after": "# ordinary\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "#!/usr/bin/env ruby\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "#!/usr/bin/env ruby\n# frozen_string_literal: true\n",
+    "project_after": "#!/usr/bin/env ruby\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "﻿# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+
+    ],
+    "upstream_after": "﻿# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "project_after": "﻿# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "=begin\n# frozen_string_literal: true\n# frozen_string_literal: true\n=end\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "=begin\n# frozen_string_literal: true\n=end\n",
+    "project_after": "=begin\n# frozen_string_literal: true\n# frozen_string_literal: true\n=end\n"
+  },
+  {
+    "source": "\\\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\\\n# frozen_string_literal: true\n",
+    "project_after": "\\\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n1\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n1\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\n1\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n1\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n1\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n1\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nnil\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nnil\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nnil\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nnil\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nnil\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nnil\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nclass C; end\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nclass C; end\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nclass C; end\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nclass C; end\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nclass C; end\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nclass C; end\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n__LINE__\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n__LINE__\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\n__LINE__\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n__LINE__\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n__LINE__\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n__LINE__\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nDATA.pos\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nDATA.pos\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nDATA.pos\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nDATA.pos\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nDATA.pos\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nDATA.pos\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nFile.binread(__FILE__)\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nFile.binread(__FILE__)\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nFile.binread(__FILE__)\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nFile.binread(__FILE__)\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nFile.binread(__FILE__)\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nFile.binread(__FILE__)\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nRubyVM::InstructionSequence.of(method(:f))\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nRubyVM::InstructionSequence.of(method(:f))\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nRubyVM::InstructionSequence.of(method(:f))\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nRubyVM::InstructionSequence.of(method(:f))\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nRubyVM::InstructionSequence.of(method(:f))\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nRubyVM::InstructionSequence.of(method(:f))\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nObjectSpace.count_objects\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nObjectSpace.count_objects\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nObjectSpace.count_objects\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nObjectSpace.count_objects\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nObjectSpace.count_objects\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nObjectSpace.count_objects\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nGC.stat\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nGC.stat\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nGC.stat\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nGC.stat\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nGC.stat\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nGC.stat\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nTracePoint.new {}\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nTracePoint.new {}\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nTracePoint.new {}\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nTracePoint.new {}\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nTracePoint.new {}\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nTracePoint.new {}\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\neval(\"nil\")\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\neval(\"nil\")\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\neval(\"nil\")\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\neval(\"nil\")\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\neval(\"nil\")\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\neval(\"nil\")\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\nx = <<~TEXT\nbody\nTEXT\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\nx = <<~TEXT\nbody\nTEXT\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\nx = <<~TEXT\nbody\nTEXT\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\nx = <<~TEXT\nbody\nTEXT\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\nx = <<~TEXT\nbody\nTEXT\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\nx = <<~TEXT\nbody\nTEXT\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\n  # frozen_string_literal: true",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\n\n  # frozen_string_literal: true"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\n  # frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\n\n  # frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true # note",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# frozen_string_literal: true # note",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true # note"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\n  # frozen_string_literal: true # note",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n  # frozen_string_literal: true # note",
+    "project_after": "# frozen_string_literal: true\n\n  # frozen_string_literal: true # note"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\t",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\t"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\n  # frozen_string_literal: true\t",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\n\n  # frozen_string_literal: true\t"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\r",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\n  # frozen_string_literal: true\r",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\n\n  # frozen_string_literal: true\r"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n# frozen_string_literal: true",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\r\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\r\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n# frozen_string_literal: true # note",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\r\n# frozen_string_literal: true # note",
+    "project_after": "# frozen_string_literal: true\r\n# frozen_string_literal: true # note"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true # note",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true # note",
+    "project_after": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true # note"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n# frozen_string_literal: true\t",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\r\n# frozen_string_literal: true\t"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true\t",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true\t"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n# frozen_string_literal: true\r",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\r\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true\r",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\n",
+    "project_after": "# frozen_string_literal: true\r\n\n  # frozen_string_literal: true\r"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: false\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: false\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: TRUE\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: TRUE\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: FALSE\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: FALSE\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: invalid\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: invalid\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: yes\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: yes\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: _\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: _\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: -\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: -\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: é\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: é\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: あ\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: あ\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: true\n# encoding: true\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: true\n",
+    "project_after": "# ordinary\n# encoding: true\n# encoding: true\n"
+  },
+  {
+    "source": "# ordinary\n# encoding:true\n# encoding:true\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding:true\n# encoding:true\n",
+    "project_after": "# ordinary\n# encoding:true\n# encoding:true\n"
+  },
+  {
+    "source": "# ordinary\n# encoding:\ttrue\n# encoding:\ttrue\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding:\ttrue\n# encoding:\ttrue\n",
+    "project_after": "# ordinary\n# encoding:\ttrue\n# encoding:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# encoding:  true\n# encoding:  true\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding:  true\n# encoding:  true\n",
+    "project_after": "# ordinary\n# encoding:  true\n# encoding:  true\n"
+  },
+  {
+    "source": "# ordinary\n# coding: true\n# coding: true\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# coding: true\n",
+    "project_after": "# ordinary\n# coding: true\n# coding: true\n"
+  },
+  {
+    "source": "# ordinary\n# coding:true\n# coding:true\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# coding:true\n# coding:true\n",
+    "project_after": "# ordinary\n# coding:true\n# coding:true\n"
+  },
+  {
+    "source": "# ordinary\n# coding:\ttrue\n# coding:\ttrue\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# coding:\ttrue\n# coding:\ttrue\n",
+    "project_after": "# ordinary\n# coding:\ttrue\n# coding:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# coding:  true\n# coding:  true\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# coding:  true\n# coding:  true\n",
+    "project_after": "# ordinary\n# coding:  true\n# coding:  true\n"
+  },
+  {
+    "source": "# ordinary\n# ENCODING: true\n# ENCODING: true\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# ENCODING: true\n",
+    "project_after": "# ordinary\n# ENCODING: true\n# ENCODING: true\n"
+  },
+  {
+    "source": "# ordinary\n# ENCODING:true\n# ENCODING:true\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# ENCODING:true\n# ENCODING:true\n",
+    "project_after": "# ordinary\n# ENCODING:true\n# ENCODING:true\n"
+  },
+  {
+    "source": "# ordinary\n# ENCODING:\ttrue\n# ENCODING:\ttrue\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# ENCODING:\ttrue\n# ENCODING:\ttrue\n",
+    "project_after": "# ordinary\n# ENCODING:\ttrue\n# ENCODING:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# ENCODING:  true\n# ENCODING:  true\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# ENCODING:  true\n# ENCODING:  true\n",
+    "project_after": "# ordinary\n# ENCODING:  true\n# ENCODING:  true\n"
+  },
+  {
+    "source": "# ordinary\n# incoding: true\n# incoding: true\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# incoding: true\n# incoding: true\n",
+    "project_after": "# ordinary\n# incoding: true\n# incoding: true\n"
+  },
+  {
+    "source": "# ordinary\n# incoding:true\n# incoding:true\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# incoding:true\n# incoding:true\n",
+    "project_after": "# ordinary\n# incoding:true\n# incoding:true\n"
+  },
+  {
+    "source": "# ordinary\n# incoding:\ttrue\n# incoding:\ttrue\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# incoding:\ttrue\n# incoding:\ttrue\n",
+    "project_after": "# ordinary\n# incoding:\ttrue\n# incoding:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# incoding:  true\n# incoding:  true\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# incoding:  true\n# incoding:  true\n",
+    "project_after": "# ordinary\n# incoding:  true\n# incoding:  true\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal:true\n# frozen_string_literal:true\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal:true\n",
+    "project_after": "# ordinary\n# frozen_string_literal:true\n# frozen_string_literal:true\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal:\ttrue\n# frozen_string_literal:\ttrue\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal:\ttrue\n",
+    "project_after": "# ordinary\n# frozen_string_literal:\ttrue\n# frozen_string_literal:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal:  true\n# frozen_string_literal:  true\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal:  true\n",
+    "project_after": "# ordinary\n# frozen_string_literal:  true\n# frozen_string_literal:  true\n"
+  },
+  {
+    "source": "# ordinary\n# FROZEN-STRING-LITERAL: true\n# FROZEN-STRING-LITERAL: true\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# FROZEN-STRING-LITERAL: true\n",
+    "project_after": "# ordinary\n# FROZEN-STRING-LITERAL: true\n# FROZEN-STRING-LITERAL: true\n"
+  },
+  {
+    "source": "# ordinary\n# FROZEN-STRING-LITERAL:true\n# FROZEN-STRING-LITERAL:true\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# FROZEN-STRING-LITERAL:true\n",
+    "project_after": "# ordinary\n# FROZEN-STRING-LITERAL:true\n# FROZEN-STRING-LITERAL:true\n"
+  },
+  {
+    "source": "# ordinary\n# FROZEN-STRING-LITERAL:\ttrue\n# FROZEN-STRING-LITERAL:\ttrue\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# FROZEN-STRING-LITERAL:\ttrue\n",
+    "project_after": "# ordinary\n# FROZEN-STRING-LITERAL:\ttrue\n# FROZEN-STRING-LITERAL:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# FROZEN-STRING-LITERAL:  true\n# FROZEN-STRING-LITERAL:  true\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# FROZEN-STRING-LITERAL:  true\n",
+    "project_after": "# ordinary\n# FROZEN-STRING-LITERAL:  true\n# FROZEN-STRING-LITERAL:  true\n"
+  },
+  {
+    "source": "# ordinary\n# warn_indent: true\n# warn_indent: true\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# warn_indent: true\n# warn_indent: true\n",
+    "project_after": "# ordinary\n# warn_indent: true\n# warn_indent: true\n"
+  },
+  {
+    "source": "# ordinary\n# warn_indent:true\n# warn_indent:true\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# warn_indent:true\n# warn_indent:true\n",
+    "project_after": "# ordinary\n# warn_indent:true\n# warn_indent:true\n"
+  },
+  {
+    "source": "# ordinary\n# warn_indent:\ttrue\n# warn_indent:\ttrue\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# warn_indent:\ttrue\n# warn_indent:\ttrue\n",
+    "project_after": "# ordinary\n# warn_indent:\ttrue\n# warn_indent:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# warn_indent:  true\n# warn_indent:  true\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# warn_indent:  true\n# warn_indent:  true\n",
+    "project_after": "# ordinary\n# warn_indent:  true\n# warn_indent:  true\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value: true\n# shareable_constant_value: true\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value: true\n# shareable_constant_value: true\n",
+    "project_after": "# ordinary\n# shareable_constant_value: true\n# shareable_constant_value: true\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value:true\n# shareable_constant_value:true\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value:true\n# shareable_constant_value:true\n",
+    "project_after": "# ordinary\n# shareable_constant_value:true\n# shareable_constant_value:true\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value:\ttrue\n# shareable_constant_value:\ttrue\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value:\ttrue\n# shareable_constant_value:\ttrue\n",
+    "project_after": "# ordinary\n# shareable_constant_value:\ttrue\n# shareable_constant_value:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# shareable_constant_value:  true\n# shareable_constant_value:  true\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# shareable_constant_value:  true\n# shareable_constant_value:  true\n",
+    "project_after": "# ordinary\n# shareable_constant_value:  true\n# shareable_constant_value:  true\n"
+  },
+  {
+    "source": "# ordinary\n# rbs_inline: true\n# rbs_inline: true\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# rbs_inline: true\n# rbs_inline: true\n",
+    "project_after": "# ordinary\n# rbs_inline: true\n# rbs_inline: true\n"
+  },
+  {
+    "source": "# ordinary\n# rbs_inline:true\n# rbs_inline:true\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# rbs_inline:true\n# rbs_inline:true\n",
+    "project_after": "# ordinary\n# rbs_inline:true\n# rbs_inline:true\n"
+  },
+  {
+    "source": "# ordinary\n# rbs_inline:\ttrue\n# rbs_inline:\ttrue\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# rbs_inline:\ttrue\n# rbs_inline:\ttrue\n",
+    "project_after": "# ordinary\n# rbs_inline:\ttrue\n# rbs_inline:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# rbs_inline:  true\n# rbs_inline:  true\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# rbs_inline:  true\n# rbs_inline:  true\n",
+    "project_after": "# ordinary\n# rbs_inline:  true\n# rbs_inline:  true\n"
+  },
+  {
+    "source": "# ordinary\n# typed: true\n# typed: true\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed: true\n# typed: true\n",
+    "project_after": "# ordinary\n# typed: true\n# typed: true\n"
+  },
+  {
+    "source": "# ordinary\n# typed:true\n# typed:true\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed:true\n# typed:true\n",
+    "project_after": "# ordinary\n# typed:true\n# typed:true\n"
+  },
+  {
+    "source": "# ordinary\n# typed:\ttrue\n# typed:\ttrue\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed:\ttrue\n# typed:\ttrue\n",
+    "project_after": "# ordinary\n# typed:\ttrue\n# typed:\ttrue\n"
+  },
+  {
+    "source": "# ordinary\n# typed:  true\n# typed:  true\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# typed:  true\n# typed:  true\n",
+    "project_after": "# ordinary\n# typed:  true\n# typed:  true\n"
+  },
+  {
+    "source": " # frozen_string_literal: true\n # frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": " # frozen_string_literal: true\n",
+    "project_after": " # frozen_string_literal: true\n # frozen_string_literal: true\n"
+  },
+  {
+    "source": "\t# frozen_string_literal: true\n\t# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\t# frozen_string_literal: true\n",
+    "project_after": "\t# frozen_string_literal: true\n\t# frozen_string_literal: true\n"
+  },
+  {
+    "source": "\u000b# frozen_string_literal: true\n\u000b# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\u000b# frozen_string_literal: true\n",
+    "project_after": "\u000b# frozen_string_literal: true\n\u000b# frozen_string_literal: true\n"
+  },
+  {
+    "source": "\f# frozen_string_literal: true\n\f# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\f# frozen_string_literal: true\n",
+    "project_after": "\f# frozen_string_literal: true\n\f# frozen_string_literal: true\n"
+  },
+  {
+    "source": "\r# frozen_string_literal: true\n\r# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\r# frozen_string_literal: true\n",
+    "project_after": "\r# frozen_string_literal: true\n\r# frozen_string_literal: true\n"
+  },
+  {
+    "source": " # frozen_string_literal: true\n # frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ],
+    "upstream_after": " # frozen_string_literal: true\n # frozen_string_literal: true\n",
+    "project_after": " # frozen_string_literal: true\n # frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n",
+    "project_after": "# frozen_string_literal: true\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n",
+    "project_after": "# frozen_string_literal: true\n# -*- frozen_string_literal: true; encoding: utf-8 -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n",
+    "project_after": "# ordinary\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# -*- ENCODING: utf-8; FROZEN_STRING_LITERAL: true -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen-string-literal : INVALID -*-\n# -*- frozen-string-literal : INVALID -*-\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen-string-literal : INVALID -*-\n",
+    "project_after": "# ordinary\n# -*- frozen-string-literal : INVALID -*-\n# -*- frozen-string-literal : INVALID -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- frozen-string-literal : INVALID -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# -*- frozen-string-literal : INVALID -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# -*- frozen_string_literal: true; frozen_string_literal: false -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- unknown: foo; frozen_string_literal: true -*-\n# -*- unknown: foo; frozen_string_literal: true -*-\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- unknown: foo; frozen_string_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- unknown: foo; frozen_string_literal: true -*-\n# -*- unknown: foo; frozen_string_literal: true -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- unknown: foo; frozen_string_literal: true -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# -*- unknown: foo; frozen_string_literal: true -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: true -*- ignored\n# -*- frozen_string_literal: true -*- ignored\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: true -*- ignored\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: true -*- ignored\n# -*- frozen_string_literal: true -*- ignored\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- frozen_string_literal: true -*- ignored\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# -*- frozen_string_literal: true -*- ignored\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# -*- frozen_string_literal: true -*- -*- coding: ascii -*-\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# vim: filetype=ruby, fileencoding=utf-8\n# vim: filetype=ruby, fileencoding=utf-8\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# vim: filetype=ruby, fileencoding=utf-8\n",
+    "project_after": "# ordinary\n# vim: filetype=ruby, fileencoding=utf-8\n# vim: filetype=ruby, fileencoding=utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# vim: filetype=ruby, fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# vim: filetype=ruby, fileencoding=utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# vim: filetype=ruby, fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# vim: fileencoding=utf-8\n# vim: fileencoding=utf-8\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# vim: fileencoding=utf-8\n# vim: fileencoding=utf-8\n",
+    "project_after": "# ordinary\n# vim: fileencoding=utf-8\n# vim: fileencoding=utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# vim: fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# vim: fileencoding=utf-8\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# vim: fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# vim: filetype=ruby,fileencoding=utf-8\n# vim: filetype=ruby,fileencoding=utf-8\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# vim: filetype=ruby,fileencoding=utf-8\n# vim: filetype=ruby,fileencoding=utf-8\n",
+    "project_after": "# ordinary\n# vim: filetype=ruby,fileencoding=utf-8\n# vim: filetype=ruby,fileencoding=utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# vim: filetype=ruby,fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# vim: filetype=ruby,fileencoding=utf-8\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# vim: filetype=ruby,fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# vim: frozen_string_literal=true, fileencoding=utf-8\n# vim: frozen_string_literal=true, fileencoding=utf-8\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# vim: frozen_string_literal=true, fileencoding=utf-8\n",
+    "project_after": "# ordinary\n# vim: frozen_string_literal=true, fileencoding=utf-8\n# vim: frozen_string_literal=true, fileencoding=utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# vim: frozen_string_literal=true, fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# vim: frozen_string_literal=true, fileencoding=utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# vim: frozen_string_literal=true, fileencoding=utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: utf-8 frozen_string_literal: true\n# encoding: utf-8 frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: utf-8 frozen_string_literal: true\n",
+    "project_after": "# ordinary\n# encoding: utf-8 frozen_string_literal: true\n# encoding: utf-8 frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# encoding: utf-8 frozen_string_literal: true\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# encoding: utf-8 frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# encoding: utf-8 frozen_string_literal: true\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: true encoding: utf-8\n# frozen_string_literal: true encoding: utf-8\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: true encoding: utf-8\n",
+    "project_after": "# ordinary\n# frozen_string_literal: true encoding: utf-8\n# frozen_string_literal: true encoding: utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true encoding: utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# frozen_string_literal: true encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true encoding: utf-8\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: true # trailing\n# frozen_string_literal: true # trailing\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: true # trailing\n# frozen_string_literal: true # trailing\n",
+    "project_after": "# ordinary\n# frozen_string_literal: true # trailing\n# frozen_string_literal: true # trailing\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true # trailing\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# frozen_string_literal: true # trailing\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true # trailing\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: utf-8 # trailing\n# encoding: utf-8 # trailing\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: utf-8 # trailing\n",
+    "project_after": "# ordinary\n# encoding: utf-8 # trailing\n# encoding: utf-8 # trailing\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# encoding: utf-8 # trailing\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# encoding: utf-8 # trailing\n",
+    "project_after": "# frozen_string_literal: true\n# encoding: utf-8 # trailing\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# coding: é\n# coding: é\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# coding: é\n",
+    "project_after": "# ordinary\n# coding: é\n# coding: é\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# coding: é\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# coding: é\n",
+    "project_after": "# frozen_string_literal: true\n# coding: é\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: invalid!\n# frozen_string_literal: invalid!\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: invalid!\n# frozen_string_literal: invalid!\n",
+    "project_after": "# ordinary\n# frozen_string_literal: invalid!\n# frozen_string_literal: invalid!\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: invalid!\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# frozen_string_literal: invalid!\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: invalid!\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal : true\n# frozen_string_literal : true\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal : true\n# frozen_string_literal : true\n",
+    "project_after": "# ordinary\n# frozen_string_literal : true\n# frozen_string_literal : true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal : true\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        5,
+        1,
+        5,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# frozen_string_literal : true\n# encoding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal : true\n# frozen_string_literal: true\n# encoding: utf-8\n# encoding: ascii\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n__END__\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+
+    ],
+    "upstream_after": "# frozen_string_literal: true\n__END__\n# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n__END__\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n__END__\npayload\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n__END__\npayload\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\n__END__\npayload\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n# coding: utf-8\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# coding: utf-8\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\n# coding: utf-8\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n# warn_indent: true\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# warn_indent: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\n# warn_indent: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n# frozen_string_literal: false\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n# frozen_string_literal: true\n# frozen_string_literal: false\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# note\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n# note\n",
+    "project_after": "# frozen_string_literal: true\n# note\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ],
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: ́\n# encoding: ́\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: ́\n# encoding: ́\n",
+    "project_after": "# ordinary\n# encoding: ́\n# encoding: ́\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: ́ -*-\n# -*- encoding: ́ -*-\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: ́ -*-\n# -*- encoding: ́ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: ́ -*-\n# -*- encoding: ́ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x́\n# encoding: x́\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x́\n",
+    "project_after": "# ordinary\n# encoding: x́\n# encoding: x́\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x́ -*-\n# -*- encoding: x́ -*-\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x́ -*-\n# -*- encoding: x́ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x́ -*-\n# -*- encoding: x́ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: ́\n# frozen_string_literal: ́\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: ́\n# frozen_string_literal: ́\n",
+    "project_after": "# ordinary\n# frozen_string_literal: ́\n# frozen_string_literal: ́\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: ́ -*-\n# -*- frozen_string_literal: ́ -*-\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: ́ -*-\n# -*- frozen_string_literal: ́ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: ́ -*-\n# -*- frozen_string_literal: ́ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x́\n# frozen_string_literal: x́\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x́\n# frozen_string_literal: x́\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x́\n# frozen_string_literal: x́\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x́ -*-\n# -*- frozen_string_literal: x́ -*-\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x́ -*-\n# -*- frozen_string_literal: x́ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x́ -*-\n# -*- frozen_string_literal: x́ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: ͅ\n# encoding: ͅ\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: ͅ\n",
+    "project_after": "# ordinary\n# encoding: ͅ\n# encoding: ͅ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: ͅ -*-\n# -*- encoding: ͅ -*-\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: ͅ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: ͅ -*-\n# -*- encoding: ͅ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: xͅ\n# encoding: xͅ\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: xͅ\n",
+    "project_after": "# ordinary\n# encoding: xͅ\n# encoding: xͅ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: xͅ -*-\n# -*- encoding: xͅ -*-\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: xͅ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: xͅ -*-\n# -*- encoding: xͅ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: ͅ\n# frozen_string_literal: ͅ\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: ͅ\n",
+    "project_after": "# ordinary\n# frozen_string_literal: ͅ\n# frozen_string_literal: ͅ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: ͅ -*-\n# -*- frozen_string_literal: ͅ -*-\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: ͅ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: ͅ -*-\n# -*- frozen_string_literal: ͅ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: xͅ\n# frozen_string_literal: xͅ\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: xͅ\n",
+    "project_after": "# ordinary\n# frozen_string_literal: xͅ\n# frozen_string_literal: xͅ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: xͅ -*-\n# -*- frozen_string_literal: xͅ -*-\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: xͅ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: xͅ -*-\n# -*- frozen_string_literal: xͅ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: ²\n# encoding: ²\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: ²\n# encoding: ²\n",
+    "project_after": "# ordinary\n# encoding: ²\n# encoding: ²\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: ² -*-\n# -*- encoding: ² -*-\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: ² -*-\n# -*- encoding: ² -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: ² -*-\n# -*- encoding: ² -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x²\n# encoding: x²\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x²\n",
+    "project_after": "# ordinary\n# encoding: x²\n# encoding: x²\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x² -*-\n# -*- encoding: x² -*-\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x² -*-\n# -*- encoding: x² -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x² -*-\n# -*- encoding: x² -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: ²\n# frozen_string_literal: ²\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: ²\n# frozen_string_literal: ²\n",
+    "project_after": "# ordinary\n# frozen_string_literal: ²\n# frozen_string_literal: ²\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: ² -*-\n# -*- frozen_string_literal: ² -*-\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: ² -*-\n# -*- frozen_string_literal: ² -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: ² -*-\n# -*- frozen_string_literal: ² -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x²\n# frozen_string_literal: x²\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x²\n# frozen_string_literal: x²\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x²\n# frozen_string_literal: x²\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x² -*-\n# -*- frozen_string_literal: x² -*-\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x² -*-\n# -*- frozen_string_literal: x² -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x² -*-\n# -*- frozen_string_literal: x² -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: Ⅰ\n# encoding: Ⅰ\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: Ⅰ\n",
+    "project_after": "# ordinary\n# encoding: Ⅰ\n# encoding: Ⅰ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: Ⅰ -*-\n# -*- encoding: Ⅰ -*-\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: Ⅰ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: Ⅰ -*-\n# -*- encoding: Ⅰ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: xⅠ\n# encoding: xⅠ\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: xⅠ\n",
+    "project_after": "# ordinary\n# encoding: xⅠ\n# encoding: xⅠ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: xⅠ -*-\n# -*- encoding: xⅠ -*-\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: xⅠ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: xⅠ -*-\n# -*- encoding: xⅠ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: Ⅰ\n# frozen_string_literal: Ⅰ\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: Ⅰ\n",
+    "project_after": "# ordinary\n# frozen_string_literal: Ⅰ\n# frozen_string_literal: Ⅰ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: Ⅰ -*-\n# -*- frozen_string_literal: Ⅰ -*-\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: Ⅰ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: Ⅰ -*-\n# -*- frozen_string_literal: Ⅰ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: xⅠ\n# frozen_string_literal: xⅠ\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: xⅠ\n",
+    "project_after": "# ordinary\n# frozen_string_literal: xⅠ\n# frozen_string_literal: xⅠ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: xⅠ -*-\n# -*- frozen_string_literal: xⅠ -*-\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: xⅠ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: xⅠ -*-\n# -*- frozen_string_literal: xⅠ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: ‌\n# encoding: ‌\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: ‌\n# encoding: ‌\n",
+    "project_after": "# ordinary\n# encoding: ‌\n# encoding: ‌\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: ‌ -*-\n# -*- encoding: ‌ -*-\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: ‌ -*-\n# -*- encoding: ‌ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: ‌ -*-\n# -*- encoding: ‌ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x‌\n# encoding: x‌\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x‌\n",
+    "project_after": "# ordinary\n# encoding: x‌\n# encoding: x‌\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x‌ -*-\n# -*- encoding: x‌ -*-\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x‌ -*-\n# -*- encoding: x‌ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x‌ -*-\n# -*- encoding: x‌ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: ‌\n# frozen_string_literal: ‌\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: ‌\n# frozen_string_literal: ‌\n",
+    "project_after": "# ordinary\n# frozen_string_literal: ‌\n# frozen_string_literal: ‌\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: ‌ -*-\n# -*- frozen_string_literal: ‌ -*-\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: ‌ -*-\n# -*- frozen_string_literal: ‌ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: ‌ -*-\n# -*- frozen_string_literal: ‌ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x‌\n# frozen_string_literal: x‌\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x‌\n# frozen_string_literal: x‌\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x‌\n# frozen_string_literal: x‌\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x‌ -*-\n# -*- frozen_string_literal: x‌ -*-\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x‌ -*-\n# -*- frozen_string_literal: x‌ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x‌ -*-\n# -*- frozen_string_literal: x‌ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: 𞓐\n# encoding: 𞓐\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: 𞓐\n",
+    "project_after": "# ordinary\n# encoding: 𞓐\n# encoding: 𞓐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: 𞓐 -*-\n# -*- encoding: 𞓐 -*-\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: 𞓐 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: 𞓐 -*-\n# -*- encoding: 𞓐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x𞓐\n# encoding: x𞓐\n",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x𞓐\n",
+    "project_after": "# ordinary\n# encoding: x𞓐\n# encoding: x𞓐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x𞓐 -*-\n# -*- encoding: x𞓐 -*-\n",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x𞓐 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x𞓐 -*-\n# -*- encoding: x𞓐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: 𞓐\n# frozen_string_literal: 𞓐\n",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: 𞓐\n",
+    "project_after": "# ordinary\n# frozen_string_literal: 𞓐\n# frozen_string_literal: 𞓐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: 𞓐 -*-\n# -*- frozen_string_literal: 𞓐 -*-\n",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: 𞓐 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: 𞓐 -*-\n# -*- frozen_string_literal: 𞓐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x𞓐\n# frozen_string_literal: x𞓐\n",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x𞓐\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x𞓐\n# frozen_string_literal: x𞓐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x𞓐 -*-\n# -*- frozen_string_literal: x𞓐 -*-\n",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x𞓐 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x𞓐 -*-\n# -*- frozen_string_literal: x𞓐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: 𑼂\n# encoding: 𑼂\n",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: 𑼂\n",
+    "project_after": "# ordinary\n# encoding: 𑼂\n# encoding: 𑼂\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: 𑼂 -*-\n# -*- encoding: 𑼂 -*-\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: 𑼂 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: 𑼂 -*-\n# -*- encoding: 𑼂 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x𑼂\n# encoding: x𑼂\n",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x𑼂\n",
+    "project_after": "# ordinary\n# encoding: x𑼂\n# encoding: x𑼂\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x𑼂 -*-\n# -*- encoding: x𑼂 -*-\n",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x𑼂 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x𑼂 -*-\n# -*- encoding: x𑼂 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: 𑼂\n# frozen_string_literal: 𑼂\n",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: 𑼂\n",
+    "project_after": "# ordinary\n# frozen_string_literal: 𑼂\n# frozen_string_literal: 𑼂\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: 𑼂 -*-\n# -*- frozen_string_literal: 𑼂 -*-\n",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: 𑼂 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: 𑼂 -*-\n# -*- frozen_string_literal: 𑼂 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x𑼂\n# frozen_string_literal: x𑼂\n",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x𑼂\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x𑼂\n# frozen_string_literal: x𑼂\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x𑼂 -*-\n# -*- frozen_string_literal: x𑼂 -*-\n",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x𑼂 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x𑼂 -*-\n# -*- frozen_string_literal: x𑼂 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: Ᲊ\n# encoding: Ᲊ\n",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: Ᲊ\n# encoding: Ᲊ\n",
+    "project_after": "# ordinary\n# encoding: Ᲊ\n# encoding: Ᲊ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: Ᲊ -*-\n# -*- encoding: Ᲊ -*-\n",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: Ᲊ -*-\n# -*- encoding: Ᲊ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: Ᲊ -*-\n# -*- encoding: Ᲊ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: xᲉ\n# encoding: xᲉ\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: xᲉ\n",
+    "project_after": "# ordinary\n# encoding: xᲉ\n# encoding: xᲉ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: xᲉ -*-\n# -*- encoding: xᲉ -*-\n",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: xᲉ -*-\n# -*- encoding: xᲉ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: xᲉ -*-\n# -*- encoding: xᲉ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: Ᲊ\n# frozen_string_literal: Ᲊ\n",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: Ᲊ\n# frozen_string_literal: Ᲊ\n",
+    "project_after": "# ordinary\n# frozen_string_literal: Ᲊ\n# frozen_string_literal: Ᲊ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: Ᲊ -*-\n# -*- frozen_string_literal: Ᲊ -*-\n",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: Ᲊ -*-\n# -*- frozen_string_literal: Ᲊ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: Ᲊ -*-\n# -*- frozen_string_literal: Ᲊ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: xᲉ\n# frozen_string_literal: xᲉ\n",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: xᲉ\n# frozen_string_literal: xᲉ\n",
+    "project_after": "# ordinary\n# frozen_string_literal: xᲉ\n# frozen_string_literal: xᲉ\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: xᲉ -*-\n# -*- frozen_string_literal: xᲉ -*-\n",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: xᲉ -*-\n# -*- frozen_string_literal: xᲉ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: xᲉ -*-\n# -*- frozen_string_literal: xᲉ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: 𞗐\n# encoding: 𞗐\n",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: 𞗐\n# encoding: 𞗐\n",
+    "project_after": "# ordinary\n# encoding: 𞗐\n# encoding: 𞗐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: 𞗐 -*-\n# -*- encoding: 𞗐 -*-\n",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: 𞗐 -*-\n# -*- encoding: 𞗐 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: 𞗐 -*-\n# -*- encoding: 𞗐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x𞗐\n# encoding: x𞗐\n",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x𞗐\n",
+    "project_after": "# ordinary\n# encoding: x𞗐\n# encoding: x𞗐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x𞗐 -*-\n# -*- encoding: x𞗐 -*-\n",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x𞗐 -*-\n# -*- encoding: x𞗐 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x𞗐 -*-\n# -*- encoding: x𞗐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: 𞗐\n# frozen_string_literal: 𞗐\n",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: 𞗐\n# frozen_string_literal: 𞗐\n",
+    "project_after": "# ordinary\n# frozen_string_literal: 𞗐\n# frozen_string_literal: 𞗐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: 𞗐 -*-\n# -*- frozen_string_literal: 𞗐 -*-\n",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: 𞗐 -*-\n# -*- frozen_string_literal: 𞗐 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: 𞗐 -*-\n# -*- frozen_string_literal: 𞗐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x𞗐\n# frozen_string_literal: x𞗐\n",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x𞗐\n# frozen_string_literal: x𞗐\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x𞗐\n# frozen_string_literal: x𞗐\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x𞗐 -*-\n# -*- frozen_string_literal: x𞗐 -*-\n",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x𞗐 -*-\n# -*- frozen_string_literal: x𞗐 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x𞗐 -*-\n# -*- frozen_string_literal: x𞗐 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: ﻿\n# encoding: ﻿\n",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: ﻿\n# encoding: ﻿\n",
+    "project_after": "# ordinary\n# encoding: ﻿\n# encoding: ﻿\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: ﻿ -*-\n# -*- encoding: ﻿ -*-\n",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: ﻿ -*-\n# -*- encoding: ﻿ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: ﻿ -*-\n# -*- encoding: ﻿ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x﻿\n# encoding: x﻿\n",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x﻿\n",
+    "project_after": "# ordinary\n# encoding: x﻿\n# encoding: x﻿\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x﻿ -*-\n# -*- encoding: x﻿ -*-\n",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x﻿ -*-\n# -*- encoding: x﻿ -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x﻿ -*-\n# -*- encoding: x﻿ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: ﻿\n# frozen_string_literal: ﻿\n",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: ﻿\n# frozen_string_literal: ﻿\n",
+    "project_after": "# ordinary\n# frozen_string_literal: ﻿\n# frozen_string_literal: ﻿\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: ﻿ -*-\n# -*- frozen_string_literal: ﻿ -*-\n",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: ﻿ -*-\n# -*- frozen_string_literal: ﻿ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: ﻿ -*-\n# -*- frozen_string_literal: ﻿ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x﻿\n# frozen_string_literal: x﻿\n",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x﻿\n# frozen_string_literal: x﻿\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x﻿\n# frozen_string_literal: x﻿\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x﻿ -*-\n# -*- frozen_string_literal: x﻿ -*-\n",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x﻿ -*-\n# -*- frozen_string_literal: x﻿ -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x﻿ -*-\n# -*- frozen_string_literal: x﻿ -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: \u0000\n# encoding: \u0000\n",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encoding: \u0000\n# encoding: \u0000\n",
+    "project_after": "# ordinary\n# encoding: \u0000\n# encoding: \u0000\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: \u0000 -*-\n# -*- encoding: \u0000 -*-\n",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: \u0000 -*-\n# -*- encoding: \u0000 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: \u0000 -*-\n# -*- encoding: \u0000 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encoding: x\u0000\n# encoding: x\u0000\n",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# encoding: x\u0000\n",
+    "project_after": "# ordinary\n# encoding: x\u0000\n# encoding: x\u0000\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encoding: x\u0000 -*-\n# -*- encoding: x\u0000 -*-\n",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- encoding: x\u0000 -*-\n",
+    "project_after": "# ordinary\n# -*- encoding: x\u0000 -*-\n# -*- encoding: x\u0000 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: \u0000\n# frozen_string_literal: \u0000\n",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: \u0000\n# frozen_string_literal: \u0000\n",
+    "project_after": "# ordinary\n# frozen_string_literal: \u0000\n# frozen_string_literal: \u0000\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: \u0000 -*-\n# -*- frozen_string_literal: \u0000 -*-\n",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: \u0000 -*-\n# -*- frozen_string_literal: \u0000 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: \u0000 -*-\n# -*- frozen_string_literal: \u0000 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_string_literal: x\u0000\n# frozen_string_literal: x\u0000\n",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_string_literal: x\u0000\n# frozen_string_literal: x\u0000\n",
+    "project_after": "# ordinary\n# frozen_string_literal: x\u0000\n# frozen_string_literal: x\u0000\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_string_literal: x\u0000 -*-\n# -*- frozen_string_literal: x\u0000 -*-\n",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_string_literal: x\u0000 -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_string_literal: x\u0000 -*-\n# -*- frozen_string_literal: x\u0000 -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_ſtring_literal: true\n# frozen_ſtring_literal: true\n",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_ſtring_literal: true\n",
+    "project_after": "# ordinary\n# frozen_ſtring_literal: true\n# frozen_ſtring_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_ſtring_literal: true -*-\n# -*- frozen_ſtring_literal: true -*-\n",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_ſtring_literal: true -*-\n# -*- frozen_ſtring_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_ſtring_literal: true -*-\n# -*- frozen_ſtring_literal: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_ﬆring_literal: true\n# frozen_ﬆring_literal: true\n",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# ordinary\n# frozen_ﬆring_literal: true\n",
+    "project_after": "# ordinary\n# frozen_ﬆring_literal: true\n# frozen_ﬆring_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_ﬆring_literal: true -*-\n# -*- frozen_ﬆring_literal: true -*-\n",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_ﬆring_literal: true -*-\n# -*- frozen_ﬆring_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_ﬆring_literal: true -*-\n# -*- frozen_ﬆring_literal: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# frozen_strİng_literal: true\n# frozen_strİng_literal: true\n",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# frozen_strİng_literal: true\n# frozen_strİng_literal: true\n",
+    "project_after": "# ordinary\n# frozen_strİng_literal: true\n# frozen_strİng_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- frozen_strİng_literal: true -*-\n# -*- frozen_strİng_literal: true -*-\n",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- frozen_strİng_literal: true -*-\n# -*- frozen_strİng_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- frozen_strİng_literal: true -*-\n# -*- frozen_strİng_literal: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# encodİng: true\n# encodİng: true\n",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# encodİng: true\n# encodİng: true\n",
+    "project_after": "# ordinary\n# encodİng: true\n# encodİng: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- encodİng: true -*-\n# -*- encodİng: true -*-\n",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- encodİng: true -*-\n# -*- encodİng: true -*-\n",
+    "project_after": "# ordinary\n# -*- encodİng: true -*-\n# -*- encodİng: true -*-\n"
+  },
+  {
+    "source": "# ordinary\n# froKen_string_literal: true\n# froKen_string_literal: true\n",
+    "origin": "control",
+    "line": 246,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# froKen_string_literal: true\n# froKen_string_literal: true\n",
+    "project_after": "# ordinary\n# froKen_string_literal: true\n# froKen_string_literal: true\n"
+  },
+  {
+    "source": "# ordinary\n# -*- froKen_string_literal: true -*-\n# -*- froKen_string_literal: true -*-\n",
+    "origin": "control",
+    "line": 247,
+    "findings": [
+
+    ],
+    "upstream_after": "# ordinary\n# -*- froKen_string_literal: true -*-\n# -*- froKen_string_literal: true -*-\n",
+    "project_after": "# ordinary\n# -*- froKen_string_literal: true -*-\n# -*- froKen_string_literal: true -*-\n"
+  },
+  {
+    "source": "=begin\ntext # vim: filetype=ruby, fileencoding=utf-8\ntext # vim: filetype=ruby, fileencoding=utf-8\n=end\n",
+    "origin": "control",
+    "line": 248,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "=begin\ntext # vim: filetype=ruby, fileencoding=utf-8\n=end\n",
+    "project_after": "=begin\ntext # vim: filetype=ruby, fileencoding=utf-8\ntext # vim: filetype=ruby, fileencoding=utf-8\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\ntext # vim: filetype=ruby, fileencoding=utf-8\ntext # vim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n",
+    "origin": "control",
+    "line": 249,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\ntext # vim: filetype=ruby, fileencoding=utf-8\ntext # vim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n"
+  },
+  {
+    "source": "=begin\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\n=end\n",
+    "origin": "control",
+    "line": 250,
+    "findings": [
+
+    ],
+    "upstream_after": "=begin\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\n=end\n",
+    "project_after": "=begin\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n",
+    "origin": "control",
+    "line": 251,
+    "findings": [
+
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\ntext #\\tvim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n"
+  },
+  {
+    "source": "=begin\ntext -*- encoding: utf-8 -*-\ntext -*- encoding: utf-8 -*-\n=end\n",
+    "origin": "control",
+    "line": 252,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "=begin\ntext -*- encoding: utf-8 -*-\n=end\n",
+    "project_after": "=begin\ntext -*- encoding: utf-8 -*-\ntext -*- encoding: utf-8 -*-\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\ntext -*- encoding: utf-8 -*-\ntext -*- encoding: utf-8 -*-\n=end\nnil\n",
+    "origin": "control",
+    "line": 253,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\ntext -*- encoding: utf-8 -*-\ntext -*- encoding: utf-8 -*-\n=end\nnil\n"
+  },
+  {
+    "source": "=begin\ntext # encoding: utf-8\ntext # encoding: utf-8\n=end\n",
+    "origin": "control",
+    "line": 254,
+    "findings": [
+
+    ],
+    "upstream_after": "=begin\ntext # encoding: utf-8\ntext # encoding: utf-8\n=end\n",
+    "project_after": "=begin\ntext # encoding: utf-8\ntext # encoding: utf-8\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\ntext # encoding: utf-8\ntext # encoding: utf-8\n=end\nnil\n",
+    "origin": "control",
+    "line": 255,
+    "findings": [
+
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\ntext # encoding: utf-8\ntext # encoding: utf-8\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\ntext # encoding: utf-8\ntext # encoding: utf-8\n=end\nnil\n"
+  },
+  {
+    "source": "=begin\ntext # frozen_string_literal: true\ntext # frozen_string_literal: true\n=end\n",
+    "origin": "control",
+    "line": 256,
+    "findings": [
+
+    ],
+    "upstream_after": "=begin\ntext # frozen_string_literal: true\ntext # frozen_string_literal: true\n=end\n",
+    "project_after": "=begin\ntext # frozen_string_literal: true\ntext # frozen_string_literal: true\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\ntext # frozen_string_literal: true\ntext # frozen_string_literal: true\n=end\nnil\n",
+    "origin": "control",
+    "line": 257,
+    "findings": [
+
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\ntext # frozen_string_literal: true\ntext # frozen_string_literal: true\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\ntext # frozen_string_literal: true\ntext # frozen_string_literal: true\n=end\nnil\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\n# frozen_string_literal: true\n# frozen_string_literal: true\n=end\nnil\n",
+    "origin": "control",
+    "line": 258,
+    "findings": [
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\n# frozen_string_literal: true\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\n# frozen_string_literal: true\n# frozen_string_literal: true\n=end\nnil\n"
+  },
+  {
+    "source": "=begin\n# vim: filetype=ruby, fileencoding=utf-8\n# vim: filetype=ruby, fileencoding=utf-8\n=end\n",
+    "origin": "control",
+    "line": 259,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "=begin\n# vim: filetype=ruby, fileencoding=utf-8\n=end\n",
+    "project_after": "=begin\n# vim: filetype=ruby, fileencoding=utf-8\n# vim: filetype=ruby, fileencoding=utf-8\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\n# vim: filetype=ruby, fileencoding=utf-8\n# vim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n",
+    "origin": "control",
+    "line": 260,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\n# vim: filetype=ruby, fileencoding=utf-8\n# vim: filetype=ruby, fileencoding=utf-8\n=end\nnil\n"
+  },
+  {
+    "source": "=begin\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n=end\n",
+    "origin": "control",
+    "line": 261,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "=begin\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n=end\n",
+    "project_after": "=begin\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n=end\n"
+  },
+  {
+    "source": "# coding: utf-8\n=begin\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n=end\nnil\n",
+    "origin": "control",
+    "line": 262,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ],
+      [
+        4,
+        1,
+        4,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# coding: utf-8\n=begin\n=end\nnil\n",
+    "project_after": "# coding: utf-8\n=begin\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n# -*- encoding: utf-8; frozen_string_literal: true -*-\n=end\nnil\n"
+  },
+  {
+    "source": "#!/usr/bin/env ruby -*- encoding: utf-8 -*-\n# encoding: ascii\np __ENCODING__\n",
+    "origin": "control",
+    "line": 263,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "#!/usr/bin/env ruby -*- encoding: utf-8 -*-\np __ENCODING__\n",
+    "project_after": "#!/usr/bin/env ruby -*- encoding: utf-8 -*-\n# encoding: ascii\np __ENCODING__\n",
+    "native_loader_rejection": "Ruby file/stdin loader interprets the shebang editor suffix as invalid option -*; both source and upstream output still receive native -c rejection checks and exact pinned/CLI detection. Authored -e and trailing-ruby shebang controls separately prove the real encoding change."
+  },
+  {
+    "source": "#!/usr/bin/env -*- encoding: utf-8 -*- ruby\n# encoding: ascii\np __ENCODING__\n",
+    "origin": "control",
+    "line": 264,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "#!/usr/bin/env -*- encoding: utf-8 -*- ruby\np __ENCODING__\n",
+    "project_after": "#!/usr/bin/env -*- encoding: utf-8 -*- ruby\n# encoding: ascii\np __ENCODING__\n"
+  },
+  {
+    "source": "\u0000\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 265,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\u0000\n# frozen_string_literal: true\n",
+    "project_after": "\u0000\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\u0000\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 266,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\u0000\n",
+    "project_after": "# frozen_string_literal: true\n\u0000\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\u0000# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 267,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\u0000# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n\u0000# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "\u0004\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 268,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\u0004\n# frozen_string_literal: true\n",
+    "project_after": "\u0004\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\u0004\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 269,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\u0004\n",
+    "project_after": "# frozen_string_literal: true\n\u0004\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\u0004# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 270,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\u0004# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n\u0004# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "\u001a\n# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 271,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "\u001a\n# frozen_string_literal: true\n",
+    "project_after": "\u001a\n# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\u001a\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 272,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\u001a\n",
+    "project_after": "# frozen_string_literal: true\n\u001a\n# frozen_string_literal: true\n"
+  },
+  {
+    "source": "# frozen_string_literal: true\n\u001a# frozen_string_literal: true\n# frozen_string_literal: true\n",
+    "origin": "control",
+    "line": 273,
+    "findings": [
+      [
+        3,
+        1,
+        3,
+        "Duplicate magic comment detected."
+      ]
+    ],
+    "upstream_after": "# frozen_string_literal: true\n\u001a# frozen_string_literal: true\n",
+    "project_after": "# frozen_string_literal: true\n\u001a# frozen_string_literal: true\n# frozen_string_literal: true\n"
+  }
+]

@@ -108,7 +108,7 @@ fn buffer_source(source: &[u8], file: &SourceFile) -> Vec<u8> {
     normalized_newlines(&projected).into_owned()
 }
 
-fn buffer_line_col(offset: usize, file: &SourceFile) -> (u32, u32) {
+pub(super) fn buffer_line_col(offset: usize, file: &SourceFile) -> (u32, u32) {
     let line = file.line_of(offset);
     let start = if line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf") {
         3.min(offset)
@@ -143,7 +143,7 @@ fn normalized_newlines(source: &[u8]) -> Cow<'_, [u8]> {
     )
 }
 
-fn inspect_source(source: &[u8], file: &SourceFile, out: &mut Vec<u8>) {
+pub(super) fn inspect_source(source: &[u8], file: &SourceFile, out: &mut Vec<u8>) {
     out.push(b'"');
     let mut i = 0;
     while i < source.len() {

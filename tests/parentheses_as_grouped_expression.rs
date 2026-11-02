@@ -1,0 +1,634 @@
+//! Source-only pinned replay and actual CLI/native controls.
+//! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use std::{
+    fs,
+    io::{Read, Write},
+    path::Path,
+    process::{Command, Output, Stdio},
+};
+const COP: &str = "Lint/ParenthesesAsGroupedExpression";
+type Finding = (u32, u32, u32, String);
+fn rows() -> Vec<serde_json::Value> {
+    let data: serde_json::Value = serde_json::from_str(include_str!(
+        "fixtures/parentheses_as_grouped_expression.json"
+    ))
+    .unwrap();
+    let rows = data["rows"].as_array().unwrap();
+    assert_eq!(rows.len(), 2179);
+    assert_eq!(
+        rows.iter()
+            .filter(|r| r.get("parser_rejection").is_some())
+            .count(),
+        498
+    );
+    assert_eq!(
+        rows.iter()
+            .filter(|r| r.get("native_scope_rejection").is_some())
+            .count(),
+        41
+    );
+    rows.clone()
+}
+fn project() -> tempfile::TempDir {
+    let dir = tempfile::tempdir().unwrap();
+    fs::create_dir(dir.path().join(".git")).unwrap();
+    fs::create_dir(dir.path().join("lib")).unwrap();
+    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+    dir
+}
+fn run(root: &Path, args: &[&str]) -> Output {
+    Command::new(env!("CARGO_BIN_EXE_rustocop"))
+        .current_dir(root)
+        .args(args)
+        .output()
+        .unwrap()
+}
+fn count(out: &Output) -> usize {
+    String::from_utf8_lossy(&out.stdout)
+        .matches(&format!("({COP})"))
+        .count()
+}
+fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
+    let path = root.join("lib/a.rb");
+    fs::write(&path, bytes).unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o751)).unwrap();
+    }
+    let mut held = fs::File::open(&path).unwrap();
+    let old = fs::metadata(&path).unwrap();
+    let out = run(root, args);
+    if let Some(status) = status {
+        assert_eq!(out.status.code(), Some(status), "{args:?}: {out:?}");
+    } else {
+        assert_ne!(out.status.code(), Some(2), "{out:?}");
+    }
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+    let mut held_bytes = Vec::new();
+    held.read_to_end(&mut held_bytes).unwrap();
+    assert_eq!(held_bytes, bytes);
+    let new = fs::metadata(&path).unwrap();
+    assert_eq!(old.modified().unwrap(), new.modified().unwrap());
+    assert_eq!(old.permissions(), new.permissions());
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        assert_eq!(old.ino(), new.ino());
+    }
+    out
+}
+#[test]
+fn ordinary_not_methods_report_without_unsafe_cli_edits() {
+    let dir = project();
+    for argument in ["obj.not", "obj&.not", "obj.not(1)", "obj&.not(1)"] {
+        let source = format!("foo ({argument})\n");
+        let expected =
+            format!("lib/a.rb:1:4: E: `({argument})` interpreted as grouped expression. ({COP})\n");
+        for args in [
+            vec!["--only", COP, "lib/a.rb"],
+            vec!["--only", COP, "--fix", "lib/a.rb"],
+        ] {
+            let out = unchanged(dir.path(), source.as_bytes(), &args, Some(1));
+            assert_eq!(count(&out), 1, "{out:?}");
+            assert!(String::from_utf8_lossy(&out.stdout).contains(&expected));
+        }
+    }
+    for source in ["foo (not x)\n", "foo (not(x))\n", "foo ((not x))\n"] {
+        let out = unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--only", COP, "--fix", "lib/a.rb"],
+            Some(0),
+        );
+        assert_eq!(count(&out), 0, "{out:?}");
+    }
+}
+#[test]
+fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
+    let registry = rustocop::cops::Registry::new();
+    let config = rustocop::config::ResolvedConfig::default();
+    let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
+    let mut failures = Vec::new();
+    for row in rows() {
+        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let report = rustocop::pipeline::lint_one(
+            Path::new("example.rb"),
+            Path::new("example.rb"),
+            Some(&bytes),
+            &active,
+            &config,
+        );
+        assert!(report.internal_errors.is_empty(), "{row}: {report:?}");
+        if row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some() {
+            assert!(!report.errors.is_empty(), "{row}: {report:?}");
+            assert!(report.result.offenses.is_empty());
+            continue;
+        }
+        if !report.errors.is_empty() {
+            failures.push(format!(
+                "parse {}: {:?}",
+                String::from_utf8_lossy(&bytes),
+                report.errors
+            ));
+            continue;
+        }
+        let mut found: Vec<_> = report
+            .result
+            .offenses
+            .iter()
+            .map(|o| {
+                assert!(o.correction.is_none());
+                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                (o.line, o.col, o.end_line, o.message.clone())
+            })
+            .collect();
+        found.sort();
+        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        if found != expected {
+            failures.push(format!(
+                "{}: expected {expected:?}, found {found:?}",
+                String::from_utf8_lossy(&bytes)
+            ));
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "{} mismatches:\n{}",
+        failures.len(),
+        failures.join("\n")
+    );
+}
+fn corrected(bytes: &[u8]) -> Vec<u8> {
+    let file = rustocop::source::SourceFile::new("lib/a.rb".into(), bytes.to_vec());
+    let parsed = ruby_prism::parse_ruby_3_4(bytes);
+    let cop = rustocop::cops::lint::ParenthesesAsGroupedExpression;
+    let mut found = Vec::new();
+    assert!(rustocop::cops::run_cops(&[&cop], &parsed, &file, &mut found).is_empty());
+    rustocop::corrections::apply(bytes, &found).unwrap().bytes
+}
+#[test]
+fn every_original_byte_row_matches_rebuilt_cli_and_correction_pipeline() {
+    let dir = project();
+    let mut edits = 0;
+    for row in rows() {
+        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let invalid =
+            row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some();
+        let expected: Vec<Finding> = if invalid {
+            Vec::new()
+        } else {
+            serde_json::from_value(row["findings"].clone()).unwrap()
+        };
+        let status = if invalid {
+            2
+        } else {
+            i32::from(!expected.is_empty())
+        };
+        let out = unchanged(
+            dir.path(),
+            &bytes,
+            &["--only", COP, "lib/a.rb"],
+            Some(status),
+        );
+        assert_eq!(count(&out), expected.len(), "{row}: {out:?}");
+        if !invalid {
+            for (line, col, _, message) in &expected {
+                assert!(
+                    String::from_utf8_lossy(&out.stdout)
+                        .contains(&format!("lib/a.rb:{line}:{col}: E: {message} ({COP})\n")),
+                    "{row}: {out:?}"
+                );
+            }
+        }
+        let after = if invalid {
+            bytes.clone()
+        } else {
+            corrected(&bytes)
+        };
+        if after == bytes {
+            unchanged(
+                dir.path(),
+                &bytes,
+                &["--only", COP, "--fix", "lib/a.rb"],
+                Some(status),
+            );
+        } else {
+            edits += 1;
+            let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
+            assert_ne!(out.status.code(), Some(2), "{row}: {out:?}");
+            assert_eq!(
+                fs::read(dir.path().join("lib/a.rb")).unwrap(),
+                after,
+                "{row}"
+            );
+        }
+    }
+    assert_eq!(edits, 87);
+}
+#[test]
+fn canonical_bytes_atomic_idempotence_and_encoding() {
+    let dir = project();
+    for (before, after) in [
+        (b"a.func (x)\n".as_slice(), b"a.func(x)\n".as_slice()),
+        (b"is? \t (x)\n", b"is?(x)\n"),
+        (b"a&.func (x)\n", b"a&.func(x)\n"),
+        (
+            b"x = 42; a.func (x); p __LINE__\n",
+            b"x = 42; a.func(x); p __LINE__\n",
+        ),
+        (b"a.func (42) # keep\n", b"a.func(42) # keep\n"),
+        (b"\xef\xbb\xbfa.func (x)\r\n", b"\xef\xbb\xbfa.func(x)\r\n"),
+        (
+            b"# coding: ISO-8859-1\r\n# caf\xe9\r\na.func (x)\r\n",
+            b"# coding: ISO-8859-1\r\n# caf\xe9\r\na.func(x)\r\n",
+        ),
+        (
+            b"# coding: Shift_JIS\n# \x95\x5c\na.func (x)\n",
+            b"# coding: Shift_JIS\n# \x95\x5c\na.func(x)\n",
+        ),
+        (
+            b"a.func (x)\n__END__\nraw\xff\n",
+            b"a.func(x)\n__END__\nraw\xff\n",
+        ),
+    ] {
+        unchanged(dir.path(), before, &["--only", COP, "lib/a.rb"], Some(1));
+        let path = dir.path().join("lib/a.rb");
+        let mut held = fs::File::open(&path).unwrap();
+        let old = fs::metadata(&path).unwrap();
+        let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
+        assert_eq!(out.status.code(), Some(0), "{out:?}");
+        assert_eq!(fs::read(&path).unwrap(), after);
+        let mut retained = Vec::new();
+        held.read_to_end(&mut retained).unwrap();
+        assert_eq!(retained, before);
+        assert_eq!(
+            old.permissions(),
+            fs::metadata(&path).unwrap().permissions()
+        );
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt;
+            assert_ne!(old.ino(), fs::metadata(&path).unwrap().ino());
+        }
+        let mtime = fs::metadata(&path).unwrap().modified().unwrap();
+        assert_eq!(
+            run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"])
+                .status
+                .code(),
+            Some(0)
+        );
+        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
+    }
+}
+#[test]
+fn defaults_selectors_strict_toml_and_supplied_paths() {
+    let dir = project();
+    let registry = rustocop::cops::Registry::new();
+    let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
+    assert!(cop.default_enabled() && cop.safe_fixes());
+    assert_eq!(cop.ruby_versions(), Default::default());
+    assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
+    assert!(cop.autocorrect_incompatible_with().is_empty());
+    for (config, mut args, n) in [
+        (String::new(), vec![], 1),
+        (String::new(), vec!["--only", COP], 1),
+        (String::new(), vec!["--only", "Lint", "--except", COP], 0),
+        (String::new(), vec!["--only", COP, "--except", "Lint"], 0),
+        ("[cops.Lint]\nenabled=false\n".into(), vec![], 0),
+        (
+            format!("[cops.Lint]\nenabled=false\n[cops.\"{COP}\"]\nenabled=true\n"),
+            vec![],
+            1,
+        ),
+        (
+            format!("[cops.Lint]\nenabled=true\n[cops.\"{COP}\"]\nenabled=false\n"),
+            vec![],
+            0,
+        ),
+        (
+            format!("[cops.\"{COP}\"]\nenabled=false\n"),
+            vec!["--only", COP],
+            1,
+        ),
+        (
+            format!("[cops.\"{COP}\"]\nexclude=['lib/a.rb']\n"),
+            vec!["--only", COP],
+            0,
+        ),
+        ("exclude=['lib/a.rb']\n".into(), vec!["--only", COP], 0),
+    ] {
+        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+        args.push("lib/a.rb");
+        assert_eq!(
+            count(&unchanged(dir.path(), b"a.func (x)\n", &args, None)),
+            n
+        );
+    }
+    for key in [
+        "max=1",
+        "include=['**/*']",
+        "Enabled=true",
+        "TargetRubyVersion=3.3",
+        "SafeAutoCorrect=true",
+        "enabled='true'",
+    ] {
+        fs::write(
+            dir.path().join("rustocop.toml"),
+            format!("[cops.\"{COP}\"]\n{key}\n"),
+        )
+        .unwrap();
+        unchanged(
+            dir.path(),
+            b"a.func (x)\n",
+            &["--only", COP, "--fix", "lib/a.rb"],
+            Some(2),
+        );
+    }
+    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+    for path in ["Gemfile", "lib/a.jb", "lib/.hidden.rb", "lib/a_spec.rb"] {
+        fs::write(dir.path().join(path), b"a.func (x)\n").unwrap();
+        let out = run(dir.path(), &["--only", COP, path]);
+        assert_eq!(count(&out), 1);
+    }
+    assert_eq!(
+        count(&run(&dir.path().join("lib"), &["--only", COP, "a.rb"])),
+        1
+    );
+    for config in [
+        String::new(),
+        format!("[cops.\"{COP}\"]\nexclude=['lib/a.rb']\n"),
+    ] {
+        let n = usize::from(config.is_empty());
+        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+        fs::write(dir.path().join("lib/a.rb"), "sentinel\n").unwrap();
+        let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+            .current_dir(dir.path())
+            .args(["--only", COP, "--stdin", "lib/a.rb"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(b"a.func (x)\n")
+            .unwrap();
+        let out = child.wait_with_output().unwrap();
+        assert_eq!(count(&out), n);
+        if n != 0 {
+            assert!(String::from_utf8_lossy(&out.stdout).starts_with("lib/a.rb:1:7:"));
+        }
+        assert_eq!(
+            fs::read(dir.path().join("lib/a.rb")).unwrap(),
+            b"sentinel\n"
+        );
+        assert_eq!(
+            run(dir.path(), &["--only", COP, "--stdin", "lib/a.rb", "--fix"])
+                .status
+                .code(),
+            Some(2)
+        );
+    }
+}
+#[test]
+fn both_prefixes_multiline_gap_ranges_next_and_push_scopes() {
+    let dir = project();
+    for prefix in ["rubocop", "rustocop"] {
+        for body in ["a.func (x)\n", "a.func \\\n (x)\n"] {
+            for source in [
+                format!("# {prefix}:disable Lint\n{body}"),
+                format!("# {prefix}:disable-next {COP}\n{body}"),
+                format!("# {prefix}:next -{COP}\n{body}"),
+                format!("# {prefix}:push -{COP}\n{body}# {prefix}:pop\n"),
+            ] {
+                unchanged(
+                    dir.path(),
+                    source.as_bytes(),
+                    &["--only", COP, "--fix", "lib/a.rb"],
+                    Some(0),
+                );
+            }
+        }
+        let body = "a.func \\\n (x)\n";
+        for (source, n) in [
+            (
+                format!(
+                    "# {prefix}:disable {COP}\n{body}# {prefix}:push +{COP}\n{body}# {prefix}:pop\n{body}"
+                ),
+                1,
+            ),
+            (
+                format!(
+                    "# {prefix}:disable {COP}\n{body}# {prefix}:enable-next {COP}\n{body}{body}"
+                ),
+                1,
+            ),
+            (format!("a.func \\\n # {prefix}:disable {COP}\n (x)\n"), 0),
+        ] {
+            let out = unchanged(
+                dir.path(),
+                source.as_bytes(),
+                &["--only", COP, "--fix", "lib/a.rb"],
+                Some(n),
+            );
+            assert_eq!(count(&out), n as usize, "{source}: {out:?}");
+        }
+    }
+}
+#[test]
+fn uncertain_edits_observers_fatal_errors_and_peer_composition() {
+    let dir = project();
+    for source in [
+        "a.func (x; y)\n",
+        "a.func (x = 1)\n",
+        "a.func ( # keep\n x)\n",
+        "a.func (x) {}\n",
+        "a.func (<<TEXT)\nhello\nTEXT\n",
+    ] {
+        unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--only", COP, "--fix", "lib/a.rb"],
+            Some(1),
+        );
+    }
+    for observer in [
+        "File.binread(__FILE__)",
+        "DATA.rewind; DATA.read",
+        "RubyVM::InstructionSequence.of(method(:f))",
+        "ObjectSpace.count_objects",
+        "RubyVM::AbstractSyntaxTree.of(-> { 1 }).first_column",
+    ] {
+        let source = format!("a.func (x)\n{observer}\n__END__\nraw\0\n");
+        unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--only", COP, "--fix", "lib/a.rb"],
+            Some(1),
+        );
+    }
+    unchanged(
+        dir.path(),
+        b"a.func (x)\ndef broken(\n",
+        &["--only", COP, "--fix", "lib/a.rb"],
+        Some(2),
+    );
+    let peers = format!(
+        "{COP},Style/MethodCallWithArgsParentheses,Style/RedundantParentheses,Style/StringLiterals,Layout/SpaceAfterComma"
+    );
+    fs::write(dir.path().join("lib/a.rb"), "a.func (x)\na = ['a',2]\n").unwrap();
+    let out = run(dir.path(), &["--only", &peers, "--fix", "lib/a.rb"]);
+    assert_eq!(out.status.code(), Some(0), "{out:?}");
+    assert_eq!(
+        fs::read_to_string(dir.path().join("lib/a.rb")).unwrap(),
+        "a.func(x)\na = [\"a\", 2]\n"
+    );
+    unchanged(
+        dir.path(),
+        b"a.func(x)\na = [\"a\", 2]\n",
+        &["--only", &peers, "--fix", "lib/a.rb"],
+        Some(0),
+    );
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::{PermissionsExt, symlink};
+        let path = dir.path().join("lib/a.rb");
+        fs::write(&path, "a.func (x)\n").unwrap();
+        symlink(&path, dir.path().join("link.rb")).unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
+        let old = fs::metadata(&path).unwrap();
+        let out = run(dir.path(), &["--only", COP, "--fix", "link.rb"]);
+        assert_eq!(out.status.code(), Some(2), "{out:?}");
+        assert_eq!(fs::read(&path).unwrap(), b"a.func (x)\n");
+        assert_eq!(
+            fs::metadata(&path).unwrap().modified().unwrap(),
+            old.modified().unwrap()
+        );
+        assert_eq!(
+            fs::metadata(&path).unwrap().permissions(),
+            old.permissions()
+        );
+        assert!(
+            fs::symlink_metadata(dir.path().join("link.rb"))
+                .unwrap()
+                .is_symlink()
+        );
+    }
+}
+#[test]
+fn authored_native34_value_binding_evaluation_exceptions_and_trace_witnesses() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let dir = project();
+    let programs = [
+        "events = []; a = Object.new\ndef a.func(x); [x, yield_if_any = block_given?]; end\nx = 42\nvalue = a.func (x)\np [value, x, defined?(x), __LINE__]\n",
+        "$events = []\ndef a; $events << :receiver; self; end\ndef x; $events << :argument; 42; end\npublic def func(v); $events << :callee; v; end\nvalue = a.func (x)\np [value, $events]\n",
+        "$events = []\ndef a; $events << :receiver; nil; end\ndef x; raise 'must not run'; end\nvalue = a&.func (x)\np [value, $events]\n",
+        "a = Object.new\ndef a.func(x); raise ArgumentError, x.to_s; end\nx = 42\nbegin\n a.func (x)\nrescue => e\n p [e.class, e.message, e.backtrace.first.split(':')[1], __LINE__]\nensure\n p :ensure\nend\n",
+        "a = Object.new\ndef a.func(x); x; end\nx = 7\nevents = []\ntrace = TracePoint.new(:call, :return, :line) { |t| events << [t.event, t.lineno, t.method_id] }\ntrace.enable\nvalue = a.func (x)\ntrace.disable\np [value, events]\n",
+        "a = Object.new\ndef a.func(x); x; end\nx = 42\nf = -> { a.func (x) }\np [f.call, x, f.parameters, __LINE__]\n",
+    ];
+    for source in programs {
+        for crlf in [false, true] {
+            let text = if crlf {
+                source.replace('\n', "\r\n")
+            } else {
+                source.into()
+            };
+            let path = dir.path().join("lib/a.rb");
+            fs::write(&path, &text).unwrap();
+            let before = Command::new(&ruby)
+                .current_dir(dir.path())
+                .args(["--parser=prism", "-w", "lib/a.rb"])
+                .output()
+                .unwrap();
+            assert!(before.status.success(), "{before:?}");
+            let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
+            assert_eq!(out.status.code(), Some(0), "{out:?}");
+            assert_ne!(fs::read(&path).unwrap(), text.as_bytes());
+            let after = Command::new(&ruby)
+                .current_dir(dir.path())
+                .args(["--parser=prism", "-w", "lib/a.rb"])
+                .output()
+                .unwrap();
+            assert_eq!(after.status.code(), before.status.code());
+            assert_eq!(after.stdout, before.stdout, "{text}");
+            assert_eq!(after.stderr, before.stderr, "{text}");
+        }
+    }
+    // These are independently authored observer controls, not reference inputs.
+    for observation in [
+        "p File.binread(__FILE__)",
+        "p RubyVM::InstructionSequence.of(method(:f)).to_a",
+        "p RubyVM::AbstractSyntaxTree.of(method(:f)).last_column",
+        "p ObjectSpace.count_objects[:T_STRING]",
+        "DATA.rewind; p DATA.read",
+    ] {
+        let source = format!("def f; a.func (x); end\n{observation}\n__END__\npayload\n");
+        unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--only", COP, "--fix", "lib/a.rb"],
+            Some(1),
+        );
+        // Ruby3.4 AST.of needs its native parse.y compiler; Prism ISEQs
+        // intentionally raise instead. This authored witness uses no new syntax.
+        let before = Command::new(&ruby)
+            .current_dir(dir.path())
+            .args(["--parser=parse.y", "-w", "lib/a.rb"])
+            .output()
+            .unwrap();
+        assert!(before.status.success(), "{observation}: {before:?}");
+        assert_eq!(
+            run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"])
+                .status
+                .code(),
+            Some(1)
+        );
+        assert_eq!(
+            fs::read(dir.path().join("lib/a.rb")).unwrap(),
+            source.as_bytes()
+        );
+    }
+}
+#[test]
+fn native_ruby34_syntax_only_checks_all_reference_inputs_and_actual_edits() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let version = Command::new(&ruby).arg("--version").output().unwrap();
+    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    for row in rows() {
+        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let invalid =
+            row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some();
+        let mut sources = vec![bytes.clone()];
+        if !invalid {
+            let after = corrected(&bytes);
+            if after != bytes {
+                sources.push(after);
+            }
+        }
+        for bytes in sources {
+            let mut child = Command::new(&ruby)
+                .args(["--parser=prism", "-W0", "-c"])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            child.stdin.take().unwrap().write_all(&bytes).unwrap();
+            let out = child.wait_with_output().unwrap();
+            assert_eq!(out.status.success(), !invalid, "{row}: {out:?}");
+            if let Some(reason) = row["native_scope_rejection"].as_str() {
+                assert!(
+                    String::from_utf8_lossy(&out.stderr).contains(reason),
+                    "{out:?}"
+                );
+            }
+        }
+    }
+}

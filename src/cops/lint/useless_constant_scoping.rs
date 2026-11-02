@@ -265,7 +265,7 @@ fn macro_scope(node: &Node<'_>, ancestors: &[&Node<'_>]) -> bool {
     true
 }
 
-fn conditional_macro_child(
+pub(super) fn conditional_macro_child(
     child: &Node<'_>,
     predicate: Node<'_>,
     body: Option<Node<'_>>,

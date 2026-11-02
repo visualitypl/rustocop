@@ -1,0 +1,11 @@
+{
+  "gems": {
+    "did_you_mean": "1.6.3",
+    "rubydex": "0.4.3"
+  },
+  "did_you_mean_sources": {
+    "spell_checker": "4f251c07c1b6cb5672cc47317288afecf7be4e9d958b8fa3ee23af860adc0b27",
+    "jaro_winkler": "a4cbdaec33ba3b4c672b52bea67c3b1935a1478750d3c7b3e7604e9cf8a58b71",
+    "levenshtein": "aeea22b43b1567a2b31e81e56626b98c53be7893c9d2ffdd1e2258f1796838c3"
+  }
+}

@@ -5,6 +5,10 @@
 /// Pending is enabled; absence from this list does not imply implementation.
 const OPT_IN: &[&str] = &[
     "Lint/ConstantResolution",
+    "Lint/HeredocMethodCallPosition",
+    "Lint/NumberConversion",
+    "Lint/ShadowingOuterLocalVariable",
+    "Lint/UnusedPrivateMethod",
     "Naming/InclusiveLanguage",
     "Style/ArrayCoercion",
     "Style/ArrayFirstLast",
@@ -69,9 +73,10 @@ impl RubyVersions {
 pub(crate) fn ruby_versions(name: &str) -> RubyVersions {
     let minimum = match name {
         "Style/Dir" | "Style/SymbolArray" => Some(RubyVersion(2, 0)),
-        "Style/FrozenStringLiteralComment" | "Style/HashFetchChain" | "Style/SafeNavigation" => {
-            Some(RubyVersion(2, 3))
-        }
+        "Lint/SafeNavigationChain"
+        | "Style/FrozenStringLiteralComment"
+        | "Style/HashFetchChain"
+        | "Style/SafeNavigation" => Some(RubyVersion(2, 3)),
         "Style/CollectionCompact"
         | "Style/ComparableClamp"
         | "Style/DirEmpty"
@@ -82,11 +87,13 @@ pub(crate) fn ruby_versions(name: &str) -> RubyVersions {
             Some(RubyVersion(2, 5))
         }
         "Lint/ErbNewArguments"
+        | "Lint/SuppressedExceptionInNumberConversion"
         | "Style/MapToHash"
         | "Style/ObjectThen"
         | "Style/ReduceToHash"
         | "Style/SlicingWithRange" => Some(RubyVersion(2, 6)),
         "Lint/DuplicateMatchPattern"
+        | "Lint/UnreachablePatternBranch"
         | "Lint/EmptyInPattern"
         | "Style/ArgumentsForwarding"
         | "Style/InPatternThen"
@@ -94,13 +101,15 @@ pub(crate) fn ruby_versions(name: &str) -> RubyVersions {
         | "Style/NumberedParameters"
         | "Style/NumberedParametersLimit"
         | "Style/TallyMethod" => Some(RubyVersion(2, 7)),
-        "Style/AmbiguousEndlessMethodDefinition"
+        "Lint/RedundantDirGlobSort"
+        | "Style/AmbiguousEndlessMethodDefinition"
         | "Style/EndlessMethod"
         | "Style/HashExcept"
         | "Style/RedundantInterpolationUnfreeze" => Some(RubyVersion(3, 0)),
-        "Naming/BlockForwarding" | "Style/ArrayIntersect" | "Style/NestedFileDirname" => {
-            Some(RubyVersion(3, 1))
-        }
+        "Lint/RefinementImportMethods"
+        | "Naming/BlockForwarding"
+        | "Style/ArrayIntersect"
+        | "Style/NestedFileDirname" => Some(RubyVersion(3, 1)),
         "Style/DataInheritance" | "Style/RedundantStructKeywordInit" => Some(RubyVersion(3, 2)),
         "Style/ItBlockParameter" => Some(RubyVersion(3, 4)),
         "Style/ReverseFind" => Some(RubyVersion(4, 0)),
@@ -141,6 +150,7 @@ impl PathPolicy {
 }
 
 const PATHS: &[(&str, &[&str], &[&str])] = &[
+    ("Lint/TopLevelReturnWithArgument", &[], &["**/*.jb"]),
     ("Naming/FileName", &[], &["Rakefile.rb"]),
     ("Naming/PredicatePrefix", &[], &["spec/**/*"]),
     ("Style/Documentation", &[], &["spec/**/*", "test/**/*"]),

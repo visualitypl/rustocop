@@ -520,7 +520,7 @@ struct RemainingArguments {
 impl RemainingArguments {
     fn new(len: usize) -> Self {
         Self {
-            tree: (0..=len).map(|i| i & i.wrapping_neg()).collect(),
+            tree: (0..=len).map(usize::isolate_lowest_one).collect(),
             len,
         }
     }
@@ -545,7 +545,7 @@ impl RemainingArguments {
         let mut i = index + 1;
         while i < self.tree.len() {
             self.tree[i] -= 1;
-            i += i & i.wrapping_neg();
+            i += i.isolate_lowest_one();
         }
         self.len -= 1;
     }
@@ -862,6 +862,46 @@ mod tests {
             assert_count(s, 0);
         }
     }
+    #[test]
+    fn lowest_set_bit_zero_powers_and_usize_boundaries() {
+        assert_eq!(0usize.isolate_lowest_one(), 0);
+        for bit in 0..usize::BITS {
+            let power = 1usize << bit;
+            assert_eq!(power.isolate_lowest_one(), power);
+            assert_eq!((usize::MAX << bit).isolate_lowest_one(), power);
+        }
+        assert_eq!(usize::MAX.isolate_lowest_one(), 1);
+        assert_eq!((usize::MAX - 1).isolate_lowest_one(), 2);
+    }
+
+    #[test]
+    fn remaining_arguments_empty_and_power_of_two_boundaries() {
+        use super::RemainingArguments;
+
+        for len in [0, 1, 2, 3, 7, 8, 9, 31, 32, 33, 63, 64, 65] {
+            let mut remaining = RemainingArguments::new(len);
+            assert_eq!(remaining.tree[0], 0);
+            for i in 1..=len {
+                assert_eq!(remaining.tree[i], 1usize << i.trailing_zeros());
+            }
+            let mut expected: Vec<_> = (0..len).collect();
+            while !expected.is_empty() {
+                for (rank, &index) in expected.iter().enumerate() {
+                    assert_eq!(remaining.get(rank), Some(index));
+                }
+                assert_eq!(remaining.get(expected.len()), None);
+                assert_eq!(remaining.get(usize::MAX), None);
+                let rank = expected.len() / 2;
+                let index = remaining.get(rank).unwrap();
+                assert_eq!(index, expected.remove(rank));
+                remaining.remove(index);
+                assert_eq!(remaining.len, expected.len());
+            }
+            assert_eq!(remaining.get(0), None);
+            assert_eq!(remaining.pop(), None);
+        }
+    }
+
     #[test]
     fn bounded_argument_selection_and_lazy_literal_facts() {
         use super::*;

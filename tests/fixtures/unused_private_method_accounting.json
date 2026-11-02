@@ -1,0 +1,488 @@
+[
+  {
+    "spec_line": 5,
+    "assigned_index": false,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable production absent-index gate."
+  },
+  {
+    "spec_line": 37,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 54,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 77,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 85,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 101,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 117,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 125,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 142,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 168,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 184,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 201,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 217,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+      [
+        6,
+        3,
+        6,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        6,
+        3,
+        6,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 243,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 264,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 282,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 300,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+      [
+        8,
+        3,
+        8,
+        "Private method `render_html` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        8,
+        3,
+        8,
+        "Private method `render_html` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 330,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+      [
+        8,
+        3,
+        8,
+        "Private method `octal_format` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        8,
+        3,
+        8,
+        "Private method `octal_format` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 360,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+      [
+        8,
+        3,
+        8,
+        "Private method `format_octal` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        8,
+        3,
+        8,
+        "Private method `format_octal` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 383,
+    "assigned_index": true,
+    "declared_options": {
+    },
+    "declared_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Applicable explicit-index matcher example; production has no index."
+  },
+  {
+    "spec_line": 411,
+    "assigned_index": true,
+    "declared_options": {
+      "AllowedNames": [
+        "attribute?"
+      ]
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        4,
+        3,
+        4,
+        "Private method `attribute?` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Nonfixed AllowedNames/AllowedPatterns; declared replay retained, empty fixed policy separately replayed."
+  },
+  {
+    "spec_line": 417,
+    "assigned_index": true,
+    "declared_options": {
+      "AllowedNames": [
+        "attribute?"
+      ]
+    },
+    "declared_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Nonfixed AllowedNames/AllowedPatterns; declared replay retained, empty fixed policy separately replayed."
+  },
+  {
+    "spec_line": 446,
+    "assigned_index": true,
+    "declared_options": {
+      "AllowedPatterns": [
+        "_hook\\z"
+      ]
+    },
+    "declared_findings": [
+
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        4,
+        3,
+        4,
+        "Private method `before_save_hook` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Nonfixed AllowedNames/AllowedPatterns; declared replay retained, empty fixed policy separately replayed."
+  },
+  {
+    "spec_line": 452,
+    "assigned_index": true,
+    "declared_options": {
+      "AllowedPatterns": [
+        "_hook\\z"
+      ]
+    },
+    "declared_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "fixed_options_indexed_findings": [
+      [
+        7,
+        3,
+        7,
+        "Private method `helper` appears to be unused."
+      ]
+    ],
+    "production_no_index_findings": [
+
+    ],
+    "disposition": "Nonfixed AllowedNames/AllowedPatterns; declared replay retained, empty fixed policy separately replayed."
+  }
+]

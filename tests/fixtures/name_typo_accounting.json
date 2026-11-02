@@ -1,0 +1,682 @@
+[
+  {
+    "spec_line": 5,
+    "assigned_index": false,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Default no-index case."
+  },
+  {
+    "spec_line": 28,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 35,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 42,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 48,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 54,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 60,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 66,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 72,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 78,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 147,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        2,
+        11,
+        2,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        2,
+        11,
+        2,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 88,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 97,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 107,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 118,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": true,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 140,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 158,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": true,
+    "index_includes_gems": false,
+    "disposition": "Nondefault CheckConstants/CheckMethods/AllowedNames: declared reference replayed separately; fixed indexed behavior also tested."
+  },
+  {
+    "spec_line": 168,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        11,
+        1,
+        "Possible typo: `UserCraetor` is not defined in `Services`. Did you mean `UserCreator`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": true,
+    "index_includes_gems": false,
+    "disposition": "Nondefault CheckConstants/CheckMethods/AllowedNames: declared reference replayed separately; fixed indexed behavior also tested."
+  },
+  {
+    "spec_line": 194,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 201,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        9,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        9,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 208,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        12,
+        1,
+        "Possible typo: `Formatting` does not respond to `indent_txet`. Did you mean `indent_text`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        12,
+        1,
+        "Possible typo: `Formatting` does not respond to `indent_txet`. Did you mean `indent_text`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 215,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 221,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 227,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 233,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 239,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 245,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 251,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 271,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 277,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Config` does not respond to `debug_mdoe=`. Did you mean `debug_mode=`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Config` does not respond to `debug_mdoe=`. Did you mean `debug_mode=`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 296,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 306,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 315,
+    "assigned_index": true,
+    "declared_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": false,
+    "index_includes_gems": false,
+    "disposition": "Assigned graph required; private parity evidence, not production activation."
+  },
+  {
+    "spec_line": 327,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": true,
+    "index_includes_gems": false,
+    "disposition": "Nondefault CheckConstants/CheckMethods/AllowedNames: declared reference replayed separately; fixed indexed behavior also tested."
+  },
+  {
+    "spec_line": 337,
+    "assigned_index": true,
+    "declared_findings": [
+
+    ],
+    "fixed_indexed_findings": [
+      [
+        1,
+        8,
+        1,
+        "Possible typo: `Report` does not respond to `generate_sumary`. Did you mean `generate_summary`?"
+      ]
+    ],
+    "default_findings": [
+
+    ],
+    "nonfixed_options": true,
+    "index_includes_gems": false,
+    "disposition": "Nondefault CheckConstants/CheckMethods/AllowedNames: declared reference replayed separately; fixed indexed behavior also tested."
+  }
+]

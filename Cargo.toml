@@ -2,7 +2,7 @@
 name = "rustocop"
 version = "0.5.0"
 edition = "2024"
-rust-version = "1.88"
+rust-version = "1.99"
 license = "MIT"
 description = "A blazing-fast, opinionated Ruby linter — zero-config by default, no Ruby runtime required"
 keywords = ["ruby", "linter", "rubocop", "static-analysis"]

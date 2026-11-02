@@ -72,10 +72,10 @@ fn selectors_config_exclusions_and_strict_fixed_policy() {
             "[cops.Style]\nenabled=false\n".into(),
             format!("[cops.\"{cop}\"]\nenabled=false\n"),
         ] {
-            // Isolate the historical Style disable assertion from EmptyBlock.
+            // Isolate the historical Style toggle from EmptyBlock and unused args.
             fs::write(
                 d.path().join("rustocop.toml"),
-                format!("{config}\n[cops.\"Lint/EmptyBlock\"]\nenabled=false\n"),
+                format!("{config}\n[cops.\"Lint/EmptyBlock\"]\nenabled=false\n[cops.\"Lint/UnusedBlockArgument\"]\nenabled=false\n"),
             )
             .unwrap();
             unchanged(d.path(), s, &["--fix", "a.rb"], 0);

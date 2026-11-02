@@ -104,13 +104,13 @@ fn complete_fixtures_have_exact_cli_diagnostics_and_only_proven_canonical_fixes(
 #[test]
 fn metadata_selectors_toml_department_precedence_and_exclusions() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
-    assert!(!registry.has_cop("Lint/UnusedPrivateMethod"));
+    assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
     let dir = project();
     for (config, selectors, expected) in [
         (String::new(), vec![], 1),

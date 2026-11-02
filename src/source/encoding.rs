@@ -78,6 +78,11 @@ pub(super) struct ParsedEncoding {
     gb18030: bool,
 }
 
+/// POSIX uppercase for an already source-buffer-projected scalar (Ruby Unicode 15.0).
+pub(crate) fn unicode_uppercase(c: char) -> bool {
+    naming_uppercase::unicode(c as u32)
+}
+
 /// POSIX lowercase for UTF-8 path scalars, independent of source encoding.
 /// Reuses the pinned Ruby Unicode table rather than Rust's evolving tables.
 pub(crate) fn unicode_lowercase(c: char) -> bool {
@@ -212,6 +217,10 @@ impl ParsedEncoding {
             offset += width;
         }
         std::borrow::Cow::Owned(out)
+    }
+
+    pub fn match_pattern_composes_identifiers(self) -> bool {
+        self.match_pattern_encoding == b"UTF8-MAC"
     }
 
     pub fn match_pattern_binary(self) -> bool {
@@ -724,6 +733,13 @@ fn match_pattern_encoding(source: &[u8]) -> &'static [u8] {
     encoding.map_or(b"UTF-8", |e| {
         unsafe { std::ffi::CStr::from_ptr(e.name) }.to_bytes()
     })
+}
+
+/// POSIX alnum for a character already in Parser::Source::Buffer's UTF-8
+/// projection. DuplicateMagicComment must not use regex's evolving Unicode/N
+/// classes, or original-codec predicates on projected bytes.
+pub(crate) fn projected_alphanumeric(character: char) -> bool {
+    escape_alnum::unicode(character as u32)
 }
 
 /// String inspection after projection always uses the pinned Unicode15 facts.

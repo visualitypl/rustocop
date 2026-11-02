@@ -142,7 +142,7 @@ pub(crate) mod lambda;
 pub(crate) mod lambda_call;
 pub(crate) mod line_end_concatenation;
 mod literal_spelling;
-mod magic_comment;
+pub(crate) mod magic_comment;
 mod magic_comment_format;
 pub(crate) mod map_compact_with_conditional_block;
 pub(crate) mod map_into_array;

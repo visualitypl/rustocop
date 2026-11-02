@@ -1,0 +1,6839 @@
+[
+  {
+    "source": "foo = /[xyx]/\n",
+    "origin": "spec",
+    "line": 6,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = /[xy]/\n",
+    "project_after": "foo = /[xyx]/\n"
+  },
+  {
+    "source": "foo = /[xyx]+/\n",
+    "origin": "spec",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = /[xy]+/\n",
+    "project_after": "foo = /[xyx]+/\n"
+  },
+  {
+    "source": "foo = /[xyz]/\n",
+    "origin": "spec",
+    "line": 32,
+    "findings": [
+
+    ],
+    "upstream_after": "foo = /[xyz]/\n",
+    "project_after": "foo = /[xyz]/\n"
+  },
+  {
+    "source": "foo = /[xyz][xyz]/\n",
+    "origin": "spec",
+    "line": 40,
+    "findings": [
+
+    ],
+    "upstream_after": "foo = /[xyz][xyz]/\n",
+    "project_after": "foo = /[xyz][xyz]/\n"
+  },
+  {
+    "source": "/[\\0\\07]/\n",
+    "origin": "spec",
+    "line": 48,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\0\\07]/\n",
+    "project_after": "/[\\0\\07]/\n"
+  },
+  {
+    "source": "/[\\0\\08]/\n",
+    "origin": "spec",
+    "line": 56,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\08]/\n",
+    "project_after": "/[\\0\\08]/\n"
+  },
+  {
+    "source": "/[\\07\\01\\078]/\n",
+    "origin": "spec",
+    "line": 69,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\07\\018]/\n",
+    "project_after": "/[\\07\\01\\078]/\n"
+  },
+  {
+    "source": "/[\\177\\01\\1778]/\n",
+    "origin": "spec",
+    "line": 82,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\177\\018]/\n",
+    "project_after": "/[\\177\\01\\1778]/\n"
+  },
+  {
+    "source": "foo = %r{[xyx]}\n",
+    "origin": "spec",
+    "line": 95,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = %r{[xy]}\n",
+    "project_after": "foo = %r{[xyx]}\n"
+  },
+  {
+    "source": "foo = /([xyx])/\n",
+    "origin": "spec",
+    "line": 108,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = /([xy])/\n",
+    "project_after": "foo = /([xyx])/\n"
+  },
+  {
+    "source": "foo = /([[:alnum:]y[:alnum:]])/\n",
+    "origin": "spec",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        20,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = /([[:alnum:]y])/\n",
+    "project_after": "foo = /([[:alnum:]y[:alnum:]])/\n"
+  },
+  {
+    "source": "foo = /([a#{foo}a#{bar}a])/\n",
+    "origin": "spec",
+    "line": 134,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        24,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = /([a#{foo}#{bar}])/\n",
+    "project_after": "foo = /([a#{foo}a#{bar}a])/\n"
+  },
+  {
+    "source": "foo = /[0-9x0-9]/\n",
+    "origin": "spec",
+    "line": 148,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "foo = /[0-9x]/\n",
+    "project_after": "foo = /[0-9x0-9]/\n"
+  },
+  {
+    "source": "foo = /[ab&&ab]/\n",
+    "origin": "spec",
+    "line": 161,
+    "findings": [
+
+    ],
+    "upstream_after": "foo = /[ab&&ab]/\n",
+    "project_after": "foo = /[ab&&ab]/\n"
+  },
+  {
+    "source": "foo = /[a-cb]/\n",
+    "origin": "spec",
+    "line": 169,
+    "findings": [
+
+    ],
+    "upstream_after": "foo = /[a-cb]/\n",
+    "project_after": "foo = /[a-cb]/\n"
+  },
+  {
+    "source": "a_field.gsub!(/[#{bad_chars}]/, '')\nsome_other_field.gsub!(/[#{bad_chars}]/, '')\n",
+    "origin": "spec",
+    "line": 177,
+    "findings": [
+
+    ],
+    "upstream_after": "a_field.gsub!(/[#{bad_chars}]/, '')\nsome_other_field.gsub!(/[#{bad_chars}]/, '')\n",
+    "project_after": "a_field.gsub!(/[#{bad_chars}]/, '')\nsome_other_field.gsub!(/[#{bad_chars}]/, '')\n"
+  },
+  {
+    "source": "# bad\nr = /[xyx]/\n",
+    "origin": "source",
+    "line": 10,
+    "findings": [
+      [
+        2,
+        9,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# bad\nr = /[xy]/\n",
+    "project_after": "# bad\nr = /[xyx]/\n"
+  },
+  {
+    "source": "# bad\nr = /[0-9x0-9]/\n",
+    "origin": "source",
+    "line": 13,
+    "findings": [
+      [
+        2,
+        11,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# bad\nr = /[0-9x]/\n",
+    "project_after": "# bad\nr = /[0-9x0-9]/\n"
+  },
+  {
+    "source": "# good\nr = /[xy]/\n",
+    "origin": "source",
+    "line": 16,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nr = /[xy]/\n",
+    "project_after": "# good\nr = /[xy]/\n"
+  },
+  {
+    "source": "# good\nr = /[0-9x]/\n",
+    "origin": "source",
+    "line": 19,
+    "findings": [
+
+    ],
+    "upstream_after": "# good\nr = /[0-9x]/\n",
+    "project_after": "# good\nr = /[0-9x]/\n"
+  },
+  {
+    "source": "/[aa]/\n",
+    "origin": "control",
+    "line": 1,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/\n",
+    "project_after": "/[aa]/\n"
+  },
+  {
+    "source": "/[aa]/i\n",
+    "origin": "control",
+    "line": 2,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/i\n",
+    "project_after": "/[aa]/i\n"
+  },
+  {
+    "source": "/[aa]/x\n",
+    "origin": "control",
+    "line": 3,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/x\n",
+    "project_after": "/[aa]/x\n"
+  },
+  {
+    "source": "/[aa]/n\n",
+    "origin": "control",
+    "line": 4,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/n\n",
+    "project_after": "/[aa]/n\n"
+  },
+  {
+    "source": "/[aa]/u\n",
+    "origin": "control",
+    "line": 5,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/u\n",
+    "project_after": "/[aa]/u\n"
+  },
+  {
+    "source": "/[aa]/e\n",
+    "origin": "control",
+    "line": 6,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]/e\n",
+    "project_after": "/[aa]/e\n"
+  },
+  {
+    "source": "/[aa]/s\n",
+    "origin": "control",
+    "line": 7,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]/s\n",
+    "project_after": "/[aa]/s\n"
+  },
+  {
+    "source": "/[aaa]/\n",
+    "origin": "control",
+    "line": 8,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/\n",
+    "project_after": "/[aaa]/\n"
+  },
+  {
+    "source": "/[aaa]/i\n",
+    "origin": "control",
+    "line": 9,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/i\n",
+    "project_after": "/[aaa]/i\n"
+  },
+  {
+    "source": "/[aaa]/x\n",
+    "origin": "control",
+    "line": 10,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/x\n",
+    "project_after": "/[aaa]/x\n"
+  },
+  {
+    "source": "/[aaa]/n\n",
+    "origin": "control",
+    "line": 11,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/n\n",
+    "project_after": "/[aaa]/n\n"
+  },
+  {
+    "source": "/[aaa]/u\n",
+    "origin": "control",
+    "line": 12,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]/u\n",
+    "project_after": "/[aaa]/u\n"
+  },
+  {
+    "source": "/[aaa]/e\n",
+    "origin": "control",
+    "line": 13,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aaa]/e\n",
+    "project_after": "/[aaa]/e\n"
+  },
+  {
+    "source": "/[aaa]/s\n",
+    "origin": "control",
+    "line": 14,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aaa]/s\n",
+    "project_after": "/[aaa]/s\n"
+  },
+  {
+    "source": "/[a-a]/\n",
+    "origin": "control",
+    "line": 15,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-]/\n",
+    "project_after": "/[a-a]/\n"
+  },
+  {
+    "source": "/[a-a]/i\n",
+    "origin": "control",
+    "line": 16,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-]/i\n",
+    "project_after": "/[a-a]/i\n"
+  },
+  {
+    "source": "/[a-a]/x\n",
+    "origin": "control",
+    "line": 17,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-]/x\n",
+    "project_after": "/[a-a]/x\n"
+  },
+  {
+    "source": "/[a-a]/n\n",
+    "origin": "control",
+    "line": 18,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-]/n\n",
+    "project_after": "/[a-a]/n\n"
+  },
+  {
+    "source": "/[a-a]/u\n",
+    "origin": "control",
+    "line": 19,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-]/u\n",
+    "project_after": "/[a-a]/u\n"
+  },
+  {
+    "source": "/[a-a]/e\n",
+    "origin": "control",
+    "line": 20,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-a]/e\n",
+    "project_after": "/[a-a]/e\n"
+  },
+  {
+    "source": "/[a-a]/s\n",
+    "origin": "control",
+    "line": 21,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-a]/s\n",
+    "project_after": "/[a-a]/s\n"
+  },
+  {
+    "source": "/[a-z-a-z]/\n",
+    "origin": "control",
+    "line": 22,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/\n",
+    "project_after": "/[a-z-a-z]/\n"
+  },
+  {
+    "source": "/[a-z-a-z]/i\n",
+    "origin": "control",
+    "line": 23,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/i\n",
+    "project_after": "/[a-z-a-z]/i\n"
+  },
+  {
+    "source": "/[a-z-a-z]/x\n",
+    "origin": "control",
+    "line": 24,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/x\n",
+    "project_after": "/[a-z-a-z]/x\n"
+  },
+  {
+    "source": "/[a-z-a-z]/n\n",
+    "origin": "control",
+    "line": 25,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/n\n",
+    "project_after": "/[a-z-a-z]/n\n"
+  },
+  {
+    "source": "/[a-z-a-z]/u\n",
+    "origin": "control",
+    "line": 26,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/u\n",
+    "project_after": "/[a-z-a-z]/u\n"
+  },
+  {
+    "source": "/[a-z-a-z]/e\n",
+    "origin": "control",
+    "line": 27,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/e\n",
+    "project_after": "/[a-z-a-z]/e\n"
+  },
+  {
+    "source": "/[a-z-a-z]/s\n",
+    "origin": "control",
+    "line": 28,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-z-a-z]/s\n",
+    "project_after": "/[a-z-a-z]/s\n"
+  },
+  {
+    "source": "/[xyx][xyx]/\n",
+    "origin": "control",
+    "line": 29,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[xy][xy]/\n",
+    "project_after": "/[xyx][xyx]/\n"
+  },
+  {
+    "source": "/[xyx][xyx]/i\n",
+    "origin": "control",
+    "line": 30,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[xy][xy]/i\n",
+    "project_after": "/[xyx][xyx]/i\n"
+  },
+  {
+    "source": "/[xyx][xyx]/x\n",
+    "origin": "control",
+    "line": 31,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[xy][xy]/x\n",
+    "project_after": "/[xyx][xyx]/x\n"
+  },
+  {
+    "source": "/[xyx][xyx]/n\n",
+    "origin": "control",
+    "line": 32,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[xy][xy]/n\n",
+    "project_after": "/[xyx][xyx]/n\n"
+  },
+  {
+    "source": "/[xyx][xyx]/u\n",
+    "origin": "control",
+    "line": 33,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[xy][xy]/u\n",
+    "project_after": "/[xyx][xyx]/u\n"
+  },
+  {
+    "source": "/[xyx][xyx]/e\n",
+    "origin": "control",
+    "line": 34,
+    "findings": [
+
+    ],
+    "upstream_after": "/[xyx][xyx]/e\n",
+    "project_after": "/[xyx][xyx]/e\n"
+  },
+  {
+    "source": "/[xyx][xyx]/s\n",
+    "origin": "control",
+    "line": 35,
+    "findings": [
+
+    ],
+    "upstream_after": "/[xyx][xyx]/s\n",
+    "project_after": "/[xyx][xyx]/s\n"
+  },
+  {
+    "source": "/[[aa][aa]]/\n",
+    "origin": "control",
+    "line": 36,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[a]]/\n",
+    "project_after": "/[[aa][aa]]/\n"
+  },
+  {
+    "source": "/[[aa][aa]]/i\n",
+    "origin": "control",
+    "line": 37,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[a]]/i\n",
+    "project_after": "/[[aa][aa]]/i\n"
+  },
+  {
+    "source": "/[[aa][aa]]/x\n",
+    "origin": "control",
+    "line": 38,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[a]]/x\n",
+    "project_after": "/[[aa][aa]]/x\n"
+  },
+  {
+    "source": "/[[aa][aa]]/n\n",
+    "origin": "control",
+    "line": 39,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[a]]/n\n",
+    "project_after": "/[[aa][aa]]/n\n"
+  },
+  {
+    "source": "/[[aa][aa]]/u\n",
+    "origin": "control",
+    "line": 40,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[a]]/u\n",
+    "project_after": "/[[aa][aa]]/u\n"
+  },
+  {
+    "source": "/[[aa][aa]]/e\n",
+    "origin": "control",
+    "line": 41,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[aa][aa]]/e\n",
+    "project_after": "/[[aa][aa]]/e\n"
+  },
+  {
+    "source": "/[[aa][aa]]/s\n",
+    "origin": "control",
+    "line": 42,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[aa][aa]]/s\n",
+    "project_after": "/[[aa][aa]]/s\n"
+  },
+  {
+    "source": "/[ab&&ab]/\n",
+    "origin": "control",
+    "line": 43,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/\n",
+    "project_after": "/[ab&&ab]/\n"
+  },
+  {
+    "source": "/[ab&&ab]/i\n",
+    "origin": "control",
+    "line": 44,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/i\n",
+    "project_after": "/[ab&&ab]/i\n"
+  },
+  {
+    "source": "/[ab&&ab]/x\n",
+    "origin": "control",
+    "line": 45,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/x\n",
+    "project_after": "/[ab&&ab]/x\n"
+  },
+  {
+    "source": "/[ab&&ab]/n\n",
+    "origin": "control",
+    "line": 46,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/n\n",
+    "project_after": "/[ab&&ab]/n\n"
+  },
+  {
+    "source": "/[ab&&ab]/u\n",
+    "origin": "control",
+    "line": 47,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/u\n",
+    "project_after": "/[ab&&ab]/u\n"
+  },
+  {
+    "source": "/[ab&&ab]/e\n",
+    "origin": "control",
+    "line": 48,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/e\n",
+    "project_after": "/[ab&&ab]/e\n"
+  },
+  {
+    "source": "/[ab&&ab]/s\n",
+    "origin": "control",
+    "line": 49,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ab&&ab]/s\n",
+    "project_after": "/[ab&&ab]/s\n"
+  },
+  {
+    "source": "/[aa&&bb]/\n",
+    "origin": "control",
+    "line": 50,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/\n",
+    "project_after": "/[aa&&bb]/\n"
+  },
+  {
+    "source": "/[aa&&bb]/i\n",
+    "origin": "control",
+    "line": 51,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/i\n",
+    "project_after": "/[aa&&bb]/i\n"
+  },
+  {
+    "source": "/[aa&&bb]/x\n",
+    "origin": "control",
+    "line": 52,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/x\n",
+    "project_after": "/[aa&&bb]/x\n"
+  },
+  {
+    "source": "/[aa&&bb]/n\n",
+    "origin": "control",
+    "line": 53,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/n\n",
+    "project_after": "/[aa&&bb]/n\n"
+  },
+  {
+    "source": "/[aa&&bb]/u\n",
+    "origin": "control",
+    "line": 54,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/u\n",
+    "project_after": "/[aa&&bb]/u\n"
+  },
+  {
+    "source": "/[aa&&bb]/e\n",
+    "origin": "control",
+    "line": 55,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/e\n",
+    "project_after": "/[aa&&bb]/e\n"
+  },
+  {
+    "source": "/[aa&&bb]/s\n",
+    "origin": "control",
+    "line": 56,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa&&bb]/s\n",
+    "project_after": "/[aa&&bb]/s\n"
+  },
+  {
+    "source": "/[a&&[bb]]/\n",
+    "origin": "control",
+    "line": 57,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a&&[b]]/\n",
+    "project_after": "/[a&&[bb]]/\n"
+  },
+  {
+    "source": "/[a&&[bb]]/i\n",
+    "origin": "control",
+    "line": 58,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a&&[b]]/i\n",
+    "project_after": "/[a&&[bb]]/i\n"
+  },
+  {
+    "source": "/[a&&[bb]]/x\n",
+    "origin": "control",
+    "line": 59,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a&&[b]]/x\n",
+    "project_after": "/[a&&[bb]]/x\n"
+  },
+  {
+    "source": "/[a&&[bb]]/n\n",
+    "origin": "control",
+    "line": 60,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a&&[b]]/n\n",
+    "project_after": "/[a&&[bb]]/n\n"
+  },
+  {
+    "source": "/[a&&[bb]]/u\n",
+    "origin": "control",
+    "line": 61,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a&&[b]]/u\n",
+    "project_after": "/[a&&[bb]]/u\n"
+  },
+  {
+    "source": "/[a&&[bb]]/e\n",
+    "origin": "control",
+    "line": 62,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a&&[bb]]/e\n",
+    "project_after": "/[a&&[bb]]/e\n"
+  },
+  {
+    "source": "/[a&&[bb]]/s\n",
+    "origin": "control",
+    "line": 63,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a&&[bb]]/s\n",
+    "project_after": "/[a&&[bb]]/s\n"
+  },
+  {
+    "source": "/[^aa]/\n",
+    "origin": "control",
+    "line": 64,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[^a]/\n",
+    "project_after": "/[^aa]/\n"
+  },
+  {
+    "source": "/[^aa]/i\n",
+    "origin": "control",
+    "line": 65,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[^a]/i\n",
+    "project_after": "/[^aa]/i\n"
+  },
+  {
+    "source": "/[^aa]/x\n",
+    "origin": "control",
+    "line": 66,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[^a]/x\n",
+    "project_after": "/[^aa]/x\n"
+  },
+  {
+    "source": "/[^aa]/n\n",
+    "origin": "control",
+    "line": 67,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[^a]/n\n",
+    "project_after": "/[^aa]/n\n"
+  },
+  {
+    "source": "/[^aa]/u\n",
+    "origin": "control",
+    "line": 68,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[^a]/u\n",
+    "project_after": "/[^aa]/u\n"
+  },
+  {
+    "source": "/[^aa]/e\n",
+    "origin": "control",
+    "line": 69,
+    "findings": [
+
+    ],
+    "upstream_after": "/[^aa]/e\n",
+    "project_after": "/[^aa]/e\n"
+  },
+  {
+    "source": "/[^aa]/s\n",
+    "origin": "control",
+    "line": 70,
+    "findings": [
+
+    ],
+    "upstream_after": "/[^aa]/s\n",
+    "project_after": "/[^aa]/s\n"
+  },
+  {
+    "source": "/[]a]a/\n",
+    "origin": "control",
+    "line": 71,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/\n",
+    "project_after": "/[]a]a/\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]a]a/i\n",
+    "origin": "control",
+    "line": 72,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/i\n",
+    "project_after": "/[]a]a/i\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]a]a/x\n",
+    "origin": "control",
+    "line": 73,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/x\n",
+    "project_after": "/[]a]a/x\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]a]a/n\n",
+    "origin": "control",
+    "line": 74,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/n\n",
+    "project_after": "/[]a]a/n\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]a]a/u\n",
+    "origin": "control",
+    "line": 75,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/u\n",
+    "project_after": "/[]a]a/u\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]a]a/e\n",
+    "origin": "control",
+    "line": 76,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/e\n",
+    "project_after": "/[]a]a/e\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]a]a/s\n",
+    "origin": "control",
+    "line": 77,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]a]a/s\n",
+    "project_after": "/[]a]a/s\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[]aa]/\n",
+    "origin": "control",
+    "line": 78,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/\n",
+    "project_after": "/[]aa]/\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]aa]/i\n",
+    "origin": "control",
+    "line": 79,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/i\n",
+    "project_after": "/[]aa]/i\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]aa]/x\n",
+    "origin": "control",
+    "line": 80,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/x\n",
+    "project_after": "/[]aa]/x\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]aa]/n\n",
+    "origin": "control",
+    "line": 81,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/n\n",
+    "project_after": "/[]aa]/n\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]aa]/u\n",
+    "origin": "control",
+    "line": 82,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/u\n",
+    "project_after": "/[]aa]/u\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]aa]/e\n",
+    "origin": "control",
+    "line": 83,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/e\n",
+    "project_after": "/[]aa]/e\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[]aa]/s\n",
+    "origin": "control",
+    "line": 84,
+    "findings": [
+
+    ],
+    "upstream_after": "/[]aa]/s\n",
+    "project_after": "/[]aa]/s\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[-aa-]/\n",
+    "origin": "control",
+    "line": 85,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[-a]/\n",
+    "project_after": "/[-aa-]/\n"
+  },
+  {
+    "source": "/[-aa-]/i\n",
+    "origin": "control",
+    "line": 86,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[-a]/i\n",
+    "project_after": "/[-aa-]/i\n"
+  },
+  {
+    "source": "/[-aa-]/x\n",
+    "origin": "control",
+    "line": 87,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[-a]/x\n",
+    "project_after": "/[-aa-]/x\n"
+  },
+  {
+    "source": "/[-aa-]/n\n",
+    "origin": "control",
+    "line": 88,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[-a]/n\n",
+    "project_after": "/[-aa-]/n\n"
+  },
+  {
+    "source": "/[-aa-]/u\n",
+    "origin": "control",
+    "line": 89,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[-a]/u\n",
+    "project_after": "/[-aa-]/u\n"
+  },
+  {
+    "source": "/[-aa-]/e\n",
+    "origin": "control",
+    "line": 90,
+    "findings": [
+
+    ],
+    "upstream_after": "/[-aa-]/e\n",
+    "project_after": "/[-aa-]/e\n"
+  },
+  {
+    "source": "/[-aa-]/s\n",
+    "origin": "control",
+    "line": 91,
+    "findings": [
+
+    ],
+    "upstream_after": "/[-aa-]/s\n",
+    "project_after": "/[-aa-]/s\n"
+  },
+  {
+    "source": "/[a--]/\n",
+    "origin": "control",
+    "line": 92,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/\n",
+    "project_after": "/[a--]/\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[a--]/i\n",
+    "origin": "control",
+    "line": 93,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/i\n",
+    "project_after": "/[a--]/i\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[a--]/x\n",
+    "origin": "control",
+    "line": 94,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/x\n",
+    "project_after": "/[a--]/x\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[a--]/n\n",
+    "origin": "control",
+    "line": 95,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/n\n",
+    "project_after": "/[a--]/n\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[a--]/u\n",
+    "origin": "control",
+    "line": 96,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/u\n",
+    "project_after": "/[a--]/u\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[a--]/e\n",
+    "origin": "control",
+    "line": 97,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/e\n",
+    "project_after": "/[a--]/e\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[a--]/s\n",
+    "origin": "control",
+    "line": 98,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a--]/s\n",
+    "project_after": "/[a--]/s\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[---]/\n",
+    "origin": "control",
+    "line": 99,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[--]/\n",
+    "project_after": "/[---]/\n"
+  },
+  {
+    "source": "/[---]/i\n",
+    "origin": "control",
+    "line": 100,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[--]/i\n",
+    "project_after": "/[---]/i\n"
+  },
+  {
+    "source": "/[---]/x\n",
+    "origin": "control",
+    "line": 101,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[--]/x\n",
+    "project_after": "/[---]/x\n"
+  },
+  {
+    "source": "/[---]/n\n",
+    "origin": "control",
+    "line": 102,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[--]/n\n",
+    "project_after": "/[---]/n\n"
+  },
+  {
+    "source": "/[---]/u\n",
+    "origin": "control",
+    "line": 103,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[--]/u\n",
+    "project_after": "/[---]/u\n"
+  },
+  {
+    "source": "/[---]/e\n",
+    "origin": "control",
+    "line": 104,
+    "findings": [
+
+    ],
+    "upstream_after": "/[---]/e\n",
+    "project_after": "/[---]/e\n"
+  },
+  {
+    "source": "/[---]/s\n",
+    "origin": "control",
+    "line": 105,
+    "findings": [
+
+    ],
+    "upstream_after": "/[---]/s\n",
+    "project_after": "/[---]/s\n"
+  },
+  {
+    "source": "/[a-cb]/\n",
+    "origin": "control",
+    "line": 106,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/\n",
+    "project_after": "/[a-cb]/\n"
+  },
+  {
+    "source": "/[a-cb]/i\n",
+    "origin": "control",
+    "line": 107,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/i\n",
+    "project_after": "/[a-cb]/i\n"
+  },
+  {
+    "source": "/[a-cb]/x\n",
+    "origin": "control",
+    "line": 108,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/x\n",
+    "project_after": "/[a-cb]/x\n"
+  },
+  {
+    "source": "/[a-cb]/n\n",
+    "origin": "control",
+    "line": 109,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/n\n",
+    "project_after": "/[a-cb]/n\n"
+  },
+  {
+    "source": "/[a-cb]/u\n",
+    "origin": "control",
+    "line": 110,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/u\n",
+    "project_after": "/[a-cb]/u\n"
+  },
+  {
+    "source": "/[a-cb]/e\n",
+    "origin": "control",
+    "line": 111,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/e\n",
+    "project_after": "/[a-cb]/e\n"
+  },
+  {
+    "source": "/[a-cb]/s\n",
+    "origin": "control",
+    "line": 112,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-cb]/s\n",
+    "project_after": "/[a-cb]/s\n"
+  },
+  {
+    "source": "/[0-9x0-9]/\n",
+    "origin": "control",
+    "line": 113,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[0-9x]/\n",
+    "project_after": "/[0-9x0-9]/\n"
+  },
+  {
+    "source": "/[0-9x0-9]/i\n",
+    "origin": "control",
+    "line": 114,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[0-9x]/i\n",
+    "project_after": "/[0-9x0-9]/i\n"
+  },
+  {
+    "source": "/[0-9x0-9]/x\n",
+    "origin": "control",
+    "line": 115,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[0-9x]/x\n",
+    "project_after": "/[0-9x0-9]/x\n"
+  },
+  {
+    "source": "/[0-9x0-9]/n\n",
+    "origin": "control",
+    "line": 116,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[0-9x]/n\n",
+    "project_after": "/[0-9x0-9]/n\n"
+  },
+  {
+    "source": "/[0-9x0-9]/u\n",
+    "origin": "control",
+    "line": 117,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[0-9x]/u\n",
+    "project_after": "/[0-9x0-9]/u\n"
+  },
+  {
+    "source": "/[0-9x0-9]/e\n",
+    "origin": "control",
+    "line": 118,
+    "findings": [
+
+    ],
+    "upstream_after": "/[0-9x0-9]/e\n",
+    "project_after": "/[0-9x0-9]/e\n"
+  },
+  {
+    "source": "/[0-9x0-9]/s\n",
+    "origin": "control",
+    "line": 119,
+    "findings": [
+
+    ],
+    "upstream_after": "/[0-9x0-9]/s\n",
+    "project_after": "/[0-9x0-9]/s\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/\n",
+    "origin": "control",
+    "line": 120,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-zA-Z]/\n",
+    "project_after": "/[a-zA-Za-z]/\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/i\n",
+    "origin": "control",
+    "line": 121,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-zA-Z]/i\n",
+    "project_after": "/[a-zA-Za-z]/i\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/x\n",
+    "origin": "control",
+    "line": 122,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-zA-Z]/x\n",
+    "project_after": "/[a-zA-Za-z]/x\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/n\n",
+    "origin": "control",
+    "line": 123,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-zA-Z]/n\n",
+    "project_after": "/[a-zA-Za-z]/n\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/u\n",
+    "origin": "control",
+    "line": 124,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-zA-Z]/u\n",
+    "project_after": "/[a-zA-Za-z]/u\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/e\n",
+    "origin": "control",
+    "line": 125,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-zA-Za-z]/e\n",
+    "project_after": "/[a-zA-Za-z]/e\n"
+  },
+  {
+    "source": "/[a-zA-Za-z]/s\n",
+    "origin": "control",
+    "line": 126,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a-zA-Za-z]/s\n",
+    "project_after": "/[a-zA-Za-z]/s\n"
+  },
+  {
+    "source": "/[ a a ]/\n",
+    "origin": "control",
+    "line": 127,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[ a]/\n",
+    "project_after": "/[ a a ]/\n"
+  },
+  {
+    "source": "/[ a a ]/i\n",
+    "origin": "control",
+    "line": 128,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[ a]/i\n",
+    "project_after": "/[ a a ]/i\n"
+  },
+  {
+    "source": "/[ a a ]/x\n",
+    "origin": "control",
+    "line": 129,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[ a]/x\n",
+    "project_after": "/[ a a ]/x\n"
+  },
+  {
+    "source": "/[ a a ]/n\n",
+    "origin": "control",
+    "line": 130,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[ a]/n\n",
+    "project_after": "/[ a a ]/n\n"
+  },
+  {
+    "source": "/[ a a ]/u\n",
+    "origin": "control",
+    "line": 131,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[ a]/u\n",
+    "project_after": "/[ a a ]/u\n"
+  },
+  {
+    "source": "/[ a a ]/e\n",
+    "origin": "control",
+    "line": 132,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ a a ]/e\n",
+    "project_after": "/[ a a ]/e\n"
+  },
+  {
+    "source": "/[ a a ]/s\n",
+    "origin": "control",
+    "line": 133,
+    "findings": [
+
+    ],
+    "upstream_after": "/[ a a ]/s\n",
+    "project_after": "/[ a a ]/s\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/\n",
+    "origin": "control",
+    "line": 134,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]]/\n",
+    "project_after": "/[[:alpha:][:alpha:]]/\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/i\n",
+    "origin": "control",
+    "line": 135,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]]/i\n",
+    "project_after": "/[[:alpha:][:alpha:]]/i\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/x\n",
+    "origin": "control",
+    "line": 136,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]]/x\n",
+    "project_after": "/[[:alpha:][:alpha:]]/x\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/n\n",
+    "origin": "control",
+    "line": 137,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]]/n\n",
+    "project_after": "/[[:alpha:][:alpha:]]/n\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/u\n",
+    "origin": "control",
+    "line": 138,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]]/u\n",
+    "project_after": "/[[:alpha:][:alpha:]]/u\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/e\n",
+    "origin": "control",
+    "line": 139,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[:alpha:][:alpha:]]/e\n",
+    "project_after": "/[[:alpha:][:alpha:]]/e\n"
+  },
+  {
+    "source": "/[[:alpha:][:alpha:]]/s\n",
+    "origin": "control",
+    "line": 140,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[:alpha:][:alpha:]]/s\n",
+    "project_after": "/[[:alpha:][:alpha:]]/s\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/\n",
+    "origin": "control",
+    "line": 141,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:^alpha:]]/\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/i\n",
+    "origin": "control",
+    "line": 142,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:^alpha:]]/i\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/i\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/x\n",
+    "origin": "control",
+    "line": 143,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:^alpha:]]/x\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/x\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/n\n",
+    "origin": "control",
+    "line": 144,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:^alpha:]]/n\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/n\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/u\n",
+    "origin": "control",
+    "line": 145,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:^alpha:]]/u\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/u\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/e\n",
+    "origin": "control",
+    "line": 146,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[:^alpha:][:^alpha:]]/e\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/e\n"
+  },
+  {
+    "source": "/[[:^alpha:][:^alpha:]]/s\n",
+    "origin": "control",
+    "line": 147,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[:^alpha:][:^alpha:]]/s\n",
+    "project_after": "/[[:^alpha:][:^alpha:]]/s\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/\n",
+    "origin": "control",
+    "line": 148,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]a-z]/\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/i\n",
+    "origin": "control",
+    "line": 149,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]a-z]/i\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/i\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/x\n",
+    "origin": "control",
+    "line": 150,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]a-z]/x\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/x\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/n\n",
+    "origin": "control",
+    "line": 151,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]a-z]/n\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/n\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/u\n",
+    "origin": "control",
+    "line": 152,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[:alpha:]a-z]/u\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/u\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/e\n",
+    "origin": "control",
+    "line": 153,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[:alpha:]a-z[:alpha:]]/e\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/e\n"
+  },
+  {
+    "source": "/[[:alpha:]a-z[:alpha:]]/s\n",
+    "origin": "control",
+    "line": 154,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[:alpha:]a-z[:alpha:]]/s\n",
+    "project_after": "/[[:alpha:]a-z[:alpha:]]/s\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/\n",
+    "origin": "control",
+    "line": 155,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[.a]]/\n",
+    "project_after": "/[[.a.][.a.]]/\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/i\n",
+    "origin": "control",
+    "line": 156,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[.a]]/i\n",
+    "project_after": "/[[.a.][.a.]]/i\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/x\n",
+    "origin": "control",
+    "line": 157,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[.a]]/x\n",
+    "project_after": "/[[.a.][.a.]]/x\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/n\n",
+    "origin": "control",
+    "line": 158,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[.a]]/n\n",
+    "project_after": "/[[.a.][.a.]]/n\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/u\n",
+    "origin": "control",
+    "line": 159,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[.a]]/u\n",
+    "project_after": "/[[.a.][.a.]]/u\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/e\n",
+    "origin": "control",
+    "line": 160,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[.a.][.a.]]/e\n",
+    "project_after": "/[[.a.][.a.]]/e\n"
+  },
+  {
+    "source": "/[[.a.][.a.]]/s\n",
+    "origin": "control",
+    "line": 161,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[.a.][.a.]]/s\n",
+    "project_after": "/[[.a.][.a.]]/s\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/\n",
+    "origin": "control",
+    "line": 162,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[=a]]/\n",
+    "project_after": "/[[=a=][=a=]]/\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/i\n",
+    "origin": "control",
+    "line": 163,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[=a]]/i\n",
+    "project_after": "/[[=a=][=a=]]/i\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/x\n",
+    "origin": "control",
+    "line": 164,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[=a]]/x\n",
+    "project_after": "/[[=a=][=a=]]/x\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/n\n",
+    "origin": "control",
+    "line": 165,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[=a]]/n\n",
+    "project_after": "/[[=a=][=a=]]/n\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/u\n",
+    "origin": "control",
+    "line": 166,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[=a]]/u\n",
+    "project_after": "/[[=a=][=a=]]/u\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/e\n",
+    "origin": "control",
+    "line": 167,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[=a=][=a=]]/e\n",
+    "project_after": "/[[=a=][=a=]]/e\n"
+  },
+  {
+    "source": "/[[=a=][=a=]]/s\n",
+    "origin": "control",
+    "line": 168,
+    "findings": [
+
+    ],
+    "upstream_after": "/[[=a=][=a=]]/s\n",
+    "project_after": "/[[=a=][=a=]]/s\n"
+  },
+  {
+    "source": "/[\\d\\d]/\n",
+    "origin": "control",
+    "line": 169,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\d]/\n",
+    "project_after": "/[\\d\\d]/\n"
+  },
+  {
+    "source": "/[\\d\\d]/i\n",
+    "origin": "control",
+    "line": 170,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\d]/i\n",
+    "project_after": "/[\\d\\d]/i\n"
+  },
+  {
+    "source": "/[\\d\\d]/x\n",
+    "origin": "control",
+    "line": 171,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\d]/x\n",
+    "project_after": "/[\\d\\d]/x\n"
+  },
+  {
+    "source": "/[\\d\\d]/n\n",
+    "origin": "control",
+    "line": 172,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\d]/n\n",
+    "project_after": "/[\\d\\d]/n\n"
+  },
+  {
+    "source": "/[\\d\\d]/u\n",
+    "origin": "control",
+    "line": 173,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\d]/u\n",
+    "project_after": "/[\\d\\d]/u\n"
+  },
+  {
+    "source": "/[\\d\\d]/e\n",
+    "origin": "control",
+    "line": 174,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\d\\d]/e\n",
+    "project_after": "/[\\d\\d]/e\n"
+  },
+  {
+    "source": "/[\\d\\d]/s\n",
+    "origin": "control",
+    "line": 175,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\d\\d]/s\n",
+    "project_after": "/[\\d\\d]/s\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/\n",
+    "origin": "control",
+    "line": 176,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\p{Alpha}]/\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/i\n",
+    "origin": "control",
+    "line": 177,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\p{Alpha}]/i\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/i\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/x\n",
+    "origin": "control",
+    "line": 178,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\p{Alpha}]/x\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/x\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/n\n",
+    "origin": "control",
+    "line": 179,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\p{Alpha}]/n\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/n\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/u\n",
+    "origin": "control",
+    "line": 180,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\p{Alpha}]/u\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/u\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/e\n",
+    "origin": "control",
+    "line": 181,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{Alpha}]/e\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/e\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{Alpha}]/s\n",
+    "origin": "control",
+    "line": 182,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{Alpha}]/s\n",
+    "project_after": "/[\\p{Alpha}\\p{Alpha}]/s\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/\n",
+    "origin": "control",
+    "line": 183,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/i\n",
+    "origin": "control",
+    "line": 184,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/i\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/i\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/x\n",
+    "origin": "control",
+    "line": 185,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/x\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/x\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/n\n",
+    "origin": "control",
+    "line": 186,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/n\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/n\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/u\n",
+    "origin": "control",
+    "line": 187,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/u\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/u\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/e\n",
+    "origin": "control",
+    "line": 188,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/e\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/e\n"
+  },
+  {
+    "source": "/[\\p{Alpha}\\p{alpha}]/s\n",
+    "origin": "control",
+    "line": 189,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\p{Alpha}\\p{alpha}]/s\n",
+    "project_after": "/[\\p{Alpha}\\p{alpha}]/s\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/\n",
+    "origin": "control",
+    "line": 190,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\x61a]/\n",
+    "project_after": "/[\\x61\\x61a]/\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/i\n",
+    "origin": "control",
+    "line": 191,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\x61a]/i\n",
+    "project_after": "/[\\x61\\x61a]/i\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/x\n",
+    "origin": "control",
+    "line": 192,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\x61a]/x\n",
+    "project_after": "/[\\x61\\x61a]/x\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/n\n",
+    "origin": "control",
+    "line": 193,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\x61a]/n\n",
+    "project_after": "/[\\x61\\x61a]/n\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/u\n",
+    "origin": "control",
+    "line": 194,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\x61a]/u\n",
+    "project_after": "/[\\x61\\x61a]/u\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/e\n",
+    "origin": "control",
+    "line": 195,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\x61\\x61a]/e\n",
+    "project_after": "/[\\x61\\x61a]/e\n"
+  },
+  {
+    "source": "/[\\x61\\x61a]/s\n",
+    "origin": "control",
+    "line": 196,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\x61\\x61a]/s\n",
+    "project_after": "/[\\x61\\x61a]/s\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/\n",
+    "origin": "control",
+    "line": 197,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u0061a]/\n",
+    "project_after": "/[\\u0061\\u0061a]/\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/i\n",
+    "origin": "control",
+    "line": 198,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u0061a]/i\n",
+    "project_after": "/[\\u0061\\u0061a]/i\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/x\n",
+    "origin": "control",
+    "line": 199,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u0061a]/x\n",
+    "project_after": "/[\\u0061\\u0061a]/x\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/n\n",
+    "origin": "control",
+    "line": 200,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u0061a]/n\n",
+    "project_after": "/[\\u0061\\u0061a]/n\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/u\n",
+    "origin": "control",
+    "line": 201,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u0061a]/u\n",
+    "project_after": "/[\\u0061\\u0061a]/u\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/e\n",
+    "origin": "control",
+    "line": 202,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\u0061\\u0061a]/e\n",
+    "project_after": "/[\\u0061\\u0061a]/e\n"
+  },
+  {
+    "source": "/[\\u0061\\u0061a]/s\n",
+    "origin": "control",
+    "line": 203,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\u0061\\u0061a]/s\n",
+    "project_after": "/[\\u0061\\u0061a]/s\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/\n",
+    "origin": "control",
+    "line": 204,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u{61 61}]/\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/i\n",
+    "origin": "control",
+    "line": 205,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u{61 61}]/i\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/i\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/x\n",
+    "origin": "control",
+    "line": 206,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u{61 61}]/x\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/x\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/n\n",
+    "origin": "control",
+    "line": 207,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u{61 61}]/n\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/n\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/u\n",
+    "origin": "control",
+    "line": 208,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u{61 61}]/u\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/u\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/e\n",
+    "origin": "control",
+    "line": 209,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\u{61 61}\\u{61 61}]/e\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/e\n"
+  },
+  {
+    "source": "/[\\u{61 61}\\u{61 61}]/s\n",
+    "origin": "control",
+    "line": 210,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\u{61 61}\\u{61 61}]/s\n",
+    "project_after": "/[\\u{61 61}\\u{61 61}]/s\n"
+  },
+  {
+    "source": "/[\\0\\08]/\n",
+    "origin": "control",
+    "line": 211,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\08]/\n",
+    "project_after": "/[\\0\\08]/\n"
+  },
+  {
+    "source": "/[\\0\\08]/i\n",
+    "origin": "control",
+    "line": 212,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\08]/i\n",
+    "project_after": "/[\\0\\08]/i\n"
+  },
+  {
+    "source": "/[\\0\\08]/x\n",
+    "origin": "control",
+    "line": 213,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\08]/x\n",
+    "project_after": "/[\\0\\08]/x\n"
+  },
+  {
+    "source": "/[\\0\\08]/n\n",
+    "origin": "control",
+    "line": 214,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\08]/n\n",
+    "project_after": "/[\\0\\08]/n\n"
+  },
+  {
+    "source": "/[\\0\\08]/u\n",
+    "origin": "control",
+    "line": 215,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\08]/u\n",
+    "project_after": "/[\\0\\08]/u\n"
+  },
+  {
+    "source": "/[\\0\\08]/e\n",
+    "origin": "control",
+    "line": 216,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\0\\08]/e\n",
+    "project_after": "/[\\0\\08]/e\n"
+  },
+  {
+    "source": "/[\\0\\08]/s\n",
+    "origin": "control",
+    "line": 217,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\0\\08]/s\n",
+    "project_after": "/[\\0\\08]/s\n"
+  },
+  {
+    "source": "/[\\177\\1778]/\n",
+    "origin": "control",
+    "line": 218,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\1778]/\n",
+    "project_after": "/[\\177\\1778]/\n"
+  },
+  {
+    "source": "/[\\177\\1778]/i\n",
+    "origin": "control",
+    "line": 219,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\1778]/i\n",
+    "project_after": "/[\\177\\1778]/i\n"
+  },
+  {
+    "source": "/[\\177\\1778]/x\n",
+    "origin": "control",
+    "line": 220,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\1778]/x\n",
+    "project_after": "/[\\177\\1778]/x\n"
+  },
+  {
+    "source": "/[\\177\\1778]/n\n",
+    "origin": "control",
+    "line": 221,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\1778]/n\n",
+    "project_after": "/[\\177\\1778]/n\n"
+  },
+  {
+    "source": "/[\\177\\1778]/u\n",
+    "origin": "control",
+    "line": 222,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\1778]/u\n",
+    "project_after": "/[\\177\\1778]/u\n"
+  },
+  {
+    "source": "/[\\177\\1778]/e\n",
+    "origin": "control",
+    "line": 223,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\177\\1778]/e\n",
+    "project_after": "/[\\177\\1778]/e\n"
+  },
+  {
+    "source": "/[\\177\\1778]/s\n",
+    "origin": "control",
+    "line": 224,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\177\\1778]/s\n",
+    "project_after": "/[\\177\\1778]/s\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/\n",
+    "origin": "control",
+    "line": 225,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\\\]/\n",
+    "project_after": "/[\\\\\\\\]/\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/i\n",
+    "origin": "control",
+    "line": 226,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\\\]/i\n",
+    "project_after": "/[\\\\\\\\]/i\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/x\n",
+    "origin": "control",
+    "line": 227,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\\\]/x\n",
+    "project_after": "/[\\\\\\\\]/x\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/n\n",
+    "origin": "control",
+    "line": 228,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\\\]/n\n",
+    "project_after": "/[\\\\\\\\]/n\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/u\n",
+    "origin": "control",
+    "line": 229,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\\\]/u\n",
+    "project_after": "/[\\\\\\\\]/u\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/e\n",
+    "origin": "control",
+    "line": 230,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\\\\\\\]/e\n",
+    "project_after": "/[\\\\\\\\]/e\n"
+  },
+  {
+    "source": "/[\\\\\\\\]/s\n",
+    "origin": "control",
+    "line": 231,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\\\\\\\]/s\n",
+    "project_after": "/[\\\\\\\\]/s\n"
+  },
+  {
+    "source": "/[\\]\\]]/\n",
+    "origin": "control",
+    "line": 232,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\]]/\n",
+    "project_after": "/[\\]\\]]/\n"
+  },
+  {
+    "source": "/[\\]\\]]/i\n",
+    "origin": "control",
+    "line": 233,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\]]/i\n",
+    "project_after": "/[\\]\\]]/i\n"
+  },
+  {
+    "source": "/[\\]\\]]/x\n",
+    "origin": "control",
+    "line": 234,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\]]/x\n",
+    "project_after": "/[\\]\\]]/x\n"
+  },
+  {
+    "source": "/[\\]\\]]/n\n",
+    "origin": "control",
+    "line": 235,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\]]/n\n",
+    "project_after": "/[\\]\\]]/n\n"
+  },
+  {
+    "source": "/[\\]\\]]/u\n",
+    "origin": "control",
+    "line": 236,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\]]/u\n",
+    "project_after": "/[\\]\\]]/u\n"
+  },
+  {
+    "source": "/[\\]\\]]/e\n",
+    "origin": "control",
+    "line": 237,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\]\\]]/e\n",
+    "project_after": "/[\\]\\]]/e\n"
+  },
+  {
+    "source": "/[\\]\\]]/s\n",
+    "origin": "control",
+    "line": 238,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\]\\]]/s\n",
+    "project_after": "/[\\]\\]]/s\n"
+  },
+  {
+    "source": "/[\\-\\-]/\n",
+    "origin": "control",
+    "line": 239,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\-]/\n",
+    "project_after": "/[\\-\\-]/\n"
+  },
+  {
+    "source": "/[\\-\\-]/i\n",
+    "origin": "control",
+    "line": 240,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\-]/i\n",
+    "project_after": "/[\\-\\-]/i\n"
+  },
+  {
+    "source": "/[\\-\\-]/x\n",
+    "origin": "control",
+    "line": 241,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\-]/x\n",
+    "project_after": "/[\\-\\-]/x\n"
+  },
+  {
+    "source": "/[\\-\\-]/n\n",
+    "origin": "control",
+    "line": 242,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\-]/n\n",
+    "project_after": "/[\\-\\-]/n\n"
+  },
+  {
+    "source": "/[\\-\\-]/u\n",
+    "origin": "control",
+    "line": 243,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\-]/u\n",
+    "project_after": "/[\\-\\-]/u\n"
+  },
+  {
+    "source": "/[\\-\\-]/e\n",
+    "origin": "control",
+    "line": 244,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\-\\-]/e\n",
+    "project_after": "/[\\-\\-]/e\n"
+  },
+  {
+    "source": "/[\\-\\-]/s\n",
+    "origin": "control",
+    "line": 245,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\-\\-]/s\n",
+    "project_after": "/[\\-\\-]/s\n"
+  },
+  {
+    "source": "/[\\M-\\C-a\\M-\\C-a]/n\n",
+    "origin": "control",
+    "line": 246,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\M-\\C-a]/n\n",
+    "project_after": "/[\\M-\\C-a\\M-\\C-a]/n\n"
+  },
+  {
+    "source": "/[一二一]/\n",
+    "origin": "control",
+    "line": 247,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[一二]/\n",
+    "project_after": "/[一二一]/\n"
+  },
+  {
+    "source": "/[一二一]/i\n",
+    "origin": "control",
+    "line": 248,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[一二]/i\n",
+    "project_after": "/[一二一]/i\n"
+  },
+  {
+    "source": "/[一二一]/x\n",
+    "origin": "control",
+    "line": 249,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[一二]/x\n",
+    "project_after": "/[一二一]/x\n"
+  },
+  {
+    "source": "/[一二一]/n\n",
+    "origin": "control",
+    "line": 250,
+    "findings": [
+
+    ],
+    "upstream_after": "/[一二一]/n\n",
+    "project_after": "/[一二一]/n\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[一二一]/u\n",
+    "origin": "control",
+    "line": 251,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[一二]/u\n",
+    "project_after": "/[一二一]/u\n"
+  },
+  {
+    "source": "/[一二一]/e\n",
+    "origin": "control",
+    "line": 252,
+    "findings": [
+
+    ],
+    "upstream_after": "/[一二一]/e\n",
+    "project_after": "/[一二一]/e\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[一二一]/s\n",
+    "origin": "control",
+    "line": 253,
+    "findings": [
+
+    ],
+    "upstream_after": "/[一二一]/s\n",
+    "project_after": "/[一二一]/s\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[éé]/\n",
+    "origin": "control",
+    "line": 254,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[é]/\n",
+    "project_after": "/[éé]/\n"
+  },
+  {
+    "source": "/[éé]/i\n",
+    "origin": "control",
+    "line": 255,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[é]/i\n",
+    "project_after": "/[éé]/i\n"
+  },
+  {
+    "source": "/[éé]/x\n",
+    "origin": "control",
+    "line": 256,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[é]/x\n",
+    "project_after": "/[éé]/x\n"
+  },
+  {
+    "source": "/[éé]/n\n",
+    "origin": "control",
+    "line": 257,
+    "findings": [
+
+    ],
+    "upstream_after": "/[éé]/n\n",
+    "project_after": "/[éé]/n\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[éé]/u\n",
+    "origin": "control",
+    "line": 258,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[é]/u\n",
+    "project_after": "/[éé]/u\n"
+  },
+  {
+    "source": "/[éé]/e\n",
+    "origin": "control",
+    "line": 259,
+    "findings": [
+
+    ],
+    "upstream_after": "/[éé]/e\n",
+    "project_after": "/[éé]/e\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[éé]/s\n",
+    "origin": "control",
+    "line": 260,
+    "findings": [
+
+    ],
+    "upstream_after": "/[éé]/s\n",
+    "project_after": "/[éé]/s\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/[aa] # [bb]/\n",
+    "origin": "control",
+    "line": 261,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a] # [b]/\n",
+    "project_after": "/[aa] # [bb]/\n"
+  },
+  {
+    "source": "/[aa] # [bb]/i\n",
+    "origin": "control",
+    "line": 262,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a] # [b]/i\n",
+    "project_after": "/[aa] # [bb]/i\n"
+  },
+  {
+    "source": "/[aa] # [bb]/x\n",
+    "origin": "control",
+    "line": 263,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a] # [bb]/x\n",
+    "project_after": "/[aa] # [bb]/x\n"
+  },
+  {
+    "source": "/[aa] # [bb]/n\n",
+    "origin": "control",
+    "line": 264,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a] # [b]/n\n",
+    "project_after": "/[aa] # [bb]/n\n"
+  },
+  {
+    "source": "/[aa] # [bb]/u\n",
+    "origin": "control",
+    "line": 265,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a] # [b]/u\n",
+    "project_after": "/[aa] # [bb]/u\n"
+  },
+  {
+    "source": "/[aa] # [bb]/e\n",
+    "origin": "control",
+    "line": 266,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa] # [bb]/e\n",
+    "project_after": "/[aa] # [bb]/e\n"
+  },
+  {
+    "source": "/[aa] # [bb]/s\n",
+    "origin": "control",
+    "line": 267,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa] # [bb]/s\n",
+    "project_after": "/[aa] # [bb]/s\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/\n",
+    "origin": "control",
+    "line": 268,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        4,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x:[a] # [bb]\n)[c]/\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/i\n",
+    "origin": "control",
+    "line": 269,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        4,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x:[a] # [bb]\n)[c]/i\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/i\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/x\n",
+    "origin": "control",
+    "line": 270,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        4,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x:[a] # [bb]\n)[c]/x\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/x\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/n\n",
+    "origin": "control",
+    "line": 271,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        4,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x:[a] # [bb]\n)[c]/n\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/n\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/u\n",
+    "origin": "control",
+    "line": 272,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        4,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x:[a] # [bb]\n)[c]/u\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/u\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/e\n",
+    "origin": "control",
+    "line": 273,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?x:[aa] # [bb]\n)[cc]/e\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/e\n"
+  },
+  {
+    "source": "/(?x:[aa] # [bb]\n)[cc]/s\n",
+    "origin": "control",
+    "line": 274,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?x:[aa] # [bb]\n)[cc]/s\n",
+    "project_after": "/(?x:[aa] # [bb]\n)[cc]/s\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/\n",
+    "origin": "control",
+    "line": 275,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x)[a] # [bb]\n[c]/\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/i\n",
+    "origin": "control",
+    "line": 276,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x)[a] # [bb]\n[c]/i\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/i\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/x\n",
+    "origin": "control",
+    "line": 277,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x)[a] # [bb]\n[c]/x\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/x\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/n\n",
+    "origin": "control",
+    "line": 278,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x)[a] # [bb]\n[c]/n\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/n\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/u\n",
+    "origin": "control",
+    "line": 279,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?x)[a] # [bb]\n[c]/u\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/u\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/e\n",
+    "origin": "control",
+    "line": 280,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?x)[aa] # [bb]\n[cc]/e\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/e\n"
+  },
+  {
+    "source": "/(?x)[aa] # [bb]\n[cc]/s\n",
+    "origin": "control",
+    "line": 281,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?x)[aa] # [bb]\n[cc]/s\n",
+    "project_after": "/(?x)[aa] # [bb]\n[cc]/s\n"
+  },
+  {
+    "source": "/(?-x:[##])/\n",
+    "origin": "control",
+    "line": 282,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?-x:[#])/\n",
+    "project_after": "/(?-x:[##])/\n"
+  },
+  {
+    "source": "/(?-x:[##])/i\n",
+    "origin": "control",
+    "line": 283,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?-x:[#])/i\n",
+    "project_after": "/(?-x:[##])/i\n"
+  },
+  {
+    "source": "/(?-x:[##])/x\n",
+    "origin": "control",
+    "line": 284,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?-x:[#])/x\n",
+    "project_after": "/(?-x:[##])/x\n"
+  },
+  {
+    "source": "/(?-x:[##])/n\n",
+    "origin": "control",
+    "line": 285,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?-x:[#])/n\n",
+    "project_after": "/(?-x:[##])/n\n"
+  },
+  {
+    "source": "/(?-x:[##])/u\n",
+    "origin": "control",
+    "line": 286,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?-x:[#])/u\n",
+    "project_after": "/(?-x:[##])/u\n"
+  },
+  {
+    "source": "/(?-x:[##])/e\n",
+    "origin": "control",
+    "line": 287,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?-x:[##])/e\n",
+    "project_after": "/(?-x:[##])/e\n"
+  },
+  {
+    "source": "/(?-x:[##])/s\n",
+    "origin": "control",
+    "line": 288,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?-x:[##])/s\n",
+    "project_after": "/(?-x:[##])/s\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/\n",
+    "origin": "control",
+    "line": 289,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?# [aa]) [b]/\n",
+    "project_after": "/(?# [aa]) [bb]/\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/i\n",
+    "origin": "control",
+    "line": 290,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?# [aa]) [b]/i\n",
+    "project_after": "/(?# [aa]) [bb]/i\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/x\n",
+    "origin": "control",
+    "line": 291,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?# [aa]) [b]/x\n",
+    "project_after": "/(?# [aa]) [bb]/x\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/n\n",
+    "origin": "control",
+    "line": 292,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?# [aa]) [b]/n\n",
+    "project_after": "/(?# [aa]) [bb]/n\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/u\n",
+    "origin": "control",
+    "line": 293,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?# [aa]) [b]/u\n",
+    "project_after": "/(?# [aa]) [bb]/u\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/e\n",
+    "origin": "control",
+    "line": 294,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?# [aa]) [bb]/e\n",
+    "project_after": "/(?# [aa]) [bb]/e\n"
+  },
+  {
+    "source": "/(?# [aa]) [bb]/s\n",
+    "origin": "control",
+    "line": 295,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?# [aa]) [bb]/s\n",
+    "project_after": "/(?# [aa]) [bb]/s\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/\n",
+    "origin": "control",
+    "line": 296,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a[b>[c])\\k<a[b>/\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/i\n",
+    "origin": "control",
+    "line": 297,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a[b>[c])\\k<a[b>/i\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/i\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/x\n",
+    "origin": "control",
+    "line": 298,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a[b>[c])\\k<a[b>/x\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/x\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/n\n",
+    "origin": "control",
+    "line": 299,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a[b>[c])\\k<a[b>/n\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/n\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/u\n",
+    "origin": "control",
+    "line": 300,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a[b>[c])\\k<a[b>/u\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/u\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/e\n",
+    "origin": "control",
+    "line": 301,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?<a[b>[cc])\\k<a[b>/e\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/e\n"
+  },
+  {
+    "source": "/(?<a[b>[cc])\\k<a[b>/s\n",
+    "origin": "control",
+    "line": 302,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?<a[b>[cc])\\k<a[b>/s\n",
+    "project_after": "/(?<a[b>[cc])\\k<a[b>/s\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/\n",
+    "origin": "control",
+    "line": 303,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?'a[b'[c])\\g'a[b'/\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/i\n",
+    "origin": "control",
+    "line": 304,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?'a[b'[c])\\g'a[b'/i\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/i\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/x\n",
+    "origin": "control",
+    "line": 305,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?'a[b'[c])\\g'a[b'/x\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/x\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/n\n",
+    "origin": "control",
+    "line": 306,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?'a[b'[c])\\g'a[b'/n\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/n\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/u\n",
+    "origin": "control",
+    "line": 307,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?'a[b'[c])\\g'a[b'/u\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/u\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/e\n",
+    "origin": "control",
+    "line": 308,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?'a[b'[cc])\\g'a[b'/e\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/e\n"
+  },
+  {
+    "source": "/(?'a[b'[cc])\\g'a[b'/s\n",
+    "origin": "control",
+    "line": 309,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?'a[b'[cc])\\g'a[b'/s\n",
+    "project_after": "/(?'a[b'[cc])\\g'a[b'/s\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/\n",
+    "origin": "control",
+    "line": 310,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<=a)[b]/\n",
+    "project_after": "/(?<=a)[bb]/\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/i\n",
+    "origin": "control",
+    "line": 311,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<=a)[b]/i\n",
+    "project_after": "/(?<=a)[bb]/i\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/x\n",
+    "origin": "control",
+    "line": 312,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<=a)[b]/x\n",
+    "project_after": "/(?<=a)[bb]/x\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/n\n",
+    "origin": "control",
+    "line": 313,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<=a)[b]/n\n",
+    "project_after": "/(?<=a)[bb]/n\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/u\n",
+    "origin": "control",
+    "line": 314,
+    "findings": [
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<=a)[b]/u\n",
+    "project_after": "/(?<=a)[bb]/u\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/e\n",
+    "origin": "control",
+    "line": 315,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?<=a)[bb]/e\n",
+    "project_after": "/(?<=a)[bb]/e\n"
+  },
+  {
+    "source": "/(?<=a)[bb]/s\n",
+    "origin": "control",
+    "line": 316,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?<=a)[bb]/s\n",
+    "project_after": "/(?<=a)[bb]/s\n"
+  },
+  {
+    "source": "/[a#{value}a]/\n",
+    "origin": "control",
+    "line": 317,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{value}]/\n",
+    "project_after": "/[a#{value}a]/\n"
+  },
+  {
+    "source": "/[a#{value}a]/i\n",
+    "origin": "control",
+    "line": 318,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{value}]/i\n",
+    "project_after": "/[a#{value}a]/i\n"
+  },
+  {
+    "source": "/[a#{value}a]/x\n",
+    "origin": "control",
+    "line": 319,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{value}]/x\n",
+    "project_after": "/[a#{value}a]/x\n"
+  },
+  {
+    "source": "/[a#{value}a]/n\n",
+    "origin": "control",
+    "line": 320,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{value}]/n\n",
+    "project_after": "/[a#{value}a]/n\n"
+  },
+  {
+    "source": "/[a#{value}a]/u\n",
+    "origin": "control",
+    "line": 321,
+    "findings": [
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{value}]/u\n",
+    "project_after": "/[a#{value}a]/u\n"
+  },
+  {
+    "source": "/[a#{value}a]/e\n",
+    "origin": "control",
+    "line": 322,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a#{value}a]/e\n",
+    "project_after": "/[a#{value}a]/e\n"
+  },
+  {
+    "source": "/[a#{value}a]/s\n",
+    "origin": "control",
+    "line": 323,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a#{value}a]/s\n",
+    "project_after": "/[a#{value}a]/s\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/\n",
+    "origin": "control",
+    "line": 324,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/\n",
+    "project_after": "/[#{value}#{value}]/\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/i\n",
+    "origin": "control",
+    "line": 325,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/i\n",
+    "project_after": "/[#{value}#{value}]/i\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/x\n",
+    "origin": "control",
+    "line": 326,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/x\n",
+    "project_after": "/[#{value}#{value}]/x\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/n\n",
+    "origin": "control",
+    "line": 327,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/n\n",
+    "project_after": "/[#{value}#{value}]/n\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/u\n",
+    "origin": "control",
+    "line": 328,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/u\n",
+    "project_after": "/[#{value}#{value}]/u\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/e\n",
+    "origin": "control",
+    "line": 329,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/e\n",
+    "project_after": "/[#{value}#{value}]/e\n"
+  },
+  {
+    "source": "/[#{value}#{value}]/s\n",
+    "origin": "control",
+    "line": 330,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}#{value}]/s\n",
+    "project_after": "/[#{value}#{value}]/s\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/\n",
+    "origin": "control",
+    "line": 331,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}a]/\n",
+    "project_after": "/[#{/[xx]/}aa]/\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/i\n",
+    "origin": "control",
+    "line": 332,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}a]/i\n",
+    "project_after": "/[#{/[xx]/}aa]/i\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/x\n",
+    "origin": "control",
+    "line": 333,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}a]/x\n",
+    "project_after": "/[#{/[xx]/}aa]/x\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/n\n",
+    "origin": "control",
+    "line": 334,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}a]/n\n",
+    "project_after": "/[#{/[xx]/}aa]/n\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/u\n",
+    "origin": "control",
+    "line": 335,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}a]/u\n",
+    "project_after": "/[#{/[xx]/}aa]/u\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/e\n",
+    "origin": "control",
+    "line": 336,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}aa]/e\n",
+    "project_after": "/[#{/[xx]/}aa]/e\n"
+  },
+  {
+    "source": "/[#{/[xx]/}aa]/s\n",
+    "origin": "control",
+    "line": 337,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[#{/[x]/}aa]/s\n",
+    "project_after": "/[#{/[xx]/}aa]/s\n"
+  },
+  {
+    "source": "/[a#{\"é\n\"}a]/\n",
+    "origin": "control",
+    "line": 338,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{\"é\n\"}]/\n",
+    "project_after": "/[a#{\"é\n\"}a]/\n"
+  },
+  {
+    "source": "/[a#{\"é\n\"}a]/i\n",
+    "origin": "control",
+    "line": 339,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{\"é\n\"}]/i\n",
+    "project_after": "/[a#{\"é\n\"}a]/i\n"
+  },
+  {
+    "source": "/[a#{\"é\n\"}a]/x\n",
+    "origin": "control",
+    "line": 340,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{\"é\n\"}]/x\n",
+    "project_after": "/[a#{\"é\n\"}a]/x\n"
+  },
+  {
+    "source": "/[a#{\"é\n\"}a]/u\n",
+    "origin": "control",
+    "line": 341,
+    "findings": [
+      [
+        2,
+        3,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#{\"é\n\"}]/u\n",
+    "project_after": "/[a#{\"é\n\"}a]/u\n"
+  },
+  {
+    "source": "/[a#{\"é\n\"}a]/e\n",
+    "origin": "control",
+    "line": 342,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a#{\"é\n\"}a]/e\n",
+    "project_after": "/[a#{\"é\n\"}a]/e\n"
+  },
+  {
+    "source": "/[a#{\"é\n\"}a]/s\n",
+    "origin": "control",
+    "line": 343,
+    "findings": [
+
+    ],
+    "upstream_after": "/[a#{\"é\n\"}a]/s\n",
+    "project_after": "/[a#{\"é\n\"}a]/s\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": true,
+    "exclusion": "Ruby3.2 reference translator constructs the regexp; fixed3.4 Prism syntax-only accepts. No repeated elements or parsed_tree on either applicable detection path; detector is not gated."
+  },
+  {
+    "source": "/*[aa]#{value}/\n",
+    "origin": "control",
+    "line": 344,
+    "findings": [
+
+    ],
+    "upstream_after": "/*[aa]#{value}/\n",
+    "project_after": "/*[aa]#{value}/\n"
+  },
+  {
+    "source": "/[aa]|*#{value}/\n",
+    "origin": "control",
+    "line": 345,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]|*#{value}/\n",
+    "project_after": "/[aa]|*#{value}/\n"
+  },
+  {
+    "source": "/(?i)*[aa]#{value}/\n",
+    "origin": "control",
+    "line": 346,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?i)*[aa]#{value}/\n",
+    "project_after": "/(?i)*[aa]#{value}/\n"
+  },
+  {
+    "source": "/(?#c)*[aa]#{value}/\n",
+    "origin": "control",
+    "line": 347,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?#c)*[aa]#{value}/\n",
+    "project_after": "/(?#c)*[aa]#{value}/\n"
+  },
+  {
+    "source": "/^*[aa]#{value}/\n",
+    "origin": "control",
+    "line": 348,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/^*[a]#{value}/\n",
+    "project_after": "/^*[aa]#{value}/\n"
+  },
+  {
+    "source": "/(?x: *[aa])#{value}/\n",
+    "origin": "control",
+    "line": 349,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?x: *[aa])#{value}/\n",
+    "project_after": "/(?x: *[aa])#{value}/\n"
+  },
+  {
+    "source": "/a(?#c)*[aa]#{value}/\n",
+    "origin": "control",
+    "line": 350,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/a(?#c)*[a]#{value}/\n",
+    "project_after": "/a(?#c)*[aa]#{value}/\n"
+  },
+  {
+    "source": "/(?<a>x)(?(<a>)[aa]|[bb]|[cc])#{value}/\n",
+    "origin": "control",
+    "line": 351,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?<a>x)(?(<a>)[aa]|[bb]|[cc])#{value}/\n",
+    "project_after": "/(?<a>x)(?(<a>)[aa]|[bb]|[cc])#{value}/\n"
+  },
+  {
+    "source": "/(?<a>x)(?(<a>)[aa]|[bb])#{value}/\n",
+    "origin": "control",
+    "line": 352,
+    "findings": [
+      [
+        1,
+        18,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        23,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a>x)(?(<a>)[a]|[b])#{value}/\n",
+    "project_after": "/(?<a>x)(?(<a>)[aa]|[bb])#{value}/\n"
+  },
+  {
+    "source": "/(?<a>x)[aa]#{value}\\k<a-1>/\n",
+    "origin": "control",
+    "line": 353,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a>x)[a]#{value}\\k<a-1>/\n",
+    "project_after": "/(?<a>x)[aa]#{value}\\k<a-1>/\n"
+  },
+  {
+    "source": "/(?<a>x)[aa]#{value}\\k<a+0>/\n",
+    "origin": "control",
+    "line": 354,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a>x)[a]#{value}\\k<a+0>/\n",
+    "project_after": "/(?<a>x)[aa]#{value}\\k<a+0>/\n"
+  },
+  {
+    "source": "/(a)[aa]#{value}\\k<1-1>/\n",
+    "origin": "control",
+    "line": 355,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(a)[a]#{value}\\k<1-1>/\n",
+    "project_after": "/(a)[aa]#{value}\\k<1-1>/\n"
+  },
+  {
+    "source": "/[aa]#{value}(?(1)x|y)/\n",
+    "origin": "control",
+    "line": 356,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}(?(1)x|y)/\n",
+    "project_after": "/[aa]#{value}(?(1)x|y)/\n"
+  },
+  {
+    "source": "/(a)[aa]#{value}(?(1)x|y)/\n",
+    "origin": "control",
+    "line": 357,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(a)[a]#{value}(?(1)x|y)/\n",
+    "project_after": "/(a)[aa]#{value}(?(1)x|y)/\n"
+  },
+  {
+    "source": "/[aa]#{value}(?z:x)/\n",
+    "origin": "control",
+    "line": 358,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}(?z:x)/\n",
+    "project_after": "/[aa]#{value}(?z:x)/\n"
+  },
+  {
+    "source": "/[aa]#{value}(?~x)/\n",
+    "origin": "control",
+    "line": 359,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}(?~x)/\n",
+    "project_after": "/[aa]#{value}(?~x)/\n"
+  },
+  {
+    "source": "/[aa]#{value}**/\n",
+    "origin": "control",
+    "line": 360,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}**/\n",
+    "project_after": "/[aa]#{value}**/\n"
+  },
+  {
+    "source": "/[aa]#{value}{2,1}/\n",
+    "origin": "control",
+    "line": 361,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}{2,1}/\n",
+    "project_after": "/[aa]#{value}{2,1}/\n"
+  },
+  {
+    "source": "/[a-a-a-a]/\n",
+    "origin": "control",
+    "line": 362,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a--a-a]/\n",
+    "project_after": "/[a-a-a-a]/\n"
+  },
+  {
+    "source": "/[a-a&&bb]/\n",
+    "origin": "control",
+    "line": 363,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a-&&bb]/\n",
+    "project_after": "/[a-a&&bb]/\n"
+  },
+  {
+    "source": "/[\\b\\b]/\n",
+    "origin": "control",
+    "line": 364,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\b]/\n",
+    "project_after": "/[\\b\\b]/\n"
+  },
+  {
+    "source": "/[\\x1\\x1]/\n",
+    "origin": "control",
+    "line": 365,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\x1]/\n",
+    "project_after": "/[\\x1\\x1]/\n"
+  },
+  {
+    "source": "/[\\u{61}\\u{61}]/\n",
+    "origin": "control",
+    "line": 366,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\u{61}]/\n",
+    "project_after": "/[\\u{61}\\u{61}]/\n"
+  },
+  {
+    "source": "/[\\u{61 62}\\u{62 61}]/\n",
+    "origin": "control",
+    "line": 367,
+    "findings": [
+
+    ],
+    "upstream_after": "/[\\u{61 62}\\u{62 61}]/\n",
+    "project_after": "/[\\u{61 62}\\u{62 61}]/\n"
+  },
+  {
+    "source": "/[a\\a\\a]/\n",
+    "origin": "control",
+    "line": 368,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a\\a]/\n",
+    "project_after": "/[a\\a\\a]/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\p{NotAProperty}/\n",
+    "origin": "control",
+    "line": 369,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\p{NotAProperty}/\n",
+    "project_after": "/[aa]#{value}\\p{NotAProperty}/\n"
+  },
+  {
+    "source": "/[aa]#{value}[[:nope:]]/\n",
+    "origin": "control",
+    "line": 370,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}[[:nope:]]/\n",
+    "project_after": "/[aa]#{value}[[:nope:]]/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\1/\n",
+    "origin": "control",
+    "line": 371,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\1/\n",
+    "project_after": "/[aa]#{value}\\1/\n"
+  },
+  {
+    "source": "/(a)[aa]#{value}\\1/\n",
+    "origin": "control",
+    "line": 372,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(a)[a]#{value}\\1/\n",
+    "project_after": "/(a)[aa]#{value}\\1/\n"
+  },
+  {
+    "source": "/(?<a>x)[aa]#{value}\\k<a>/\n",
+    "origin": "control",
+    "line": 373,
+    "findings": [
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?<a>x)[a]#{value}\\k<a>/\n",
+    "project_after": "/(?<a>x)[aa]#{value}\\k<a>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\g<0>/\n",
+    "origin": "control",
+    "line": 374,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\g<0>/\n",
+    "project_after": "/[aa]#{value}\\g<0>/\n"
+  },
+  {
+    "source": "/[\\k<x>\\k<x>]/\n",
+    "origin": "control",
+    "line": 375,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        12,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[\\k<x>]/\n",
+    "project_after": "/[\\k<x>\\k<x>]/\n"
+  },
+  {
+    "source": "/[a#@valuea]/\n",
+    "origin": "control",
+    "line": 376,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#@alua]/\n",
+    "project_after": "/[a#@valuea]/\n"
+  },
+  {
+    "source": "/[a#$valuea]/\n",
+    "origin": "control",
+    "line": 377,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        10,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#$alua]/\n",
+    "project_after": "/[a#$valuea]/\n"
+  },
+  {
+    "source": "/[a#@@valuea]/\n",
+    "origin": "control",
+    "line": 378,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        11,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a#@alua]/\n",
+    "project_after": "/[a#@@valuea]/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u/\n",
+    "origin": "control",
+    "line": 379,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\u/\n",
+    "project_after": "/[aa]#{value}\\u/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\x/\n",
+    "origin": "control",
+    "line": 380,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\x/\n",
+    "project_after": "/[aa]#{value}\\x/\n",
+    "invalid_syntax": true,
+    "fixed_native_valid": false,
+    "exclusion": "Both fixed Prism parsers reject this authored invalid syntax before normal cops."
+  },
+  {
+    "source": "/[aa]#{value}\\p{Alpha}/\n",
+    "origin": "control",
+    "line": 381,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\p{Alpha}/\n",
+    "project_after": "/[aa]#{value}\\p{Alpha}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\p{White_Space}/\n",
+    "origin": "control",
+    "line": 382,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\p{White_Space}/\n",
+    "project_after": "/[aa]#{value}\\p{White_Space}/\n"
+  },
+  {
+    "source": "%r{[xyx]}\n",
+    "origin": "control",
+    "line": 383,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "%r{[xy]}\n",
+    "project_after": "%r{[xyx]}\n"
+  },
+  {
+    "source": "%r![xyx]!\n",
+    "origin": "control",
+    "line": 384,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "%r![xy]!\n",
+    "project_after": "%r![xyx]!\n"
+  },
+  {
+    "source": "%r'[xyx]'\n",
+    "origin": "control",
+    "line": 385,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "%r'[xy]'\n",
+    "project_after": "%r'[xyx]'\n"
+  },
+  {
+    "source": "p :yes if /[aa]/\n",
+    "origin": "control",
+    "line": 386,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "p :yes if /[a]/\n",
+    "project_after": "p :yes if /[aa]/\n"
+  },
+  {
+    "source": "p :yes if /[a#{value}a]/\n",
+    "origin": "control",
+    "line": 387,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "p :yes if /[a#{value}]/\n",
+    "project_after": "p :yes if /[a#{value}a]/\n"
+  },
+  {
+    "source": "/[#{value}]/; /[#{value}]/\n",
+    "origin": "control",
+    "line": 388,
+    "findings": [
+
+    ],
+    "upstream_after": "/[#{value}]/; /[#{value}]/\n",
+    "project_after": "/[#{value}]/; /[#{value}]/\n"
+  },
+  {
+    "source": "/([#{value}]/\n",
+    "origin": "control",
+    "line": 389,
+    "findings": [
+
+    ],
+    "upstream_after": "/([#{value}]/\n",
+    "project_after": "/([#{value}]/\n"
+  },
+  {
+    "source": "/[aa](#{value}/\n",
+    "origin": "control",
+    "line": 390,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa](#{value}/\n",
+    "project_after": "/[aa](#{value}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\k<absent>/\n",
+    "origin": "control",
+    "line": 391,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\k<absent>/\n",
+    "project_after": "/[aa]#{value}\\k<absent>/\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nGC.stat\n",
+    "origin": "control",
+    "line": 392,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nGC.stat\n",
+    "project_after": "[defined?(/[xyx]/)]\nGC.stat\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nObjectSpace.each_object {}\n",
+    "origin": "control",
+    "line": 393,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nObjectSpace.each_object {}\n",
+    "project_after": "[defined?(/[xyx]/)]\nObjectSpace.each_object {}\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nFile.read(__FILE__)\n",
+    "origin": "control",
+    "line": 394,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nFile.read(__FILE__)\n",
+    "project_after": "[defined?(/[xyx]/)]\nFile.read(__FILE__)\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nIO.read($0)\n",
+    "origin": "control",
+    "line": 395,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nIO.read($0)\n",
+    "project_after": "[defined?(/[xyx]/)]\nIO.read($0)\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\np __LINE__\n",
+    "origin": "control",
+    "line": 396,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\np __LINE__\n",
+    "project_after": "[defined?(/[xyx]/)]\np __LINE__\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "origin": "control",
+    "line": 397,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n",
+    "project_after": "[defined?(/[xyx]/)]\nRubyVM::InstructionSequence.compile_file(__FILE__)\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "origin": "control",
+    "line": 398,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n",
+    "project_after": "[defined?(/[xyx]/)]\nRubyVM::AbstractSyntaxTree.parse_file(__FILE__)\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nbinding\n",
+    "origin": "control",
+    "line": 399,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nbinding\n",
+    "project_after": "[defined?(/[xyx]/)]\nbinding\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nTracePoint.new(:line) {}.enable\n",
+    "origin": "control",
+    "line": 400,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nTracePoint.new(:line) {}.enable\n",
+    "project_after": "[defined?(/[xyx]/)]\nTracePoint.new(:line) {}.enable\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\nDATA.read\n__END__\ndata\n\n",
+    "origin": "control",
+    "line": 401,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\nDATA.read\n__END__\ndata\n\n",
+    "project_after": "[defined?(/[xyx]/)]\nDATA.read\n__END__\ndata\n\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\n__END__\ndata\n\n",
+    "origin": "control",
+    "line": 402,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\n__END__\ndata\n\n",
+    "project_after": "[defined?(/[xyx]/)]\n__END__\ndata\n\n"
+  },
+  {
+    "source": "defined?(/[xyx]/)\n",
+    "origin": "control",
+    "line": 403,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "defined?(/[xy]/)\n",
+    "project_after": "defined?(/[xyx]/)\n"
+  },
+  {
+    "source": "[/[xyx]/]\n",
+    "origin": "control",
+    "line": 404,
+    "findings": [
+      [
+        1,
+        6,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[/[xy]/]\n",
+    "project_after": "[/[xyx]/]\n"
+  },
+  {
+    "source": "consume(/[xyx]/)\n",
+    "origin": "control",
+    "line": 405,
+    "findings": [
+      [
+        1,
+        13,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "consume(/[xy]/)\n",
+    "project_after": "consume(/[xyx]/)\n"
+  },
+  {
+    "source": "def f; [defined?(/[xyx]/)]; end\n",
+    "origin": "control",
+    "line": 406,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "def f; [defined?(/[xy]/)]; end\n",
+    "project_after": "def f; [defined?(/[xyx]/)]; end\n"
+  },
+  {
+    "source": "task { [defined?(/[xyx]/)] }\n",
+    "origin": "control",
+    "line": 407,
+    "findings": [
+      [
+        1,
+        22,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "task { [defined?(/[xy]/)] }\n",
+    "project_after": "task { [defined?(/[xyx]/)] }\n"
+  },
+  {
+    "source": "false && /[xyx]/\n",
+    "origin": "control",
+    "line": 408,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "false && /[xy]/\n",
+    "project_after": "false && /[xyx]/\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/.match?(effect))]\n",
+    "origin": "control",
+    "line": 409,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/.match?(effect))]\n",
+    "project_after": "[defined?(/[xyx]/.match?(effect))]\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/), 1]\n",
+    "origin": "control",
+    "line": 410,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/), 1]\n",
+    "project_after": "[defined?(/[xyx]/), 1]\n"
+  },
+  {
+    "source": "/[[ab]-bb]/\n",
+    "origin": "control",
+    "line": 411,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[[ab]-b]/\n",
+    "project_after": "/[[ab]-bb]/\n"
+  },
+  {
+    "source": "/[&&[a-a]-[a-a]]/\n",
+    "origin": "control",
+    "line": 412,
+    "findings": [
+      [
+        1,
+        8,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[&&[a-]-[a-]]/\n",
+    "project_after": "/[&&[a-a]-[a-a]]/\n"
+  },
+  {
+    "source": "/[aa]\\99/\n",
+    "origin": "control",
+    "line": 413,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]\\99/\n",
+    "project_after": "/[aa]\\99/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\12345/\n",
+    "origin": "control",
+    "line": 414,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\12345/\n",
+    "project_after": "/[aa]#{value}\\12345/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\99999999999999999999999/\n",
+    "origin": "control",
+    "line": 415,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\99999999999999999999999/\n",
+    "project_after": "/[aa]#{value}\\99999999999999999999999/\n"
+  },
+  {
+    "source": "/(a)[aa]#{value}\\11/\n",
+    "origin": "control",
+    "line": 416,
+    "findings": [
+      [
+        1,
+        7,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(a)[a]#{value}\\11/\n",
+    "project_after": "/(a)[aa]#{value}\\11/\n"
+  },
+  {
+    "source": "/\\11(a)(a)(a)(a)(a)(a)(a)(a)(a)(a)(a)[aa]/\n",
+    "origin": "control",
+    "line": 417,
+    "findings": [
+      [
+        1,
+        40,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/\\11(a)(a)(a)(a)(a)(a)(a)(a)(a)(a)(a)[a]/\n",
+    "project_after": "/\\11(a)(a)(a)(a)(a)(a)(a)(a)(a)(a)(a)[aa]/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\1/\n",
+    "origin": "control",
+    "line": 418,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\1/\n",
+    "project_after": "/[aa]#{value}\\1/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\k<0>/\n",
+    "origin": "control",
+    "line": 419,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\k<0>/\n",
+    "project_after": "/[aa]#{value}\\k<0>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\k'0'/\n",
+    "origin": "control",
+    "line": 420,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\k'0'/\n",
+    "project_after": "/[aa]#{value}\\k'0'/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\g<0>/\n",
+    "origin": "control",
+    "line": 421,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\g<0>/\n",
+    "project_after": "/[aa]#{value}\\g<0>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\g<00>/\n",
+    "origin": "control",
+    "line": 422,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\g<00>/\n",
+    "project_after": "/[aa]#{value}\\g<00>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\g<+0>/\n",
+    "origin": "control",
+    "line": 423,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\g<+0>/\n",
+    "project_after": "/[aa]#{value}\\g<+0>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\k<-1>/\n",
+    "origin": "control",
+    "line": 424,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\k<-1>/\n",
+    "project_after": "/[aa]#{value}\\k<-1>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\g<-1>/\n",
+    "origin": "control",
+    "line": 425,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\g<-1>/\n",
+    "project_after": "/[aa]#{value}\\g<-1>/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{}/\n",
+    "origin": "control",
+    "line": 426,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\u{}/\n",
+    "project_after": "/[aa]#{value}\\u{}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{zzzz}/\n",
+    "origin": "control",
+    "line": 427,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\u{zzzz}/\n",
+    "project_after": "/[aa]#{value}\\u{zzzz}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{ 61}/\n",
+    "origin": "control",
+    "line": 428,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\u{ 61}/\n",
+    "project_after": "/[aa]#{value}\\u{ 61}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{61 }/\n",
+    "origin": "control",
+    "line": 429,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\u{61 }/\n",
+    "project_after": "/[aa]#{value}\\u{61 }/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{61  62}/\n",
+    "origin": "control",
+    "line": 430,
+    "findings": [
+
+    ],
+    "upstream_after": "/[aa]#{value}\\u{61  62}/\n",
+    "project_after": "/[aa]#{value}\\u{61  62}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{61 62}/\n",
+    "origin": "control",
+    "line": 431,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\u{61 62}/\n",
+    "project_after": "/[aa]#{value}\\u{61 62}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{61\t62}/\n",
+    "origin": "control",
+    "line": 432,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\u{61\t62}/\n",
+    "project_after": "/[aa]#{value}\\u{61\t62}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{61\n62}/\n",
+    "origin": "control",
+    "line": 433,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\u{61\n62}/\n",
+    "project_after": "/[aa]#{value}\\u{61\n62}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{61\u000b62}/\n",
+    "origin": "control",
+    "line": 434,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\u{61\u000b62}/\n",
+    "project_after": "/[aa]#{value}\\u{61\u000b62}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{10ffff}/\n",
+    "origin": "control",
+    "line": 435,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\u{10ffff}/\n",
+    "project_after": "/[aa]#{value}\\u{10ffff}/\n"
+  },
+  {
+    "source": "/[aa]#{value}\\u{000061}/\n",
+    "origin": "control",
+    "line": 436,
+    "findings": [
+      [
+        1,
+        4,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[a]#{value}\\u{000061}/\n",
+    "project_after": "/[aa]#{value}\\u{000061}/\n"
+  },
+  {
+    "source": "/(?#x\\))[aa]/\n",
+    "origin": "control",
+    "line": 437,
+    "findings": [
+
+    ],
+    "upstream_after": "/(?#x\\))[aa]/\n",
+    "project_after": "/(?#x\\))[aa]/\n"
+  },
+  {
+    "source": "/(?#x)[aa]/\n",
+    "origin": "control",
+    "line": 438,
+    "findings": [
+      [
+        1,
+        9,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/(?#x)[a]/\n",
+    "project_after": "/(?#x)[aa]/\n"
+  },
+  {
+    "source": "/[^]aa]/\n",
+    "origin": "control",
+    "line": 439,
+    "findings": [
+
+    ],
+    "upstream_after": "/[^]aa]/\n",
+    "project_after": "/[^]aa]/\n"
+  },
+  {
+    "source": "/[^aa]/\n",
+    "origin": "control",
+    "line": 440,
+    "findings": [
+      [
+        1,
+        5,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "/[^a]/\n",
+    "project_after": "/[^aa]/\n"
+  },
+  {
+    "source": "[defined?(/[x#{effect}x]/)]\n",
+    "origin": "control",
+    "line": 441,
+    "findings": [
+      [
+        1,
+        23,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[x#{effect}]/)]\n",
+    "project_after": "[defined?(/[x#{effect}x]/)]\n"
+  },
+  {
+    "source": "[defined?(/[xx]/)]\n1\n",
+    "origin": "control",
+    "line": 442,
+    "findings": [
+      [
+        1,
+        14,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[x]/)]\n1\n",
+    "project_after": "[defined?(/[xx]/)]\n1\n"
+  },
+  {
+    "source": "[defined?(/[ x x ]/x)]\n",
+    "origin": "control",
+    "line": 443,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        16,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        17,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[ x]/x)]\n",
+    "project_after": "[defined?(/[ x x ]/x)]\n"
+  },
+  {
+    "source": "[defined?(/[\\d\\d]/)]\n",
+    "origin": "control",
+    "line": 444,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[\\d]/)]\n",
+    "project_after": "[defined?(/[\\d\\d]/)]\n"
+  },
+  {
+    "source": "[defined?(/[x\nx]/)]\n",
+    "origin": "control",
+    "line": 445,
+    "findings": [
+      [
+        2,
+        1,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[x\n]/)]\n",
+    "project_after": "[defined?(/[x\nx]/)]\n"
+  },
+  {
+    "source": "[defined?(/[xyx]/)]\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]/)]\n",
+    "project_after": "[defined?(/[xy]/)]\n"
+  },
+  {
+    "source": "# encoding: UTF-8\n[defined?(/[xyx]/)] # keep\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        2,
+        15,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# encoding: UTF-8\n[defined?(/[xy]/)] # keep\n",
+    "project_after": "# encoding: UTF-8\n[defined?(/[xy]/)] # keep\n"
+  },
+  {
+    "source": "[defined?(/[xyxyx]+/)]\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        1,
+        15,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        16,
+        1,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        1,
+        17,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[xy]+/)]\n",
+    "project_after": "[defined?(/[xy]+/)]\n"
+  },
+  {
+    "source": "# encoding: UTF-8\n[defined?(/[xyxyx]+/)] # keep\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        2,
+        15,
+        2,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        16,
+        2,
+        "Duplicate element inside regexp character class"
+      ],
+      [
+        2,
+        17,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# encoding: UTF-8\n[defined?(/[xy]+/)] # keep\n",
+    "project_after": "# encoding: UTF-8\n[defined?(/[xy]+/)] # keep\n"
+  },
+  {
+    "source": "[defined?(/[0-9x0-9]/)]\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[0-9x]/)]\n",
+    "project_after": "[defined?(/[0-9x]/)]\n"
+  },
+  {
+    "source": "# encoding: UTF-8\n[defined?(/[0-9x0-9]/)] # keep\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        2,
+        17,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# encoding: UTF-8\n[defined?(/[0-9x]/)] # keep\n",
+    "project_after": "# encoding: UTF-8\n[defined?(/[0-9x]/)] # keep\n"
+  },
+  {
+    "source": "[defined?(%r{[xyx]}i)]\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        1,
+        17,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(%r{[xy]}i)]\n",
+    "project_after": "[defined?(%r{[xy]}i)]\n"
+  },
+  {
+    "source": "# encoding: UTF-8\n[defined?(%r{[xyx]}i)] # keep\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        2,
+        17,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# encoding: UTF-8\n[defined?(%r{[xy]}i)] # keep\n",
+    "project_after": "# encoding: UTF-8\n[defined?(%r{[xy]}i)] # keep\n"
+  },
+  {
+    "source": "[defined?(/[^xyx]/)]\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        1,
+        16,
+        1,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "[defined?(/[^xy]/)]\n",
+    "project_after": "[defined?(/[^xy]/)]\n"
+  },
+  {
+    "source": "# encoding: UTF-8\n[defined?(/[^xyx]/)] # keep\n",
+    "origin": "canonical",
+    "line": 0,
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Duplicate element inside regexp character class"
+      ]
+    ],
+    "upstream_after": "# encoding: UTF-8\n[defined?(/[^xy]/)] # keep\n",
+    "project_after": "# encoding: UTF-8\n[defined?(/[^xy]/)] # keep\n"
+  }
+]

@@ -59,15 +59,15 @@ impl Cop for RegexpLiteral {
     }
 }
 
-pub(super) struct Regexp<'pr> {
-    pub(super) opening: Location<'pr>,
-    pub(super) closing: Location<'pr>,
+pub(crate) struct Regexp<'pr> {
+    pub(crate) opening: Location<'pr>,
+    pub(crate) closing: Location<'pr>,
     // Only direct static fragments: interpolation expressions are separate Ruby
     // code, never text in the outer regexp. Total work is linear in source bytes.
-    pub(super) fragments: Vec<Location<'pr>>,
+    pub(crate) fragments: Vec<Location<'pr>>,
 }
 impl<'pr> Regexp<'pr> {
-    pub(super) fn new(node: &Node<'pr>) -> Option<Self> {
+    pub(crate) fn new(node: &Node<'pr>) -> Option<Self> {
         let (opening, closing, fragments) = match node {
             Node::RegularExpressionNode { .. } => {
                 let n = node.as_regular_expression_node()?;

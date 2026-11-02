@@ -92,7 +92,7 @@ fn actual_defaults_bounds_selectors_toml_precedence_and_strict_keys() {
         policy::{RubyVersion, RubyVersions},
     };
     let registry = Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     for (name, versions) in [
         (BIG, RubyVersions::default()),
         (

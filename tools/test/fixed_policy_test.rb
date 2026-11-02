@@ -63,17 +63,30 @@ class FixedPolicyTest < Minitest::Test
     assert_equal true, config.dig("Style/ArrayIntersect", "Enabled")
   end
 
+  def test_landed_top_level_return_mandatory_jb_path_exclusion
+    %w[a.jb lib/a.jb lib/.hidden.jb].each { |p| refute FixedPolicy.path_allowed?('Lint/TopLevelReturnWithArgument',p),p }
+    %w[a.rb lib/a.rb a.jb.rb Gemfile].each { |p| assert FixedPolicy.path_allowed?('Lint/TopLevelReturnWithArgument',p),p }
+  end
+
   def test_only_landed_lint_names_get_explicit_pinned_defaults
     names = FixedPolicy.implemented_cops
-    assert_equal 416, names.size
-    assert_equal 70, names.grep(/^Lint\//).size
-    %w[Lint/AmbiguousAssignment Lint/AmbiguousOperatorPrecedence Lint/CopDirectiveSyntax Lint/RedundantCopEnableDirective Lint/MissingCopEnableDirective Lint/EmptyBlock Lint/EmptyClass Lint/EmptyExpression Lint/EmptyFile Lint/EmptyInPattern Lint/ArgumentMismatch Lint/SuperArgumentMismatch Lint/CircularArgumentReference Lint/DataDefineOverride Lint/SharedMutableDefault Lint/ConstantDefinitionInBlock Lint/ConstantOverwrittenInRescue Lint/ConstantReassignment Lint/UselessConstantScoping Lint/OrAssignmentToConstant Lint/DisjunctiveAssignmentInConstructor Lint/DeprecatedConstants Lint/DeprecatedOpenSSLConstant Lint/DeprecatedReference Lint/BigDecimalNew Lint/ErbNewArguments Lint/UnifiedInteger Lint/UriEscapeUnescape Lint/UriRegexp Lint/DuplicateBranch Lint/DuplicateMatchPattern].each do |name|
+    assert_equal 491, names.size
+    assert_equal 145, names.grep(/^Lint\//).size
+    %w[Lint/AmbiguousAssignment Lint/AmbiguousOperatorPrecedence Lint/CopDirectiveSyntax Lint/RedundantCopEnableDirective Lint/MissingCopEnableDirective Lint/EmptyBlock Lint/EmptyClass Lint/EmptyExpression Lint/EmptyFile Lint/EmptyInPattern Lint/ArgumentMismatch Lint/SuperArgumentMismatch Lint/CircularArgumentReference Lint/DataDefineOverride Lint/SharedMutableDefault Lint/ConstantDefinitionInBlock Lint/ConstantOverwrittenInRescue Lint/ConstantReassignment Lint/UselessConstantScoping Lint/OrAssignmentToConstant Lint/DisjunctiveAssignmentInConstructor Lint/DeprecatedConstants Lint/DeprecatedOpenSSLConstant Lint/DeprecatedReference Lint/BigDecimalNew Lint/ErbNewArguments Lint/UnifiedInteger Lint/UriEscapeUnescape Lint/UriRegexp Lint/DuplicateBranch Lint/DuplicateMatchPattern Lint/DuplicateRegexpCharacterClassElement Lint/DuplicateRequire Lint/DuplicateMagicComment Lint/MisplacedMagicComment Lint/OrderedMagicComments Lint/ArrayLiteralInRegexp Lint/BooleanSymbol Lint/MixedRegexpCaptureTypes Lint/NestedPercentLiteral Lint/UnescapedBracketInRegexp Lint/RedundantRegexpQuantifiers Lint/FloatComparison Lint/FloatOutOfRange Lint/EachWithObjectArgument Lint/FlipFlop Lint/HashCompareByIdentity Lint/HashNewWithKeywordArgumentsAsDefault Lint/ElseLayout Lint/TrailingCommaInAttributeDeclaration Lint/IdentityComparison Lint/ImplicitStringConcatenation Lint/TripleQuotes Lint/IncompatibleIoSelectWithFiberScheduler Lint/IneffectiveAccessModifier Lint/UselessAccessModifier Lint/LambdaWithoutLiteralBlock Lint/LiteralAssignmentInCondition Lint/Loop Lint/NoReturnInBeginEndBlocks Lint/MissingSuper Lint/MixedCaseRange Lint/NumberedParameterAssignment Lint/NameTypo Lint/NextWithoutAccumulator Lint/UnmodifiedReduceAccumulator Lint/NonAtomicFileOperation Lint/NumericOperationWithConstantResult Lint/ParenthesesAsGroupedExpression Lint/PercentStringArray Lint/PercentSymbolArray Lint/RedundantDirGlobSort Lint/RedundantSafeNavigation Lint/RedundantSplatExpansion Lint/RedundantStringCoercion Lint/RedundantTypeConversion Lint/RedundantWithIndex Lint/RedundantWithObject Lint/RefinementImportMethods Lint/RegexpAsCondition Lint/RequireParentheses Lint/RequireRangeParentheses Lint/RequireRelativeSelfPath Lint/RescueType Lint/ReturnInVoidContext Lint/SafeNavigationChain Lint/SafeNavigationConsistency Lint/SafeNavigationWithEmpty Lint/SendWithMixinArgument Lint/ShadowedArgument Lint/ShadowedException Lint/SuppressedExceptionInNumberConversion Lint/SymbolConversion Lint/TopLevelReturnWithArgument Lint/UnderscorePrefixedVariableName Lint/UnexpectedBlockArity Lint/UnreachableLoop Lint/UnreachablePatternBranch Lint/UnusedBlockArgument Lint/UnusedMethodArgument].each do |name|
       assert FixedPolicy.default_enabled(name)
       assert_equal({ 'Enabled' => true }, FixedPolicy.reference_config(names).fetch(name))
     end
+    refute FixedPolicy.default_enabled('Lint/ShadowingOuterLocalVariable')
+    assert_equal({ 'Enabled' => false }, FixedPolicy.reference_config(names).fetch('Lint/ShadowingOuterLocalVariable'))
+    refute FixedPolicy.default_enabled('Lint/NumberConversion')
+    assert_equal({ 'Enabled' => false }, FixedPolicy.reference_config(names).fetch('Lint/NumberConversion'))
+    refute FixedPolicy.default_enabled('Lint/HeredocMethodCallPosition')
+    assert_equal({ 'Enabled' => false }, FixedPolicy.reference_config(names).fetch('Lint/HeredocMethodCallPosition'))
     refute FixedPolicy.default_enabled('Lint/ConstantResolution')
     assert_equal({ 'Enabled' => false }, FixedPolicy.reference_config(names).fetch('Lint/ConstantResolution'))
-    unimplemented = %w[Lint/Syntax Lint/UnusedPrivateMethod Lint/NotInventoried]
+    refute FixedPolicy.default_enabled('Lint/UnusedPrivateMethod')
+    assert_equal({ 'Enabled' => false }, FixedPolicy.reference_config(names).fetch('Lint/UnusedPrivateMethod'))
+    unimplemented = %w[Lint/Syntax Lint/UselessDefined Lint/NotInventoried]
     assert_empty FixedPolicy.reference_config(names + unimplemented).keys & unimplemented
   end
 
@@ -114,6 +127,13 @@ class FixedPolicyTest < Minitest::Test
     assert_match(/requires Ruby >= 4.0/, FixedPolicy.ruby_mismatch("Style/ReverseFind", 4.0))
     assert_nil FixedPolicy.ruby_mismatch("Style/HashSlice", 3.3)
     assert_nil FixedPolicy.ruby_mismatch("Lint/Debugger", 3.3)
+    assert_nil FixedPolicy.ruby_mismatch('Lint/SafeNavigationChain', 3.4)
+    assert_nil FixedPolicy.ruby_mismatch('Lint/SafeNavigationChain', 2.3)
+    assert_match(/spec Ruby 2.2/, FixedPolicy.ruby_mismatch('Lint/SafeNavigationChain', 2.2))
+    assert_nil FixedPolicy.ruby_mismatch('Lint/RefinementImportMethods', 3.1)
+    assert_match(/spec Ruby 3.0/, FixedPolicy.ruby_mismatch('Lint/RefinementImportMethods', 3.0))
+    assert_nil FixedPolicy.ruby_mismatch('Lint/RedundantDirGlobSort', 3.0)
+    assert_match(/spec Ruby 2.7/, FixedPolicy.ruby_mismatch('Lint/RedundantDirGlobSort', 2.7))
   end
 
   def test_only_landed_lint_version_consumers_have_pinned_applicability

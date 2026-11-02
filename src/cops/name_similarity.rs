@@ -112,7 +112,7 @@ fn jaro(a: &[char], b: &[char]) -> f64 {
 }
 
 /// `DidYouMean::JaroWinkler.distance`.
-fn jaro_winkler(a: &[char], b: &[char]) -> f64 {
+pub(crate) fn jaro_winkler(a: &[char], b: &[char]) -> f64 {
     let distance = jaro(a, b);
     if distance <= 0.7 {
         return distance;

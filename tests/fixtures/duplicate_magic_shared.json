@@ -1,0 +1,272 @@
+[
+  {
+    "text": "#",
+    "line": 34,
+    "group": null
+  },
+  {
+    "text": "# encoding: utf-8",
+    "line": 36,
+    "group": 0
+  },
+  {
+    "text": "# ENCODING: utf-8",
+    "line": 38,
+    "group": 0
+  },
+  {
+    "text": "# eNcOdInG: utf-8",
+    "line": 40,
+    "group": 0
+  },
+  {
+    "text": "# coding: utf-8",
+    "line": 42,
+    "group": 0
+  },
+  {
+    "text": "    # coding: utf-8",
+    "line": 44,
+    "group": 0
+  },
+  {
+    "text": "# incoding: utf-8",
+    "line": 46,
+    "group": null
+  },
+  {
+    "text": "# encoding: stateless-iso-2022-jp-kddi",
+    "line": 48,
+    "group": 0
+  },
+  {
+    "text": "# frozen_string_literal: true",
+    "line": 52,
+    "group": 1
+  },
+  {
+    "text": "    # frozen_string_literal: true",
+    "line": 54,
+    "group": 1
+  },
+  {
+    "text": "# frozen_string_literal:true",
+    "line": 56,
+    "group": 1
+  },
+  {
+    "text": "# frozen_string_literal: false",
+    "line": 58,
+    "group": 1
+  },
+  {
+    "text": "# frozen-string-literal: true",
+    "line": 60,
+    "group": 1
+  },
+  {
+    "text": "# FROZEN-STRING-LITERAL: true",
+    "line": 62,
+    "group": 1
+  },
+  {
+    "text": "# fRoZeN-sTrInG_lItErAl: true",
+    "line": 64,
+    "group": 1
+  },
+  {
+    "text": "# warn_indent: true",
+    "line": 66,
+    "group": null
+  },
+  {
+    "text": "# warn-indent: false",
+    "line": 67,
+    "group": null
+  },
+  {
+    "text": "# WARN_INDENT: true",
+    "line": 68,
+    "group": null
+  },
+  {
+    "text": "# -*- warn_indent: true -*-",
+    "line": 69,
+    "group": null
+  },
+  {
+    "text": "# shareable_constant_value: literal",
+    "line": 71,
+    "group": null
+  },
+  {
+    "text": "# shareable_constant_value:literal",
+    "line": 73,
+    "group": null
+  },
+  {
+    "text": "# shareable-constant-value: literal",
+    "line": 75,
+    "group": null
+  },
+  {
+    "text": "# SHAREABLE-CONSTANT-VALUE: literal",
+    "line": 77,
+    "group": null
+  },
+  {
+    "text": "# sHaReaBLE-CoNstANT-ValUE: literal",
+    "line": 79,
+    "group": null
+  },
+  {
+    "text": "# shareable_constant_value: none",
+    "line": 81,
+    "group": null
+  },
+  {
+    "text": "# xyz shareable_constant_value: literal",
+    "line": 83,
+    "group": null
+  },
+  {
+    "text": "# xyz shareable_constant_value: literal xyz",
+    "line": 85,
+    "group": null
+  },
+  {
+    "text": "# typed: ignore",
+    "line": 87,
+    "group": null
+  },
+  {
+    "text": "# typed: false",
+    "line": 89,
+    "group": null
+  },
+  {
+    "text": "# typed: true",
+    "line": 91,
+    "group": null
+  },
+  {
+    "text": "# typed: strict",
+    "line": 93,
+    "group": null
+  },
+  {
+    "text": "# typed: strong",
+    "line": 95,
+    "group": null
+  },
+  {
+    "text": "#typed:strict",
+    "line": 97,
+    "group": null
+  },
+  {
+    "text": "#    typed:strict",
+    "line": 99,
+    "group": null
+  },
+  {
+    "text": "# @typed",
+    "line": 101,
+    "group": null
+  },
+  {
+    "text": "# shareable_constant_value: experimental_everything",
+    "line": 103,
+    "group": null
+  },
+  {
+    "text": "# shareable_constant_value: experimental_copy",
+    "line": 109,
+    "group": null
+  },
+  {
+    "text": "# -*- frozen-string-literal: true -*-",
+    "line": 115,
+    "group": 1
+  },
+  {
+    "text": "# frozen_string_literal: invalid",
+    "line": 119,
+    "group": 1
+  },
+  {
+    "text": "# -*- encoding : ascii-8bit -*-",
+    "line": 123,
+    "group": 0
+  },
+  {
+    "text": "# encoding: ascii-8bit frozen_string_literal: true",
+    "line": 128,
+    "group": 0
+  },
+  {
+    "text": "# frozen_string_literal: true encoding: ascii-8bit",
+    "line": 133,
+    "group": 0
+  },
+  {
+    "text": " CSV.generate(encoding: Encoding::UTF_8) do |csv|",
+    "line": 138,
+    "group": null
+  },
+  {
+    "text": "# -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-",
+    "line": 143,
+    "group": 0
+  },
+  {
+    "text": "# coding: utf-8 -*- encoding: ASCII-8BIT; frozen_string_literal: true -*-",
+    "line": 150,
+    "group": 0
+  },
+  {
+    "text": "# -*- coding: ASCII-8BIT; typed: strict -*-",
+    "line": 157,
+    "group": 0
+  },
+  {
+    "text": "# vim: filetype=ruby, fileencoding=ascii-8bit",
+    "line": 163,
+    "group": 0
+  },
+  {
+    "text": "# vim: filetype=ruby,fileencoding=ascii-8bit",
+    "line": 167,
+    "group": null
+  },
+  {
+    "text": "# vim: filetype=ruby,  fileencoding=ascii-8bit",
+    "line": 169,
+    "group": 0
+  },
+  {
+    "text": "#vim: filetype=ruby, fileencoding=ascii-8bit",
+    "line": 173,
+    "group": 0
+  },
+  {
+    "text": "#vim: filetype=ruby, fileencoding=ascii-8bit, typed=strict",
+    "line": 177,
+    "group": 0
+  },
+  {
+    "text": "# coding: utf-8 vim: filetype=ruby, fileencoding=ascii-8bit",
+    "line": 181,
+    "group": 0
+  },
+  {
+    "text": "# vim: filetype=python, fileencoding=ascii-8bit",
+    "line": 187,
+    "group": 0
+  },
+  {
+    "text": "# vim:fileencoding=utf-8",
+    "line": 191,
+    "group": null
+  }
+]

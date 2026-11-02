@@ -2,7 +2,7 @@
 
 A fast, opinionated Ruby linter written in Rust.
 
-rustocop ships 416 cops that behave like their RuboCop counterparts, but it
+rustocop ships 491 cops that behave like their RuboCop counterparts, but it
 makes the style decisions for you, needs no Ruby installation to run, and
 lints thousands of files in a fraction of a second.
 
@@ -35,7 +35,7 @@ Version 0.5.0, built from source; there is no published release yet.
 | Department | Cops |
 | --- | ---: |
 | Style | 299 |
-| Lint | 70 |
+| Lint | 145 |
 | Layout | 21 |
 | Naming | 19 |
 | Security | 7 |
@@ -43,7 +43,10 @@ Version 0.5.0, built from source; there is no published release yet.
 Each cop matches the behaviour of its RuboCop 1.92.0 counterpart at
 rustocop's fixed settings and is verified against RuboCop's own spec examples
 (see [Development](#development)). Most cops are on by default; 34 Style
-cops, `Naming/InclusiveLanguage` and `Style/FrozenStringLiteralComment` are
+cops, five Lint cops (`Lint/ConstantResolution`,
+`Lint/HeredocMethodCallPosition`, `Lint/NumberConversion`,
+`Lint/ShadowingOuterLocalVariable`, `Lint/UnusedPrivateMethod`),
+`Naming/InclusiveLanguage` and `Style/FrozenStringLiteralComment` are
 opt-in. A few cops apply only to Ruby versions other than the fixed 3.4 target
 (`Security/YAMLLoad`, `Style/ReverseFind`, `Lint/ItWithoutArgumentsInBlock`,
 `Lint/UselessElseWithoutRescue`, `Lint/NonDeterministicRequireOrder`); they
@@ -66,7 +69,7 @@ stay registered but report nothing.
 
 ## Installation
 
-Building needs Rust 1.88 or newer and a C compiler for the vendored Prism
+Building needs Rust 1.99 or newer and a C compiler for the vendored Prism
 parser.
 
 ```sh
@@ -207,7 +210,7 @@ multi-line offense is suppressed if any of its highlighted lines is disabled.
 cargo fmt
 cargo clippy --all-targets -- -D warnings
 cargo test
-tools/check-msrv.sh                       # builds and tests on Rust 1.88
+tools/check-msrv.sh                       # builds and tests on Rust 1.99
 cargo run -- path/to/file.rb
 echo 'binding.pry' | cargo run -- --stdin x.rb
 cargo run --example list_cops             # every registered cop name

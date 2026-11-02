@@ -28,7 +28,7 @@ static VIM_ENCODING: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?-u:^fileencoding\s*=\s*((?u:[\p{Alphabetic}\p{N}_-]+))$)").unwrap()
 });
 
-pub(super) struct MagicComment<'a> {
+pub(crate) struct MagicComment<'a> {
     pub encoding: Option<&'a [u8]>,
     pub valid: bool,
     kind: Kind<'a>,

@@ -52,6 +52,9 @@ fn unchanged(dir: &Path, cop: &str, bytes: &[u8], status: i32) {
 #[test]
 fn defaults_opt_in_selectors_and_config_never_rewrite_signatures() {
     let dir = project();
+    // Isolate this historical Style toggle test from the newly landed Lint cop.
+    let baseline = "[cops.\"Lint/UnusedMethodArgument\"]\nenabled = false\n";
+    fs::write(dir.path().join("rustocop.toml"), baseline).unwrap();
     for (cop, source, enabled) in CASES {
         fs::write(dir.path().join("x.rb"), source).unwrap();
         let output = cli(dir.path(), &["x.rb"], i32::from(enabled));
@@ -71,20 +74,24 @@ fn defaults_opt_in_selectors_and_config_never_rewrite_signatures() {
             format!("[cops.\"{cop}\"]\nenabled = false\n"),
             "[cops.Style]\nenabled = false\n".into(),
         ] {
-            fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+            fs::write(
+                dir.path().join("rustocop.toml"),
+                format!("{baseline}{config}"),
+            )
+            .unwrap();
             let output = cli(dir.path(), &["x.rb"], 0);
             assert!(!String::from_utf8_lossy(&output.stdout).contains(cop));
             unchanged(dir.path(), cop, source.as_bytes(), 1);
         }
         fs::write(
             dir.path().join("rustocop.toml"),
-            format!("[cops.Style]\nenabled = false\n[cops.\"{cop}\"]\nenabled = true\n"),
+            format!("{baseline}[cops.Style]\nenabled = false\n[cops.\"{cop}\"]\nenabled = true\n"),
         )
         .unwrap();
         assert!(String::from_utf8_lossy(&cli(dir.path(), &["x.rb"], 1).stdout).contains(cop));
         cli(dir.path(), &["--except", cop, "--fix", "x.rb"], 0);
         assert_eq!(fs::read_to_string(dir.path().join("x.rb")).unwrap(), source);
-        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+        fs::write(dir.path().join("rustocop.toml"), baseline).unwrap();
     }
 }
 #[test]

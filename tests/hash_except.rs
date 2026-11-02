@@ -80,7 +80,12 @@ fn selectors_config_excludes_and_strict_no_new_knobs() {
         "[cops.Style]\nenabled = false\n".into(),
         format!("[cops.\"{COP}\"]\nenabled = false\n"),
     ] {
-        fs::write(d.path().join("rustocop.toml"), config).unwrap();
+        // Isolate this Style toggle from the newly default-on unused-block cop.
+        fs::write(
+            d.path().join("rustocop.toml"),
+            format!("{config}\n[cops.\"Lint/UnusedBlockArgument\"]\nenabled = false\n"),
+        )
+        .unwrap();
         unchanged(d.path(), SOURCE.as_bytes(), &["--fix", "a.rb"], 0);
         unchanged(
             d.path(),

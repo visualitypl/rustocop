@@ -62,7 +62,7 @@ module FixedPolicy
       if record
         min = record.fetch("minimum_target_ruby")
         max = record.fetch("maximum_target_ruby")
-      elsif %w[Lint/ItWithoutArgumentsInBlock Lint/UselessElseWithoutRescue Lint/NonDeterministicRequireOrder Lint/EmptyInPattern].include?(name) && live_lint_defaults(name)
+      elsif %w[Lint/ItWithoutArgumentsInBlock Lint/UselessElseWithoutRescue Lint/NonDeterministicRequireOrder Lint/EmptyInPattern Lint/RedundantDirGlobSort Lint/RefinementImportMethods Lint/SafeNavigationChain].include?(name) && live_lint_defaults(name)
         # Version-gated Lint cops only.
         record = LINT.fetch(name)
         min = record.fetch("minimum_ruby")
@@ -80,7 +80,7 @@ module FixedPolicy
     end
 
     def path_allowed?(name, path)
-      defaults = STYLE.fetch(name, {}).fetch("upstream_defaults", {})
+      defaults = live_lint_defaults(name) || STYLE.fetch(name, {}).fetch("upstream_defaults", {})
       includes = defaults.fetch("Include", [])
       # Naming/FileName uses a config-root filename, not a recursive basename glob.
       excludes = name == "Naming/FileName" ? ["Rakefile.rb"] : defaults.fetch("Exclude", [])

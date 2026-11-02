@@ -108,7 +108,7 @@ fn all_reference_rows_match_cli_with_real_canonical_fixes_and_uncertain_no_write
 #[test]
 fn metadata_defaults_selectors_toml_department_precedence_and_strict_settings() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     for name in [INTEGER, URI] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled());

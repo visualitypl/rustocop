@@ -189,7 +189,7 @@ fn block_pseudo_directives_do_not_suppress_code_or_opt_in_config_disabled_cops()
 fn real_minimum_ruby_gate_and_detection_only_metadata() {
     use rustocop::cops::policy::{RubyVersion, RubyVersions};
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 416);
+    assert_eq!(registry.cops().len(), 491);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());
