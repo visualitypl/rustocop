@@ -666,6 +666,45 @@ module Oracle
 
   # GlobalVars specs permit one custom name globally. Only skip snippets
   # actually using a name whose eligibility changes (including alias operands).
+  # Bundler's AllowedGems is fixed empty. A spec allowlist is equivalent
+  # unless the source actually declares a listed gem by its str name.
+  BundlerAllowedGems = Struct.new(:fixed) do
+    def matches?(spec, source)
+      return true if Array(spec) == Array(fixed)
+      return false unless source
+
+      processed = RuboCop::ProcessedSource.new(source, FixedPolicy::TARGET_RUBY, nil,
+                                              parser_engine: :parser_prism)
+      return true unless processed.ast
+
+      extra = Array(spec) - Array(fixed)
+      processed.ast.each_node(:send).none? do |node|
+        node.method?(:gem) && node.receiver.nil? && node.first_argument&.str_type? &&
+          extra.include?(node.first_argument.value)
+      end
+    end
+  end
+
+  # Gemspec AllowedGems lists are fixed empty. A spec allowlist is equivalent
+  # unless the source sends one of the cop's declaration methods with a listed
+  # gem as its str first argument (any receiver, conservatively).
+  GemspecAllowedGems = Struct.new(:fixed, :methods) do
+    def matches?(spec, source)
+      return true if Array(spec) == Array(fixed)
+      return false unless source
+
+      processed = RuboCop::ProcessedSource.new(source, FixedPolicy::TARGET_RUBY, nil,
+                                              parser_engine: :parser_prism)
+      return true unless processed.ast
+
+      extra = Array(spec) - Array(fixed)
+      processed.ast.each_node(:send, :csend).none? do |node|
+        methods.include?(node.method_name) && node.first_argument&.str_type? &&
+          extra.include?(node.first_argument.value)
+      end
+    end
+  end
+
   GlobalAllowedVariables = Struct.new(:fixed) do
     def matches?(spec, source)
       return true if spec == fixed
@@ -863,6 +902,28 @@ module Oracle
     end
   end
 
+  # The ParameterLists main spec globally uses Max=4. Retain every unchanged
+  # example whose actual offense locations agree at fixed Max=5/keywords=true/
+  # optional=3; count genuinely different threshold cases as exclusions. This
+  # runs only the pinned detector on parsed source, never the source itself.
+  module ParameterListSettings
+    KEYS = %w[Max CountKeywordArgs MaxOptionalParameters].freeze
+    def self.equivalent?(options, fixed, source)
+      return false unless source
+
+      locations = [options, fixed].map do |settings|
+        config = RuboCop::Config.new('Metrics/ParameterLists' => settings)
+        cop = RuboCop::Cop::Metrics::ParameterLists.new(config)
+        processed = RuboCop::ProcessedSource.new(source, 3.4, '(oracle)', parser_engine: :parser_prism)
+        processed.config = config
+        processed.registry = RuboCop::Cop::Registry.global
+        report = RuboCop::Cop::Team.new([cop], config, { raise_error: true }).investigate(processed)
+        report.offenses.reject(&:disabled?).map { |o| [o.line, o.column, o.last_line, o.last_column] }.sort
+      end
+      locations.first == locations.last
+    end
+  end
+
   # A setting that does not change which offenses the cop reports.
   INERT = :inert
 
@@ -937,6 +998,18 @@ module Oracle
       'AllowOnSelfClass' => Relevant.new(false, CaseEqualityAllowance.new(:self_class))
     },
     'Style/GlobalVars' => { 'AllowedVariables' => GlobalAllowedVariables.new([]) },
+    'Bundler/GemComment' => { 'AllowedGems' => BundlerAllowedGems.new([]) },
+    'Bundler/GemVersion' => { 'AllowedGems' => BundlerAllowedGems.new([]) },
+    # TreatCommentsAsGroupSeparators only matters where a comment line can
+    # sit between two declarations; inline comments never separate them.
+    'Bundler/OrderedGems' => { 'TreatCommentsAsGroupSeparators' => Relevant.new(true, /^[ \t]*#/) },
+    'Gemspec/OrderedDependencies' => { 'TreatCommentsAsGroupSeparators' => Relevant.new(true, /^[ \t]*#/) },
+    'Gemspec/DependencyVersion' => {
+      'AllowedGems' => GemspecAllowedGems.new([], %i[add_dependency add_runtime_dependency add_development_dependency])
+    },
+    'Gemspec/DevelopmentDependencies' => {
+      'AllowedGems' => GemspecAllowedGems.new([], %i[add_development_dependency gem])
+    },
     'Style/FormatStringToken' => {
       'EnforcedStyle' => AnyOf.new(['annotated', :annotated]),
       'Mode' => AnyOf.new(['aggressive', :aggressive])
@@ -995,6 +1068,16 @@ module Oracle
     },
     "Layout/EmptyLineBetweenDefs" => {
       "AllowAdjacentOneLineDefs" => Relevant.new(true, AdjacentOneLineDefs)
+    },
+    # The HashAlignment spec builds its config without the defaults. Only the
+    # validator reads AllowMultipleStyles/Supported*; the cop's `case` on an
+    # unset last-argument style falls through to inspecting, as always_inspect.
+    "Layout/HashAlignment" => {
+      "AllowMultipleStyles" => INERT,
+      "SupportedHashRocketStyles" => INERT,
+      "SupportedColonStyles" => INERT,
+      "SupportedLastArgumentHashStyles" => INERT,
+      "EnforcedLastArgumentHashStyle" => AnyOf.new([nil, "always_inspect"])
     }
   }) { |_, fixed, custom| fixed.merge(custom) }.freeze
 
@@ -1036,6 +1119,12 @@ module Oracle
         next unless values.is_a?(Hash)
 
         if section == cop
+          if cop == 'Metrics/ParameterLists'
+            fixed = defaults.fetch(cop)
+            if ParameterListSettings.equivalent?(fixed.merge(values), fixed, source)
+              values = values.merge(fixed.slice(*ParameterListSettings::KEYS))
+            end
+          end
           # RescueModifier's pinned excluded-file example exercises a real
           # supported per-cop path setting, not an inert style option.
           # This cop consults only the exact source strings of located :const
@@ -1331,7 +1420,8 @@ module Oracle
         true
       when AnyOf
         rustocop_value.choices.any? { |value| same_setting?(spec_value, value) }
-      when BlockMethodList, CommentList, CopyrightNotice, MagicDirectiveCapitalization, GlobalAllowedVariables
+      when BlockMethodList, CommentList, CopyrightNotice, MagicDirectiveCapitalization, GlobalAllowedVariables,
+           BundlerAllowedGems, GemspecAllowedGems
         rustocop_value.matches?(spec_value, source)
       when Relevant
         same_setting?(spec_value, rustocop_value.value) ||

@@ -10,10 +10,7 @@
 use ruby_prism::{CallNode, ConstantPathNode, Node};
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        ast::{same_node, same_optional_node},
-    },
+    cops::{Cop, NodeContext, ast::fingerprint_for_self_assignment},
     offense::Offense,
     source::SourceFile,
 };
@@ -23,7 +20,7 @@ pub struct SelfAssignment;
 
 /// Whether `value` reads the variable written by a `name =`-style node of the
 /// given variable kind.
-fn reads_variable(kind: VariableKind, name: &[u8], value: &Node<'_>) -> bool {
+fn reads_variable(kind: VariableKind, name: &[u8], value: &Node<'_>, file: &SourceFile) -> bool {
     let read = match (kind, value) {
         (VariableKind::Local, Node::LocalVariableReadNode { .. }) => {
             value.as_local_variable_read_node().unwrap().name()
@@ -40,9 +37,77 @@ fn reads_variable(kind: VariableKind, name: &[u8], value: &Node<'_>) -> bool {
         (VariableKind::Constant, Node::ConstantReadNode { .. }) => {
             value.as_constant_read_node().unwrap().name()
         }
+        (VariableKind::Local, Node::CallNode { .. })
+            if file.match_pattern_composes_identifiers() =>
+        {
+            let call = value.as_call_node().unwrap();
+            if !call.is_variable_call()
+                || call.receiver().is_some()
+                || call.arguments().is_some()
+                || call.block().is_some()
+            {
+                return false;
+            }
+            call.name()
+        }
         _ => return false,
     };
-    read.as_slice() == name
+    same_name(read.as_slice(), name, file)
+}
+
+// Detection-only projection: never change shared AST equality/correction proofs.
+fn same_name(a: &[u8], b: &[u8], file: &SourceFile) -> bool {
+    a == b || file.match_pattern_source(a) == file.match_pattern_source(b)
+}
+
+struct Comparison<'a, 'pr> {
+    file: &'a SourceFile,
+    node: &'a Node<'pr>,
+    cx: NodeContext<'a, 'pr>,
+    locals: std::cell::OnceCell<Option<std::collections::HashSet<(usize, usize)>>>,
+}
+
+impl std::ops::Deref for Comparison<'_, '_> {
+    type Target = SourceFile;
+    fn deref(&self) -> &SourceFile {
+        self.file
+    }
+}
+
+impl Comparison<'_, '_> {
+    fn projected_locals(&self) -> Option<&std::collections::HashSet<(usize, usize)>> {
+        self.locals
+            .get_or_init(|| {
+                self.match_pattern_composes_identifiers()
+                    .then(|| {
+                        super::non_atomic_file_operation::projected_local_spans(
+                            self.node, &self.cx, self.file,
+                        )
+                    })
+                    .flatten()
+            })
+            .as_ref()
+    }
+}
+
+fn same_node(a: &Node<'_>, b: &Node<'_>, file: &Comparison<'_, '_>) -> bool {
+    let locals = file.projected_locals();
+    fingerprint_for_self_assignment(a, file.file, locals).source_buffer_scope_eq(
+        &fingerprint_for_self_assignment(b, file.file, locals),
+        file.file,
+    )
+}
+
+fn same_optional_node(
+    a: Option<&Node<'_>>,
+    b: Option<&Node<'_>>,
+    file: &Comparison<'_, '_>,
+) -> bool {
+    match (a, b) {
+        (None, None) => true,
+        (Some(a), Some(b)) => same_node(a, b, file),
+        _ => false,
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -103,20 +168,24 @@ fn constant_path_write<'pr>(node: &Node<'pr>) -> Option<(ConstantPathNode<'pr>, 
 }
 
 /// `A::B = A::B`: same namespace (both `::` or structurally equal) and name.
-fn same_constant_path(target: &ConstantPathNode<'_>, value: &Node<'_>) -> bool {
+fn same_constant_path(
+    target: &ConstantPathNode<'_>,
+    value: &Node<'_>,
+    file: &Comparison<'_, '_>,
+) -> bool {
     let Some(value) = value.as_constant_path_node() else {
         return false;
     };
     let same_name = match (target.name(), value.name()) {
-        (Some(a), Some(b)) => a.as_slice() == b.as_slice(),
+        (Some(a), Some(b)) => same_name(a.as_slice(), b.as_slice(), file),
         _ => false,
     };
-    same_name && same_optional_node(target.parent().as_ref(), value.parent().as_ref())
+    same_name && same_optional_node(target.parent().as_ref(), value.parent().as_ref(), file)
 }
 
 /// `a, b = a, b` / `a, b = [a, b]`: every target is a variable re-assigned
 /// from the read at the same position.
-fn multiple_self_assignment(node: &Node<'_>) -> bool {
+fn multiple_self_assignment(node: &Node<'_>, file: &Comparison<'_, '_>) -> bool {
     let Some(write) = node.as_multi_write_node() else {
         return false;
     };
@@ -137,7 +206,7 @@ fn multiple_self_assignment(node: &Node<'_>) -> bool {
             .iter()
             .zip(values.iter())
             .all(|(target, value)| match target_variable(target) {
-                Some((kind, name)) => reads_variable(kind, name, value),
+                Some((kind, name)) => reads_variable(kind, name, value, file),
                 None => false,
             })
 }
@@ -191,30 +260,44 @@ fn reads_same(
     name: &[u8],
     receiver: Option<&Node<'_>>,
     arguments: &[Node<'_>],
+    file: &Comparison<'_, '_>,
 ) -> Option<bool> {
     let call = value.as_call_node()?;
     let value_arguments = call_arguments(&call);
     Some(
         call.block().is_none()
-            && call.name().as_slice() == name
-            && same_optional_node(receiver, call.receiver().as_ref())
+            && same_name(call.name().as_slice(), name, file)
+            && same_optional_node(receiver, call.receiver().as_ref(), file)
             && value_arguments.len() == arguments.len()
             && arguments
                 .iter()
                 .zip(value_arguments.iter())
-                .all(|(a, b)| same_node(a, b)),
+                .all(|(a, b)| same_node(a, b, file)),
     )
 }
 
 /// A call-like key may return different values on each call.
-fn has_call_key(arguments: &[Node<'_>]) -> bool {
-    arguments
-        .iter()
-        .any(|argument| argument.as_call_node().is_some())
+fn has_call_key(arguments: &[Node<'_>], file: &Comparison<'_, '_>) -> bool {
+    arguments.iter().any(|argument| {
+        argument.as_call_node().is_some_and(|call| {
+            if call.is_variable_call()
+                && file.projected_locals().is_some_and(|locals| {
+                    let loc = argument.location();
+                    locals.contains(&(loc.start_offset(), loc.end_offset()))
+                })
+            {
+                return false;
+            }
+            // A literal block wraps its send in RuboCop's AST: it is not a
+            // call_type? key, unlike an ordinary send/csend or block pass.
+            call.block()
+                .is_none_or(|block| block.as_block_node().is_none())
+        })
+    })
 }
 
 /// `foo.bar ||= foo.bar` / `foo.bar &&= foo.bar`.
-fn attribute_or_and_self_assignment(node: &Node<'_>) -> bool {
+fn attribute_or_and_self_assignment(node: &Node<'_>, file: &Comparison<'_, '_>) -> bool {
     let (receiver, name, safe_navigation, value) = if let Some(write) = node.as_call_or_write_node()
     {
         (
@@ -236,11 +319,11 @@ fn attribute_or_and_self_assignment(node: &Node<'_>) -> bool {
     value
         .as_call_node()
         .is_some_and(|call| call.is_safe_navigation() == safe_navigation)
-        && reads_same(&value, name.as_slice(), receiver.as_ref(), &[]).unwrap_or(false)
+        && reads_same(&value, name.as_slice(), receiver.as_ref(), &[], file).unwrap_or(false)
 }
 
 /// `hash['k'] ||= hash['k']` / `hash['k'] &&= hash['k']`.
-fn index_or_and_self_assignment(node: &Node<'_>) -> bool {
+fn index_or_and_self_assignment(node: &Node<'_>, file: &Comparison<'_, '_>) -> bool {
     let (receiver, arguments, block, safe_navigation, value) =
         if let Some(write) = node.as_index_or_write_node() {
             (
@@ -267,15 +350,15 @@ fn index_or_and_self_assignment(node: &Node<'_>) -> bool {
     let arguments: Vec<Node<'_>> = arguments
         .map(|arguments| arguments.arguments().iter().collect())
         .unwrap_or_default();
-    !has_call_key(&arguments)
+    !has_call_key(&arguments, file)
         && value
             .as_call_node()
             .is_some_and(|call| call.is_safe_navigation() == safe_navigation)
-        && reads_same(&value, b"[]", receiver.as_ref(), &arguments).unwrap_or(false)
+        && reads_same(&value, b"[]", receiver.as_ref(), &arguments, file).unwrap_or(false)
 }
 
 /// `foo['k'] = foo['k']` and `foo.bar = foo.bar` (including `&.`).
-fn call_self_assignment(node: &Node<'_>) -> bool {
+fn call_self_assignment(node: &Node<'_>, file: &Comparison<'_, '_>) -> bool {
     let Some(call) = node.as_call_node() else {
         return false;
     };
@@ -287,8 +370,8 @@ fn call_self_assignment(node: &Node<'_>) -> bool {
         let Some((value, keys)) = arguments.split_last() else {
             return false;
         };
-        return !has_call_key(keys)
-            && reads_same(value, b"[]", call.receiver().as_ref(), keys).unwrap_or(false);
+        return !has_call_key(keys, file)
+            && reads_same(value, b"[]", call.receiver().as_ref(), keys, file).unwrap_or(false);
     }
     let is_assignment_method =
         name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"<=" | b">=" | b"===");
@@ -304,6 +387,7 @@ fn call_self_assignment(node: &Node<'_>) -> bool {
         &name[..name.len() - 1],
         call.receiver().as_ref(),
         &[],
+        file,
     )
     .unwrap_or(false)
 }
@@ -316,24 +400,33 @@ impl Cop for SelfAssignment {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let file = &Comparison {
+            file,
+            node,
+            cx: *cx,
+            locals: std::cell::OnceCell::new(),
+        };
         let self_assigned = if let Some((kind, name, value)) = variable_write(node) {
-            reads_variable(kind, name, &value)
+            reads_variable(kind, name, &value, file)
         } else if let Some((target, value)) = constant_path_write(node) {
-            same_constant_path(&target, &value)
+            same_constant_path(&target, &value, file)
         } else {
-            multiple_self_assignment(node)
-                || attribute_or_and_self_assignment(node)
-                || index_or_and_self_assignment(node)
-                || call_self_assignment(node)
+            multiple_self_assignment(node, file)
+                || attribute_or_and_self_assignment(node, file)
+                || index_or_and_self_assignment(node, file)
+                || call_self_assignment(node, file)
         };
         if !self_assigned {
             return;
         }
-        let (line, col) = file.line_col(node.location().start_offset());
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(
+            node.location().start_offset(),
+            file,
+        );
         out.push(Offense {
             correction: None,
             cop: self.name(),
@@ -375,6 +468,40 @@ mod tests {
 
     fn assert_accepts(source: &str) {
         assert!(offenses(source).is_empty(), "should not flag {source:?}");
+    }
+
+    #[test]
+    fn mixed_mac_variable_names_match_only_in_the_reference_buffer() {
+        for body in ["@é = @e\u{301}", "é = e\u{301}", "Foo::É = Foo::E\u{301}"] {
+            let found = offenses(&format!("# coding: UTF8-MAC\n{body}\n"));
+            assert_eq!(found.len(), 1, "{body}");
+            assert_eq!((found[0].line, found[0].col), (2, 1));
+            assert_eq!(found[0].message, "Self-assignment detected.");
+            assert_accepts(&format!("# coding: UTF-8\n{body}\n"));
+        }
+    }
+
+    #[test]
+    fn projected_locals_in_receivers_and_keys_keep_lexical_scope_and_call_exemptions() {
+        for (body, col) in [
+            ("é = obj; é.x = e\u{301}.x", 10),
+            ("é = 1; obj[e\u{301}] = obj[é]", 8),
+            ("é = 1; obj[e\u{301}] ||= obj[é]", 8),
+        ] {
+            assert_eq!(
+                positions(&format!("# coding: UTF8-MAC\n{body}\n")),
+                vec![(2, col)],
+                "{body}"
+            );
+            assert_accepts(&format!("# coding: UTF-8\n{body}\n"));
+        }
+        for body in [
+            "é = obj; def f; obj[e\u{301}] = obj[é]; end",
+            "obj[e\u{301}] = obj[(é = 1; é)]",
+            "obj[e\u{301}] = obj[e\u{301}]",
+        ] {
+            assert_accepts(&format!("# coding: UTF8-MAC\n{body}\n"));
+        }
     }
 
     #[test]
@@ -501,6 +628,167 @@ mod tests {
             assert_flags(source);
         }
         assert_eq!(positions("var = 1\nfoo[var] = foo[var]\n"), vec![(2, 1)]);
+    }
+
+    // Node#== is
+    // detection identity, not a proof that rewriting either side is safe.
+    fn assert_detection_pair(a: &str, b: &str, equal: bool) {
+        for encoding in ["UTF8-MAC", "UTF-8"] {
+            for op in ["=", "||=", "&&="] {
+                for (a, b) in [(a, b), (b, a)] {
+                    for (left, right) in [
+                        (format!("obj[{a}]"), format!("obj[{b}]")),
+                        (format!("obj[[{a}]]"), format!("obj[[{b}]]")),
+                        (format!("obj[{a}].x"), format!("obj[{b}].x")),
+                        (format!("obj[{{key: {a}}}]"), format!("obj[{{key: {b}}}]")),
+                        (format!("obj[\"#{{{a}}}\"]"), format!("obj[\"#{{{b}}}\"]")),
+                    ] {
+                        let source = format!("# coding: {encoding}\n{left} {op} {right}\n");
+                        let found = offenses(&source);
+                        assert_eq!(found.len(), usize::from(equal), "{source}");
+                        if equal {
+                            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 1, 2));
+                            assert_eq!(found[0].message, "Self-assignment detected.");
+                            assert!(found[0].correction.is_none());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn operator_recovery_quoted_labels_keep_static_symbol_identity() {
+        assert_detection_pair(r#"{"": 1}"#, r#"{:"" => 1}"#, false);
+        assert_detection_pair(r#"{"": 1}"#, r#"{:"\u{}" => 1}"#, true);
+        assert_detection_pair(r#"{'': 1}"#, r#"{:"\u{}" => 1}"#, true);
+        assert_detection_pair(r#"{"a": 1}"#, r#"{:a => 1}"#, true);
+        assert_detection_pair(r#"{"a": 1}"#, r#"{:b => 1}"#, false);
+    }
+
+    #[test]
+    fn operator_recovery_signed_zero_is_equal_only_for_detection() {
+        assert_detection_pair("[0.0]", "[-0.0]", true);
+        assert_detection_pair("[0.0]", "[0]", false);
+        assert_detection_pair("[1.0]", "[-1.0]", false);
+    }
+
+    #[test]
+    fn operator_recovery_rational_payloads_are_not_encoded_source() {
+        assert_detection_pair("186657005489253r", "142714875718083r", false);
+        assert_detection_pair("1r", "1.0r", true);
+        assert_detection_pair("1r", "1.0000000000000001r", false);
+    }
+
+    #[test]
+    fn operator_recovery_conditional_subtrees_compare_parser_child_slots() {
+        assert_detection_pair("[(x ? 1 : 2)]", "[(if x; 1; else; 2; end)]", true);
+        assert_detection_pair("[(x ? 1 : 2)]", "[(x ? 2 : 1)]", false);
+        assert_detection_pair("[(x ? 1 : 2)]", "[(y ? 1 : 2)]", false);
+    }
+
+    #[test]
+    fn operator_recovery_regexp_options_are_sorted_sets() {
+        assert_detection_pair("/a/im", "/a/mi", true);
+        assert_detection_pair("/a/im", "/a/iim", true);
+        assert_detection_pair("/a/im", "/a/i", false);
+        assert_detection_pair("/a/im", "/b/mi", false);
+        assert_detection_pair("/a#{x}/im", "/a#{x}/mi", true);
+        assert_detection_pair("/a#{x}/im", "/a#{y}/mi", false);
+    }
+
+    #[test]
+    fn source_composition_preserves_distinct_binary_numeric_keys() {
+        for (a, b) in [
+            ("186657005489253", "142714875718083"),
+            ("1.0414461810403506", "1.0316890681957467"),
+        ] {
+            for encoding in ["UTF8-MAC", "UTF-8"] {
+                for op in ["=", "||=", "&&="] {
+                    for (a, b) in [(a, b), (b, a)] {
+                        for (left, right) in [
+                            (format!("obj[{a}]"), format!("obj[{b}]")),
+                            (format!("obj[[{a}]]"), format!("obj[[{b}]]")),
+                            (format!("obj[{a}].x"), format!("obj[{b}].x")),
+                            (format!("obj[{{key: {a}}}]"), format!("obj[{{key: {b}}}]")),
+                            (format!("obj[\"#{{{a}}}\"]"), format!("obj[\"#{{{b}}}\"]")),
+                        ] {
+                            assert_accepts(&format!("# coding: {encoding}\n{left} {op} {right}\n"));
+                        }
+                        let source = format!("# coding: {encoding}\nobj[{a}] {op} obj[{a}]\n");
+                        let found = offenses(&source);
+                        assert_eq!(found.len(), 1, "{source}");
+                        assert_eq!((found[0].line, found[0].col), (2, 1));
+                        assert_eq!(found[0].message, "Self-assignment detected.");
+                        assert!(found[0].correction.is_none());
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn source_composition_does_not_compose_escape_produced_payloads() {
+        for op in ["=", "||=", "&&="] {
+            for (a, b) in [
+                (r#""é""#, r#""\u0065\u0301""#),
+                ("\"e\u{301}\"", r#""\u0065\u0301""#),
+                (r#""\u00e9""#, r#""\u0065\u0301""#),
+            ] {
+                for (a, b) in [(a, b), (b, a)] {
+                    for (left, right) in [
+                        (format!("obj[{a}]"), format!("obj[{b}]")),
+                        (format!("obj[[{a}]]"), format!("obj[[{b}]]")),
+                        (format!("obj[{a}].x"), format!("obj[{b}].x")),
+                    ] {
+                        let source = format!("# coding: UTF8-MAC\n{left} {op} {right}\n");
+                        assert!(offenses(&source).is_empty(), "{source}");
+                    }
+                }
+            }
+            for key in [r#""é""#, r#""\u0065\u0301""#, "%q()", "%Q()"] {
+                let source = format!("# coding: UTF8-MAC\nobj[{key}] {op} obj[{key}]\n");
+                let found = offenses(&source);
+                assert_eq!(found.len(), 1, "{source}");
+                assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 1, 2));
+                assert_eq!(found[0].message, "Self-assignment detected.");
+                assert!(found[0].correction.is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn empty_percent_dstr_keys_do_not_equal_quoted_str_keys() {
+        for op in ["=", "||=", "&&="] {
+            for a in ["%q()", "%Q()"] {
+                for b in [r#""""#, r#""\u{}""#] {
+                    for (a, b) in [(a, b), (b, a)] {
+                        for (left, right) in [
+                            (format!("obj[{a}]"), format!("obj[{b}]")),
+                            (format!("obj[[{a}]]"), format!("obj[[{b}]]")),
+                            (format!("obj[{a}].x"), format!("obj[{b}].x")),
+                        ] {
+                            let source = format!("{left} {op} {right}\n");
+                            assert!(offenses(&source).is_empty(), "{source}");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn literal_block_keys_are_not_plain_call_keys() {
+        for source in [
+            "obj[foo {}] = obj[foo {}]",
+            "obj[foo { _1 }] ||= obj[foo { _1 }]",
+            "obj[foo { it }] &&= obj[foo { it }]",
+        ] {
+            assert_flags(source);
+        }
+        for source in ["obj[foo] = obj[foo]", "obj[foo(&b)] = obj[foo(&b)]"] {
+            assert_accepts(source);
+        }
     }
 
     #[test]

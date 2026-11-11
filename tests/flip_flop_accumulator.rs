@@ -146,7 +146,7 @@ fn every_fixture_matches_exact_rebuilt_cli_and_never_writes_even_when_fix_reques
 #[test]
 fn detection_only_metadata_defaults_selectors_and_strict_toml_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     for cop in registry
         .cops()
         .iter()

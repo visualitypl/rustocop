@@ -12,7 +12,7 @@ use ruby_prism::{Node, NodeList};
 use crate::{
     cops::{
         Cop, NodeContext,
-        ast::{fingerprint, is_const, is_recursive_basic_literal},
+        ast::{fingerprint_for_duplicate, is_const, is_recursive_basic_literal},
     },
     offense::Offense,
     source::SourceFile,
@@ -50,10 +50,13 @@ impl Cop for DuplicateHashKey {
         }
         let mut seen = HashSet::new();
         for key in keys {
-            if seen.insert(fingerprint(&key)) {
+            if seen.insert(fingerprint_for_duplicate(&key, file)) {
                 continue;
             }
-            let (line, col) = file.line_col(key.location().start_offset());
+            let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                key.location().start_offset(),
+                file,
+            );
             out.push(Offense {
                 correction: None,
                 cop: self.name(),
@@ -184,6 +187,54 @@ mod tests {
             positions("{ __ENCODING__ => 1, __ENCODING__ => 2 }\n"),
             vec![(1, 22)]
         );
+    }
+
+    #[test]
+    fn complex_hash_keys_preserve_component_types_and_normalize_zero() {
+        for (a, b, duplicate) in [
+            ("1i", "1ri", false),
+            ("1i", "1.0i", false),
+            ("0.0i", "-0.0i", true),
+            ("1ri", "1.0ri", true),
+            ("[1i]", "[1ri]", false),
+            ("[0.0i]", "[-0.0i]", true),
+        ] {
+            let source = format!("{{\n{a} => 1,\n{b} => 2\n}}");
+            assert_eq!(
+                positions(&source),
+                if duplicate { vec![(3, 1)] } else { vec![] },
+                "{source}"
+            );
+        }
+    }
+
+    #[test]
+    fn normalizes_source_buffer_recursively_in_compound_keys() {
+        for (a, b, duplicate) in [
+            ("[/e\u{301}/im]", "[/é/mi]", true),
+            ("[[/e\u{301}/]]", "[[/é/]]", true),
+            ("\"#{/e\u{301}/}\"", "\"#{/é/}\"", true),
+            ("[/e\u{301}/i]", "[/é/m]", false),
+            ("[/e\u{301}/]", "[/è/]", false),
+        ] {
+            let body = format!("{{\n{a} => 1,\n{b} => 2\n}}");
+            assert_eq!(
+                positions(&format!("# coding: UTF8-MAC\n{body}")),
+                if duplicate { vec![(4, 1)] } else { vec![] },
+                "{body}"
+            );
+            assert!(
+                offenses(&body).is_empty(),
+                "UTF-8 must retain distinct spellings: {body}"
+            );
+        }
+    }
+
+    #[test]
+    fn compares_parser_literal_kinds_and_evaluated_source_lines() {
+        assert!(offenses("{:\"\" => 1, :\"\\u{}\" => 2}").is_empty());
+        assert_eq!(positions("{__LINE__ => 1, __LINE__ => 2}"), vec![(1, 17)]);
+        assert!(offenses("{__LINE__ => 1,\n__LINE__ => 2}").is_empty());
     }
 
     #[test]

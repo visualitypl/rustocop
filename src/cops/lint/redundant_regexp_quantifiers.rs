@@ -1,7 +1,7 @@
 //! `Lint/RedundantRegexpQuantifiers` — mergeable greedy quantifiers in passive groups.
 use super::duplicate_regexp_character_class_element::{
-    bracket_control_escape_end, capture_reference_token, char_width, escape_end, interval_end,
-    quantifier_view,
+    bracket_control_escape_end, capture_condition_end, capture_reference_token, char_width,
+    escape_end, interval_end, quantifier_view,
 };
 use crate::{
     cops::{Cop, NodeContext},
@@ -47,6 +47,16 @@ impl Cop for RedundantRegexpQuantifiers {
             return;
         };
         if let Some(parts) = parts {
+            // Keep the main-parse multiline emission facts aligned with this
+            // consumer's additional shorthand source fragments.
+            regexp.fragment_line_counts = parts
+                .iter()
+                .filter_map(|part| {
+                    part.as_string_node()
+                        .map(|n| n.unescaped().split_inclusive(|b| *b == b'\n').count())
+                        .or_else(|| part.as_embedded_variable_node().map(|_| 1))
+                })
+                .collect();
             // Feed every direct non-begin child's source to the existing View,
             // including adjacent/trailing shorthand variables. Their locations
             // exclude '#', exactly like the pinned AST's variable child source.
@@ -382,7 +392,7 @@ fn expressions(bytes: &[u8], mut extended: bool) -> Vec<Expression> {
                             i += 1 + bytes[i + 1..].iter().position(|b| *b == b'\'').unwrap() + 1;
                         }
                         b'(' => {
-                            i += bytes[i..].iter().position(|b| *b == b')').unwrap() + 1;
+                            i = capture_condition_end(bytes, i + 1).unwrap() + 1;
                         }
                         b'<' => i += 2,
                         _ => i += 1,

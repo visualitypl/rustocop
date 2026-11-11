@@ -85,11 +85,22 @@ fn default_selectors_config_reenabling_and_no_fix_never_write() {
     ] {
         fs::write(dir.path().join("rustocop.toml"), config).unwrap();
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        run(dir.path(), &args, i32::from(counts != [0, 0, 0]), counts);
+        // Another cop now independently reports method_missing's sole super. These
+        // peer-specific counts remain unchanged; ordinary Lint still runs
+        // unless the test uses exclusive Style selection.
+        let delegation = !args.contains(&"--only");
+        let status = i32::from(counts != [0, 0, 0] || delegation);
+        let out = run(dir.path(), &args, status, counts);
+        assert_eq!(
+            String::from_utf8_lossy(&out.stdout)
+                .matches("(Lint/UselessMethodDefinition)")
+                .count(),
+            usize::from(delegation)
+        );
         if counts == [0, 0, 0] {
             let mut fixing = args.clone();
             fixing.insert(0, "--fix");
-            run(dir.path(), &fixing, 0, counts);
+            run(dir.path(), &fixing, status, counts);
         }
         assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);

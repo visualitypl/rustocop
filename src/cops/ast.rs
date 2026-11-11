@@ -114,7 +114,18 @@ impl Fingerprint<'_> {
         self.0.len() == other.0.len()
             && self.0.iter().zip(&other.0).all(|(a, b)| match (a, b) {
                 (Token::Leaf(ak, a), Token::Leaf(bk, b)) => {
-                    ak == bk && file.match_pattern_source(a) == file.match_pattern_source(b)
+                    // Numeric limbs/bits, offsets and arities are not encoded
+                    // source characters, even when their bytes are valid UTF-8.
+                    ak == bk
+                        && (a == b
+                            || (!matches!(
+                                ak,
+                                Kind::Integer
+                                    | Kind::Float
+                                    | Kind::Rational
+                                    | Kind::SourceLine
+                                    | Kind::NumberedParameters
+                            ) && file.match_pattern_source(a) == file.match_pattern_source(b)))
                 }
                 (Token::Close(a), Token::Close(b)) => {
                     file.match_pattern_source(a) == file.match_pattern_source(b)
@@ -154,7 +165,11 @@ enum Kind {
     Node(u64),
     /// `HashNode` and `KeywordHashNode`: both `hash` in RuboCop's AST.
     Hash,
+    /// Binary values, never source text for transcoding/composition.
     Integer,
+    Float,
+    Rational,
+    NumberedParameters,
     String,
     SourceLine,
     InterpolatedString,
@@ -163,7 +178,7 @@ enum Kind {
     RequireXString,
     ConstantRead,
     ConstantPath,
-    /// NonAtomicFileOperation only: a reference-buffer local read.
+    /// Opt-in lexical projection: a reference-buffer local read.
     FileOperationLocal,
     /// Detection-only arrow / bare `lambda` block equivalence.
     Lambda,
@@ -175,6 +190,8 @@ enum Kind {
     /// Detection-only implicit rescue / rescue-modifier and handler shapes.
     Rescue,
     RescueBody,
+    /// Gemspec-only parser begin shape: grouping/interpolation owns its body.
+    GemspecBegin,
 }
 
 /// A `Hasher` that keeps the bytes hashed instead of mixing them: hashing a
@@ -199,6 +216,9 @@ fn kind(node: &Node<'_>) -> Kind {
         Node::HashNode { .. } | Node::KeywordHashNode { .. } => Kind::Hash,
         Node::ImplicitNode { .. } => kind(&node.as_implicit_node().unwrap().value()),
         Node::IntegerNode { .. } => Kind::Integer,
+        Node::FloatNode { .. } => Kind::Float,
+        Node::RationalNode { .. } => Kind::Rational,
+        Node::NumberedParametersNode { .. } => Kind::NumberedParameters,
         Node::StringNode { .. } => Kind::String,
         Node::InterpolatedStringNode { .. } => Kind::InterpolatedString,
         Node::InterpolatedSymbolNode { .. } => Kind::InterpolatedSymbol,
@@ -215,21 +235,48 @@ fn kind(node: &Node<'_>) -> Kind {
 
 /// Compute the structural fingerprint of `node`.
 pub fn fingerprint<'pr>(node: &Node<'pr>) -> Fingerprint<'pr> {
+    structural_fingerprint(node, None, None)
+}
+
+/// SelfAssignment's detection-only parser AST equality, including numeric
+/// values, branch child slots, regexp option sets and exact literal/local
+/// source-buffer projection. Raw fingerprints/correction keys never opt in.
+pub(crate) fn fingerprint_for_self_assignment<'pr>(
+    node: &Node<'pr>,
+    file: &SourceFile,
+    locals: Option<&std::collections::HashSet<(usize, usize)>>,
+) -> Fingerprint<'pr> {
+    structural_fingerprint(node, locals, Some(file))
+}
+
+fn structural_fingerprint<'pr>(
+    node: &Node<'pr>,
+    locals: Option<&std::collections::HashSet<(usize, usize)>>,
+    self_assignment_file: Option<&SourceFile>,
+) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
-        file_operation_locals: None,
+        self_assignment_file,
+        gemspec_keys: false,
+        duplicate_equality: None,
+        file_operation_locals: locals,
         tokens: Vec::new(),
         frames: Vec::new(),
         regrouping: None,
-        line_file: None,
+        line_file: self_assignment_file,
         require_literals: false,
         conditional_scope_literals: false,
-        numeric_zero_equality: false,
-        case_subject_equality: false,
-        loop_collection_equality: false,
-        normalize_branches: false,
+        numeric_zero_equality: self_assignment_file.is_some(),
+        case_subject_equality: self_assignment_file.is_some(),
+        loop_collection_equality: self_assignment_file.is_some(),
+        normalize_branches: self_assignment_file.is_some(),
     };
     walk(&mut builder, node);
-    Fingerprint(builder.tokens, PhantomData)
+    let key = Fingerprint(builder.tokens, PhantomData);
+    if self_assignment_file.is_some() {
+        integer_source_lines(key)
+    } else {
+        key
+    }
 }
 
 /// Like [`fingerprint`], but compare `__LINE__` by its evaluated line number.
@@ -239,6 +286,8 @@ pub(crate) fn fingerprint_with_source_lines<'pr>(
     file: &SourceFile,
 ) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
+        self_assignment_file: None,
+        duplicate_equality: None,
         file_operation_locals: None,
         tokens: Vec::new(),
         frames: Vec::new(),
@@ -250,6 +299,7 @@ pub(crate) fn fingerprint_with_source_lines<'pr>(
         case_subject_equality: false,
         loop_collection_equality: false,
         normalize_branches: false,
+        gemspec_keys: false,
     };
     walk(&mut builder, node);
     Fingerprint(builder.tokens, PhantomData)
@@ -275,6 +325,8 @@ pub(crate) fn fingerprint_for_case_subject<'pr>(
     file: &SourceFile,
 ) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
+        self_assignment_file: None,
+        duplicate_equality: None,
         file_operation_locals: None,
         tokens: Vec::new(),
         frames: Vec::new(),
@@ -286,6 +338,7 @@ pub(crate) fn fingerprint_for_case_subject<'pr>(
         case_subject_equality: true,
         loop_collection_equality: false,
         normalize_branches: false,
+        gemspec_keys: false,
     };
     walk(&mut builder, node);
     integer_source_lines(Fingerprint(builder.tokens, PhantomData))
@@ -300,6 +353,8 @@ pub(crate) fn fingerprint_for_detection<'pr>(
     file: &SourceFile,
 ) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
+        self_assignment_file: None,
+        duplicate_equality: None,
         file_operation_locals: None,
         tokens: Vec::new(),
         frames: Vec::new(),
@@ -311,6 +366,7 @@ pub(crate) fn fingerprint_for_detection<'pr>(
         case_subject_equality: false,
         loop_collection_equality: true,
         normalize_branches: false,
+        gemspec_keys: false,
     };
     walk(&mut builder, node);
     integer_source_lines(Fingerprint(builder.tokens, PhantomData))
@@ -324,6 +380,9 @@ pub(crate) fn fingerprint_for_detection<'pr>(
 /// This is not a correction equivalence proof.
 pub(crate) fn fingerprint_for_branch<'pr>(node: &Node<'pr>, file: &SourceFile) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
+        gemspec_keys: false,
+        self_assignment_file: None,
+        duplicate_equality: None,
         file_operation_locals: None,
         tokens: Vec::new(),
         frames: Vec::new(),
@@ -358,7 +417,71 @@ pub(crate) fn fingerprint_for_file_operation<'pr>(
     file: &SourceFile,
     locals: Option<&std::collections::HashSet<(usize, usize)>>,
 ) -> Fingerprint<'pr> {
-    let mut builder = FingerprintBuilder {
+    file_operation_fingerprint(node, file, locals, None)
+}
+
+/// Existing duplicate cops need reference-buffer names/regexp options as well
+/// as exact literal shapes. Other modes and correction keys remain unchanged.
+/// Hash-backed consumers preserve numeric component kinds in Complex#eql?.
+pub(crate) fn fingerprint_for_duplicate<'pr>(
+    node: &Node<'pr>,
+    file: &SourceFile,
+) -> Fingerprint<'pr> {
+    file_operation_fingerprint(node, file, None, Some(DuplicateEquality::Hash))
+}
+
+/// Gemspec keys compare pinned ASTs, not runtime binding identities: implicit
+/// `it` and ordinary local `it` are both lvar(:it). Regexp text uses the existing
+/// source alignment (composition precedes escape lexing). The helper supplies
+/// local/regexp/control ancestor spans so literal fast paths cannot hide these
+/// projections, including protected rescue's absent/empty else child slot.
+/// Interpolation/grouping begin boundaries and exact literal emission propagate
+/// through literal fast paths too. Other duplicate/correction profiles do not opt in.
+pub(crate) fn fingerprint_for_gemspec_key<'pr>(
+    node: &Node<'pr>,
+    file: &SourceFile,
+    locals: &std::collections::HashSet<(usize, usize)>,
+) -> Fingerprint<'pr> {
+    let mut builder = file_operation_builder(file, Some(locals), Some(DuplicateEquality::Hash));
+    builder.gemspec_keys = true;
+    walk(&mut builder, node);
+    integer_source_lines(Fingerprint(builder.tokens, PhantomData))
+}
+
+/// Elsif uses Array#include? / Complex#==, not hash equality.
+pub(crate) fn fingerprint_for_duplicate_condition<'pr>(
+    node: &Node<'pr>,
+    file: &SourceFile,
+) -> Fingerprint<'pr> {
+    file_operation_fingerprint(node, file, None, Some(DuplicateEquality::Value))
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DuplicateEquality {
+    Hash,
+    Value,
+}
+
+fn file_operation_fingerprint<'pr>(
+    node: &Node<'pr>,
+    file: &SourceFile,
+    locals: Option<&std::collections::HashSet<(usize, usize)>>,
+    duplicate_equality: Option<DuplicateEquality>,
+) -> Fingerprint<'pr> {
+    let mut builder = file_operation_builder(file, locals, duplicate_equality);
+    walk(&mut builder, node);
+    integer_source_lines(Fingerprint(builder.tokens, PhantomData))
+}
+
+fn file_operation_builder<'a, 'pr>(
+    file: &'a SourceFile,
+    locals: Option<&'a std::collections::HashSet<(usize, usize)>>,
+    duplicate_equality: Option<DuplicateEquality>,
+) -> FingerprintBuilder<'a, 'pr> {
+    FingerprintBuilder {
+        self_assignment_file: None,
+        gemspec_keys: false,
+        duplicate_equality,
         file_operation_locals: locals,
         tokens: Vec::new(),
         frames: Vec::new(),
@@ -370,20 +493,24 @@ pub(crate) fn fingerprint_for_file_operation<'pr>(
         case_subject_equality: true,
         loop_collection_equality: true,
         normalize_branches: true,
-    };
-    walk(&mut builder, node);
-    integer_source_lines(Fingerprint(builder.tokens, PhantomData))
+    }
 }
 
 /// DuplicateRequire keys arguments by AST#to_s, not Ruby numeric equality.
 /// Reuse parser-shape normalization but preserve the sign of floating zero.
+/// Source names/regexp text follow the reference buffer; supplied local spans
+/// come from genuine VariableForce declarations and lexical order, once per file.
 /// This detection-only key must never be used to prove correction safety.
 pub(crate) fn fingerprint_for_require<'pr>(
     node: &Node<'pr>,
     file: &SourceFile,
+    locals: Option<&std::collections::HashSet<(usize, usize)>>,
 ) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
-        file_operation_locals: None,
+        self_assignment_file: None,
+        duplicate_equality: None,
+        file_operation_locals: locals,
+        gemspec_keys: false,
         tokens: Vec::new(),
         frames: Vec::new(),
         regrouping: None,
@@ -419,6 +546,8 @@ pub(crate) fn fingerprint_for_comparison<'pr>(
     file: &SourceFile,
 ) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
+        self_assignment_file: None,
+        duplicate_equality: None,
         file_operation_locals: None,
         tokens: Vec::new(),
         frames: Vec::new(),
@@ -430,6 +559,7 @@ pub(crate) fn fingerprint_for_comparison<'pr>(
         case_subject_equality: false,
         loop_collection_equality: false,
         normalize_branches: false,
+        gemspec_keys: false,
     };
     walk(&mut builder, node);
     Fingerprint(builder.tokens, PhantomData)
@@ -450,10 +580,13 @@ pub(crate) fn fingerprint_for_comparison<'pr>(
 /// Unlike [`fingerprint`], meant for comparing whole trees of two parses.
 pub fn fingerprint_ignoring_grouping<'pr>(node: &Node<'pr>, source: &'pr [u8]) -> Fingerprint<'pr> {
     let mut builder = FingerprintBuilder {
+        self_assignment_file: None,
+        duplicate_equality: None,
         file_operation_locals: None,
         tokens: Vec::new(),
         frames: Vec::new(),
         regrouping: Some(source),
+        gemspec_keys: false,
         line_file: None,
         conditional_scope_literals: false,
         require_literals: false,
@@ -495,6 +628,10 @@ struct Frame<'pr> {
     ignore_own_text: bool,
     /// Detection-only canonical selector or regexp options, when requested.
     canonical_own_text: Option<Vec<u8>>,
+    /// Direct regexp parts in the Require/Gemspec source-alignment profiles.
+    source_regexp_parts: bool,
+    /// Explicit protected begins retain kwbegin, but rescue else is a child slot.
+    protected_rescue_else: bool,
     /// Direct emitted child boundaries for an unless. The complete walk emits
     /// predicate/body/else in Prism order; at close we rotate just the two body
     /// token spans into parser's predicate/true/false order. No subtree rescan.
@@ -549,27 +686,57 @@ struct FingerprintBuilder<'a, 'pr> {
     line_file: Option<&'a SourceFile>,
     require_literals: bool,
     conditional_scope_literals: bool,
+    self_assignment_file: Option<&'a SourceFile>,
+    duplicate_equality: Option<DuplicateEquality>,
     numeric_zero_equality: bool,
     case_subject_equality: bool,
     loop_collection_equality: bool,
     normalize_branches: bool,
     file_operation_locals: Option<&'a std::collections::HashSet<(usize, usize)>>,
+    /// Only the Gemspec AST-key profile unifies implicit and ordinary `it` reads.
+    gemspec_keys: bool,
 }
 
 impl<'pr> FingerprintBuilder<'_, 'pr> {
     fn scope_literal(&mut self, node: &Node<'pr>) -> bool {
-        // Dynamic containers must retain their children in this opt-in mode:
-        // scope_literal recursively fingerprints them using the OLD identity.
-        // Static child literals still use the exact existing value projection.
+        // Compound literals must carry this profile into embedded Ruby keys;
+        // ordinary scope/correction consumers retain their original identity.
         let location = node.location();
-        if self.conditional_scope_literals
+        if self.gemspec_keys
+            && node.as_string_node().is_some()
+            && matches!(self.frames.last(), Some(Slot::Open(frame)) if frame.source_regexp_parts)
+        {
+            // Regexp text needs source alignment, not the ordinary string-value
+            // fast path. Embedded Ruby keeps its own frames/component kinds.
+            return false;
+        }
+        if (self.conditional_scope_literals || self.self_assignment_file.is_some())
             && !self.file_operation_locals.is_some_and(|locals| {
                 locals.contains(&(location.start_offset(), location.end_offset()))
+                    // A shorthand label's SymbolNode shares its span with the
+                    // implicit local read. Only that read needs projection;
+                    // the symbol must retain the same literal token as `x: x`.
+                    && (!self.gemspec_keys || node.as_symbol_node().is_none())
             })
-            && let Some(literal) = super::lint::literal_assignment_in_condition::scope_literal(
-                node,
-                self.line_file.unwrap(),
-            )
+            && let Some(literal) = if let Some(file) = self.self_assignment_file {
+                super::lint::literal_assignment_in_condition::self_assignment_literal(
+                    node,
+                    file,
+                    self.file_operation_locals,
+                )
+            } else if self.gemspec_keys {
+                super::lint::literal_assignment_in_condition::gemspec_literal(
+                    node,
+                    self.line_file.unwrap(),
+                    self.file_operation_locals.unwrap(),
+                )
+            } else {
+                super::lint::literal_assignment_in_condition::scope_literal_with_profile(
+                    node,
+                    self.line_file.unwrap(),
+                    self.duplicate_equality,
+                )
+            }
         {
             self.record_heredoc_body(node);
             self.record_child(node);
@@ -587,6 +754,8 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
         let location = node.location();
         let name = if let Some(read) = node.as_local_variable_read_node() {
             read.name().as_slice()
+        } else if self.gemspec_keys && node.as_it_local_variable_read_node().is_some() {
+            &b"it"[..]
         } else if let Some(call) = node.as_call_node()
             && call.is_variable_call()
             && call.receiver().is_none()
@@ -599,8 +768,16 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
             return false;
         };
         self.record_child(node);
+        let name = if self.require_literals || self.duplicate_equality.is_some() {
+            self.line_file
+                .unwrap()
+                .match_pattern_source(name)
+                .into_owned()
+        } else {
+            name.to_vec()
+        };
         self.tokens
-            .push(Token::Leaf(Kind::FileOperationLocal, name.to_vec()));
+            .push(Token::Leaf(Kind::FileOperationLocal, name));
         true
     }
 
@@ -614,23 +791,26 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
             // A bare kwbegin owns these direct children, not a nested begin.
             // Do not flatten through parentheses: their sequence is a child.
             return statements.body().len() == 1
-                || matches!(self.frames.last(), Some(Slot::Open(frame)) if frame.flat_kwbegin);
+                || matches!(self.frames.last(), Some(Slot::Open(frame))
+                    if frame.flat_kwbegin || (self.gemspec_keys && frame.kind == Kind::GemspecBegin));
         }
         if let Some(paren) = node.as_parentheses_node() {
-            // Parser's implicit multi-statement body and `(a; b)` are both
-            // `begin`. `(a)` and `((a; b))` retain a separate grouping node.
+            // Ordinary branch profiles elide the wrapper on `(a; b)`. Gemspec
+            // instead flattens its implicit Statements child, retaining this
+            // begin boundary even when nested under interpolation/grouping.
             let location = paren.location();
             return matches!(self.frames.last(), Some(Slot::Open(frame))
                 if frame.receiver_parentheses == Some((location.start_offset(), location.end_offset())))
-                || paren.body().is_some_and(|body| {
-                    body.as_statements_node()
-                        .is_some_and(|s| s.body().len() > 1)
-                });
+                || (!self.gemspec_keys
+                    && paren.body().is_some_and(|body| {
+                        body.as_statements_node()
+                            .is_some_and(|s| s.body().len() > 1)
+                    }));
         }
         (node.as_block_node().is_some()
             && matches!(self.frames.last(), Some(Slot::Open(frame)) if frame.kind == Kind::Lambda))
             || (node.as_else_node().is_some()
-                && matches!(self.frames.last(), Some(Slot::Open(frame)) if matches!(frame.kind, Kind::Conditional | Kind::Case | Kind::Rescue)))
+                && matches!(self.frames.last(), Some(Slot::Open(frame)) if matches!(frame.kind, Kind::Conditional | Kind::Case | Kind::Rescue) || frame.protected_rescue_else))
     }
 
     fn record_child(&mut self, node: &Node<'pr>) {
@@ -755,6 +935,18 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
     }
 
     fn canonical_own_text(&self, node: &Node<'pr>) -> Option<Vec<u8>> {
+        if self.gemspec_keys
+            && matches!(
+                node,
+                Node::StatementsNode { .. }
+                    | Node::ParenthesesNode { .. }
+                    | Node::EmbeddedStatementsNode { .. }
+            )
+        {
+            // Parser's begin(builder.compstmt(...)) flattens only the implicit
+            // statement list, never an explicit grouped begin within it.
+            return Some(Vec::new());
+        }
         if self.branch_equality() {
             // Presence belongs to the truth-value slots, not the spelling of
             // an Else wrapper. An empty else and no else are both absent;
@@ -797,9 +989,12 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
                 return Some(vec![u8::from(n.statements().is_some())]);
             }
             if let Some(n) = node.as_begin_node()
-                && n.begin_keyword_loc().is_none()
+                && (n.begin_keyword_loc().is_none() || self.require_literals || self.gemspec_keys)
                 && n.rescue_clause().is_some()
             {
+                // Pinned Require/Gemspec AST equality omits empty rescue else
+                // even in kwbegin; neither profile drops explicit grouping.
+                // Keep the explicit Begin kind and present nil/grouping children.
                 return Some(vec![
                     u8::from(n.statements().is_some()),
                     u8::from(n.else_clause().is_some_and(|e| e.statements().is_some())),
@@ -836,7 +1031,16 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
                     u8::from(n.parameters().is_some()),
                     u8::from(n.body().is_some()),
                 ];
-                shape.extend_from_slice(n.name().as_slice());
+                if self.require_literals {
+                    shape.extend_from_slice(
+                        &self
+                            .line_file
+                            .unwrap()
+                            .match_pattern_source(n.name().as_slice()),
+                    );
+                } else {
+                    shape.extend_from_slice(n.name().as_slice());
+                }
                 return Some(shape);
             }
         }
@@ -854,12 +1058,26 @@ impl<'pr> FingerprintBuilder<'_, 'pr> {
             // (including the `] =` inside index-write Arguments) are layout.
             return Some(Vec::new());
         }
+        if (self.duplicate_equality.is_some() || self.require_literals)
+            && let Some(regexp) = node.as_interpolated_match_last_line_node()
+        {
+            return Some(regexp_options(regexp.closing_loc().as_slice()));
+        }
         if self.loop_collection_equality {
             if let Some(call) = node.as_call_node() {
                 // Child tokens retain receiver/argument/block structure; keep
                 // safe navigation distinct but discard selector punctuation.
                 let mut selector = vec![u8::from(call.is_safe_navigation())];
-                selector.extend_from_slice(call.name().as_slice());
+                if self.require_literals {
+                    selector.extend_from_slice(
+                        &self
+                            .line_file
+                            .unwrap()
+                            .match_pattern_source(call.name().as_slice()),
+                    );
+                } else {
+                    selector.extend_from_slice(call.name().as_slice());
+                }
                 return Some(selector);
             }
             if let Some(regexp) = node.as_interpolated_regular_expression_node() {
@@ -978,7 +1196,15 @@ impl<'pr> NodeVisitor<'pr> for FingerprintBuilder<'_, 'pr> {
             return;
         }
         self.record_child(&node);
-        let node_kind = if self.require_literals && node.as_interpolated_x_string_node().is_some() {
+        let node_kind = if self.gemspec_keys
+            && matches!(
+                node,
+                Node::StatementsNode { .. }
+                    | Node::ParenthesesNode { .. }
+                    | Node::EmbeddedStatementsNode { .. }
+            ) {
+            Kind::GemspecBegin
+        } else if self.require_literals && node.as_interpolated_x_string_node().is_some() {
             Kind::RequireXString
         } else if self.branch_equality()
             && (node.as_lambda_node().is_some() || is_bare_lambda_block(&node))
@@ -1017,6 +1243,13 @@ impl<'pr> NodeVisitor<'pr> for FingerprintBuilder<'_, 'pr> {
             start: location.start_offset(),
             children: Vec::new(),
             canonical_own_text: self.canonical_own_text(&node),
+            source_regexp_parts: (self.require_literals || self.gemspec_keys)
+                && (node.as_interpolated_regular_expression_node().is_some()
+                    || node.as_interpolated_match_last_line_node().is_some()),
+            protected_rescue_else: (self.require_literals || self.gemspec_keys)
+                && node
+                    .as_begin_node()
+                    .is_some_and(|n| n.rescue_clause().is_some()),
             inverted_children: (self.branch_equality() && node.as_unless_node().is_some())
                 .then(Vec::new),
             receiver_parentheses: if self.branch_equality() {
@@ -1072,12 +1305,36 @@ impl<'pr> NodeVisitor<'pr> for FingerprintBuilder<'_, 'pr> {
         } else if frame.ignore_own_text {
             Vec::new()
         } else {
-            own_text(&frame)
+            let own = own_text(&frame);
+            if self.require_literals {
+                // Canonical shape/numeric bytes and decoded escape results are
+                // not source text. Only the remaining owned source is projected.
+                self.line_file
+                    .unwrap()
+                    .match_pattern_source(&own)
+                    .into_owned()
+            } else {
+                own
+            }
+        };
+        let own = if self.duplicate_equality.is_some() {
+            self.line_file
+                .unwrap()
+                .match_pattern_source(&own)
+                .into_owned()
+        } else {
+            own
         };
         self.tokens.push(Token::Close(own));
     }
 
     fn leaf(&mut self, node: Node<'pr>) {
+        if self.gemspec_keys && node.as_implicit_rest_node().is_some() {
+            // `|s,|` and `|s|` translate to the same args(arg(:s)) AST.
+            // This matters for enclosing specification hash equality too.
+            self.record_range(&node.location(), Cut::Layout);
+            return;
+        }
         if matches!(self.frames.last(), Some(Slot::ConditionalScopeLiteral)) {
             self.record_heredoc_body(&node);
             return;
@@ -1093,17 +1350,35 @@ impl<'pr> NodeVisitor<'pr> for FingerprintBuilder<'_, 'pr> {
             // Parser always wraps command text in xstr, including zero/one
             // parts. Static Prism commands still retain physical line parts.
             self.tokens.push(Token::Open(Kind::RequireXString));
-            if !string.unescaped().is_empty() {
-                for value in require_literal::parts(
-                    string.content_loc().as_slice(),
-                    string.unescaped(),
-                    false,
-                    self.line_file.unwrap(),
-                ) {
+            let raw = string.content_loc();
+            let raw = raw.as_slice();
+            // A single-line nonempty token (e.g. an empty Unicode escape)
+            // still supplies str(""); truly empty/multiline-empty content
+            // supplies no children. Keep the xstr wrapper in either case.
+            if !raw.is_empty() && (!raw.contains(&b'\n') || !string.unescaped().is_empty()) {
+                for value in
+                    require_literal::parts(raw, string.unescaped(), false, self.line_file.unwrap())
+                {
                     self.tokens.push(Token::Leaf(Kind::String, value));
                 }
             }
             self.tokens.push(Token::Close(Vec::new()));
+            return;
+        }
+        if (self.require_literals || self.gemspec_keys)
+            && let Some(string) = node.as_string_node()
+            && matches!(self.frames.last(), Some(Slot::Open(frame)) if frame.source_regexp_parts)
+        {
+            let value = require_literal::regexp_source(string.unescaped(), self.line_file.unwrap());
+            // Require retains translator physical-line tokens. Gemspec keeps
+            // its existing part shape and changes source alignment only.
+            if self.require_literals && string.content_loc().as_slice().contains(&b'\n') {
+                for line in value.split_inclusive(|&b| b == b'\n') {
+                    self.tokens.push(Token::Leaf(Kind::String, line.to_vec()));
+                }
+            } else {
+                self.tokens.push(Token::Leaf(Kind::String, value));
+            }
             return;
         }
         if self.require_literals
@@ -1150,17 +1425,35 @@ impl<'pr> NodeVisitor<'pr> for FingerprintBuilder<'_, 'pr> {
             && let Some(symbol) = node.as_symbol_node()
         {
             let opening = symbol.opening_loc();
-            let single = opening
-                .as_ref()
-                .is_some_and(|o| o.as_slice() == b":'" || o.as_slice().starts_with(b"%s"));
+            let single = opening.as_ref().is_some_and(|o| {
+                matches!(o.as_slice(), b":'" | b"'") || o.as_slice().starts_with(b"%s")
+            });
             let raw = symbol.value_loc();
-            let parts = require_literal::parts(
-                raw.as_ref().map_or(symbol.unescaped(), |r| r.as_slice()),
-                symbol.unescaped(),
-                single,
-                self.line_file.unwrap(),
-            );
-            let dynamic = parts.len() > 1;
+            let raw = raw.as_ref().map_or(symbol.unescaped(), |r| r.as_slice());
+            let mut parts =
+                require_literal::parts(raw, symbol.unescaped(), single, self.line_file.unwrap());
+            // Assoc labels bypass visit_symbol_node in the pinned translator:
+            // pair_keyword/pair_quoted keep one static symbol even for empty
+            // or multiline text. Project source glyphs as usual, but do not
+            // impose ordinary symbol literal part boundaries or dsym shape.
+            if symbol
+                .closing_loc()
+                .is_some_and(|c| c.as_slice().ends_with(b":"))
+            {
+                self.tokens.push(Token::Leaf(kind(&node), parts.concat()));
+                return;
+            }
+            // The pinned translator composes a quoted/percent symbol from
+            // zero children when its source payload is empty, or when its
+            // multiline decoded value has no lines. A nonempty single-line
+            // empty Unicode escape instead supplies one str("") child and
+            // composes to sym(""). Runtime symbol equality is not AST#to_s.
+            if symbol.closing_loc().is_some()
+                && (raw.is_empty() || (raw.contains(&b'\n') && symbol.unescaped().is_empty()))
+            {
+                parts.clear();
+            }
+            let dynamic = parts.len() != 1;
             if dynamic {
                 self.tokens.push(Token::Open(Kind::InterpolatedSymbol));
             }
@@ -1226,12 +1519,62 @@ impl<'pr> NodeVisitor<'pr> for FingerprintBuilder<'_, 'pr> {
                 ratio.extend(integer_value(rational.denominator()));
                 ratio
             }
-            _ if self.loop_collection_equality && node.as_regular_expression_node().is_some() => {
-                let regexp = node.as_regular_expression_node().unwrap();
-                let mut value = regexp.unescaped().to_vec();
+            _ if (self.duplicate_equality.is_some() || self.require_literals)
+                && node.as_match_last_line_node().is_some() =>
+            {
+                let regexp = node.as_match_last_line_node().unwrap();
+                let mut value = if self.require_literals || self.gemspec_keys {
+                    require_literal::regexp_source(regexp.unescaped(), self.line_file.unwrap())
+                } else {
+                    self.line_file
+                        .unwrap()
+                        .match_pattern_source(regexp.unescaped())
+                        .into_owned()
+                };
                 value.push(0);
                 value.extend(regexp_options(regexp.closing_loc().as_slice()));
                 value
+            }
+            _ if self.loop_collection_equality && node.as_regular_expression_node().is_some() => {
+                let regexp = node.as_regular_expression_node().unwrap();
+                let mut value = if self.require_literals || self.gemspec_keys {
+                    require_literal::regexp_source(regexp.unescaped(), self.line_file.unwrap())
+                } else if self.duplicate_equality.is_some() {
+                    self.line_file
+                        .unwrap()
+                        .match_pattern_source(regexp.unescaped())
+                        .into_owned()
+                } else {
+                    regexp.unescaped().to_vec()
+                };
+                value.push(0);
+                value.extend(regexp_options(regexp.closing_loc().as_slice()));
+                value
+            }
+            _ if self.duplicate_equality.is_some()
+                && (is_variable(&node) || node.as_constant_read_node().is_some()) =>
+            {
+                self.line_file
+                    .unwrap()
+                    .match_pattern_source(&leaf_value(&node))
+                    .into_owned()
+            }
+            _ if self.require_literals
+                && !matches!(
+                    node,
+                    Node::IntegerNode { .. }
+                        | Node::FloatNode { .. }
+                        | Node::RationalNode { .. }
+                        | Node::NumberedParametersNode { .. }
+                        | Node::ItParametersNode { .. }
+                ) =>
+            {
+                // Remaining leaves contain source names/tokens, not binary
+                // numeric or arity metadata. Literals took their path above.
+                self.line_file
+                    .unwrap()
+                    .match_pattern_source(&leaf_value(&node))
+                    .into_owned()
             }
             _ => leaf_value(&node),
         };
@@ -1366,6 +1709,29 @@ fn integer_value(integer: ruby_prism::Integer<'_>) -> Vec<u8> {
         out.extend_from_slice(&digit.to_le_bytes());
     }
     out
+}
+
+/// Render arbitrary-precision little-endian base-2^32 limbs without truncation.
+pub(crate) fn unsigned_integer_decimal(digits: &[u32]) -> String {
+    let mut decimal = vec![0_u64];
+    for digit in digits.iter().rev() {
+        let mut carry = u64::from(*digit);
+        for part in &mut decimal {
+            let next = (*part << 32) + carry;
+            *part = next % 1_000_000_000;
+            carry = next / 1_000_000_000;
+        }
+        while carry != 0 {
+            decimal.push(carry % 1_000_000_000);
+            carry /= 1_000_000_000;
+        }
+    }
+    let mut number = decimal.pop().unwrap().to_string();
+    for part in decimal.iter().rev() {
+        use std::fmt::Write;
+        let _ = write!(number, "{part:09}");
+    }
+    number
 }
 
 /// The Prism-to-parser adapter folds one prefix minus applied directly to a
@@ -1756,6 +2122,423 @@ mod tests {
         let first = statements.iter().next().unwrap();
         let second = statements.iter().nth(1).unwrap();
         same_node(&first, &second)
+    }
+
+    #[test]
+    fn gemspec_interpolation_begins_preserve_grouping_without_changing_old_profiles() {
+        for source in [
+            r##"["#{x; y}"]; ["#{(x; y)}"]"##,
+            r##"{k: "#{x; y}"}; {k: "#{(x; y)}"}"##,
+            r##"[/#{x; y}/]; [/#{(x; y)}/]"##,
+        ] {
+            let file = SourceFile::new("test.rb".into(), source.into());
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0);
+            let nodes: Vec<_> = parsed
+                .node()
+                .as_program_node()
+                .unwrap()
+                .statements()
+                .body()
+                .iter()
+                .collect();
+            let spans = std::collections::HashSet::new();
+            let old_keys = |node| {
+                vec![
+                    fingerprint(node),
+                    fingerprint_with_source_lines(node, &file),
+                    fingerprint_with_integer_source_lines(node, &file),
+                    fingerprint_for_duplicate(node, &file),
+                    fingerprint_for_duplicate_condition(node, &file),
+                    fingerprint_for_file_operation(node, &file, Some(&spans)),
+                    fingerprint_for_require(node, &file, Some(&spans)),
+                    fingerprint_for_self_assignment(node, &file, Some(&spans)),
+                    fingerprint_for_comparison(node, &file),
+                    fingerprint_for_detection(node, &file),
+                    fingerprint_for_case_subject(node, &file),
+                    fingerprint_for_conditional_scope(node, &file),
+                    fingerprint_for_branch(node, &file),
+                    fingerprint_ignoring_grouping(node, source.as_bytes()),
+                ]
+            };
+            let before: Vec<_> = nodes.iter().map(&old_keys).collect();
+            // Existing branch/scope profiles elide this boundary; the ordinary
+            // structural/correction profiles already distinguish parentheses.
+            for (i, (a, b)) in before[0].iter().zip(&before[1]).enumerate() {
+                assert_eq!(
+                    a == b,
+                    matches!(i, 3..=7 | 11..=13),
+                    "profile {i}: {source}"
+                );
+            }
+            assert_ne!(
+                fingerprint_for_gemspec_key(&nodes[0], &file, &spans),
+                fingerprint_for_gemspec_key(&nodes[1], &file, &spans),
+                "{source}"
+            );
+            assert_eq!(before, nodes.iter().map(old_keys).collect::<Vec<_>>());
+        }
+    }
+    #[test]
+    fn gemspec_shorthand_symbols_do_not_inherit_local_span_projection() {
+        struct Spans(std::collections::HashSet<(usize, usize)>);
+        impl<'pr> NodeVisitor<'pr> for Spans {
+            fn enter(&mut self, node: Node<'pr>) {
+                let loc = node.location();
+                self.0.insert((loc.start_offset(), loc.end_offset()));
+            }
+            fn leave(&mut self) {}
+        }
+        let source = "x=0; {x:}; {x: x}; {x: x()}; {y: x}";
+        let file = SourceFile::new("test.rb".into(), source.into());
+        let parsed = ruby_prism::parse(source.as_bytes());
+        assert_eq!(parsed.errors().count(), 0);
+        let nodes: Vec<_> = parsed
+            .node()
+            .as_program_node()
+            .unwrap()
+            .statements()
+            .body()
+            .iter()
+            .skip(1)
+            .collect();
+        let mut spans = Spans(Default::default());
+        walk(&mut spans, &parsed.node());
+        let old: Vec<_> = nodes
+            .iter()
+            .map(|n| fingerprint_for_duplicate(n, &file))
+            .collect();
+        assert_eq!(old[0], old[1]);
+        let keys: Vec<_> = nodes
+            .iter()
+            .map(|n| fingerprint_for_gemspec_key(n, &file, &spans.0))
+            .collect();
+        assert_eq!(keys[0], keys[1]);
+        assert_ne!(keys[0], keys[2]);
+        assert_ne!(keys[0], keys[3]);
+        assert_eq!(
+            old,
+            nodes
+                .iter()
+                .map(|n| fingerprint_for_duplicate(n, &file))
+                .collect::<Vec<_>>()
+        );
+    }
+    #[test]
+    fn gemspec_it_key_identity_does_not_relax_existing_fingerprints() {
+        struct Keys<'pr> {
+            arrays: Vec<Node<'pr>>,
+            spans: std::collections::HashSet<(usize, usize)>,
+        }
+        impl<'pr> NodeVisitor<'pr> for Keys<'pr> {
+            fn enter(&mut self, node: Node<'pr>) {
+                let loc = node.location();
+                self.spans.insert((loc.start_offset(), loc.end_offset()));
+                if node.as_array_node().is_some() {
+                    self.arrays.push(node);
+                }
+            }
+            fn leave(&mut self) {}
+        }
+        let source = "each { [it] }\nit = 1\n[it]\n[it()]\n";
+        let file = SourceFile::new("test.rb".into(), source.into());
+        let parsed = ruby_prism::parse(source.as_bytes());
+        assert_eq!(parsed.errors().count(), 0);
+        let mut keys = Keys {
+            arrays: vec![],
+            spans: Default::default(),
+        };
+        walk(&mut keys, &parsed.node());
+        assert_eq!(keys.arrays.len(), 3);
+        let old_keys = |node| {
+            vec![
+                fingerprint(node),
+                fingerprint_with_source_lines(node, &file),
+                fingerprint_with_integer_source_lines(node, &file),
+                fingerprint_for_duplicate(node, &file),
+                fingerprint_for_duplicate_condition(node, &file),
+                fingerprint_for_file_operation(node, &file, Some(&keys.spans)),
+                fingerprint_for_require(node, &file, Some(&keys.spans)),
+                fingerprint_for_self_assignment(node, &file, Some(&keys.spans)),
+                fingerprint_for_comparison(node, &file),
+                fingerprint_for_detection(node, &file),
+                fingerprint_for_case_subject(node, &file),
+                fingerprint_for_conditional_scope(node, &file),
+                fingerprint_for_branch(node, &file),
+                fingerprint_ignoring_grouping(node, source.as_bytes()),
+            ]
+        };
+        let before: Vec<_> = keys.arrays.iter().map(&old_keys).collect();
+        for (a, b) in before[0].iter().zip(&before[1]) {
+            assert_ne!(a, b);
+        }
+        let projected: Vec<_> = keys
+            .arrays
+            .iter()
+            .map(|node| fingerprint_for_gemspec_key(node, &file, &keys.spans))
+            .collect();
+        assert_eq!(projected[0], projected[1]);
+        assert_ne!(projected[0], projected[2]);
+        assert_eq!(before, keys.arrays.iter().map(old_keys).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn gemspec_regexp_source_alignment_is_opt_in_including_literal_wrappers() {
+        struct Spans(std::collections::HashSet<(usize, usize)>);
+        impl<'pr> NodeVisitor<'pr> for Spans {
+            fn enter(&mut self, node: Node<'pr>) {
+                let loc = node.location();
+                self.0.insert((loc.start_offset(), loc.end_offset()));
+            }
+            fn leave(&mut self) {}
+        }
+        for (a, b) in [
+            ("/\\e\u{301}/im", "/\\é/mi"),
+            ("[/\\e\u{301}/im]", "[/\\é/mi]"),
+            ("{x: /\\e\u{301}#{z}/im}", "{x: /\\é#{z}/mi}"),
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{a}; {b}");
+            let file = SourceFile::new("test.rb".into(), source.as_bytes().to_vec());
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0);
+            let nodes: Vec<_> = parsed
+                .node()
+                .as_program_node()
+                .unwrap()
+                .statements()
+                .body()
+                .iter()
+                .collect();
+            let mut spans = Spans(Default::default());
+            walk(&mut spans, &parsed.node());
+            let old_keys = |node| {
+                vec![
+                    fingerprint(node),
+                    fingerprint_with_source_lines(node, &file),
+                    fingerprint_with_integer_source_lines(node, &file),
+                    fingerprint_for_duplicate(node, &file),
+                    fingerprint_for_duplicate_condition(node, &file),
+                    fingerprint_for_file_operation(node, &file, Some(&spans.0)),
+                    fingerprint_for_require(node, &file, Some(&spans.0)),
+                    fingerprint_for_self_assignment(node, &file, Some(&spans.0)),
+                    fingerprint_for_comparison(node, &file),
+                    fingerprint_for_detection(node, &file),
+                    fingerprint_for_case_subject(node, &file),
+                    fingerprint_for_conditional_scope(node, &file),
+                    fingerprint_for_branch(node, &file),
+                    fingerprint_ignoring_grouping(node, source.as_bytes()),
+                ]
+            };
+            let before: Vec<_> = nodes.iter().map(&old_keys).collect();
+            for (i, (left, right)) in before[0].iter().zip(&before[1]).enumerate() {
+                // Require already had this alignment; none of the other old
+                // profiles gains Gemspec's new equality (especially fixes).
+                assert_eq!(left == right, i == 6, "profile {i}: {source}");
+            }
+            assert_eq!(
+                fingerprint_for_gemspec_key(&nodes[0], &file, &spans.0),
+                fingerprint_for_gemspec_key(&nodes[1], &file, &spans.0)
+            );
+            assert_eq!(before, nodes.iter().map(old_keys).collect::<Vec<_>>());
+        }
+    }
+
+    #[test]
+    fn gemspec_protected_rescue_slots_are_opt_in_through_literal_wrappers() {
+        struct Spans(std::collections::HashSet<(usize, usize)>);
+        impl<'pr> NodeVisitor<'pr> for Spans {
+            fn enter(&mut self, node: Node<'pr>) {
+                let loc = node.location();
+                self.0.insert((loc.start_offset(), loc.end_offset()));
+            }
+            fn leave(&mut self) {}
+        }
+        for template in ["EXPR", "[EXPR]", "{x: [EXPR]}"] {
+            let a = template.replace("EXPR", "begin; x; rescue; y; else; end");
+            let b = template.replace("EXPR", "begin; x; rescue; y; end");
+            let source = format!("{a}; {b}");
+            let file = SourceFile::new("test.rb".into(), source.as_bytes().to_vec());
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0);
+            let nodes: Vec<_> = parsed
+                .node()
+                .as_program_node()
+                .unwrap()
+                .statements()
+                .body()
+                .iter()
+                .collect();
+            let mut spans = Spans(Default::default());
+            walk(&mut spans, &parsed.node());
+            let old_keys = |node| {
+                vec![
+                    fingerprint(node),
+                    fingerprint_with_source_lines(node, &file),
+                    fingerprint_with_integer_source_lines(node, &file),
+                    fingerprint_for_duplicate(node, &file),
+                    fingerprint_for_duplicate_condition(node, &file),
+                    fingerprint_for_file_operation(node, &file, Some(&spans.0)),
+                    fingerprint_for_require(node, &file, Some(&spans.0)),
+                    fingerprint_for_self_assignment(node, &file, Some(&spans.0)),
+                    fingerprint_for_comparison(node, &file),
+                    fingerprint_for_detection(node, &file),
+                    fingerprint_for_case_subject(node, &file),
+                    fingerprint_for_conditional_scope(node, &file),
+                    fingerprint_for_branch(node, &file),
+                    fingerprint_ignoring_grouping(node, source.as_bytes()),
+                ]
+            };
+            let before: Vec<_> = nodes.iter().map(&old_keys).collect();
+            for (i, (left, right)) in before[0].iter().zip(&before[1]).enumerate() {
+                assert_eq!(left == right, i == 6, "profile {i}: {source}");
+            }
+            assert_eq!(
+                fingerprint_for_gemspec_key(&nodes[0], &file, &spans.0),
+                fingerprint_for_gemspec_key(&nodes[1], &file, &spans.0)
+            );
+            assert_eq!(before, nodes.iter().map(old_keys).collect::<Vec<_>>());
+        }
+    }
+
+    #[test]
+    fn duplicate_buffer_normalization_does_not_change_other_modes() {
+        let source = "if /x/im; elsif /x/mi; end";
+        let file = SourceFile::new("test.rb".into(), source.into());
+        let parsed = ruby_prism::parse(source.as_bytes());
+        let head = parsed
+            .node()
+            .as_program_node()
+            .unwrap()
+            .statements()
+            .body()
+            .iter()
+            .next()
+            .unwrap()
+            .as_if_node()
+            .unwrap();
+        let first = head.predicate();
+        let second = head.subsequent().unwrap().as_if_node().unwrap().predicate();
+        assert_ne!(fingerprint(&first), fingerprint(&second));
+        assert_ne!(
+            fingerprint_for_conditional_scope(&first, &file),
+            fingerprint_for_conditional_scope(&second, &file)
+        );
+        assert_eq!(
+            fingerprint_for_duplicate(&first, &file),
+            fingerprint_for_duplicate(&second, &file)
+        );
+    }
+
+    #[test]
+    fn duplicate_compound_profiles_are_isolated_from_scope_and_correction_keys() {
+        for (source, scope_equal, hash_equal) in [
+            ("[1i]; [1ri]", true, false),
+            ("[0.0i]; [-0.0i]", false, true),
+            (
+                "# coding: UTF8-MAC\n[[/e\u{301}/im]]; [[/é/mi]]",
+                false,
+                true,
+            ),
+            (
+                "# coding: UTF8-MAC\n\"#{e\u{301}.f}\"; \"#{é.f}\"",
+                false,
+                true,
+            ),
+        ] {
+            let file = SourceFile::new("test.rb".into(), source.into());
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0);
+            let body = parsed.node().as_program_node().unwrap().statements().body();
+            let a = body.iter().next().unwrap();
+            let b = body.iter().nth(1).unwrap();
+            assert_ne!(fingerprint(&a), fingerprint(&b), "{source}");
+            assert_ne!(
+                fingerprint_with_source_lines(&a, &file),
+                fingerprint_with_source_lines(&b, &file),
+                "{source}"
+            );
+            assert_eq!(
+                fingerprint_for_conditional_scope(&a, &file)
+                    == fingerprint_for_conditional_scope(&b, &file),
+                scope_equal,
+                "{source}"
+            );
+            assert_eq!(
+                fingerprint_for_duplicate(&a, &file) == fingerprint_for_duplicate(&b, &file),
+                hash_equal,
+                "{source}"
+            );
+            assert!(
+                fingerprint_for_duplicate_condition(&a, &file)
+                    .source_buffer_scope_eq(&fingerprint_for_duplicate_condition(&b, &file), &file),
+                "{source}"
+            );
+        }
+    }
+
+    #[test]
+    fn self_assignment_literal_projection_leaves_old_correction_keys_unchanged() {
+        for (body, raw_equal, detection_equal) in [
+            (r#"[%q()]; [""]"#, true, false),
+            (r#"[%q()]; [%Q()]"#, true, true),
+            (r#"[{"": 1}]; [{:"" => 1}]"#, true, false),
+            (r#"[{"": 1}]; [{:"\u{}" => 1}]"#, true, true),
+            (r#"[{'': 1}]; [{:"\u{}" => 1}]"#, true, true),
+            ("[\"é\"]; [\"e\u{301}\"]", false, true),
+            (r#"["é"]; ["\u0065\u0301"]"#, false, false),
+            (r#"["\u00e9"]; ["\u0065\u0301"]"#, false, false),
+            ("[186657005489253]; [142714875718083]", false, false),
+            ("[1.0414461810403506]; [1.0316890681957467]", false, false),
+            ("[186657005489253r]; [142714875718083r]", false, false),
+            ("[1r]; [1.0r]", false, true),
+            (r#"[1i]; [1ri]"#, false, true),
+            (r#"[1i]; [1.0i]"#, false, true),
+            (r#"[0.0]; [-0.0]"#, false, true),
+            (r#"[(x ? 1 : 2)]; [(if x; 1; else; 2; end)]"#, false, true),
+            (r#"[/a/im]; [/a/mi]"#, false, true),
+            (r#"[/a/im]; [/a/iim]"#, false, true),
+            (r#"[/a#{x}/im]; [/a#{x}/mi]"#, false, true),
+            (r#"[0]; [0.0]"#, false, false),
+            (r#"[/a/im]; [/a/i]"#, false, false),
+            (r#"[(x ? 1 : 2)]; [(x ? 2 : 1)]"#, false, false),
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{body}\n");
+            let file = SourceFile::new("test.rb".into(), source.as_bytes().to_vec());
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0);
+            let nodes: Vec<_> = parsed
+                .node()
+                .as_program_node()
+                .unwrap()
+                .statements()
+                .body()
+                .iter()
+                .collect();
+            let (a, b) = (&nodes[0], &nodes[1]);
+            let raw = (fingerprint(a), fingerprint(b));
+            let correction = (
+                fingerprint_with_source_lines(a, &file),
+                fingerprint_with_source_lines(b, &file),
+            );
+            assert_eq!(raw.0 == raw.1, raw_equal, "{source}");
+            assert_eq!(correction.0 == correction.1, raw_equal, "{source}");
+            assert_eq!(
+                fingerprint_for_self_assignment(a, &file, None).source_buffer_scope_eq(
+                    &fingerprint_for_self_assignment(b, &file, None),
+                    &file
+                ),
+                detection_equal,
+                "{source}"
+            );
+            assert_eq!(raw, (fingerprint(a), fingerprint(b)));
+            assert_eq!(
+                correction,
+                (
+                    fingerprint_with_source_lines(a, &file),
+                    fingerprint_with_source_lines(b, &file)
+                )
+            );
+        }
     }
 
     #[test]

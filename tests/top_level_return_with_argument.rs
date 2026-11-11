@@ -6,7 +6,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Lint/TopLevelReturnWithArgument";
-const SAFE: &[u8] = b"return 1, 2, 3\n";
+const PRIMITIVE: &[u8] = b"return 1, 2, 3\n";
 const EFFECT: &[u8] = b"return effect()\n";
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/top_level_return_with_argument.json")).unwrap()
@@ -128,7 +128,7 @@ fn defaults_selectors_strict_toml_department_precedence_and_stdin_provenance() {
     assert!(cop.default_enabled());
     assert!(
         !cop.safe_fixes(),
-        "warning safety disposition is unresolved"
+        "the explicit no-source-edit exception must not advertise corrections"
     );
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(
@@ -206,7 +206,12 @@ fn defaults_selectors_strict_toml_department_precedence_and_stdin_provenance() {
             format!("[cops.\"{COP}\"]\n{key}\n"),
         )
         .unwrap();
-        unchanged(d.path(), SAFE, &["--only", COP, "--fix", "lib/a.rb"], 2);
+        unchanged(
+            d.path(),
+            PRIMITIVE,
+            &["--only", COP, "--fix", "lib/a.rb"],
+            2,
+        );
     }
     fs::write(d.path().join("rustocop.toml"), "").unwrap();
     assert_eq!(
@@ -371,10 +376,10 @@ fn withheld_fix_composes_with_style_layout_and_is_idempotent() {
     let out = run(d.path(), &["--only", selection, "--fix", "lib/a.rb"]);
     assert_eq!(out.status.code(), Some(1), "{out:?}");
     assert_eq!(count(&out), 1);
-    assert_eq!(fs::read(&p).unwrap(), SAFE);
+    assert_eq!(fs::read(&p).unwrap(), PRIMITIVE);
     unchanged(
         d.path(),
-        SAFE,
+        PRIMITIVE,
         &["--only", selection, "--fix", "lib/a.rb"],
         1,
     );
@@ -390,16 +395,16 @@ fn withheld_fix_preserves_permissions_held_inode_symlink_and_readonly_file() {
     use std::os::unix::fs::{PermissionsExt, symlink};
     let d = project();
     let path = d.path().join("lib/a.rb");
-    fs::write(&path, SAFE).unwrap();
+    fs::write(&path, PRIMITIVE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();
     symlink(&path, d.path().join("link.rb")).unwrap();
     let mut held = fs::File::open(&path).unwrap();
     let out = run(d.path(), &["--only", COP, "--fix", "link.rb"]);
     assert_eq!(out.status.code(), Some(1), "{out:?}");
-    assert_eq!(fs::read(&path).unwrap(), SAFE);
+    assert_eq!(fs::read(&path).unwrap(), PRIMITIVE);
     let mut previous = Vec::new();
     held.read_to_end(&mut previous).unwrap();
-    assert_eq!(previous, SAFE);
+    assert_eq!(previous, PRIMITIVE);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -417,7 +422,7 @@ fn withheld_fix_preserves_permissions_held_inode_symlink_and_readonly_file() {
     let out = run(d.path(), &["--only", peers, "--fix", "link.rb"]);
     assert_eq!(out.status.code(), Some(1), "{out:?}");
     assert_eq!(count(&out), 1);
-    assert_eq!(fs::read(&path).unwrap(), SAFE);
+    assert_eq!(fs::read(&path).unwrap(), PRIMITIVE);
     let mut previous = Vec::new();
     old_handle.read_to_end(&mut previous).unwrap();
     assert_eq!(previous, b"return 1, 2, 3;\n");

@@ -16,6 +16,7 @@ require "open3"
 require "optparse"
 require "tmpdir"
 require_relative "../fixed_policy"
+require_relative "gem_filename_lifecycle"
 
 module Oracle
   ROOT = File.expand_path("../..", __dir__)
@@ -72,13 +73,23 @@ module Oracle
   # A known deviation from tools/oracle/baseline.txt.
   BaselineEntry = Struct.new(:id, :cop, :signature, :reason, :comment, keyword_init: true)
 
-  # `path:line:col: E: message (Cop/Name)`, as `--format text` prints it.
+  # `path:line:col: E: message (Cop/Name)`, as `--format text` prints it. A
+  # message quoting multi-line source (as RuboCop's do) spans several lines.
   OFFENSE_LINE = %r{
     \A(?<path>e\d+/.*?):(?<line>\d+):(?<col>\d+):\s[EC]:\s(?<message>.*)
     \s\((?<cop>[A-Za-z]+/[A-Za-z0-9]+)\)\z
-  }x.freeze
+  }xm.freeze
+  # An offense record whose message continues on the next output line.
+  OFFENSE_START = %r{\Ae\d+/.*?:\d+:\d+:\s[EC]:\s}.freeze
   # A syntax error on stdout, an internal error (a panic) on stderr.
   ERROR_LINE = %r{\A(?<path>e\d+/.*?)(?::\d+:\d+)?: (?<message>(?:internal )?error: .*)\z}.freeze
+
+  # A location-free finding. RuboCop's expect_offense writes one as a `^{}`
+  # annotation on the first line (line 1, column 1), so it is compared there.
+  GLOBAL_LINE = %r{
+    \A(?<path>e\d+/.*?):\s[EWC]:\s(?<message>.*)
+    \s\((?<cop>[A-Za-z]+/[A-Za-z0-9]+)\)\z
+  }x.freeze
 
   class << self
     def main(argv)
@@ -165,6 +176,12 @@ module Oracle
       require File.join(src, "spec", "support", "empty_lines_around_body_shared_examples")
       require File.join(src, "spec", "support", "alignment_examples")
       require File.join(src, "spec", "support", "condition_modifier_cop")
+      require File.join(src, "spec", "support", "multiline_literal_brace_helper")
+      require File.join(src, "spec", "support", "multiline_literal_brace_layout_examples")
+      require File.join(src, "spec", "support",
+                        "multiline_literal_brace_layout_method_argument_examples")
+      require File.join(src, "spec", "support",
+                        "multiline_literal_brace_layout_trailing_comma_examples")
       require_relative "settings"
     rescue LoadError => e
       warn "oracle: could not load RuboCop from #{src}/lib (#{e.message}).\n  " \
@@ -220,7 +237,7 @@ module Oracle
       File.join(src, "spec", "rubocop", "cop", parts[0], "#{parts[1]}_spec.rb")
     end
 
-    # Exact census paths, not a prefix glob (which can select another cop).
+    # Exact spec paths, not a prefix glob (which can select another cop).
     # Non-Style cops retain conventional discovery. The reference table is
     # path data only: it never selects cops.
     def source_and_specs(src, cop)
@@ -254,6 +271,7 @@ module Oracle
       end
 
       recorder = Recorder.new
+      ScriptPermissionLifecycle.reset if cop == ScriptPermissionLifecycle::COP
       specs.each do |spec|
         begin
           evaluate_spec(spec, cop, recorder)
@@ -261,6 +279,15 @@ module Oracle
           result[:fatal] = "could not evaluate #{relative_spec(spec)}: #{e.class}: #{e.message}"
           return result
         end
+      end
+      if cop == GemFilenameLifecycle::COP
+        return GemFilenameLifecycle.check(result, recorder, binary, tmp)
+      end
+      if cop == 'Lint/RedundantCopDisableDirective'
+        return RedundantDisableLifecycle.check(result, recorder, tmp)
+      end
+      if cop == ScriptPermissionLifecycle::COP
+        return ScriptPermissionLifecycle.check(result, recorder, binary, tmp)
       end
       result[:skipped].concat(recorder.skipped)
       recorder.errors.each do |error|
@@ -278,6 +305,17 @@ module Oracle
 
       seen = {}
       recorder.expectations.each do |expectation|
+        # These landed gemspec specs omit a filename. Replay their actual
+        # matcher on a supplied eligible path, rather than silently skipping
+        # every example through the mandatory production Include gate.
+        if %w[Gemspec/AttributeAssignment Gemspec/DuplicatedAssignment Gemspec/OrderedDependencies Gemspec/AddRuntimeDependency Gemspec/DependencyVersion Gemspec/DeprecatedAttributeAssignment Gemspec/RequiredRubyVersion Gemspec/RubyVersionGlobalsUsage].include?(cop)
+          expectation.file ||= 'example.gemspec'
+        end
+        # Likewise these landed Gemfile specs (an inline source is always
+        # relevant upstream): replay them on a supplied eligible Gemfile.
+        if %w[Bundler/GemVersion Bundler/InsecureProtocolSource Bundler/OrderedGems].include?(cop)
+          expectation.file ||= 'Gemfile'
+        end
         reason = expectation.skip
         unless reason || FixedPolicy.path_allowed?(cop, expectation.file || "example.rb")
           reason = "path: excluded by pinned #{cop} Include/Exclude policy"
@@ -338,6 +376,8 @@ module Oracle
     end
 
     def lint(cop, cases, binary, root)
+      return SyntaxLifecycle.lint(cases, binary, root) if cop == 'Lint/Syntax'
+
       by_path = cases.to_h { |kase| [kase.path, kase] }
       stdout, stderr, status = Open3.capture3(binary, "--only", cop, "--format", "text",
                                               *by_path.keys, chdir: root)
@@ -345,8 +385,13 @@ module Oracle
         abort "oracle: #{binary} failed (#{status}) for #{cop}:\n#{stderr}"
       end
 
+      pending = nil
       (stdout.lines + stderr.lines).each do |line|
         line = line.chomp
+        if pending && !(OFFENSE_START.match?(line) || ERROR_LINE.match?(line) || GLOBAL_LINE.match?(line))
+          line = "#{pending}\n#{line}"
+        end
+        pending = nil
         if (match = OFFENSE_LINE.match(line))
           kase = by_path[match[:path]]
           next unless kase && match[:cop] == cop
@@ -355,6 +400,16 @@ module Oracle
                            message: match[:message] }
         elsif (match = ERROR_LINE.match(line))
           by_path[match[:path]]&.errors&.push(match[:message])
+        elsif (match = GLOBAL_LINE.match(line))
+          kase = by_path[match[:path]]
+          next unless kase && match[:cop] == cop
+
+          kase.actual << { line: 1, col: 1, message: match[:message] }
+        elsif OFFENSE_START.match?(line)
+          # Unterminated: join the next line. A record that never ends with
+          # its cop name (before the next record starts) is dropped and stays
+          # a miss.
+          pending = line
         end
       end
       # Exit status 2 without an error for some snippet: the run itself failed

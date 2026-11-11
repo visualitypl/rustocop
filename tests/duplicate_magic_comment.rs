@@ -132,7 +132,7 @@ fn original_legacy_bytes_and_projected_token_boundaries_match_exact_pin() {
 #[test]
 fn defaults_gates_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());

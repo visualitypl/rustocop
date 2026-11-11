@@ -28,6 +28,31 @@ pub(super) fn check(
     }
 }
 
+/// The closed observer hold for the body cops added in v1.0
+/// (`begin` and block bodies): withhold the corrections of `found`, keeping
+/// the findings, when the file holds a listed source observer. The accepted
+/// class, module and method body cops keep their earlier guards unchanged.
+pub(super) fn hold_for_listed_observers(
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+    found: &mut [Offense],
+) {
+    if found.iter().all(|o| o.correction.is_none()) {
+        return;
+    }
+    let Some(root) = cx.ancestors().next_back() else {
+        return;
+    };
+    if file
+        .class_method_bindings(root)
+        .has_listed_source_observer(file.data_start().is_some())
+    {
+        for offense in found {
+            offense.correction = None;
+        }
+    }
+}
+
 pub(super) fn report(
     cop: &dyn Cop,
     kind: &str,
@@ -39,9 +64,26 @@ pub(super) fn report(
     if !file.line_text(line).is_empty() {
         return;
     }
+    out.push(Offense {
+        correction: line_removal(cx, file, line),
+        cop: cop.name(),
+        severity: cop.severity(),
+        message: format!("Extra empty line detected at {kind} body {edge}."),
+        line,
+        end_line: line,
+        col: 1,
+    });
+}
+
+/// The guarded removal of the whole blank or whitespace-only `line` (after
+/// line 1), with its own line ending; `None` when not requested or held.
+pub(super) fn line_removal(
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+    line: u32,
+) -> Option<Correction> {
     let range = file.line_start(line)..file.line_start(line + 1);
-    let correction = cx
-        .corrections_requested()
+    cx.corrections_requested()
         .then(|| line_value_boundary(file))
         .filter(|&boundary| range.start >= boundary)
         // After an escaped newline, this blank line supplies the statement
@@ -57,16 +99,7 @@ pub(super) fn report(
         .map(|_| Correction {
             range,
             replacement: String::new(),
-        });
-    out.push(Offense {
-        correction,
-        cop: cop.name(),
-        severity: cop.severity(),
-        message: format!("Extra empty line detected at {kind} body {edge}."),
-        line,
-        end_line: line,
-        col: 1,
-    });
+        })
 }
 
 #[cfg(test)]
@@ -74,17 +107,21 @@ mod tests {
     use super::*;
     use crate::cops::{
         layout::{
-            EmptyLines, EmptyLinesAroundClassBody, EmptyLinesAroundMethodBody,
-            EmptyLinesAroundModuleBody,
+            EmptyLines, EmptyLinesAroundBeginBody, EmptyLinesAroundBlockBody,
+            EmptyLinesAroundClassBody, EmptyLinesAroundMethodBody, EmptyLinesAroundModuleBody,
         },
         testing::{assert_correction, correction_offenses},
     };
 
-    fn cops() -> [(&'static dyn Cop, &'static str); 3] {
+    fn cops() -> [(&'static dyn Cop, &'static str); 7] {
         [
             (&EmptyLinesAroundClassBody, "class C"),
             (&EmptyLinesAroundModuleBody, "module M"),
             (&EmptyLinesAroundMethodBody, "def foo"),
+            (&EmptyLinesAroundBeginBody, "begin"),
+            (&EmptyLinesAroundBlockBody, "foo do"),
+            (&EmptyLinesAroundBlockBody, "foo do |a,\n  b|"),
+            (&EmptyLinesAroundBlockBody, "f = -> do"),
         ]
     }
 
@@ -94,7 +131,10 @@ mod tests {
             let before = format!("{header}\n\nend\n");
             let found = correction_offenses(cop, &before);
             assert_eq!(found.len(), 1);
-            assert_eq!((found[0].line, found[0].col), (2, 1));
+            assert_eq!(
+                (found[0].line, found[0].col),
+                (header.lines().count() as u32 + 1, 1)
+            );
             assert!(found[0].message.ends_with("beginning."));
             assert_correction(cop, &before, &format!("{header}\nend\n"));
             assert_correction(
@@ -118,7 +158,10 @@ mod tests {
                 let after = format!("{header} \\{newline}{newline}  work{newline}end{newline}");
                 let found = correction_offenses(cop, &before);
                 assert_eq!(found.len(), 2, "{before:?}");
-                assert_eq!((found[0].line, found[0].col), (2, 1));
+                assert_eq!(
+                    (found[0].line, found[0].col),
+                    (header.lines().count() as u32 + 1, 1)
+                );
                 assert!(found[0].correction.is_none(), "{before:?}");
                 assert!(found[1].correction.is_some());
                 assert_correction(cop, &before, &after);

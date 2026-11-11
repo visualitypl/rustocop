@@ -337,13 +337,14 @@ fn safe_peers_can_correct_without_unsafe_string_rewrites() {
             1,
         );
     }
+    // Layout/IndentationConsistency aligns the split statement.
     assert_eq!(
         fs::read(d.path().join("a.rb")).unwrap(),
-        b"format(\"hello\")\n x + \"y\"\n"
+        b"format(\"hello\")\nx + \"y\"\n"
     );
     unchanged(
         d.path(),
-        b"format(\"hello\")\n x + \"y\"\n",
+        b"format(\"hello\")\nx + \"y\"\n",
         &["--only", BOTH, "--fix", "a.rb"],
         1,
     );

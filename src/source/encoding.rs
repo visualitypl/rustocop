@@ -735,6 +735,65 @@ fn match_pattern_encoding(source: &[u8]) -> &'static [u8] {
     })
 }
 
+/// Validate source-buffer bytes beyond Prism's token-only acceptance, including
+/// comments. Keep the inherited native encoding policy and opaque DATA payload:
+/// Parser::Source::Buffer's different headers/whole-file transcoding must not
+/// invalidate accepted Ruby3.4 sources or disable existing guarded corrections.
+pub(super) fn source_buffer_error(result: &ParseResult<'_>) -> Option<String> {
+    let source = result.source();
+    let ruby_prism::Node::ProgramNode { parser, .. } = result.node() else {
+        unreachable!("parse root is a ProgramNode")
+    };
+    // Read only main-lexer metadata, not the recovered AST. Literal/comment
+    // sentinel bytes do NOT stop validation: only the actual terminal EOF token
+    // marks opaque NUL/^D/^Z payload, just as data_loc marks __END__ payload.
+    // SAFETY: result owns this live parser; an EOF token end is within the same
+    // source allocation as parser.start. No pointer survives this main snapshot.
+    let eof = unsafe {
+        let parser = parser.as_ref();
+        if parser.current.type_ == ruby_prism_sys::PM_TOKEN_EOF {
+            parser.current.end.offset_from(parser.start) as usize
+        } else {
+            source.len()
+        }
+    };
+    let end = result
+        .data_loc()
+        .map_or(eof, |loc| eof.min(loc.start_offset()));
+    let source = &source[..end.min(source.len())];
+    let name = effective_name(result);
+    if name == b"ASCII-8BIT" || source.is_ascii() {
+        return None;
+    }
+    let valid = if name == b"UTF-8" {
+        std::str::from_utf8(source).is_ok()
+    } else if let Some(width) = validation_width(name) {
+        let mut bytes = source;
+        while !bytes.is_empty() {
+            // SAFETY: immutable codec callback, bounded by this live slice.
+            let size = unsafe { width(bytes.as_ptr(), bytes.len() as isize) };
+            if size == 0 || size > bytes.len() {
+                return Some(format!(
+                    "Invalid byte sequence in {}.",
+                    String::from_utf8_lossy(name).to_ascii_lowercase()
+                ));
+            }
+            bytes = &bytes[size..];
+        }
+        true
+    } else {
+        // Main Prism already rejects unknown/unusable source codecs. Do not
+        // invent a buffer exception for a codec we cannot validate here.
+        true
+    };
+    (!valid).then(|| {
+        format!(
+            "Invalid byte sequence in {}.",
+            String::from_utf8_lossy(name).to_ascii_lowercase()
+        )
+    })
+}
+
 /// POSIX alnum for a character already in Parser::Source::Buffer's UTF-8
 /// projection. DuplicateMagicComment must not use regex's evolving Unicode/N
 /// classes, or original-codec predicates on projected bytes.

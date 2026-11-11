@@ -4,6 +4,11 @@
 //! Ruby runtime: parsing is done through [Prism](https://github.com/ruby/prism),
 //! Ruby's official parser, via its Rust bindings.
 
+#[cfg(test)]
+#[macro_use]
+#[path = "../tests/support/parallel_rows.rs"]
+mod parallel_rows;
+
 pub mod config;
 pub mod cops;
 pub mod corrections;

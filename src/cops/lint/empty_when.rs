@@ -4,9 +4,8 @@
 //! starts on one of its lines, which run from the `when` keyword up to (not
 //! including) the line where the next branch body starts: the next `when`,
 //! the first `else` statement, or the `end` (RuboCop's
-//! `CommentsHelp#find_end_line`). `case`/`in` is not checked. Not modelled:
-//! RuboCop does not count a comment that is itself a `rubocop:disable` for
-//! this cop.
+//! `CommentsHelp#find_end_line`). `case`/`in` is not checked. Disabling
+//! directives suppress findings, but are not explanatory branch comments.
 
 use ruby_prism::Node;
 
@@ -22,6 +21,15 @@ pub struct EmptyWhen;
 impl Cop for EmptyWhen {
     fn name(&self) -> &'static str {
         "Lint/EmptyWhen"
+    }
+
+    fn check_parse(
+        &self,
+        result: &ruby_prism::ParseResult<'_>,
+        file: &SourceFile,
+        _out: &mut Vec<Offense>,
+    ) {
+        file.directives_with_disabled(result, &[]);
     }
 
     fn check_node<'pr>(
@@ -54,9 +62,11 @@ impl Cop for EmptyWhen {
                         body.location().start_offset()
                     }),
             };
-            let (line, col) = file.line_col(start);
-            let end_line = file.line_col(next_start).0;
-            if file.has_comment_in_lines(line..end_line) {
+            let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+            let comment_lines = line..file.line_of(next_start);
+            if file.has_comment_in_lines(comment_lines.clone())
+                && !file.comments_contain_disables(self.name(), comment_lines)
+            {
                 continue;
             }
             out.push(Offense {
@@ -65,7 +75,13 @@ impl Cop for EmptyWhen {
                 severity: self.severity(),
                 message: "Avoid `when` branches without a body.".to_string(),
                 line,
-                end_line: file.last_line_of(when.location()),
+                // The parser when range ends with its final condition, not
+                // a `then` token that may occupy a later line.
+                end_line: when
+                    .conditions()
+                    .iter()
+                    .last()
+                    .map_or(line, |condition| file.last_line_of(condition.location())),
                 col,
             });
         }
@@ -93,6 +109,14 @@ mod tests {
 
     fn positions(source: &str) -> Vec<(u32, u32)> {
         offenses(source).iter().map(|o| (o.line, o.col)).collect()
+    }
+
+    #[test]
+    fn range_ends_at_condition_not_later_then_keyword() {
+        let found = offenses("case x\nwhen foo(\n1\n)\nthen\nend\n");
+        assert_eq!(found.len(), 1);
+        assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 1, 4));
+        assert_eq!(found[0].message, "Avoid `when` branches without a body.");
     }
 
     #[test]

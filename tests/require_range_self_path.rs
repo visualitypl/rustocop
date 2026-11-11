@@ -1,5 +1,8 @@
 //! Source-only pinned AST and CLI checks. Never execute reference inputs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -174,8 +177,8 @@ fn stdin(root: &Path, cop: &str, path: &str, source: &[u8]) -> Output {
 }
 #[test]
 fn original_byte_rows_rebuilt_cli_supplied_stdin_paths_and_file_fix_controls() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let cop = row["cop"].as_str().unwrap();
         let path = row["path"].as_str().unwrap();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
@@ -223,7 +226,7 @@ fn original_byte_rows_rebuilt_cli_supplied_stdin_paths_and_file_fix_controls() {
             let out = unchanged(dir.path(), &bytes, &args, Some(status));
             assert_eq!(count(&out, cop), n, "{row}: {out:?}");
         }
-    }
+    });
 }
 #[test]
 fn defaults_selectors_strict_toml_department_exclusions_and_version_policy() {

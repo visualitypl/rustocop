@@ -32,6 +32,12 @@ impl Cop for UselessConstantScoping {
         } else {
             let siblings = if let Some(class) = node.as_class_node() {
                 [class.superclass(), singleton_statement(class.body()), None]
+            } else if let Some(class) = node.as_singleton_class_node() {
+                [
+                    Some(class.expression()),
+                    singleton_statement(class.body()),
+                    None,
+                ]
             } else if let Some(branch) = node.as_if_node() {
                 [
                     Some(branch.predicate()),
@@ -102,7 +108,7 @@ impl UselessConstantScoping {
                     && !c.block().is_some_and(|b| b.as_block_node().is_some())
             }) {
                 for arg in ast::call_arguments(&call) {
-                    if let Some(name) = private_constant_name(&arg) {
+                    if let Some(name) = private_constant_name(&arg, file) {
                         privatizations.insert(name, index);
                     }
                 }
@@ -112,9 +118,9 @@ impl UselessConstantScoping {
                     || node.as_call_node().is_some_and(|c| c.block().is_none()))
             {
                 let allowed = if conditional {
-                    macro_scope(&node, &ancestors)
+                    macro_scope(&node, &ancestors, cx, file)
                 } else {
-                    *scope.get_or_insert_with(|| macro_scope(&node, &ancestors))
+                    *scope.get_or_insert_with(|| macro_scope(&node, &ancestors, cx, file))
                 };
                 if allowed {
                     private = node.as_call_node().unwrap().name().as_slice() == b"private";
@@ -133,7 +139,7 @@ impl UselessConstantScoping {
                 continue;
             };
             if !class_definition(&value) {
-                candidates.push((index, name.to_vec(), node));
+                candidates.push((index, file.match_pattern_source(name).into_owned(), node));
             }
         }
         for (index, name, node) in candidates {
@@ -159,24 +165,50 @@ impl UselessConstantScoping {
     }
 }
 
-fn private_constant_name(node: &Node<'_>) -> Option<Vec<u8>> {
+fn private_constant_name(node: &Node<'_>, file: &SourceFile) -> Option<Vec<u8>> {
     if let Some(symbol) = node.as_symbol_node() {
-        return Some(symbol.unescaped().to_vec());
+        if symbol.closing_loc().is_none() {
+            return Some(file.match_pattern_source(symbol.unescaped()).into_owned());
+        }
+        let raw = symbol.value_loc()?;
+        let single = symbol
+            .opening_loc()
+            .is_some_and(|loc| loc.as_slice() == b":'" || loc.as_slice().starts_with(b"%s"));
+        return Some(
+            ast::require_literal::parts(raw.as_slice(), symbol.unescaped(), single, file)
+                .into_iter()
+                .flatten()
+                .collect(),
+        );
     }
     let mut name = Vec::new();
-    append_static_string(node, &mut name)?;
+    append_static_string(node, &mut name, file)?;
     Some(name)
 }
 
-fn append_static_string(node: &Node<'_>, value: &mut Vec<u8>) -> Option<()> {
+fn append_static_string(node: &Node<'_>, value: &mut Vec<u8>, file: &SourceFile) -> Option<()> {
     if let Some(string) = node.as_string_node() {
-        value.extend_from_slice(string.unescaped());
+        let single = string
+            .opening_loc()
+            .is_some_and(|loc| loc.as_slice() == b"'" || loc.as_slice().starts_with(b"%q"));
+        // Reuse main-parse literal alignment: transcode/compose source glyphs
+        // before escapes, never normalize the already decoded escape payload.
+        value.extend(
+            ast::require_literal::parts(
+                string.content_loc().as_slice(),
+                string.unescaped(),
+                single,
+                file,
+            )
+            .into_iter()
+            .flatten(),
+        );
     } else {
         // Prism represents adjacent literals as an interpolated string even
         // without interpolation. Match upstream DstrNode#value for these names,
         // but never evaluate embedded expressions or treat their source as a name.
         for part in node.as_interpolated_string_node()?.parts().iter() {
-            append_static_string(&part, value)?;
+            append_static_string(&part, value, file)?;
         }
     }
     Some(())
@@ -202,7 +234,95 @@ fn bare_modifier(node: &Node<'_>) -> bool {
     })
 }
 
-fn macro_scope(node: &Node<'_>, ancestors: &[&Node<'_>]) -> bool {
+fn macro_scope<'pr>(
+    node: &Node<'pr>,
+    ancestors: &[&Node<'pr>],
+    cx: &NodeContext<'_, 'pr>,
+    file: &SourceFile,
+) -> bool {
+    macro_scope_with(
+        node,
+        ancestors,
+        |parent, child, predicate, body, subsequent| {
+            // Upstream classifies locals AFTER source-buffer composition. Text-only
+            // equality cannot reconcile a raw vcall with a composed local read (or
+            // distinguish equal vcalls on opposite sides of a declaration).
+            // Reuse the existing VariableForce projection over this conditional,
+            // with its actual enclosing stack, at most once per branch comparison.
+            // Ordinary encodings and the other macro consumers remain unchanged.
+            let locals = std::cell::OnceCell::new();
+            conditional_macro_child_with(child, predicate, body, subsequent, |a, b| {
+                let spans = locals.get_or_init(|| {
+                    if !file.match_pattern_composes_identifiers() {
+                        return None;
+                    }
+                    // `parent` is either the sequence itself or an original entry
+                    // in cx's ancestor slice. Keep precisely its enclosing scopes.
+                    let index = cx
+                        .ancestors
+                        .iter()
+                        .position(|n| std::ptr::eq(n, parent))
+                        .unwrap_or(cx.ancestors.len());
+                    let context = NodeContext {
+                        ancestors: &cx.ancestors[..index],
+                        ..*cx
+                    };
+                    super::non_atomic_file_operation::projected_local_spans(parent, &context, file)
+                });
+                ast::fingerprint_for_file_operation(a, file, spans.as_ref()).source_buffer_scope_eq(
+                    &ast::fingerprint_for_file_operation(b, file, spans.as_ref()),
+                    file,
+                )
+            })
+        },
+    )
+}
+
+/// Same pinned macro predicate for method modifiers. Cache structural branch
+/// equality by the real conditional edge, not separately for every definition
+/// in a potentially large begin predicate. Existing consumers keep their keys.
+pub(super) fn method_modifier_scope(
+    node: &Node<'_>,
+    ancestors: &[&Node<'_>],
+    file: &SourceFile,
+) -> bool {
+    macro_scope_with(
+        node,
+        ancestors,
+        |parent, child, predicate, body, subsequent| {
+            let key = (
+                parent.location().start_offset(),
+                child.location().start_offset(),
+                child.location().end_offset(),
+            );
+            *file
+                .method_definition_macro_branches
+                .lock()
+                .unwrap()
+                .entry(key)
+                .or_insert_with(|| {
+                    conditional_macro_child_with(child, predicate, body, subsequent, |a, b| {
+                        ast::fingerprint_for_conditional_scope(a, file).source_buffer_scope_eq(
+                            &ast::fingerprint_for_conditional_scope(b, file),
+                            file,
+                        )
+                    })
+                })
+        },
+    )
+}
+
+fn macro_scope_with<'pr>(
+    node: &Node<'pr>,
+    ancestors: &[&Node<'pr>],
+    mut conditional: impl FnMut(
+        &Node<'pr>,
+        &Node<'pr>,
+        Node<'pr>,
+        Option<Node<'pr>>,
+        Option<Node<'pr>>,
+    ) -> bool,
+) -> bool {
     let mut child = node;
     let mut skip_call = false;
     for (index, parent) in ancestors.iter().enumerate() {
@@ -228,7 +348,8 @@ fn macro_scope(node: &Node<'_>, ancestors: &[&Node<'_>]) -> bool {
             Node::CallNode { .. } if skip_call => skip_call = false,
             Node::IfNode { .. } => {
                 let branch = parent.as_if_node().unwrap();
-                if !conditional_macro_child(
+                if !conditional(
+                    parent,
                     child,
                     branch.predicate(),
                     branch.statements().map(|s| s.as_node()),
@@ -239,7 +360,8 @@ fn macro_scope(node: &Node<'_>, ancestors: &[&Node<'_>]) -> bool {
             }
             Node::UnlessNode { .. } => {
                 let branch = parent.as_unless_node().unwrap();
-                if !conditional_macro_child(
+                if !conditional(
+                    parent,
                     child,
                     branch.predicate(),
                     branch.statements().map(|s| s.as_node()),
@@ -270,6 +392,16 @@ pub(super) fn conditional_macro_child(
     predicate: Node<'_>,
     body: Option<Node<'_>>,
     subsequent: Option<Node<'_>>,
+) -> bool {
+    conditional_macro_child_with(child, predicate, body, subsequent, ast::same_node)
+}
+
+fn conditional_macro_child_with(
+    child: &Node<'_>,
+    predicate: Node<'_>,
+    body: Option<Node<'_>>,
+    subsequent: Option<Node<'_>>,
+    same: impl Fn(&Node<'_>, &Node<'_>) -> bool,
 ) -> bool {
     let start = child.location().start_offset();
     if !(predicate.location().start_offset() <= start && start < predicate.location().end_offset())
@@ -302,7 +434,7 @@ pub(super) fn conditional_macro_child(
         // begin nodes upstream; keep singleton parentheses as a begin too.
         let child_body = child.as_parentheses_node().and_then(|p| p.body());
         let branch_body = branch.as_parentheses_node().and_then(|p| p.body());
-        ast::same_node(
+        same(
             child_body.as_ref().unwrap_or(child),
             branch_body.as_ref().unwrap_or(&branch),
         )
@@ -418,6 +550,95 @@ mod tests {
                 })
                 .collect();
             assert_eq!(&positions, expected, "{source}");
+        }
+    }
+
+    #[test]
+    fn utf8_mac_macro_membership_uses_reference_buffer_but_reports_raw_positions() {
+        // Exact witness: the reference buffer composes the two
+        // selector spellings, making the predicate structurally equal to body.
+        let source = "# coding: UTF8-MAC\nclass C; if (private; e\u{301}; X = 1); (private; é; X = 1); end; end\n";
+        let found = crate::pipeline::lint_str_with(&[&super::UselessConstantScoping], source);
+        let actual: Vec<_> = found
+            .iter()
+            .map(|o| {
+                assert!(o.correction.is_none());
+                assert_eq!(
+                    o.message,
+                    "Useless `private` access modifier for constant scope."
+                );
+                (o.line, o.col, o.end_line)
+            })
+            .collect();
+        // Keep inherited original-source scalar columns, not converted columns.
+        assert_eq!(actual, [(2, 27, 2), (2, 48, 2)]);
+    }
+
+    #[test]
+    fn private_constant_names_project_source_characters_not_decoded_escape_results() {
+        for (argument, expected) in [
+            (":É", 0),
+            ("\"É\"", 0),
+            ("\"É\" \"\"", 0),
+            ("\"E\\u0301\"", 1),
+            ("\"\\u0045\\u0301\"", 1),
+        ] {
+            let source = format!(
+                "# coding: UTF8-MAC\nclass C; private; E\u{301} = 1; private_constant {argument}, &block; end\n"
+            );
+            let found = crate::pipeline::lint_str_with(&[&super::UselessConstantScoping], &source);
+            assert_eq!(found.len(), expected, "{source}");
+            for offense in found {
+                assert!(offense.correction.is_none());
+                assert_eq!((offense.line, offense.col), (2, 19));
+            }
+        }
+    }
+
+    #[test]
+    fn projected_local_macro_membership_keeps_raw_positions() {
+        for (keyword, col) in [("if", 27), ("unless", 31)] {
+            let source = format!(
+                "# coding: UTF8-MAC\nclass C\n  {keyword} (private; é = 1; e\u{301}; X = 1)\n    (private; é = 1; é; X = 1)\n  end\nend\n"
+            );
+            let found = crate::pipeline::lint_str_with(&[&super::UselessConstantScoping], &source);
+            let positions: Vec<_> = found.iter().map(|o| (o.line, o.col)).collect();
+            assert_eq!(positions, [(3, col), (4, 25)], "{source}");
+            assert!(found.iter().all(|o| o.correction.is_none()));
+        }
+    }
+
+    #[test]
+    fn singleton_class_receiver_is_a_sibling_of_its_singleton_body() {
+        for receiver in ["private", "private()"] {
+            let source = format!("class << {receiver}\n  X = 1\nend\n");
+            let found = crate::pipeline::lint_str_with(&[&super::UselessConstantScoping], &source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col), (2, 3));
+            assert!(found[0].correction.is_none());
+        }
+    }
+
+    #[test]
+    fn binding_and_singleton_boundaries() {
+        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/constant_scoping_boundaries.json"
+        ))
+        .unwrap();
+        for row in rows {
+            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let source = std::str::from_utf8(&bytes).unwrap();
+            let found = crate::pipeline::lint_str_with(&[&super::UselessConstantScoping], source);
+            let actual: Vec<_> = found
+                .iter()
+                .map(|o| {
+                    assert!(o.correction.is_none());
+                    (o.line, o.col, o.end_line, o.message.clone())
+                })
+                .collect();
+            let expected: Vec<(u32, u32, u32, String)> =
+                serde_json::from_value(row["raw_findings"].clone()).unwrap();
+            assert_eq!(actual, expected, "{source}");
         }
     }
 

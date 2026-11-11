@@ -1,4 +1,4 @@
-//! Target-file discovery: `.rb` files, `.gitignore`-aware, with excludes.
+//! Target-file discovery: Ruby and supplied gem inputs, ignore-aware.
 
 use std::path::{Path, PathBuf};
 
@@ -8,12 +8,13 @@ use ignore::WalkBuilder;
 
 use crate::config::matches_any;
 
-/// Collect the `.rb` files to inspect.
+/// Collect Ruby inputs and the two opaque gem lock filenames to inspect.
 ///
-/// Explicit file paths are kept whatever their name or extension (`.rb` files only, plus files named explicitly, as RuboCop lints files you
-/// name). Directories are walked `.gitignore`-aware, skipping hidden files,
-/// and yield only files with the `.rb` extension: extensionless files such as
-/// `LICENSE` or `bin/` scripts are skipped. Excludes apply to both.
+/// Explicit file paths are kept whatever their name or extension. Directories
+/// are walked `.gitignore`-aware, skipping hidden files, and yield `.rb`,
+/// `Gemfile`, `*.gemfile`, `*.gemspec`, `Gemfile.lock` and `gems.locked` inputs.
+/// Other extensionless files such as `LICENSE` or `bin/` scripts are skipped.
+/// Excludes apply to both explicit and discovered inputs.
 pub fn collect_files(
     paths: &[PathBuf],
     config_root: &Path,
@@ -26,7 +27,9 @@ pub fn collect_files(
         } else if path.is_dir() {
             let walker = WalkBuilder::new(path).build();
             for entry in walker.flatten() {
-                if entry.file_type().is_some_and(|ft| ft.is_file()) && is_ruby_file(entry.path()) {
+                if entry.file_type().is_some_and(|ft| ft.is_file())
+                    && is_supported_input(entry.path())
+                {
                     push_candidate(entry.path(), config_root, excludes, &mut out);
                 }
             }
@@ -39,10 +42,19 @@ pub fn collect_files(
     Ok(out)
 }
 
-/// Whether a file found by a directory walk is Ruby: it has exactly the `.rb`
-/// extension (case-sensitive).
-fn is_ruby_file(path: &Path) -> bool {
-    path.extension().is_some_and(|ext| ext == "rb")
+/// Closed, case-sensitive supplied gem lock names. These are never Ruby source,
+/// even when explicitly named or supplied through stdin. Do not resolve aliases.
+pub(crate) fn is_filename_only(path: &Path) -> bool {
+    path.file_name()
+        .is_some_and(|name| name == "Gemfile.lock" || name == "gems.locked")
+}
+
+fn is_supported_input(path: &Path) -> bool {
+    is_filename_only(path)
+        || path.file_name().is_some_and(|name| name == "Gemfile")
+        || path
+            .extension()
+            .is_some_and(|ext| matches!(ext.to_str(), Some("rb" | "gemfile" | "gemspec")))
 }
 
 /// Keep a file unless it is excluded. Exclude globs are matched against the
@@ -207,7 +219,7 @@ mod tests {
     }
 
     #[test]
-    fn directory_walk_requires_exact_rb_extension() {
+    fn directory_walk_requires_exact_supported_names_and_extensions() {
         let (_tmp, root) = setup(&[
             ("Rakefile", "task :default"),
             ("lib/tasks/build.rake", "task :build"),
@@ -222,7 +234,45 @@ mod tests {
                 .iter()
                 .map(|p| display_path(p, &root))
                 .collect::<Vec<_>>(),
-            &["lib/x.rb"],
+            &["gem.gemspec", "lib/x.rb"],
+        );
+    }
+
+    #[test]
+    fn directory_walk_includes_supplied_gem_inputs_only() {
+        let (_tmp, root) = setup(&[
+            ("Gemfile", "binding.pry"),
+            ("nested/ci.gemfile", "binding.pry"),
+            ("gems.rb", "binding.pry"),
+            ("pkg/example.gemspec", "binding.pry"),
+            ("Gemfile.lock", "not Ruby"),
+            ("nested/gems.locked", "not Ruby"),
+            ("gemfile", "ignored"),
+            ("other.GEMSPEC", "ignored"),
+            ("Gemfile.backup", "ignored"),
+            ("other.lock", "ignored"),
+            (".hidden/Gemfile", "ignored"),
+            ("vendor/Gemfile", "excluded"),
+        ]);
+        let files = collect_files(
+            std::slice::from_ref(&root),
+            &root,
+            &crate::config::builtin_excludes().unwrap(),
+        )
+        .unwrap();
+        assert_files(
+            &files
+                .iter()
+                .map(|p| display_path(p, &root))
+                .collect::<Vec<_>>(),
+            &[
+                "Gemfile",
+                "Gemfile.lock",
+                "gems.rb",
+                "nested/ci.gemfile",
+                "nested/gems.locked",
+                "pkg/example.gemspec",
+            ],
         );
     }
 

@@ -1,0 +1,206 @@
+[
+  {
+    "source": "'#{case x; when not false; end}'\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        1,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "def m; '#{case x; when not false; end}'; end\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        8,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "def m(x = '#{case x; when not false; end}'); end\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        11,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "-> { '#{case x; when not false; end}' }\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        6,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "foo&.bar('#{case x; when not false; end}') { :ok }\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        10,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "\"outer #{'#{case x; when not false; end}'}\"",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        10,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "/#{'#{case x; when not false; end}'}/",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        4,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "if /#{'#{case x; when not false; end}'}/; end",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        7,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "'head' \\\n'#{case x; when not false; end}'\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        2,
+        1,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "'#{case x; when not false; end}'\n__END__\n'#{not_checked}'\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        1,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": ":\"outer#{'#{case x; when not false; end}'}\"",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        10,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  },
+  {
+    "source": "['#{case x; when not false; end}', :ok]\n",
+    "literal": "'#{case x; when not false; end}'",
+    "converted": "\"#{case x; when not false; end}\"",
+    "reference_error_reasons": [
+      "expect_lparen_after_not_other",
+      "expect_when_delimiter",
+      "void_statement"
+    ],
+    "fixed_findings": [
+      [
+        1,
+        2,
+        "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation."
+      ]
+    ]
+  }
+]

@@ -911,7 +911,10 @@ mod tests {
         assert_eq!(passes, 3, "the CLI must not silently run multiple passes");
         assert_eq!(
             current,
-            "def f(c)\n  return unless c\n    value = { foo: \"bar\" }\n side_effect(value)\n    value\nend\n"
+            // Layout/IndentationConsistency realigns the body.
+            // Layout/EmptyLineAfterGuardClause separates the new
+            // guard clause within the same three passes.
+            "def f(c)\n  return unless c\n\n  value = { foo: \"bar\" }\n  side_effect(value)\n  value\nend\n"
         );
     }
 

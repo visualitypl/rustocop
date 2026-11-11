@@ -226,17 +226,17 @@ mod tests {
         }
     }
     #[test]
-    fn new_capture_validation_is_isolated_from_the_older_set_consumer() {
-        // These are isolation controls, NOT claims that the older scanner's
-        // accepted behavior matches the pinned nil tree.
-        for (source, mixed) in [
-            (r"/(?<1>a)(b)[aa]/", 0),
-            (r"/(?<n>a)(b)\1[aa]/", 0),
-            (r"/((?x))#(?<n>a)[aa]/", 0),
-            (r"/(?<n>a)(b)\2[aa]/", 1),
-            (r"/(?<n>a)(b)(?u-a)[aa]/", 0),
-            (r"/(?<n>a)(b)(?d-u:[aa])/", 0),
-            (r"/(?<n>a)(b)(?a-imx:[aa])/", 1),
+    fn source_tree_validation_and_option_lifetimes_are_shared() {
+        // Duplicate sets reuse the proven source-tree validation too, rather
+        // than preserving known false positives.
+        for (source, mixed, duplicates) in [
+            (r"/(?<1>a)(b)[aa]/", 0, 0),
+            (r"/(?<n>a)(b)\1[aa]/", 0, 0),
+            (r"/((?x))#(?<n>a)[aa]/", 0, 0),
+            (r"/(?<n>a)(b)\2[aa]/", 1, 1),
+            (r"/(?<n>a)(b)(?u-a)[aa]/", 0, 0),
+            (r"/(?<n>a)(b)(?d-u:[aa])/", 0, 0),
+            (r"/(?<n>a)(b)(?a-imx:[aa])/", 1, 1),
         ] {
             let found = lint_str(source);
             assert_eq!(
@@ -251,8 +251,8 @@ mod tests {
                 .iter()
                 .filter(|o| o.cop == "Lint/DuplicateRegexpCharacterClassElement")
                 .collect();
-            assert_eq!(older.len(), 1, "{source}");
-            assert!(older[0].correction.is_none());
+            assert_eq!(older.len(), duplicates, "{source}");
+            assert!(older.iter().all(|o| o.correction.is_none()));
         }
     }
     #[test]

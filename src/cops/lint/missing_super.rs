@@ -132,7 +132,16 @@ fn stateful_class_new(node: &Node<'_>) -> bool {
             .is_some_and(|parent| !allowed_parent(&parent))
 }
 fn allowed_parent(node: &Node<'_>) -> bool {
-    ast::is_global_const(node, &["Object"]) || ast::is_global_const(node, &["BasicObject"])
+    // Unlike global_const?, upstream const_name also accepts a plain casgn.
+    // Inspect its target, not its value; parentheses/begin and compound writes
+    // are distinct reference nodes and must not gain the exemption.
+    if let Some(write) = node.as_constant_write_node() {
+        return matches!(write.name().as_slice(), b"Object" | b"BasicObject");
+    }
+    let target = node
+        .as_constant_path_write_node()
+        .map(|w| w.target().as_node());
+    ast::is_global_const(target.as_ref().unwrap_or(node), &["Object", "BasicObject"])
 }
 fn key(node: &Node<'_>) -> (usize, usize) {
     (node.location().start_offset(), node.location().end_offset())
@@ -236,6 +245,72 @@ mod tests {
             for tail in ["", "; do_something(_1)", "; do_something(it)"] {
                 let source = format!("Class.new({parent}) do; def initialize; end{tail}; end");
                 assert!(offenses(&source).is_empty(), "{source}");
+            }
+        }
+    }
+    #[test]
+    fn direct_stateless_parent_assignments_use_the_assigned_constant_name() {
+        // const_name accepts casgn as well as const.
+        // These are syntax-only fixtures: never execute the assignments.
+        for source in [
+            "Class.new(Object = Parent) { def initialize; end }",
+            "class C < Object = Parent; def initialize; end; end",
+            "Class.new(::BasicObject = Parent) { def initialize; end }",
+        ] {
+            assert_eq!(ruby_prism::parse(source.as_bytes()).errors().count(), 0);
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+        for parent in ["Object", "::Object", "BasicObject", "::BasicObject"] {
+            for value in ["Parent", "nil", "Other = Parent", "-> {}", "Class.new {}"] {
+                for source in [
+                    format!("class C < {parent} = {value}; def initialize; end; end"),
+                    format!("Class.new({parent} = {value}) {{ def initialize; end }}"),
+                    format!("::Class.new({parent} = {value}) {{ def initialize; end; use(_1) }}"),
+                    format!("Class.new({parent} = {value}) do; def initialize; end; use(it); end"),
+                ] {
+                    assert_eq!(
+                        ruby_prism::parse(source.as_bytes()).errors().count(),
+                        0,
+                        "{source}"
+                    );
+                    assert!(offenses(&source).is_empty(), "{source}");
+                }
+            }
+        }
+    }
+    #[test]
+    fn stateless_parent_assignment_lookalikes_still_report_exact_findings() {
+        for parent in [
+            "Other::Object = Parent",
+            "self::BasicObject = Parent",
+            "(Object = Parent)",
+            "begin Object = Parent end",
+            "Object ||= Parent",
+            "::BasicObject &&= Parent",
+            "Object += Parent",
+            "Parent = Object",
+            "Object::Parent = Object",
+        ] {
+            for source in [
+                format!("Class.new({parent}) {{ def initialize; end }}"),
+                format!("class C < {parent}; def initialize; end; end"),
+            ] {
+                assert_eq!(
+                    ruby_prism::parse(source.as_bytes()).errors().count(),
+                    0,
+                    "{source}"
+                );
+                let found = offenses(&source);
+                assert_eq!(found.len(), 1, "{source}");
+                assert_eq!(
+                    (found[0].line, found[0].col, found[0].end_line),
+                    (1, source.find("def initialize").unwrap() as u32 + 1, 1)
+                );
+                assert_eq!(
+                    found[0].message,
+                    "Call `super` to initialize state of the parent class."
+                );
+                assert!(found[0].correction.is_none());
             }
         }
     }

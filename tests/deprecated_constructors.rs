@@ -6,6 +6,8 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
+#[path = "support/deprecated_constructor_native.rs"]
+mod native_guard;
 const BIG: &str = "Lint/BigDecimalNew";
 const ERB: &str = "Lint/ErbNewArguments";
 const BOTH: &str = "Lint/BigDecimalNew,Lint/ErbNewArguments";
@@ -44,6 +46,11 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Ou
     let new = fs::metadata(&path).unwrap();
     assert_eq!(old.modified().unwrap(), new.modified().unwrap());
     assert_eq!(old.permissions(), new.permissions());
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        assert_eq!(old.ino(), new.ino(), "held finding replaced the inode");
+    }
     out
 }
 fn rows() -> Vec<serde_json::Value> {
@@ -86,13 +93,142 @@ fn complete_reference_sources_have_exact_cli_findings_and_no_unproven_edits() {
     }
 }
 #[test]
+fn encoded_argument_diagnostics_match_reference_in_real_lint_fix_and_stdin() {
+    let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
+        "fixtures/deprecated_constructor_encodings.json"
+    ))
+    .unwrap();
+    assert_eq!(rows.len(), 327);
+    let dir = project();
+    let path = dir.path().join("lib/a.rb");
+    fs::write(&path, "").unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o751)).unwrap();
+    }
+    for (i, row) in rows.iter().enumerate() {
+        let hex = row["source_hex"].as_str().unwrap();
+        let source: Vec<u8> = (0..hex.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
+            .collect();
+        let findings = row["findings"].as_array().unwrap();
+        let check = |out: &Output, path: &str| {
+            assert_eq!(
+                out.status.code(),
+                Some(i32::from(!findings.is_empty())),
+                "{row}\n{out:?}"
+            );
+            assert_eq!(count(out, ERB), findings.len(), "{row}\n{out:?}");
+            let text = std::str::from_utf8(&out.stdout).unwrap();
+            assert!(!text.contains('\u{fffd}'), "{out:?}");
+            for f in findings {
+                assert!(
+                    text.contains(&format!(
+                        "{path}:{}:{}: E: {} ({ERB})",
+                        f[0],
+                        f[1],
+                        f[3].as_str().unwrap()
+                    )),
+                    "{row}\n{out:?}"
+                );
+            }
+        };
+        for fix in [false, true] {
+            let mut args = vec!["--only", ERB, "lib/a.rb"];
+            if fix {
+                args.push("--fix");
+            }
+            check(&unchanged(dir.path(), &source, &args, None), "lib/a.rb");
+        }
+        if i >= rows.len() - 3 {
+            let github = unchanged(
+                dir.path(),
+                &source,
+                &["--only", ERB, "--fix", "--format", "github", "lib/a.rb"],
+                Some(1),
+            );
+            let text = std::str::from_utf8(&github.stdout).unwrap();
+            for f in findings {
+                assert!(text.contains(f[3].as_str().unwrap()), "{github:?}");
+            }
+            let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+                .current_dir(dir.path())
+                .args(["--only", ERB, "--stdin", "virtual/encoded.rb"])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            child.stdin.take().unwrap().write_all(&source).unwrap();
+            check(&child.wait_with_output().unwrap(), "virtual/encoded.rb");
+            assert!(!dir.path().join("virtual").exists());
+        }
+        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+            // Syntax only. Never run the pinned sources or template contents.
+            let syntax = Command::new(ruby)
+                .args(["--parser=prism", "-c"])
+                .arg(&path)
+                .output()
+                .unwrap();
+            assert!(syntax.status.success(), "{row}\n{syntax:?}");
+        }
+    }
+}
+
+#[test]
+fn utf8_mac_columns_in_actual_lint_and_fix_preserve_original_bytes() {
+    let dir = project();
+    for (encoding, big_col, erb_cols) in
+        [("UTF8-MAC", 17, [14, 19, 24]), ("UTF-8", 18, [15, 20, 25])]
+    {
+        for eol in ["\n", "\r\n"] {
+            for (root, extra) in [("", 0), ("::", 2)] {
+                let source = format!(
+                    "# coding: {encoding}{eol}\"e\u{301}\"; {root}BigDecimal.new(1){eol}{root}ERB.new(\"e\u{301}\", nil, \"-\", \"_out\"){eol}"
+                );
+                for fix in [false, true] {
+                    let mut args = vec!["--only", BOTH, "lib/a.rb"];
+                    if fix {
+                        args.push("--fix");
+                    }
+                    let out = unchanged(dir.path(), source.as_bytes(), &args, Some(1));
+                    assert_eq!((count(&out, BIG), count(&out, ERB)), (1, 3));
+                    let text = std::str::from_utf8(&out.stdout).unwrap();
+                    assert!(
+                        text.contains(&format!("lib/a.rb:2:{}: E:", big_col + extra)),
+                        "{out:?}"
+                    );
+                    for col in erb_cols {
+                        assert!(
+                            text.contains(&format!("lib/a.rb:3:{}: E:", col + extra)),
+                            "{out:?}"
+                        );
+                    }
+                }
+                if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+                    // Syntax only: these position fixtures must never execute.
+                    let out = Command::new(ruby)
+                        .args(["--parser=prism", "-c"])
+                        .arg(dir.path().join("lib/a.rb"))
+                        .output()
+                        .unwrap();
+                    assert!(out.status.success(), "{out:?}");
+                }
+            }
+        }
+    }
+}
+
+#[test]
 fn actual_defaults_bounds_selectors_toml_precedence_and_strict_keys() {
     use rustocop::cops::{
         Cop, Registry,
         policy::{RubyVersion, RubyVersions},
     };
     let registry = Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     for (name, versions) in [
         (BIG, RubyVersions::default()),
         (
@@ -439,10 +575,7 @@ fn existing_atomic_writer_symlinks_permissions_invalid_sources_and_peer_edits() 
     assert!(!dir.path().join("lib/missing.rb").exists());
 }
 fn native(ruby: &str, source: &str) -> Output {
-    Command::new(ruby)
-        .args(["--parser=prism", "-w", "-I/opt/ruby34/lib", "-e", source])
-        .output()
-        .unwrap()
+    native_guard::run(ruby, source)
 }
 #[test]
 fn authored_native_api_binding_warning_order_value_and_error_counterexamples() {

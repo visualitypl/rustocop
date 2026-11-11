@@ -1,6 +1,9 @@
 //! Execute only these controlled fixtures.
 //! Host compile_file retains lines; native 3.4.1 compile_file returns nil, while
 //! compile_file_prism and AST.parse_file retain lines. Do not conflate evidence.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{fs, path::Path, process::Command};
 
 const CASES: &[(&str, &str, &str)] = &[
@@ -49,15 +52,11 @@ fn cli(dir: &Path, cop: &str, fixing: bool, path: &str, status: i32) -> String {
 
 #[test]
 fn retained_vm_lines_preserve_runtime_bytes_mtime_and_converging_siblings() {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    let path = dir.path().join("case.rb");
-    let sibling = dir.path().join("safe.rb");
+    use std::sync::atomic::{AtomicUsize, Ordering};
     for runtime in runtimes() {
         let native = runtime != "ruby";
-        let mut witnesses = 0;
-        let mut nil_controls = 0;
+        let witnesses = AtomicUsize::new(0);
+        let nil_controls = AtomicUsize::new(0);
         for (factory, selector, args) in [
             ("RubyVM::InstructionSequence", "compile_file", "__FILE__"),
             (
@@ -74,7 +73,7 @@ fn retained_vm_lines_preserve_runtime_bytes_mtime_and_converging_siblings() {
             if !native && selector == "compile_file_prism" {
                 continue; // Ruby 3.2 has no Prism compilation API.
             }
-            for acquisition in [
+            parallel_rows!(for acquisition in [
                 format!("{factory}.{selector}({args})"),
                 format!("(VMFactory = ::{factory}; VMFactory.{selector}({args}))"),
                 format!("{factory}.public_send(:public_send, '{selector}', {args})"),
@@ -84,7 +83,12 @@ fn retained_vm_lines_preserve_runtime_bytes_mtime_and_converging_siblings() {
                 ),
                 format!("(def acquire; {factory}.{selector}({args}); end; acquire)"),
                 format!(":{selector}.to_proc.call({factory}, {args})"),
-            ] {
+            ] => {
+                let dir = tempfile::tempdir().unwrap();
+                fs::create_dir(dir.path().join(".git")).unwrap();
+                fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+                let path = dir.path().join("case.rb");
+                let sibling = dir.path().join("safe.rb");
                 // Each acquisition is paired with direct, reflective and
                 // escaped/aliased retained getters, not just compiler spelling.
                 for getter in [
@@ -115,11 +119,11 @@ fn retained_vm_lines_preserve_runtime_bytes_mtime_and_converging_siblings() {
                             if native && selector == "compile_file" {
                                 assert_eq!(before, b"nil\n");
                                 assert_eq!(naive, before);
-                                nil_controls += 1;
+                                nil_controls.fetch_add(1, Ordering::Relaxed);
                             } else {
                                 assert_ne!(naive, before, "{runtime}: {source}");
                                 assert!(before.starts_with(b"["));
-                                witnesses += 1;
+                                witnesses.fetch_add(1, Ordering::Relaxed);
                             }
                             fs::write(&path, &source).unwrap();
                             fs::write(&sibling, prefix).unwrap();
@@ -136,8 +140,10 @@ fn retained_vm_lines_preserve_runtime_bytes_mtime_and_converging_siblings() {
                         }
                     }
                 }
-            }
+            });
         }
+        let witnesses = witnesses.load(Ordering::Relaxed);
+        let nil_controls = nil_controls.load(Ordering::Relaxed);
         eprintln!(
             "{runtime}: {witnesses} raw VM witnesses; {nil_controls} compile_file nil controls"
         );

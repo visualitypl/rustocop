@@ -19,6 +19,9 @@
 require 'stringio'
 require_relative "../fixed_policy"
 require_relative "empty_file_lifecycle"
+require_relative "script_permission_lifecycle"
+require_relative "syntax_lifecycle"
+require_relative "redundant_disable_lifecycle"
 
 module Oracle
   # The lowest target Ruby RuboCop's Prism engine parses.
@@ -27,7 +30,7 @@ module Oracle
   # One `expect_offense` or `expect_no_offenses` call.
   Expectation = Struct.new(
     :cop, :spec, :spec_line, :description, :source, :file, :offenses,
-    :config, :ruby_version, :skip, keyword_init: true
+    :config, :ruby_version, :skip, :lifecycle, keyword_init: true
   )
 
   # An expected offense: 1-based line, 1-based column, caret count, message.
@@ -565,7 +568,14 @@ module Oracle
         runner.define_singleton_method(:to_proc) { inner }
         run = proc { instance.instance_exec(runner, &hook) }
       end
-      run.call
+      if Oracle.current_cop == 'Lint/Syntax'
+        # The pinned main spec defaults to3.3. This product is fixed at3.4;
+        # adapt both its actual parser and its expected advice consistently.
+        instance.define_singleton_method(:ruby_version) { 3.4 }
+        SyntaxLifecycle.run(metadata, &run)
+      else
+        run.call
+      end
       if @recorded.zero? && !skip_reason && !helper_only
         raise Unsupported, 'no source expectation was evaluated'
       end
@@ -615,12 +625,28 @@ end
 
 # The `RSpec` entry points spec files call.
 module RSpec
+  # Layout/EndOfLine's `iso-8859-15` shared examples assert that a nested
+  # `expect_no_offenses` fails (`raise_error(RSpec::Expectations::
+  # ExpectationNotMetError)`). Their recorded source keeps its `crlf`/`lf`
+  # configuration, so the detection oracle skips it like any custom-config
+  # example; they are replayed at the fixed style in Rust unit tests.
+  module Expectations
+    class ExpectationNotMetError < StandardError; end
+  end
+
   class << self
     def describe(*args, &block)
       description, metadata = Oracle.split_args(args)
       group = Class.new(Oracle::ExampleGroup)
       group.setup(description, metadata, nil)
       group.include(Oracle::EmptyFileLifecycle) if Oracle.current_cop == 'Lint/EmptyFile'
+      group.include(Oracle::ScriptPermissionLifecycle) if Oracle.current_cop == 'Lint/ScriptPermission'
+      group.include(Oracle::SyntaxLifecycle) if Oracle.current_cop == 'Lint/Syntax'
+      if Oracle.current_cop == Oracle::RedundantDisableLifecycle::COP
+        require 'rubocop/cop/legacy/corrector'
+        require File.join(Oracle.locate_rubocop(nil), 'spec/support/fake_location')
+        group.include(Oracle::RedundantDisableLifecycle)
+      end
       group.class_exec(&block) if block
       Oracle.register_top_group(group)
       group

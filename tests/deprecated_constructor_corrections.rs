@@ -5,6 +5,8 @@ use std::{
     path::Path,
     process::{Command, Output},
 };
+#[path = "support/deprecated_constructor_native.rs"]
+mod native_guard;
 const BIG: &str = "Lint/BigDecimalNew";
 const ERB: &str = "Lint/ErbNewArguments";
 const BIG_SAFE: &str = "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n";
@@ -332,10 +334,7 @@ fn supplemental_reference_sources_get_native_syntax_checks_only() {
 }
 
 fn native(ruby: &str, source: &str) -> Output {
-    Command::new(ruby)
-        .args(["--parser=prism", "-w", "-e", source])
-        .output()
-        .unwrap()
+    native_guard::run(ruby, source)
 }
 fn successful_pair(ruby: &str, before: &str, after: &str) -> Output {
     let a = native(ruby, before);
@@ -349,6 +348,53 @@ fn successful_pair(ruby: &str, before: &str, after: &str) -> Output {
     assert!(a.stderr.is_empty(), "{a:?}");
     a
 }
+#[test]
+fn authored_native_limits_and_trace_overflow_fail_not_truncate_observations() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let timed = native_guard::limited(&ruby, "sleep 2", "0.2", 512 * 1024 * 1024, 65536);
+    assert!(timed.unwrap_err().contains("time limit"));
+    for stream in ["STDOUT", "STDERR"] {
+        let overflow = native_guard::limited(
+            &ruby,
+            &format!("loop {{ {stream}.write('x' * 4096) }}"),
+            "5",
+            512 * 1024 * 1024,
+            65536,
+        );
+        let failure = overflow.unwrap_err();
+        assert!(
+            failure.contains("output limit") || failure.contains("signal"),
+            "{failure}"
+        );
+    }
+    let memory = native_guard::limited(
+        &ruby,
+        "a = []; loop { a << 'x' * (1024 * 1024) }",
+        "5",
+        128 * 1024 * 1024,
+        65536,
+    );
+    match memory {
+        Ok(out) => {
+            assert!(!out.status.success(), "memory limit ignored");
+            assert!(
+                String::from_utf8_lossy(&out.stderr).contains("memory"),
+                "{out:?}"
+            );
+        }
+        Err(error) => assert!(error.contains("signal"), "{error}"),
+    }
+    let trace = native(
+        &ruby,
+        "$n = 0; t = TracePoint.new(:c_call) { $n += 1; raise 'trace event cap exceeded' if $n > 128 }; t.enable; 1000.times { 1.to_s }; t.disable; puts :unreachable",
+    );
+    assert!(!trace.status.success());
+    assert!(String::from_utf8_lossy(&trace.stderr).contains("trace event cap exceeded"));
+    assert!(trace.stdout.is_empty());
+}
+
 #[test]
 fn native_real_c_factory_wrapper_value_class_formals_bindings_warnings_and_encodings() {
     let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
@@ -456,7 +502,7 @@ fn native_real_erb_method_reference_result_binding_no_evaluation_or_warnings() {
     }
     // Instrument the real method without replacing it: defined? never invokes
     // .new, .initialize or even an argument mark, so neither pair warns/executes.
-    let prelude = "require 'erb'; $events = []; def mark(x); $events << x; x; end; t = TracePoint.new(:call, :c_call) { |e| $events << e.method_id if [:new, :initialize].include?(e.method_id) }; t.enable; ";
+    let prelude = "require 'erb'; $events = []; $trace_count = 0; def mark(x); $events << x; x; end; t = TracePoint.new(:call, :c_call) { |e| $trace_count += 1; raise 'trace event cap exceeded' if $trace_count > 128; $events << e.method_id if [:new, :initialize].include?(e.method_id) }; t.enable; ";
     let a = format!(
         "{prelude}value = [defined?(ERB.new(mark('x'), nil, mark('-')))]; t.disable; p [value, $events]"
     );
@@ -480,7 +526,7 @@ fn native_removed_api_error_backtrace_trace_source_code_heap_and_binding_boundar
     ];
     for suffix in [
         "begin; CALL; rescue => e; p [e.class.name, e.message, e.backtrace]; end",
-        "$events = []; t = TracePoint.new(:call, :return, :c_call) { |e| $events << e.method_id if [:new, :BigDecimal].include?(e.method_id) }; t.enable; CALL; t.disable; p $events",
+        "$events = []; $trace_count = 0; t = TracePoint.new(:call, :return, :c_call) { |e| $trace_count += 1; raise 'trace event cap exceeded' if $trace_count > 128; $events << e.method_id if [:new, :BigDecimal].include?(e.method_id) }; t.enable; CALL; t.disable; p $events",
     ] {
         let argument = if suffix.starts_with("begin") {
             "'bad'"

@@ -15,6 +15,14 @@ use ruby_prism::ParseResult;
 
 type Span = (u32, u32);
 
+/// Unmerged interval with its actual opening source directive (None for config).
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct DisabledRange<'a> {
+    pub first: u32,
+    pub last: u32,
+    pub directive: Option<&'a DirectiveComment>,
+}
+
 /// Unmerged intervals matter to CommentsHelp (adjacent disables are distinct).
 #[derive(Debug)]
 struct CommentRanges {
@@ -166,20 +174,47 @@ impl Directives {
             })
     }
 
+    pub(crate) fn records(&self) -> &[DirectiveComment] {
+        &self.records
+    }
+
+    pub(crate) fn statement_bounds(&self, directive: &DirectiveComment) -> Option<Span> {
+        self.bounds.get(&directive.line).copied()
+    }
+
+    pub(crate) fn attached(&self, directive: &DirectiveComment) -> bool {
+        self.statement_bounds(directive).is_some()
+    }
+
+    pub(crate) fn disabled_ranges(&self, cop: &str) -> Vec<DisabledRange<'_>> {
+        self.attributed_ranges(cop, &self.records)
+    }
+
     fn analyze_unmerged(&self, cop: &str, records: &[DirectiveComment]) -> Vec<Span> {
+        self.attributed_ranges(cop, records)
+            .into_iter()
+            .map(|r| (r.first, r.last))
+            .collect()
+    }
+
+    fn attributed_ranges<'a>(
+        &self,
+        cop: &str,
+        records: &'a [DirectiveComment],
+    ) -> Vec<DisabledRange<'a>> {
         let mut ranges = Vec::new();
-        let mut open = self.initially_disabled.contains(cop).then_some(1);
-        let mut stack: Vec<bool> = Vec::new();
+        let mut open = self.initially_disabled.contains(cop).then_some((1, None));
+        let mut stack: Vec<Option<(u32, Option<&DirectiveComment>)>> = Vec::new();
         for d in records {
             if d.mode == "pop" {
                 if let Some(saved) = stack.pop() {
                     close(&mut ranges, open, d.line.saturating_sub(1));
-                    open = saved.then_some(d.line);
+                    open = saved.map(|(_, directive)| (d.line, directive));
                 }
                 continue;
             }
             if d.mode == "push" {
-                stack.push(open.is_some());
+                stack.push(open);
             }
             if matches!(d.mode, "push" | "next") {
                 // Ruby groups operations by sign, preserving the order in which
@@ -203,26 +238,39 @@ impl Directives {
                             close(&mut ranges, open, d.line);
                             open = None;
                         } else if open.is_none() {
-                            open = Some(d.line);
+                            open = Some((d.line, Some(d)));
                         }
                     } else if let Some(&(start, end)) = self.bounds.get(&d.line) {
                         if plus {
                             suspend(&mut ranges, &mut open, start, end);
                         } else {
-                            ranges.push((start, end));
+                            ranges.push(DisabledRange {
+                                first: start,
+                                last: end,
+                                directive: Some(d),
+                            });
                         }
                     }
                 }
                 continue;
             }
-            if !d.names.iter().any(|name| comments::hits(name, cop)) {
+            if !d.names.iter().any(|name| {
+                // all/Lint omit this lifecycle cop; explicit names still work.
+                !(cop == "Lint/RedundantCopDisableDirective"
+                    && matches!(name.as_str(), "all" | "Lint"))
+                    && comments::hits(name, cop)
+            }) {
                 continue;
             }
             match d.mode {
                 "disable" | "todo" | "disable-next" | "todo-next" if cop == comments::BAN => {}
                 "disable-next" | "todo-next" => {
                     if let Some(&bounds) = self.bounds.get(&d.line) {
-                        ranges.push(bounds);
+                        ranges.push(DisabledRange {
+                            first: bounds.0,
+                            last: bounds.1,
+                            directive: Some(d),
+                        });
                     }
                 }
                 "enable-next" => {
@@ -230,10 +278,14 @@ impl Directives {
                         suspend(&mut ranges, &mut open, start, end);
                     }
                 }
-                "disable" | "todo" if !d.standalone || d.embedded => ranges.push((d.line, d.line)),
+                "disable" | "todo" if !d.standalone || d.embedded => ranges.push(DisabledRange {
+                    first: d.line,
+                    last: d.line,
+                    directive: Some(d),
+                }),
                 "disable" | "todo" => {
                     close(&mut ranges, open, d.line);
-                    open = Some(d.line);
+                    open = Some((d.line, Some(d)));
                 }
                 "enable" if d.standalone && !d.embedded => {
                     close(&mut ranges, open, d.line);
@@ -335,16 +387,29 @@ fn is_next(mode: &str) -> bool {
     matches!(mode, "disable-next" | "todo-next" | "enable-next" | "next")
 }
 
-fn close(ranges: &mut Vec<Span>, open: Option<u32>, end: u32) {
-    if let Some(start) = open
+fn close<'a>(
+    ranges: &mut Vec<DisabledRange<'a>>,
+    open: Option<(u32, Option<&'a DirectiveComment>)>,
+    end: u32,
+) {
+    if let Some((start, directive)) = open
         && start <= end
     {
-        ranges.push((start, end));
+        ranges.push(DisabledRange {
+            first: start,
+            last: end,
+            directive,
+        });
     }
 }
-fn suspend(ranges: &mut Vec<Span>, open: &mut Option<u32>, start: u32, end: u32) {
-    if open.is_some() {
+fn suspend<'a>(
+    ranges: &mut Vec<DisabledRange<'a>>,
+    open: &mut Option<(u32, Option<&'a DirectiveComment>)>,
+    start: u32,
+    end: u32,
+) {
+    if let Some((_, directive)) = *open {
         close(ranges, *open, start.saturating_sub(1));
-        *open = Some(end.saturating_add(1));
+        *open = Some((end.saturating_add(1), directive));
     }
 }

@@ -1,5 +1,8 @@
 //! Exact source-only pinned fixtures, rebuilt CLI and no-edit controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -116,8 +119,8 @@ fn all_original_byte_fixtures_match_exact_pipeline_or_explicit_parser_rejections
 }
 #[test]
 fn every_fixture_matches_exact_rebuilt_cli_lint_and_fix_without_writes() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let invalid =
             row.get("parser_rejection").is_some() || row.get("native_parser_rejection").is_some();
@@ -151,12 +154,12 @@ fn every_fixture_matches_exact_rebuilt_cli_lint_and_fix_without_writes() {
             expected.sort();
             assert_eq!(found, expected, "{row}\n{out:?}");
         }
-    }
+    });
 }
 #[test]
 fn detection_only_defaults_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());

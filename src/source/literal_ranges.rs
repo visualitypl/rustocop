@@ -12,8 +12,78 @@ use crate::cops::walk::{NodeVisitor, walk};
 
 use super::SourceFile;
 
-pub(super) fn collect(file: &SourceFile, root: &Node<'_>) -> Vec<Range<usize>> {
-    collect_inner(file, root, false).protected
+pub(super) struct SafetyRanges {
+    protected: Vec<Range<usize>>,
+    pub interiors: Vec<Range<usize>>,
+}
+impl std::ops::Deref for SafetyRanges {
+    type Target = [Range<usize>];
+    fn deref(&self) -> &Self::Target {
+        &self.protected
+    }
+}
+
+pub(super) fn collect(file: &SourceFile, root: &Node<'_>) -> SafetyRanges {
+    let ranges = collect_inner(file, root, false);
+    SafetyRanges {
+        protected: ranges.protected,
+        interiors: ranges.interiors,
+    }
+}
+
+/// The existing IndentationWidth projection, shared unchanged with alignment.
+/// Protect complete interiors (including interpolation and heredoc terminators)
+/// but allow whitespace before a literal's opening token to move.
+pub(crate) fn literal_interior(node: &Node<'_>, file: &SourceFile) -> Option<Range<usize>> {
+    let (opening, closing) = match node {
+        Node::StringNode { .. } => {
+            let n = node.as_string_node()?;
+            (n.opening_loc()?, n.closing_loc()?)
+        }
+        Node::InterpolatedStringNode { .. } => {
+            let n = node.as_interpolated_string_node()?;
+            (n.opening_loc()?, n.closing_loc()?)
+        }
+        Node::SymbolNode { .. } => {
+            let n = node.as_symbol_node()?;
+            (n.opening_loc()?, n.closing_loc()?)
+        }
+        Node::InterpolatedSymbolNode { .. } => {
+            let n = node.as_interpolated_symbol_node()?;
+            (n.opening_loc()?, n.closing_loc()?)
+        }
+        Node::XStringNode { .. } => {
+            let n = node.as_x_string_node()?;
+            (n.opening_loc(), n.closing_loc())
+        }
+        Node::InterpolatedXStringNode { .. } => {
+            let n = node.as_interpolated_x_string_node()?;
+            (n.opening_loc(), n.closing_loc())
+        }
+        Node::RegularExpressionNode { .. } => {
+            let n = node.as_regular_expression_node()?;
+            (n.opening_loc(), n.closing_loc())
+        }
+        Node::InterpolatedRegularExpressionNode { .. } => {
+            let n = node.as_interpolated_regular_expression_node()?;
+            (n.opening_loc(), n.closing_loc())
+        }
+        Node::ArrayNode { .. } => {
+            let n = node.as_array_node()?;
+            let opening = n.opening_loc()?;
+            if !opening.as_slice().starts_with(b"%") {
+                return None;
+            }
+            (opening, n.closing_loc()?)
+        }
+        _ => return None,
+    };
+    let start = if opening.as_slice().starts_with(b"<<") {
+        file.line_start(file.line_of(opening.end_offset()) + 1)
+    } else {
+        opening.end_offset()
+    };
+    Some(start..closing.end_offset())
 }
 
 /// Literal/token exclusions for separator cops. Unlike correction-only literal
@@ -24,6 +94,7 @@ pub(super) fn punctuation_ranges(file: &SourceFile, root: &Node<'_>) -> Punctuat
 
 pub(super) struct PunctuationRanges {
     pub protected: Vec<Range<usize>>,
+    interiors: Vec<Range<usize>>,
     pub interpolation_ends: Vec<usize>,
     /// Openings translated as tLPAREN_ARG, not an ordinary left-paren token.
     pub argument_parens: Vec<usize>,
@@ -50,6 +121,7 @@ fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> Punct
     let mut collector = Collector {
         file,
         ranges: Vec::new(),
+        interiors: Vec::new(),
         punctuation,
         interpolation_ends: Vec::new(),
         argument_parens: Vec::new(),
@@ -79,6 +151,19 @@ fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> Punct
             merged.push(range);
         }
     }
+    collector
+        .interiors
+        .sort_unstable_by_key(|r| (r.start, r.end));
+    let mut interiors: Vec<Range<usize>> = Vec::new();
+    for range in collector.interiors {
+        if let Some(last) = interiors.last_mut()
+            && range.start <= last.end
+        {
+            last.end = last.end.max(range.end);
+        } else {
+            interiors.push(range);
+        }
+    }
     collector.interpolation_ends.sort_unstable();
     collector.argument_parens.sort_unstable();
     collector.multiline_string_ends.sort_unstable();
@@ -86,6 +171,7 @@ fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> Punct
     collector.heredoc_openings.sort_unstable();
     PunctuationRanges {
         protected: merged,
+        interiors,
         interpolation_ends: collector.interpolation_ends,
         argument_parens: collector.argument_parens,
         multiline_string_ends: collector.multiline_string_ends,
@@ -108,6 +194,7 @@ struct PendingLiteral<'pr> {
 struct Collector<'a, 'pr> {
     file: &'a SourceFile,
     ranges: Vec<Range<usize>>,
+    interiors: Vec<Range<usize>>,
     punctuation: bool,
     interpolation_ends: Vec<usize>,
     argument_parens: Vec<usize>,
@@ -317,6 +404,11 @@ impl<'pr> Collector<'_, 'pr> {
 
 impl<'pr> NodeVisitor<'pr> for Collector<'_, 'pr> {
     fn enter(&mut self, node: Node<'pr>) {
+        if !self.punctuation
+            && let Some(range) = literal_interior(&node, self.file)
+        {
+            self.interiors.push(range);
+        }
         let location = node.location();
         self.extents.push(SubtreeExtent {
             location: (location.start_offset(), location.end_offset()),

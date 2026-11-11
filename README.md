@@ -2,7 +2,7 @@
 
 A fast, opinionated Ruby linter written in Rust.
 
-rustocop ships 491 cops that behave like their RuboCop counterparts, but it
+rustocop ships 582 cops that behave like their RuboCop counterparts, but it
 makes the style decisions for you, needs no Ruby installation to run, and
 lints thousands of files in a fraction of a second.
 
@@ -35,19 +35,25 @@ Version 0.5.0, built from source; there is no published release yet.
 | Department | Cops |
 | --- | ---: |
 | Style | 299 |
-| Lint | 145 |
-| Layout | 21 |
+| Lint | 160 |
+| Layout | 79 |
 | Naming | 19 |
+| Gemspec | 10 |
+| Bundler | 7 |
 | Security | 7 |
+| Metrics | 1 |
 
 Each cop matches the behaviour of its RuboCop 1.92.0 counterpart at
 rustocop's fixed settings and is verified against RuboCop's own spec examples
 (see [Development](#development)). Most cops are on by default; 34 Style
-cops, five Lint cops (`Lint/ConstantResolution`,
-`Lint/HeredocMethodCallPosition`, `Lint/NumberConversion`,
-`Lint/ShadowingOuterLocalVariable`, `Lint/UnusedPrivateMethod`),
-`Naming/InclusiveLanguage` and `Style/FrozenStringLiteralComment` are
-opt-in. A few cops apply only to Ruby versions other than the fixed 3.4 target
+cops, eleven Layout cops (the line-break cops,
+`Layout/MultilineAssignmentLayout`, `Layout/EmptyLineAfterMultilineCondition`
+and `Layout/HeredocArgumentClosingParenthesis`), five Lint cops
+(`Lint/ConstantResolution`, `Lint/HeredocMethodCallPosition`,
+`Lint/NumberConversion`, `Lint/ShadowingOuterLocalVariable`,
+`Lint/UnusedPrivateMethod`), `Bundler/GemComment`, `Bundler/GemVersion`,
+`Gemspec/DependencyVersion`, `Naming/InclusiveLanguage` and
+`Style/FrozenStringLiteralComment` are opt-in. A few cops apply only to Ruby versions other than the fixed 3.4 target
 (`Security/YAMLLoad`, `Style/ReverseFind`, `Lint/ItWithoutArgumentsInBlock`,
 `Lint/UselessElseWithoutRescue`, `Lint/NonDeterministicRequireOrder`); they
 stay registered but report nothing.
@@ -63,8 +69,9 @@ stay registered but report nothing.
 - **File-local analysis.** Every file is linted independently and in
   parallel. Cops that need cross-file state in RuboCop (for example
   `Lint/DuplicateMethods` across files) work within one file here.
-- **Five departments.** There is no Metrics, Bundler or Gemspec department and
-  no support for extension gems such as rubocop-rails or rubocop-rspec.
+- **Eight departments.** Metrics has only `Metrics/ParameterLists` so far, 21
+  Layout cops are still missing, and there is no support for extension gems
+  such as rubocop-rails or rubocop-rspec.
 - **No unsafe autocorrect, formatter or server mode.**
 
 ## Installation
@@ -92,9 +99,9 @@ rustocop --fix app lib             # apply safe corrections in place
 cat file.rb | rustocop --stdin file.rb
 ```
 
-Directories are searched for `.rb` files, honouring `.gitignore`. Other files
-(`Rakefile`, `*.rake`, `bin/` scripts) are linted when named explicitly, for
-example `rustocop lib Rakefile`. `db/schema.rb`, `vendor/**` and
+Directories are searched for `.rb` files, `Gemfile`, `*.gemfile` and
+`*.gemspec`, honouring `.gitignore`. Other files (`Rakefile`, `*.rake`, `bin/`
+scripts) are linted when named explicitly, for example `rustocop lib Rakefile`. `db/schema.rb`, `vendor/**` and
 `node_modules/**` are excluded by default.
 
 Exit codes: **0** clean, **1** offenses remain, **2** errors (configuration,

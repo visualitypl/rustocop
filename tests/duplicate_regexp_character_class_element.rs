@@ -6,6 +6,8 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
+#[path = "support/deprecated_constructor_native.rs"]
+mod native_guard;
 const COP: &str = "Lint/DuplicateRegexpCharacterClassElement";
 const SAFE: &[u8] = b"[defined?(/[xyx]/)]\n";
 const AFTER: &[u8] = b"[defined?(/[xy]/)]\n";
@@ -120,6 +122,166 @@ fn all_reference_rows_exact_cli_findings_no_writes_and_canonical_edits() {
     assert_eq!(fixed, 10);
 }
 #[test]
+fn operator_recovery_exact_cli_no_internal_errors_no_writes_and_native_syntax() {
+    let rows: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/duplicate_regexp_extended.json")).unwrap();
+    assert_eq!(rows.len(), 1051);
+    let dir = project();
+    for row in rows {
+        let source = row["source"].as_str().unwrap();
+        let findings = row["findings"].as_array().unwrap();
+        for fix in [false, true] {
+            let mut args = vec!["--only", COP, "lib/a.rb"];
+            if fix {
+                args.push("--fix");
+            }
+            let out = unchanged(
+                dir.path(),
+                source.as_bytes(),
+                &args,
+                Some(i32::from(!findings.is_empty())),
+            );
+            assert!(out.stderr.is_empty(), "{row}\n{out:?}");
+            assert_eq!(count(&out), findings.len(), "{row}\n{out:?}");
+            for f in findings {
+                assert!(
+                    String::from_utf8_lossy(&out.stdout).contains(&format!(
+                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        f[0],
+                        f[1],
+                        f[3].as_str().unwrap()
+                    )),
+                    "{row}\n{out:?}"
+                );
+            }
+        }
+        // All generated fixtures are controlled source-only inputs. This does
+        // NOT construct a Regexp or execute interpolation/reference code.
+        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+            let mut child = Command::new(&ruby)
+                .args(["--parser=prism", "-c", "-"])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            child
+                .stdin
+                .take()
+                .unwrap()
+                .write_all(source.as_bytes())
+                .unwrap();
+            let out = child.wait_with_output().unwrap();
+            assert!(out.status.success(), "{row}\n{out:?}");
+        }
+    }
+}
+#[test]
+fn operator_round2_shared_cli_findings_and_held_fixes_preserve_source() {
+    let rows: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/duplicate_regexp_extended.json")).unwrap();
+    let dir = project();
+    let names = [
+        COP,
+        "Lint/MixedRegexpCaptureTypes",
+        "Lint/UnescapedBracketInRegexp",
+        "Lint/RedundantRegexpQuantifiers",
+        "Lint/MixedCaseRange",
+    ];
+    let only = names.join(",");
+    let mut checked = 0;
+    for row in rows {
+        let Some(findings) = row.get("shared_findings").and_then(|v| v.as_array()) else {
+            continue;
+        };
+        checked += 1;
+        for fix in [false, true] {
+            let mut args = vec!["--only", &only, "lib/a.rb"];
+            if fix {
+                args.push("--fix");
+            }
+            let out = unchanged(
+                dir.path(),
+                row["source"].as_str().unwrap().as_bytes(),
+                &args,
+                Some(i32::from(!findings.is_empty())),
+            );
+            assert!(out.stderr.is_empty(), "{row}\n{out:?}");
+            let text = String::from_utf8(out.stdout).unwrap();
+            assert_eq!(
+                text.matches(": E: ").count(),
+                findings.len(),
+                "{row}\n{text}"
+            );
+            for f in findings {
+                assert!(
+                    text.contains(&format!(
+                        "lib/a.rb:{}:{}: E: {} ({})",
+                        f[1],
+                        f[2],
+                        f[4].as_str().unwrap(),
+                        f[0].as_str().unwrap()
+                    )),
+                    "{row}\n{text}"
+                );
+            }
+        }
+    }
+    assert_eq!(checked, 607);
+}
+#[test]
+fn operator_round2_review_extended_whitespace_cli_no_write_and_native_syntax() {
+    let dir = project();
+    let only = format!(
+        "{COP},Lint/MixedRegexpCaptureTypes,Lint/UnescapedBracketInRegexp,Lint/RedundantRegexpQuantifiers,Lint/MixedCaseRange"
+    );
+    let mut sources = Vec::new();
+    for space in [" ", "\t", "\n", "\r", "\u{b}", "\u{c}"] {
+        for source in [
+            format!("/(?x){space}*[aa]#{{value}}/"),
+            format!("/{space}*[aa]#{{value}}/x"),
+            format!("/(?x:{space}*[aa])#{{value}}/"),
+        ] {
+            sources.push((source, 0));
+        }
+    }
+    sources.extend([
+        ("/\u{b}*[aa]#{value}/".into(), 1),
+        ("/(?-x:\u{b}*[aa])#{value}/x".into(), 1),
+        ("/(?x)[\u{b}\u{b}]#{value}/".into(), 1),
+        ("/(?x)a\u{b}*[aa]#{value}/".into(), 1),
+    ]);
+    for (source, expected) in sources {
+        for fix in [false, true] {
+            let mut args = vec!["--only", &only, "lib/a.rb"];
+            if fix {
+                args.push("--fix");
+            }
+            let out = unchanged(dir.path(), source.as_bytes(), &args, Some(expected));
+            assert!(out.stderr.is_empty(), "{source:?}\n{out:?}");
+            assert_eq!(count(&out), expected as usize, "{source:?}\n{out:?}");
+        }
+        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+            // Syntax only: interpolation and regexp/program code never execute.
+            let out = Command::new("timeout")
+                .args([
+                    "--kill-after=1s",
+                    "10",
+                    "prlimit",
+                    "--as=536870912",
+                    "--fsize=1048576",
+                    "--core=0",
+                    "--",
+                ])
+                .arg(ruby)
+                .args(["--parser=prism", "-c", "-e", &source])
+                .output()
+                .unwrap();
+            assert!(out.status.success(), "{source:?}\n{out:?}");
+        }
+    }
+}
+#[test]
 fn legacy_source_buffer_projection_columns_and_bytes_are_preserved() {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/duplicate_regexp_legacy.json")).unwrap();
@@ -169,7 +331,7 @@ fn legacy_source_buffer_projection_columns_and_bytes_are_preserved() {
 #[test]
 fn defaults_metadata_selectors_strict_config_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());
@@ -490,10 +652,9 @@ fn atomic_validation_readonly_symlinks_permissions_and_peer_composition() {
     assert!(!dir.path().join("lib/missing.rb").exists());
 }
 fn native(ruby: &str, source: &str) -> Output {
-    Command::new(ruby)
-        .args(["--parser=prism", "-w", "-e", source])
-        .output()
-        .unwrap()
+    // Reuse the existing external wall/memory/output/core-dump guards. Native
+    // runtime witnesses are authored here, never drawn from reference fixtures.
+    native_guard::run(ruby, source)
 }
 #[test]
 fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
@@ -548,7 +709,7 @@ fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
     // regexp or invokes Regexp methods. This is not a permitted edit context.
     let out = native(
         &ruby,
-        "events = []; tp = TracePoint.new(:call, :c_call) { |t| events << t.method_id if t.defined_class == Regexp }; tp.enable; value = [defined?(/[xx]/), defined?(/[x]/)]; tp.disable; p [value, events]",
+        "events = []; count = 0; tp = TracePoint.new(:call, :c_call) { |t| count += 1; raise 'trace overflow FAILURE' if count > 10000; events << t.method_id if t.defined_class == Regexp }; tp.enable; value = [defined?(/[xx]/), defined?(/[x]/)]; tp.disable; p [value, events]",
     );
     assert!(out.status.success(), "{out:?}");
     assert!(out.stderr.is_empty(), "{out:?}");
@@ -573,6 +734,22 @@ fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
             Some(1),
         );
     }
+}
+#[test]
+fn authored_native_trace_overflow_is_failure_not_a_truncated_proof() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let out = native(
+        &ruby,
+        "count = 0; tp = TracePoint.new(:c_call) { count += 1; raise 'trace overflow FAILURE' if count > 4 }; tp.enable; 20.times { 1.to_s }; tp.disable; puts 'UNREACHABLE proof'",
+    );
+    assert!(!out.status.success(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr).contains("trace overflow FAILURE"),
+        "{out:?}"
+    );
+    assert!(out.stdout.is_empty(), "{out:?}");
 }
 #[test]
 fn all_reference_sources_and_upstream_rewrites_are_native_syntax_only() {

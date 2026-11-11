@@ -135,6 +135,17 @@ struct ProjectedLocals {
     spans: std::collections::HashSet<(usize, usize)>,
     projected: bool,
 }
+/// Reuse the bounded lexical projection for SelfAssignment's subtree equality.
+/// No raw VariableForce identity or shared correction key is changed.
+pub(super) fn projected_local_spans<'pr>(
+    node: &Node<'pr>,
+    cx: &NodeContext<'_, 'pr>,
+    file: &SourceFile,
+) -> Option<std::collections::HashSet<(usize, usize)>> {
+    let locals = projected_locals(node, cx, file);
+    locals.projected.then_some(locals.spans)
+}
+
 fn projected_locals<'pr>(
     node: &Node<'pr>,
     cx: &NodeContext<'_, 'pr>,

@@ -1,0 +1,3073 @@
+{
+  "names": [
+    "Bundler/DuplicatedGem",
+    "Bundler/DuplicatedGroup",
+    "Bundler/GemComment",
+    "Bundler/GemFilename",
+    "Bundler/GemVersion",
+    "Bundler/InsecureProtocolSource",
+    "Bundler/OrderedGems",
+    "Gemspec/AddRuntimeDependency",
+    "Gemspec/AttributeAssignment",
+    "Gemspec/DependencyVersion",
+    "Gemspec/DeprecatedAttributeAssignment",
+    "Gemspec/DevelopmentDependencies",
+    "Gemspec/DuplicatedAssignment",
+    "Gemspec/OrderedDependencies",
+    "Gemspec/RequireMFA",
+    "Gemspec/RequiredRubyVersion",
+    "Gemspec/RubyVersionGlobalsUsage",
+    "Layout/AccessModifierIndentation",
+    "Layout/ArgumentAlignment",
+    "Layout/ArrayAlignment",
+    "Layout/AssignmentIndentation",
+    "Layout/BeginEndAlignment",
+    "Layout/BlockAlignment",
+    "Layout/BlockEndNewline",
+    "Layout/CaseIndentation",
+    "Layout/ClassStructure",
+    "Layout/ClosingHeredocIndentation",
+    "Layout/ClosingParenthesisIndentation",
+    "Layout/CommentIndentation",
+    "Layout/ConditionPosition",
+    "Layout/DefEndAlignment",
+    "Layout/DotPosition",
+    "Layout/ElseAlignment",
+    "Layout/EmptyComment",
+    "Layout/EmptyLineAfterGuardClause",
+    "Layout/EmptyLineAfterMagicComment",
+    "Layout/EmptyLineAfterMultilineCondition",
+    "Layout/EmptyLineBetweenDefs",
+    "Layout/EmptyLinesAfterModuleInclusion",
+    "Layout/EmptyLinesAroundAccessModifier",
+    "Layout/EmptyLinesAroundArguments",
+    "Layout/EmptyLinesAroundAttributeAccessor",
+    "Layout/EmptyLinesAroundBeginBody",
+    "Layout/EmptyLinesAroundBlockBody",
+    "Layout/EmptyLinesAroundClassBody",
+    "Layout/EmptyLinesAroundExceptionHandlingKeywords",
+    "Layout/EmptyLinesAroundMethodBody",
+    "Layout/EmptyLinesAroundModuleBody",
+    "Layout/EmptyLines",
+    "Layout/EndAlignment",
+    "Layout/EndOfLine",
+    "Layout/ExtraSpacing",
+    "Layout/FirstArgumentIndentation",
+    "Layout/FirstArrayElementIndentation",
+    "Layout/FirstArrayElementLineBreak",
+    "Layout/FirstHashElementIndentation",
+    "Layout/FirstHashElementLineBreak",
+    "Layout/FirstMethodArgumentLineBreak",
+    "Layout/FirstMethodParameterLineBreak",
+    "Layout/FirstParameterIndentation",
+    "Layout/HashAlignment",
+    "Layout/HeredocArgumentClosingParenthesis",
+    "Layout/HeredocIndentation",
+    "Layout/IndentationConsistency",
+    "Layout/IndentationStyle",
+    "Layout/IndentationWidth",
+    "Layout/InitialIndentation",
+    "Layout/LeadingCommentSpace",
+    "Layout/LeadingEmptyLines",
+    "Layout/LineContinuationLeadingSpace",
+    "Layout/LineContinuationSpacing",
+    "Layout/LineEndStringConcatenationIndentation",
+    "Layout/LineLength",
+    "Layout/MultilineArrayBraceLayout",
+    "Layout/MultilineArrayLineBreaks",
+    "Layout/MultilineAssignmentLayout",
+    "Layout/MultilineBlockLayout",
+    "Layout/MultilineHashBraceLayout",
+    "Layout/MultilineHashKeyLineBreaks",
+    "Layout/MultilineMethodArgumentLineBreaks",
+    "Layout/MultilineMethodCallBraceLayout",
+    "Layout/MultilineMethodCallIndentation",
+    "Layout/MultilineMethodDefinitionBraceLayout",
+    "Layout/MultilineMethodParameterLineBreaks",
+    "Layout/MultilineOperationIndentation",
+    "Layout/ParameterAlignment",
+    "Layout/RedundantLineBreak",
+    "Layout/RescueEnsureAlignment",
+    "Layout/SingleLineBlockChain",
+    "Layout/SpaceAfterColon",
+    "Layout/SpaceAfterComma",
+    "Layout/SpaceAfterMethodName",
+    "Layout/SpaceAfterNot",
+    "Layout/SpaceAfterSemicolon",
+    "Layout/SpaceAroundBlockParameters",
+    "Layout/SpaceAroundEqualsInParameterDefault",
+    "Layout/SpaceAroundKeyword",
+    "Layout/SpaceAroundMethodCallOperator",
+    "Layout/SpaceAroundOperators",
+    "Layout/SpaceBeforeBlockBraces",
+    "Layout/SpaceBeforeBrackets",
+    "Layout/SpaceBeforeComma",
+    "Layout/SpaceBeforeComment",
+    "Layout/SpaceBeforeFirstArg",
+    "Layout/SpaceBeforeSemicolon",
+    "Layout/SpaceInLambdaLiteral",
+    "Layout/SpaceInsideArrayPercentLiteral",
+    "Layout/SpaceInsideArrayLiteralBrackets",
+    "Layout/SpaceInsideBlockBraces",
+    "Layout/SpaceInsideHashLiteralBraces",
+    "Layout/SpaceInsideParens",
+    "Layout/SpaceInsidePercentLiteralDelimiters",
+    "Layout/SpaceInsideRangeLiteral",
+    "Layout/SpaceInsideReferenceBrackets",
+    "Layout/SpaceInsideStringInterpolation",
+    "Layout/TrailingEmptyLines",
+    "Layout/TrailingWhitespace",
+    "Lint/AmbiguousAssignment",
+    "Lint/AmbiguousBlockAssociation",
+    "Lint/AmbiguousOperator",
+    "Lint/AmbiguousOperatorPrecedence",
+    "Lint/AmbiguousRange",
+    "Lint/AmbiguousRegexpLiteral",
+    "Lint/ArgumentMismatch",
+    "Lint/ArrayLiteralInRegexp",
+    "Lint/AssignmentInCondition",
+    "Lint/BigDecimalNew",
+    "Lint/BinaryOperatorWithIdenticalOperands",
+    "Lint/BooleanSymbol",
+    "Lint/CircularArgumentReference",
+    "Lint/ConstantDefinitionInBlock",
+    "Lint/ConstantOverwrittenInRescue",
+    "Lint/ConstantReassignment",
+    "Lint/ConstantResolution",
+    "Lint/CopDirectiveSyntax",
+    "Lint/DataDefineOverride",
+    "Lint/Debugger",
+    "Lint/DeprecatedClassMethods",
+    "Lint/DeprecatedConstants",
+    "Lint/DeprecatedOpenSSLConstant",
+    "Lint/DeprecatedReference",
+    "Lint/DisjunctiveAssignmentInConstructor",
+    "Lint/DuplicateBranch",
+    "Lint/DuplicateCaseCondition",
+    "Lint/DuplicateElsifCondition",
+    "Lint/DuplicateHashKey",
+    "Lint/DuplicateMagicComment",
+    "Lint/DuplicateMatchPattern",
+    "Lint/DuplicateMethods",
+    "Lint/DuplicateRegexpCharacterClassElement",
+    "Lint/DuplicateRequire",
+    "Lint/DuplicateRescueException",
+    "Lint/DuplicateSetElement",
+    "Lint/EachWithObjectArgument",
+    "Lint/ElseLayout",
+    "Lint/EmptyBlock",
+    "Lint/EmptyClass",
+    "Lint/EmptyConditionalBody",
+    "Lint/EmptyEnsure",
+    "Lint/EmptyExpression",
+    "Lint/EmptyFile",
+    "Lint/EmptyInPattern",
+    "Lint/EmptyInterpolation",
+    "Lint/EmptyWhen",
+    "Lint/EnsureReturn",
+    "Lint/SharedMutableDefault",
+    "Lint/ErbNewArguments",
+    "Lint/FlipFlop",
+    "Lint/FloatComparison",
+    "Lint/FloatOutOfRange",
+    "Lint/FormatParameterMismatch",
+    "Lint/HashCompareByIdentity",
+    "Lint/HashNewWithKeywordArgumentsAsDefault",
+    "Lint/HeredocMethodCallPosition",
+    "Lint/IdentityComparison",
+    "Lint/ImplicitStringConcatenation",
+    "Lint/IncompatibleIoSelectWithFiberScheduler",
+    "Lint/IneffectiveAccessModifier",
+    "Lint/InheritException",
+    "Lint/InterpolationCheck",
+    "Lint/ItWithoutArgumentsInBlock",
+    "Lint/LambdaWithoutLiteralBlock",
+    "Lint/LiteralAsCondition",
+    "Lint/LiteralAssignmentInCondition",
+    "Lint/LiteralInInterpolation",
+    "Lint/Loop",
+    "Lint/MisplacedMagicComment",
+    "Lint/MissingCopEnableDirective",
+    "Lint/MissingSuper",
+    "Lint/MixedCaseRange",
+    "Lint/MixedRegexpCaptureTypes",
+    "Lint/MultipleComparison",
+    "Lint/NameTypo",
+    "Lint/NestedMethodDefinition",
+    "Lint/NestedPercentLiteral",
+    "Lint/NextWithoutAccumulator",
+    "Lint/NoReturnInBeginEndBlocks",
+    "Lint/NonAtomicFileOperation",
+    "Lint/NonDeterministicRequireOrder",
+    "Lint/NonLocalExitFromIterator",
+    "Lint/NumberConversion",
+    "Lint/NumberedParameterAssignment",
+    "Lint/NumericOperationWithConstantResult",
+    "Lint/OrAssignmentToConstant",
+    "Lint/OrderedMagicComments",
+    "Lint/OutOfRangeRegexpRef",
+    "Lint/ParenthesesAsGroupedExpression",
+    "Lint/PercentStringArray",
+    "Lint/PercentSymbolArray",
+    "Lint/RaiseException",
+    "Lint/RandOne",
+    "Lint/RedundantCopDisableDirective",
+    "Lint/RedundantCopEnableDirective",
+    "Lint/RedundantDirGlobSort",
+    "Lint/RedundantRegexpQuantifiers",
+    "Lint/RedundantRequireStatement",
+    "Lint/RedundantSafeNavigation",
+    "Lint/RedundantSplatExpansion",
+    "Lint/RedundantStringCoercion",
+    "Lint/RedundantTypeConversion",
+    "Lint/RedundantWithIndex",
+    "Lint/RedundantWithObject",
+    "Lint/RefinementImportMethods",
+    "Lint/RegexpAsCondition",
+    "Lint/RequireParentheses",
+    "Lint/RequireRangeParentheses",
+    "Lint/RequireRelativeSelfPath",
+    "Lint/RescueException",
+    "Lint/RescueType",
+    "Lint/ReturnInVoidContext",
+    "Lint/SafeNavigationConsistency",
+    "Lint/SafeNavigationChain",
+    "Lint/SafeNavigationWithEmpty",
+    "Lint/ScriptPermission",
+    "Lint/SelfAssignment",
+    "Lint/SendWithMixinArgument",
+    "Lint/ShadowedArgument",
+    "Lint/ShadowedException",
+    "Lint/ShadowingOuterLocalVariable",
+    "Lint/StructNewOverride",
+    "Lint/SuperArgumentMismatch",
+    "Lint/SuppressedException",
+    "Lint/SuppressedExceptionInNumberConversion",
+    "Lint/SymbolConversion",
+    "Lint/Syntax",
+    "Lint/ToEnumArguments",
+    "Lint/ToJSON",
+    "Lint/TopLevelReturnWithArgument",
+    "Lint/TrailingCommaInAttributeDeclaration",
+    "Lint/TripleQuotes",
+    "Lint/UnderscorePrefixedVariableName",
+    "Lint/UnescapedBracketInRegexp",
+    "Lint/UnexpectedBlockArity",
+    "Lint/UnifiedInteger",
+    "Lint/UnmodifiedReduceAccumulator",
+    "Lint/UnreachableCode",
+    "Lint/UnreachableLoop",
+    "Lint/UnreachablePatternBranch",
+    "Lint/UnusedBlockArgument",
+    "Lint/UnusedMethodArgument",
+    "Lint/UnusedPrivateMethod",
+    "Lint/UriEscapeUnescape",
+    "Lint/UriRegexp",
+    "Lint/UselessAccessModifier",
+    "Lint/UselessAssignment",
+    "Lint/UselessConstantScoping",
+    "Lint/UselessDefaultValueArgument",
+    "Lint/UselessDefined",
+    "Lint/UselessElseWithoutRescue",
+    "Lint/UselessMethodDefinition",
+    "Lint/UselessNumericOperation",
+    "Lint/UselessOr",
+    "Lint/UselessRescue",
+    "Lint/UselessRuby2Keywords",
+    "Lint/UselessSetterCall",
+    "Lint/UselessTimes",
+    "Lint/Void",
+    "Metrics/CyclomaticComplexity",
+    "Metrics/AbcSize",
+    "Metrics/BlockLength",
+    "Metrics/BlockNesting",
+    "Metrics/ClassLength",
+    "Metrics/CollectionLiteralLength",
+    "Metrics/MethodLength",
+    "Metrics/ModuleLength",
+    "Metrics/ParameterLists",
+    "Metrics/PerceivedComplexity",
+    "Migration/DepartmentName",
+    "Naming/AccessorMethodName",
+    "Naming/AsciiIdentifiers",
+    "Naming/BlockForwarding",
+    "Naming/BlockParameterName",
+    "Naming/ClassAndModuleCamelCase",
+    "Naming/ConstantName",
+    "Naming/FileName",
+    "Naming/HeredocDelimiterCase",
+    "Naming/HeredocDelimiterNaming",
+    "Naming/InclusiveLanguage",
+    "Naming/MemoizedInstanceVariableName",
+    "Naming/MethodName",
+    "Naming/MethodParameterName",
+    "Naming/BinaryOperatorParameterName",
+    "Naming/PredicateMethod",
+    "Naming/PredicatePrefix",
+    "Naming/RescuedExceptionsVariableName",
+    "Naming/VariableName",
+    "Naming/VariableNumber",
+    "Security/CompoundHash",
+    "Security/Eval",
+    "Security/IoMethods",
+    "Security/JSONLoad",
+    "Security/MarshalLoad",
+    "Security/Open",
+    "Security/YAMLLoad",
+    "Style/AccessModifierDeclarations",
+    "Style/AccessorGrouping",
+    "Style/Alias",
+    "Style/AmbiguousEndlessMethodDefinition",
+    "Style/AndOr",
+    "Style/ArgumentsForwarding",
+    "Style/ArrayCoercion",
+    "Style/ArrayFirstLast",
+    "Style/ArrayIntersect",
+    "Style/ArrayIntersectWithSingleElement",
+    "Style/ArrayJoin",
+    "Style/AsciiComments",
+    "Style/Attr",
+    "Style/AutoResourceCleanup",
+    "Style/BarePercentLiterals",
+    "Style/BeginBlock",
+    "Style/BisectedAttrAccessor",
+    "Style/BitwisePredicate",
+    "Style/BlockComments",
+    "Style/BlockDelimiters",
+    "Style/CaseEquality",
+    "Style/CaseLikeIf",
+    "Style/CharacterLiteral",
+    "Style/ClassAndModuleChildren",
+    "Style/ClassCheck",
+    "Style/ClassEqualityComparison",
+    "Style/ClassMethods",
+    "Style/ClassMethodsDefinitions",
+    "Style/ClassVars",
+    "Style/CollectionCompact",
+    "Style/CollectionMethods",
+    "Style/CollectionQuerying",
+    "Style/ColonMethodCall",
+    "Style/ColonMethodDefinition",
+    "Style/CombinableDefined",
+    "Style/CombinableLoops",
+    "Style/CommandLiteral",
+    "Style/CommentAnnotation",
+    "Style/CommentedKeyword",
+    "Style/ComparableBetween",
+    "Style/ComparableClamp",
+    "Style/ConcatArrayLiterals",
+    "Style/ConditionalAssignment",
+    "Style/ConstantVisibility",
+    "Style/Copyright",
+    "Style/DataInheritance",
+    "Style/DateTime",
+    "Style/DefWithParentheses",
+    "Style/DigChain",
+    "Style/Dir",
+    "Style/DirEmpty",
+    "Style/DirectiveScope",
+    "Style/DisableCopsWithinSourceCodeDirective",
+    "Style/DocumentationMethod",
+    "Style/Documentation",
+    "Style/DocumentDynamicEvalDefinition",
+    "Style/DoubleNegation",
+    "Style/EachForSimpleLoop",
+    "Style/EachWithObject",
+    "Style/EmptyBlockParameter",
+    "Style/EmptyCaseCondition",
+    "Style/EmptyClassDefinition",
+    "Style/EmptyElse",
+    "Style/EmptyHeredoc",
+    "Style/EmptyLambdaParameter",
+    "Style/EmptyLiteral",
+    "Style/EmptyMethod",
+    "Style/EmptyStringInsideInterpolation",
+    "Style/EndlessMethod",
+    "Style/Encoding",
+    "Style/EndBlock",
+    "Style/EnvHome",
+    "Style/EvalWithLocation",
+    "Style/EvenOdd",
+    "Style/ExactRegexpMatch",
+    "Style/ExpandPathArguments",
+    "Style/ExplicitBlockArgument",
+    "Style/ExponentialNotation",
+    "Style/FetchEnvVar",
+    "Style/FileEmpty",
+    "Style/FileNull",
+    "Style/FileOpen",
+    "Style/FileRead",
+    "Style/FileTouch",
+    "Style/FileWrite",
+    "Style/FloatDivision",
+    "Style/For",
+    "Style/FormatString",
+    "Style/FormatStringToken",
+    "Style/FrozenStringLiteralComment",
+    "Style/GlobalStdStream",
+    "Style/GlobalVars",
+    "Style/GuardClause",
+    "Style/HashAsLastArrayItem",
+    "Style/HashConversion",
+    "Style/HashEachMethods",
+    "Style/HashExcept",
+    "Style/HashFetchChain",
+    "Style/HashLikeCase",
+    "Style/HashLookupMethod",
+    "Style/HashSlice",
+    "Style/HashSyntax",
+    "Style/HashTransformKeys",
+    "Style/HashTransformValues",
+    "Style/IdenticalConditionalBranches",
+    "Style/IfInsideElse",
+    "Style/IfUnlessModifier",
+    "Style/IfUnlessModifierOfIfUnless",
+    "Style/IfWithBooleanLiteralBranches",
+    "Style/IfWithSemicolon",
+    "Style/ImplicitRuntimeError",
+    "Style/InPatternThen",
+    "Style/InfiniteLoop",
+    "Style/ReduceToHash",
+    "Style/InverseMethods",
+    "Style/InlineComment",
+    "Style/InvertibleUnlessCondition",
+    "Style/IpAddresses",
+    "Style/ItAssignment",
+    "Style/ItBlockParameter",
+    "Style/KeywordArgumentsMerging",
+    "Style/KeywordParametersOrder",
+    "Style/Lambda",
+    "Style/LambdaCall",
+    "Style/LineEndConcatenation",
+    "Style/MagicCommentFormat",
+    "Style/MapIntoArray",
+    "Style/MapJoin",
+    "Style/MapToHash",
+    "Style/MapToSet",
+    "Style/MethodCallWithoutArgsParentheses",
+    "Style/MethodCallWithArgsParentheses",
+    "Style/MinMaxComparison",
+    "Style/ModuleMemberExistenceCheck",
+    "Style/MultilineInPatternThen",
+    "Style/NumberedParameters",
+    "Style/OneClassPerFile",
+    "Style/OpenStructUse",
+    "Style/OperatorMethodCall",
+    "Style/PartitionInsteadOfDoubleSelect",
+    "Style/RedundantArrayConstructor",
+    "Style/RedundantArrayFlatten",
+    "Style/RedundantAssignment",
+    "Style/RedundantConstantBase",
+    "Style/RedundantCurrentDirectoryInPath",
+    "Style/RedundantDoubleSplatHashBraces",
+    "Style/RedundantEach",
+    "Style/RedundantFetchBlock",
+    "Style/RedundantFileExtensionInRequire",
+    "Style/RedundantFilterChain",
+    "Style/RedundantFormat",
+    "Style/RedundantHeredocDelimiterQuotes",
+    "Style/RedundantInitialize",
+    "Style/RedundantInterpolationUnfreeze",
+    "Style/RedundantLineContinuation",
+    "Style/RedundantMinMaxBy",
+    "Style/RedundantRegexpArgument",
+    "Style/RedundantRegexpConstructor",
+    "Style/RedundantSelfAssignment",
+    "Style/RedundantSelfAssignmentBranch",
+    "Style/RedundantStructKeywordInit",
+    "Style/RequireOrder",
+    "Style/ReverseFind",
+    "Style/SafeNavigationChainLength",
+    "Style/SingleLineDoEndBlock",
+    "Style/SoleNestedConditional",
+    "Style/StaticClass",
+    "Style/MapCompactWithConditionalBlock",
+    "Style/MethodCalledOnDoEndBlock",
+    "Style/MethodDefParentheses",
+    "Style/MinMax",
+    "Style/MissingElse",
+    "Style/MissingRespondToMissing",
+    "Style/MixinGrouping",
+    "Style/MixinUsage",
+    "Style/ModuleFunction",
+    "Style/MultilineBlockChain",
+    "Style/MultilineIfThen",
+    "Style/MultilineIfModifier",
+    "Style/MultilineMethodSignature",
+    "Style/MultilineMemoization",
+    "Style/MultilineTernaryOperator",
+    "Style/MultilineWhenThen",
+    "Style/MultipleComparison",
+    "Style/MutableConstant",
+    "Style/NegatedIf",
+    "Style/NegatedIfElseCondition",
+    "Style/NegatedUnless",
+    "Style/NegatedWhile",
+    "Style/NegativeArrayIndex",
+    "Style/NestedFileDirname",
+    "Style/NestedModifier",
+    "Style/NestedParenthesizedCalls",
+    "Style/NestedTernaryOperator",
+    "Style/Next",
+    "Style/NilComparison",
+    "Style/NilLambda",
+    "Style/NonNilCheck",
+    "Style/Not",
+    "Style/NumberedParametersLimit",
+    "Style/NumericLiterals",
+    "Style/NumericLiteralPrefix",
+    "Style/NumericPredicate",
+    "Style/ObjectThen",
+    "Style/OneLineConditional",
+    "Style/OrAssignment",
+    "Style/OptionHash",
+    "Style/OptionalArguments",
+    "Style/OptionalBooleanParameter",
+    "Style/ParallelAssignment",
+    "Style/ParenthesesAroundCondition",
+    "Style/PercentLiteralDelimiters",
+    "Style/PercentQLiterals",
+    "Style/PerlBackrefs",
+    "Style/PredicateWithKind",
+    "Style/PreferredHashMethods",
+    "Style/Proc",
+    "Style/QuotedSymbols",
+    "Style/RaiseArgs",
+    "Style/RandomWithOffset",
+    "Style/RedundantArgument",
+    "Style/RedundantBegin",
+    "Style/RedundantCapitalW",
+    "Style/RedundantCondition",
+    "Style/RedundantConditional",
+    "Style/RedundantException",
+    "Style/RedundantFreeze",
+    "Style/RedundantInterpolation",
+    "Style/RedundantParentheses",
+    "Style/RedundantPercentQ",
+    "Style/RedundantRegexpCharacterClass",
+    "Style/RedundantRegexpEscape",
+    "Style/RedundantReturn",
+    "Style/RedundantSelf",
+    "Style/RedundantSort",
+    "Style/RedundantSortBy",
+    "Style/RedundantStringEscape",
+    "Style/RegexpLiteral",
+    "Style/RescueModifier",
+    "Style/RescueStandardError",
+    "Style/ReturnNil",
+    "Style/ReturnNilInPredicateMethodDefinition",
+    "Style/SafeNavigation",
+    "Style/Sample",
+    "Style/SelectByKind",
+    "Style/SelectByRange",
+    "Style/SelectByRegexp",
+    "Style/SelfAssignment",
+    "Style/Semicolon",
+    "Style/Send",
+    "Style/SendWithLiteralMethodName",
+    "Style/SignalException",
+    "Style/SingleArgumentDig",
+    "Style/SingleLineBlockParams",
+    "Style/SingleLineMethods",
+    "Style/SlicingWithRange",
+    "Style/SpecialGlobalVars",
+    "Style/StabbyLambdaParentheses",
+    "Style/StderrPuts",
+    "Style/StringChars",
+    "Style/StringConcatenation",
+    "Style/StringHashKeys",
+    "Style/StringLiterals",
+    "Style/StringLiteralsInInterpolation",
+    "Style/StringMethods",
+    "Style/Strip",
+    "Style/StructInheritance",
+    "Style/SuperArguments",
+    "Style/SuperWithArgsParentheses",
+    "Style/SwapValues",
+    "Style/SymbolArray",
+    "Style/SymbolLiteral",
+    "Style/SymbolProc",
+    "Style/TallyMethod",
+    "Style/TernaryParentheses",
+    "Style/TimeNow",
+    "Style/TopLevelMethodDefinition",
+    "Style/TrailingBodyOnClass",
+    "Style/TrailingBodyOnMethodDefinition",
+    "Style/TrailingBodyOnModule",
+    "Style/TrailingCommaInArguments",
+    "Style/TrailingCommaInArrayLiteral",
+    "Style/TrailingCommaInBlockArgs",
+    "Style/TrailingCommaInHashLiteral",
+    "Style/TrailingMethodEndStatement",
+    "Style/TrailingUnderscoreVariable",
+    "Style/TrivialAccessors",
+    "Style/UnlessElse",
+    "Style/UnlessLogicalOperators",
+    "Style/UnpackFirst",
+    "Style/VariableInterpolation",
+    "Style/WhenThen",
+    "Style/WhileUntilDo",
+    "Style/WhileUntilModifier",
+    "Style/WordArray",
+    "Style/YAMLFileRead",
+    "Style/YodaCondition",
+    "Style/YodaExpression",
+    "Style/ZeroLengthPredicate"
+  ],
+  "rows": [
+    {
+      "spec_line": 14,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are no disabled lines returns no offense",
+      "source": "",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 34,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config returns an offense when disabling same cop",
+      "source": "# rubocop:disable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 43,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config removes a standalone directive together with its `--` reason",
+      "source": "# rubocop:disable Metrics/MethodLength -- kept for documentation purposes\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 53,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config when that cop was previously enabled returns no offense",
+      "source": "# rubocop:enable Metrics/MethodLength\nfoo\n# rubocop:disable Metrics/MethodLength\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 63,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config if that cop has offenses returns an offense",
+      "source": "# rubocop:disable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 77,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config, around `push`/`pop` blocks returns no offense for a single block",
+      "source": "# rubocop:push -Style/For\nfoo\n# rubocop:pop\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 85,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config, around `push`/`pop` blocks returns no offense for repeated blocks",
+      "source": "# rubocop:push -Style/For\nfoo\n# rubocop:pop\n\n# rubocop:push -Style/For\nbar\n# rubocop:pop\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 104,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config when preview is enabled when the preview defaults disable it returns no offense, since the directive is needed again without preview",
+      "source": "# rubocop:disable Metrics/MethodLength\nfoo\n# rubocop:enable Metrics/MethodLength\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+        "Metrics/MethodLength"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4,
+          "Preview": true
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 116,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is disabled in the config when preview is enabled when the preview defaults leave it enabled returns an offense",
+      "source": "# rubocop:disable Style/For\nfoo\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Style/For`."
+      ],
+      "disabled": [
+        "Style/For"
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4,
+          "Preview": true
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Style/For": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 129,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is pending in the config returns no offense when the pending cop does not run",
+      "source": "# rubocop:disable Metrics/MethodLength\nfoo\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": "pending"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 144,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop that is pending in the config when pending cops are enabled via `NewCops: enable` returns an offense",
+      "source": "# rubocop:disable Metrics/MethodLength\nfoo\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "NewCops": "enable"
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        },
+        "Metrics/MethodLength": {
+          "Enabled": "pending"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 159,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a department that is disabled in the config returns an offense when same department is disabled",
+      "source": "# rubocop:disable Metrics\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics` department."
+      ],
+      "disabled": [
+        "Metrics"
+      ],
+      "config": {
+        "Metrics": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 168,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a department that is disabled in the config returns an offense when cop from this department is disabled",
+      "source": "# rubocop:disable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+        "Metrics"
+      ],
+      "config": {
+        "Metrics": {
+          "Enabled": false
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 179,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables one cop returns an offense",
+      "source": "# rubocop:disable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 190,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables an unknown cop returns an offense without removing the directive",
+      "source": "# rubocop:disable UnknownCop\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `UnknownCop` (unknown cop)."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 210,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables an unknown cop alongside a cop with offenses returns an offense without removing the unknown cop from the directive",
+      "source": "# rubocop:disable UnknownCop, Metrics/MethodLength\ndef m; end\n",
+      "positions": [
+        [
+          1,
+          19
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `UnknownCop` (unknown cop)."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 222,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables when using a directive comment after a non-directive comment returns an offense",
+      "source": "# not very long comment # rubocop:disable Layout/LineLength\n",
+      "positions": [
+        [
+          1,
+          25
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Layout/LineLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "# not very long comment\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 236,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables itself and another cop disabled on the same range returns no offense",
+      "source": "# rubocop:disable Lint/RedundantCopDisableDirective, Metrics/ClassLength\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 244,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables itself and another cop disabled on different ranges returns no offense",
+      "source": "# rubocop:disable Lint/RedundantCopDisableDirective\n# rubocop:disable Metrics/ClassLength\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 259,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables itself and another cop and the other cop is disabled a second time returns no offense",
+      "source": "# rubocop:disable Lint/RedundantCopDisableDirective\n# rubocop:disable Metrics/ClassLength\n# rubocop:disable Metrics/ClassLength",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 266,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables multiple cops returns an offense",
+      "source": "# rubocop:disable Metrics/MethodLength, Metrics/ClassLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`, `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 287,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables multiple cops, and one of them has offenses returns an offense",
+      "source": "# rubocop:disable Metrics/MethodLength, Metrics/ClassLength, Lint/Debugger, Lint/AmbiguousOperator\n",
+      "positions": [
+        [
+          1,
+          19
+        ],
+        [
+          1,
+          62
+        ],
+        [
+          1,
+          77
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`.",
+        "Unnecessary disabling of `Lint/Debugger`.",
+        "Unnecessary disabling of `Lint/AmbiguousOperator`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": "# rubocop:disable Metrics/ClassLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 312,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables multiple cops, and the leftmost one has no offenses returns an offense",
+      "source": "# rubocop:disable Metrics/ClassLength, Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          19
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": "# rubocop:disable Metrics/MethodLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 334,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables multiple cops, where a redundant one shares a prefix with a non-redundant one locates and removes the right cop name",
+      "source": "# rubocop:disable Lint/AmbiguousOperatorPrecedence, Lint/AmbiguousOperator\n",
+      "positions": [
+        [
+          1,
+          53
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Lint/AmbiguousOperator`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Lint/AmbiguousOperatorPrecedence",
+            "line": 7,
+            "last": 7
+          }
+        ],
+        "correction": "# rubocop:disable Lint/AmbiguousOperatorPrecedence\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 360,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables multiple cops, with abbreviated names one of them has offenses returns an offense",
+      "source": "puts 1\n# rubocop:disable MethodLength, ClassLength, Debugger\n#\n# offense here\n",
+      "positions": [
+        [
+          2,
+          33
+        ],
+        [
+          2,
+          46
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`.",
+        "Unnecessary disabling of `Lint/Debugger`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 4,
+            "last": 4
+          }
+        ],
+        "correction": "puts 1\n# rubocop:disable MethodLength\n#\n# offense here\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 398,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables comment is not at the beginning of the file and not all cops have offenses returns an offense",
+      "source": "puts 1\n# rubocop:disable Metrics/MethodLength, Metrics/ClassLength\n#\n# offense here\n",
+      "positions": [
+        [
+          2,
+          41
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 4,
+            "last": 4
+          }
+        ],
+        "correction": "puts 1\n# rubocop:disable Metrics/MethodLength\n#\n# offense here\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 418,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns an offense and removes the whole comment",
+      "source": "# rubocop:disable-next Metrics/MethodLength\ndef foo\n  puts 1\nend\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "def foo\n  puts 1\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 434,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns an offense for a detached directive",
+      "source": "puts 1\n# rubocop:disable-next Metrics/MethodLength\n",
+      "positions": [
+        [
+          2,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "puts 1\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 446,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns one offense per duplicate stacked directive",
+      "source": "# rubocop:disable-next Metrics/MethodLength\n# rubocop:disable-next Metrics/MethodLength\ndef foo\n  puts 1\nend\n",
+      "positions": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`.",
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 458,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns an offense without correcting a misplaced EOL directive",
+      "source": "puts 1 # rubocop:disable-next Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          8
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 467,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns an offense for a detached `next` directive",
+      "source": "puts 1\n# rubocop:next -Metrics/MethodLength\n",
+      "positions": [
+        [
+          2,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "puts 1\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 479,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns an offense without correcting a misplaced EOL `next` directive",
+      "source": "puts 1 # rubocop:next -Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          8
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 488,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive removes a detached `next` directive with several signed arguments entirely",
+      "source": "puts 1\n# rubocop:next -Metrics/MethodLength +Metrics/AbcSize\n",
+      "positions": [
+        [
+          2,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/AbcSize`, `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "puts 1\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 500,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive returns an offense with an enabling message for a detached `enable-next`",
+      "source": "puts 1\n# rubocop:enable-next Metrics/MethodLength\n",
+      "positions": [
+        [
+          2,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary enabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "puts 1\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 512,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a `disable-next` directive does not analyze attached `next` arguments for redundancy, aligned with `push`",
+      "source": "# rubocop:next -Metrics/MethodLength\ndef foo\n  puts 1\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 523,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables a cop qualified with the wrong department returns an offense suggesting the correctly-namespaced cop",
+      "source": "# rubocop:disable Style/Void\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Style/Void` (did you mean `Lint/Void`?)."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 538,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables misspelled cops returns an offense",
+      "source": "# rubocop:disable Metrics/MethodLenght, KlassLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `KlassLength` (unknown cop), `Metrics/MethodLenght` (did you mean `Metrics/MethodLength`?)."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 548,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables misspelled cops when the department starts with a lowercase letter registers an offense",
+      "source": "# rubocop:disable lint/SelfAssignment\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `lint/SelfAssignment` (did you mean `Lint/SelfAssignment`?)."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 559,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables misspelled cops when the cop starts with a lowercase letter registers an offense",
+      "source": "# rubocop:disable Lint/selfAssignment\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Lint/selfAssignment` (did you mean `Lint/SelfAssignment`?)."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": true
+      }
+    },
+    {
+      "spec_line": 571,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables all cops returns an offense",
+      "source": "# rubocop : disable all\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of all cops."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 588,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are no offenses and a comment disables itself and all cops disabled on different ranges returns no offense",
+      "source": "# rubocop:disable Lint/RedundantCopDisableDirective\n# rubocop:disable all",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 606,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there is a multi-line offense returns no offense for a directive on a later line of the offense",
+      "source": "def foo(a:, b:, c:,\n        d:, e:, f:) # rubocop:disable Metrics/ParameterLists\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ParameterLists",
+            "line": 1,
+            "last": 2
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 614,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there is a multi-line offense returns an offense for a directive on a line past the offense",
+      "source": "def foo(a:, b:, c:,\n        d:, e:, f:)\n  do_something # rubocop:disable Metrics/ParameterLists\nend\n",
+      "positions": [
+        [
+          3,
+          16
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ParameterLists`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ParameterLists",
+            "line": 1,
+            "last": 2
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 635,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and a `disable-next` directive suppresses an offense in its statement returns no offense",
+      "source": "# rubocop:disable-next Metrics/MethodLength\ndef foo\n  puts 1\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/MethodLength",
+            "line": 2,
+            "last": 4
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 661,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are two offenses and a comment disables one cop twice returns an offense",
+      "source": "class One\n  # rubocop:disable Style/ClassVars\n  @@class_var = 1  # offense here\nend\n\nclass Two\n  # rubocop:disable Style/ClassVars\n  @@class_var = 2  # offense and here\n  # rubocop:enable Style/ClassVars\nend\n",
+      "positions": [
+        [
+          7,
+          3
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Style/ClassVars`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Style/ClassVars",
+            "line": 3,
+            "last": 3
+          },
+          {
+            "cop": "Style/ClassVars",
+            "line": 8,
+            "last": 8
+          }
+        ],
+        "correction": "class One\n  # rubocop:disable Style/ClassVars\n  @@class_var = 1  # offense here\nend\n\nclass Two\n  @@class_var = 2  # offense and here\n  # rubocop:enable Style/ClassVars\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 693,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there are two offenses and a comment disables one cop and then all cops returns an offense",
+      "source": "class One\n  # rubocop:disable Style/ClassVars\n  # rubocop:disable all\n  @@class_var = 1\n  # offense here\nend\n",
+      "positions": [
+        [
+          2,
+          3
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Style/ClassVars`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Style/ClassVars",
+            "line": 4,
+            "last": 4
+          }
+        ],
+        "correction": "class One\n  # rubocop:disable all\n  @@class_var = 1\n  # offense here\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 730,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there is an offense and a comment disables that cop returns no offense",
+      "source": "# rubocop:disable Layout/IndentationStyle",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Layout/IndentationStyle",
+            "line": 3,
+            "last": 3
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 736,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there is an offense and a comment disables that cop but on other lines returns an offense",
+      "source": "# 1\n# 2\n# 3, offense here\n# 4\n# rubocop:disable Layout/IndentationStyle\n#\n# rubocop:enable Layout/IndentationStyle\n",
+      "positions": [
+        [
+          5,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Layout/IndentationStyle`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Layout/IndentationStyle",
+            "line": 3,
+            "last": 3
+          }
+        ],
+        "correction": "# 1\n# 2\n# 3, offense here\n# 4\n#\n# rubocop:enable Layout/IndentationStyle\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 762,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check when there are disabled lines and there is an offense and a comment disables all cops returns no offense",
+      "source": "# rubocop : disable all",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Layout/IndentationStyle",
+            "line": 3,
+            "last": 3
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 773,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace when the comment is the first line of the file followed by code removes the comment",
+      "source": "# rubocop:disable Metrics/MethodLength\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "def my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 791,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace when the comment is the first line of the file followed by a newline removes the comment and newline",
+      "source": "# rubocop:disable Metrics/MethodLength\n\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "def my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 810,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace when the comment is the first line of the file followed by another comment removes the comment and newline",
+      "source": "# rubocop:disable Metrics/MethodLength\n# @api private\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "# @api private\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 831,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace when there is only whitespace before the comment leaves the whitespace",
+      "source": "\n# rubocop:disable Metrics/MethodLength\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+      "positions": [
+        [
+          2,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 851,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace when the comment is not the first line of the file preserves whitespace before the comment",
+      "source": "attr_reader :foo\n\n# rubocop:disable Metrics/MethodLength\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+      "positions": [
+        [
+          3,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/MethodLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "attr_reader :foo\n\ndef my_method\nend\n# rubocop:enable Metrics/MethodLength\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 873,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace nested inside a namespace preserves indentation",
+      "source": "module Foo\n  module Bar\n    # rubocop:disable Metrics/ClassLength\n    class Baz\n    end\n    # rubocop:enable Metrics/ClassLength\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          5
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "module Foo\n  module Bar\n    class Baz\n    end\n    # rubocop:enable Metrics/ClassLength\n  end\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 899,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace inline comment removes the comment and preceding whitespace",
+      "source": "module Foo\n  module Bar\n    class Baz         # rubocop:disable Metrics/ClassLength\n    end\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          23
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "module Foo\n  module Bar\n    class Baz\n    end\n  end\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 922,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check autocorrecting whitespace when there is a blank line before inline comment removes the comment and preceding whitespace",
+      "source": "def foo; end\n\ndef bar # rubocop:disable Metrics/ClassLength\n  do_something do\n  end\nend\n",
+      "positions": [
+        [
+          3,
+          9
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+
+        ],
+        "correction": "def foo; end\n\ndef bar\n  do_something do\n  end\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 955,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes entire comment",
+      "source": "# rubocop:disable Style\ndef bar\n  do_something\nend\n",
+      "positions": [
+        [
+          1,
+          1
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Style` department."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "def bar\n  do_something\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 971,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes redundant department",
+      "source": "# rubocop:disable Style, Metrics/ClassLength\ndef bar\n  do_something\nend\n",
+      "positions": [
+        [
+          1,
+          19
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Style` department."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics/ClassLength\ndef bar\n  do_something\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 988,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes cop duplicated by department",
+      "source": "# rubocop:disable Metrics, Metrics/ClassLength\ndef bar\n  do_something\nend\n",
+      "positions": [
+        [
+          1,
+          28
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\ndef bar\n  do_something\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1005,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes cop duplicated by department on previous line",
+      "source": "# rubocop:disable Metrics\ndef bar\n  do_something # rubocop:disable Metrics/ClassLength\nend\n",
+      "positions": [
+        [
+          3,
+          16
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\ndef bar\n  do_something\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1022,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes cop duplicated by department and the `--` reason with it",
+      "source": "# rubocop:disable Metrics\ndef bar\n  do_something # rubocop:disable Metrics/ClassLength -- the reason\nend\n",
+      "positions": [
+        [
+          3,
+          16
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\ndef bar\n  do_something\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1039,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes cop duplicated by department and leaves free text as a comment",
+      "source": "# rubocop:disable Metrics\ndef bar\n  do_something # rubocop:disable Metrics/ClassLength - note\nend\n",
+      "positions": [
+        [
+          3,
+          16
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics/ClassLength`."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\ndef bar\n  do_something # - note\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1056,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes department duplicated by department",
+      "source": "# rubocop:disable Metrics\nclass One\n  # rubocop:disable Metrics\n  @@class_var = 1  # offense here\nend\n# rubocop:enable Metrics\n",
+      "positions": [
+        [
+          3,
+          3
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics` department."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\nclass One\n  @@class_var = 1  # offense here\nend\n# rubocop:enable Metrics\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1076,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes department duplicated by department on previous line",
+      "source": "# rubocop:disable Metrics\nclass One\n@@class_var = 1  # rubocop:disable Metrics\nend\n",
+      "positions": [
+        [
+          3,
+          18
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics` department."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\nclass One\n@@class_var = 1\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1093,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department removes department duplicated by department and leaves free text as a comment",
+      "source": "# rubocop:disable Metrics\ndef bar\n  do_something # rubocop:disable Metrics - note\nend\n",
+      "positions": [
+        [
+          3,
+          16
+        ]
+      ],
+      "messages": [
+        "Unnecessary disabling of `Metrics` department."
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": "# rubocop:disable Metrics\ndef bar\n  do_something # - note\nend\n",
+        "hold": false
+      }
+    },
+    {
+      "spec_line": 1110,
+      "description": "RuboCop::Cop::Lint::RedundantCopDisableDirective .check with a disabled department does not remove correct department",
+      "source": "# rubocop:disable Metrics\ndef bar\n  do_something\nend\n",
+      "positions": [
+
+      ],
+      "messages": [
+
+      ],
+      "disabled": [
+
+      ],
+      "config": {
+        "AllCops": {
+          "TargetRubyVersion": 3.4
+        },
+        "Lint/RedundantCopDisableDirective": {
+          "Description": "Checks for rubocop:disable comments that can be removed. Note: this cop is not disabled when disabling all cops. It must be explicitly disabled.",
+          "Enabled": true,
+          "VersionAdded": "0.76",
+          "AutoCorrect": "always"
+        }
+      },
+      "lifecycle": {
+        "raw": [
+          {
+            "cop": "Metrics/ClassLength",
+            "line": 2,
+            "last": 2
+          }
+        ],
+        "correction": null,
+        "hold": false
+      }
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 //! Real CLI/pipeline and authored native correction-safety controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -53,11 +56,12 @@ fn rows() -> Vec<serde_json::Value> {
 }
 #[test]
 fn complete_pinned_sources_and_adversarial_rows_exact_cli_and_no_writes() {
-    let dir = project();
+    use std::sync::atomic::{AtomicUsize, Ordering};
     let rows = rows();
     assert_eq!(rows.len(), 3789);
-    let mut fixed = 0;
-    for row in rows {
+    let fixed = AtomicUsize::new(0);
+    parallel_rows!(for row in rows => {
+        let dir = project();
         let source = row["source"].as_str().unwrap();
         let findings = row["findings"].as_array().unwrap();
         let code = if row["invalid_syntax"] == true && row["fixed_native_valid"] != true {
@@ -95,7 +99,7 @@ fn complete_pinned_sources_and_adversarial_rows_exact_cli_and_no_writes() {
                 findings.len()
             );
         } else {
-            fixed += 1;
+            fixed.fetch_add(1, Ordering::Relaxed);
             let old = fs::metadata(dir.path().join("lib/a.rb")).unwrap();
             let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
             assert_eq!(out.status.code(), Some(0), "{row}\n{out:?}");
@@ -116,8 +120,8 @@ fn complete_pinned_sources_and_adversarial_rows_exact_cli_and_no_writes() {
                 Some(0),
             );
         }
-    }
-    assert_eq!(fixed, 10);
+    });
+    assert_eq!(fixed.load(Ordering::Relaxed), 10);
 }
 #[cfg(unix)]
 #[test]
@@ -381,7 +385,7 @@ fn legacy_original_bytes_projected_columns_and_no_edits() {
 #[test]
 fn default_on_metadata_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());

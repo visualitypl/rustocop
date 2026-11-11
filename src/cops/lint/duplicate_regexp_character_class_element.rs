@@ -38,7 +38,11 @@ impl Cop for DuplicateRegexpCharacterClassElement {
             return;
         }
         let view = View::new(&regexp, file);
-        let ranges = Scanner::new(&view, regexp.closing.as_slice().contains(&b'x')).scan();
+        let mut scanner = Scanner::new(&view, regexp.closing.as_slice().contains(&b'x'));
+        // All source-tree consumers share the pinned token/reference grammar.
+        // The capture validation already handles named capture identifiers, literal
+        // reference fallback and invalid option/name headers without reparsing.
+        let ranges = scanner.scan();
         let correctable = cx.corrections_requested() && closed_defined_literal(node, cx, file);
         for range in ranges {
             let raw = view.starts[range.start]..view.ends[range.end - 1];
@@ -49,7 +53,9 @@ impl Cop for DuplicateRegexpCharacterClassElement {
                 message: "Duplicate element inside regexp character class".into(),
                 line,
                 col,
-                end_line: file.line_of(raw.end - 1),
+                // Parser::Source::Range#last_line includes a token's terminal
+                // physical LF (e.g. a repeated raw control-newline escape).
+                end_line: file.line_of(raw.end),
                 correction: correctable.then_some(Correction {
                     range: raw,
                     replacement: String::new(),
@@ -137,30 +143,44 @@ impl View {
         let mut view = Self::empty(position);
         let mut previous = regexp.opening.end_offset();
         let mut shifted = false;
-        for fragment in &regexp.fragments {
+        let mut interpolation_ranges = vec![];
+        for (fragment, &decoded_lines) in regexp.fragments.iter().zip(&regexp.fragment_line_counts)
+        {
             let shorthand = file.bytes.get(previous) == Some(&b'#')
                 && matches!(file.bytes.get(previous + 1), Some(b'@' | b'$'));
             // Upstream only blanks begin nodes, not #@ivar/#$gvar/#@@cvar.
             // Those children expose source WITHOUT '#'; retain that exact
             // raw-buffer quirk, including the consequent projected locations.
             shifted |= shorthand;
+            if !shorthand && previous < fragment.start_offset() {
+                interpolation_ranges.push(previous..fragment.start_offset());
+            }
             view.position.1 += u32::from(shorthand);
             view.append(
                 file,
                 previous + usize::from(shorthand)..fragment.start_offset(),
                 !shorthand,
             );
-            view.append(file, fragment.start_offset()..fragment.end_offset(), false);
+            shifted |=
+                view.append_fragment(file, fragment, decoded_lines, regexp.opening.as_slice());
             previous = fragment.end_offset();
         }
         view.append(file, previous..regexp.closing.start_offset(), true);
+        if previous < regexp.closing.start_offset() {
+            interpolation_ranges.push(previous..regexp.closing.start_offset());
+        }
         if shifted {
             let mut original = Self::empty(position);
-            original.append(
-                file,
-                regexp.opening.end_offset()..regexp.closing.start_offset(),
-                false,
-            );
+            let mut previous = regexp.opening.end_offset();
+            for range in interpolation_ranges {
+                original.append(file, previous..range.start, false);
+                original.append(file, range.clone(), true);
+                previous = range.end;
+            }
+            original.append(file, previous..regexp.closing.start_offset(), false);
+            // Upstream overlap tests use ORIGINAL interpolation source ranges,
+            // even when projected str/shorthand text shifts later expressions.
+            view.holes = vec![0];
             let mut at = 0;
             let mut raw = 0;
             while at < view.bytes.len() {
@@ -169,11 +189,89 @@ impl View {
                 view.starts[at..at + width].fill(original.starts[raw]);
                 view.ends[at..at + width].fill(original.ends[raw + raw_width - 1]);
                 view.positions[at..at + width].fill(original.positions[raw]);
+                let opaque = original.opaque(&(raw..raw + raw_width));
+                for _ in 0..width {
+                    view.holes
+                        .push(view.holes.last().unwrap() + usize::from(opaque));
+                }
                 at += width;
                 raw += raw_width;
             }
         }
         view
+    }
+    // Prism1.9's string_nodes_from_line_continuations (MIT, Shopify Inc.)
+    // emits only as many grouped source lines as the MAIN parse's cooked.lines.
+    // A controlled physical LF becomes text \\x0A, so trailing raw lines may
+    // have no emitted str range. Project that exact prefix, not the regexp value;
+    // never blank/drop an arbitrary detector or parse/decode a candidate.
+    fn append_fragment(
+        &mut self,
+        file: &SourceFile,
+        fragment: &ruby_prism::Location<'_>,
+        decoded_lines: usize,
+        opening: &[u8],
+    ) -> bool {
+        let start = self.bytes.len();
+        self.append(file, fragment.start_offset()..fragment.end_offset(), false);
+        let bytes = &self.bytes[start..];
+        if !bytes.contains(&b'\n') || opening.ends_with(b"'") {
+            return false;
+        }
+        // Buffer CRLF normalization happens BEFORE the reference main parse.
+        // A control/meta operand CRLF in our physical parse leaves a cooked LF;
+        // after normalization that LF is the operand (text \\x0A), not a line.
+        // Adjust only that proven difference, without decoding any escape value.
+        let mut controlled_crlfs = 0;
+        let mut at = 0;
+        while at < bytes.len() {
+            if bytes[at] == b'\\' {
+                if matches!(bytes.get(at + 1), Some(b'c' | b'C' | b'M'))
+                    && let Some(end) = bracket_control_escape_end(bytes, at)
+                {
+                    let operand = start + end - 1;
+                    controlled_crlfs += usize::from(
+                        bytes[end - 1] == b'\n'
+                            && file.bytes[self.starts[operand]..self.ends[operand]] == *b"\r\n",
+                    );
+                    at = end;
+                } else {
+                    at += 1 + char_width(bytes, at + 1);
+                }
+            } else {
+                at += char_width(bytes, at);
+            }
+        }
+        let decoded_lines = decoded_lines.saturating_sub(controlled_crlfs);
+        let mut groups = 0;
+        let mut consumed = 0;
+        let mut emitted_end = 0;
+        for line in bytes.split_inclusive(|b| *b == b'\n') {
+            consumed += line.len();
+            let body = line.strip_suffix(b"\n").unwrap_or(line);
+            let body = body.strip_suffix(b"\r").unwrap_or(body);
+            let continued = line.ends_with(b"\n")
+                && body.iter().rev().take_while(|b| **b == b'\\').count() % 2 == 1;
+            if !continued || consumed == bytes.len() {
+                groups += 1;
+                if groups <= decoded_lines {
+                    emitted_end = consumed;
+                }
+            }
+        }
+        let end = start + emitted_end;
+        if end == self.bytes.len() {
+            return false;
+        }
+        self.position = self.positions[end];
+        self.bytes.truncate(end);
+        self.starts.truncate(end);
+        self.ends.truncate(end);
+        self.positions.truncate(end);
+        self.holes.truncate(end + 1);
+        self.fingerprints.truncate(end + 1);
+        self.powers.truncate(end + 1);
+        true
     }
     fn append(&mut self, file: &SourceFile, range: Range<usize>, hole: bool) {
         let mut i = range.start;
@@ -262,7 +360,6 @@ pub(super) fn mixed_captures(
     }
     let view = View::new(regexp, file);
     let mut scanner = Scanner::new(&view, regexp.closing.as_slice().contains(&b'x'));
-    scanner.capture_kinds = true;
     scanner.scan();
     scanner.valid && scanner.numbered && !scanner.names.is_empty()
 }
@@ -295,7 +392,6 @@ pub(super) fn unescaped_brackets(
         &view,
         regexp.is_some_and(|r| r.closing.as_slice().contains(&b'x')),
     );
-    scanner.capture_kinds = true;
     scanner.brackets = Some(vec![]);
     scanner.scan();
     if !scanner.valid {
@@ -322,14 +418,13 @@ pub(super) fn quantifier_view(
     }
     let view = View::new(regexp, file);
     let mut scanner = Scanner::new(&view, regexp.closing.as_slice().contains(&b'x'));
-    scanner.capture_kinds = true;
     scanner.brackets = Some(vec![]);
     scanner.scan();
     scanner.valid.then_some(view)
 }
 
 // MixedCaseRange consumes only actual literal ASCII bounds, never decoded escapes.
-// Reuse the successful-tree/projection contract without changing older modes.
+// Reuse the shared successful-tree/projection contract.
 pub(super) fn mixed_case_ranges(
     regexp: &crate::cops::style::regexp_literal::Regexp<'_>,
     file: &SourceFile,
@@ -342,7 +437,6 @@ pub(super) fn mixed_case_ranges(
     }
     let view = View::new(regexp, file);
     let mut scanner = Scanner::new(&view, regexp.closing.as_slice().contains(&b'x'));
-    scanner.capture_kinds = true;
     scanner.brackets = Some(vec![]);
     scanner.mixed_ranges = Some(vec![]);
     scanner.scan();
@@ -365,9 +459,6 @@ struct Scanner<'a> {
     view: &'a View,
     sets: Vec<Set>,
     modes: Vec<bool>,
-    // Capture/bracket tree consumers follow regexp_parser's isolated-option
-    // lifetime. Preserve the older duplicate-set consumer unchanged.
-    capture_kinds: bool,
     brackets: Option<Vec<usize>>,
     mixed_ranges: Option<Vec<Range<usize>>>,
     option_scopes: HashSet<usize>,
@@ -376,7 +467,7 @@ struct Scanner<'a> {
     captures: usize,
     numbered: bool,
     // Group::Named inherits Capture but overrides #identifier with its name.
-    // Only the new capture-tree consumer uses these numeric resolver targets.
+    // Numeric references resolve only to these plain-capture identifiers.
     plain_capture_numbers: HashSet<usize>,
     valid: bool,
     names: HashSet<Vec<u8>>,
@@ -388,7 +479,6 @@ impl<'a> Scanner<'a> {
             view,
             sets: vec![],
             modes: vec![],
-            capture_kinds: false,
             brackets: None,
             mixed_ranges: None,
             option_scopes: HashSet::new(),
@@ -484,12 +574,8 @@ impl<'a> Scanner<'a> {
                     let digits = &bytes[i + 1..end];
                     // Scanner counts only plain groups for multi-digit escape
                     // tokenization; Parser counts ALL groups for positions and
-                    // relative offsets. Preserve the old consumer's threshold.
-                    let opened = if self.capture_kinds {
-                        self.plain_capture_numbers.len()
-                    } else {
-                        self.captures
-                    };
+                    // relative offsets, including named groups.
+                    let opened = self.plain_capture_numbers.len();
                     if digits.len() == 1
                         || std::str::from_utf8(digits)
                             .unwrap()
@@ -509,8 +595,7 @@ impl<'a> Scanner<'a> {
                 // The pinned scanner recognizes numeric-looking k/g payloads
                 // only as -?digits([+-]digits)?. Otherwise just \\k/\\g is a
                 // literal escape and the following text is scanned normally.
-                if self.capture_kinds
-                    && self.sets.is_empty()
+                if self.sets.is_empty()
                     && matches!(bytes.get(i + 1), Some(b'k' | b'g'))
                     && !capture_reference_token(bytes, i, &mut missing_reference_delimiters)
                 {
@@ -518,31 +603,14 @@ impl<'a> Scanner<'a> {
                     i += 2;
                     continue;
                 }
-                let end = if self.brackets.is_some()
-                    && matches!(bytes.get(i + 1), Some(b'c' | b'C' | b'M'))
-                {
-                    bracket_control_escape_end(bytes, i)
-                } else {
-                    escape_end(bytes, i, !self.sets.is_empty())
-                };
-                let Some(end) = end else {
+                let Some(end) = escape_end(bytes, i, !self.sets.is_empty()) else {
                     return vec![];
                 };
                 if self.sets.is_empty()
                     && matches!(bytes.get(i + 1), Some(b'k' | b'g'))
                     && end > i + 3
                 {
-                    let mut reference = &bytes[i + 3..end - 1];
-                    if !self.capture_kinds
-                        && bytes[i + 1] == b'k'
-                        && let Some(suffix) = reference
-                            .iter()
-                            .enumerate()
-                            .skip(1)
-                            .find_map(|(i, b)| b"+-".contains(b).then_some(i))
-                    {
-                        reference = &reference[..suffix];
-                    }
+                    let reference = &bytes[i + 3..end - 1];
                     let kind = if bytes[i + 1] == b'g' {
                         ReferenceKind::Call
                     } else {
@@ -641,7 +709,10 @@ impl<'a> Scanner<'a> {
                         brackets.push(i);
                     }
                 }
-                if b.is_ascii_whitespace() && self.extended {
+                // regexp_parser's extended-mode space class includes VT (0B),
+                // unlike Rust's ASCII whitespace predicate. Inside sets these
+                // bytes remain literal elements, not ignored spacing.
+                if self.extended && b" \t\n\r\x0b\x0c".contains(&b) {
                     i += 1;
                     continue;
                 }
@@ -689,24 +760,18 @@ impl<'a> Scanner<'a> {
                     let old = self.extended;
                     if bytes.get(i + 1) == Some(&b'?') {
                         if bytes.get(i + 2) == Some(&b'(') {
-                            let Some(end) = bytes[i + 3..]
-                                .iter()
-                                .position(|b| *b == b')')
-                                .map(|end| i + 3 + end)
-                            else {
+                            let Some(end) = capture_condition_end(bytes, i + 3) else {
                                 return vec![];
                             };
-                            let mut reference = &bytes[i + 3..end];
-                            if self.capture_kinds && !capture_condition_token(reference) {
-                                return vec![];
-                            }
-                            if matches!(reference.first(), Some(b'<' | b'\''))
-                                && reference.len() >= 2
-                            {
-                                reference = &reference[1..reference.len() - 1];
-                            }
+                            // Conditional::Condition#reference deletes ALL of
+                            // these characters, even inside a permitted name.
+                            let reference = bytes[i + 3..end]
+                                .iter()
+                                .copied()
+                                .filter(|b| !b"'<>()".contains(b))
+                                .collect();
                             self.references.push((
-                                reference.to_vec(),
+                                reference,
                                 self.captures,
                                 ReferenceKind::Condition,
                             ));
@@ -722,9 +787,8 @@ impl<'a> Scanner<'a> {
                                 b'-' => enabled = false,
                                 b'x' => self.extended = enabled,
                                 // Pinned scanner rejects charset flags after
-                                // any '-': only i/m/x may be disabled. Keep
-                                // successful-tree validation capture-only.
-                                b'a' | b'd' | b'u' if self.capture_kinds && !enabled => {
+                                // any '-': only i/m/x may be disabled.
+                                b'a' | b'd' | b'u' if !enabled => {
                                     return vec![];
                                 }
                                 _ => {}
@@ -737,9 +801,7 @@ impl<'a> Scanner<'a> {
                         }
                         if end > i + 2 && bytes.get(end) == Some(&b':') {
                             self.modes.push(old);
-                            if self.capture_kinds {
-                                self.option_scopes.insert(self.modes.len());
-                            }
+                            self.option_scopes.insert(self.modes.len());
                             i = end + 1;
                             continue;
                         }
@@ -768,8 +830,8 @@ impl<'a> Scanner<'a> {
                             let name = &bytes[i + 3..i + 3 + end];
                             // Pinned scanner's named-group grammar excludes a
                             // leading ASCII digit or minus, not arbitrary Ruby
-                            // identifier punctuation. Preserve the older cop.
-                            if self.capture_kinds && (name[0].is_ascii_digit() || name[0] == b'-') {
+                            // identifier punctuation.
+                            if name[0].is_ascii_digit() || name[0] == b'-' {
                                 return vec![];
                             }
                             self.names.insert(name.to_vec());
@@ -782,9 +844,7 @@ impl<'a> Scanner<'a> {
                     if bytes.get(i + 1) != Some(&b'?') {
                         self.numbered = true;
                         self.captures += 1;
-                        if self.capture_kinds {
-                            self.plain_capture_numbers.insert(self.captures);
-                        }
+                        self.plain_capture_numbers.insert(self.captures);
                     }
                     self.modes.push(old);
                     i += if bytes.get(i + 1) == Some(&b'?') {
@@ -803,7 +863,7 @@ impl<'a> Scanner<'a> {
                     let Some(old) = self.modes.pop() else {
                         return vec![];
                     };
-                    if !self.capture_kinds || self.option_scopes.remove(&(self.modes.len() + 1)) {
+                    if self.option_scopes.remove(&(self.modes.len() + 1)) {
                         self.extended = old;
                     }
                 } else {
@@ -832,30 +892,7 @@ impl<'a> Scanner<'a> {
             return vec![];
         }
         for (reference, at, kind) in &self.references {
-            if self.capture_kinds {
-                if !self.capture_reference_valid(reference, *at, *kind) {
-                    return vec![];
-                }
-                continue;
-            }
-            if let Ok(value) = std::str::from_utf8(reference).unwrap_or("").parse::<i64>() {
-                let relative = matches!(reference.first(), Some(b'-' | b'+'));
-                if value == 0 && (!matches!(kind, ReferenceKind::Call) || reference != b"0")
-                    || matches!(kind, ReferenceKind::Backreference) && reference.starts_with(b"+")
-                {
-                    return vec![];
-                }
-                let target = if reference.starts_with(b"-") {
-                    *at as i64 + value + 1
-                } else if reference.starts_with(b"+") {
-                    *at as i64 + value
-                } else {
-                    value
-                };
-                if target < i64::from(relative) || target > self.captures as i64 {
-                    return vec![];
-                }
-            } else if !self.names.contains(reference) {
+            if !self.capture_reference_valid(reference, *at, *kind) {
                 return vec![];
             }
         }
@@ -867,8 +904,13 @@ impl<'a> Scanner<'a> {
 
     // Port of the pinned scanner's k/g token actions, Backreference classes,
     // Parser#assign_effective_number and Base#assign_referenced_expressions.
-    // Used by capture/bracket tree consumers: old set detection/fixes are intact.
+    // Shared by every source-tree consumer; no divergent legacy set resolver.
     fn capture_reference_valid(&self, reference: &[u8], at: usize, kind: ReferenceKind) -> bool {
+        // A condition's negative-looking reference remains a String, NOT a
+        // relative backreference. The parser resolves it as a capture name.
+        if matches!(kind, ReferenceKind::Condition) && !ascii_digits(reference) {
+            return self.names.contains(reference);
+        }
         let named = reference.first().is_some_and(|b| {
             !b.is_ascii_digit()
                 && *b != b'-'
@@ -925,8 +967,11 @@ impl<'a> Scanner<'a> {
         }
         let target = if signed {
             // All captures count for relative offsets, including named ones.
-            let Some(target) = (at as i64)
-                .checked_add(value)
+            // regexp_parser uses arbitrary precision integers. An overflowing
+            // target cannot name a capture in the bounded source: no wrapping.
+            let Some(target) = i64::try_from(at)
+                .ok()
+                .and_then(|at| at.checked_add(value))
                 .and_then(|n| n.checked_add(i64::from(value < 0)))
             else {
                 return false;
@@ -991,16 +1036,31 @@ pub(super) fn capture_reference_token(
     bytes.get(end) == Some(&close)
 }
 
-fn capture_condition_token(reference: &[u8]) -> bool {
-    if matches!(reference.first(), Some(b'<' | b'\'')) {
-        let close = if reference[0] == b'<' { b'>' } else { b'\'' };
-        reference.len() >= 3
-            && reference.last() == Some(&close)
-            && !reference[1].is_ascii_digit()
-            && reference[1] != b'-'
+// Pinned condition token: a delimited name (first byte excludes digit,
+// minus and its closer; remaining bytes exclude only that closer), or -?digits.
+// Parentheses inside names are legal; the first matching delimiter MUST be
+// immediately followed by ')'. No search through an embedded closer.
+pub(super) fn capture_condition_end(bytes: &[u8], start: usize) -> Option<usize> {
+    let first = *bytes.get(start)?;
+    let mut end = start;
+    if matches!(first, b'<' | b'\'') {
+        let close = if first == b'<' { b'>' } else { b'\'' };
+        let first_name = *bytes.get(start + 1)?;
+        if first_name.is_ascii_digit() || first_name == b'-' || first_name == close {
+            return None;
+        }
+        end = start + 1 + bytes[start + 1..].iter().position(|b| *b == close)? + 1;
     } else {
-        ascii_digits(reference) && reference.iter().any(|b| *b != b'0')
+        end += usize::from(first == b'-');
+        let digits_start = end;
+        while bytes.get(end).is_some_and(u8::is_ascii_digit) {
+            end += 1;
+        }
+        if end == digits_start || bytes[digits_start..end].iter().all(|b| *b == b'0') {
+            return None;
+        }
     }
+    (bytes.get(end) == Some(&b')')).then_some(end)
 }
 
 pub(super) fn interval_end(bytes: &[u8], start: usize) -> Option<usize> {
@@ -1048,8 +1108,8 @@ pub(super) fn char_width(bytes: &[u8], i: usize) -> usize {
 // Pinned regexp_parser control/meta tokens allow a single opposite modifier,
 // then an optionally backslashed ASCII character, NOT recursive Ruby escapes.
 // Thus \\c\\c ends before a following ], while bare \\C/\\M fails the tree.
-// Isolate this spelling behavior to the bracket consumer: inherited duplicate-
-// set/mixed-capture semantics are deliberately unchanged.
+// All source-tree consumers must use these same raw boundaries, including
+// duplicate sets and successful-tree validation (not just bracket reporting).
 pub(super) fn bracket_control_escape_end(bytes: &[u8], start: usize) -> Option<usize> {
     let kind = *bytes.get(start + 1)?;
     let mut end = start + 2;
@@ -1074,82 +1134,93 @@ pub(super) fn bracket_control_escape_end(bytes: &[u8], start: usize) -> Option<u
     bytes.get(end).filter(|b| b.is_ascii()).map(|_| end + 1)
 }
 
-pub(super) fn escape_end(bytes: &[u8], mut i: usize, in_set: bool) -> Option<usize> {
-    loop {
-        let kind = *bytes.get(i + 1)?;
-        let next = match kind {
-            b'c' => Some(i + 2),
-            b'C' | b'M' if bytes.get(i + 2) == Some(&b'-') => Some(i + 3),
-            _ => None,
-        };
-        if let Some(next) = next {
-            if bytes.get(next) == Some(&b'\\') {
-                i = next;
-                continue;
+pub(super) fn escape_end(bytes: &[u8], i: usize, in_set: bool) -> Option<usize> {
+    let kind = *bytes.get(i + 1)?;
+    if matches!(kind, b'c' | b'C' | b'M') {
+        return bracket_control_escape_end(bytes, i);
+    }
+    let mut end = i + 1 + char_width(bytes, i + 1);
+    match kind {
+        b'p' | b'P' if bytes.get(end) == Some(&b'{') => {
+            let mut at = end + 1;
+            if bytes.get(at) == Some(&b'^') {
+                at += 1;
             }
-            return bytes.get(next).map(|_| next + char_width(bytes, next));
-        }
-        let mut end = i + 1 + char_width(bytes, i + 1);
-        match kind {
-            b'u' | b'p' | b'P' if bytes.get(end) == Some(&b'{') => {
-                end += 1;
-                end += bytes[end..].iter().position(|b| *b == b'}')? + 1;
-                let payload = &bytes[i + 3..end - 1];
-                if kind == b'u' {
-                    // Pinned grammar: 1..6 hex digits per item, separated by
-                    // exactly one ASCII whitespace byte; no surrounding space.
-                    let mut digits = 0;
-                    for &b in payload {
-                        if b.is_ascii_hexdigit() {
-                            digits += 1;
-                            if digits > 6 {
-                                return None;
-                            }
-                        } else if b" \t\n\r\x0b\x0c".contains(&b) && digits > 0 {
-                            digits = 0;
-                        } else {
+            let name_start = at;
+            loop {
+                let b = *bytes.get(at)?; // valid but unfinished property
+                if b == b'}' {
+                    if at != name_start {
+                        if !known_property(&bytes[name_start..at]) {
                             return None;
                         }
+                        end = at + 1;
                     }
-                    if digits == 0 {
+                    break;
+                }
+                // The token grammar precedes alias lookup. Any other byte
+                // makes ONLY \\p/\\P a literal escape; rescan the braces
+                // and payload normally (including set duplicate elements).
+                if !b.is_ascii_alphanumeric() && !b"_-.= \t\n\r\x0b\x0c".contains(&b) {
+                    break;
+                }
+                at += 1;
+            }
+        }
+        b'u' if bytes.get(end) == Some(&b'{') => {
+            end += 1;
+            end += bytes[end..].iter().position(|b| *b == b'}')? + 1;
+            let payload = &bytes[i + 3..end - 1];
+            // Pinned grammar: 1..6 hex digits per item, separated by
+            // exactly one ASCII whitespace byte; no surrounding space.
+            let mut digits = 0;
+            for &b in payload {
+                if b.is_ascii_hexdigit() {
+                    digits += 1;
+                    if digits > 6 {
                         return None;
                     }
-                } else if !known_property(payload) {
+                } else if b" \t\n\r\x0b\x0c".contains(&b) && digits > 0 {
+                    digits = 0;
+                } else {
                     return None;
                 }
             }
-            b'k' | b'g' if !in_set && matches!(bytes.get(end), Some(b'<' | b'\'')) => {
-                let close = if bytes[end] == b'<' { b'>' } else { b'\'' };
-                end += 1;
-                end += bytes[end..].iter().position(|b| *b == close)? + 1;
+            if digits == 0 {
+                return None;
             }
-            b'u' | b'x' | b'0'..=b'7' => {
-                let max = match kind {
-                    b'u' => 4,
-                    b'x' => 2,
-                    _ => 2,
-                };
-                for _ in 0..max {
-                    if bytes.get(end).is_some_and(|b| {
-                        if kind.is_ascii_digit() {
-                            matches!(b, b'0'..=b'7')
-                        } else {
-                            b.is_ascii_hexdigit()
-                        }
-                    }) {
-                        end += 1;
-                    } else {
-                        break;
-                    }
-                }
-                if kind == b'u' && end != i + 6 || kind == b'x' && end == i + 2 {
-                    return None;
-                }
-            }
-            _ => {}
         }
-        return Some(end);
+        b'k' | b'g' if !in_set && matches!(bytes.get(end), Some(b'<' | b'\'')) => {
+            let close = if bytes[end] == b'<' { b'>' } else { b'\'' };
+            end += 1;
+            end += bytes[end..].iter().position(|b| *b == close)? + 1;
+        }
+        b'u' | b'x' | b'0'..=b'7' => {
+            let max = match kind {
+                b'u' => 4,
+                b'x' => 2,
+                _ => 2,
+            };
+            for _ in 0..max {
+                if bytes.get(end).is_some_and(|b| {
+                    if kind.is_ascii_digit() {
+                        matches!(b, b'0'..=b'7')
+                    } else {
+                        b.is_ascii_hexdigit()
+                    }
+                }) {
+                    end += 1;
+                } else {
+                    break;
+                }
+            }
+            if kind == b'u' && end != i + 6 || kind == b'x' && end == i + 2 {
+                return None;
+            }
+        }
+        _ => {}
     }
+    Some(end)
 }
 
 // Pinned regexp_parser 2.13.1 property aliases (MIT, Copyright (c) 2010-2026,
@@ -1164,7 +1235,8 @@ fn known_property(name: &[u8]) -> bool {
     });
     let normalized: Vec<u8> = name
         .iter()
-        .filter(|b| !b.is_ascii_whitespace() && !b"^_-".contains(b))
+        // Ruby's whitespace class includes VT (0B); is_ascii_whitespace does not.
+        .filter(|b| !b"^_- \t\n\r\x0b\x0c".contains(b))
         .map(u8::to_ascii_lowercase)
         .collect();
     std::str::from_utf8(&normalized).is_ok_and(|name| names.binary_search(&name).is_ok())
@@ -1240,6 +1312,57 @@ mod tests {
         }
     }
     #[test]
+    fn operator_recovery_source_oracle_rows_match_exactly() {
+        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/duplicate_regexp_extended.json"
+        ))
+        .unwrap();
+        for row in rows {
+            let source = row["source"].as_str().unwrap();
+            let expected: Vec<(u32, u32, u32, String)> =
+                serde_json::from_value(row["findings"].clone()).unwrap();
+            assert_eq!(
+                offenses(source)
+                    .into_iter()
+                    .map(|o| (o.line, o.col, o.end_line, o.message))
+                    .collect::<Vec<_>>(),
+                expected,
+                "{row}"
+            );
+        }
+    }
+    #[test]
+    fn operator_round2_shared_source_tree_consumers_match_actual_pinned_team() {
+        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/duplicate_regexp_extended.json"
+        ))
+        .unwrap();
+        let names = [
+            "Lint/DuplicateRegexpCharacterClassElement",
+            "Lint/MixedRegexpCaptureTypes",
+            "Lint/UnescapedBracketInRegexp",
+            "Lint/RedundantRegexpQuantifiers",
+            "Lint/MixedCaseRange",
+        ];
+        let mut checked = 0;
+        for row in rows {
+            let Some(expected) = row.get("shared_findings") else {
+                continue;
+            };
+            checked += 1;
+            let mut actual = lint_str(row["source"].as_str().unwrap())
+                .into_iter()
+                .filter(|o| names.contains(&o.cop))
+                .map(|o| (o.cop.to_string(), o.line, o.col, o.end_line, o.message))
+                .collect::<Vec<_>>();
+            actual.sort();
+            let expected: Vec<(String, u32, u32, u32, String)> =
+                serde_json::from_value(expected.clone()).unwrap();
+            assert_eq!(actual, expected, "{row}");
+        }
+        assert_eq!(checked, 607);
+    }
+    #[test]
     fn wide_and_deep_patterns_use_iterative_bounded_source_work() {
         let source = format!("/[{}]/", "a".repeat(12000));
         assert_eq!(offenses(&source).len(), 11999);
@@ -1271,6 +1394,82 @@ mod tests {
         }
     }
     #[test]
+    fn isolated_extended_switches_survive_non_option_group_closers() {
+        // The pinned source scanner's
+        // free-spacing switch is restored by option groups, not ordinary ones.
+        for source in [
+            "/(?<n>(?x))#[aa]/\n",
+            "/((?x))#[aa]/\n",
+            "/(?:(?x))#[aa]/\n",
+            "/(?=(?x))#[aa]/\n",
+            "/(?<=(?x))#[aa]/\n",
+            "/(?>(?x))#[aa]/\n",
+            "/(?~(?x))#[aa]/\n",
+            "/(?<n>(?x))# [aa]#{value}/\n",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+        for source in [
+            "/(?<n>(?x))# [aa]\n[bb]/",
+            "/(?x:(?-x))#[aa]/",
+            "/(?<n>(?-x))#[aa]/x",
+        ] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source}");
+            let offset = source.rfind("bb").or_else(|| source.rfind("aa")).unwrap() + 1;
+            let prefix = &source[..offset];
+            assert_eq!(
+                found[0].line,
+                prefix.bytes().filter(|b| *b == b'\n').count() as u32 + 1
+            );
+            assert_eq!(
+                found[0].col,
+                prefix.rsplit('\n').next().unwrap().chars().count() as u32 + 1
+            );
+            assert_eq!(
+                found[0].message,
+                "Duplicate element inside regexp character class"
+            );
+            assert!(found[0].correction.is_none());
+        }
+    }
+    #[test]
+    fn extended_whitespace_including_vertical_tab_is_not_a_quantifier_target() {
+        for whitespace in [" ", "\t", "\n", "\r", "\u{b}", "\u{c}"] {
+            for source in [
+                format!("/(?x){whitespace}*[aa]#{{value}}/"),
+                format!("/{whitespace}*[aa]#{{value}}/x"),
+                format!("/(?x:{whitespace}*[aa])#{{value}}/"),
+            ] {
+                assert!(offenses(&source).is_empty(), "{source:?}");
+            }
+        }
+        // VT is still literal outside extended mode and inside character sets.
+        for source in [
+            "/\u{b}*[aa]#{value}/",
+            "/(?-x:\u{b}*[aa])#{value}/x",
+            "/(?x)[\u{b}\u{b}]#{value}/",
+            "/(?x)a\u{b}*[aa]#{value}/",
+        ] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source:?}");
+            let offset = if source.contains("[aa]") {
+                source.find("[aa]").unwrap() + 2
+            } else {
+                source.find("[\u{b}\u{b}]").unwrap() + 2
+            };
+            assert_eq!(
+                (found[0].line, found[0].col, found[0].end_line),
+                (1, offset as u32 + 1, 1)
+            );
+            assert_eq!(
+                found[0].message,
+                "Duplicate element inside regexp character class"
+            );
+            assert!(found[0].correction.is_none());
+        }
+    }
+    #[test]
     fn numeric_escape_fallback_uses_open_capture_count() {
         for (source, cols) in [
             (r"/[aa]\99/", vec![4]),
@@ -1288,6 +1487,61 @@ mod tests {
         }
     }
     #[test]
+    fn original_source_tree_nil_cases_use_the_shared_pinned_validation() {
+        // Found while auditing the full original implementation: capture isolation
+        // controls preserved these older set false positives, not parser gates.
+        // Native3.4 -c accepts all of them; pinned regexp_parser has no tree.
+        for source in [
+            r"/(?<1>a)(b)[aa]/",
+            r"/(?<n>a)(b)\1[aa]/",
+            r"/(?<n>a)(b)(?u-a)[aa]/",
+            r"/(?<n>a)(b)(?d-u:[aa])/",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+        for source in [r"/(?<n>a)(b)\2[aa]/", r"/(?<n>a)(b)(?a-imx:[aa])/"] {
+            assert_eq!(offenses(source).len(), 1, "{source}");
+        }
+    }
+    #[test]
+    fn relative_reference_arithmetic_rejects_out_of_range_without_panicking() {
+        // Exact witnesses, plus both signs, delimiters,
+        // dynamic fragments and values beyond the machine integer width.
+        for pattern in [
+            r"(?<n>a)(b)\g<+9223372036854775807>",
+            r"(?:(?<n>a)(b)\g<+9223372036854775807>+)+",
+            r"(a)[aa]\g<+9223372036854775807>",
+            r"(a)[aa]\g'+9223372036854775807'",
+            r"(a)[aa]\g<-9223372036854775808>",
+            r"(a)[aa]\k<-9223372036854775808>",
+            r"(a)[aa]\g<+18446744073709551616>",
+            r"(a)[aa]\g<-18446744073709551616>",
+            r"[aa]\g<+9223372036854775807>",
+        ] {
+            let mut view = super::View::empty((1, 2));
+            for (i, b) in pattern.bytes().enumerate() {
+                view.push(b, i, i + 1, false);
+            }
+            let mut scanner = super::Scanner::new(&view, false);
+            assert!(scanner.scan().is_empty(), "{pattern}");
+            assert!(!scanner.valid, "{pattern}");
+            for source in [format!("/{pattern}/"), format!("/{pattern}#{{value}}/")] {
+                assert!(offenses(&source).is_empty(), "{source}");
+            }
+        }
+        for source in [
+            r"/(a)[aa]\g<-1>/",
+            r"/(a)[aa]\k<-1>/",
+            r"/[aa]\g<+1>(a)/",
+            r"/[aa]\g<0>/",
+        ] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!(found[0].col, if source.starts_with("/(a)") { 7 } else { 4 });
+            assert!(found[0].correction.is_none());
+        }
+    }
+    #[test]
     fn zero_backreferences_are_not_whole_regexp_calls() {
         for source in [
             r"/[aa]#{value}\k<0>/",
@@ -1300,6 +1554,156 @@ mod tests {
             assert!(offenses(source).is_empty(), "{source}");
         }
         assert_eq!(offenses(r"/[aa]#{value}\g<0>/")[0].col, 4);
+    }
+    #[test]
+    fn property_tokens_fall_back_before_alias_validation() {
+        for (source, cols) in [
+            (r"/[aa]\p{foo!}#{value}/", vec![4]),
+            (r"/[\p{Alpha^}aa]#{value}/", vec![13, 14]),
+            (r"/[aa]\P{}#{value}/", vec![4]),
+            (r"/[aa]\p{^^Alpha}#{value}/", vec![4]),
+            (r"/[aa]\p{^Alpha}#{value}/", vec![4]),
+            (r"/[aa]\p{Al_pha}#{value}/", vec![4]),
+            (r"/[aa]\p{NotAProperty}#{value}/", vec![]),
+            (r"/[aa]\p{gc=Lu}#{value}/", vec![]),
+        ] {
+            assert_eq!(
+                offenses(source).iter().map(|o| o.col).collect::<Vec<_>>(),
+                cols,
+                "{source}"
+            );
+        }
+    }
+    #[test]
+    fn property_normalization_includes_literal_vertical_tabs() {
+        // Literal byte 0B, not \\v.
+        for kind in ["p", "P"] {
+            for (source, cols) in [
+                (format!("/[aa]\\{kind}{{Al\u{b}pha}}#{{value}}/"), vec![4]),
+                (format!("/[\\{kind}{{Al\u{b}pha}}aa]#{{value}}/"), vec![14]),
+            ] {
+                let found = offenses(&source);
+                assert_eq!(
+                    found
+                        .iter()
+                        .map(|o| (o.line, o.col, o.end_line))
+                        .collect::<Vec<_>>(),
+                    cols.into_iter().map(|col| (1, col, 1)).collect::<Vec<_>>(),
+                    "{source:?}"
+                );
+                assert!(
+                    found
+                        .iter()
+                        .all(|o| o.message == "Duplicate element inside regexp character class")
+                );
+                assert!(found.iter().all(|o| o.correction.is_none()));
+            }
+        }
+        let found = lint_str("/[aa]\\p{Al\u{b}pha}[A-z]#{value}/");
+        for (name, col) in [
+            ("Lint/DuplicateRegexpCharacterClassElement", 4),
+            ("Lint/MixedCaseRange", 17),
+        ] {
+            assert!(
+                found
+                    .iter()
+                    .any(|o| o.cop == name && (o.line, o.col) == (1, col)),
+                "{found:?}"
+            );
+        }
+        assert!(offenses("/[aa]\\p{No\u{b}SuchProperty}#{value}/").is_empty());
+    }
+    #[test]
+    fn control_meta_tokens_consume_raw_ascii_not_recursive_escapes() {
+        // No interpolation executes.
+        for (source, cols) in [
+            (r"/[\c\x61\c\x61aa]#{value}/", vec![9, 13, 14, 16]),
+            (r"/[\M-\x61\M-\x61aa]#{value}/", vec![10, 15, 16, 18]),
+            (r"/[aa]\c\p{NoSuchProperty}#{value}/", vec![4]),
+        ] {
+            let found = offenses(source);
+            assert_eq!(
+                found
+                    .iter()
+                    .map(|o| (o.line, o.col, o.end_line))
+                    .collect::<Vec<_>>(),
+                cols.into_iter().map(|col| (1, col, 1)).collect::<Vec<_>>(),
+                "{source}"
+            );
+            assert!(found.iter().all(|o| o.message
+                == "Duplicate element inside regexp character class"
+                && o.correction.is_none()));
+        }
+        // Bare C/M and unfinished control sequences still fail the source tree.
+        for source in [r"/[aa]\C#{value}/", r"/[aa]\M#{value}/"] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+    }
+    #[test]
+    fn controlled_physical_newlines_use_pinned_emitted_fragment_ranges() {
+        assert_eq!(
+            offenses("/[aa]\\c\r\n[bb]#{value}/")
+                .iter()
+                .map(|o| (o.line, o.col))
+                .collect::<Vec<_>>(),
+            vec![(1, 4)]
+        );
+        assert_eq!(
+            offenses("/[aa]\\c\n[bb]#{value}[cc]\n[dd]/")
+                .iter()
+                .map(|o| (o.line, o.col))
+                .collect::<Vec<_>>(),
+            vec![(1, 4), (2, 16)]
+        );
+        for prefix in [
+            r"\c", r"\C-", r"\M-", r"\c\M-", r"\M-\c", r"\M-\C-", r"\C-\M-",
+        ] {
+            let source = format!("/[{prefix}\n{prefix}\naa]#{{value}}/");
+            assert!(offenses(&source).is_empty(), "{source:?}");
+            let source = format!("/(?<n>a)(b)[aa]{prefix}\n[A-z](?:x+)+#{{value}}/");
+            let found = lint_str(&source);
+            let selected = found
+                .iter()
+                .filter(|o| {
+                    [
+                        "Lint/DuplicateRegexpCharacterClassElement",
+                        "Lint/MixedCaseRange",
+                        "Lint/RedundantRegexpQuantifiers",
+                    ]
+                    .contains(&o.cop)
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(selected.len(), 1, "{source:?}\n{selected:?}");
+            assert_eq!(
+                (selected[0].cop, selected[0].line, selected[0].col),
+                ("Lint/DuplicateRegexpCharacterClassElement", 1, 14)
+            );
+        }
+    }
+    #[test]
+    fn named_conditions_require_the_complete_pinned_token() {
+        for source in [
+            r"/(?'a>b'x)[aa](?(<a>b>)a|b)#{value}/",
+            r"/(?<a'b>x)[aa](?('a'b')a|b)#{value}/",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+        assert_eq!(offenses(r"/(?'a>b'x)[aa](?('a>b')a|b)#{value}/").len(), 0);
+        assert_eq!(offenses(r"/(?<a>x)[aa](?(<a>)a|b)#{value}/").len(), 1);
+        for source in [
+            r"/(?<ab>x)(?(<a)b>)(?:x+)+|y)z/",
+            r"/(?<ab>x)(?('a>b')(?:x+)+|y)z/",
+        ] {
+            let found = lint_str(source);
+            assert_eq!(
+                found
+                    .iter()
+                    .filter(|o| o.cop == "Lint/RedundantRegexpQuantifiers")
+                    .count(),
+                1,
+                "{source}"
+            );
+        }
     }
     #[test]
     fn braced_unicode_payload_must_match_pinned_grammar() {

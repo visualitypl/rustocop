@@ -88,7 +88,8 @@ fn default_only_except_config_and_no_write_contract() {
 #[test]
 fn default_fix_really_corrects_and_stabilizes_without_changing_public_defaults() {
     let dir = project();
-    let source = "# Copyright (c) 2026 Example\n# frozen_string_literal: true\n[1].each do |x| puts(x) end\n";
+    // The blank line keeps Layout/EmptyLineAfterMagicComment quiet.
+    let source = "# Copyright (c) 2026 Example\n# frozen_string_literal: true\n\n[1].each do |x| puts(x) end\n";
     let expected = source.replace("do |x| puts(x) end", "{ |x| puts(x) }");
     let path = dir.path().join("x.rb");
     fs::write(&path, source).unwrap();

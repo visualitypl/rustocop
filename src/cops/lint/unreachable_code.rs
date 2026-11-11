@@ -117,7 +117,10 @@ impl<'pr> Walker<'_, 'pr> {
         let mut flow_reached = false;
         for (index, statement) in body.iter().enumerate() {
             if flow_reached {
-                let (line, col) = self.file.line_col(statement.location().start_offset());
+                let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                    statement.location().start_offset(),
+                    self.file,
+                );
                 self.out.push(Offense {
                     correction: None,
                     cop: self.cop.name(),

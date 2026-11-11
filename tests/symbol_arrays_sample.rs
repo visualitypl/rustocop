@@ -1,4 +1,7 @@
-//! controlled Ruby programs only; no application/corpus execution.
+//! Controlled Ruby programs only; no application/corpus execution.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     path::Path,
@@ -433,7 +436,7 @@ fn serialization_regressions_preserve_native_source_runtime_and_converge() {
         ("ISO-8859-1", b"\xe9"),
     ];
     let runtimes = runtimes();
-    for (encoding, native) in profiles {
+    parallel_rows!(for (encoding, native) in profiles => {
         // miniruby lacks loadable legacy codecs; native 3.4.1 covers UTF8,
         // US-ASCII and binary, while host Ruby covers every native profile.
         let rubies: Vec<_> = runtimes
@@ -524,7 +527,7 @@ p Array.new(4) { rand(2**30) }
                 }
             }
         }
-    }
+    });
 }
 #[test]
 fn controlled_sample_corrections_preserve_default_rng_following_draws_and_identity() {

@@ -555,6 +555,7 @@ dependencies = [
  "regex",
  "ruby-prism",
  "ruby-prism-sys",
+ "rustix",
  "serde",
  "serde_json",
  "stacker",

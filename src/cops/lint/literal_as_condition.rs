@@ -19,19 +19,16 @@
 //! - The operand of `!`/`not`, searched through `!`, `&&`/`||` and
 //!   parentheses (a literal right under `&&` is left to the `&&` check).
 //!
-//! Offenses with the same range are reported once, as in RuboCop; line
-//! breaks in the quoted literal become spaces. Pattern
+//! Offenses with the same range are reported once, as in RuboCop. Quoted
+//! source retains whitespace (the reference buffer normalizes CRLF to LF). Pattern
 //! guards (`in x if true`) are not conditions in RuboCop's AST and are left
 //! alone. The offense is reported at the literal.
 
 use ruby_prism::{CaseMatchNode, CaseNode, IfNode, Node, UnlessNode, Visit};
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        ast::{is_basic_literal, is_literal},
-    },
-    offense::{Offense, single_line},
+    cops::{Cop, NodeContext, ast::is_literal},
+    offense::Offense,
     source::SourceFile,
 };
 
@@ -90,7 +87,7 @@ impl Cop for LiteralAsCondition {
             }
             Node::CallNode { .. } => {
                 let call = node.as_call_node().unwrap();
-                if call.name().as_slice() != b"!" {
+                if call.is_safe_navigation() || call.name().as_slice() != b"!" {
                     return;
                 }
                 let Some(operand) = call.receiver() else {
@@ -121,8 +118,18 @@ impl Reporter<'_> {
     }
 
     fn report_range(&mut self, start: usize, end: usize) {
-        let (line, col) = self.file.line_col(start);
-        let source = single_line(&self.file.bytes[start..end]);
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, self.file);
+        let projected = self.file.match_pattern_source(&self.file.bytes[start..end]);
+        let source = projected
+            .utf8_chunks()
+            .map(|chunk| {
+                let mut text = chunk.valid().replace("\r\n", "\n");
+                for byte in chunk.invalid() {
+                    text.push_str(&format!("\\x{byte:02X}"));
+                }
+                text
+            })
+            .collect::<String>();
         let message = format!("Literal `{source}` appeared as a condition.");
         // RuboCop reports a range once per cop; the same position and
         // message mean the same range.
@@ -162,7 +169,8 @@ impl Reporter<'_> {
         match node {
             Node::CallNode { .. } => {
                 let call = node.as_call_node().unwrap();
-                let prefix_bang = call.name().as_slice() == b"!"
+                let prefix_bang = !call.is_safe_navigation()
+                    && call.name().as_slice() == b"!"
                     && call
                         .message_loc()
                         .is_some_and(|message| message.as_slice() == b"!");
@@ -371,23 +379,26 @@ fn check_case_match(node: &CaseMatchNode<'_>, reporter: &mut Reporter<'_>) {
 /// RuboCop's `check_case`.
 fn check_case_subject(subject: &Node<'_>, reporter: &mut Reporter<'_>) {
     if let Some(array) = subject.as_array_node()
-        && !is_primitive_array(&array.as_node())
+        && !is_primitive_array(&array.as_node(), reporter.file)
     {
         return;
     }
-    if subject.as_interpolated_string_node().is_some() {
+    if is_reference_dstr(subject, reporter.file) {
         return;
     }
     reporter.handle(subject, false);
 }
 
-/// An array of basic literals and such arrays.
-fn is_primitive_array(node: &Node<'_>) -> bool {
+use super::reference_basic_literal::{is_basic_literal, is_dstr as is_reference_dstr};
+
+/// An array of reference basic literals and such arrays. Physical multiline
+/// strings are dstr, not basic literals, at every nesting level.
+fn is_primitive_array(node: &Node<'_>, file: &SourceFile) -> bool {
     node.as_array_node().is_some_and(|array| {
         array
             .elements()
             .iter()
-            .all(|element| is_basic_literal(&element) || is_primitive_array(&element))
+            .all(|element| is_basic_literal(&element, file) || is_primitive_array(&element, file))
     })
 }
 
@@ -571,6 +582,15 @@ mod tests {
     }
 
     #[test]
+    fn safe_navigation_negation_is_not_an_on_send_callback() {
+        assert!(offenses("1&.!").is_empty());
+        assert!(offenses("nil&.!").is_empty());
+        assert!(offenses("!(1&.!)").is_empty());
+        assert!(offenses("case 1&.!; in X; end").is_empty());
+        assert_eq!(found("1.!"), [at(1, 1, "1")]);
+    }
+
+    #[test]
     fn flags_truthy_literals_as_rubocop_does() {
         check_templates(&TRUTHY, TRUTHY_OFFENSES, TRUTHY_NO_OFFENSES);
     }
@@ -623,11 +643,182 @@ mod tests {
     }
 
     #[test]
-    fn quotes_multi_line_literals_on_one_line() {
+    fn retains_multiline_literal_source_and_reference_newlines() {
+        for literal in [
+            "[1,\n2]",
+            "'a\nb'",
+            "[\n  1,\n\t2\n]",
+            "[1, # original comment\n\t2]",
+            "{a: 1,\n b: 2}",
+            "%q(a\n\tb)",
+            ":\"a\nb\"",
+            "'a\\nb'",
+            "'a\rb'",
+        ] {
+            for (template, col) in [
+                ("if L; x;end\n", 4),
+                ("!(L)\n", 3),
+                ("!(x || L)\n", 8),
+                ("case L;when x;end\n", 6),
+                ("while L; x;end\n", 7),
+            ] {
+                for nl in ["\n", "\r\n"] {
+                    let source = template.replace('L', literal).replace('\n', nl);
+                    let actual = offenses(&source);
+                    // The pinned adapter represents static physical multiline
+                    // strings as dstr; case subjects exclude dstr, unlike !/if.
+                    if template.starts_with("case") && matches!(literal, "'a\nb'" | "%q(a\n\tb)") {
+                        assert!(actual.is_empty(), "{source:?}");
+                        continue;
+                    }
+                    assert_eq!(
+                        actual
+                            .iter()
+                            .map(|o| (o.line, o.col, o.message.clone()))
+                            .collect::<Vec<_>>(),
+                        [at(1, col, literal)],
+                        "{source:?}"
+                    );
+                    assert_eq!(actual[0].end_line, 1 + literal.matches('\n').count() as u32);
+                    assert!(actual[0].correction.is_none());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn case_arrays_exclude_physical_multiline_string_elements_recursively() {
+        for literal in ["'a\nb'", "\"a\nb\"", "%q(a\nb)", "%Q(a\nb)"] {
+            for array in [format!("[{literal}]"), format!("[1, [[{literal}]]]")] {
+                for branch in ["when x", "in X"] {
+                    for nl in ["\n", "\r\n"] {
+                        let source = format!("case {array}; {branch}; end\n").replace('\n', nl);
+                        assert!(found(&source).is_empty(), "{source:?}");
+                    }
+                }
+            }
+        }
+        // Escaped newlines are not physical part boundaries.
+        for literal in ["'a\\nb'", "\"a\\nb\"", "\"a\\\nb\""] {
+            let array = format!("[1, [[{literal}]]]");
+            for branch in ["when x", "in X"] {
+                assert_eq!(
+                    found(&format!("case {array}; {branch}; end\n")),
+                    [at(1, 6, &array)]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn case_empty_percent_and_continuation_only_strings_are_reference_dstrs() {
+        // All 24 shapes are native-valid but
+        // the pinned adapter emits zero-child dstr, not a basic str literal.
+        for literal in ["%q()", "%Q()", "%()", "\"\\\n\""] {
+            for subject in [
+                literal.to_string(),
+                format!("[{literal}]"),
+                format!("[1, [[{literal}]]]"),
+            ] {
+                for branch in ["when x", "in X"] {
+                    for nl in ["\n", "\r\n"] {
+                        let source = format!("case {subject}; {branch}; end\n").replace('\n', nl);
+                        assert!(found(&source).is_empty(), "{source:?}");
+                    }
+                }
+            }
+            // dstr is still a literal in ordinary boolean contexts. Do not
+            // suppress these findings as a side effect of case classification.
+            assert_eq!(
+                found(&format!("if {literal}; x; end\n")),
+                [at(1, 4, literal)]
+            );
+        }
+        for literal in ["''", "\"\"", "\"\\u{}\"", "\"a\\\nb\""] {
+            for branch in ["when x", "in X"] {
+                assert_eq!(
+                    found(&format!("case {literal}; {branch}; end\n")),
+                    [at(1, 6, literal)]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn case_continued_strings_follow_emitted_children_not_cooked_emptiness() {
+        for literal in ["\"a\\n\\\n\"", "\"\\n\\\n\"", "%Q(a\\n\\\n)"] {
+            for subject in [literal.to_string(), format!("[1, [[{literal}]]]")] {
+                for branch in ["when x", "in X"] {
+                    for nl in ["\n", "\r\n"] {
+                        let source = format!("case {subject}; {branch}; end\n").replace('\n', nl);
+                        assert!(found(&source).is_empty(), "{source:?}");
+                    }
+                }
+            }
+        }
+        assert_eq!(found("case \"a\\n\"; when x; end"), [at(1, 6, "\"a\\n\"")]);
+    }
+
+    #[test]
+    fn case_arrays_exclude_reference_dynamic_symbols_not_static_empty_values() {
+        for literal in [":\"\"", ":''", "%s()", ":\"a\nb\"", ":'a\nb'", ":\"\\\n\""] {
+            for array in [format!("[{literal}]"), format!("[1, [[{literal}]]]")] {
+                for branch in ["when x", "in X"] {
+                    assert!(
+                        found(&format!("case {array}; {branch}; end")).is_empty(),
+                        "{array:?}"
+                    );
+                }
+            }
+            // Unlike dstr, direct dsym subjects are still reported upstream.
+            assert_eq!(
+                found(&format!("case {literal}; when x; end")),
+                [at(1, 6, literal)]
+            );
+        }
+        for literal in [":x", ":\"x\"", ":\"\\u{}\"", ":\"a\\\nb\""] {
+            let array = format!("[{literal}]");
+            assert_eq!(
+                found(&format!("case {array}; when x; end")),
+                [at(1, 6, &array)]
+            );
+        }
+    }
+
+    #[test]
+    fn case_continued_squiggly_heredocs_remain_single_strings() {
+        for head in ["<<~X", "<<~\"X\""] {
+            for indent in ["", "  ", "\t"] {
+                for branch in ["when x", "in X"] {
+                    for nl in ["\n", "\r\n"] {
+                        let source =
+                            format!("case {head}; {branch}; end\n{indent}a\\\n{indent}b\nX\n")
+                                .replace('\n', nl);
+                        assert_eq!(found(&source), [at(1, 6, head)], "{source:?}");
+                    }
+                }
+            }
+        }
+        for head in ["<<~X", "<<~'X'"] {
+            let source = format!("case {head}; when x; end\n  a\n  b\nX\n");
+            assert!(found(&source).is_empty(), "{source:?}");
+        }
+    }
+
+    #[test]
+    fn subjectless_case_retains_multiline_condition_list_spacing() {
         assert_eq!(
-            found("if [\n  1,\n  2\n]\n  x\nend\n"),
-            [at(1, 4, "[   1,   2 ]")]
+            found("case\nwhen 1,\n\t:a, 'b\nc' then x\nend\n"),
+            [at(2, 6, "1,\n\t:a, 'b\nc'")]
         );
+        for source in [
+            "if x; puts 'a\nb'; end\n",
+            "case [x,\n2]; when x; end\n",
+            "!(x && 'a\nb')\n",
+            "case\nwhen x,\n1 then x\nend\n",
+        ] {
+            assert!(offenses(source).is_empty(), "{source:?}");
+        }
     }
 
     #[test]

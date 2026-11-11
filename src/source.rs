@@ -5,10 +5,17 @@ use std::{ops::Range, path::PathBuf, sync::OnceLock};
 use ruby_prism::{Node, ParseResult};
 
 mod columns;
+mod diagnostics;
 mod encoding;
 pub(crate) mod heredoc_boundaries;
+mod input_metadata;
 mod literal_ranges;
+pub(crate) use literal_ranges::literal_interior;
 mod punctuation;
+pub(crate) mod tokens;
+
+pub use diagnostics::{FatalDiagnostic, ParseDiagnostic, ParseDiagnostics, ParseWarning};
+pub use input_metadata::{InputIdentity, SuppliedInputMetadata};
 
 pub(crate) use encoding::{
     SourceEncoding, projected_alphanumeric, unicode_lowercase, unicode_uppercase,
@@ -23,6 +30,8 @@ pub struct SourceFile {
     /// Actual disk input, distinct from its display/config path. Absent for stdin
     /// and in-memory fixtures; consulted lazily only by load-path-sensitive fixes.
     read_path: Option<PathBuf>,
+    /// Captured from the opened disk input, never looked up through a filename.
+    supplied_input_metadata: Option<SuppliedInputMetadata>,
     /// Supplied parser filename, including stdin's virtual name. Unlike `path`,
     /// this is not rebased for display; unlike `read_path`, it grants no I/O.
     source_path: Option<PathBuf>,
@@ -91,7 +100,14 @@ pub struct SourceFile {
     ineffective_private_names:
         OnceLock<crate::cops::lint::ineffective_access_modifier::PrivateNames>,
     useless_access_modifiers: OnceLock<crate::cops::lint::useless_access_modifier::Facts>,
+    access_modifier_scopes:
+        OnceLock<crate::cops::layout::empty_lines_around_access_modifier::Scopes>,
     missing_super_facts: OnceLock<crate::cops::lint::missing_super::Facts>,
+    useless_rescue_facts: OnceLock<crate::cops::lint::useless_rescue::Facts>,
+    ruby2_keywords_facts: OnceLock<crate::cops::lint::useless_ruby2_keywords::Facts>,
+    /// Conditional-edge equality, only for non-bare method modifiers.
+    pub(crate) method_definition_macro_branches:
+        std::sync::Mutex<std::collections::HashMap<(usize, usize, usize), bool>>,
     /// Memoized syntactic Time/DateTime roots, only for the opt-in detector.
     pub(crate) number_conversion_roots:
         std::sync::Mutex<std::collections::HashMap<(usize, usize), bool>>,
@@ -100,6 +116,9 @@ pub struct SourceFile {
     /// Byte ranges of the file's comments, in source order. Recorded by the
     /// pipeline from its parse; computed on first use otherwise.
     comments: OnceLock<Vec<Range<usize>>>,
+    /// RuboCop's parser-gem token projection of Prism's own lexer stream.
+    parser_tokens: OnceLock<Vec<tokens::Token>>,
+    preceding_following: OnceLock<crate::cops::layout::preceding_following::Lines>,
     /// Shared constant-definition locations for Struct/Data superclass checks.
     inheritance_constants: OnceLock<crate::cops::style::struct_inheritance::ConstantDefinitions>,
     /// Correction-only closed declaration prefix for class-method policies.
@@ -197,15 +216,14 @@ pub struct SourceFile {
     directive_comments: OnceLock<Vec<Range<usize>>>,
     /// Last textual `__LINE__` boundary, shared by newline-changing fixes.
     line_value_boundary: OnceLock<usize>,
-    /// The parser's warnings, in source order. Recorded by the pipeline from
-    /// its parse; computed on first use otherwise.
-    warnings: OnceLock<Vec<ParseWarning>>,
+    /// Errors and warnings from the main parse, including rejected input.
+    diagnostics: OnceLock<ParseDiagnostics>,
     /// The byte offset of the `__END__` line that starts the data section,
     /// if any. Recorded by the pipeline from its parse; computed on first
     /// use otherwise.
     data_start: OnceLock<Option<usize>>,
     /// Merged literal-text ranges, lazily built from the main parse's AST.
-    literal_ranges: OnceLock<Vec<Range<usize>>>,
+    literal_ranges: OnceLock<literal_ranges::SafetyRanges>,
     /// Literal token exclusions shared by spacing and empty-line detection.
     token_ranges: OnceLock<literal_ranges::PunctuationRanges>,
     /// Actual separators and extraneous parenthesis spacing, built once on demand.
@@ -214,18 +232,6 @@ pub struct SourceFile {
     encoding: OnceLock<encoding::ParsedEncoding>,
     /// Lazy sparse scalar-column savings, shared by every cop.
     columns: OnceLock<columns::ColumnIndex>,
-}
-
-/// A warning Prism reported while parsing (e.g. an ambiguous first
-/// argument). Cops built on the parser's own diagnostics, as RuboCop's are,
-/// read these instead of re-lexing.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParseWarning {
-    /// Prism's message, e.g. ``ambiguous `*` has been interpreted as an
-    /// argument prefix``.
-    pub message: String,
-    /// The byte range the warning points at.
-    pub range: Range<usize>,
 }
 
 impl SourceFile {
@@ -241,11 +247,18 @@ impl SourceFile {
             path,
             bytes,
             read_path: None,
+            supplied_input_metadata: None,
             source_path: None,
             noncanonical_load_path: OnceLock::new(),
             ineffective_private_names: OnceLock::new(),
             useless_access_modifiers: OnceLock::new(),
+            access_modifier_scopes: OnceLock::new(),
             missing_super_facts: OnceLock::new(),
+            useless_rescue_facts: OnceLock::new(),
+            ruby2_keywords_facts: OnceLock::new(),
+            method_definition_macro_branches: std::sync::Mutex::new(
+                std::collections::HashMap::new(),
+            ),
             number_conversion_roots: Default::default(),
             code_object_facts: OnceLock::new(),
             interpolation_facts: OnceLock::new(),
@@ -283,6 +296,8 @@ impl SourceFile {
             empty_case_return_bodies: OnceLock::new(),
             line_starts: std::sync::Arc::new(line_starts),
             comments: OnceLock::new(),
+            parser_tokens: OnceLock::new(),
+            preceding_following: OnceLock::new(),
             inheritance_constants: OnceLock::new(),
             class_method_bindings: OnceLock::new(),
             end_block_facts: OnceLock::new(),
@@ -331,7 +346,7 @@ impl SourceFile {
             directive_records: OnceLock::new(),
             directive_comments: OnceLock::new(),
             line_value_boundary: OnceLock::new(),
-            warnings: OnceLock::new(),
+            diagnostics: OnceLock::new(),
             data_start: OnceLock::new(),
             empty_parameter_facts: OnceLock::new(),
             do_end_facts: OnceLock::new(),
@@ -393,6 +408,17 @@ impl SourceFile {
     ) -> &crate::cops::lint::useless_access_modifier::Facts {
         self.useless_access_modifiers
             .get_or_init(|| crate::cops::lint::useless_access_modifier::Facts::build(root))
+    }
+
+    /// Layout/EmptyLinesAroundAccessModifier's whole-investigation state at
+    /// each candidate modifier, from one walk of the file.
+    pub(crate) fn access_modifier_scopes(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::layout::empty_lines_around_access_modifier::Scopes {
+        self.access_modifier_scopes.get_or_init(|| {
+            crate::cops::layout::empty_lines_around_access_modifier::Scopes::build(root, self)
+        })
     }
 
     pub(crate) fn ineffective_private_names(
@@ -460,6 +486,22 @@ impl SourceFile {
     pub(crate) fn proc_facts(&self, root: &Node<'_>) -> &crate::cops::style::proc::Facts {
         self.proc_facts
             .get_or_init(|| crate::cops::style::proc::Facts::build(root))
+    }
+
+    pub(crate) fn ruby2_keywords_facts(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &crate::cops::lint::useless_ruby2_keywords::Facts {
+        self.ruby2_keywords_facts
+            .get_or_init(|| crate::cops::lint::useless_ruby2_keywords::Facts::build(root, self))
+    }
+
+    pub(crate) fn useless_rescue_facts(
+        &self,
+        root: &Node<'_>,
+    ) -> &crate::cops::lint::useless_rescue::Facts {
+        self.useless_rescue_facts
+            .get_or_init(|| crate::cops::lint::useless_rescue::Facts::build(root, self))
     }
 
     pub(crate) fn missing_super_facts(
@@ -657,6 +699,21 @@ impl SourceFile {
 
     pub(crate) fn with_read_path(mut self, path: &std::path::Path) -> Self {
         self.read_path = Some(path.to_path_buf());
+        self
+    }
+
+    /// Read-only metadata captured with the disk bytes. Virtual/stdin filenames
+    /// (even existing paths) grant no I/O. Alias and correction-validation byte
+    /// snapshots retain the original facts; this never re-stats a mutable path.
+    pub fn supplied_input_metadata(&self) -> Option<&SuppliedInputMetadata> {
+        self.supplied_input_metadata.as_ref()
+    }
+
+    pub(crate) fn with_supplied_input_metadata(
+        mut self,
+        metadata: Option<SuppliedInputMetadata>,
+    ) -> Self {
+        self.supplied_input_metadata = metadata;
         self
     }
 
@@ -1229,6 +1286,18 @@ impl SourceFile {
             .is_some_and(|literal| literal.start < range.end)
     }
 
+    /// Whole literal interiors for subtree alignment, built in the same single
+    /// shared safety-index walk as ordinary literal-text exclusions. The point
+    /// query protects even empty indentation at an interior's start boundary.
+    pub(crate) fn literal_interior_at(&self, root: &Node<'_>, offset: usize) -> bool {
+        let ranges = &self
+            .literal_ranges
+            .get_or_init(|| literal_ranges::collect(self, root))
+            .interiors;
+        let index = ranges.partition_point(|range| range.end <= offset);
+        ranges.get(index).is_some_and(|range| range.start <= offset)
+    }
+
     fn token_ranges(&self, root: &Node<'_>) -> &literal_ranges::PunctuationRanges {
         self.token_ranges
             .get_or_init(|| literal_ranges::punctuation_ranges(self, root))
@@ -1315,6 +1384,14 @@ impl SourceFile {
         openings.get(first).is_some_and(|&start| start < offset)
     }
 
+    /// Whether a real heredoc opener starts inside `range`, from the same
+    /// shared sorted openings (one binary search, no subtree walk).
+    pub(crate) fn heredoc_opening_in(&self, root: &Node<'_>, range: Range<usize>) -> bool {
+        let openings = &self.token_ranges(root).heredoc_openings;
+        let first = openings.partition_point(|&start| start < range.start);
+        openings.get(first).is_some_and(|&start| start < range.end)
+    }
+
     pub(crate) fn block_chain_facts(
         &self,
         root: &Node<'_>,
@@ -1378,6 +1455,20 @@ impl SourceFile {
         let _ = self.comments.set(comment_ranges(result));
     }
 
+    /// RuboCop's `processed_source.tokens` (stream order, not sorted): Prism's
+    /// own lexer tokens projected as the pinned Prism-to-parser translator
+    /// does. Computed once, by a token-only parse with the main options.
+    pub(crate) fn parser_tokens(&self) -> &[tokens::Token] {
+        self.parser_tokens.get_or_init(|| tokens::collect(self))
+    }
+
+    /// Line facts of RuboCop's PrecedingFollowingAlignment, shared by the
+    /// spacing cops that allow alignment.
+    pub(crate) fn preceding_following(&self) -> &crate::cops::layout::preceding_following::Lines {
+        self.preceding_following
+            .get_or_init(|| crate::cops::layout::preceding_following::Lines::build(self))
+    }
+
     /// Byte ranges of every comment (`# …` and `=begin`/`=end`), in source
     /// order.
     pub fn comments(&self) -> &[Range<usize>] {
@@ -1412,18 +1503,6 @@ impl SourceFile {
         *self.line_value_boundary.get_or_init(|| {
             memchr::memmem::rfind(&self.bytes, b"__LINE__").map_or(0, |offset| offset + 1)
         })
-    }
-
-    /// Record the warnings of `result`, a parse of this file's bytes, so
-    /// [`SourceFile::warnings`] needs no second parse. A no-op once known.
-    pub fn record_warnings(&self, result: &ParseResult<'_>) {
-        let _ = self.warnings.set(parse_warnings(result));
-    }
-
-    /// Every warning the parser reported, in source order.
-    pub fn warnings(&self) -> &[ParseWarning] {
-        self.warnings
-            .get_or_init(|| parse_warnings(&crate::parser::parse(&self.bytes)))
     }
 
     /// Record where the data section of `result`, a parse of this file's
@@ -1622,25 +1701,140 @@ fn data_start(result: &ParseResult<'_>) -> Option<usize> {
     result.data_loc().map(|location| location.start_offset())
 }
 
-/// The warnings of a parse, sorted by position.
-fn parse_warnings(result: &ParseResult<'_>) -> Vec<ParseWarning> {
-    let mut warnings: Vec<ParseWarning> = result
-        .warnings()
-        .map(|warning| {
-            let location = warning.location();
-            ParseWarning {
-                message: warning.message().into_owned(),
-                range: location.start_offset()..location.end_offset(),
-            }
-        })
-        .collect();
-    warnings.sort_by_key(|warning| (warning.range.start, warning.range.end));
-    warnings
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn method_modifier_branch_comparisons_are_cached_by_real_edge_and_file() {
+        use crate::cops::{Cop, lint::UselessMethodDefinition, run_cops_with_corrections};
+        let cops: [&dyn Cop; 1] = [&UselessMethodDefinition];
+        let body: String = (0..100)
+            .map(|i| format!("private def f{i}; super; end;\n"))
+            .collect();
+        for (other, expected) in [(&body[..], 200), ("nil", 0)] {
+            let text = format!("if ({body}); ({other});end");
+            let file = SourceFile::new("x.rb".into(), text.into_bytes());
+            let parsed = crate::parser::parse(&file.bytes);
+            assert!(
+                file.method_definition_macro_branches
+                    .lock()
+                    .unwrap()
+                    .is_empty()
+            );
+            for corrections in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections)
+                        .is_empty()
+                );
+                assert_eq!(out.len(), expected);
+                assert_eq!(
+                    file.method_definition_macro_branches.lock().unwrap().len(),
+                    if expected == 200 { 2 } else { 1 }
+                );
+                assert!(file.ruby2_keywords_facts.get().is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn ruby2_keywords_direct_children_are_lazy_shared_and_source_local() {
+        use crate::cops::{Cop, lint::UselessRuby2Keywords, run_cops_with_corrections};
+        let cops: [&dyn Cop; 1] = [&UselessRuby2Keywords];
+        for text in [
+            "nil",
+            "ruby2_keywords",
+            "ruby2_keywords def foo;end",
+            "obj&.ruby2_keywords :foo",
+        ] {
+            let file = SourceFile::new("x.rb".into(), text.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            let mut out = Vec::new();
+            assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+            assert!(file.ruby2_keywords_facts.get().is_none());
+        }
+        let mut text = String::new();
+        for i in 0..200 {
+            text.push_str(&format!("ruby2_keywords :f{i}\ndef f{i};end\n"));
+        }
+        let file = SourceFile::new("x.rb".into(), text.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        for corrections in [false, true] {
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections).is_empty()
+            );
+            assert_eq!(out.len(), 200);
+            let facts = file.ruby2_keywords_facts.get().unwrap();
+            assert!(std::ptr::eq(
+                facts,
+                file.ruby2_keywords_facts(&parsed.node())
+            ));
+            assert!(file.visible_locals.get().is_none());
+            assert!(file.useless_rescue_facts.get().is_none());
+        }
+        let file = SourceFile::new(
+            "x.rb".into(),
+            b"ruby2_keywords :f199; def f199(*args);end".to_vec(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, true).is_empty());
+        assert!(out.is_empty());
+    }
+
+    #[test]
+    fn useless_rescue_facts_are_lazy_shared_and_source_local() {
+        use crate::cops::{Cop, lint::UselessRescue, run_cops_with_corrections};
+        let cops: [&dyn Cop; 1] = [&UselessRescue];
+        for text in [
+            "nil",
+            "work rescue raise",
+            "begin; work; rescue => e; raise; end",
+            "begin; work; rescue; raise; ensure; use(e); end",
+        ] {
+            let file = SourceFile::new("x.rb".into(), text.as_bytes().to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            for corrections in [false, true] {
+                let mut out = Vec::new();
+                assert!(
+                    run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections)
+                        .is_empty()
+                );
+                assert!(file.useless_rescue_facts.get().is_none());
+            }
+        }
+        let mut text = "begin\n".to_string();
+        for i in 0..200 {
+            text.push_str(&format!("begin; work; rescue => e{i}; raise; end\n"));
+        }
+        text.push_str("ensure\n use(e199)\nend\n");
+        let file = SourceFile::new("x.rb".into(), text.into_bytes());
+        let parsed = crate::parser::parse(&file.bytes);
+        for corrections in [false, true] {
+            let mut out = Vec::new();
+            assert!(
+                run_cops_with_corrections(&cops, &parsed, &file, &mut out, corrections).is_empty()
+            );
+            assert_eq!(out.len(), 199);
+            let facts = file.useless_rescue_facts.get().unwrap();
+            assert!(std::ptr::eq(
+                facts,
+                file.useless_rescue_facts(&parsed.node())
+            ));
+            assert!(file.visible_locals.get().is_none());
+            assert!(file.missing_super_facts.get().is_none());
+        }
+        let file = SourceFile::new(
+            "x.rb".into(),
+            b"begin; work; rescue => e199; raise; ensure; nil; end".to_vec(),
+        );
+        let parsed = crate::parser::parse(&file.bytes);
+        let mut out = Vec::new();
+        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
+        assert_eq!(out.len(), 1);
+    }
 
     #[test]
     fn missing_super_facts_are_lazy_cached_and_source_local_in_both_modes() {
@@ -2943,6 +3137,113 @@ mod tests {
         assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), pointer);
     }
 
+    #[test]
+    fn alignment_consumers_share_the_existing_lazy_safety_walk_and_whole_interiors() {
+        use crate::cops::{
+            layout::{
+                AccessModifierIndentation, ArgumentAlignment, AssignmentIndentation, EndAlignment,
+            },
+            run_cops_with_corrections,
+        };
+        let source =
+            "class A\nprivate\n  def f; end\nend\nx =\nif true\n  \"a\n raw\"\n  end\ng(1,\n\u{b}2)\n".repeat(500);
+        let f = file(source.as_bytes());
+        let result = ruby_prism::parse(&f.bytes);
+        assert_eq!(result.errors().count(), 0);
+        f.record_comments(&result);
+        f.record_encoding(&result);
+        let cops: &[&dyn crate::cops::Cop] = &[
+            &AccessModifierIndentation,
+            &AssignmentIndentation,
+            &ArgumentAlignment,
+            &EndAlignment,
+        ];
+        let mut found = Vec::new();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
+        assert_eq!(found.len(), 2000);
+        assert!(f.literal_ranges.get().is_none());
+        assert!(f.class_method_bindings.get().is_none());
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert!(found.iter().all(|o| o.correction.is_some()));
+        let proof = f.class_method_bindings.get().unwrap();
+        assert!(!proof.has_listed_source_observer(false));
+        assert!(proof.observer_visits < 500 * 45);
+        let ranges = f.literal_ranges.get().unwrap();
+        assert_eq!(ranges.interiors.len(), 500);
+        let protected = ranges.as_ptr();
+        let interiors = ranges.interiors.as_ptr();
+        let inside = source.find(" raw").unwrap();
+        assert!(f.literal_interior_at(&result.node(), inside));
+        found.clear();
+        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
+        assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
+        assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), protected);
+        assert_eq!(
+            f.literal_ranges.get().unwrap().interiors.as_ptr(),
+            interiors
+        );
+    }
+
+    #[test]
+    fn alignment_closed_observer_holds_share_one_lazy_complete_walk() {
+        use crate::cops::{
+            layout::{AccessModifierIndentation, ArgumentAlignment, AssignmentIndentation},
+            run_cops_with_corrections,
+            walk::{NodeVisitor, walk},
+        };
+        struct Count(usize);
+        impl<'pr> NodeVisitor<'pr> for Count {
+            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
+                self.0 += 1;
+            }
+        }
+        for observer in [
+            "p __FILE__",
+            "p __dir__",
+            "p $0",
+            "p $PROGRAM_NAME",
+            "p caller",
+            "p caller_locations",
+            "p method(:f).source_location",
+            "SCRIPT_LINES__ = {}; p SCRIPT_LINES__",
+            "p DATA\n__END__\npayload",
+        ] {
+            let source = "class A\nprivate\n  def f; end\nend\nx =\n1\ng(1,\n\u{b}2)\n".repeat(500)
+                + observer;
+            let f = file(source.as_bytes());
+            let parsed = ruby_prism::parse(&f.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            f.record_comments(&parsed);
+            f.record_encoding(&parsed);
+            let cops: &[&dyn crate::cops::Cop] = &[
+                &AccessModifierIndentation,
+                &AssignmentIndentation,
+                &ArgumentAlignment,
+            ];
+            f.record_data_start(&parsed);
+            let mut count = Count(0);
+            walk(&mut count, &parsed.node());
+            for fixes in [false, true, true] {
+                let mut found = Vec::new();
+                assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, fixes).is_empty());
+                assert_eq!(found.len(), 1500);
+                assert!(found.iter().all(|o| o.correction.is_none()));
+                if fixes {
+                    let proof = f.class_method_bindings.get().unwrap();
+                    assert!(proof.has_listed_source_observer(f.data_start().is_some()));
+                    assert_eq!(proof.observer_visits, count.0);
+                    assert!(std::ptr::eq(proof, f.class_method_bindings(&parsed.node())));
+                } else {
+                    assert!(f.class_method_bindings.get().is_none());
+                }
+                assert!(
+                    f.literal_ranges.get().is_none(),
+                    "held edits need no literal scan"
+                );
+            }
+        }
+    }
     #[test]
     fn separator_and_paren_cops_share_one_cached_scan_of_the_main_parse() {
         use crate::cops::{

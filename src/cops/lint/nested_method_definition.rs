@@ -60,7 +60,8 @@ impl Cop for NestedMethodDefinition {
         if !nested {
             return;
         }
-        let (line, col) = file.line_col(def.location().start_offset());
+        let (line, col) =
+            super::array_literal_in_regexp::reference_line_col(def.location().start_offset(), file);
         out.push(Offense {
             correction: None,
             cop: self.name(),
@@ -94,8 +95,12 @@ fn is_allowed_subject(receiver: &Node<'_>) -> bool {
         | Node::ClassVariableReadNode { .. }
         | Node::GlobalVariableReadNode { .. }
         | Node::ConstantReadNode { .. }
-        | Node::ConstantPathNode { .. }
-        | Node::CallNode { .. } => true,
+        | Node::ConstantPathNode { .. } => true,
+        Node::CallNode { .. } => !receiver
+            .as_call_node()
+            .unwrap()
+            .block()
+            .is_some_and(|b| b.as_block_node().is_some()),
         _ => false,
     }
 }
@@ -165,6 +170,20 @@ mod tests {
 
     fn positions(source: &str) -> Vec<(u32, u32)> {
         offenses(source).iter().map(|o| (o.line, o.col)).collect()
+    }
+
+    #[test]
+    fn singleton_receiver_with_literal_block_is_not_a_plain_call_subject() {
+        for subject in [
+            "obj.foo {}",
+            "obj.foo { _1 }",
+            "obj.foo { it }",
+            "Class.new {}",
+        ] {
+            let source = format!("def f; def ({subject}).g; end; end");
+            assert_eq!(positions(&source), [(1, 8)], "{source}");
+        }
+        assert!(offenses("def f; def (obj.foo).g; end; end").is_empty());
     }
 
     #[test]

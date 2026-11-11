@@ -6,12 +6,10 @@
 //! continues into an `else` whose only statement is another `if` (plain or
 //! modifier): the parser gem makes that `if` the else branch itself.
 
-use std::collections::HashSet;
-
 use ruby_prism::{IfNode, Node};
 
 use crate::{
-    cops::{Cop, NodeContext, ast::fingerprint},
+    cops::{Cop, NodeContext, ast::fingerprint_for_duplicate_condition},
     offense::Offense,
     source::SourceFile,
 };
@@ -39,12 +37,23 @@ impl Cop for DuplicateElsifCondition {
         if head.if_keyword_loc().map(|loc| loc.as_slice()) != Some(b"if") {
             return;
         }
-        let mut seen = HashSet::new();
+        // Upstream uses Array#include? (AST ==), not Set/eql?: Complex
+        // components compare across numeric kinds without changing hash keys.
+        let mut seen = Vec::new();
         let mut current = Some(head);
         while let Some(branch) = current {
             let condition = branch.predicate();
-            if !seen.insert(fingerprint(&condition)) {
-                let (line, col) = file.line_col(condition.location().start_offset());
+            let key = fingerprint_for_duplicate_condition(&condition, file);
+            if seen
+                .iter()
+                .any(|previous: &crate::cops::ast::Fingerprint<'_>| {
+                    previous.source_buffer_scope_eq(&key, file)
+                })
+            {
+                let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                    condition.location().start_offset(),
+                    file,
+                );
                 // A nested chain is walked from the outer `if` too; report
                 // each condition once (RuboCop keeps one offense per range).
                 let reported = out
@@ -62,6 +71,7 @@ impl Cop for DuplicateElsifCondition {
                     });
                 }
             }
+            seen.push(key);
             current = next_branch(&branch);
         }
     }
@@ -191,6 +201,29 @@ mod tests {
     #[test]
     fn accepts_partially_repeated_elsif_conditions() {
         assert!(offenses("if x == 1\nelsif x == 1 && x == 2\nend\n").is_empty());
+    }
+
+    #[test]
+    fn compares_parser_literal_kinds_and_evaluated_source_lines() {
+        assert!(offenses("if :\"\"; elsif :\"\\u{}\"; end").is_empty());
+        assert_eq!(positions("if __LINE__; elsif __LINE__; end"), vec![(1, 20)]);
+        assert!(offenses("if __LINE__;\nelsif __LINE__; end").is_empty());
+    }
+
+    #[test]
+    fn uses_array_equality_for_complex_values_and_implicit_regexp_options() {
+        for source in [
+            "if 1i; elsif 1.0i; end",
+            "if 1i; elsif 1ri; end",
+            "if [1i]; elsif [1ri]; end",
+            "if 0.0i; elsif -0.0i; end",
+            "if [0.0i]; elsif [-0.0i]; end",
+            "if /x/im; elsif /x/mi; end",
+            "if /x/im && a; elsif /x/mi && a; end",
+        ] {
+            assert_eq!(offenses(source).len(), 1, "{source}");
+        }
+        assert!(offenses("if /x/i; elsif /x/m; end").is_empty());
     }
 
     #[test]

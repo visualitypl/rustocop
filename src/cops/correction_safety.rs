@@ -114,7 +114,102 @@ fn source_node_and_leave_emissions_are_guarded_without_touching_other_files() {
     }
 }
 
+#[test]
+fn a_statically_inert_program_lifts_only_the_runtime_observer_barriers() {
+    // Edits the `marker` call's selector wherever it appears.
+    struct Marker;
+    impl super::Cop for Marker {
+        fn name(&self) -> &'static str {
+            "Style/TestInertEnvelope"
+        }
+        fn check_node<'pr>(
+            &self,
+            node: &ruby_prism::Node<'pr>,
+            _: &super::NodeContext<'_, 'pr>,
+            file: &SourceFile,
+            out: &mut Vec<Offense>,
+        ) {
+            if let Some(call) = node.as_call_node()
+                && call.name().as_slice() == b"marker"
+            {
+                let selector = call.message_loc().unwrap();
+                let (line, col) = file.line_col(selector.start_offset());
+                out.push(Offense {
+                    cop: self.name(),
+                    severity: crate::offense::Severity::Convention,
+                    line,
+                    col,
+                    end_line: line,
+                    message: "marker".into(),
+                    correction: Some(crate::offense::Correction {
+                        range: selector.start_offset()..selector.end_offset(),
+                        replacement: "marked".into(),
+                    }),
+                });
+            }
+        }
+    }
+    let corrected = |source: &str| {
+        let found = collect(&Marker, source);
+        assert_eq!(found.len(), 1, "{source}");
+        found[0].correction.is_some()
+    };
+    // Runtime readers inside a body that never runs observe nothing.
+    for observer in [
+        "p $retained.source",
+        "p File.binread(Process.argv0)",
+        "p ObjectSpace.count_objects",
+        "x.source :rubygems",
+    ] {
+        assert!(
+            corrected(&format!("if false\n  {observer}\n  marker\nend\n")),
+            "{observer}"
+        );
+        // Any live statement, other branch or data section keeps the barrier.
+        for live in [
+            format!("if false\n  {observer}\n  marker\nend\nnil\n"),
+            format!("nil\nif false\n  {observer}\n  marker\nend\n"),
+            format!("if false\n  {observer}\n  marker\nelse\n  nil\nend\n"),
+            format!("if (false)\n  {observer}\n  marker\nend\n"),
+            format!("unless true\n  {observer}\n  marker\nend\n"),
+            format!("{observer} if false\nmarker\n"),
+            format!("if false\n  {observer}\n  marker\nend\n__END__\n"),
+        ] {
+            assert!(!corrected(&live), "{live}");
+        }
+    }
+    // With a listed observer the exemption never applies: the
+    // ordinary barriers decide, exactly as for a live program.
+    for listed in [
+        "p __FILE__",
+        "p __dir__",
+        "p $0",
+        "p $PROGRAM_NAME",
+        "p caller",
+        "p caller_locations",
+        "p method(:x).source_location",
+        "p SCRIPT_LINES__",
+    ] {
+        let source = format!("if false\n  p $retained.source\n  {listed}\n  marker\nend\n");
+        assert!(!corrected(&source), "{source}");
+    }
+    assert!(corrected("if false\n  marker\nend\n"));
+    assert!(super::statically_inert(
+        &crate::parser::parse(b"if false\nend\n").node()
+    ));
+    assert!(!super::statically_inert(
+        &crate::parser::parse(b"if false then end; nil\n").node()
+    ));
+}
+
 fn collect(cop: &dyn super::Cop, source: &str) -> Vec<Offense> {
+    if cop.name() == "Lint/RedundantCopDisableDirective" {
+        // A post detector needs actual ordinary evidence, not run_cops alone.
+        return crate::pipeline::lint_str_with_corrections(&[cop, &super::lint::Debugger], source)
+            .into_iter()
+            .filter(|o| o.cop == cop.name())
+            .collect();
+    }
     let file = SourceFile::new("case.rb".into(), source.as_bytes().to_vec());
     let parsed = crate::parser::parse(&file.bytes);
     assert_eq!(parsed.errors().count(), 0, "{source}");
@@ -275,6 +370,7 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         serde_json::from_str(include_str!("../../tests/fixtures/style_evidence.json")).unwrap();
     let extra = [
         "foo\n# rubocop:enable Layout/LineLength\n",
+        "# rubocop:disable Lint/Debugger\n",
         "# rubocop:disable Style/For # rubocop:disable Style/For\n",
         "a + b * c\n",
         "\"abc\" \"\"\n",
@@ -289,6 +385,7 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         "Fixnum = ::Integer; [::Fixnum]\n",
         "require 'uri'; [defined?(URI.regexp)]\n",
         "[defined?(/[xyx]/)]\n",
+        "if false\n  source :rubygems\nend\n",
         "[defined?(/abc]123/)]\n",
         "[defined?(/(?:a+)+/)]\n",
         "[defined?(Hash.new(key: :value))]\n",
@@ -304,6 +401,7 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         "if false\n  :foo.to_sym\nend\n",
         "if false\nhash.each do |key, value|\n  puts key\nend\nend\n",
         "if false\ndef some_method(foo, bar)\n  puts bar\nend\nend\n",
+        "if false\n  def to_json\n  end\nend\n",
         "if false\n  require_relative 'case'\nend\n",
         "begin\n  raise StandardError\nrescue StandardError, nil\n  puts :caught\nend\n",
         "if false\n  Class.new do\n    private\n  end\nend\n",
@@ -315,6 +413,8 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         "require 'erb'; [defined?(ERB.new('task-literal', nil, '-'))]\n",
         "a = 1  \n\n\n",
         "class A\n  end\n",
+        "class A\nprivate\n  def f; end\nend\n",
+        "a =\n1\n",
         "a = 1\n\n\nb = 2\n",
         "p ( 1 ); p({a:1}); foo {1}\n",
         "class A\n  def f\n    1\n    end\nend\n",
@@ -327,9 +427,67 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         "File.open(\"file\").read\n",
         "a=1+2;puts([ 1 ,2 ],{ a: 1 }); a[ 0 ]\n",
         "foo { | a | a }\n",
+        "if false\n  x + 0\nend\n",
         "def f(a =1);\n\tputs a\n end\n",
         "class A\n\n  def f\n\n    1\n\n  end\n\nend\n",
         "module A\n\n  def f\n    1\n  end\n  def g\n    2\n  end\n\nend\n",
+        "[1,\n  2]\n",
+        "{a: 1,\n  b: 2}\n",
+        "def f(a,\n  b); end\n",
+        "def g(\n    a); end\n",
+        "x = begin\n  1\n  end\n",
+        "foo do\n  1\n  end\n",
+        "foo(\n  1\n  )\n",
+        "foo(\n      1)\n",
+        "x = [\n    1\n]\n",
+        "h = {\n    a: 1\n}\n",
+        "if false\n  gem 'b'\n  gem 'a'\nend\n",
+        "if false\n  s = 1\n  s.add_dependency 'b'\n  s.add_dependency 'a'\nend\n",
+        "if false\n  s.add_runtime_dependency 'a'\nend\n",
+        "if false\n  Gem::Specification.new do |s|\n    s.date = 1\n  end\nend\n",
+        "if false\n  Gem::Specification.new do |s|\n  end\nend\n",
+        "case x\n  when 1\nend\n",
+        "if x\n  1\n else\n  2\nend\n",
+        "begin\n  1\n  rescue\nend\n",
+        "x = <<~A\nfoo\nA\n",
+        "  x = <<~A\n    y\nA\n",
+        "def f\n# a\n  x\nend\n",
+        "  x = 1\n",
+        "foo(<<~A\n  x\nA\n)\n",
+        "def f\n  a\n   b\nend\n",
+        "a\n.b\n",
+        "a +\nb\n",
+        "a.\n  b\n",
+        "if\n  a\nend\n",
+        "x = if a\nend\n",
+        "x = 1#c\n",
+        "x = 1 #\n",
+        "\nx = 1\n",
+        "# frozen_string_literal: true\nx = 1\n",
+        "def f\n  return if a\n  b\nend\n",
+        "if a &&\n  b\n  c\nend\n",
+        "include A\nx\n",
+        "attr_reader :a\nx\n",
+        "class A\n  x\n  private\n  y\nend\n",
+        "x = begin\n\n  1\nend\n",
+        "foo do\n\n  1\nend\n",
+        "p(\n\n  1\n)\n",
+        "begin\n  1\n\nrescue\nend\n",
+        "x = 1  # c\n",
+        "foo'x'\n",
+        "x = 1 ; y = 2\n",
+        "x = [1,\n  2]\n",
+        "x = { a: 1,\n  b: 2 }\n",
+        "foo(1,\n  2)\n",
+        "def f(a,\n  b); end\n",
+        "x = [1,\n  2, 3]\n",
+        "x = { a: 1,\n  b: 2, c: 3 }\n",
+        "foo(1,\n  2, 3)\n",
+        "def f(a,\n  b, c); end\n",
+        "x = [1,\n  2\n]\n",
+        "x = { a: 1,\n  b: 2\n}\n",
+        "foo(1,\n  2\n)\n",
+        "def f(a,\n  b\n); end\n",
     ];
     let registry = Registry::new();
     let dir = tempfile::tempdir().unwrap();
@@ -347,8 +505,22 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
     for cop in registry.cops().iter().filter(|c| c.safe_fixes()) {
         // A path-sensitive detector must see the same supplied basename in
         // both independent inputs, without changing the observer or source.
+        // Gemfile-only cops see supplied Gemfile names in both inputs.
+        let gemfile = cop.name().starts_with("Bundler/");
+        let gemspec = cop.name().starts_with("Gemspec/");
+        let path = if gemfile {
+            dir.path().join("case.gemfile")
+        } else if gemspec {
+            dir.path().join("case.gemspec")
+        } else {
+            path.clone()
+        };
         let sibling = if cop.name() == "Lint/RequireRelativeSelfPath" {
             dir.path().join("safe/case.rb")
+        } else if gemfile {
+            dir.path().join("safe/Gemfile")
+        } else if gemspec {
+            dir.path().join("safe/case.gemspec")
         } else {
             sibling.clone()
         };
@@ -515,7 +687,11 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
                 std::fs::write(&sibling, source).unwrap();
                 let mtime = std::fs::metadata(&path).unwrap().modified().unwrap();
                 let options = crate::pipeline::RunOptions {
-                    only: vec![cop.name().into()],
+                    only: if cop.name() == "Lint/RedundantCopDisableDirective" {
+                        vec![cop.name().into(), "Lint/Debugger".into()]
+                    } else {
+                        vec![cop.name().into()]
+                    },
                     fix: true,
                     ..Default::default()
                 };
@@ -547,7 +723,7 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
                         !report
                             .results
                             .iter()
-                            .find(|r| r.path.ends_with("case.rb"))
+                            .find(|r| r.path.ends_with(path.file_name().unwrap()))
                             .unwrap()
                             .offenses
                             .is_empty()

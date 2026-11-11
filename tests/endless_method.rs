@@ -58,9 +58,12 @@ fn default_selectors_config_no_write_and_canonical_fix_are_real() {
     cli(dir.path(), &["--only", COP, "lib/a.rb"], 1);
     assert_eq!(fs::read(&path).unwrap(), BEFORE.as_bytes());
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
+    // The fixture's `[\n  1]` is also a default-on
+    // Layout/MultilineArrayBraceLayout finding; keep it off here.
+    const BRACE: &str = "[cops.\"Layout/MultilineArrayBraceLayout\"]\nenabled = false\n";
     for config in [
-        format!("[cops.\"{COP}\"]\nenabled = false\n"),
-        "[cops.Style]\nenabled = false\n".to_string(),
+        format!("[cops.\"{COP}\"]\nenabled = false\n{BRACE}"),
+        format!("[cops.Style]\nenabled = false\n{BRACE}"),
     ] {
         fs::write(dir.path().join("rustocop.toml"), config).unwrap();
         cli(dir.path(), &["--fix", "lib/a.rb"], 0);
@@ -79,9 +82,14 @@ fn default_selectors_config_no_write_and_canonical_fix_are_real() {
     cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
     fs::write(&path, BEFORE).unwrap();
+    // The corrected body's first element is reported by
+    // FirstArrayElementIndentation (as upstream does) and is not under test;
+    // So is its closing bracket by MultilineArrayBraceLayout.
     fs::write(
         dir.path().join("rustocop.toml"),
-        format!("[cops.Style]\nenabled = false\n[cops.\"{COP}\"]\nenabled = true\n"),
+        format!(
+            "[cops.Style]\nenabled = false\n[cops.\"{COP}\"]\nenabled = true\n[cops.\"Layout/FirstArrayElementIndentation\"]\nenabled = false\n{BRACE}"
+        ),
     )
     .unwrap();
     cli(dir.path(), &["--fix", "lib/a.rb"], 0);

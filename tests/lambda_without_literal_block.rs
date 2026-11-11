@@ -1,5 +1,8 @@
 //! Source-only reference replay and separately authored native controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -62,15 +65,15 @@ fn all_original_bytes_match_pipeline_cli_and_guarded_canonical_outputs() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let d = project();
-    let path = d.path().join("lib/a.rb");
     let rows = rows();
     assert_eq!(rows.iter().filter(|r| r["origin"] == "spec").count(), 7);
     assert_eq!(
         rows.iter().filter(|r| r["origin"] == "canonical").count(),
         18
     );
-    for row in rows {
+    parallel_rows!(for row in rows => {
+        let d = project();
+        let path = d.path().join("lib/a.rb");
         let source = bytes(&row, "bytes");
         let after = bytes(&row, "project_after");
         let report = rustocop::pipeline::lint_one(
@@ -128,7 +131,7 @@ fn all_original_bytes_match_pipeline_cli_and_guarded_canonical_outputs() {
             );
             unchanged(d.path(), &after, &["--only", COP, "--fix", "lib/a.rb"], 0);
         }
-    }
+    });
 }
 #[test]
 fn defaults_selectors_strict_toml_department_and_file_stdin_provenance() {
@@ -537,7 +540,7 @@ fn native_syntax_only_for_every_reference_input_and_project_output() {
     let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
         return;
     };
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
         for source in [bytes(&row, "bytes"), bytes(&row, "project_after")] {
             let mut child = Command::new(&ruby)
                 .args(["-c", "-W0"])
@@ -550,5 +553,5 @@ fn native_syntax_only_for_every_reference_input_and_project_output() {
             let out = child.wait_with_output().unwrap();
             assert!(out.status.success(), "{row}\n{out:?}");
         }
-    }
+    });
 }

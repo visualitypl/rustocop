@@ -194,24 +194,7 @@ fn subtraction<'pr>(n: &Node<'pr>) -> Option<(Option<Node<'pr>>, String)> {
     }
     // Prism exposes arbitrary-precision limbs; don't cap valid positive offsets
     // at a machine integer or preserve a nondecimal spelling in the message.
-    let mut decimal = vec![0_u64];
-    for digit in digits.iter().rev() {
-        let mut carry = u64::from(*digit);
-        for part in &mut decimal {
-            let next = (*part << 32) + carry;
-            *part = next % 1_000_000_000;
-            carry = next / 1_000_000_000;
-        }
-        while carry != 0 {
-            decimal.push(carry % 1_000_000_000);
-            carry /= 1_000_000_000;
-        }
-    }
-    let mut number = decimal.pop()?.to_string();
-    for part in decimal.iter().rev() {
-        use std::fmt::Write;
-        let _ = write!(number, "{part:09}");
-    }
+    let number = ast::unsigned_integer_decimal(digits);
     Some((length.receiver(), number))
 }
 /// One lazy bottom-up main-AST walk; preserving chains are classified once,

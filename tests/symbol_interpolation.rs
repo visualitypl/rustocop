@@ -310,9 +310,16 @@ fn corrections_never_create_early_heredoc_terminators() {
                             .unwrap();
                         // Historical no-write witness assumes fixed labels;
                         // The heredoc delimiter cops separately prove default label-renaming composition.
+                        // The heredoc indentation cops would re-indent
+                        // these witnesses; their own tests prove those edits.
                         cli(
                             d.path(),
-                            &["--except", "Naming/HeredocDelimiterCase", "--fix", "a.rb"],
+                            &[
+                                "--except",
+                                "Naming/HeredocDelimiterCase,Layout/HeredocIndentation,Layout/ClosingHeredocIndentation",
+                                "--fix",
+                                "a.rb",
+                            ],
                             1,
                         );
                         assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), source.as_bytes());

@@ -1,4 +1,6 @@
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[path = "support/stdin.rs"]
+mod stdin;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Cop, Registry, lint::MissingCopEnableDirective},
@@ -6,7 +8,6 @@ use rustocop::{
 };
 use std::{
     fs,
-    io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
@@ -24,6 +25,8 @@ fn cli(root: &Path, args: &[&str], code: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
         .args(args)
+        // This suite isolates open-range diagnostics from redundant disables.
+        .args(["--except", "Lint/RedundantCopDisableDirective"])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(code), "{args:?}: {out:?}");
@@ -401,12 +404,8 @@ fn supplied_file_stdin_paths_and_stdin_fix_rejection() {
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
-        child
-            .stdin
-            .take()
-            .unwrap()
-            .write_all(BEFORE.as_bytes())
-            .unwrap();
+        // `--stdin --fix` is rejected (exit 2) before stdin is read.
+        stdin::write_stdin(child.stdin.take().unwrap(), BEFORE.as_bytes(), code == 2).unwrap();
         let out = child.wait_with_output().unwrap();
         assert_eq!(out.status.code(), Some(code), "{out:?}");
         if code == 1 {

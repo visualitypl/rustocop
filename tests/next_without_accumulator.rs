@@ -146,7 +146,7 @@ fn every_fixture_matches_exact_rebuilt_cli_lint_and_fix_without_writes() {
 #[test]
 fn detection_only_defaults_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());

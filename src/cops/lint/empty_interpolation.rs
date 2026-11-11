@@ -7,10 +7,9 @@
 //! enclosing array is a percent literal (`%W[#{''} a]`, `%I[...]`), where an
 //! empty element can be intended.
 //!
-//! The cop walks the tree itself from the program node: whether an array is
-//! a percent literal is ancestry the shared walker does not provide.
+//! The nearest array is obtained from the shared complete NodeContext stack.
 
-use ruby_prism::{ArrayNode, EmbeddedStatementsNode, Node, Visit};
+use ruby_prism::{EmbeddedStatementsNode, Node};
 
 use crate::{
     cops::{Cop, NodeContext},
@@ -29,79 +28,66 @@ impl Cop for EmptyInterpolation {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some(program) = node.as_program_node() else {
+        let Some(interpolation) = node.as_embedded_statements_node() else {
             return;
         };
-        let mut walker = Walker {
-            cop: self,
-            file,
-            out,
-            arrays: Vec::new(),
-        };
-        walker.visit_program_node(&program);
-    }
-}
-
-/// Walks the whole tree, tracking enclosing arrays.
-struct Walker<'a> {
-    cop: &'a EmptyInterpolation,
-    file: &'a SourceFile,
-    out: &'a mut Vec<Offense>,
-    /// For each enclosing array, innermost last: whether it is a percent
-    /// literal.
-    arrays: Vec<bool>,
-}
-
-impl<'pr> Visit<'pr> for Walker<'_> {
-    fn visit_array_node(&mut self, node: &ArrayNode<'pr>) {
-        let percent = node
-            .opening_loc()
-            .is_some_and(|opening| opening.as_slice().starts_with(b"%"));
-        self.arrays.push(percent);
-        ruby_prism::visit_array_node(self, node);
-        self.arrays.pop();
-    }
-
-    fn visit_embedded_statements_node(&mut self, node: &EmbeddedStatementsNode<'pr>) {
-        let in_percent_array = self.arrays.last().copied().unwrap_or(false);
-        if !in_percent_array && is_empty_interpolation(node) {
-            let (line, col) = self.file.line_col(node.location().start_offset());
-            self.out.push(Offense {
-                correction: None,
-                cop: self.cop.name(),
-                severity: self.cop.severity(),
-                message: "Empty interpolation detected.".to_string(),
-                line,
-                end_line: self.file.last_line_of(node.location()),
-                col,
-            });
+        let mut child = node;
+        let in_percent_array = cx
+            .ancestors()
+            .find_map(|ancestor| {
+                let result = if let Some(array) = ancestor.as_array_node() {
+                    Some(
+                        array
+                            .opening_loc()
+                            .is_some_and(|o| o.as_slice().starts_with(b"%")),
+                    )
+                } else if ancestor.as_rescue_node().is_some_and(|rescue| {
+                    rescue
+                        .exceptions()
+                        .iter()
+                        .any(|exception| crate::cops::ast::same_node(&exception, child))
+                }) {
+                    // Parser's resbody wraps its exception list in a synthetic,
+                    // ordinary array. This nearest array overrides an outer %W/%I.
+                    Some(false)
+                } else {
+                    None
+                };
+                child = ancestor;
+                result
+            })
+            .unwrap_or(false);
+        if in_percent_array || !is_empty_interpolation(&interpolation, file) {
+            return;
         }
-        ruby_prism::visit_embedded_statements_node(self, node);
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(
+            node.location().start_offset(),
+            file,
+        );
+        out.push(Offense {
+            correction: None,
+            cop: self.name(),
+            severity: self.severity(),
+            message: "Empty interpolation detected.".to_string(),
+            line,
+            end_line: file.last_line_of(node.location()),
+            col,
+        });
     }
 }
 
 /// Whether every statement of the interpolation is `nil` or `''`/`""`.
-fn is_empty_interpolation(node: &EmbeddedStatementsNode<'_>) -> bool {
+fn is_empty_interpolation(node: &EmbeddedStatementsNode<'_>, file: &SourceFile) -> bool {
     node.statements().is_none_or(|statements| {
         statements.body().iter().all(|statement| {
-            statement.as_nil_node().is_some() || is_empty_quoted_string(&statement)
+            statement.as_nil_node().is_some() || (statement.as_string_node().is_some()
+                && matches!(super::literal_assignment_in_condition::scope_literal(&statement, file),
+                    Some(super::literal_assignment_in_condition::ScopeLiteral::Str(value)) if value.is_empty()))
         })
-    })
-}
-
-/// An empty `''` or `""` literal: the parser gem's empty `str`. Other empty
-/// spellings (`%()`, `%q()`, an empty heredoc) are a `dstr` there, which
-/// RuboCop does not treat as empty.
-fn is_empty_quoted_string(node: &Node<'_>) -> bool {
-    node.as_string_node().is_some_and(|string| {
-        string.unescaped().is_empty()
-            && string
-                .opening_loc()
-                .is_some_and(|opening| matches!(opening.as_slice(), b"'" | b"\""))
     })
 }
 
@@ -123,6 +109,12 @@ mod tests {
 
     fn positions(source: &str) -> Vec<(u32, u32)> {
         offenses(source).iter().map(|o| (o.line, o.col)).collect()
+    }
+
+    #[test]
+    fn empty_value_without_a_parser_str_child_is_not_removed() {
+        assert!(offenses("\"#{\"\\\n\"}\"\n").is_empty());
+        assert_eq!(positions("\"#{\"\\u{}\"}\"\n"), vec![(1, 2)]);
     }
 
     #[test]
@@ -151,6 +143,15 @@ mod tests {
             positions("/regexp #{}/\n`backticks #{}`\n:\"symbol #{}\"\n"),
             vec![(1, 9), (2, 12), (3, 10)]
         );
+    }
+
+    #[test]
+    fn rescue_exception_list_is_a_nearer_ordinary_array() {
+        assert_eq!(
+            positions("%W[#{begin; x; rescue Foo(\"#{nil}\"); end}]\n"),
+            vec![(1, 28)]
+        );
+        assert!(offenses("%W[#{begin; x; rescue Foo; \"#{nil}\"; end}]\n").is_empty());
     }
 
     #[test]

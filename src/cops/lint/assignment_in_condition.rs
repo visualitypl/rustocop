@@ -13,8 +13,8 @@
 //! check. Variable, constant, multiple and setter
 //! assignments (`a.b = c`, `a[i] = c`) are reported, at the `=`.
 //!
-//! The cop walks the tree itself from the program node: telling a pattern
-//! guard (`in x if y`) from a modifier `if` needs the parent.
+//! NodeContext distinguishes pattern guards (`in x if y`) from modifier
+//! conditionals; only each real condition's intentionally pruned logic is walked.
 
 use ruby_prism::{CallNode, InNode, Location, Node, ParenthesesNode, StatementsNode, Visit};
 
@@ -38,21 +38,37 @@ impl Cop for AssignmentInCondition {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some(program) = node.as_program_node() else {
+        if cx
+            .parent()
+            .is_some_and(|parent| parent.as_in_node().is_some())
+        {
             return;
+        }
+        let condition = match node {
+            Node::IfNode { .. } => Some(node.as_if_node().unwrap().predicate()),
+            Node::UnlessNode { .. } => Some(node.as_unless_node().unwrap().predicate()),
+            Node::WhileNode { .. } => node
+                .as_while_node()
+                .filter(|n| !n.is_begin_modifier())
+                .map(|n| n.predicate()),
+            Node::UntilNode { .. } => node
+                .as_until_node()
+                .filter(|n| !n.is_begin_modifier())
+                .map(|n| n.predicate()),
+            _ => None,
         };
-        let mut finder = ConditionalFinder {
-            reporter: Reporter {
+        if let Some(condition) = condition {
+            Reporter {
                 cop: self,
                 file,
                 out,
-            },
-        };
-        finder.visit_program_node(&program);
+            }
+            .check_condition(&condition);
+        }
     }
 }
 
@@ -80,42 +96,6 @@ impl Reporter<'_> {
     /// Check one conditional's condition.
     fn check_condition(&mut self, condition: &Node<'_>) {
         ConditionWalker { reporter: self }.visit(condition);
-    }
-}
-
-/// Walks the whole tree and checks the condition of every conditional
-/// RuboCop treats as `if`/`while`/`until`.
-struct ConditionalFinder<'a> {
-    reporter: Reporter<'a>,
-}
-
-impl<'pr> Visit<'pr> for ConditionalFinder<'_> {
-    fn visit_if_node(&mut self, node: &ruby_prism::IfNode<'pr>) {
-        self.reporter.check_condition(&node.predicate());
-        ruby_prism::visit_if_node(self, node);
-    }
-
-    fn visit_unless_node(&mut self, node: &ruby_prism::UnlessNode<'pr>) {
-        self.reporter.check_condition(&node.predicate());
-        ruby_prism::visit_unless_node(self, node);
-    }
-
-    fn visit_while_node(&mut self, node: &ruby_prism::WhileNode<'pr>) {
-        if !node.is_begin_modifier() {
-            self.reporter.check_condition(&node.predicate());
-        }
-        ruby_prism::visit_while_node(self, node);
-    }
-
-    fn visit_until_node(&mut self, node: &ruby_prism::UntilNode<'pr>) {
-        if !node.is_begin_modifier() {
-            self.reporter.check_condition(&node.predicate());
-        }
-        ruby_prism::visit_until_node(self, node);
-    }
-
-    fn visit_in_node(&mut self, node: &InNode<'pr>) {
-        visit_in_node_with_plain_guard(self, node);
     }
 }
 

@@ -45,7 +45,8 @@ impl Cop for RaiseException {
         if !top_level && cx.ancestors().any(is_allowed_namespace) {
             return;
         }
-        let (line, col) = file.line_col(location.start_offset());
+        let (line, col) =
+            super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
         out.push(Offense {
             correction: None,
             cop: self.name(),
@@ -81,6 +82,9 @@ fn raised_exception<'pr>(call: &CallNode<'pr>) -> Option<(ruby_prism::Location<'
     // `raise Exception.new(...)`, as the only argument.
     let new = first.as_call_node()?;
     let is_plain_new = arguments.len() == 1
+        && !call
+            .block()
+            .is_some_and(|block| block.as_block_argument_node().is_some())
         && new.name().as_slice() == b"new"
         && !new.is_safe_navigation()
         && !new
@@ -131,6 +135,14 @@ mod tests {
 
     fn positions(source: &str) -> Vec<(u32, u32)> {
         offenses(source).iter().map(|o| (o.line, o.col)).collect()
+    }
+
+    #[test]
+    fn constructor_match_excludes_outer_block_pass_but_direct_constant_allows_it() {
+        assert!(offenses("raise Exception.new, &block").is_empty());
+        assert!(offenses("fail ::Exception.new, &block").is_empty());
+        assert_eq!(positions("raise Exception, &block"), [(1, 7)]);
+        assert_eq!(positions("raise Exception.new(&block)"), [(1, 7)]);
     }
 
     #[test]

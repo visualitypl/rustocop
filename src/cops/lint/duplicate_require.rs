@@ -23,16 +23,35 @@ impl Cop for DuplicateRequire {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
         if node.as_program_node().is_none() {
             return;
         }
+        // Reuse genuine VariableForce lexical facts once for the file, only
+        // where source-buffer composition can change local/vcall AST kinds.
+        // The ordinary parse/bindings and correction fingerprints stay intact.
+        let program = node.as_program_node().unwrap();
+        let ancestors = [program.as_node()];
+        let locals = file
+            .match_pattern_composes_identifiers()
+            .then(|| {
+                super::non_atomic_file_operation::projected_local_spans(
+                    &program.statements().as_node(),
+                    &NodeContext {
+                        ancestors: &ancestors,
+                        ..*cx
+                    },
+                    file,
+                )
+            })
+            .flatten();
         // One file-local traversal, never state shared across investigations.
         let mut requires = Requires {
             file,
+            locals: locals.as_ref(),
             candidates: Vec::new(),
             stack: Vec::new(),
             next: 1,
@@ -57,6 +76,7 @@ type FirstByArgument<'pr> = HashMap<(Vec<u8>, ast::Fingerprint<'pr>), (u8, usize
 
 struct Requires<'a, 'pr> {
     file: &'a SourceFile,
+    locals: Option<&'a std::collections::HashSet<(usize, usize)>>,
     candidates: Vec<(Offense, bool)>,
     stack: Vec<Frame<'pr>>,
     next: usize,
@@ -195,7 +215,7 @@ impl<'pr> NodeVisitor<'pr> for Requires<'_, 'pr> {
                 };
                 let key = (
                     method.to_vec(),
-                    ast::fingerprint_for_require(arg, self.file),
+                    ast::fingerprint_for_require(arg, self.file, self.locals),
                 );
                 let index = self.candidates.len();
                 let seen = self.seen.entry(parent).or_default();
@@ -215,7 +235,8 @@ impl<'pr> NodeVisitor<'pr> for Requires<'_, 'pr> {
                 {
                     let start = call.location().start_offset();
                     let end = ast::source_end(&node);
-                    let (line, col) = self.file.line_col(start);
+                    let (line, col) =
+                        super::array_literal_in_regexp::reference_line_col(start, self.file);
                     self.candidates.push((
                         Offense {
                             cop: "Lint/DuplicateRequire",
@@ -386,6 +407,108 @@ mod tests {
     }
 
     #[test]
+    fn zero_child_dynamic_symbols_are_not_static_empty_symbols() {
+        // Same runtime value, different AST#to_s.
+        for dynamic in [":\"\"", ":''", "%s[]", ":\"\\\n\"", ":\"\\u{}\\\n\\u{}\""] {
+            for static_symbol in [":\"\\u{}\"", ":\"\\u{ }\""] {
+                let source = format!("require({dynamic})\nrequire({static_symbol})\n");
+                assert!(offenses(&source).is_empty(), "{source}");
+                let found = offenses(&format!("{source}require({static_symbol})\n"));
+                assert_eq!(found.len(), 1, "{source}");
+                let line = source.lines().count() as u32 + 1;
+                assert_eq!(
+                    (found[0].line, found[0].col, found[0].end_line),
+                    (line, 1, line)
+                );
+                assert_eq!(found[0].message, "Duplicate `require` detected.");
+                assert!(found[0].correction.is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn quoted_labels_keep_static_symbol_identity_including_empty_and_multiline() {
+        for source in [
+            "require({\"\": 1})\nrequire({\"\\u{}\": 1})\n",
+            "require({\"\": 1})\nrequire({\"\\u{ }\": 1})\n",
+            "require({'': 1})\nrequire({\"\\u{}\": 1})\n",
+            "require({\"a\\n\nb\": 1})\nrequire({\"a\n\\nb\": 1})\n",
+            "require({\"a\nb\": 1})\nrequire({:\"a\\nb\" => 1})\n",
+            "require({'a\\(b\nc': 1})\nrequire({:\"a\\\\(b\\nc\" => 1})\n",
+        ] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source}");
+            let line = source
+                .find("\nrequire")
+                .map(|i| source[..i].lines().count() as u32 + 1)
+                .unwrap();
+            assert_eq!((found[0].line, found[0].col), (line, 1));
+            assert_eq!(found[0].end_line, source.lines().count() as u32);
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+        }
+    }
+
+    #[test]
+    fn quoted_labels_do_not_become_dynamic_symbol_literals() {
+        for source in [
+            "require({\"\": 1})\nrequire({:\"\" => 1})\n",
+            "require({:\"\" => 1})\nrequire({\"\": 1})\n",
+            "require({'': 1})\nrequire({%s[] => 1})\n",
+            "require({\"a\nb\": 1})\nrequire({:\"a\nb\" => 1})\n",
+            "require({\"\\u{}\\\n\\u{}\": 1})\nrequire({:\"\\u{}\\\n\\u{}\" => 1})\n",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+    }
+
+    #[test]
+    fn command_empty_unicode_payload_keeps_its_single_string_child() {
+        for (empty, token) in [("``", "`\\u{}`"), ("%x[]", "%x[\\u{ }]")] {
+            let source = format!("require({empty})\nrequire({token})\n");
+            assert!(offenses(&source).is_empty(), "{source}");
+            let found = offenses(&format!("{source}require({token})\n"));
+            assert_eq!(found.len(), 1);
+            assert_eq!((found[0].line, found[0].col, found[0].end_line), (3, 1, 3));
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+        }
+    }
+
+    #[test]
+    fn empty_symbol_require_identity_does_not_change_other_fingerprint_modes() {
+        use crate::{cops::ast, source::SourceFile};
+        for source in ["[:\"\"]; [:\"\\u{}\"]", "{\"\": 1}; {:\"\" => 1}"] {
+            let file = SourceFile::new("test.rb".into(), source.into());
+            let parsed = crate::parser::parse(&file.bytes);
+            assert!(parsed.errors().next().is_none());
+            file.record_encoding(&parsed);
+            let body = parsed.node().as_program_node().unwrap().statements().body();
+            let a = body.iter().next().unwrap();
+            let b = body.iter().nth(1).unwrap();
+            let raw = (ast::fingerprint(&a), ast::fingerprint(&b));
+            let correction = (
+                ast::fingerprint_with_source_lines(&a, &file),
+                ast::fingerprint_with_source_lines(&b, &file),
+            );
+            assert_eq!(raw.0, raw.1);
+            assert_eq!(correction.0, correction.1);
+            assert_ne!(
+                ast::fingerprint_for_require(&a, &file, None),
+                ast::fingerprint_for_require(&b, &file, None)
+            );
+            assert_eq!(raw, (ast::fingerprint(&a), ast::fingerprint(&b)));
+            assert_eq!(
+                correction,
+                (
+                    ast::fingerprint_with_source_lines(&a, &file),
+                    ast::fingerprint_with_source_lines(&b, &file)
+                )
+            );
+        }
+    }
+
+    #[test]
     fn escaped_source_glyphs_have_reference_buffer_identity() {
         use crate::{cops::run_cops, source::SourceFile};
         for (encoding, glyph, unicode) in [
@@ -443,13 +566,286 @@ mod tests {
         let before = (ast::fingerprint(&a), ast::fingerprint(&b));
         assert_ne!(before.0, before.1);
         assert_eq!(
-            ast::fingerprint_for_require(&a, &file),
-            ast::fingerprint_for_require(&b, &file)
+            ast::fingerprint_for_require(&a, &file, None),
+            ast::fingerprint_for_require(&b, &file, None)
         );
         assert_eq!((ast::fingerprint(&a), ast::fingerprint(&b)), before);
         assert_eq!(a.as_string_node().unwrap().unescaped(), b"\xe9");
         assert_eq!(b.as_string_node().unwrap().unescaped(), "é".as_bytes());
         assert_eq!(file.encoded_character_width(b"\xe9"), 1);
+    }
+
+    #[test]
+    fn reference_buffer_names_selectors_and_regexp_source_are_require_keys() {
+        for (a, b) in [
+            ("ae\u{301}", "aé"),
+            ("obj.ae\u{301}(1)", "obj.aé(1)"),
+            ("Ae\u{301}", "Aé"),
+            ("@ae\u{301}", "@aé"),
+            ("$ae\u{301}", "$aé"),
+            ("-> { [ae\u{301}] }", "-> { [aé] }"),
+            ("/e\u{301}/", "/é/"),
+        ] {
+            let source = format!("# coding: UTF8-MAC\nrequire({a})\nrequire({b})\n");
+            let found = offenses(&source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col, found[0].end_line), (3, 1, 3));
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+            assert!(offenses(&source.replace("UTF8-MAC", "UTF-8")).is_empty());
+        }
+    }
+
+    #[test]
+    fn projected_local_kinds_use_declarations_scopes_and_order_not_only_names() {
+        for body in [
+            "ae\u{301} = 1; require(aé); require(aé())",
+            "def f(ae\u{301}); require(aé); require(aé()); end",
+            "task { |ae\u{301}| require(aé); require(aé()) }",
+            "->(ae\u{301}) { require(aé); require(aé()) }",
+            "ae\u{301} = 1; task { require([aé]); require([aé()]) }",
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{body}\n");
+            assert!(offenses(&source).is_empty(), "{source}");
+            let found = offenses(&source.replace("UTF8-MAC", "UTF-8"));
+            assert_eq!(found.len(), 1, "{source}");
+        }
+    }
+
+    #[test]
+    fn composed_reference_columns_keep_positive_hard_scope_and_order_controls() {
+        for (body, col) in [
+            ("require(aé); ae\u{301} = 1; require(aé())", 22),
+            ("ae\u{301} = 1; def f; require(aé); require(aé()); end", 29),
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{body}\n");
+            let found = offenses(&source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!(
+                (found[0].line, found[0].col, found[0].end_line),
+                (2, col, 2)
+            );
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+        }
+    }
+
+    #[test]
+    fn regexp_escape_letters_compose_with_source_marks_before_escape_interpretation() {
+        for (raw, composed) in [
+            ("e\u{301}", "é"),
+            ("o\u{308}", "ö"),
+            ("a\u{30a}\u{301}", "ǻ"),
+        ] {
+            let source =
+                format!("# coding: UTF8-MAC\nrequire(/\\{raw}/); require(/\\{composed}/)\n");
+            let found = offenses(&source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 16, 2));
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+        }
+    }
+
+    #[test]
+    fn all_projected_fixtures_have_exact_ranges_messages_and_no_corrections() {
+        byte_fixtures(
+            include_str!("../../../tests/fixtures/duplicate_require_projected.json"),
+            1752,
+        );
+    }
+
+    #[test]
+    fn v10_lexical_regexp_and_column_neighbours_keep_exact_detection_only_ranges() {
+        byte_fixtures(
+            include_str!("../../../tests/fixtures/duplicate_require_v10_neighbours.json"),
+            209,
+        );
+    }
+
+    fn byte_fixtures(json: &str, count: usize) {
+        use crate::{cops::run_cops, source::SourceFile};
+        let rows: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
+        assert_eq!(rows.len(), count);
+        for row in rows {
+            let file = SourceFile::new(
+                "lib/a.rb".into(),
+                serde_json::from_value::<Vec<u8>>(row["bytes"].clone()).unwrap(),
+            );
+            let parsed = crate::parser::parse(&file.bytes);
+            assert!(parsed.errors().next().is_none(), "{row}");
+            file.record_encoding(&parsed);
+            let mut found = Vec::new();
+            assert!(run_cops(&[&super::DuplicateRequire], &parsed, &file, &mut found).is_empty());
+            assert!(found.iter().all(|o| o.correction.is_none()));
+            let actual: Vec<_> = found
+                .into_iter()
+                .map(|o| (o.line, o.col, o.end_line, o.message))
+                .collect();
+            let expected: Vec<(u32, u32, u32, String)> =
+                serde_json::from_value(row["findings"].clone()).unwrap();
+            assert_eq!(actual, expected, "{row}");
+        }
+    }
+
+    #[test]
+    fn source_name_projection_does_not_relax_other_modes_or_numeric_metadata() {
+        use crate::{cops::ast, source::SourceFile};
+        for (a, b) in [
+            ("ae\u{301}", "aé"),
+            ("/\\e\u{301}/", "/\\é/"),
+            ("->(ae\u{301}) { ae\u{301} }", "->(aé) { aé }"),
+        ] {
+            let file = SourceFile::new(
+                "lib/a.rb".into(),
+                format!("# coding: UTF8-MAC\n{a}; {b}\n").into_bytes(),
+            );
+            let parsed = crate::parser::parse(&file.bytes);
+            assert!(parsed.errors().next().is_none());
+            file.record_encoding(&parsed);
+            let body = parsed.node().as_program_node().unwrap().statements().body();
+            let a = body.iter().next().unwrap();
+            let b = body.iter().nth(1).unwrap();
+            let raw = (ast::fingerprint(&a), ast::fingerprint(&b));
+            let correction = (
+                ast::fingerprint_with_source_lines(&a, &file),
+                ast::fingerprint_with_source_lines(&b, &file),
+            );
+            assert_ne!(raw.0, raw.1);
+            assert_ne!(correction.0, correction.1);
+            assert_eq!(
+                ast::fingerprint_for_require(&a, &file, None),
+                ast::fingerprint_for_require(&b, &file, None)
+            );
+            assert_eq!(raw, (ast::fingerprint(&a), ast::fingerprint(&b)));
+            assert_eq!(
+                correction,
+                (
+                    ast::fingerprint_with_source_lines(&a, &file),
+                    ast::fingerprint_with_source_lines(&b, &file)
+                )
+            );
+        }
+        for source in [
+            "require(0.0); require(-0.0)",
+            "require(128); require(256)",
+            "require(1i); require(1.0i)",
+        ] {
+            assert!(offenses(&format!("# coding: UTF8-MAC\n{source}\n")).is_empty());
+        }
+    }
+
+    #[test]
+    fn implicit_regexp_conditions_normalize_delimiters_and_option_sets() {
+        for (a, b) in [
+            ("if /x/im; y; end", "if /x/mi; y; end"),
+            ("if /x/; y; end", "if %r{x}; y; end"),
+            ("if /x#{z}/im; y; end", "if %r{x#{z}}mi; y; end"),
+            ("if /x/ii; y; end", "if /x/i; y; end"),
+        ] {
+            let source = format!("require({a})\nrequire({b})\n");
+            let found = offenses(&source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 1, 2));
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+        }
+        for (a, b) in [
+            ("if /x/i; y; end", "if /x/m; y; end"),
+            ("if /x/; y; end", "if /z/; y; end"),
+            ("if /x#{z}/i; y; end", "if /x#{z}/m; y; end"),
+            ("if /x#{z}/; y; end", "if /x#{w}/; y; end"),
+        ] {
+            let source = format!("require({a})\nrequire({b})\n");
+            assert!(offenses(&source).is_empty(), "{source}");
+        }
+    }
+
+    #[test]
+    fn explicit_rescue_empty_else_is_absent_but_nil_and_grouping_are_not() {
+        for (a, b) in [
+            ("begin; x; rescue; y; else; end", "begin; x; rescue; y; end"),
+            ("begin; x; rescue; y; end", "begin; x; rescue; y; else; end"),
+            (
+                "begin; x; rescue; y; else; ensure; z; end",
+                "begin; x; rescue; y; ensure; z; end",
+            ),
+        ] {
+            let source = format!("require({a})\nrequire({b})\n");
+            let found = offenses(&source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 1, 2));
+            assert_eq!(found[0].message, "Duplicate `require` detected.");
+            assert!(found[0].correction.is_none());
+        }
+        for (a, b) in [
+            (
+                "begin; x; rescue; y; else; nil; end",
+                "begin; x; rescue; y; end",
+            ),
+            ("begin; x; rescue; y; end", "(begin; x; rescue; y; end)"),
+            ("begin; x; rescue; y; end", "begin; x; rescue; z; end"),
+        ] {
+            let source = format!("require({a})\nrequire({b})\n");
+            assert!(offenses(&source).is_empty(), "{source}");
+        }
+    }
+
+    #[test]
+    fn v10_review_regexp_and_rescue_neighbours_keep_exact_detection_only_ranges() {
+        byte_fixtures(
+            include_str!("../../../tests/fixtures/duplicate_require_identity.json"),
+            232,
+        );
+    }
+
+    #[test]
+    fn regexp_and_rescue_require_normalization_leaves_other_modes_unchanged() {
+        use crate::{cops::ast, source::SourceFile};
+        for source in [
+            "if /x/im; y; end; if /x/mi; y; end",
+            "if /x#{z}/im; y; end; if %r{x#{z}}mi; y; end",
+            "begin; x; rescue; y; else; end; begin; x; rescue; y; end",
+        ] {
+            let file = SourceFile::new("test.rb".into(), source.into());
+            let parsed = crate::parser::parse(&file.bytes);
+            assert!(parsed.errors().next().is_none());
+            file.record_encoding(&parsed);
+            let body = parsed.node().as_program_node().unwrap().statements().body();
+            let a = body.iter().next().unwrap();
+            let b = body.iter().nth(1).unwrap();
+            let raw = (ast::fingerprint(&a), ast::fingerprint(&b));
+            let correction = (
+                ast::fingerprint_with_source_lines(&a, &file),
+                ast::fingerprint_with_source_lines(&b, &file),
+            );
+            assert_ne!(raw.0, raw.1, "{source}");
+            assert_ne!(correction.0, correction.1, "{source}");
+            // Branch/scope consumers retain their prior keys.
+            assert_ne!(
+                ast::fingerprint_for_branch(&a, &file),
+                ast::fingerprint_for_branch(&b, &file),
+                "{source}"
+            );
+            assert_ne!(
+                ast::fingerprint_for_conditional_scope(&a, &file),
+                ast::fingerprint_for_conditional_scope(&b, &file),
+                "{source}"
+            );
+            assert_eq!(
+                ast::fingerprint_for_require(&a, &file, None),
+                ast::fingerprint_for_require(&b, &file, None),
+                "{source}"
+            );
+            assert_eq!(raw, (ast::fingerprint(&a), ast::fingerprint(&b)));
+            assert_eq!(
+                correction,
+                (
+                    ast::fingerprint_with_source_lines(&a, &file),
+                    ast::fingerprint_with_source_lines(&b, &file)
+                )
+            );
+        }
     }
 
     #[test]

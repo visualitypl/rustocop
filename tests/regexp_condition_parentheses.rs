@@ -1,5 +1,8 @@
 //! Source-only pinned AST and CLI checks. Never execute reference inputs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -129,8 +132,8 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
 }
 #[test]
 fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let cop = row["cop"].as_str().unwrap();
         if row.get("after").is_some() {
             continue;
@@ -172,7 +175,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
             assert_eq!(String::from_utf8_lossy(&out.stdout), stdout, "{row}");
             assert!(out.stderr.is_empty(), "{row}: {out:?}");
         }
-    }
+    });
 }
 #[test]
 fn defaults_selectors_toml_department_and_path_precedence() {

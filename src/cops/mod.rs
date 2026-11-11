@@ -8,18 +8,21 @@ use ruby_prism::Node;
 use crate::{
     config::ResolvedConfig,
     isolation::{CaughtPanic, catch},
-    offense::{Department, Offense, Severity, department_of},
+    offense::{Department, GlobalOffense, Offense, Severity, department_of},
     source::SourceFile,
 };
 
 pub mod ast;
+pub mod bundler;
 pub(crate) mod code_object_safety;
 #[cfg(test)]
 mod correction_safety;
 pub mod depth;
+pub mod gemspec;
 mod heap_safety;
 pub mod layout;
 pub mod lint;
+pub mod metrics;
 pub mod name_similarity;
 pub mod naming;
 pub mod policy;
@@ -60,6 +63,17 @@ pub trait Cop: Send + Sync {
     /// opt-in; pending cops are enabled. This never registers a planned cop.
     fn default_enabled(&self) -> bool {
         policy::default_enabled(self.name())
+    }
+
+    /// Whether selecting this cop's department (`--only Layout`, or
+    /// `[cops.Layout] enabled = true`) enables it when the cop itself is not
+    /// enabled. Accepted cops keep rustocop's rule (a department selection
+    /// enables its opt-in cops); a cop answering false keeps upstream's rule
+    /// instead (RuboCop's `enabled_cop_name?` and `enable_cop?`): only its
+    /// exact name in `--only` or its own `enabled = true` enables it, while a
+    /// disabled department still disables it.
+    fn department_selection_enables(&self) -> bool {
+        true
     }
 
     /// Fixed Ruby applicability. Selection never bypasses these bounds.
@@ -149,6 +163,23 @@ pub trait Cop: Send + Sync {
         None
     }
 
+    /// Location-free filename checks (first consumer: Bundler/GemFilename).
+    /// Receives only the supplied config-relative name, never file contents or
+    /// a resolved target. Runs on opaque gem locks and on valid Ruby inputs;
+    /// mandatory Ruby parse/resource failures prevent all ordinary findings.
+    fn check_filename(&self, _path: &std::path::Path, _out: &mut Vec<GlobalOffense>) {}
+
+    /// Location-free valid-Ruby findings, including empty gemspecs (first
+    /// consumer: Gemspec/RequiredRubyVersion). Shares the owned main parse;
+    /// never called on opaque locks or rejected Ruby. No source edits allowed.
+    fn check_global(
+        &self,
+        _result: &ruby_prism::ParseResult<'_>,
+        _file: &SourceFile,
+        _out: &mut Vec<GlobalOffense>,
+    ) {
+    }
+
     /// Whole-source checks for line-oriented cops.
     fn check_source(&self, _file: &SourceFile, _out: &mut Vec<Offense>) {}
 
@@ -158,6 +189,36 @@ pub trait Cop: Send + Sync {
     fn check_parse(
         &self,
         _result: &ruby_prism::ParseResult<'_>,
+        _file: &SourceFile,
+        _out: &mut Vec<Offense>,
+    ) {
+    }
+
+    /// Opt in to fatal delivery on rejected input. Ordinary parse/source/node
+    /// hooks never run there. The mandatory file-error gate is independent of
+    /// selection and cannot be suppressed by this bounded lifecycle.
+    fn wants_fatal_diagnostics(&self) -> bool {
+        false
+    }
+
+    /// Fatal findings from the owned main-parse snapshot, without AST access,
+    /// candidate parses or source corrections. Only opted-in cops receive this.
+    fn check_fatal(&self, _file: &SourceFile, _out: &mut Vec<crate::source::FatalDiagnostic>) {}
+
+    /// Opt in to the pipeline's bounded post-investigation phase. This runs
+    /// once after all ordinary callbacks, before directive filtering, only on
+    /// valid input and only if this cop completed ordinary investigation.
+    fn wants_post_investigation(&self) -> bool {
+        false
+    }
+
+    /// Inspect immutable ordinary findings (including suppressed ones) and the
+    /// effective per-file cop universe. Peers' post findings are not inputs.
+    /// No AST, reparsing or configuration engine is exposed. Emitted findings
+    /// obey the same self-suppression and correction guards as ordinary ones.
+    fn check_post_investigation(
+        &self,
+        _cx: &PostInvestigation<'_>,
         _file: &SourceFile,
         _out: &mut Vec<Offense>,
     ) {
@@ -193,6 +254,52 @@ pub trait Cop: Send + Sync {
         _file: &SourceFile,
         _out: &mut Vec<Offense>,
     ) {
+    }
+}
+
+/// One registered cop's per-file investigation facts. Absence from the universe
+/// means unregistered as written, not disabled/deselected/inapplicable. These
+/// facts never themselves prove a directive redundant or safe to remove.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct InvestigatedCop {
+    /// Exact registered name (no namespace correction or fuzzy resolution).
+    pub name: &'static str,
+    /// Configuration/default enablement, independent of selectors and gates.
+    pub configured_enabled: bool,
+    /// Selected candidate eligible at fixed Ruby3.4 and this supplied path;
+    /// includes disabled candidates that a source enable could mobilize.
+    pub available: bool,
+    /// Mobilized for ordinary investigation, including scoped source opt-ins.
+    pub investigated: bool,
+    /// Investigation ran without a cop panic. Incomplete evidence must not be
+    /// mistaken for an absence of offenses.
+    pub completed: bool,
+}
+
+/// Pipeline-only post-investigation inputs, borrowed for one callback. Raw
+/// findings are the immutable ordinary batch, before suppression or sorting;
+/// corrections may already have been withheld by shared safety guards.
+pub struct PostInvestigation<'a> {
+    /// All ordinary findings, including enabled and suppressed highlights.
+    pub raw_offenses: &'a [Offense],
+    /// Location-free ordinary findings, before suppression. The pin uses line1
+    /// solely for directive scope, not as a reported source location.
+    pub raw_global_offenses: &'a [GlobalOffense],
+    /// The exact shared analyzer used for final finding/correction filtering.
+    pub directives: &'a crate::directives::Directives,
+    /// All registered names with configured/selected/path/run facts.
+    pub cops: &'a [InvestigatedCop],
+    /// Whether this pass requests corrections (false during validation).
+    pub corrections_requested: bool,
+}
+impl PostInvestigation<'_> {
+    /// Ordinary findings hidden by any disabled line in their highlight.
+    pub fn suppressed_offenses(&self) -> impl Iterator<Item = &Offense> {
+        self.raw_offenses.iter().filter(|o| {
+            !self
+                .directives
+                .is_enabled_for_lines(o.cop, o.line, o.end_line)
+        })
     }
 }
 
@@ -250,6 +357,24 @@ impl Registry {
         Registry {
             cops: vec![
                 Box::new(lint::Debugger),
+                Box::new(bundler::GemFilename),
+                Box::new(bundler::DuplicatedGem),
+                Box::new(bundler::DuplicatedGroup),
+                Box::new(bundler::GemComment),
+                Box::new(bundler::GemVersion),
+                Box::new(bundler::InsecureProtocolSource),
+                Box::new(bundler::OrderedGems),
+                Box::new(gemspec::AddRuntimeDependency),
+                Box::new(gemspec::AttributeAssignment),
+                Box::new(gemspec::DependencyVersion),
+                Box::new(gemspec::DeprecatedAttributeAssignment),
+                Box::new(gemspec::DevelopmentDependencies),
+                Box::new(gemspec::DuplicatedAssignment),
+                Box::new(gemspec::OrderedDependencies),
+                Box::new(gemspec::RequireMFA),
+                Box::new(gemspec::RequiredRubyVersion),
+                Box::new(gemspec::RubyVersionGlobalsUsage),
+                Box::new(metrics::ParameterLists),
                 Box::new(lint::ParenthesesAsGroupedExpression),
                 Box::new(lint::PercentStringArray),
                 Box::new(lint::PercentSymbolArray),
@@ -285,10 +410,21 @@ impl Registry {
                 Box::new(lint::ReturnInVoidContext),
                 Box::new(lint::NonAtomicFileOperation),
                 Box::new(lint::NumberConversion),
+                Box::new(lint::ToEnumArguments),
+                Box::new(lint::ToJSON),
                 Box::new(lint::NumericOperationWithConstantResult),
                 Box::new(lint::MissingSuper),
                 Box::new(lint::NameTypo),
                 Box::new(lint::UnusedPrivateMethod),
+                Box::new(lint::UselessDefaultValueArgument),
+                Box::new(lint::UselessDefined),
+                Box::new(lint::UselessMethodDefinition),
+                Box::new(lint::UselessNumericOperation),
+                Box::new(lint::UselessOr),
+                Box::new(lint::UselessSetterCall),
+                Box::new(lint::UselessTimes),
+                Box::new(lint::UselessRuby2Keywords),
+                Box::new(lint::UselessRescue),
                 Box::new(lint::NextWithoutAccumulator),
                 Box::new(lint::UnmodifiedReduceAccumulator),
                 Box::new(lint::MultipleComparison),
@@ -305,6 +441,8 @@ impl Registry {
                 Box::new(lint::EmptyClass),
                 Box::new(lint::EmptyExpression),
                 Box::new(lint::EmptyFile),
+                Box::new(lint::ScriptPermission),
+                Box::new(lint::Syntax),
                 Box::new(lint::EmptyInPattern),
                 Box::new(lint::AmbiguousAssignment),
                 Box::new(lint::ArgumentMismatch),
@@ -345,6 +483,7 @@ impl Registry {
                 Box::new(lint::IneffectiveAccessModifier),
                 Box::new(lint::UselessAccessModifier),
                 Box::new(lint::ImplicitStringConcatenation),
+                Box::new(lint::InterpolationCheck),
                 Box::new(lint::IncompatibleIoSelectWithFiberScheduler),
                 Box::new(lint::TripleQuotes),
                 Box::new(lint::ElseLayout),
@@ -387,6 +526,7 @@ impl Registry {
                 Box::new(lint::FormatParameterMismatch),
                 Box::new(lint::RedundantRequireStatement),
                 Box::new(lint::RedundantCopEnableDirective),
+                Box::new(lint::RedundantCopDisableDirective),
                 Box::new(lint::MissingCopEnableDirective),
                 Box::new(lint::StructNewOverride),
                 Box::new(lint::DataDefineOverride),
@@ -740,6 +880,64 @@ impl Registry {
                 Box::new(layout::IndentationStyle),
                 Box::new(layout::IndentationWidth),
                 Box::new(layout::EndAlignment),
+                Box::new(layout::AccessModifierIndentation),
+                Box::new(layout::AssignmentIndentation),
+                Box::new(layout::ArgumentAlignment),
+                Box::new(layout::ArrayAlignment),
+                Box::new(layout::HashAlignment),
+                Box::new(layout::ParameterAlignment),
+                Box::new(layout::FirstParameterIndentation),
+                Box::new(layout::BeginEndAlignment),
+                Box::new(layout::DefEndAlignment),
+                Box::new(layout::BlockAlignment),
+                Box::new(layout::ClosingParenthesisIndentation),
+                Box::new(layout::FirstArgumentIndentation),
+                Box::new(layout::FirstArrayElementIndentation),
+                Box::new(layout::FirstHashElementIndentation),
+                Box::new(layout::CaseIndentation),
+                Box::new(layout::ElseAlignment),
+                Box::new(layout::RescueEnsureAlignment),
+                Box::new(layout::HeredocIndentation),
+                Box::new(layout::ClosingHeredocIndentation),
+                Box::new(layout::CommentIndentation),
+                Box::new(layout::InitialIndentation),
+                Box::new(layout::HeredocArgumentClosingParenthesis),
+                Box::new(layout::IndentationConsistency),
+                Box::new(layout::MultilineMethodCallIndentation),
+                Box::new(layout::MultilineOperationIndentation),
+                Box::new(layout::DotPosition),
+                Box::new(layout::ConditionPosition),
+                Box::new(layout::MultilineAssignmentLayout),
+                Box::new(layout::SpaceBeforeComment),
+                Box::new(layout::LeadingCommentSpace),
+                Box::new(layout::EmptyComment),
+                Box::new(layout::LeadingEmptyLines),
+                Box::new(layout::EndOfLine),
+                Box::new(layout::EmptyLineAfterMagicComment),
+                Box::new(layout::EmptyLineAfterGuardClause),
+                Box::new(layout::EmptyLineAfterMultilineCondition),
+                Box::new(layout::EmptyLinesAfterModuleInclusion),
+                Box::new(layout::EmptyLinesAroundAttributeAccessor),
+                Box::new(layout::EmptyLinesAroundAccessModifier),
+                Box::new(layout::EmptyLinesAroundBeginBody),
+                Box::new(layout::EmptyLinesAroundBlockBody),
+                Box::new(layout::EmptyLinesAroundExceptionHandlingKeywords),
+                Box::new(layout::EmptyLinesAroundArguments),
+                Box::new(layout::ExtraSpacing),
+                Box::new(layout::SpaceBeforeFirstArg),
+                Box::new(layout::SpaceBeforeSemicolon),
+                Box::new(layout::FirstArrayElementLineBreak),
+                Box::new(layout::FirstHashElementLineBreak),
+                Box::new(layout::FirstMethodArgumentLineBreak),
+                Box::new(layout::FirstMethodParameterLineBreak),
+                Box::new(layout::MultilineArrayLineBreaks),
+                Box::new(layout::MultilineHashKeyLineBreaks),
+                Box::new(layout::MultilineMethodArgumentLineBreaks),
+                Box::new(layout::MultilineMethodParameterLineBreaks),
+                Box::new(layout::MultilineArrayBraceLayout),
+                Box::new(layout::MultilineHashBraceLayout),
+                Box::new(layout::MultilineMethodCallBraceLayout),
+                Box::new(layout::MultilineMethodDefinitionBraceLayout),
             ],
         }
     }
@@ -838,6 +1036,7 @@ pub(crate) fn configured_enabled(cop: &dyn Cop, config: &ResolvedConfig) -> bool
                 .cop_settings
                 .get(department)
                 .and_then(|settings| settings.enabled)
+                .filter(|&on| !on || cop.default_enabled() || cop.department_selection_enables())
         })
         .unwrap_or_else(|| cop.default_enabled())
 }
@@ -857,7 +1056,9 @@ fn select_active_at_version<'r>(
             let department = name.split('/').next().unwrap_or(name);
             let mut enabled = configured_enabled(cop.as_ref(), config);
             if !only.is_empty() {
-                enabled = matches_selection(only, name, department);
+                enabled = only.iter().any(|entry| entry == name)
+                    || (only.iter().any(|entry| entry == department)
+                        && (enabled || cop.department_selection_enables()));
             }
             if matches_selection(except, name, department) {
                 enabled = false;
@@ -1079,7 +1280,26 @@ pub(crate) fn run_cops_with_corrections(
     walk::walk(&mut walker, &result.node());
     let has_heredoc = walker.has_heredoc;
     let panics = walker.panics;
-    let emitted = &mut out[first_offense..];
+    guard_corrections(
+        cops,
+        result,
+        file,
+        &mut out[first_offense..],
+        corrections_requested,
+        has_heredoc,
+    );
+    panics
+}
+
+/// Apply the same safety barriers to ordinary and post-investigation batches.
+fn guard_corrections(
+    cops: &[&dyn Cop],
+    result: &ruby_prism::ParseResult<'_>,
+    file: &SourceFile,
+    emitted: &mut [Offense],
+    corrections_requested: bool,
+    has_heredoc: bool,
+) {
     if corrections_requested {
         for cop in cops {
             if cop
@@ -1114,16 +1334,80 @@ pub(crate) fn run_cops_with_corrections(
             file.heredoc_boundaries(&result.node())
                 .filter(&file.bytes, emitted);
         }
+        // A program that executes nothing cannot observe anything at run
+        // time: its only statement is a closed top-level `if false ... end`
+        // and it has no data section. The runtime source/code-object/heap
+        // barriers are vacuous there; the listed observers still
+        // hold every edit, and position preservation is still required.
+        let inert = data_start.is_none()
+            && statically_inert(&result.node())
+            && !proof.has_listed_source_observer(false);
         for offense in emitted {
             if offense.correction.as_ref().is_some_and(|correction| {
-                raw || code_objects
-                    || heap
+                (!inert && (raw || code_objects || heap))
                     || !proof.preserves_positions(correction, file, data_start)
             }) {
                 offense.correction = None;
             }
         }
     }
+}
+
+/// Whether the program's only statement is `if false ... end`: a closed,
+/// statically inactive envelope whose body never runs.
+pub(crate) fn statically_inert(program: &Node<'_>) -> bool {
+    let Some(program) = program.as_program_node() else {
+        return false;
+    };
+    let body = program.statements().body();
+    let mut statements = body.iter();
+    let (Some(statement), None) = (statements.next(), statements.next()) else {
+        return false;
+    };
+    statement.as_if_node().is_some_and(|conditional| {
+        conditional.predicate().as_false_node().is_some()
+            && conditional.subsequent().is_none()
+            && conditional.end_keyword_loc().is_some()
+            && conditional
+                .if_keyword_loc()
+                .is_some_and(|keyword| keyword.as_slice() == b"if")
+    })
+}
+
+/// The pipeline owns lifecycle ordering and immutable evidence. Keep post
+/// outputs separate until all callbacks finish, so registration order cannot
+/// make a peer's post finding appear in another callback's raw inputs.
+pub(crate) fn run_post_investigation(
+    cops: &[&dyn Cop],
+    result: &ruby_prism::ParseResult<'_>,
+    file: &SourceFile,
+    cx: &PostInvestigation<'_>,
+    out: &mut Vec<Offense>,
+) -> Vec<CopPanic> {
+    let first = out.len();
+    let mut panics = Vec::new();
+    for cop in cops.iter().filter(|cop| cop.wants_post_investigation()) {
+        if !cx.cops.iter().any(|c| c.name == cop.name() && c.completed) {
+            continue;
+        }
+        if let Err(panic) = catch(|| cop.check_post_investigation(cx, file, out)) {
+            panics.push(CopPanic {
+                cop: cop.name(),
+                position: None,
+                panic,
+            });
+        }
+    }
+    // The shared main-parse boundary cache is lazy. Unlike ordinary dispatch,
+    // this phase has no node walk to supply a cheap has-heredoc hint.
+    guard_corrections(
+        cops,
+        result,
+        file,
+        &mut out[first..],
+        cx.corrections_requested,
+        true,
+    );
     panics
 }
 
@@ -1633,7 +1917,9 @@ mod tests {
                 .iter()
                 .any(|cop| cop.name() == "Layout/TrailingWhitespace")
         );
-        assert_eq!(active.len(), 21);
+        // Opt-in MultilineAssignmentLayout and
+        // EmptyLineAfterMultilineCondition need their exact names.
+        assert_eq!(active.len(), 69);
         for name in [
             "Layout/TrailingEmptyLines",
             "Layout/EmptyLines",
@@ -1654,6 +1940,48 @@ mod tests {
             "Layout/IndentationStyle",
             "Layout/IndentationWidth",
             "Layout/EndAlignment",
+            "Layout/AccessModifierIndentation",
+            "Layout/AssignmentIndentation",
+            "Layout/ArgumentAlignment",
+            "Layout/ArrayAlignment",
+            "Layout/HashAlignment",
+            "Layout/ParameterAlignment",
+            "Layout/FirstParameterIndentation",
+            "Layout/BeginEndAlignment",
+            "Layout/DefEndAlignment",
+            "Layout/BlockAlignment",
+            "Layout/ClosingParenthesisIndentation",
+            "Layout/FirstArgumentIndentation",
+            "Layout/FirstArrayElementIndentation",
+            "Layout/FirstHashElementIndentation",
+            "Layout/CaseIndentation",
+            "Layout/ElseAlignment",
+            "Layout/RescueEnsureAlignment",
+            "Layout/HeredocIndentation",
+            "Layout/ClosingHeredocIndentation",
+            "Layout/CommentIndentation",
+            "Layout/InitialIndentation",
+            "Layout/IndentationConsistency",
+            "Layout/MultilineMethodCallIndentation",
+            "Layout/MultilineOperationIndentation",
+            "Layout/DotPosition",
+            "Layout/ConditionPosition",
+            "Layout/SpaceBeforeComment",
+            "Layout/LeadingCommentSpace",
+            "Layout/EmptyComment",
+            "Layout/LeadingEmptyLines",
+            "Layout/EmptyLineAfterMagicComment",
+            "Layout/EmptyLineAfterGuardClause",
+            "Layout/EmptyLinesAfterModuleInclusion",
+            "Layout/EmptyLinesAroundAttributeAccessor",
+            "Layout/EmptyLinesAroundAccessModifier",
+            "Layout/EmptyLinesAroundBeginBody",
+            "Layout/EmptyLinesAroundBlockBody",
+            "Layout/EmptyLinesAroundExceptionHandlingKeywords",
+            "Layout/EmptyLinesAroundArguments",
+            "Layout/ExtraSpacing",
+            "Layout/SpaceBeforeFirstArg",
+            "Layout/SpaceBeforeSemicolon",
         ] {
             let cop = defaults.iter().find(|cop| cop.name() == name).unwrap();
             assert!(cop.safe_fixes(), "{name}");

@@ -52,7 +52,8 @@ impl Cop for BigDecimalNew {
             return;
         }
         let Some(selector) = selector else { return };
-        let (line, col) = file.line_col(selector.start_offset());
+        let (line, col) =
+            super::array_literal_in_regexp::reference_line_col(selector.start_offset(), file);
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -206,6 +207,29 @@ mod tests {
                 found[0].message,
                 "`BigDecimal.new()` is deprecated. Use `BigDecimal()` instead."
             );
+        }
+    }
+
+    #[test]
+    fn declared_utf8_mac_selector_columns_match_the_composed_reference_buffer() {
+        for (encoding, col) in [("UTF8-MAC", 17), ("UTF-8", 18)] {
+            for eol in ["\n", "\r\n"] {
+                for (receiver, extra) in [("BigDecimal", 0), ("::BigDecimal", 2)] {
+                    for suffix in ["(1)", " ||= value", " &&= value", " += value"] {
+                        let source = format!(
+                            "# coding: {encoding}{eol}\"e\u{301}\"; {receiver}.new{suffix}{eol}"
+                        );
+                        let found = offenses(&source);
+                        assert_eq!(found.len(), 1, "{source}");
+                        assert_eq!(
+                            (found[0].line, found[0].col, found[0].end_line),
+                            (2, col + extra, 2),
+                            "{source}"
+                        );
+                        assert!(found[0].correction.is_none());
+                    }
+                }
+            }
         }
     }
 

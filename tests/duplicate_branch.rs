@@ -98,7 +98,7 @@ fn every_reference_row_matches_rebuilt_cli_with_and_without_fix_and_never_writes
 #[test]
 fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && !cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());

@@ -26,7 +26,7 @@ use ruby_prism::{
 };
 
 use crate::{
-    cops::{Cop, NodeContext, ast::is_basic_literal},
+    cops::{Cop, NodeContext},
     offense::Offense,
     source::SourceFile,
 };
@@ -83,12 +83,13 @@ impl Cop for OutOfRangeRegexpRef {
             return;
         }
         let mut tracker = Tracker {
+            file,
             valid_refs: Some(0),
             offenses: Vec::new(),
         };
         tracker.visit_program_node(&program);
         for (offset, reference, valid) in tracker.offenses {
-            let (line, col) = file.line_col(offset);
+            let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, file);
             let count = if valid == 0 {
                 "no".to_string()
             } else {
@@ -112,14 +113,15 @@ impl Cop for OutOfRangeRegexpRef {
 
 /// Walks the tree in RuboCop's callback order, tracking how many capture
 /// groups the last literal match had.
-struct Tracker {
+struct Tracker<'a> {
+    file: &'a SourceFile,
     /// The number of valid references; `None` when unknown.
     valid_refs: Option<u32>,
     /// (offset, reference number, valid count) of each offense.
     offenses: Vec<(usize, u32, u32)>,
 }
 
-impl Tracker {
+impl Tracker<'_> {
     /// RuboCop's `check_regexp`: a literal regexp sets the count; an
     /// interpolated one changes nothing.
     fn check_regexp(&mut self, node: &Node<'_>) {
@@ -139,8 +141,13 @@ impl Tracker {
         // `hash[:key]`, `array[0]`: a non-string literal cannot be a pattern.
         let unaffected = receiver.is_none()
             && first.as_ref().is_some_and(|first| {
-                is_basic_literal(first)
-                    && !matches!(first, Node::StringNode { .. } | Node::SourceFileNode { .. })
+                super::reference_basic_literal::is_basic_literal(first, self.file)
+                    && !matches!(
+                        first,
+                        Node::StringNode { .. }
+                            | Node::InterpolatedStringNode { .. }
+                            | Node::SourceFileNode { .. }
+                    )
             });
         if unaffected {
             return;
@@ -163,7 +170,7 @@ impl Tracker {
     }
 }
 
-impl<'pr> Visit<'pr> for Tracker {
+impl<'pr> Visit<'pr> for Tracker<'_> {
     fn visit_call_node(&mut self, node: &CallNode<'pr>) {
         // A literal regexp on the left of `=~` is the parser gem's
         // `match_with_lvasgn`: it counts as soon as it is entered.
@@ -318,7 +325,7 @@ impl<'pr> Visit<'pr> for Tracker {
     }
 }
 
-impl<'pr> Tracker {
+impl<'pr> Tracker<'_> {
     fn visit_index_write(
         &mut self,
         receiver: Option<Node<'pr>>,
@@ -581,6 +588,28 @@ mod tests {
 
     fn msg(reference: u32, count: &str, groups: &str) -> String {
         format!("${reference} is out of range ({count} regexp capture {groups} detected).")
+    }
+
+    #[test]
+    fn dynamic_symbol_arguments_invalidate_capture_state() {
+        for literal in [":\"\"", ":''", "%s()", ":\"a\nb\"", ":'a\nb'", ":\"\\\n\""] {
+            for call in [
+                format!("y[{literal}]"),
+                format!("y.slice({literal})"),
+                format!("y[{literal}] ||= z"),
+            ] {
+                let source = format!("/(a)/ =~ x; {call}; $2");
+                assert!(found(&source).is_empty(), "{source:?}");
+            }
+        }
+        for literal in [":x", ":\"x\"", ":\"\\u{}\"", ":\"a\\\nb\""] {
+            let source = format!("/(a)/ =~ x; y[{literal}];\n$2");
+            assert_eq!(
+                found(&source),
+                [(source.lines().count() as u32, 1, msg(2, "1", "group"))],
+                "{source:?}"
+            );
+        }
     }
 
     #[test]

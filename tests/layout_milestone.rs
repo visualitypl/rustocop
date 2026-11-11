@@ -100,11 +100,71 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
         .iter()
         .filter(|c| c.name().starts_with("Layout/"))
         .collect();
-    assert_eq!(layout.len(), 21);
+    assert_eq!(layout.len(), 79);
     let expected: HashSet<_> = CANONICAL
         .iter()
         .map(|(name, _, _)| format!("Layout/{name}"))
-        .chain(["Layout/LineLength".into()])
+        .chain([
+            "Layout/LineLength".into(),
+            "Layout/AccessModifierIndentation".into(),
+            "Layout/AssignmentIndentation".into(),
+            "Layout/ArgumentAlignment".into(),
+            "Layout/ArrayAlignment".into(),
+            "Layout/HashAlignment".into(),
+            "Layout/ParameterAlignment".into(),
+            "Layout/FirstParameterIndentation".into(),
+            "Layout/BeginEndAlignment".into(),
+            "Layout/DefEndAlignment".into(),
+            "Layout/BlockAlignment".into(),
+            "Layout/ClosingParenthesisIndentation".into(),
+            "Layout/FirstArgumentIndentation".into(),
+            "Layout/FirstArrayElementIndentation".into(),
+            "Layout/FirstHashElementIndentation".into(),
+            "Layout/CaseIndentation".into(),
+            "Layout/ElseAlignment".into(),
+            "Layout/RescueEnsureAlignment".into(),
+            "Layout/HeredocIndentation".into(),
+            "Layout/ClosingHeredocIndentation".into(),
+            "Layout/CommentIndentation".into(),
+            "Layout/InitialIndentation".into(),
+            "Layout/HeredocArgumentClosingParenthesis".into(),
+            "Layout/IndentationConsistency".into(),
+            "Layout/MultilineMethodCallIndentation".into(),
+            "Layout/MultilineOperationIndentation".into(),
+            "Layout/DotPosition".into(),
+            "Layout/ConditionPosition".into(),
+            "Layout/MultilineAssignmentLayout".into(),
+            "Layout/SpaceBeforeComment".into(),
+            "Layout/LeadingCommentSpace".into(),
+            "Layout/EmptyComment".into(),
+            "Layout/LeadingEmptyLines".into(),
+            "Layout/EndOfLine".into(),
+            "Layout/EmptyLineAfterMagicComment".into(),
+            "Layout/EmptyLineAfterGuardClause".into(),
+            "Layout/EmptyLineAfterMultilineCondition".into(),
+            "Layout/EmptyLinesAfterModuleInclusion".into(),
+            "Layout/EmptyLinesAroundAttributeAccessor".into(),
+            "Layout/EmptyLinesAroundAccessModifier".into(),
+            "Layout/EmptyLinesAroundBeginBody".into(),
+            "Layout/EmptyLinesAroundBlockBody".into(),
+            "Layout/EmptyLinesAroundExceptionHandlingKeywords".into(),
+            "Layout/EmptyLinesAroundArguments".into(),
+            "Layout/ExtraSpacing".into(),
+            "Layout/SpaceBeforeFirstArg".into(),
+            "Layout/SpaceBeforeSemicolon".into(),
+            "Layout/FirstArrayElementLineBreak".into(),
+            "Layout/FirstHashElementLineBreak".into(),
+            "Layout/FirstMethodArgumentLineBreak".into(),
+            "Layout/FirstMethodParameterLineBreak".into(),
+            "Layout/MultilineArrayLineBreaks".into(),
+            "Layout/MultilineHashKeyLineBreaks".into(),
+            "Layout/MultilineMethodArgumentLineBreaks".into(),
+            "Layout/MultilineMethodParameterLineBreaks".into(),
+            "Layout/MultilineArrayBraceLayout".into(),
+            "Layout/MultilineHashBraceLayout".into(),
+            "Layout/MultilineMethodCallBraceLayout".into(),
+            "Layout/MultilineMethodDefinitionBraceLayout".into(),
+        ])
         .collect();
     assert_eq!(
         layout
@@ -114,8 +174,49 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
         expected
     );
     for cop in layout {
-        assert!(cop.default_enabled(), "{}", cop.name());
-        assert_eq!(cop.safe_fixes(), cop.name() != "Layout/LineLength");
+        // HeredocArgumentClosingParenthesis, MultilineAssignmentLayout,
+        // EmptyLineAfterMultilineCondition, the first-element line breaks
+        // and the multi-line item line breaks are opt-in upstream; all but
+        // the first are
+        // never enabled by a department selection.
+        let opt_in = matches!(
+            cop.name(),
+            "Layout/HeredocArgumentClosingParenthesis"
+                | "Layout/MultilineAssignmentLayout"
+                | "Layout/EmptyLineAfterMultilineCondition"
+                | "Layout/FirstArrayElementLineBreak"
+                | "Layout/FirstHashElementLineBreak"
+                | "Layout/FirstMethodArgumentLineBreak"
+                | "Layout/FirstMethodParameterLineBreak"
+                | "Layout/MultilineArrayLineBreaks"
+                | "Layout/MultilineHashKeyLineBreaks"
+                | "Layout/MultilineMethodArgumentLineBreaks"
+                | "Layout/MultilineMethodParameterLineBreaks"
+        );
+        assert_eq!(cop.default_enabled(), !opt_in, "{}", cop.name());
+        assert_eq!(
+            cop.department_selection_enables(),
+            !matches!(
+                cop.name(),
+                "Layout/MultilineAssignmentLayout"
+                    | "Layout/EmptyLineAfterMultilineCondition"
+                    | "Layout/FirstArrayElementLineBreak"
+                    | "Layout/FirstHashElementLineBreak"
+                    | "Layout/FirstMethodArgumentLineBreak"
+                    | "Layout/FirstMethodParameterLineBreak"
+                    | "Layout/MultilineArrayLineBreaks"
+                    | "Layout/MultilineHashKeyLineBreaks"
+                    | "Layout/MultilineMethodArgumentLineBreaks"
+                    | "Layout/MultilineMethodParameterLineBreaks"
+            ),
+            "{}",
+            cop.name()
+        );
+        // EndOfLine is detection-only upstream, like LineLength.
+        assert_eq!(
+            cop.safe_fixes(),
+            !matches!(cop.name(), "Layout/LineLength" | "Layout/EndOfLine")
+        );
         assert_eq!(
             cop.max_setting(),
             (cop.name() == "Layout/LineLength").then_some("max")
@@ -520,12 +621,26 @@ fn mixed_fixes_preserve_bom_crlf_literals_line_values_encoding_and_data() {
         assert_eq!(stable.status.code(), Some(1));
         // UTF-8 now also reports Style/Encoding, intentionally withheld by
         // the later __LINE__ values. The legacy encoding is not redundant.
+        // the detection-only Layout/EndOfLine reports the CRLF file
+        // once and never normalizes its bytes. The
+        // Layout/EmptyLineAfterMagicComment insertion before `def` is held
+        // by the later __LINE__ values, like the method-body padding.
+        for finding in [
+            "x.rb:1:1: C: Carriage return character detected. (Layout/EndOfLine)",
+            "x.rb:2:1: C: Expected at least 1 empty line after magic comments; found 0. \
+             (Layout/EmptyLineAfterMagicComment)",
+        ] {
+            assert!(
+                String::from_utf8_lossy(&stable.stdout).contains(finding),
+                "{stable:?}"
+            );
+        }
         summary(
             &stable,
             if encoding == "utf-8" {
-                "1 file inspected, 0 corrections applied, 4 offenses remaining"
+                "1 file inspected, 0 corrections applied, 6 offenses remaining"
             } else {
-                "1 file inspected, 0 corrections applied, 3 offenses remaining"
+                "1 file inspected, 0 corrections applied, 5 offenses remaining"
             },
         );
         assert_eq!(

@@ -35,7 +35,8 @@ fn run(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
 fn default_selectors_config_enabling_excluding_and_never_writing() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let source = "# frozen_string_literal: true\nA = []\n";
+    // The blank line keeps Layout/EmptyLineAfterMagicComment quiet.
+    let source = "# frozen_string_literal: true\n\nA = []\n";
     for (config, args, count) in [
         (String::new(), vec!["lib/a.rb"], 1),
         (String::new(), vec!["--only", COP, "--fix", "lib/a.rb"], 1),

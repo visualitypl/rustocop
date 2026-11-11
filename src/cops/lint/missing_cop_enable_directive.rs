@@ -33,7 +33,9 @@ impl Cop for MissingCopEnableDirective {
         // cop's first analysis insertion order, as CommentConfig does, since
         // Base reports only the first finding on a given comment range.
         for &cop in registered_names() {
-            if disabled.contains(cop) || cop == BAN {
+            // Syntax's fatal gate cannot be disabled, so there is no ordinary
+            // open suppression to close (also excluded by pinned directives).
+            if disabled.contains(cop) || cop == BAN || cop == "Lint/Syntax" {
                 continue;
             }
             let mut first = None;

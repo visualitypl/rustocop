@@ -15029,11 +15029,18 @@ static void
 parse_block_exit(pm_parser_t *parser, pm_node_t *node) {
     for (pm_context_node_t *context_node = parser->current_context; context_node != NULL; context_node = context_node->prev) {
         switch (context_node->context) {
+            case PM_CONTEXT_BLOCK_PARAMETERS:
+                // Ruby 3.4 does not make the block's own parameter
+                // defaults a block-exit target. Look through to the enclosing
+                // context, preserving outer loops/blocks and deferred trailing
+                // while/until validation. Nested bodies still return below.
+                // Leave upstream latest/other grammar modes unchanged.
+                if (parser->version == PM_OPTIONS_VERSION_CRUBY_3_4) break;
+                return;
             case PM_CONTEXT_BLOCK_BRACES:
             case PM_CONTEXT_BLOCK_KEYWORDS:
             case PM_CONTEXT_BLOCK_ELSE:
             case PM_CONTEXT_BLOCK_ENSURE:
-            case PM_CONTEXT_BLOCK_PARAMETERS:
             case PM_CONTEXT_BLOCK_RESCUE:
             case PM_CONTEXT_DEFINED:
             case PM_CONTEXT_FOR:
@@ -19223,7 +19230,7 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
             // If we do not accept a command call, then we also do not accept a
             // not without parentheses. In this case we need to reject this
             // syntax.
-            // rustocop TASK-244: native Ruby 3.4's default Prism parser permits
+            // rustocop: native Ruby 3.4's default Prism parser permits
             // English `not` even where direct command operands are forbidden.
             // Restore only that prefix behavior; keep command acceptance and
             // every other version (including latest/default) unchanged.

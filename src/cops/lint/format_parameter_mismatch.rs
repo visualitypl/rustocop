@@ -13,13 +13,9 @@
 //! `format` arguments, and interpolated strings or arrays with no fields are
 //! skipped. The offense is reported at the method name (or `%` operator).
 //!
-//! Two deliberate deviations from RuboCop:
-//!
-//! - `"%s %s %s" % [a, *rest]`: RuboCop counts the splat as one argument and
-//!   reports a mismatch; here an array with a splat is only reported when its
-//!   other elements alone outnumber the fields.
-//! - A string mixing `%N$` references with `%%` (`format('%1$s %%', a)`)
-//!   makes RuboCop crash; here `%%` is ignored as usual.
+//! A string mixing `%N$` references with `%%` (`format('%1$s %%', a)`)
+//! makes RuboCop crash; here `%%` is ignored as usual. Percent-array splats
+//! count as one syntactic child, just like the pinned detector.
 
 use ruby_prism::{CallNode, Node};
 
@@ -47,13 +43,14 @@ impl Cop for FormatParameterMismatch {
         let Some(call) = node.as_call_node() else {
             return;
         };
-        let Some(message) = check_call(&call) else {
+        let Some(message) = check_call(&call, file) else {
             return;
         };
         let Some(selector) = call.message_loc() else {
             return;
         };
-        let (line, col) = file.line_col(selector.start_offset());
+        let (line, col) =
+            super::array_literal_in_regexp::reference_line_col(selector.start_offset(), file);
         out.push(Offense {
             correction: None,
             cop: self.name(),
@@ -75,7 +72,7 @@ enum Method {
 }
 
 /// The offense message for a format call, if it offends.
-fn check_call(call: &CallNode<'_>) -> Option<String> {
+fn check_call(call: &CallNode<'_>, file: &SourceFile) -> Option<String> {
     let method = match call.name().as_slice() {
         b"format" => Method::Format,
         b"sprintf" => Method::Sprintf,
@@ -136,39 +133,45 @@ fn check_call(call: &CallNode<'_>) -> Option<String> {
     }
 
     let first = first?;
-    // The arguments passed, and how many of them are not splats.
-    let (passed, fixed) = if format_method {
+    // Array splats are syntactic children, not an inferred runtime arity.
+    let passed = if format_method {
         let splat = arguments[1..]
             .iter()
             .any(|argument| matches!(argument, Node::SplatNode { .. }));
         if splat || is_heredoc(first) {
             return None;
         }
-        (arguments.len() - 1, arguments.len() - 1)
+        arguments.len() - 1
     } else {
-        let elements = first.as_array_node()?.elements();
-        let fixed = elements
-            .iter()
-            .filter(|element| !matches!(element, Node::SplatNode { .. }))
-            .count();
-        (elements.iter().count(), fixed)
+        let array = first.as_array_node()?;
+        if array
+            .opening_loc()
+            .is_some_and(|opening| opening.as_slice().starts_with(b"%"))
+        {
+            // Count reference-buffer words, which CRLF normalization can join
+            // or split differently from the main Prism parse. Ordinary arrays
+            // retain syntactic splat counting without projecting their subtrees.
+            let super::literal_assignment_in_condition::ScopeLiteral::Compound("array", words) =
+                super::literal_assignment_in_condition::scope_literal(first, file)?
+            else {
+                return None;
+            };
+            words.len()
+        } else {
+            array.elements().len()
+        }
     };
     let expected = expected_fields(&format);
-    if expected == 0
-        && matches!(
-            first,
-            Node::InterpolatedStringNode { .. } | Node::ArrayNode { .. }
-        )
-    {
+    let dynamic_string = first.as_interpolated_string_node().is_some()
+        || (first.as_string_node().is_some()
+            && !matches!(
+                super::literal_assignment_in_condition::scope_literal(first, file),
+                Some(super::literal_assignment_in_condition::ScopeLiteral::Str(_))
+            ));
+    if expected == "0" && (dynamic_string || first.as_array_node().is_some()) {
         return None;
     }
-    let mismatch = if fixed < passed {
-        // The splats may expand to the missing arguments.
-        fixed > expected
-    } else {
-        passed != expected
-    };
-    if !mismatch {
+    if passed.to_string() == expected {
         return None;
     }
     let method_name = match method {
@@ -195,24 +198,25 @@ fn is_format_method(receiver: Option<&Node<'_>>, arguments: &[Node<'_>]) -> bool
 }
 
 /// The number of arguments a format string expects.
-fn expected_fields(format: &FormatString) -> usize {
+fn expected_fields(format: &FormatString) -> String {
     if format.sequences.iter().any(|sequence| sequence.named) {
-        return 1;
+        return "1".to_owned();
     }
     let max_reference = format
         .sequences
         .iter()
-        .filter_map(|sequence| sequence.max_reference)
-        .max();
-    if let Some(max_reference) = max_reference.filter(|&max| max != 0) {
-        return usize::try_from(max_reference).unwrap_or(usize::MAX);
+        .filter_map(|sequence| sequence.max_reference.as_deref())
+        .max_by_key(|digits| (digits.len(), *digits));
+    if let Some(max_reference) = max_reference.filter(|&digits| digits != "0") {
+        return max_reference.to_owned();
     }
     format
         .sequences
         .iter()
         .filter(|sequence| !sequence.percent)
         .map(|sequence| sequence.arity)
-        .sum()
+        .sum::<usize>()
+        .to_string()
 }
 
 /// RuboCop's `FormatString#valid?`, negated: whether named, numbered and
@@ -293,8 +297,9 @@ struct Sequence {
     named: bool,
     /// Arguments consumed: one, plus one per `*`.
     arity: usize,
-    /// The largest `N$` reference in the sequence.
-    max_reference: Option<u64>,
+    /// The largest `N$` reference, as canonical decimal digits. Ruby integers
+    /// are unbounded; preserving digits avoids overflow and lossy diagnostics.
+    max_reference: Option<String>,
 }
 
 impl FormatString {
@@ -515,17 +520,17 @@ fn digit_run(chars: &[char], at: usize) -> usize {
     })
 }
 
-/// The length of the run of word characters (Ruby's `\w`) at `at`.
+/// The length of the run of ASCII word characters (Ruby's `\w`) at `at`.
 fn word_run(chars: &[char], at: usize) -> usize {
     chars.get(at..).map_or(0, |rest| {
         rest.iter()
-            .take_while(|&&c| c.is_alphanumeric() || c == '_')
+            .take_while(|&&c| c.is_ascii_alphanumeric() || c == '_')
             .count()
     })
 }
 
 /// The largest `N` of the `N$` references in a sequence's text.
-fn max_reference(text: &[char]) -> Option<u64> {
+fn max_reference(text: &[char]) -> Option<String> {
     let mut max = None;
     let mut i = 0;
     while i < text.len() {
@@ -535,11 +540,21 @@ fn max_reference(text: &[char]) -> Option<u64> {
             continue;
         }
         if text.get(i + digits) == Some(&'$') {
-            let value = text[i..i + digits].iter().fold(0u64, |acc, c| {
-                acc.saturating_mul(10)
-                    .saturating_add(u64::from(c.to_digit(10).unwrap_or(0)))
-            });
-            max = max.max(Some(value));
+            let value: String = text[i..i + digits]
+                .iter()
+                .skip_while(|&&c| c == '0')
+                .collect();
+            let value = if value.is_empty() {
+                "0".to_owned()
+            } else {
+                value
+            };
+            if max
+                .as_ref()
+                .is_none_or(|previous: &String| (value.len(), &value) > (previous.len(), previous))
+            {
+                max = Some(value);
+            }
         }
         i += digits;
     }
@@ -579,6 +594,19 @@ mod tests {
 
     const INVALID: &str = "Format string is invalid because formatting sequence types \
                            (numbered, named or unnumbered) are mixed.";
+
+    #[test]
+    fn named_fields_use_ruby_ascii_word_characters() {
+        assert_eq!(
+            found("format('%<é>s', x)"),
+            vec![(1, 1, msg(1, "format", 0))]
+        );
+        assert_eq!(
+            found("format('%{é}', x)"),
+            vec![(1, 1, msg(1, "format", 0))]
+        );
+        assert!(found("format('%<name_1>s', x)").is_empty());
+    }
 
     #[test]
     fn flags_rubocop_spec_offenses() {
@@ -690,6 +718,22 @@ mod tests {
     }
 
     #[test]
+    fn zero_field_exemption_uses_actual_parser_string_shape() {
+        for source in [
+            "format(%q(), 1)",
+            "format(\"a\nb\", 1)",
+            "format(\"\" \"\", 1)",
+        ] {
+            assert!(found(source).is_empty(), "{source}");
+        }
+        assert_eq!(found("format(\"\", 1)"), vec![(1, 1, msg(1, "format", 0))]);
+        assert_eq!(
+            found("format(\"a\\\nb\", 1)"),
+            vec![(1, 1, msg(1, "format", 0))]
+        );
+    }
+
+    #[test]
     fn heredocs_are_not_counted() {
         for source in [
             "format(<<~EOS, 1, 2)\n  %s\nEOS\n",
@@ -747,14 +791,76 @@ mod tests {
     }
 
     #[test]
-    fn splat_in_percent_array_only_flags_too_many_arguments() {
-        // Deviation: RuboCop also reports this one.
-        assert!(found("\"%s %s %s\" % [1, *arr]").is_empty());
-        assert!(found("\"%s %s %s\" % [1, 2, 3, *arr]").is_empty());
+    fn splat_in_percent_array_is_one_syntactic_child() {
+        assert_eq!(
+            found("\"%s %s %s\" % [1, *arr]"),
+            vec![(1, 12, msg(2, "String#%", 3))]
+        );
+        assert_eq!(
+            found("\"%s %s %s\" % [1, 2, 3, *arr]"),
+            vec![(1, 12, msg(4, "String#%", 3))]
+        );
         assert_eq!(
             found("\"%s\" % [1, 2, *arr]"),
             vec![(1, 6, msg(3, "String#%", 1))]
         );
+    }
+
+    #[test]
+    fn percent_array_counts_source_buffer_words() {
+        for kind in ["W", "i", "I"] {
+            let words = format!("%{kind}(a\\\r\r\nb)");
+            assert_eq!(
+                found(&format!("\"%s %s\" % {words}\n")),
+                vec![(1, 9, msg(1, "String#%", 2))],
+                "{words:?}"
+            );
+            assert!(
+                found(&format!("\"%s\" % {words}\n")).is_empty(),
+                "{words:?}"
+            );
+        }
+        // Noninterpolating strings retain two reference-buffer children.
+        assert!(found("\"%s %s\" % %w(a\\\r\r\nb)\n").is_empty());
+        assert_eq!(
+            found("\"%s\" % %w(a\\\r\r\nb)\n"),
+            vec![(1, 6, msg(2, "String#%", 1))]
+        );
+    }
+
+    #[test]
+    fn numbered_references_preserve_arbitrary_decimal_counts() {
+        for (sequence, expected) in [
+            ("%18446744073709551615$s", "18446744073709551615"),
+            ("%18446744073709551616$s", "18446744073709551616"),
+            ("%00018446744073709551616$s", "18446744073709551616"),
+            (
+                "%999999999999999999999999999999999999$s",
+                "999999999999999999999999999999999999",
+            ),
+            (
+                "%18446744073709551616$*18446744073709551617$s",
+                "18446744073709551617",
+            ),
+            (
+                "%18446744073709551616$s %9999999999999999999$s",
+                "18446744073709551616",
+            ),
+            ("%000000000000000000000000000000000002$s", "2"),
+        ] {
+            assert_eq!(
+                found(&format!("format(\"{sequence}\", 1)")),
+                vec![(
+                    1,
+                    1,
+                    format!(
+                        "Number of arguments (1) to `format` doesn't match the number of fields ({expected})."
+                    )
+                )],
+                "{sequence}"
+            );
+        }
+        assert!(found("format('%000000000000000000000000000000000001$s', 1)").is_empty());
     }
 
     #[test]
@@ -791,7 +897,14 @@ mod tests {
         FormatString::parse(source.as_bytes())
             .sequences
             .into_iter()
-            .map(|s| (s.percent, s.named, s.arity, s.max_reference))
+            .map(|s| {
+                (
+                    s.percent,
+                    s.named,
+                    s.arity,
+                    s.max_reference.map(|digits| digits.parse().unwrap()),
+                )
+            })
             .collect()
     }
 

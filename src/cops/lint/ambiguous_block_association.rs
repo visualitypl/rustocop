@@ -14,12 +14,13 @@
 //! Matches RuboCop's semantics with its default (empty) `AllowedMethods` and
 //! `AllowedPatterns`.
 
-use ruby_prism::{CallNode, Node, Visit};
+use ruby_prism::{CallNode, Node};
 
 use crate::{
     cops::{
         Cop, NodeContext,
         ast::{is_global_const, is_operator_method, source_end},
+        walk::{NodeVisitor, walk},
     },
     offense::Offense,
     source::SourceFile,
@@ -76,8 +77,8 @@ impl Cop for AmbiguousBlockAssociation {
                 message: format!(
                     "Parenthesize the param `{}` to make sure that the block will be \
                      associated with the `{}` method call.",
-                    String::from_utf8_lossy(param.source),
-                    String::from_utf8_lossy(param.method),
+                    reference_source(param.source, file),
+                    reference_source(param.method, file),
                 ),
                 line,
                 end_line: file.line_of(source_end(node).saturating_sub(1)),
@@ -93,8 +94,8 @@ impl Cop for AmbiguousBlockAssociation {
                 message: format!(
                     "`{}` is called without a block because the `do` block binds to `{}`. \
                      Use braces or extract to a variable.",
-                    String::from_utf8_lossy(inner.name().as_slice()),
-                    String::from_utf8_lossy(call.name().as_slice()),
+                    reference_source(inner.name().as_slice(), file),
+                    reference_source(call.name().as_slice(), file),
                 ),
                 line,
                 end_line: file.line_of(source_end(&inner.as_node()).saturating_sub(1)),
@@ -102,6 +103,22 @@ impl Cop for AmbiguousBlockAssociation {
             });
         }
     }
+}
+
+/// Source-buffer text quoted by the two existing call-message cops. Binary
+/// bytes are escaped explicitly, not silently replaced in UTF8 diagnostics.
+pub(super) fn reference_source(bytes: &[u8], file: &SourceFile) -> String {
+    file.match_pattern_source(bytes)
+        .utf8_chunks()
+        .map(|chunk| {
+            let mut text = chunk.valid().to_owned();
+            for b in chunk.invalid() {
+                text.push_str(&format!("\\x{b:02X}"));
+            }
+            text
+        })
+        .collect::<String>()
+        .replace("\r\n", "\n")
 }
 
 /// An argument that carries a literal block.
@@ -175,12 +192,26 @@ fn trim_trailing_gap(mut source: &[u8]) -> &[u8] {
 fn is_lambda_or_proc(call: &CallNode<'_>) -> bool {
     match call.name().as_slice() {
         b"lambda" => true,
-        b"proc" => call.receiver().is_none(),
-        b"new" => call
-            .receiver()
-            .is_some_and(|receiver| is_global_const(&receiver, &["Proc"])),
+        b"proc" => call.receiver().is_none() && ordinary_block(call),
+        b"new" => {
+            ordinary_block(call)
+                && call
+                    .receiver()
+                    .is_some_and(|receiver| is_global_const(&receiver, &["Proc"]))
+        }
         _ => false,
     }
+}
+
+fn ordinary_block(call: &CallNode<'_>) -> bool {
+    call.block()
+        .and_then(|b| b.as_block_node())
+        .is_some_and(|b| {
+            !matches!(
+                b.parameters(),
+                Some(Node::NumberedParametersNode { .. } | Node::ItParametersNode { .. })
+            )
+        })
 }
 
 /// For an unparenthesized call (not `&.`) with a `do … end` block, the
@@ -200,7 +231,7 @@ fn blockless_enumerable_argument<'pr>(call: &CallNode<'pr>) -> Option<CallNode<'
         end: arguments.location().end_offset(),
         found: None,
     };
-    finder.visit(&last);
+    walk(&mut finder, &last);
     finder.found
 }
 
@@ -210,20 +241,21 @@ struct EnumerableFinder<'pr> {
     found: Option<CallNode<'pr>>,
 }
 
-impl<'pr> Visit<'pr> for EnumerableFinder<'pr> {
-    fn visit_call_node(&mut self, node: &CallNode<'pr>) {
+impl<'pr> NodeVisitor<'pr> for EnumerableFinder<'pr> {
+    fn enter(&mut self, node: Node<'pr>) {
         if self.found.is_some() {
             return;
         }
+        let Some(node) = node.as_call_node() else {
+            return;
+        };
         if node.as_node().location().end_offset() == self.end
             && node.arguments().is_none()
             && node.block().is_none()
             && BLOCK_METHODS.contains(&node.name().as_slice())
         {
             self.found = node.as_node().as_call_node();
-            return;
         }
-        ruby_prism::visit_call_node(self, node);
     }
 }
 
@@ -303,6 +335,20 @@ mod tests {
             "allow(cop).to(receive(:on_int) { raise RuntimeError })",
         ] {
             assert!(offenses(source).is_empty(), "should not flag {source:?}");
+        }
+    }
+
+    #[test]
+    fn proc_exemption_is_only_for_ordinary_blocks() {
+        for receiver in ["proc", "Proc.new"] {
+            assert!(offenses(&format!("foo {receiver} {{ x }}")).is_empty());
+            for body in ["_1", "it"] {
+                let param = format!("{receiver} {{ {body} }}");
+                assert_eq!(
+                    single(&format!("foo {param}")),
+                    (1, 1, param_message(&param, receiver))
+                );
+            }
         }
     }
 
@@ -447,7 +493,7 @@ mod tests {
         );
         assert_eq!(
             single("a.foo b \\\r\n  \\\n{ 1 }\n"),
-            (1, 1, param_message("b \\\r\n  \\\n{ 1 }", "b"))
+            (1, 1, param_message("b \\\n  \\\n{ 1 }", "b"))
         );
     }
 

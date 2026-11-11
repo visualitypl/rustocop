@@ -8,7 +8,7 @@ use ruby_prism::{CallNode, Node};
 
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Offense, single_line},
+    offense::Offense,
     source::SourceFile,
 };
 
@@ -52,7 +52,7 @@ impl Cop for Debugger {
         let Some(call) = node.as_call_node() else {
             return;
         };
-        if !debugger_method(&call) && !debugger_require(&call) {
+        if call.is_safe_navigation() || (!debugger_method(&call) && !debugger_require(&call)) {
             return;
         }
         if assumed_usage_context(&call, cx) {
@@ -62,7 +62,10 @@ impl Cop for Debugger {
         // send source stops before it (but includes a block argument).
         let end = ast::source_end(node);
         let start = call.location().start_offset();
-        let entry_point = single_line(&call.location().as_slice()[..end - start]);
+        let entry_point = super::ambiguous_block_association::reference_source(
+            &call.location().as_slice()[..end - start],
+            file,
+        );
         let (line, col) = file.line_col(call.location().start_offset());
         out.push(Offense {
             correction: None,
@@ -172,6 +175,9 @@ fn debugger_method(call: &CallNode<'_>) -> bool {
     let Some(receiver) = receiver.as_call_node() else {
         return false;
     };
+    if receiver.is_safe_navigation() {
+        return false;
+    }
     if CAPYBARA_METHODS.contains(&name) {
         return receiver.name().as_slice() == b"page" && receiver.receiver().is_none();
     }
@@ -538,8 +544,22 @@ mod tests {
     }
 
     #[test]
-    fn flags_safe_navigation_calls() {
-        assert_eq!(offenses("foo&.bar\nbinding&.pry\n").len(), 1);
+    fn ignores_safe_navigation_dispatch_and_receiver_chain_lookalikes() {
+        for source in [
+            "binding&.pry",
+            "page&.save_page",
+            "Kernel&.binding&.pry",
+            "Kernel&.binding.pry",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+        let found = offenses("binding.pry");
+        assert_eq!(found.len(), 1);
+        assert_eq!((found[0].line, found[0].col), (1, 1));
+        assert_eq!(
+            found[0].message,
+            "Remove debugger entry point `binding.pry`."
+        );
     }
 
     #[test]

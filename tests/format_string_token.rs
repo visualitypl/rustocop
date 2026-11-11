@@ -1,5 +1,8 @@
 //! controlled ordinary Ruby only. Commands/command heredocs are
 //! tested as source and are NEVER executed by any runtime helper.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -608,15 +611,15 @@ fn explicit_ruby34_runtime_gate() {
 }
 #[test]
 fn mixed_modes_with_named_siblings_preserve_actual_composition_through_six_passes() {
-    let d = project();
-    for format in [
+    parallel_rows!(for format in [
         "%s/%{x}",
         "%1$s/%{x}",
         "%{x}/%s",
         "%{x}/%1$s",
         "%*.*f/%{x}/%%/%{y}",
         "%{x}/%%/%{y}/%10.2s",
-    ] {
+    ] => {
+        let d = project();
         for expr in [
             format!("sprintf('{format}', :x => 1, :y => 2)"),
             format!("'{format}' % {{:x => 1, :y => 2}}"),
@@ -683,7 +686,7 @@ fn mixed_modes_with_named_siblings_preserve_actual_composition_through_six_passe
                 }
             }
         }
-    }
+    });
 }
 #[test]
 fn actual_formatstring_literal_peers_defaults_and_layout_preserve_each_pass() {

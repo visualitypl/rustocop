@@ -1,0 +1,5360 @@
+[
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        2,
+        30,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166c3a9220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166c3a92229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a455242262e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        3,
+        30,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166c3a9220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166c3a92229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a455242262e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        2,
+        32,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166c3a9220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166c3a92229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a205554462d380a3a3a455242262e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        3,
+        32,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166c3a9220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166c3a92229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a205554462d380d0a3a3a455242262e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c207472696d5f636166e92c206f75745f636166e9290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        2,
+        30,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166e9220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c2022636166e9222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166e92229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e9222c20656f75747661723a20225f6f7574636166e922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a455242262e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4552422e6e6577282278222c206e696c2c2022636166e922290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e922290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4552422e6e6577282278222c206e696c2c207472696d5f636166e92c206f75745f636166e9290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        3,
+        30,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166e9220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4552422e6e6577282278222c206e696c2c2022636166e9222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166e92229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e9222c20656f75747661723a20225f6f7574636166e922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a455242262e6e6577282278222c206e696c2c2022636166e922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a4552422e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e922290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166e92c206f75745f636166e9290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        2,
+        32,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166e9220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a4552422e6e6577282278222c206e696c2c2022636166e9222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166e92229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e9222c20656f75747661723a20225f6f7574636166e922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a3a3a455242262e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c2022636166e922290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e922290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166e92c206f75745f636166e9290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café)` instead."
+      ],
+      [
+        3,
+        32,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166e9220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c2022636166e9222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166e92229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e9222c20656f75747661723a20225f6f7574636166e922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f2d383835392d310d0a3a3a455242262e6e6577282278222c206e696c2c2022636166e922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_cafÃ©)` instead."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_cafÃ©)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166c3a9220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"cafÃ©\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ],
+      [
+        2,
+        28,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166c3a92229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a455242262e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_cafÃ©)` instead."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_cafÃ©)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166c3a9220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"cafÃ©\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ],
+      [
+        3,
+        28,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166c3a92229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a455242262e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_cafÃ©)` instead."
+      ],
+      [
+        2,
+        33,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_cafÃ©)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166c3a9220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"cafÃ©\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ],
+      [
+        2,
+        30,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166c3a92229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f383835392d310a3a3a455242262e6e6577282278222c206e696c2c2022636166c3a922290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166c3a922290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166c3a92c206f75745f636166c3a9290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_cafÃ©)` instead."
+      ],
+      [
+        3,
+        33,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_cafÃ©)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166c3a9220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"cafÃ©\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a4552422e6e6577282278222c206e696c2c2022636166c3a9222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ],
+      [
+        3,
+        30,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166c3a92229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"cafÃ©\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166c3a9222c20656f75747661723a20225f6f7574636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2049534f383835392d310d0a3a3a455242262e6e6577282278222c206e696c2c2022636166c3a922290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4552422e6e6577282278222c206e696c2c2022636166e98022290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e98022290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4552422e6e6577282278222c206e696c2c207472696d5f636166e9802c206f75745f636166e980290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café€)` instead."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café€)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166e980220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café€\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4552422e6e6577282278222c206e696c2c2022636166e980222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ],
+      [
+        2,
+        28,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166e9802229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e980222c20656f75747661723a20225f6f7574636166e98022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e98022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a455242262e6e6577282278222c206e696c2c2022636166e98022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4552422e6e6577282278222c206e696c2c2022636166e98022290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e98022290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4552422e6e6577282278222c206e696c2c207472696d5f636166e9802c206f75745f636166e980290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café€)` instead."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café€)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166e980220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café€\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4552422e6e6577282278222c206e696c2c2022636166e980222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ],
+      [
+        3,
+        28,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022636166e9802229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e980222c20656f75747661723a20225f6f7574636166e98022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e98022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a455242262e6e6577282278222c206e696c2c2022636166e98022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a4552422e6e6577282278222c206e696c2c2022636166e98022290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e98022290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166e9802c206f75745f636166e980290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café€)` instead."
+      ],
+      [
+        2,
+        33,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café€)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022636166e980220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café€\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a4552422e6e6577282278222c206e696c2c2022636166e980222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ],
+      [
+        2,
+        30,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166e9802229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e980222c20656f75747661723a20225f6f7574636166e98022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e98022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d313235320a3a3a455242262e6e6577282278222c206e696c2c2022636166e98022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a4552422e6e6577282278222c206e696c2c2022636166e98022290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574636166e98022290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outcafé€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f636166e9802c206f75745f636166e980290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_café€)` instead."
+      ],
+      [
+        3,
+        33,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_café€)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022636166e980220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"café€\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a4552422e6e6577282278222c206e696c2c2022636166e980222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ],
+      [
+        3,
+        30,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022636166e9802229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café€\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022636166e980222c20656f75747661723a20225f6f7574636166e98022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022636166e98022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d313235320d0a3a3a455242262e6e6577282278222c206e696c2c2022636166e98022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4552422e6e6577282278222c206e696c2c202282a022290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4552422e6e6577282278222c206e696c2c20222d222c20225f6f757482a022290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4552422e6e6577282278222c206e696c2c207472696d5f82a02c206f75745f82a0290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4552422e6e6577282278222c206e696c2c20626567696e0a20202282a0220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4552422e6e6577282278222c206e696c2c202282a0222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a5b646566696e65643f284552422e6e6577282278222c206e696c2c202282a02229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4552422e6e6577282278222c207472696d5f6d6f64653a202282a0222c20656f75747661723a20225f6f757482a022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4f746865723a3a4552422e6e6577282278222c206e696c2c202282a022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a455242262e6e6577282278222c206e696c2c202282a022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4552422e6e6577282278222c206e696c2c202282a022290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f757482a022290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4552422e6e6577282278222c206e696c2c207472696d5f82a02c206f75745f82a0290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a20202282a0220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4552422e6e6577282278222c206e696c2c202282a0222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c202282a02229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4552422e6e6577282278222c207472696d5f6d6f64653a202282a0222c20656f75747661723a20225f6f757482a022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4f746865723a3a4552422e6e6577282278222c206e696c2c202282a022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a455242262e6e6577282278222c206e696c2c202282a022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a4552422e6e6577282278222c206e696c2c202282a022290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f757482a022290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a4552422e6e6577282278222c206e696c2c207472696d5f82a02c206f75745f82a0290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a20202282a0220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a4552422e6e6577282278222c206e696c2c202282a0222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c202282a02229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a202282a0222c20656f75747661723a20225f6f757482a022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a4f746865723a3a4552422e6e6577282278222c206e696c2c202282a022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2053686966745f4a49530a3a3a455242262e6e6577282278222c206e696c2c202282a022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a4552422e6e6577282278222c206e696c2c202282a022290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f757482a022290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f82a02c206f75745f82a0290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a20202282a0220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a4552422e6e6577282278222c206e696c2c202282a0222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c202282a02229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a202282a0222c20656f75747661723a20225f6f757482a022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a4f746865723a3a4552422e6e6577282278222c206e696c2c202282a022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2053686966745f4a49530d0a3a3a455242262e6e6577282278222c206e696c2c202282a022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4552422e6e6577282278222c206e696c2c2022955c22290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574955c22290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4552422e6e6577282278222c206e696c2c207472696d5f955c2c206f75745f955c290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_表)` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_表)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4552422e6e6577282278222c206e696c2c20626567696e0a202022955c220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"表\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4552422e6e6577282278222c206e696c2c2022955c222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022955c2229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4552422e6e6577282278222c207472696d5f6d6f64653a2022955c222c20656f75747661723a20225f6f7574955c22290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022955c22290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a455242262e6e6577282278222c206e696c2c2022955c22290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4552422e6e6577282278222c206e696c2c2022955c22290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574955c22290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4552422e6e6577282278222c206e696c2c207472696d5f955c2c206f75745f955c290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_表)` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_表)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022955c220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"表\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4552422e6e6577282278222c206e696c2c2022955c222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022955c2229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022955c222c20656f75747661723a20225f6f7574955c22290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022955c22290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a455242262e6e6577282278222c206e696c2c2022955c22290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a4552422e6e6577282278222c206e696c2c2022955c22290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574955c22290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f955c2c206f75745f955c290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_表)` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_表)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022955c220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"表\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a4552422e6e6577282278222c206e696c2c2022955c222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022955c2229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022955c222c20656f75747661723a20225f6f7574955c22290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022955c22290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2057696e646f77732d33314a0a3a3a455242262e6e6577282278222c206e696c2c2022955c22290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a4552422e6e6577282278222c206e696c2c2022955c22290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574955c22290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5f955c2c206f75745f955c290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_表)` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_表)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022955c220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"表\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a4552422e6e6577282278222c206e696c2c2022955c222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022955c2229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"表\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022955c222c20656f75747661723a20225f6f7574955c22290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022955c22290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a2057696e646f77732d33314a0d0a3a3a455242262e6e6577282278222c206e696c2c2022955c22290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4552422e6e6577282278222c206e696c2c2022a4a222290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574a4a222290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4552422e6e6577282278222c206e696c2c207472696d5fa4a22c206f75745fa4a2290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4552422e6e6577282278222c206e696c2c20626567696e0a202022a4a2220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4552422e6e6577282278222c206e696c2c2022a4a2222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022a4a22229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4552422e6e6577282278222c207472696d5f6d6f64653a2022a4a2222c20656f75747661723a20225f6f7574a4a222290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4f746865723a3a4552422e6e6577282278222c206e696c2c2022a4a222290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a455242262e6e6577282278222c206e696c2c2022a4a222290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4552422e6e6577282278222c206e696c2c2022a4a222290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574a4a222290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4552422e6e6577282278222c206e696c2c207472696d5fa4a22c206f75745fa4a2290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022a4a2220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4552422e6e6577282278222c206e696c2c2022a4a2222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022a4a22229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022a4a2222c20656f75747661723a20225f6f7574a4a222290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022a4a222290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a455242262e6e6577282278222c206e696c2c2022a4a222290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a4552422e6e6577282278222c206e696c2c2022a4a222290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574a4a222290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a4552422e6e6577282278222c206e696c2c207472696d5fa4a22c206f75745fa4a2290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022a4a2220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a4552422e6e6577282278222c206e696c2c2022a4a2222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022a4a22229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022a4a2222c20656f75747661723a20225f6f7574a4a222290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a4f746865723a3a4552422e6e6577282278222c206e696c2c2022a4a222290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204555432d4a500a3a3a455242262e6e6577282278222c206e696c2c2022a4a222290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a4552422e6e6577282278222c206e696c2c2022a4a222290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574a4a222290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outあ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5fa4a22c206f75745fa4a2290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_あ)` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_あ)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022a4a2220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"あ\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a4552422e6e6577282278222c206e696c2c2022a4a2222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022a4a22229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"あ\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022a4a2222c20656f75747661723a20225f6f7574a4a222290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022a4a222290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204555432d4a500d0a3a3a455242262e6e6577282278222c206e696c2c2022a4a222290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4552422e6e6577282278222c206e696c2c2022d6d022290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d6d022290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4552422e6e6577282278222c206e696c2c207472696d5fd6d02c206f75745fd6d0290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_中)` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_中)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4552422e6e6577282278222c206e696c2c20626567696e0a202022d6d0220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"中\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4552422e6e6577282278222c206e696c2c2022d6d0222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022d6d02229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4552422e6e6577282278222c207472696d5f6d6f64653a2022d6d0222c20656f75747661723a20225f6f7574d6d022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d6d022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a455242262e6e6577282278222c206e696c2c2022d6d022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4552422e6e6577282278222c206e696c2c2022d6d022290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d6d022290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4552422e6e6577282278222c206e696c2c207472696d5fd6d02c206f75745fd6d0290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_中)` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_中)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022d6d0220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"中\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4552422e6e6577282278222c206e696c2c2022d6d0222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022d6d02229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022d6d0222c20656f75747661723a20225f6f7574d6d022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d6d022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a455242262e6e6577282278222c206e696c2c2022d6d022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a4552422e6e6577282278222c206e696c2c2022d6d022290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d6d022290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a4552422e6e6577282278222c206e696c2c207472696d5fd6d02c206f75745fd6d0290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_中)` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_中)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022d6d0220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"中\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a4552422e6e6577282278222c206e696c2c2022d6d0222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022d6d02229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022d6d0222c20656f75747661723a20225f6f7574d6d022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d6d022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a20474231383033300a3a3a455242262e6e6577282278222c206e696c2c2022d6d022290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a4552422e6e6577282278222c206e696c2c2022d6d022290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d6d022290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5fd6d02c206f75745fd6d0290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_中)` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_中)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022d6d0220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"中\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a4552422e6e6577282278222c206e696c2c2022d6d0222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022d6d02229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"中\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022d6d0222c20656f75747661723a20225f6f7574d6d022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d6d022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a20474231383033300d0a3a3a455242262e6e6577282278222c206e696c2c2022d6d022290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4552422e6e6577282278222c206e696c2c2022d122290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d122290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outя\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4552422e6e6577282278222c206e696c2c207472696d5fd12c206f75745fd1290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_я)` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_я)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4552422e6e6577282278222c206e696c2c20626567696e0a202022d1220a656e64290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"я\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4552422e6e6577282278222c206e696c2c2022d1222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022d12229295d0a",
+    "findings": [
+      [
+        2,
+        24,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4552422e6e6577282278222c207472696d5f6d6f64653a2022d1222c20656f75747661723a20225f6f7574d122290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d122290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a455242262e6e6577282278222c206e696c2c2022d122290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4552422e6e6577282278222c206e696c2c2022d122290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d122290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outя\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4552422e6e6577282278222c206e696c2c207472696d5fd12c206f75745fd1290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_я)` instead."
+      ],
+      [
+        3,
+        27,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_я)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022d1220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"я\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4552422e6e6577282278222c206e696c2c2022d1222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        14,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        19,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ],
+      [
+        3,
+        24,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a5b646566696e65643f284552422e6e6577282278222c206e696c2c2022d12229295d0d0a",
+    "findings": [
+      [
+        3,
+        24,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4552422e6e6577282278222c207472696d5f6d6f64653a2022d1222c20656f75747661723a20225f6f7574d122290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d122290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a455242262e6e6577282278222c206e696c2c2022d122290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a4552422e6e6577282278222c206e696c2c2022d122290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d122290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outя\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a4552422e6e6577282278222c206e696c2c207472696d5fd12c206f75745fd1290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_я)` instead."
+      ],
+      [
+        2,
+        29,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_я)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a4552422e6e6577282278222c206e696c2c20626567696e0a202022d1220a656e64290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        4,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"я\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a4552422e6e6577282278222c206e696c2c2022d1222c2026626c6f636b290a",
+    "findings": [
+      [
+        2,
+        16,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        21,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ],
+      [
+        2,
+        26,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022d12229295d0a",
+    "findings": [
+      [
+        2,
+        26,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        31,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022d1222c20656f75747661723a20225f6f7574d122290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d122290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a204b4f49382d520a3a3a455242262e6e6577282278222c206e696c2c2022d122290a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a4552422e6e6577282278222c206e696c2c2022d122290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574d122290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outя\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a4552422e6e6577282278222c206e696c2c207472696d5fd12c206f75745fd1290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: trim_я)` instead."
+      ],
+      [
+        3,
+        29,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: out_я)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a4552422e6e6577282278222c206e696c2c20626567696e0d0a202022d1220d0a656e64290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        5,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: begin\n  \"я\"\nend)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a4552422e6e6577282278222c206e696c2c2022d1222c2026626c6f636b290d0a",
+    "findings": [
+      [
+        3,
+        16,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        21,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ],
+      [
+        3,
+        26,
+        3,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: &block)` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a5b646566696e65643f283a3a4552422e6e6577282278222c206e696c2c2022d12229295d0d0a",
+    "findings": [
+      [
+        3,
+        26,
+        3,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        3,
+        31,
+        3,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"я\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a4552422e6e6577282278222c207472696d5f6d6f64653a2022d1222c20656f75747661723a20225f6f7574d122290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a4f746865723a3a4552422e6e6577282278222c206e696c2c2022d122290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "23212f7573722f62696e2f727562790d0a2320636f64696e673a204b4f49382d520d0a3a3a455242262e6e6577282278222c206e696c2c2022d122290d0a",
+    "findings": [
+
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c2022636166e922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"café\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320656e636f64696e673a2049534f2d383835392d310a4552422e6e6577282278222c206e696c2c20222d222c20225f6f7574e922290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"-\")` instead."
+      ],
+      [
+        2,
+        24,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_outé\")` instead."
+      ]
+    ]
+  },
+  {
+    "cop": "Lint/ErbNewArguments",
+    "source_hex": "2320636f64696e673a2041534349492d384249540a4552422e6e6577282278222c206e696c2c2022636166e9222c20225f6f7574ff22290a",
+    "findings": [
+      [
+        2,
+        14,
+        2,
+        "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments."
+      ],
+      [
+        2,
+        19,
+        2,
+        "Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: \"caf\\xE9\")` instead."
+      ],
+      [
+        2,
+        27,
+        2,
+        "Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: \"_out\\xFF\")` instead."
+      ]
+    ]
+  }
+]

@@ -81,7 +81,13 @@ fn all_literals(node: &Node<'_>, file: &SourceFile) -> bool {
             }
             if words && let Some(s) = n.as_interpolated_string_node() {
                 return matches!(
-                    composed_literal(&s.parts().iter().collect::<Vec<_>>(), opening, "str", file),
+                    composed_literal(
+                        &s.parts().iter().collect::<Vec<_>>(),
+                        opening,
+                        "str",
+                        file,
+                        LiteralProfile::Scope
+                    ),
                     ScopeLiteral::Str(_)
                 );
             }
@@ -221,7 +227,7 @@ fn heredoc_literal(parts: &[Node<'_>], opening: &[u8], file: &SourceFile) -> boo
         return false;
     }
     matches!(
-        composed_literal(parts, opening, "str", file),
+        composed_literal(parts, opening, "str", file, LiteralProfile::Scope),
         ScopeLiteral::Str(_)
     )
 }
@@ -349,11 +355,20 @@ fn compose(kind: &'static str, mut parts: Vec<ScopeLiteral>) -> ScopeLiteral {
         parts,
     )
 }
+#[derive(Clone, Copy)]
+enum LiteralProfile<'a> {
+    Scope,
+    Duplicate(ast::DuplicateEquality),
+    Gemspec(&'a std::collections::HashSet<(usize, usize)>),
+    SelfAssignment(Option<&'a std::collections::HashSet<(usize, usize)>>),
+}
+
 fn composed_literal(
     parts: &[Node<'_>],
     opening: &[u8],
     kind: &'static str,
     file: &SourceFile,
+    profile: LiteralProfile<'_>,
 ) -> ScopeLiteral {
     let heredoc = opening.starts_with(b"<<");
     let mut children = Vec::new();
@@ -362,7 +377,7 @@ fn composed_literal(
             // Concatenated complete quoted literals are separate AST children;
             // interpolation fragments instead emit physical str tokens directly.
             if s.opening_loc().is_some() && !heredoc {
-                vec![scope_literal(part, file).unwrap()]
+                vec![literal_with_profile(part, file, profile).unwrap()]
             } else {
                 emitted_strings(&s, opening, file)
                     .into_iter()
@@ -370,9 +385,10 @@ fn composed_literal(
                     .collect()
             }
         } else {
-            vec![scope_literal(part, file).unwrap_or_else(|| {
-                ScopeLiteral::Ruby(ast::fingerprint_for_conditional_scope(part, file).into_owned())
-            })]
+            vec![
+                literal_with_profile(part, file, profile)
+                    .unwrap_or_else(|| ScopeLiteral::Ruby(embedded_ruby(part, file, profile))),
+            ]
         };
         for item in items {
             if heredoc && let ScopeLiteral::Str(value) = &item {
@@ -398,6 +414,7 @@ fn percent_words(
     a: &ruby_prism::ArrayNode<'_>,
     opening: &[u8],
     file: &SourceFile,
+    profile: LiteralProfile<'_>,
 ) -> Vec<ScopeLiteral> {
     enum Part {
         Text(usize, usize, Vec<u8>),
@@ -433,7 +450,7 @@ fn percent_words(
                     if let Some(s) = p.as_string_node() {
                         text(s.content_loc(), s.unescaped())
                     } else {
-                        Part::Ruby(ast::fingerprint_for_conditional_scope(&p, file).into_owned())
+                        Part::Ruby(embedded_ruby(&p, file, profile))
                     }
                 })
                 .collect()
@@ -516,9 +533,86 @@ fn percent_words(
         })
         .collect()
 }
+fn embedded_ruby(
+    node: &Node<'_>,
+    file: &SourceFile,
+    profile: LiteralProfile<'_>,
+) -> ast::Fingerprint<'static> {
+    let key = match profile {
+        LiteralProfile::Scope => ast::fingerprint_for_conditional_scope(node, file),
+        LiteralProfile::Duplicate(ast::DuplicateEquality::Hash) => {
+            ast::fingerprint_for_duplicate(node, file)
+        }
+        LiteralProfile::Duplicate(ast::DuplicateEquality::Value) => {
+            ast::fingerprint_for_duplicate_condition(node, file)
+        }
+        LiteralProfile::SelfAssignment(locals) => {
+            ast::fingerprint_for_self_assignment(node, file, locals)
+        }
+        LiteralProfile::Gemspec(locals) => ast::fingerprint_for_gemspec_key(node, file, locals),
+    };
+    key.into_owned()
+}
+
 pub(crate) fn scope_literal(node: &Node<'_>, file: &SourceFile) -> Option<ScopeLiteral> {
+    scope_literal_with_profile(node, file, None)
+}
+
+/// Duplicate-only profiles propagate through every compound/embedded literal.
+/// The ordinary conditional-scope projection is deliberately unchanged.
+pub(crate) fn scope_literal_with_profile(
+    node: &Node<'_>,
+    file: &SourceFile,
+    profile: Option<ast::DuplicateEquality>,
+) -> Option<ScopeLiteral> {
+    literal_with_profile(
+        node,
+        file,
+        profile.map_or(LiteralProfile::Scope, LiteralProfile::Duplicate),
+    )
+}
+
+/// Preserve exact literal emission while carrying the Gemspec-only AST profile
+/// through embedded Ruby, including grouping and cached local/source facts.
+/// Other literal/fingerprint/correction consumers keep their existing profile.
+pub(crate) fn gemspec_literal(
+    node: &Node<'_>,
+    file: &SourceFile,
+    locals: &std::collections::HashSet<(usize, usize)>,
+) -> Option<ScopeLiteral> {
+    literal_with_profile(node, file, LiteralProfile::Gemspec(locals))
+}
+
+/// Reuse exact main-parse literal/source-character alignment, carrying
+/// SelfAssignment's detection-only parser AST equality into embedded Ruby.
+pub(crate) fn self_assignment_literal(
+    node: &Node<'_>,
+    file: &SourceFile,
+    locals: Option<&std::collections::HashSet<(usize, usize)>>,
+) -> Option<ScopeLiteral> {
+    literal_with_profile(node, file, LiteralProfile::SelfAssignment(locals))
+}
+
+fn literal_with_profile(
+    node: &Node<'_>,
+    file: &SourceFile,
+    profile: LiteralProfile<'_>,
+) -> Option<ScopeLiteral> {
     if let Some(n) = node.as_imaginary_node() {
-        return Some(ScopeLiteral::Complex(ComplexValue::new(&n.numeric())));
+        return Some(
+            if matches!(
+                profile,
+                LiteralProfile::Duplicate(ast::DuplicateEquality::Hash)
+                    | LiteralProfile::Gemspec(_)
+            ) {
+                // A typed numeric child gives Complex#eql? identity: int/rational/
+                // float stay distinct, exact ratios reduce, floating signed zeros
+                // agree. Do not replace Elsif's non-transitive Complex#== key.
+                ScopeLiteral::Ruby(ast::fingerprint_for_detection(node, file).into_owned())
+            } else {
+                ScopeLiteral::Complex(ComplexValue::new(&n.numeric()))
+            },
+        );
     }
     if let Some(a) = node.as_array_node() {
         let opening = a.opening_loc();
@@ -529,18 +623,15 @@ pub(crate) fn scope_literal(node: &Node<'_>, file: &SourceFile) -> Option<ScopeL
         {
             return Some(ScopeLiteral::Compound(
                 "array",
-                percent_words(&a, opening, file),
+                percent_words(&a, opening, file, profile),
             ));
         }
         let children = a
             .elements()
             .iter()
             .map(|n| {
-                scope_literal(&n, file).unwrap_or_else(|| {
-                    ScopeLiteral::Ruby(
-                        ast::fingerprint_for_conditional_scope(&n, file).into_owned(),
-                    )
-                })
+                literal_with_profile(&n, file, profile)
+                    .unwrap_or_else(|| ScopeLiteral::Ruby(embedded_ruby(&n, file, profile)))
             })
             .collect();
         return Some(ScopeLiteral::Compound("array", children));
@@ -554,7 +645,13 @@ pub(crate) fn scope_literal(node: &Node<'_>, file: &SourceFile) -> Option<ScopeL
         let opening = s.opening_loc();
         let opening = opening.as_ref().map_or(b"".as_slice(), |o| o.as_slice());
         if opening.starts_with(b"<<") {
-            return Some(composed_literal(&[s.as_node()], opening, "str", file));
+            return Some(composed_literal(
+                &[s.as_node()],
+                opening,
+                "str",
+                file,
+                profile,
+            ));
         }
         let parts = if opening.starts_with(b"%") && s.unescaped().is_empty() {
             Vec::new()
@@ -576,6 +673,18 @@ pub(crate) fn scope_literal(node: &Node<'_>, file: &SourceFile) -> Option<ScopeL
         let opening = opening.as_ref().map_or(b"".as_slice(), |o| o.as_slice());
         let raw = s.value_loc();
         let raw = raw.as_ref().map_or(b"".as_slice(), |r| r.as_slice());
+        if s.closing_loc()
+            .is_some_and(|c| c.as_slice().ends_with(b":"))
+        {
+            // Assoc's pair_quoted bypasses ordinary symbol composition: a
+            // static label always supplies ONE string child, even for empty
+            // or multiline content. Project source glyphs before escapes as
+            // usual, but never turn the label into a zero/multi-child dsym.
+            return Some(ScopeLiteral::Sym(
+                ast::require_literal::parts(raw, s.unescaped(), opening.ends_with(b"'"), file)
+                    .concat(),
+            ));
+        }
         let parts = if raw.is_empty() {
             Vec::new()
         } else {
@@ -616,6 +725,7 @@ pub(crate) fn scope_literal(node: &Node<'_>, file: &SourceFile) -> Option<ScopeL
         opening.as_ref().map_or(b"".as_slice(), |o| o.as_slice()),
         kind,
         file,
+        profile,
     ))
 }
 
@@ -793,6 +903,53 @@ mod tests {
             .filter(|o| o.cop == "Lint/LiteralAssignmentInCondition")
             .collect()
     }
+    #[test]
+    fn static_quoted_labels_have_one_symbol_payload_in_every_detection_profile() {
+        for (body, expected) in [
+            (r#"{"": 1}"#, ""),
+            (r#"{'': 1}"#, ""),
+            (r#"{"\u{}": 1}"#, ""),
+            ("{\"a\nb\": 1}", "a\nb"),
+            (r#"{"é": 1}"#, "é"),
+            ("{\"e\u{301}\": 1}", "é"),
+            (r#"{"\u0065\u0301": 1}"#, "e\u{301}"),
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{body}\n");
+            let file = SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{body}");
+            let hash = parsed
+                .node()
+                .as_program_node()
+                .unwrap()
+                .statements()
+                .body()
+                .iter()
+                .next()
+                .unwrap();
+            let pair = hash
+                .as_hash_node()
+                .unwrap()
+                .elements()
+                .iter()
+                .next()
+                .unwrap();
+            let key = pair.as_assoc_node().unwrap().key();
+            for profile in [
+                LiteralProfile::Scope,
+                LiteralProfile::Duplicate(ast::DuplicateEquality::Hash),
+                LiteralProfile::Duplicate(ast::DuplicateEquality::Value),
+                LiteralProfile::SelfAssignment(None),
+            ] {
+                assert_eq!(
+                    literal_with_profile(&key, &file, profile),
+                    Some(ScopeLiteral::Sym(expected.as_bytes().to_vec())),
+                    "{body}"
+                );
+            }
+        }
+    }
+
     #[test]
     fn pinned_no_offense_lookalikes_and_literal_collections() {
         for rhs in ["42", "'foo'", "[]", "[1, 2, 3]", "{}", "{x: :y}"] {

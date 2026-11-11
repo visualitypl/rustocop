@@ -24,7 +24,7 @@ pub(crate) mod class_emitters;
 mod constant_name;
 mod file_name;
 mod format;
-mod heredoc;
+pub(crate) mod heredoc;
 mod heredoc_delimiter_case;
 mod heredoc_delimiter_naming;
 mod inclusive_language;

@@ -13,9 +13,8 @@
 //!   never applies to it.
 //! - Empty `else` branches are `Style/EmptyElse`'s business.
 //!
-//! Not modelled: RuboCop extends the comment lines of an `if` wrapped in
-//! parentheses to the closing parenthesis, and does not count a comment that
-//! is itself a `rubocop:disable` for this cop.
+//! Direct parent parentheses extend an `if`'s comment window. Disabling
+//! directives suppress findings, but are not explanatory branch comments.
 
 use ruby_prism::{Location, Node};
 
@@ -33,10 +32,19 @@ impl Cop for EmptyConditionalBody {
         "Lint/EmptyConditionalBody"
     }
 
+    fn check_parse(
+        &self,
+        result: &ruby_prism::ParseResult<'_>,
+        file: &SourceFile,
+        _out: &mut Vec<Offense>,
+    ) {
+        file.directives_with_disabled(result, &[]);
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -52,9 +60,35 @@ impl Cop for EmptyConditionalBody {
         {
             return;
         }
-        let (line, col) = file.line_col(branch.keyword.start_offset());
-        let end_line = file.line_col(branch.comment_range_end()).0;
-        if file.has_comment_in_lines(line..end_line) {
+        let (line, col) =
+            super::array_literal_in_regexp::reference_line_col(branch.keyword.start_offset(), file);
+        let comment_end = if branch.next_branch.is_none() && branch.keyword.as_slice() == b"if" {
+            // StatementsNode is transparent in the parser AST. Only the direct
+            // parentheses parent extends CommentsHelp's window, not any ancestor.
+            cx.ancestors()
+                .find(|p| p.as_statements_node().is_none() && p.as_arguments_node().is_none())
+                .and_then(|parent| {
+                    parent
+                        .as_parentheses_node()
+                        .map(|p| p.closing_loc())
+                        .or_else(|| {
+                            parent
+                                .as_call_node()
+                                .and_then(|c| c.closing_loc())
+                                .filter(|l| l.as_slice() == b")")
+                        })
+                        .or_else(|| parent.as_super_node().and_then(|n| n.rparen_loc()))
+                        .or_else(|| parent.as_yield_node().and_then(|n| n.rparen_loc()))
+                        .or_else(|| parent.as_defined_node().and_then(|n| n.rparen_loc()))
+                })
+                .map_or(branch.chain_end, |closing| closing.start_offset())
+        } else {
+            branch.comment_range_end()
+        };
+        let comment_lines = line..file.line_of(comment_end);
+        if file.has_comment_in_lines(comment_lines.clone())
+            && !file.comments_contain_disables(self.name(), comment_lines)
+        {
             return;
         }
         out.push(Offense {
@@ -66,7 +100,19 @@ impl Cop for EmptyConditionalBody {
                 String::from_utf8_lossy(branch.keyword.as_slice())
             ),
             line,
-            end_line: line,
+            // offense_range joins the empty branch with the *beginning* of
+            // the next keyword. Its endpoint still lies on that keyword's line.
+            end_line: file.line_of(branch.next_branch.unwrap_or_else(|| {
+                if branch.end.is_none() {
+                    branch
+                        .then_keyword
+                        .as_ref()
+                        .map_or(branch.predicate_end, |l| l.end_offset())
+                        .saturating_sub(1)
+                } else {
+                    node.location().end_offset().saturating_sub(1)
+                }
+            })),
             col,
         });
     }
@@ -180,6 +226,22 @@ mod tests {
             col,
             format!("Avoid `{keyword}` branches without a body."),
         )
+    }
+
+    #[test]
+    fn reference_ranges_and_parenthesized_comment_window() {
+        let result = offenses("if foo(\n  x\n)\nelse\n  y\nend\n");
+        assert_eq!(result.len(), 1);
+        assert_eq!(
+            (result[0].line, result[0].col, result[0].end_line),
+            (1, 1, 4)
+        );
+        assert!(offenses("(if x\nend\n# noop\n)\n").is_empty());
+        // CommentsHelp extends only `if`, not `unless`, to its direct parens.
+        assert_eq!(
+            found("(unless x\nend\n# noop\n)\n"),
+            vec![at(1, 2, "unless")]
+        );
     }
 
     #[test]

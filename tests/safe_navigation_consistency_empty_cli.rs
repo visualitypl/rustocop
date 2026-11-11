@@ -1,5 +1,8 @@
 //! Source-only pinned AST and CLI checks. Never execute fixture input.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -178,8 +181,8 @@ fn mixed_newline_source_fixed_policy_rebuilt_cli_preserves_raw_bytes_and_metadat
 }
 #[test]
 fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let cop = row["cop"].as_str().unwrap();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         for fix in [false, true] {
@@ -234,7 +237,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
             assert_eq!(String::from_utf8_lossy(&out.stdout), stdout, "{row}");
             assert!(out.stderr.is_empty(), "{row}: {out:?}");
         }
-    }
+    });
 }
 #[test]
 fn defaults_selectors_toml_department_and_path_precedence() {

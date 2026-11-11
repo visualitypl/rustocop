@@ -53,7 +53,7 @@ impl Cop for UselessAssignment {
         let Some(program) = node.as_program_node() else {
             return;
         };
-        let analysis = ScopeAnalysis::of(&program);
+        let analysis = ScopeAnalysis::for_useless_assignments(&program, file);
         // Assignments whose nested assignments are not reported (RuboCop's
         // `ignore_node`), across scopes, in RuboCop's checking order.
         let mut ignored: Vec<Range<usize>> = Vec::new();
@@ -76,10 +76,10 @@ impl Cop for UselessAssignment {
                     {
                         continue;
                     }
-                    if reads_in_loop_condition(assignment, variable.name) {
+                    if reads_in_loop_condition(assignment, variable.name, file) {
                         continue;
                     }
-                    let name = String::from_utf8_lossy(variable.name);
+                    let name = reference_name(variable.name, file);
                     let mut message = format!("Useless assignment to variable - `{name}`.");
                     match assignment.kind {
                         AssignmentKind::Multiple => message.push_str(&format!(
@@ -99,7 +99,7 @@ impl Cop for UselessAssignment {
                                 analysis
                                     .variable_like_names(scope)
                                     .into_iter()
-                                    .map(|name| String::from_utf8_lossy(name).into_owned())
+                                    .map(|name| reference_name(name, file))
                                     .collect()
                             });
                             let names: Vec<&str> = names.iter().map(String::as_str).collect();
@@ -108,14 +108,17 @@ impl Cop for UselessAssignment {
                             }
                         }
                     }
-                    let (line, col) = file.line_col(assignment.name_range.start);
+                    let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                        assignment.name_range.start,
+                        file,
+                    );
                     out.push(Offense {
                         correction: None,
                         cop: self.name(),
                         severity: self.severity(),
                         message,
                         line,
-                        end_line: line,
+                        end_line: file.line_of(assignment.name_range.end.saturating_sub(1)),
                         col,
                     });
                     if is_chained(assignment) {
@@ -125,6 +128,21 @@ impl Cop for UselessAssignment {
             }
         }
     }
+}
+
+/// Project names through the same source buffer as the pinned parser before
+/// rendering or similarity lookup. Other VariableForce consumers keep raw identities.
+fn reference_name(name: &[u8], file: &SourceFile) -> String {
+    file.match_pattern_source(name)
+        .utf8_chunks()
+        .map(|chunk| {
+            let mut text = chunk.valid().to_owned();
+            for byte in chunk.invalid() {
+                text.push_str(&format!("\\x{byte:02X}"));
+            }
+            text
+        })
+        .collect()
 }
 
 /// The range of the assignment node in RuboCop's AST: an operator
@@ -166,9 +184,10 @@ fn is_chained(assignment: &Assignment<'_>) -> bool {
 
 /// RuboCop's `variable_in_loop_condition?`: the nearest enclosing `while` or
 /// `until` reads the variable in its condition.
-fn reads_in_loop_condition(assignment: &Assignment<'_>, name: &[u8]) -> bool {
+fn reads_in_loop_condition(assignment: &Assignment<'_>, name: &[u8], file: &SourceFile) -> bool {
     struct Reads<'n> {
         name: &'n [u8],
+        file: &'n SourceFile,
         found: bool,
     }
     impl<'pr> Visit<'pr> for Reads<'_> {
@@ -176,13 +195,30 @@ fn reads_in_loop_condition(assignment: &Assignment<'_>, name: &[u8]) -> bool {
             &mut self,
             node: &ruby_prism::LocalVariableReadNode<'pr>,
         ) {
-            self.found |= node.name().as_slice() == self.name;
+            self.found |= self.file.match_pattern_source(node.name().as_slice())
+                == self.file.match_pattern_source(self.name);
+        }
+        fn visit_call_node(&mut self, node: &ruby_prism::CallNode<'pr>) {
+            if self.file.match_pattern_composes_identifiers()
+                && node.is_variable_call()
+                && node.receiver().is_none()
+                && node.arguments().is_none()
+                && node.block().is_none()
+            {
+                self.found |= self.file.match_pattern_source(node.name().as_slice())
+                    == self.file.match_pattern_source(self.name);
+            }
+            ruby_prism::visit_call_node(self, node);
         }
     }
     let Some(condition) = &assignment.loop_condition else {
         return false;
     };
-    let mut reads = Reads { name, found: false };
+    let mut reads = Reads {
+        name,
+        file,
+        found: false,
+    };
     reads.visit(condition);
     reads.found
 }
@@ -364,6 +400,47 @@ mod tests {
                 found(source)
             );
         }
+    }
+
+    #[test]
+    fn named_capture_offense_spans_the_complete_regexp() {
+        let found = offenses("/(?<foo>\na\n)/ =~ x\n");
+        assert_eq!(found.len(), 1);
+        assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 1, 3));
+        assert_eq!(found[0].message, message("foo"));
+    }
+
+    #[test]
+    fn mixed_mac_names_share_liveness_but_utf8_names_do_not() {
+        assert!(offenses("# coding: UTF8-MAC\né = 1; p e\u{301}\n").is_empty());
+        assert_eq!(
+            positions("# coding: UTF8-MAC\né = 1; e\u{301} = 2; p é\n"),
+            vec![(2, 1)]
+        );
+        assert_eq!(
+            positions("# coding: UTF-8\né = 1; p e\u{301}\n"),
+            vec![(2, 1)]
+        );
+    }
+
+    #[test]
+    fn operator_recovery_greek_sigma_suggestion_uses_ruby_case_mapping() {
+        let found = offenses("aΟΣ = 1\naΟσ = 2\naΟς = 3\np aΟσ, aΟς\n");
+        assert_eq!(found.len(), 1);
+        assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 1, 1));
+        assert_eq!(
+            found[0].message,
+            "Useless assignment to variable - `aΟΣ`. Did you mean `aΟσ`?"
+        );
+        assert!(found[0].correction.is_none());
+    }
+
+    #[test]
+    fn encoded_variable_names_use_the_reference_buffer() {
+        assert_eq!(
+            found("# coding: UTF8-MAC\ne\u{301} = 1\n"),
+            [(2, 1, message("é"))]
+        );
     }
 
     #[test]

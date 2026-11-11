@@ -509,7 +509,10 @@ fn nested_and_style_layout_overlaps_are_deterministic_and_finitely_stable() {
     fs::write(d.path().join("a.rb"), before).unwrap();
     let mut snapshots = vec![before.as_bytes().to_vec()];
     let mut settled = false;
-    for _ in 0..5 {
+    // Layout/ElseAlignment realigns the lifted `else` with `if` one
+    // pass after the assignment moves it, and IndentationWidth re-indents its
+    // body in the next one: five changing passes instead of four.
+    for _ in 0..6 {
         cli(d.path(), &["--only", &selectors, "--fix", "a.rb"]);
         let after = fs::read(d.path().join("a.rb")).unwrap();
         if after == *snapshots.last().unwrap() {
@@ -524,10 +527,11 @@ fn nested_and_style_layout_overlaps_are_deterministic_and_finitely_stable() {
     }
     assert!(
         settled,
-        "curated fixture must settle in at most four changing passes"
+        "curated fixture must settle in at most five changing passes"
     );
     let last = snapshots.last().unwrap();
     assert!(String::from_utf8_lossy(last).contains("value = if condition"));
+    assert!(String::from_utf8_lossy(last).contains("\n          else\n"));
     unchanged(d.path(), last, &["--only", &selectors, "--fix", "a.rb"], 0);
 }
 #[test]

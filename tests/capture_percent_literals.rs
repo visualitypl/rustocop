@@ -13,6 +13,9 @@ fn lint_str(source: &str) -> Vec<rustocop::offense::Offense> {
     .result
     .offenses
 }
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -123,11 +126,10 @@ fn all_pinned_spec_source_and_encoded_controls_exact_pipeline() {
 }
 #[test]
 fn all_rows_rebuilt_cli_lint_fix_preserve_bytes_mtime_permissions_inode() {
-    let dir = project();
-    for row in rows()
+    parallel_rows!(for row in rows()
         .into_iter()
-        .filter(|r| r["rejected_controls"].is_null())
-    {
+        .filter(|r| r["rejected_controls"].is_null()) => {
+        let dir = project();
         for cop in COPS {
             let findings = row[cop]["findings"].as_array().unwrap();
             for fix in [false, true] {
@@ -155,12 +157,12 @@ fn all_rows_rebuilt_cli_lint_fix_preserve_bytes_mtime_permissions_inode() {
                 }
             }
         }
-    }
+    });
 }
 #[test]
 fn registry_fixed_defaults_selectors_strict_toml_department_precedence_and_excludes() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let c = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(c.default_enabled() && !c.safe_fixes());

@@ -156,7 +156,7 @@ fn all_fixtures_rebuilt_cli_exact_positions_no_write_or_canonical_atomic_edit() 
 #[test]
 fn opt_in_metadata_selectors_toml_path_and_stdin_provenance() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(!cop.default_enabled());
     assert!(cop.safe_fixes());

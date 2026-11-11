@@ -41,7 +41,8 @@ impl Cop for InheritException {
         let Some(location) = found else {
             return;
         };
-        let (line, col) = file.line_col(location.start_offset());
+        let (line, col) =
+            super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
         out.push(Offense {
             correction: None,
             cop: self.name(),

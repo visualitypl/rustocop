@@ -1,5 +1,8 @@
 //! Source-only pinned RescueType checks. Reference inputs never execute.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -574,8 +577,8 @@ fn all_original_byte_reference_rows_match_pipeline_and_canonical_edits() {
 }
 #[test]
 fn rebuilt_cli_every_reference_row_stdin_file_fix_and_no_write_controls() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let n = row["findings"].as_array().map_or(0, Vec::len);
         let status = if row.get("parser_rejection").is_some() {
@@ -616,5 +619,5 @@ fn rebuilt_cli_every_reference_row_stdin_file_fix_and_no_write_controls() {
             );
             assert_eq!(count(&out), n, "{row}: {out:?}");
         }
-    }
+    });
 }

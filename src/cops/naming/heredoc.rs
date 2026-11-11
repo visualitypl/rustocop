@@ -2,7 +2,7 @@
 use crate::source::SourceFile;
 use ruby_prism::{Location, Node, NodeList};
 use std::ops::Range;
-pub(super) struct Heredoc<'pr> {
+pub(crate) struct Heredoc<'pr> {
     pub opening: Location<'pr>,
     pub closing: Location<'pr>,
     pub body: Range<usize>,
@@ -109,7 +109,7 @@ fn parts_body(parts: NodeList<'_>) -> Option<Range<usize>> {
     Some(first.location().start_offset()..end)
 }
 /// Ruby String#strip's ASCII/NUL set, not Unicode whitespace (Rust excludes VT).
-pub(super) fn strip(bytes: &[u8]) -> &[u8] {
+pub(crate) fn strip(bytes: &[u8]) -> &[u8] {
     let blank = |b: &u8| matches!(b, b' ' | b'\t'..=b'\r' | 0);
     let start = bytes.iter().position(|b| !blank(b)).unwrap_or(bytes.len());
     let end = bytes

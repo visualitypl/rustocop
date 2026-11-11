@@ -104,14 +104,14 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
 #[test]
 fn metadata_default_on_ruby34_detection_only_without_paths_settings_or_future_admissions() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     assert_eq!(
         registry
             .cops()
             .iter()
             .filter(|c| c.name().starts_with("Lint/"))
             .count(),
-        145
+        160
     );
     for name in COPS {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();

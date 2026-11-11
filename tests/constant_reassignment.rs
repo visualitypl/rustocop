@@ -124,7 +124,7 @@ fn native_ruby34_syntax_only_all_sources() {
 #[test]
 fn metadata_and_selectors_config_paths_strict_toml() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());

@@ -1,5 +1,8 @@
 //! Pinned source-only detection and actual CLI/no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -144,8 +147,8 @@ fn pinned_main_source_and_original_bytes_match_pipeline_without_edits() {
 }
 #[test]
 fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let cop = row["cop"].as_str().unwrap();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         for fix in [false, true] {
@@ -185,7 +188,7 @@ fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
             assert_eq!(String::from_utf8_lossy(&out.stdout), stdout, "{row}");
             assert!(out.stderr.is_empty(), "{row}: {out:?}");
         }
-    }
+    });
 }
 #[test]
 fn defaults_metadata_selectors_strict_toml_and_department_precedence() {

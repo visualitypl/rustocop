@@ -21,6 +21,9 @@ const CASES: &[(&str, &str, &str, &str)] = &[
         "1:3",
     ),
 ];
+/// The magic-comment fixtures are also default-on
+/// Layout/EmptyLineAfterMagicComment findings; it is not the subject here.
+const MAGIC_OFF: &str = "[cops.\"Layout/EmptyLineAfterMagicComment\"]\nenabled = false\n";
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -57,14 +60,18 @@ fn defaults_opt_in_exact_names_selectors_config_and_no_write() {
         assert_eq!(matched[0].default_enabled(), !inline);
         assert_eq!(matched[0].safe_fixes(), !inline);
         fs::write(&path, before).unwrap();
-        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+        fs::write(dir.path().join("rustocop.toml"), MAGIC_OFF).unwrap();
         let out = cli(dir.path(), &["lib/a.rb"], i32::from(!inline));
         assert_eq!(String::from_utf8_lossy(&out.stdout).contains(cop), !inline);
         for config in [
             format!("[cops.\"{cop}\"]\nenabled = false\n"),
             "[cops.Style]\nenabled = false\n".into(),
         ] {
-            fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+            fs::write(
+                dir.path().join("rustocop.toml"),
+                format!("{config}{MAGIC_OFF}"),
+            )
+            .unwrap();
             cli(dir.path(), &["lib/a.rb"], 0);
             let modified = fs::metadata(&path).unwrap().modified().unwrap();
             let out = cli(dir.path(), &["--only", cop, "lib/a.rb"], 1);
@@ -84,7 +91,7 @@ fn defaults_opt_in_exact_names_selectors_config_and_no_write() {
         }
         fs::write(
             dir.path().join("rustocop.toml"),
-            format!("[cops.Style]\nenabled = false\n[cops.\"{cop}\"]\nenabled = true\n"),
+            format!("[cops.Style]\nenabled = false\n[cops.\"{cop}\"]\nenabled = true\n{MAGIC_OFF}"),
         )
         .unwrap();
         cli(dir.path(), &["--fix", "lib/a.rb"], i32::from(inline));
@@ -272,7 +279,9 @@ fn invalid_utf8_editor_replacements_are_withheld_without_lossy_transcoding() {
     cli(
         dir.path(),
         &["--only", "Style/Encoding", "--fix", "lib/a.rb"],
-        1,
+        // Syntax now owns the real global buffer exception. Invalid source
+        // never reaches ordinary Style hooks, even with Syntax unselected.
+        2,
     );
     assert_eq!(fs::read(&path).unwrap(), source);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);

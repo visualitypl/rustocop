@@ -108,7 +108,8 @@ fn selected_incompatible_companions_withhold_edits_not_diagnostics_in_either_ord
             checked += 1;
         }
     }
-    assert_eq!(checked, 15);
+    // Style/RedundantSelf and Layout/DotPosition are a live pair.
+    assert_eq!(checked, 16);
 }
 #[test]
 fn every_emitting_safe_style_capability_honors_source_code_object_and_heap_barriers() {

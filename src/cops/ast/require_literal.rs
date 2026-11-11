@@ -1,4 +1,5 @@
-//! Pinned parser-AST literal payload alignment shared by the literal-reading cops.
+//! Pinned parser-AST literal payload alignment shared by the literal-reading cops
+//! and the Gemspec key readers.
 //! Keep main-parse decoded escape bytes, but project source characters (also
 //! unknown escaped glyphs) as Parser::Source::Buffer does. No candidate parsing.
 use crate::source::SourceFile;
@@ -87,6 +88,44 @@ pub(crate) fn parts(raw: &[u8], value: &[u8], single: bool, file: &SourceFile) -
         parts.pop();
     }
     parts
+}
+
+/// Regexp payloads preserve ASCII escapes in the main parse, unlike strings.
+/// UTF8-MAC source composition can turn an escaped ASCII letter plus marks
+/// into an unknown escaped non-ASCII glyph, whose backslash Prism removes.
+/// Project only those source chunks; keep paired backslashes and escape
+/// spellings (including hex/Unicode/control escapes) otherwise unchanged.
+/// Detection-only source alignment for Require and Gemspec keys; never a
+/// regexp decoder or correction proof. Other fingerprint profiles do not opt in.
+pub(crate) fn regexp_source(value: &[u8], file: &SourceFile) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < value.len() {
+        if value[i..].starts_with(b"\\\\") {
+            out.extend_from_slice(b"\\\\");
+            i += 2;
+            continue;
+        }
+        if value[i] == b'\\' && value.get(i + 1).is_some_and(u8::is_ascii) {
+            let width = file.composed_character_chunk(&value[i + 1..]).0.max(1);
+            let end = (i + 1 + width).min(value.len());
+            let projected = file.match_pattern_source(&value[i + 1..end]);
+            if projected.first().is_some_and(|b| !b.is_ascii()) {
+                out.extend_from_slice(&projected);
+                i = end;
+                continue;
+            }
+            // Other escapes retain their spelling and pair ownership.
+            out.extend_from_slice(&value[i..i + 2]);
+            i += 2;
+            continue;
+        }
+        let width = file.composed_character_chunk(&value[i..]).0.max(1);
+        let end = (i + width).min(value.len());
+        out.extend_from_slice(&file.match_pattern_source(&value[i..end]));
+        i = end;
+    }
+    out
 }
 
 // Return source-token width and main-decoded byte width, not an escape value.

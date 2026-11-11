@@ -36,6 +36,8 @@ pub(crate) struct Boundaries {
     tokens: Vec<Range<usize>>,
     openings: Vec<Range<usize>>,
     closing_starts: Vec<usize>,
+    /// `(closing line start, owner)`, sorted by closing line start.
+    closings: Vec<(usize, usize)>,
     segments: Vec<Segment>,
     equivalent_quotes: BTreeSet<usize>,
 }
@@ -51,6 +53,8 @@ struct Change<'a> {
     boundary: Option<usize>,
     /// Exact atomic uppercase rename; its entire envelope excludes peer writes.
     rename: bool,
+    /// Canonical heredoc indentation edit, proved by `reindentation`.
+    reindent: bool,
 }
 
 impl Boundaries {
@@ -149,8 +153,15 @@ impl Boundaries {
                 Some(id)
             })
             .collect();
+        let mut closings: Vec<_> = heredocs
+            .iter()
+            .enumerate()
+            .map(|(id, h)| (h.closing.start, id))
+            .collect();
+        closings.sort_unstable();
         Self {
             equivalent_quotes,
+            closings,
             heredocs: heredocs.to_vec(),
             line_starts: file.line_starts.clone(),
             anchors,
@@ -229,6 +240,81 @@ impl Boundaries {
         text.strip_suffix(b"\r").unwrap_or(text)
     }
 
+    /// The two canonical heredoc indentation edits, proved from the
+    /// main-parse owner and the bounded edit bytes alone:
+    ///
+    /// - an opener `<<`/`<<-` becoming `<<~`. Already indented owners keep
+    ///   their terminator set; a plain `<<` owner qualifies only when none of
+    ///   its body lines could spell its label after optional indentation.
+    /// - a whitespace-prefix rewrite of physical lines from an indented
+    ///   owner's body start (or its closing line) through the closing line's
+    ///   indentation. Every line keeps its bytes after the prefix, the owner and
+    ///   every heredoc opened inside the envelope are indented (their
+    ///   terminators ignore indentation), and those lines belong to the
+    ///   owner's lexing, never to an enclosing body.
+    ///
+    /// Literal values are the emitting cop's proof; this proves terminators.
+    fn reindentation(&self, source: &[u8], edit: &Correction) -> Option<usize> {
+        let r = &edit.range;
+        let new = edit.replacement.as_bytes();
+        let id = self.heredocs.partition_point(|h| h.opening.start < r.start);
+        if let Some(h) = self.heredocs.get(id).filter(|h| h.opening.start == r.start) {
+            let prefix = 2 + usize::from(h.indented);
+            let squiggly = source.get(h.opening.start + 2) == Some(&b'~');
+            let label = &source[h.label.clone()];
+            let proved = !squiggly
+                && r.end == r.start + prefix
+                && new == b"<<~"
+                && (h.indented
+                    || h.closing.end - h.body.start <= PROOF_BYTES
+                        && !source[h.body.clone()].split(|&b| b == b'\n').any(|line| {
+                            // A blank line spells no label with a
+                            // non-blank byte; the subsequence test
+                            // overapproximates every other line.
+                            (line.iter().any(|&b| !inline_whitespace(b))
+                                || label.iter().all(|&b| inline_whitespace(b)))
+                                && could_be_label(line, label, true)
+                        }));
+            return proved.then_some(id);
+        }
+        let at = self.closings.partition_point(|&(start, _)| start <= r.end);
+        let &(closing_start, id) = self.closings.get(at.checked_sub(1)?)?;
+        let h = &self.heredocs[id];
+        let closing_text = &source[closing_start..h.closing.end];
+        let indentation = closing_text
+            .iter()
+            .take_while(|&&b| matches!(b, b' ' | b'\t'))
+            .count();
+        if !h.indented
+            || r.end > closing_start + indentation
+            || r.start != h.body.start && r.start != closing_start
+        {
+            return None;
+        }
+        let old = &source[r.clone()];
+        if memchr::memchr_iter(b'\n', old).count() != memchr::memchr_iter(b'\n', new).count()
+            || self.heredocs[id + 1..]
+                .iter()
+                .take_while(|nested| nested.opening.start < r.end)
+                .any(|nested| !nested.indented)
+        {
+            return None;
+        }
+        let same_text = |old: &[u8], new: &[u8]| {
+            let old_prefix = old
+                .iter()
+                .take_while(|&&b| matches!(b, b' ' | b'\t' | b'\x0b' | b'\x0c'))
+                .count();
+            let new_prefix = new.iter().take_while(|&&b| b == b' ').count();
+            old[old_prefix..] == new[new_prefix..]
+        };
+        let lines = old.split(|&b| b == b'\n').zip(new.split(|&b| b == b'\n'));
+        lines
+            .into_iter()
+            .all(|(o, n)| same_text(o, n))
+            .then_some(id)
+    }
+
     /// Atomic cops sometimes retain openings/closings inside their replacement
     /// envelopes. Match ONLY unique main-parse boundary anchors, then equal-count
     /// physical lines, to expose actual changes. This is a bounded byte proof,
@@ -238,6 +324,15 @@ impl Boundaries {
             return None;
         }
         let replacement = edit.replacement.as_bytes();
+        if let Some(owner) = self.reindentation(source, edit) {
+            return Some(vec![Change {
+                range: edit.range.clone(),
+                replacement,
+                boundary: Some(owner),
+                rename: false,
+                reindent: true,
+            }]);
+        }
         let first = self
             .heredocs
             .partition_point(|h| h.opening.start < edit.range.start);
@@ -256,12 +351,14 @@ impl Boundaries {
                         replacement: &replacement[..h.opening.len()],
                         boundary: Some(first),
                         rename: true,
+                        reindent: false,
                     },
                     Change {
                         range: h.closing.clone(),
                         replacement: &replacement[closing..],
                         boundary: Some(first),
                         rename: true,
+                        reindent: false,
                     },
                 ]);
             }
@@ -276,6 +373,7 @@ impl Boundaries {
                     replacement,
                     boundary: Some(first),
                     rename: false,
+                    reindent: false,
                 }]);
             }
             let empty_edit = h.body.is_empty()
@@ -292,16 +390,25 @@ impl Boundaries {
                         replacement: &replacement[..2],
                         boundary: Some(first),
                         rename: false,
+                        reindent: false,
                     },
                     Change {
                         range: h.closing.clone(),
                         replacement: b"",
                         boundary: Some(first),
                         rename: false,
+                        reindent: false,
                     },
                 ]);
             }
         }
+        self.anchored(source, edit)
+            .or_else(|| kept_middle(source, edit))
+    }
+
+    /// Decompose an envelope around its unique main-parse anchors.
+    fn anchored<'a>(&self, source: &[u8], edit: &'a Correction) -> Option<Vec<Change<'a>>> {
+        let replacement = edit.replacement.as_bytes();
         let mut old = edit.range.start;
         let mut new = 0;
         let mut changes = Vec::new();
@@ -381,6 +488,7 @@ impl Boundaries {
                         replacement: edit.replacement.as_bytes(),
                         boundary: None,
                         rename: false,
+                        reindent: false,
                     }]);
                 }
                 self.changes(source, edit)
@@ -436,6 +544,50 @@ impl Boundaries {
             };
             for change in changes {
                 let r = &change.range;
+                if change.reindent {
+                    let owner = change.boundary.expect("reindentation names its owner");
+                    let h = &self.heredocs[owner];
+                    if r.start != h.opening.start {
+                        // Prefix rewrite: overlapping peers conflict; the lines
+                        // are the owner's own lexing, proved in `changes`.
+                        continue;
+                    }
+                    // A plain owner's new terminator set, and the emitting
+                    // cop's zero-dedent value proof, hold for the original
+                    // body lines: no peer may write them (closing-line
+                    // indentation is neither). An enclosing owner sees the
+                    // changed opener line.
+                    let line = self.line(r.start);
+                    let text = self.line_text(source, line);
+                    let start = self.line_starts[line];
+                    let end = start + text.len();
+                    let first = self.segments.partition_point(|s| s.range.end <= r.start);
+                    let enclosing: Vec<usize> = self
+                        .segments
+                        .get(first)
+                        .filter(|s| s.range.start <= r.start)
+                        .map(|s| s.owners.iter().copied().filter(|&o| o != owner).collect())
+                        .unwrap_or_default();
+                    let changed = [
+                        &text[..r.start - start],
+                        change.replacement,
+                        &text[r.end - start..],
+                    ]
+                    .concat();
+                    if !untouched(h.body.clone())
+                        || !enclosing.is_empty()
+                            && (text.len() > PROOF_BYTES
+                                || !untouched(start..r.start)
+                                || !untouched(r.end..end)
+                                || enclosing.iter().any(|&o| {
+                                    let e = &self.heredocs[o];
+                                    could_be_label(&changed, &source[e.label.clone()], e.indented)
+                                }))
+                    {
+                        rejected.insert(id);
+                    }
+                    continue;
+                }
                 if change.rename {
                     // Both anchors change atomically; every interior byte is
                     // immutable when this envelope wins. Only enclosing owners
@@ -670,6 +822,54 @@ impl Boundaries {
     }
 }
 
+/// Envelope edges a kept-middle decomposition may rewrite.
+const EDGE_BYTES: usize = 64;
+
+/// An exact decomposition of an envelope whose replacement keeps one middle
+/// run of original bytes: a bounded rewrite of its start and a bounded
+/// deletion at its end (a closing parenthesis moved before heredoc bodies).
+/// Each part then meets the ordinary per-change checks; no bytes are guessed.
+fn kept_middle<'a>(source: &[u8], edit: &'a Correction) -> Option<Vec<Change<'a>>> {
+    let old = &source[edit.range.clone()];
+    let new = edit.replacement.as_bytes();
+    for inserted in 0..=new.len().min(EDGE_BYTES) {
+        let middle = &new[inserted..];
+        let Some(spare) = old.len().checked_sub(middle.len()) else {
+            continue;
+        };
+        for removed in 0..=spare.min(EDGE_BYTES) {
+            if spare - removed > EDGE_BYTES || old[removed..removed + middle.len()] != *middle {
+                continue;
+            }
+            let start = edit.range.start;
+            let tail = start + removed + middle.len();
+            let changes = [
+                Change {
+                    range: start..start + removed,
+                    replacement: &new[..inserted],
+                    boundary: None,
+                    rename: false,
+                    reindent: false,
+                },
+                Change {
+                    range: tail..edit.range.end,
+                    replacement: b"",
+                    boundary: None,
+                    rename: false,
+                    reindent: false,
+                },
+            ];
+            return Some(
+                changes
+                    .into_iter()
+                    .filter(|c| !(c.range.is_empty() && c.replacement.is_empty()))
+                    .collect(),
+            );
+        }
+    }
+    None
+}
+
 fn line_changes<'a>(
     source: &[u8],
     range: Range<usize>,
@@ -712,6 +912,7 @@ fn trimmed_change<'a>(offset: usize, old: &[u8], new: &'a [u8], out: &mut Vec<Ch
             replacement: &new[prefix..new.len() - suffix],
             boundary: None,
             rename: false,
+            reindent: false,
         });
     }
 }
@@ -871,6 +1072,99 @@ mod tests {
             .uppercase_correction(&file.bytes, start)
             .unwrap();
         assert!(run(&long, vec![rename], 0)[0].correction.is_none());
+    }
+
+    #[test]
+    fn canonical_heredoc_reindentation_is_structural() {
+        let accepted = |source: &str, edits: Vec<Correction>| {
+            (0..3)
+                .map(|stage| run(source, edits.clone(), stage)[0].correction.is_some())
+                .collect::<Vec<_>>()
+        };
+        // Opener: `<<`/`<<-` to `<<~`.
+        assert_eq!(
+            accepted("p <<A\nfoo\nA\n", vec![edit(2..4, "<<~")]),
+            [true; 3]
+        );
+        assert_eq!(
+            accepted("p <<-A\nfoo\nA\n", vec![edit(2..5, "<<~")]),
+            [true; 3]
+        );
+        // A plain body line spelling the label after indentation would end it.
+        assert_eq!(
+            accepted("p <<A\nfoo\n  A\nA\n", vec![edit(2..4, "<<~")]),
+            [false; 3]
+        );
+        // A peer writing the plain owner's body invalidates the proof.
+        assert!(
+            !accepted(
+                "p <<A\nfoo\nA\n",
+                vec![edit(2..4, "<<~"), edit(6..9, "  A")]
+            )[0]
+        );
+        // Not the canonical opener edit.
+        assert_eq!(
+            accepted("p <<-A\nfoo\nA\n", vec![edit(2..5, "<<")]),
+            [false; 3]
+        );
+        assert_eq!(
+            accepted("p <<~A\nfoo\nA\n", vec![edit(2..5, "<<~")]),
+            [true; 3]
+        );
+        // Body and closing prefixes of an indented owner.
+        let source = "p <<~A\nfoo\n bar\nA\n";
+        assert_eq!(
+            accepted(source, vec![edit(7..16, "  foo\n   bar\n  ")]),
+            [true; 3]
+        );
+        assert_eq!(accepted(source, vec![edit(16..16, "  ")]), [true; 3]);
+        // Text after the prefix must not change; a plain owner never qualifies.
+        assert_eq!(
+            accepted(source, vec![edit(7..16, "  fox\n   bar\n  ")]),
+            [false; 3]
+        );
+        assert_eq!(
+            accepted("p <<A\nfoo\nA\n", vec![edit(10..10, "  ")]),
+            [false; 3]
+        );
+        // A plain heredoc opened inside the envelope would lose its terminator.
+        let nested = "p <<~A\n#{<<B}\nb\nB\nA\n";
+        assert_eq!(
+            accepted(nested, vec![edit(7..18, "  #{<<B}\n  b\n  B\n")]),
+            [false; 3]
+        );
+        let nested = "p <<~A\n#{<<~B}\nb\nB\nA\n";
+        assert_eq!(
+            accepted(nested, vec![edit(7..19, "  #{<<~B}\n  b\n  B\n")]),
+            [true; 3]
+        );
+    }
+
+    #[test]
+    fn kept_middle_decomposition_checks_each_part() {
+        let accepted = |source: &str, edit: Correction| {
+            (0..3)
+                .map(|stage| {
+                    run(source, vec![edit.clone()], stage)[0]
+                        .correction
+                        .is_some()
+                })
+                .collect::<Vec<_>>()
+        };
+        // `SQL` repeats inside `NOSQL`: anchors are ambiguous, the kept middle
+        // is not, and its parts pass the closing-line checks.
+        let source = "foo(<<-SQL, <<-NOSQL\n  foo\nSQL\n  bar\nNOSQL\n)\n";
+        let start = source.find('\n').unwrap();
+        let end = source.rfind(')').unwrap() + 1;
+        let middle = &source[start..end - 2];
+        let fixed = edit(start..end, &format!("){middle}"));
+        assert_eq!(accepted(source, fixed), [true; 3]);
+        // Joining a closing line with following code is still rejected.
+        let source = "foo(<<-SQL, <<-NOSQL\n  foo\nSQL\n  bar\nNOSQL\n).x\n";
+        let end = source.rfind(')').unwrap() + 1;
+        let middle = &source[start..end - 2];
+        let joined = edit(start..end, &format!("){middle}"));
+        assert_eq!(accepted(source, joined), [false; 3]);
     }
 
     #[test]

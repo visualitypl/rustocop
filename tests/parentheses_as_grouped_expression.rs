@@ -1,5 +1,8 @@
 //! Source-only pinned replay and actual CLI/native controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -169,9 +172,10 @@ fn corrected(bytes: &[u8]) -> Vec<u8> {
 }
 #[test]
 fn every_original_byte_row_matches_rebuilt_cli_and_correction_pipeline() {
-    let dir = project();
-    let mut edits = 0;
-    for row in rows() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let edits = AtomicUsize::new(0);
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let invalid =
             row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some();
@@ -214,7 +218,7 @@ fn every_original_byte_row_matches_rebuilt_cli_and_correction_pipeline() {
                 Some(status),
             );
         } else {
-            edits += 1;
+            edits.fetch_add(1, Ordering::Relaxed);
             let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
             assert_ne!(out.status.code(), Some(2), "{row}: {out:?}");
             assert_eq!(
@@ -223,8 +227,8 @@ fn every_original_byte_row_matches_rebuilt_cli_and_correction_pipeline() {
                 "{row}"
             );
         }
-    }
-    assert_eq!(edits, 87);
+    });
+    assert_eq!(edits.load(Ordering::Relaxed), 87);
 }
 #[test]
 fn canonical_bytes_atomic_idempotence_and_encoding() {

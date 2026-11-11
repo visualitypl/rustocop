@@ -1595,7 +1595,9 @@ fn indentation_style_honors_config_selections_exclusions_and_directives() {
         let args = if config.contains("exclude") {
             vec!["--fix", "--only", cop, "x.rb"]
         } else {
-            vec!["--fix", "x.rb"]
+            // Default-on InitialIndentation would remove the
+            // leading tab of this one-line file; it is not the subject here.
+            vec!["--fix", "--except", "Layout/InitialIndentation", "x.rb"]
         };
         let output = rustocop(dir.path(), &args, "");
         assert_eq!(output.status.code(), Some(0), "{output:?}");
@@ -3728,7 +3730,7 @@ fn github_format_annotates_syntax_errors_with_file_line_and_message() {
     assert!(
         errors.contains(
             &"::error file=lib/broken.rb,line=2,col=1,title=rustocop::lib/broken.rb: error: \
-              syntax error on line 2: expected an `end` to close the `def` statement"
+              syntax error on line 2: expected an `end` to close the `def` statement (Lint/Syntax)"
                 .to_string()
         ),
         "{errors:#?}"

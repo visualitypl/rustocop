@@ -345,8 +345,8 @@ mod tests {
             "../../../tests/fixtures/lambda_without_literal_block.json"
         ))
         .unwrap();
-        let mut mismatches = vec![];
-        for row in rows {
+        let mismatches = std::sync::Mutex::new(vec![]);
+        parallel_rows!(for row in rows => {
             let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
             let Ok(source) = std::str::from_utf8(&bytes) else {
                 continue;
@@ -359,9 +359,10 @@ mod tests {
             let want: Vec<(u32, u32, u32, String)> =
                 serde_json::from_value(row["findings"].clone()).unwrap();
             if got != want {
-                mismatches.push(format!("{source:?}: {got:?} != {want:?}"));
+                mismatches.lock().unwrap().push(format!("{source:?}: {got:?} != {want:?}"));
             }
-        }
+        });
+        let mismatches = mismatches.into_inner().unwrap();
         assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
     }
     #[test]

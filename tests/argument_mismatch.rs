@@ -285,9 +285,13 @@ fn both_prefixes_multiline_next_push_and_source_enables() {
             0,
         );
         assert_eq!(count(&out), 0, "{out:?}");
+        // FirstArgumentIndentation reports the one-space argument
+        // of the multi-line call below (as upstream does).
         fs::write(
             dir.path().join("rustocop.toml"),
-            format!("[cops.\"{COP}\"]\nenabled = false\n"),
+            format!(
+                "[cops.\"{COP}\"]\nenabled = false\n[cops.\"Layout/FirstArgumentIndentation\"]\nenabled = false\n"
+            ),
         )
         .unwrap();
         let source = format!(

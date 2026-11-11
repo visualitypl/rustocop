@@ -13,7 +13,7 @@ use ruby_prism::{CallNode, Node};
 
 use crate::{
     cops::{Cop, NodeContext},
-    offense::{Offense, single_line},
+    offense::Offense,
     source::SourceFile,
 };
 
@@ -35,10 +35,13 @@ impl Cop for DeprecatedClassMethods {
         let Some(call) = node.as_call_node() else {
             return;
         };
-        let Some((current, prefer)) = deprecated_call(&call) else {
+        let Some((current, prefer)) = deprecated_call(&call, file) else {
             return;
         };
-        let (line, col) = file.line_col(call.location().start_offset());
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(
+            call.location().start_offset(),
+            file,
+        );
         out.push(Offense {
             correction: None,
             cop: self.name(),
@@ -56,7 +59,7 @@ impl Cop for DeprecatedClassMethods {
 }
 
 /// For a deprecated call, the offending source and its replacement.
-fn deprecated_call(call: &CallNode<'_>) -> Option<(String, String)> {
+fn deprecated_call(call: &CallNode<'_>, file: &SourceFile) -> Option<(String, String)> {
     let name = call.name().as_slice();
     // RuboCop's RESTRICT_ON_SEND: bail out before any other work.
     if !matches!(
@@ -103,8 +106,8 @@ fn deprecated_call(call: &CallNode<'_>) -> Option<(String, String)> {
                 let start = call.location().start_offset();
                 let source = call.location().as_slice();
                 Some((
-                    single_line(&source[..end - start]),
-                    format!("{accessor} {}", text(&attribute)),
+                    text(&source[..end - start], file),
+                    format!("{accessor} {}", text(attribute.location().as_slice(), file)),
                 ))
             }
             _ => None,
@@ -113,11 +116,11 @@ fn deprecated_call(call: &CallNode<'_>) -> Option<(String, String)> {
     let constant = global_const_name(&receiver)?;
     let prefer = match (constant, name) {
         (b"ENV", b"clone" | b"dup") if argument_count == 0 => {
-            format!("{}.to_h", text(&receiver))
+            format!("{}.to_h", text(receiver.location().as_slice(), file))
         }
         (b"ENV", b"freeze") if argument_count == 0 => "ENV".to_string(),
         (b"File" | b"Dir", b"exists?") if argument_count == 1 => {
-            format!("{}.exist?", text(&receiver))
+            format!("{}.exist?", text(receiver.location().as_slice(), file))
         }
         (b"Socket", b"gethostbyaddr") => "Addrinfo#getnameinfo".to_string(),
         (b"Socket", b"gethostbyname") => "Addrinfo.getaddrinfo".to_string(),
@@ -127,7 +130,7 @@ fn deprecated_call(call: &CallNode<'_>) -> Option<(String, String)> {
     let message = call.message_loc()?;
     let start = call.location().start_offset();
     let source = call.location().as_slice();
-    Some((single_line(&source[..message.end_offset() - start]), prefer))
+    Some((text(&source[..message.end_offset() - start], file), prefer))
 }
 
 /// The name of a `Name` or `::Name` constant.
@@ -147,9 +150,25 @@ fn global_const_name<'pr>(node: &Node<'pr>) -> Option<&'pr [u8]> {
     }
 }
 
-/// A node's source text, on one line.
-fn text(node: &Node<'_>) -> String {
-    single_line(node.location().as_slice())
+/// RuboCop's source buffer transcodes encodings/composes UTF8-MAC and
+/// normalizes CRLF before interpolating diagnostic text; it keeps newlines.
+fn text(bytes: &[u8], file: &SourceFile) -> String {
+    diagnostic_bytes(&file.match_pattern_source(bytes)).replace("\r\n", "\n")
+}
+
+/// Retain otherwise unrepresentable binary diagnostic bytes explicitly.
+pub(super) fn diagnostic_bytes(bytes: &[u8]) -> String {
+    bytes
+        .utf8_chunks()
+        .map(|chunk| {
+            let mut text = chunk.valid().to_owned();
+            for byte in chunk.invalid() {
+                use std::fmt::Write;
+                write!(text, "\\x{byte:02X}").unwrap();
+            }
+            text
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -245,6 +264,38 @@ mod tests {
     }
 
     #[test]
+    fn preserves_projected_multiline_diagnostic_text() {
+        let found = offenses("attr :é,\n true\n");
+        assert_eq!(
+            found[0].message,
+            "`attr :é,\n true` is deprecated in favor of `attr_accessor :é`."
+        );
+        let found = offenses("# coding: UTF8-MAC\n'e\u{301}'; attr :e\u{301}, true\n");
+        assert_eq!((found[0].line, found[0].col), (2, 6));
+        assert_eq!(
+            found[0].message,
+            "`attr :é, true` is deprecated in favor of `attr_accessor :é`."
+        );
+    }
+
+    #[test]
+    fn binary_diagnostic_bytes_are_not_replacement_characters() {
+        let bytes = b"# coding: ASCII-8BIT\nattr :\"\xff\", true\n";
+        let report = crate::pipeline::lint_one(
+            std::path::Path::new("test.rb"),
+            std::path::Path::new("test.rb"),
+            Some(bytes),
+            &[&DeprecatedClassMethods],
+            &Default::default(),
+        );
+        assert!(report.errors.is_empty());
+        assert_eq!(
+            report.result.offenses[0].message,
+            "`attr :\"\\xFF\", true` is deprecated in favor of `attr_accessor :\"\\xFF\"`."
+        );
+    }
+
+    #[test]
     fn accepts_rubocop_spec_no_offenses() {
         for source in [
             "File.exist?(o)",
@@ -271,7 +322,7 @@ mod tests {
         assert_eq!(positions, vec![(1, 4), (2, 7)]);
         assert_eq!(
             found[1].message,
-            "`ENV     .dup` is deprecated in favor of `ENV.to_h`."
+            "`ENV\n    .dup` is deprecated in favor of `ENV.to_h`."
         );
         assert_eq!(
             offenses("::ENV.freeze")[0].message,
@@ -287,7 +338,7 @@ mod tests {
         assert_eq!(offenses("File.exists?(&b)").len(), 1);
         assert_eq!(
             offenses("attr :name,\n  false\n")[0].message,
-            "`attr :name,   false` is deprecated in favor of `attr_reader :name`."
+            "`attr :name,\n  false` is deprecated in favor of `attr_reader :name`."
         );
     }
 

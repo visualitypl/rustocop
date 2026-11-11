@@ -168,7 +168,7 @@ fn every_fixture_matches_rebuilt_cli_no_write_or_exact_canonical_atomic_edit() {
 #[test]
 fn live_metadata_defaults_selectors_strict_toml_and_path_provenance() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     for name in [ID, NEW] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled());

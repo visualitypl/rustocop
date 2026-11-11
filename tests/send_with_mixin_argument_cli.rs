@@ -1,5 +1,8 @@
 //! Source-only pinned AST and CLI checks. Never execute reference inputs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -438,8 +441,8 @@ fn observer_bytes_parser_gate_peer_composition_and_symlink_atomic_failure() {
 
 #[test]
 fn all_original_byte_rows_rebuilt_cli_lint_fix_and_idempotence() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let relative = row["path"].as_str().unwrap();
         let path = dir.path().join(relative);
@@ -526,7 +529,7 @@ fn all_original_byte_rows_rebuilt_cli_lint_fix_and_idempotence() {
                 assert_eq!(new.modified().unwrap(), twice.modified().unwrap());
             }
         }
-    }
+    });
 }
 #[cfg(unix)]
 #[test]

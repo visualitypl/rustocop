@@ -825,7 +825,7 @@ impl<'pr> ScopeAnalysis<'pr> {
     /// lint pipeline runs this same preflight before cops and reports a file
     /// error; standalone callers can use [`super::depth::check`] first.
     pub fn of(program: &ProgramNode<'pr>) -> Self {
-        Self::build(program, None, false, false)
+        Self::build(program, None, false, false, None)
     }
 
     /// Opt-in pinned VariableForce reference/declaration semantics for
@@ -835,7 +835,7 @@ impl<'pr> ScopeAnalysis<'pr> {
         program: &ProgramNode<'pr>,
         file: &crate::source::SourceFile,
     ) -> Self {
-        Self::build(program, Some(file), false, false)
+        Self::build(program, Some(file), false, false, None)
     }
 
     /// The pinned force's before-declaring-variable delivery and RHS-first
@@ -845,7 +845,7 @@ impl<'pr> ScopeAnalysis<'pr> {
         program: &ProgramNode<'pr>,
         file: &crate::source::SourceFile,
     ) -> Self {
-        Self::build(program, Some(file), true, false)
+        Self::build(program, Some(file), true, false, None)
     }
 
     /// Explicit-reference consumer of the same pinned force order. Keep actual
@@ -855,7 +855,23 @@ impl<'pr> ScopeAnalysis<'pr> {
         program: &ProgramNode<'pr>,
         file: &crate::source::SourceFile,
     ) -> Self {
-        Self::build(program, Some(file), false, true)
+        Self::build(program, Some(file), false, true, None)
+    }
+
+    /// UselessAssignment's detection-only UTF8-MAC name projection. Preserve
+    /// the accepted liveness/binding model and raw identities for all other
+    /// consumers, especially source correction proofs.
+    pub(crate) fn for_useless_assignments(
+        program: &ProgramNode<'pr>,
+        file: &crate::source::SourceFile,
+    ) -> Self {
+        Self::build(
+            program,
+            None,
+            false,
+            false,
+            file.match_pattern_composes_identifiers().then_some(file),
+        )
     }
 
     pub(crate) fn shadowing_declarations(
@@ -869,10 +885,12 @@ impl<'pr> ScopeAnalysis<'pr> {
         source_file: Option<&crate::source::SourceFile>,
         outer_shadowing: bool,
         underscore_variables: bool,
+        useless_assignment_names: Option<&crate::source::SourceFile>,
     ) -> Self {
         super::depth::check(program).unwrap_or_else(|error| panic!("{error}"));
         let mut analyzer = Analyzer {
             source_file,
+            useless_assignment_names,
             outer_shadowing,
             underscore_variables,
             out: ScopeAnalysis {
@@ -1077,6 +1095,7 @@ struct LoopMark {
 /// The walk building a [`ScopeAnalysis`].
 struct Analyzer<'a, 'pr> {
     source_file: Option<&'a crate::source::SourceFile>,
+    useless_assignment_names: Option<&'a crate::source::SourceFile>,
     outer_shadowing: bool,
     underscore_variables: bool,
     out: ScopeAnalysis<'pr>,
@@ -1121,6 +1140,7 @@ impl<'pr> Analyzer<'_, 'pr> {
         a == b
             || self
                 .source_file
+                .or(self.useless_assignment_names)
                 .is_some_and(|file| file.match_pattern_source(a) == file.match_pattern_source(b))
     }
     // --- scopes -----------------------------------------------------------
@@ -1219,7 +1239,11 @@ impl<'pr> Analyzer<'_, 'pr> {
         at: Range<usize>,
     ) {
         let start = at.start;
-        if self.source_file.is_some() {
+        let composed_alias = self.useless_assignment_names.is_some()
+            && self
+                .find_variable(name)
+                .is_some_and(|id| self.out.variables[id.0].name != name);
+        if self.source_file.is_some() || composed_alias {
             self.declare_unless_visible(name, declaration, at);
         } else if depth == 0 {
             let scope = self.current_scope();
@@ -2268,6 +2292,22 @@ impl<'pr> Visit<'pr> for Analyzer<'_, 'pr> {
     }
 
     fn visit_call_node(&mut self, node: &CallNode<'pr>) {
+        // Prism parsed the raw NFD spelling as a vcall; the pinned source
+        // buffer composes it before parsing and sees the visible NFC local.
+        if self.useless_assignment_names.is_some()
+            && node.is_variable_call()
+            && node.receiver().is_none()
+            && node.arguments().is_none()
+            && node.block().is_none()
+            && self.find_variable(node.name().as_slice()).is_some()
+        {
+            self.read(
+                node.name().as_slice(),
+                range(&node.location()),
+                ReferenceKind::Read,
+            );
+            return;
+        }
         if self.source_file.is_some() {
             // Pinned VariableForce does not treat send(:binding) as reflection,
             // but any ordinary receiver.binding is a reference. csend is not
@@ -3212,6 +3252,66 @@ mod tests {
                 )
             })
             .collect()
+    }
+
+    #[test]
+    fn useless_assignment_name_projection_preserves_raw_binding_consumers() {
+        for (body, raw_used, projected_used) in [
+            ("é = 1; p e\u{301}", vec![false], vec![true]),
+            (
+                "é = 1; e\u{301} = 2; p é",
+                vec![true, false],
+                vec![false, true],
+            ),
+            (
+                "é = 1; foo { e\u{301} = 2 }; p é",
+                vec![true, false],
+                vec![true, true],
+            ),
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{body}\n");
+            let parsed = ruby_prism::parse(source.as_bytes());
+            let program = parsed.node().as_program_node().unwrap();
+            let file =
+                crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            let usage = |analysis: ScopeAnalysis<'_>| {
+                (0..analysis.assignments.len())
+                    .map(|id| analysis.is_used(AssignmentId(id)))
+                    .collect::<Vec<_>>()
+            };
+            assert_eq!(usage(ScopeAnalysis::of(&program)), raw_used, "{body}");
+            assert_eq!(
+                usage(ScopeAnalysis::for_useless_assignments(&program, &file)),
+                projected_used,
+                "{body}"
+            );
+            assert_eq!(usage(ScopeAnalysis::of(&program)), raw_used, "{body}");
+        }
+        // The new name projection must not adopt other cops' pinned binding
+        // model or discard the accepted acquisition/eager-read precision.
+        for body in [
+            "x=1; 1.binding",
+            "x=1; binding(nil)",
+            "x=1; binding(&nil)",
+            "x=1; send(:binding)",
+            "x=binding; foo { x=2 }",
+        ] {
+            let source = format!("# coding: UTF8-MAC\n{body}\n");
+            let parsed = ruby_prism::parse(source.as_bytes());
+            let program = parsed.node().as_program_node().unwrap();
+            let file =
+                crate::source::SourceFile::new("example.rb".into(), source.as_bytes().to_vec());
+            let raw = ScopeAnalysis::of(&program);
+            let projected = ScopeAnalysis::for_useless_assignments(&program, &file);
+            assert_eq!(raw.assignments.len(), projected.assignments.len());
+            for id in 0..raw.assignments.len() {
+                assert_eq!(
+                    raw.is_used(AssignmentId(id)),
+                    projected.is_used(AssignmentId(id)),
+                    "{body}"
+                );
+            }
+        }
     }
 
     #[test]

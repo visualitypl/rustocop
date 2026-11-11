@@ -4512,11 +4512,13 @@ fn ns06_exact_bom_crlf_comments_queued_nested_commands_and_style_layout_peers() 
             "Naming/HeredocDelimiterCase,Style/EmptyHeredoc,Layout",
             2,
         ),
+        // The `Layout` department now also indents the `<<~` body,
+        // one more pass (its atomic body edit and the escape edit conflict).
         (
             "p <<~sql\n#{\"\\#\"}\nsql\n",
-            "p <<~SQL\n#{\"#\"}\nSQL\n",
+            "p <<~SQL\n  #{\"#\"}\nSQL\n",
             "Naming/HeredocDelimiterCase,Style/RedundantStringEscape,Layout",
-            2,
+            3,
         ),
     ] {
         fs::write(&path, before).unwrap();
@@ -4547,9 +4549,12 @@ fn ns06_live_default_renaming_does_not_weaken_prior_body_to_terminator_guards() 
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     for (source, expected) in [
+        // Once no peer writes the body (third pass), default-on
+        // HeredocIndentation turns the plain opener into `<<~` (zero dedent;
+        // the renamed label cannot match the body line).
         (
             "a = 1\nb = 2\np <<\"#{a + b}\"\n#{a+b}\n#{a + b}\n",
-            "a = 1\nb = 2\np <<\"#{A + B}\"\n#{a + b}\n#{A + B}\n",
+            "a = 1\nb = 2\np <<~\"#{A + B}\"\n#{a + b}\n#{A + B}\n",
         ),
         (
             "@x = 3\np <<-\"#{@x}\"\n\u{b}#@x\n#{@x}\n",

@@ -65,17 +65,37 @@ pub(crate) struct Regexp<'pr> {
     // Only direct static fragments: interpolation expressions are separate Ruby
     // code, never text in the outer regexp. Total work is linear in source bytes.
     pub(crate) fragments: Vec<Location<'pr>>,
+    // Main-parse facts for the pinned regexp source-tree consumer's emitted
+    // multiline str ranges. Style spelling/corrections still use full fragments.
+    pub(crate) fragment_line_counts: Vec<usize>,
 }
 impl<'pr> Regexp<'pr> {
     pub(crate) fn new(node: &Node<'pr>) -> Option<Self> {
-        let (opening, closing, fragments) = match node {
+        let lines = |bytes: &[u8]| bytes.split_inclusive(|b| *b == b'\n').count();
+        let part_lines = |parts: ruby_prism::NodeList<'pr>| {
+            parts
+                .iter()
+                .filter_map(|n| n.as_string_node().map(|s| lines(s.unescaped())))
+                .collect()
+        };
+        let (opening, closing, fragments, fragment_line_counts) = match node {
             Node::RegularExpressionNode { .. } => {
                 let n = node.as_regular_expression_node()?;
-                (n.opening_loc(), n.closing_loc(), vec![n.content_loc()])
+                (
+                    n.opening_loc(),
+                    n.closing_loc(),
+                    vec![n.content_loc()],
+                    vec![lines(n.unescaped())],
+                )
             }
             Node::MatchLastLineNode { .. } => {
                 let n = node.as_match_last_line_node()?;
-                (n.opening_loc(), n.closing_loc(), vec![n.content_loc()])
+                (
+                    n.opening_loc(),
+                    n.closing_loc(),
+                    vec![n.content_loc()],
+                    vec![lines(n.unescaped())],
+                )
             }
             Node::InterpolatedRegularExpressionNode { .. } => {
                 let n = node.as_interpolated_regular_expression_node()?;
@@ -83,6 +103,7 @@ impl<'pr> Regexp<'pr> {
                     n.opening_loc(),
                     n.closing_loc(),
                     static_fragments(n.parts()),
+                    part_lines(n.parts()),
                 )
             }
             Node::InterpolatedMatchLastLineNode { .. } => {
@@ -91,6 +112,7 @@ impl<'pr> Regexp<'pr> {
                     n.opening_loc(),
                     n.closing_loc(),
                     static_fragments(n.parts()),
+                    part_lines(n.parts()),
                 )
             }
             _ => return None,
@@ -99,6 +121,7 @@ impl<'pr> Regexp<'pr> {
             opening,
             closing,
             fragments,
+            fragment_line_counts,
         })
     }
 }

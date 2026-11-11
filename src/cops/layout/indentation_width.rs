@@ -10,7 +10,7 @@ use crate::{
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
-    source::SourceFile,
+    source::{SourceFile, literal_interior},
 };
 
 pub struct IndentationWidth;
@@ -162,7 +162,7 @@ fn protected_body(begin: &ruby_prism::BeginNode<'_>) -> Option<Range<usize>> {
     }
 }
 
-fn bare_access<'a, 'pr: 'a>(
+pub(super) fn bare_access<'a, 'pr: 'a>(
     node: &Node<'pr>,
     ancestors: impl Iterator<Item = &'a Node<'pr>>,
 ) -> bool {
@@ -182,7 +182,7 @@ fn bare_access<'a, 'pr: 'a>(
 /// nodes are transparent; loops, methods, rescue and ordinary calls are not.
 /// Prism puts a block inside its call, whereas RuboCop puts the call inside
 /// the block, so skip that call when following a block's enclosing scope.
-fn in_macro_scope<'a, 'pr: 'a>(
+pub(super) fn in_macro_scope<'a, 'pr: 'a>(
     node: &Node<'pr>,
     ancestors: impl Iterator<Item = &'a Node<'pr>>,
 ) -> bool {
@@ -511,61 +511,6 @@ fn checks<'pr>(
         }
         _ => {}
     }
-}
-
-/// Protect whole literal interiors, including interpolation, when shifting a
-/// containing subtree. This correction-only conservatism also handles empty
-/// indentation at heredoc body boundaries; a zero-width overlap cannot.
-fn literal_interior(node: &Node<'_>, file: &SourceFile) -> Option<Range<usize>> {
-    let (opening, closing) = match node {
-        Node::StringNode { .. } => {
-            let n = node.as_string_node()?;
-            (n.opening_loc()?, n.closing_loc()?)
-        }
-        Node::InterpolatedStringNode { .. } => {
-            let n = node.as_interpolated_string_node()?;
-            (n.opening_loc()?, n.closing_loc()?)
-        }
-        Node::SymbolNode { .. } => {
-            let n = node.as_symbol_node()?;
-            (n.opening_loc()?, n.closing_loc()?)
-        }
-        Node::InterpolatedSymbolNode { .. } => {
-            let n = node.as_interpolated_symbol_node()?;
-            (n.opening_loc()?, n.closing_loc()?)
-        }
-        Node::XStringNode { .. } => {
-            let n = node.as_x_string_node()?;
-            (n.opening_loc(), n.closing_loc())
-        }
-        Node::InterpolatedXStringNode { .. } => {
-            let n = node.as_interpolated_x_string_node()?;
-            (n.opening_loc(), n.closing_loc())
-        }
-        Node::RegularExpressionNode { .. } => {
-            let n = node.as_regular_expression_node()?;
-            (n.opening_loc(), n.closing_loc())
-        }
-        Node::InterpolatedRegularExpressionNode { .. } => {
-            let n = node.as_interpolated_regular_expression_node()?;
-            (n.opening_loc(), n.closing_loc())
-        }
-        Node::ArrayNode { .. } => {
-            let n = node.as_array_node()?;
-            let opening = n.opening_loc()?;
-            if !opening.as_slice().starts_with(b"%") {
-                return None;
-            }
-            (opening, n.closing_loc()?)
-        }
-        _ => return None,
-    };
-    let start = if opening.as_slice().starts_with(b"<<") {
-        file.line_start(file.line_of(opening.end_offset()) + 1)
-    } else {
-        opening.end_offset()
-    };
-    Some(start..closing.end_offset())
 }
 
 fn correction(

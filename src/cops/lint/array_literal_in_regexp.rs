@@ -181,7 +181,7 @@ fn single_character(node: &Node<'_>, file: &SourceFile) -> Option<bool> {
 }
 // These cops retain the reference buffer's leading BOM character in columns.
 // Reuse the accepted encoding projection without changing prior cop policies.
-pub(super) fn reference_line_col(offset: usize, file: &SourceFile) -> (u32, u32) {
+pub(crate) fn reference_line_col(offset: usize, file: &SourceFile) -> (u32, u32) {
     let (line, col) = super::duplicate_match_pattern::buffer_line_col(offset, file);
     (
         line,

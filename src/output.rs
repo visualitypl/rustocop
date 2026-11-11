@@ -23,6 +23,16 @@ pub enum Format {
 pub fn render_text(report: &RunReport) -> String {
     let mut out = String::new();
     for result in &report.results {
+        for offense in &result.global_offenses {
+            let _ = writeln!(
+                out,
+                "{}: {}: {} ({})",
+                result.path.display(),
+                offense.severity.letter(),
+                offense.message,
+                offense.cop
+            );
+        }
         for offense in &result.offenses {
             let _ = writeln!(
                 out,
@@ -69,6 +79,11 @@ pub fn render_github(report: &RunReport) -> String {
     for result in &report.results {
         let path = result.path.display().to_string();
         let file = escape_property(&path);
+        for offense in &result.global_offenses {
+            let title = escape_property(offense.cop);
+            let data = escape_data(&format!("{path}: {}: {}", offense.cop, offense.message));
+            let _ = writeln!(out, "::error file={file},title={title}::{data}");
+        }
         for offense in &result.offenses {
             let title = escape_property(offense.cop);
             let data = escape_data(&format!(
@@ -206,6 +221,7 @@ mod tests {
         RunReport {
             files_inspected: 2,
             results: vec![FileResult {
+                global_offenses: Vec::new(),
                 path: PathBuf::from("app/models/user.rb"),
                 offenses: vec![Offense {
                     correction: None,
@@ -265,6 +281,7 @@ mod tests {
         RunReport {
             files_inspected: 1,
             results: vec![FileResult {
+                global_offenses: Vec::new(),
                 path: PathBuf::from(path),
                 offenses: vec![Offense {
                     correction: None,
@@ -405,6 +422,35 @@ mod tests {
             "::error file=lib/a%2Cb%3A100%25.rb,line=4,col=2,title=rustocop::lib/a,b:100%25.rb: \
              error: syntax error on line 4: unexpected `%25`%0Ahere"
         );
+    }
+
+    #[test]
+    fn global_findings_have_exact_location_free_output_and_escaping() {
+        let report = RunReport {
+            files_inspected: 1,
+            fix: true,
+            results: vec![FileResult {
+                path: PathBuf::from("a,b:100%\n/gems.locked"),
+                offenses: Vec::new(),
+                global_offenses: vec![crate::offense::GlobalOffense {
+                    cop: "Bundler/GemFilename",
+                    severity: Severity::Convention,
+                    message: "Use Gemfile.lock: 100%\r\nnot a source repair".into(),
+                }],
+            }],
+            ..RunReport::default()
+        };
+        assert_eq!(
+            render_text(&report),
+            "a,b:100%\n/gems.locked: C: Use Gemfile.lock: 100%\r\nnot a source repair (Bundler/GemFilename)\n\n1 file inspected, 0 corrections applied, 1 offense remaining\n"
+        );
+        assert_eq!(
+            render_github(&report),
+            "::error file=a%2Cb%3A100%25%0A/gems.locked,title=Bundler/GemFilename::a,b:100%25%0A/gems.locked: Bundler/GemFilename: Use Gemfile.lock: 100%25%0D%0Anot a source repair\n1 file inspected, 0 corrections applied, 1 offense remaining\n"
+        );
+        assert_eq!(report.offense_count(), 1);
+        assert_eq!(report.exit_code(), crate::pipeline::EXIT_OFFENSES);
+        assert!(!report.has_errors());
     }
 
     #[test]

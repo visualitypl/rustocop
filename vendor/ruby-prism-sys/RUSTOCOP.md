@@ -65,6 +65,26 @@ Tests also assert negation's receiver/locations, latest API isolation, comment/
 newline handling, and invalid command/composition/pattern boundaries. Correction
 test syntax checks now use `crate::parser::parse`, not latest-mode parsing.
 
+The binding also adds a Ruby-3.4-only `PM_CONTEXT_BLOCK_PARAMETERS` case in
+`parse_block_exit`. A block's own parameter defaults do not establish a target
+for `next`, `break` or `redo` in native Ruby 3.4 Prism. Continue through that
+context to the enclosing scope instead of accepting it. An enclosing loop,
+block body, lambda body or `defined?` still permits the exit; a nested method
+boundary still rejects it. The existing pending-exit lists handle trailing
+`while`/`until` modifiers, including a modifier on the containing block call.
+Nested default-owned loop/block/lambda bodies retain their own valid contexts.
+No new validator, diagnostic, parse, node walk or parser state is introduced.
+Latest/default and other grammar versions retain upstream behavior.
+
+`src/parser/flow_defaults.rs` and `tests/block_default_flow.rs` share 241 authored
+original-byte source-only witnesses in `tests/support/flow_defaults.rs`. They
+cover exact messages/ranges, owned main-parse diagnostics and lazy metadata,
+native `--parser=prism -c`, encoded/BOM/CRLF/heredoc inputs, enclosing and nested
+scope boundaries, mandatory fatal delivery, every ordinary callback, selectors,
+directives, strict config, stdin, observers and no-write/atomic-peer controls.
+The three historical gap rows remain byte-for-byte historical fixture evidence;
+their Rust consumer now requires native-invalid fatal rejection for them too.
+
 The existing expression limit (10,000) is unchanged, so ordinary syntax errors
 and the AST-depth diagnostic retain precedence/positions. No lexical nesting
 heuristic or file-size limit is used. An isolated 64 MiB stack in `src/parser.rs`
@@ -79,7 +99,10 @@ Upgrade checklist:
    value cycle (`parse_pattern` → `parse_pattern_hash` → `parse_pattern`), not
    just pattern primitives. Compare the vendored C diff with the upstream crate;
    it should contain only these three guards/destructured depth plumbing and
-   the observation hooks and the Ruby-3.4 not-prefix guard gate.
+   the observation hooks, the Ruby-3.4 not-prefix guard gate and the
+   Ruby-3.4 block-parameter context transparency in `parse_block_exit`.
+   Recheck block-default flow boundaries against native Ruby 3.4 Prism on
+   upgrades, including outer targets, nested method barriers and trailing loops.
    Compare English-not grammar with native Ruby 3.4's default Prism parser on
    upgrades; remove the gate once the fixed-version parser accepts the same
    sources upstream. Never enable ordinary commands to fix not-prefix parsing.

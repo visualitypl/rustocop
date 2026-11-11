@@ -1,4 +1,7 @@
 //! `Lint/TopLevelReturnWithArgument` — arguments discarded by a top-level return.
+//!
+//! Detection only: the 2026-11-04 no-source-edit exception preserves
+//! the observable default/-W1/-w compiler warning, even for primitive arguments.
 
 use crate::{
     cops::{Cop, NodeContext, ast},
@@ -62,9 +65,9 @@ impl Cop for TopLevelReturnWithArgument {
             end_line: file.line_of(end.saturating_sub(1).max(start)),
             message: "Top level return with argument detected.".into(),
             // Even primitive arguments produce a compile-time warning in
-            // Ruby's default mode. The reviewed -W0 probe does not authorize
-            // dropping that observation. Keep findings, but withhold edits
-            // until the material safety-policy conflict is resolved.
+            // Ruby's default mode. The -W0 probe does not authorize
+            // dropping that observation. The explicit fixed-policy
+            // no-source-edit exception requires findings without corrections.
             correction: None,
         });
     }
@@ -82,7 +85,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn primitive_returns_retain_findings_pending_warning_safety_disposition() {
+    fn primitive_returns_retain_findings_under_warning_preserving_no_edit_exception() {
         use crate::cops::testing::correction_offenses;
         for (before, _reviewed_after) in [
             ("return 1, 2, 3\n", "return\n"),

@@ -4,6 +4,20 @@
 /// Explicit upstream `Enabled: false`, plus the existing frozen-comment exception.
 /// Pending is enabled; absence from this list does not imply implementation.
 const OPT_IN: &[&str] = &[
+    "Bundler/GemComment",
+    "Bundler/GemVersion",
+    "Gemspec/DependencyVersion",
+    "Layout/EmptyLineAfterMultilineCondition",
+    "Layout/FirstArrayElementLineBreak",
+    "Layout/FirstHashElementLineBreak",
+    "Layout/FirstMethodArgumentLineBreak",
+    "Layout/FirstMethodParameterLineBreak",
+    "Layout/HeredocArgumentClosingParenthesis",
+    "Layout/MultilineArrayLineBreaks",
+    "Layout/MultilineAssignmentLayout",
+    "Layout/MultilineHashKeyLineBreaks",
+    "Layout/MultilineMethodArgumentLineBreaks",
+    "Layout/MultilineMethodParameterLineBreaks",
     "Lint/ConstantResolution",
     "Lint/HeredocMethodCallPosition",
     "Lint/NumberConversion",
@@ -74,6 +88,7 @@ pub(crate) fn ruby_versions(name: &str) -> RubyVersions {
     let minimum = match name {
         "Style/Dir" | "Style/SymbolArray" => Some(RubyVersion(2, 0)),
         "Lint/SafeNavigationChain"
+        | "Layout/HeredocIndentation"
         | "Style/FrozenStringLiteralComment"
         | "Style/HashFetchChain"
         | "Style/SafeNavigation" => Some(RubyVersion(2, 3)),
@@ -149,7 +164,43 @@ impl PathPolicy {
     }
 }
 
+const GEMFILES: &[&str] = &["**/*.gemfile", "**/Gemfile", "**/gems.rb"];
+
 const PATHS: &[(&str, &[&str], &[&str])] = &[
+    ("Bundler/DuplicatedGem", GEMFILES, &[]),
+    ("Bundler/DuplicatedGroup", GEMFILES, &[]),
+    ("Bundler/GemComment", GEMFILES, &[]),
+    ("Bundler/GemVersion", GEMFILES, &[]),
+    ("Bundler/InsecureProtocolSource", GEMFILES, &[]),
+    ("Bundler/OrderedGems", GEMFILES, &[]),
+    (
+        "Bundler/GemFilename",
+        &[
+            "**/Gemfile",
+            "**/gems.rb",
+            "**/Gemfile.lock",
+            "**/gems.locked",
+        ],
+        &[],
+    ),
+    ("Gemspec/AddRuntimeDependency", &["**/*.gemspec"], &[]),
+    ("Gemspec/AttributeAssignment", &["**/*.gemspec"], &[]),
+    ("Gemspec/DependencyVersion", &["**/*.gemspec"], &[]),
+    (
+        "Gemspec/DeprecatedAttributeAssignment",
+        &["**/*.gemspec"],
+        &[],
+    ),
+    (
+        "Gemspec/DevelopmentDependencies",
+        &["**/*.gemspec", "**/Gemfile", "**/gems.rb"],
+        &[],
+    ),
+    ("Gemspec/DuplicatedAssignment", &["**/*.gemspec"], &[]),
+    ("Gemspec/OrderedDependencies", &["**/*.gemspec"], &[]),
+    ("Gemspec/RequireMFA", &["**/*.gemspec"], &[]),
+    ("Gemspec/RequiredRubyVersion", &["**/*.gemspec"], &[]),
+    ("Gemspec/RubyVersionGlobalsUsage", &["**/*.gemspec"], &[]),
     ("Lint/TopLevelReturnWithArgument", &[], &["**/*.jb"]),
     ("Naming/FileName", &[], &["Rakefile.rb"]),
     ("Naming/PredicatePrefix", &[], &["spec/**/*"]),

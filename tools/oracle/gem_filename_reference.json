@@ -1,0 +1,414 @@
+{
+  "name": "Bundler/GemFilename",
+  "spec_accounting": {
+    "errors": [
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with gems.rb file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with non-root gems.rb file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with gems.locked file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with non-root gems.locked file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with Gemfile file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with non-root Gemfile file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with Gemfile.lock file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with default configuration (EnforcedStyle => `Gemfile`) with non-root Gemfile.lock file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with Gemfile file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with non-root Gemfile file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with Gemfile.lock file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 5,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with non-root Gemfile.lock file path behaves like invalid gem file registers an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with gems.rb file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with non-root gems.rb file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      },
+      {
+        "spec": "spec/rubocop/cop/bundler/gem_filename_spec.rb",
+        "line": 14,
+        "description": "RuboCop::Cop::Bundler::GemFilename with EnforcedStyle set to `gems.rb` with non-root gems.locked file path behaves like valid gem file does not register an offense",
+        "error": "Oracle::Unsupported: `parse_source` is not emulated outside WordArray investigation fixtures",
+        "recorded": 0
+      }
+    ]
+  },
+  "lifecycle_evidence": [
+    {
+      "path": "gems.rb",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `gems.rb` file was found but `Gemfile` is required (file path: gems.rb).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `gems.rb` file was found but `Gemfile` is required (file path: gems.rb).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "spec/gems.rb",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `gems.rb` file was found but `Gemfile` is required (file path: spec/gems.rb).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `gems.rb` file was found but `Gemfile` is required (file path: spec/gems.rb).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "gems.locked",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `Gemfile.lock` with `Gemfile` but found `gems.locked` file (file path: gems.locked).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `Gemfile.lock` with `Gemfile` but found `gems.locked` file (file path: gems.locked).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "spec/gems.locked",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `Gemfile.lock` with `Gemfile` but found `gems.locked` file (file path: spec/gems.locked).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `Gemfile.lock` with `Gemfile` but found `gems.locked` file (file path: spec/gems.locked).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "Gemfile",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "spec/Gemfile",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "Gemfile.lock",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "spec/Gemfile.lock",
+      "declared_style": "Gemfile",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "gems.rb",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `gems.rb` file was found but `Gemfile` is required (file path: gems.rb).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "spec/gems.rb",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `gems.rb` file was found but `Gemfile` is required (file path: spec/gems.rb).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "spec/gems.locked",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": []
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `Gemfile.lock` with `Gemfile` but found `gems.locked` file (file path: spec/gems.locked).",
+            "global": true
+          }
+        ]
+      }
+    },
+    {
+      "path": "Gemfile",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `Gemfile` was found but `gems.rb` file is required (file path: Gemfile).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "spec/Gemfile",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: `Gemfile` was found but `gems.rb` file is required (file path: spec/Gemfile).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "Gemfile.lock",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `gems.locked` file with `gems.rb` but found `Gemfile.lock` (file path: Gemfile.lock).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    },
+    {
+      "path": "spec/Gemfile.lock",
+      "declared_style": "gems.rb",
+      "source": "print 1",
+      "declared_result": {
+        "after": "print 1",
+        "offenses": [
+          {
+            "line": 1,
+            "col": 1,
+            "message": "Bundler/GemFilename: Expected a `gems.locked` file with `gems.rb` but found `Gemfile.lock` (file path: spec/Gemfile.lock).",
+            "global": true
+          }
+        ]
+      },
+      "fixed_result": {
+        "after": "print 1",
+        "offenses": []
+      }
+    }
+  ]
+}

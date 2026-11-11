@@ -9,6 +9,9 @@ const RETURN: &str = "Style/ReturnNil";
 const PREDICATE: &str = "Style/ReturnNilInPredicateMethodDefinition";
 const BOTH: &str = "Style/ReturnNil,Style/ReturnNilInPredicateMethodDefinition";
 const SOURCE: &str = "def f?\n  return nil if condition\n  true\nend\n";
+/// The pinned source's guard clause is also a default-on
+/// Layout/EmptyLineAfterGuardClause finding; it is not the subject here.
+const GUARD_OFF: &str = "[cops.\"Layout/EmptyLineAfterGuardClause\"]\nenabled = false\n";
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -92,7 +95,11 @@ fn default_opt_in_config_and_selectors_never_write_without_fix() {
             [0, 0],
         ),
     ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+        fs::write(
+            dir.path().join("rustocop.toml"),
+            format!("{config}{GUARD_OFF}"),
+        )
+        .unwrap();
         unchanged(dir.path(), &args, SOURCE.as_bytes(), status, counts);
     }
 }
@@ -119,7 +126,7 @@ fn fixed_options_are_strict_and_config_disabled_fixes_do_not_write() {
     }
     fs::write(
         dir.path().join("rustocop.toml"),
-        format!("[cops.\"{PREDICATE}\"]\nenabled = false\n"),
+        format!("[cops.\"{PREDICATE}\"]\nenabled = false\n{GUARD_OFF}"),
     )
     .unwrap();
     unchanged(dir.path(), &["--fix", "a.rb"], SOURCE.as_bytes(), 0, [0, 0]);

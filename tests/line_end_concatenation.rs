@@ -64,7 +64,9 @@ fn default_detection_only_cli_stdin_and_exact_diagnostic() {
 #[test]
 fn selectors_config_enabling_excludes_and_strict_options() {
     let d = project();
-    let source = b"\"a\" +\n \"b\"\n";
+    // Indented as default-on Layout/MultilineOperationIndentation
+    // expects, so only this cop's selection decides the outcome.
+    let source = b"\"a\" +\n  \"b\"\n";
     unchanged(
         d.path(),
         source,

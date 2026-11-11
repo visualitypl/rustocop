@@ -1,4 +1,7 @@
 //! RuboCop MIT examples are SOURCE ONLY; authored native controls separate.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -70,8 +73,8 @@ fn pinned_main_source_and_all_original_bytes_match_exact_pipeline_findings() {
 }
 #[test]
 fn all_original_bytes_match_rebuilt_cli_lint_and_actual_guarded_fix() {
-    let d = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let d = project();
         let source = bytes(&row, "bytes");
         let rejected = row.get("parser_rejection").is_some();
         let expected: Vec<Finding> = if rejected {
@@ -116,7 +119,7 @@ fn all_original_bytes_match_rebuilt_cli_lint_and_actual_guarded_fix() {
                 }
             }
         }
-    }
+    });
 }
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();

@@ -49,13 +49,19 @@ impl Cop for ErbNewArguments {
                 continue;
             }
             let location = argument.location();
-            let value = String::from_utf8_lossy(location.as_slice());
+            // Quote the reference source buffer, not UTF8-lossy raw bytes:
+            // legacy argument/identifier data must survive in the suggestion.
+            // The existing renderer projects declared encodings and explicitly
+            // escapes bytes without a Unicode mapping; it never changes edits.
+            let value =
+                super::ambiguous_block_association::reference_source(location.as_slice(), file);
             let message = match i {
                 0 => "Passing safe_level with the 2nd argument of `ERB.new` is deprecated. Do not use it, and specify other arguments as keyword arguments.".into(),
                 1 => format!("Passing trim_mode with the 3rd argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, trim_mode: {value})` instead."),
                 _ => format!("Passing eoutvar with the 4th argument of `ERB.new` is deprecated. Use keyword argument like `ERB.new(str, eoutvar: {value})` instead."),
             };
-            let (line, col) = file.line_col(location.start_offset());
+            let (line, col) =
+                super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -186,6 +192,74 @@ mod tests {
     }
 
     #[test]
+    fn lead_legacy_argument_suggestions_preserve_trim_and_eoutvar_data() {
+        for (source, col, value) in [
+            (
+                b"# encoding: ISO-8859-1\nERB.new(\"x\", nil, \"caf\xe9\")\n".as_slice(),
+                19,
+                "trim_mode: \"café\"",
+            ),
+            (
+                b"# encoding: ISO-8859-1\nERB.new(\"x\", nil, \"-\", \"_out\xe9\")\n",
+                24,
+                "eoutvar: \"_outé\"",
+            ),
+        ] {
+            let file = crate::source::SourceFile::new("example.rb".into(), source.to_vec());
+            let parsed = crate::parser::parse(&file.bytes);
+            assert_eq!(parsed.errors().count(), 0);
+            file.record_encoding(&parsed);
+            let mut found = Vec::new();
+            assert!(
+                crate::cops::run_cops(&[&super::ErbNewArguments], &parsed, &file, &mut found)
+                    .is_empty()
+            );
+            let offense = found.iter().find(|o| o.col == col).unwrap();
+            assert_eq!((offense.line, offense.end_line), (2, 2));
+            assert!(offense.message.contains(value), "{offense:?}");
+            assert!(!offense.message.contains('\u{fffd}'));
+            assert!(found.iter().all(|o| o.correction.is_none()));
+        }
+    }
+
+    #[test]
+    fn encoded_literals_identifiers_multiline_and_binary_fallback_match_reference() {
+        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
+            "../../../tests/fixtures/deprecated_constructor_encodings.json"
+        ))
+        .unwrap();
+        assert_eq!(rows.len(), 327);
+        for row in rows {
+            let hex = row["source_hex"].as_str().unwrap();
+            let source = (0..hex.len())
+                .step_by(2)
+                .map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap())
+                .collect();
+            let file = crate::source::SourceFile::new("example.rb".into(), source);
+            let parsed = crate::parser::parse(&file.bytes);
+            assert_eq!(parsed.errors().count(), 0, "{row}");
+            file.record_encoding(&parsed);
+            let mut found = Vec::new();
+            assert!(
+                crate::cops::run_cops(&[&super::ErbNewArguments], &parsed, &file, &mut found)
+                    .is_empty()
+            );
+            let expected: Vec<(u32, u32, u32, String)> =
+                serde_json::from_value(row["findings"].clone()).unwrap();
+            found.sort_by_key(|o| (o.line, o.col));
+            assert_eq!(
+                found
+                    .iter()
+                    .map(|o| (o.line, o.col, o.end_line, o.message.clone()))
+                    .collect::<Vec<_>>(),
+                expected,
+                "{row}"
+            );
+            assert!(found.iter().all(|o| o.correction.is_none()), "{row}");
+        }
+    }
+
+    #[test]
     fn positional_arguments_have_exact_ranges_and_messages() {
         for prefix in ["", "::"] {
             for suffix in [
@@ -227,6 +301,29 @@ mod tests {
             }
         }
     }
+    #[test]
+    fn declared_utf8_mac_argument_columns_match_the_composed_reference_buffer() {
+        for (encoding, columns) in [("UTF8-MAC", [14, 19, 24]), ("UTF-8", [15, 20, 25])] {
+            for eol in ["\n", "\r\n"] {
+                for (receiver, extra) in [("ERB", 0), ("::ERB", 2)] {
+                    let source = format!(
+                        "# coding: {encoding}{eol}{receiver}.new(\"e\u{301}\", nil, \"-\", \"_out\"){eol}"
+                    );
+                    let found = offenses(&source);
+                    assert_eq!(found.len(), 3, "{source}");
+                    for (offense, col) in found.iter().zip(columns) {
+                        assert_eq!(
+                            (offense.line, offense.col, offense.end_line),
+                            (2, col + extra, 2),
+                            "{source}"
+                        );
+                        assert!(offense.correction.is_none());
+                    }
+                }
+            }
+        }
+    }
+
     #[test]
     fn closed_loaded_method_reference_has_a_canonical_edit() {
         for receiver in ["ERB", "::ERB"] {

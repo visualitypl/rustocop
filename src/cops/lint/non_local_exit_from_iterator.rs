@@ -16,7 +16,7 @@
 //! As in RuboCop's AST, a block encloses its method call's receiver and
 //! arguments, not just its body.
 
-use ruby_prism::{BlockNode, CallNode, DefNode, LambdaNode, Node, ReturnNode, Visit};
+use ruby_prism::{BlockNode, CallNode, Node};
 
 use crate::{
     cops::{Cop, NodeContext},
@@ -38,23 +38,47 @@ impl Cop for NonLocalExitFromIterator {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some(call) = node.as_call_node() else {
+        let Some(ret) = node.as_return_node() else {
             return;
         };
-        if classify(&call) != BlockKind::Iterator {
+        if ret.arguments().is_some() {
             return;
         }
-        let mut search = ReturnSearch {
-            cop: self,
-            file,
-            out,
-        };
-        // Everything the parser gem's block node encloses.
-        ruby_prism::visit_call_node(&mut search, &call);
+        // Use the pipeline's complete ancestor stack. A Prism call with a
+        // literal block encloses its receiver/arguments as well as its body,
+        // just as the synthetic block parent does in the reference AST.
+        for ancestor in cx.ancestors() {
+            if matches!(ancestor, Node::DefNode { .. } | Node::LambdaNode { .. }) {
+                return;
+            }
+            let Some(call) = ancestor.as_call_node() else {
+                continue;
+            };
+            match classify(&call) {
+                BlockKind::Scope => return,
+                BlockKind::Iterator => {
+                    let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                        ret.keyword_loc().start_offset(),
+                        file,
+                    );
+                    out.push(Offense {
+                        correction: None,
+                        cop: self.name(),
+                        severity: self.severity(),
+                        message: MESSAGE.to_string(),
+                        line,
+                        end_line: line,
+                        col,
+                    });
+                    return;
+                }
+                BlockKind::NoBlock | BlockKind::Transparent => {}
+            }
+        }
     }
 }
 
@@ -110,46 +134,6 @@ fn has_parameters(block: &BlockNode<'_>) -> bool {
         }
         // `NumberedParametersNode` or `ItParametersNode`.
         None => true,
-    }
-}
-
-/// Reports the bare `return`s an iterator encloses, down to the next scope
-/// or iterator.
-struct ReturnSearch<'a> {
-    cop: &'a NonLocalExitFromIterator,
-    file: &'a SourceFile,
-    out: &'a mut Vec<Offense>,
-}
-
-impl<'pr> Visit<'pr> for ReturnSearch<'_> {
-    fn visit_return_node(&mut self, node: &ReturnNode<'pr>) {
-        if node.arguments().is_none() {
-            let (line, col) = self.file.line_col(node.keyword_loc().start_offset());
-            self.out.push(Offense {
-                correction: None,
-                cop: self.cop.name(),
-                severity: self.cop.severity(),
-                message: MESSAGE.to_string(),
-                line,
-                end_line: line,
-                col,
-            });
-        }
-        ruby_prism::visit_return_node(self, node);
-    }
-
-    fn visit_def_node(&mut self, _node: &DefNode<'pr>) {}
-
-    fn visit_lambda_node(&mut self, _node: &LambdaNode<'pr>) {}
-
-    fn visit_call_node(&mut self, node: &CallNode<'pr>) {
-        match classify(node) {
-            // A nested iterator reports its own returns.
-            BlockKind::Scope | BlockKind::Iterator => {}
-            BlockKind::NoBlock | BlockKind::Transparent => {
-                ruby_prism::visit_call_node(self, node);
-            }
-        }
     }
 }
 

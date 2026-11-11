@@ -21,7 +21,12 @@ fn fix_status(dir: &Path, selected: Option<&str>, code: i32) -> String {
     } else {
         // Keep this v0.4 no-write boundary witness's labels fixed. The heredoc delimiter cops' live
         // default rename+Layout composition has its own native regression.
-        command.args(["--except", "Naming/HeredocDelimiterCase"]);
+        // the heredoc indentation cops (proved by their own boundary
+        // recognizer and tests) would re-indent these witnesses' bodies.
+        command.args([
+            "--except",
+            "Naming/HeredocDelimiterCase,Layout/HeredocIndentation,Layout/ClosingHeredocIndentation",
+        ]);
     }
     let out = command.output().unwrap();
     assert_eq!(out.status.code(), Some(code), "{out:?}");

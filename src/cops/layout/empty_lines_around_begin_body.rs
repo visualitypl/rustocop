@@ -1,0 +1,54 @@
+//! `Layout/EmptyLinesAroundBeginBody` — no padding inside `begin`/`end`.
+//!
+//! Upstream's `on_kwbegin` checks the lines after `begin` and before `end`
+//! at the fixed `no_empty_lines` style; nested `rescue`/`else`/`ensure`
+//! keywords are not body edges.
+use crate::{
+    cops::{Cop, NodeContext},
+    offense::Offense,
+    source::SourceFile,
+};
+use ruby_prism::Node;
+
+pub struct EmptyLinesAroundBeginBody;
+
+impl Cop for EmptyLinesAroundBeginBody {
+    fn name(&self) -> &'static str {
+        "Layout/EmptyLinesAroundBeginBody"
+    }
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+    fn check_node<'pr>(
+        &self,
+        node: &Node<'pr>,
+        cx: &NodeContext<'_, 'pr>,
+        file: &SourceFile,
+        out: &mut Vec<Offense>,
+    ) {
+        // Only an explicit `begin` keyword is a parser `kwbegin`; Prism also
+        // uses BeginNode for implicit method, block and class bodies.
+        let Some(begin) = node.as_begin_node() else {
+            return;
+        };
+        let Some(keyword) = begin.begin_keyword_loc() else {
+            return;
+        };
+        let start = out.len();
+        super::body_padding::check(
+            self,
+            "`begin`",
+            (
+                file.line_of(keyword.start_offset()),
+                file.last_line_of(node.location()),
+            ),
+            cx,
+            file,
+            out,
+        );
+        super::body_padding::hold_for_listed_observers(cx, file, &mut out[start..]);
+    }
+}
+
+#[cfg(test)]
+mod tests;

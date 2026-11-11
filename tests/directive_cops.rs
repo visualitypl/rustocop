@@ -21,7 +21,7 @@ fn cli(cwd: &Path, args: &[&str], code: i32) -> Output {
         // policies have independent diagnostic and correction tests.
         .args([
             "--except",
-            "Lint/RedundantCopEnableDirective,Lint/MissingCopEnableDirective",
+            "Lint/RedundantCopEnableDirective,Lint/MissingCopEnableDirective,Lint/RedundantCopDisableDirective",
         ])
         .output()
         .unwrap();

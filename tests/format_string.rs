@@ -701,7 +701,15 @@ fn actual_default_and_literal_original_style_layout_composition_is_bounded() {
     let selected = LITERAL_PEERS;
     // Source only: never execute this curated composition fixture.
     let source = "[sprintf('%s', ?x), '%s' % [%Q(hi)], '%<a>s' % { :a => 'x' }, %W(a b), %q(hello), %Q[hello], %!hello!, :'word', \"\\#\"]\n";
-    for selectors in [None, Some(selected)] {
+    // Layout/ExtraSpacing (default-on and in the Layout peers)
+    // removes the double space the hash conversion keeps; excepting it
+    // keeps the original FormatString contract observable.
+    for (selectors, extra_spacing) in [
+        (None, true),
+        (Some(selected), true),
+        (None, false),
+        (Some(selected), false),
+    ] {
         fs::write(d.path().join("a.rb"), source).unwrap();
         let mut previous = source.as_bytes().to_vec();
         let mut stable = false;
@@ -709,6 +717,9 @@ fn actual_default_and_literal_original_style_layout_composition_is_bounded() {
             let mut args = vec!["--fix", "a.rb"];
             if let Some(s) = selectors {
                 args.extend(["--only", s]);
+            }
+            if !extra_spacing {
+                args.extend(["--except", "Layout/ExtraSpacing"]);
             }
             let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
                 .current_dir(d.path())
@@ -731,8 +742,17 @@ fn actual_default_and_literal_original_style_layout_composition_is_bounded() {
         let text = String::from_utf8(previous).unwrap();
         assert!(text.contains("format(\"%s\", \"x\")"), "{text}");
         assert!(text.contains("format(\"%s\", \"hi\")"), "{text}");
-        // Nonempty hash interiors retain their original leading space.
-        assert!(text.contains("format(\"%<a>s\",  a: \"x\")"), "{text}");
+        // Nonempty hash interiors retain their original leading space,
+        // which ExtraSpacing then normalizes when it is selected.
+        let interior = if extra_spacing {
+            "format(\"%<a>s\", a: \"x\")"
+        } else {
+            "format(\"%<a>s\",  a: \"x\")"
+        };
+        assert!(
+            text.contains(interior),
+            "{selectors:?} {extra_spacing}: {text}"
+        );
         assert!(!text.contains("sprintf"), "{text}");
     }
 }

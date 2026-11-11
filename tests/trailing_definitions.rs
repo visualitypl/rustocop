@@ -65,7 +65,10 @@ fn defaults_selectors_config_and_no_write_contract() {
             format!(
                 "[cops.\"{cop}\"]\nenabled = false\n[cops.\"Style/Documentation\"]\nenabled = false\n[cops.Layout]\nenabled = false\n"
             ),
-            "[cops.Style]\nenabled = false\n".into(),
+            // DefEndAlignment reports the inline `end` of
+            // TrailingMethodEndStatement's source (without an edit).
+            "[cops.Style]\nenabled = false\n[cops.\"Layout/DefEndAlignment\"]\nenabled = false\n"
+                .into(),
         ] {
             fs::write(dir.path().join("rustocop.toml"), config).unwrap();
             cli(dir.path(), &["--fix", "lib/a.rb"], 0);

@@ -1,4 +1,7 @@
-//! encoded parameter diagnostics remain detection-only.
+//! Encoded parameter diagnostics remain detection-only.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -72,8 +75,9 @@ fn all_pinned_encoded_commented_and_split_sigil_sources_are_detection_only_throu
         serde_json::from_str(include_str!("fixtures/method_parameter_ranges.json")).unwrap();
     let crlf: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/method_parameter_crlf.json")).unwrap();
-    let mut count = 0;
-    for row in fixture["pinned"]
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let count = AtomicUsize::new(0);
+    parallel_rows!(for row in fixture["pinned"]
         .as_array()
         .unwrap()
         .iter()
@@ -81,8 +85,7 @@ fn all_pinned_encoded_commented_and_split_sigil_sources_are_detection_only_throu
         .chain(comments["comments"].as_array().unwrap())
         .chain(comments["source"].as_array().unwrap())
         .chain(ranges["ranges"].as_array().unwrap())
-        .chain(crlf["crlf"].as_array().unwrap())
-    {
+        .chain(crlf["crlf"].as_array().unwrap()) => {
         let source = row["source"]
             .as_str()
             .map(|s| s.as_bytes().to_vec())
@@ -106,9 +109,9 @@ fn all_pinned_encoded_commented_and_split_sigil_sources_are_detection_only_throu
             })
             .collect();
         check(&source, &expected);
-        count += 1;
-    }
-    assert_eq!(count, 3819);
+        count.fetch_add(1, Ordering::Relaxed);
+    });
+    assert_eq!(count.load(Ordering::Relaxed), 3819);
 }
 
 #[test]
@@ -128,8 +131,7 @@ fn fixed_minimum_allowlist_and_numbers_policy_is_unchanged() {
 fn encoded_sources_have_host_and_native_syntax_witnesses() {
     let fixture: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/method_parameter_encoding.json")).unwrap();
-    let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("syntax.rb");
+
     let comments: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/method_parameter_comments.json")).unwrap();
     let ranges: serde_json::Value =
@@ -139,15 +141,16 @@ fn encoded_sources_have_host_and_native_syntax_witnesses() {
     for runtime in
         std::iter::once(std::ffi::OsString::from("ruby")).chain(std::env::var_os("RUSTOCOP_RUBY34"))
     {
-        for row in fixture["encoded"]
+        parallel_rows!(for row in fixture["encoded"]
             .as_array()
             .unwrap()
             .iter()
             .chain(comments["comments"].as_array().unwrap())
             .chain(comments["source"].as_array().unwrap())
             .chain(ranges["ranges"].as_array().unwrap())
-            .chain(crlf["crlf"].as_array().unwrap())
-        {
+            .chain(crlf["crlf"].as_array().unwrap()) => {
+            let dir = tempfile::tempdir().unwrap();
+            let path = dir.path().join("syntax.rb");
             let hex = row["source_hex"].as_str().unwrap();
             let source: Vec<_> = (0..hex.len())
                 .step_by(2)
@@ -163,7 +166,7 @@ fn encoded_sources_have_host_and_native_syntax_witnesses() {
             };
             assert!(out.status.success(), "{runtime:?}: {row}: {out:?}");
             assert!(String::from_utf8_lossy(&out.stdout).contains("Syntax OK"));
-        }
+        });
     }
 }
 

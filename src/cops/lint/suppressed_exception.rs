@@ -53,7 +53,10 @@ impl Cop for SuppressedException {
         {
             return;
         }
-        let (line, col) = file.line_col(rescue.location().start_offset());
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(
+            rescue.location().start_offset(),
+            file,
+        );
         out.push(Offense {
             correction: None,
             cop: self.name(),

@@ -128,12 +128,6 @@ fn metadata_and_selection_remain_separate_from_input_prerequisite() {
         ),
     ] {
         fs::write(dir.path().join("rustocop.toml"), config_text).unwrap();
-        let mut cli = args.clone();
-        if cli.is_empty() {
-            cli.extend(["--except", "Style,Naming,Layout,Security"]);
-        }
-        cli.extend(["--fix", "lib/a.rb"]);
-        unchanged(dir.path(), SOURCE.as_bytes(), &cli, 0);
         // Confirm selection itself, independently of conditional inactivity.
         let (path, raw) = rustocop::config::find_config_from(dir.path())
             .unwrap()
@@ -152,6 +146,21 @@ fn metadata_and_selection_remain_separate_from_input_prerequisite() {
             .unwrap_or_default();
         let active = rustocop::cops::select_active(&registry, &config, &only, &except);
         assert_eq!(active.iter().any(|c| c.name() == COP), selected);
+        let delegation = active
+            .iter()
+            .any(|c| c.name() == "Lint/UselessMethodDefinition");
+        let mut cli = args.clone();
+        if cli.is_empty() {
+            cli.extend(["--except", "Style,Naming,Layout,Security"]);
+        }
+        cli.extend(["--fix", "lib/a.rb"]);
+        let out = unchanged(dir.path(), SOURCE.as_bytes(), &cli, i32::from(delegation));
+        assert_eq!(
+            String::from_utf8_lossy(&out.stdout)
+                .matches("(Lint/UselessMethodDefinition)")
+                .count(),
+            usize::from(delegation)
+        );
     }
     fs::write(dir.path().join("rustocop.toml"), "").unwrap();
     let out = unchanged(dir.path(), SOURCE.as_bytes(), &["lib/a.rb"], 1);
@@ -280,7 +289,7 @@ fn both_directive_prefixes_multiline_next_push_and_forced_enable_do_not_supply_i
                         "--fix",
                         "lib/a.rb",
                     ],
-                    0,
+                    i32::from(disabled == COP),
                 );
             }
         }

@@ -1,5 +1,8 @@
 //! exact fixed-pin ranges, native syntax and detection-only CLI.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{fs, process::Command};
 
 const COP: &str = "Naming/BlockParameterName";
@@ -22,11 +25,11 @@ fn source(row: &serde_json::Value) -> Vec<u8> {
 
 #[test]
 fn every_reference_case_is_detection_only_through_real_cli_lint_and_repeated_fix() {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    let path = dir.path().join("a.rb");
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join(".git")).unwrap();
+        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+        let path = dir.path().join("a.rb");
         let source = source(&row);
         fs::write(&path, &source).unwrap();
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
@@ -72,7 +75,7 @@ fn every_reference_case_is_detection_only_through_real_cli_lint_and_repeated_fix
                 "{row}"
             );
         }
-    }
+    });
 }
 
 #[test]

@@ -5,11 +5,37 @@
 # example: <id> <cop> <deviation> -- <reason>.
 # RuboCop revision: 97f30c4fe1ae5c11dd5844bbe00a822c25e6f255
 
+## Gemspec/RequiredRubyVersion
+# spec/rubocop/cop/gemspec/required_ruby_version_spec.rb:86 RuboCop::Cop::Gemspec::RequiredRubyVersion target ruby version > 3.3 registers an offense when `required_ruby_version` is specified with >= and is higher than `TargetRubyVersion`
+74454aef5e43 Gemspec/RequiredRubyVersion miss 2:32 -- the example sets TargetRubyVersion 3.3; rustocop's fixed target is 3.4, where the 3.4 requirement is equal and not reported (unit-tested)
+# spec/rubocop/cop/gemspec/required_ruby_version_spec.rb:95 RuboCop::Cop::Gemspec::RequiredRubyVersion target ruby version > 3.3 registers an offense when `required_ruby_version` is specified with ~> and is higher than `TargetRubyVersion`
+c7dd98c1bc4a Gemspec/RequiredRubyVersion miss 2:32 -- the example sets TargetRubyVersion 3.3; rustocop's fixed target is 3.4, where the 3.4 requirement is equal and not reported (unit-tested)
+
+## Layout/HashAlignment
+# spec/rubocop/cop/layout/hash_alignment_spec.rb:124 RuboCop::Cop::Layout::HashAlignment always inspect last argument hash registers an offense and corrects misaligned keys in implicit hash for yield
+5e48a9afdaa8 Layout/HashAlignment miss 2:3; error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the exact method-wrapped diagnostic and correction are tested
+# spec/rubocop/cop/layout/hash_alignment_spec.rb:137 RuboCop::Cop::Layout::HashAlignment always inspect last argument hash registers an offense and corrects misaligned keys in explicit hash for yield
+6b7787b705ce Layout/HashAlignment miss 2:3; error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the exact method-wrapped diagnostic and correction are tested
+# spec/rubocop/cop/layout/hash_alignment_spec.rb:1818 RuboCop::Cop::Layout::HashAlignment registers no offense for yield without args
+ed77fb0104d4 Layout/HashAlignment error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); in-method yield without arguments is tested
+
 ## Layout/LineLength
 # spec/rubocop/cop/layout/line_length_spec.rb:69 RuboCop::Cop::Layout::LineLength when line is indented with tabs registers an offense for a long line
 672f44d04f3b Layout/LineLength miss 1:1; fp 1:6 -- where leading tabs alone run past the limit, rustocop reports at the tab that does, RuboCop at column 1
 # spec/rubocop/cop/layout/line_length_spec.rb:1162 RuboCop::Cop::Layout::LineLength autocorrection string when over limit when SplitStrings: true when there is a multibyte character at the limit breaks the string at the limit
 fcb4146d5d8f Layout/LineLength miss 1:41; fp 1:40 -- length is display width: the wide character takes two columns
+
+## Layout/RescueEnsureAlignment
+# spec/rubocop/cop/layout/rescue_ensure_alignment_spec.rb:475 RuboCop::Cop::Layout::RescueEnsureAlignment accepts correctly aligned rescue in assigned begin-end block
+c45a76fbc267 Layout/RescueEnsureAlignment fp 3:7 -- the spec's :config omits Layout/BeginEndAlignment, so upstream skips its start_of_line anchor; at the fixed defaults (BeginEndAlignment enabled, start_of_line) RuboCop reports `rescue` against `foo = begin` at 1, 0 exactly as rustocop (unit-tested)
+# spec/rubocop/cop/layout/rescue_ensure_alignment_spec.rb:537 RuboCop::Cop::Layout::RescueEnsureAlignment registers an offense and corrects unindented `rescue` with do-end block that line break with leading dot for method calls
+4dca94b92eef Layout/RescueEnsureAlignment miss 4:1 -- the spec's :config omits Layout/BeginEndAlignment; at the fixed defaults (enabled, start_of_line) the anchor is the block's first line `[1, 2, 3]` at column 0, so RuboCop accepts the column-0 clause exactly as rustocop (unit-tested)
+# spec/rubocop/cop/layout/rescue_ensure_alignment_spec.rb:590 RuboCop::Cop::Layout::RescueEnsureAlignment registers an offense and corrects unindented `rescue` with do-end block that line break with trailing dot for method calls
+17cc8d2c20f6 Layout/RescueEnsureAlignment miss 4:1 -- the spec's :config omits Layout/BeginEndAlignment; at the fixed defaults (enabled, start_of_line) the anchor is the block's first line `[1, 2, 3]` at column 0, so RuboCop accepts the column-0 clause exactly as rustocop (unit-tested)
+# spec/rubocop/cop/layout/rescue_ensure_alignment_spec.rb:643 RuboCop::Cop::Layout::RescueEnsureAlignment registers an offense and corrects unindented `ensure` with do-end block that line break with leading dot for method calls
+b6d9a0fa4bc3 Layout/RescueEnsureAlignment miss 4:1 -- the spec's :config omits Layout/BeginEndAlignment; at the fixed defaults (enabled, start_of_line) the anchor is the block's first line `[1, 2, 3]` at column 0, so RuboCop accepts the column-0 clause exactly as rustocop (unit-tested)
+# spec/rubocop/cop/layout/rescue_ensure_alignment_spec.rb:696 RuboCop::Cop::Layout::RescueEnsureAlignment registers an offense and corrects unindented `ensure` with do-end block that line break with trailing dot for method calls
+7dc06d022bc1 Layout/RescueEnsureAlignment miss 4:1 -- the spec's :config omits Layout/BeginEndAlignment; at the fixed defaults (enabled, start_of_line) the anchor is the block's first line `[1, 2, 3]` at column 0, so RuboCop accepts the column-0 clause exactly as rustocop (unit-tested)
 
 ## Lint/CopDirectiveSyntax
 # spec/rubocop/cop/lint/cop_directive_syntax_spec.rb:393 RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not register an offense for a single directive listing several cops

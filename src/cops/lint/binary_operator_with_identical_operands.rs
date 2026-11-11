@@ -12,7 +12,7 @@
 use ruby_prism::Node;
 
 use crate::{
-    cops::{Cop, NodeContext, ast::same_node},
+    cops::{Cop, NodeContext, ast::fingerprint_for_duplicate_condition},
     offense::Offense,
     source::SourceFile,
 };
@@ -72,19 +72,25 @@ impl Cop for BinaryOperatorWithIdenticalOperands {
             let Some(first) = arguments.arguments().iter().next() else {
                 return;
             };
-            if same_node(&receiver, &first) {
+            if same_operand(&receiver, &first, file) {
                 self.report(node, name, file, out);
             }
         } else if let Some(and) = node.as_and_node() {
-            if same_node(&and.left(), &and.right()) {
+            if same_operand(&and.left(), &and.right(), file) {
                 self.report(node, and.operator_loc().as_slice(), file, out);
             }
         } else if let Some(or) = node.as_or_node()
-            && same_node(&or.left(), &or.right())
+            && same_operand(&or.left(), &or.right(), file)
         {
             self.report(node, or.operator_loc().as_slice(), file, out);
         }
     }
+}
+
+// Use the existing reference-value detection key, never correction equivalence.
+fn same_operand(a: &Node<'_>, b: &Node<'_>, file: &SourceFile) -> bool {
+    fingerprint_for_duplicate_condition(a, file)
+        .source_buffer_scope_eq(&fingerprint_for_duplicate_condition(b, file), file)
 }
 
 #[cfg(test)]
@@ -116,6 +122,22 @@ mod tests {
                 format!("Binary operator `{operator}` has identical operands.")
             );
         }
+    }
+
+    #[test]
+    fn reference_value_and_empty_literal_shapes_are_detection_only() {
+        for source in ["__LINE__ == 1", "1i == 1.0i", "-0.0 == 0.0"] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col), (1, 1));
+            assert_eq!(
+                found[0].message,
+                "Binary operator `==` has identical operands."
+            );
+            assert!(found[0].correction.is_none());
+        }
+        assert!(offenses("\"\" == %q()").is_empty());
+        assert!(offenses("__LINE__ ==\n__LINE__").is_empty());
     }
 
     #[test]

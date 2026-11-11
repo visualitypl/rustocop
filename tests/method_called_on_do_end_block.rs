@@ -8,10 +8,13 @@ use std::{
 const COP: &str = "Style/MethodCalledOnDoEndBlock";
 const SOURCE: &str = "# Copyright (c) 2026 Example\n# frozen_string_literal: true\nitems.each do\n  work\nend.size\n";
 
+/// SOURCE's magic comment is also a default-on
+/// Layout/EmptyLineAfterMagicComment finding; it is not the subject here.
+const MAGIC_OFF: &str = "[cops.\"Layout/EmptyLineAfterMagicComment\"]\nenabled = false\n";
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+    fs::write(dir.path().join("rustocop.toml"), MAGIC_OFF).unwrap();
     dir
 }
 fn run(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
@@ -78,7 +81,11 @@ fn default_opt_in_only_except_and_config_never_write() {
             1,
         ),
     ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+        fs::write(
+            dir.path().join("rustocop.toml"),
+            format!("{config}{MAGIC_OFF}"),
+        )
+        .unwrap();
         unchanged(
             dir.path(),
             &path,

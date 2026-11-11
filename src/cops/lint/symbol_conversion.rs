@@ -249,7 +249,12 @@ fn string_parts(raw: &[u8], value: &[u8], single: bool, file: &SourceFile) -> Ve
     }
     parts
 }
-fn symbol_value(symbol: &ruby_prism::SymbolNode<'_>, file: &SourceFile) -> Option<Vec<u8>> {
+// Also used by ToEnumArguments' sym-only selectors and keyword keys. Keep this
+// main-AST emitted-value projection separate from structural identity helpers.
+pub(super) fn symbol_value(
+    symbol: &ruby_prism::SymbolNode<'_>,
+    file: &SourceFile,
+) -> Option<Vec<u8>> {
     let raw = symbol.value_loc();
     let raw = raw.as_ref().map_or(symbol.unescaped(), |l| l.as_slice());
     let single = symbol

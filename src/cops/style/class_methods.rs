@@ -134,6 +134,9 @@ pub(crate) struct Bindings {
     accesses_path: bool,
     repositions_data: bool,
     consumes_stream: bool,
+    // The closed list, independent of older accepted-family proofs.
+    listed_source_observer: bool,
+    listed_data_observer: bool,
     observes_argf: bool,
     metadata_constructor_acquisition: bool,
     metadata_constructor_overridden: bool,
@@ -306,6 +309,12 @@ impl Bindings {
         self.observes_snippets || (self.acquires_source_path && self.reads_source)
     }
 
+    /// Unconditional listed-observer hold: no reader or value-flow proof needed.
+    /// DATA is an observer only when the parser found an actual data section.
+    pub(crate) fn has_listed_source_observer(&self, has_data: bool) -> bool {
+        self.listed_source_observer || (self.listed_data_observer && has_data)
+    }
+
     pub(crate) fn preserves_positions(
         &self,
         correction: &crate::offense::Correction,
@@ -381,6 +390,26 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Bindings {
         self.accesses_path |= selector_acquisition_observes(&node, path_getter);
         self.repositions_data |= selector_acquisition_observes(&node, data_reposition);
         self.consumes_stream |= selector_acquisition_observes(&node, stream_consumer);
+        self.listed_source_observer |= listed_source_observer(&node);
+        self.listed_data_observer |= named_constant(&node, b"DATA")
+            || node.as_call_node().is_some_and(|call| {
+                call.name().as_slice() == b"const_get"
+                    && call
+                        .arguments()
+                        .and_then(|args| args.arguments().iter().next())
+                        .is_some_and(|arg| {
+                            let arg = dispatch_expression(arg);
+                            let symbol = arg.as_symbol_node();
+                            let string = arg.as_string_node();
+                            // Literal reflected DATA is the same listed handle,
+                            // regardless of its namespace or receiver alias.
+                            symbol
+                                .as_ref()
+                                .map(|s| s.unescaped())
+                                .or_else(|| string.as_ref().map(|s| s.unescaped()))
+                                .is_some_and(|name| name == b"DATA" || name.ends_with(b"::DATA"))
+                        })
+            });
         self.observes_argf |= argf_acquisition(&node);
         self.metadata_constructor_acquisition |= node.as_call_node().is_some_and(|c| {
             metadata_constructor(&c)
@@ -747,6 +776,58 @@ fn selector_acquisition_observes(node: &Node<'_>, observer: fn(&[u8]) -> bool) -
         || node
             .as_call_operator_write_node()
             .is_some_and(|c| observer(c.read_name().as_slice()))
+}
+
+fn named_constant(node: &Node<'_>, name: &[u8]) -> bool {
+    node.as_constant_read_node()
+        .is_some_and(|n| n.name().as_slice() == name)
+        || node
+            .as_constant_path_node()
+            .is_some_and(|n| n.name().is_some_and(|n| n.as_slice() == name))
+        || node
+            .as_constant_write_node()
+            .is_some_and(|n| n.name().as_slice() == name)
+        || node
+            .as_constant_target_node()
+            .is_some_and(|n| n.name().as_slice() == name)
+        || node
+            .as_constant_or_write_node()
+            .is_some_and(|n| n.name().as_slice() == name)
+        || node
+            .as_constant_and_write_node()
+            .is_some_and(|n| n.name().as_slice() == name)
+        || node
+            .as_constant_operator_write_node()
+            .is_some_and(|n| n.name().as_slice() == name)
+}
+
+fn listed_source_observer(node: &Node<'_>) -> bool {
+    matches!(node, Node::SourceFileNode { .. })
+        || named_constant(node, b"SCRIPT_LINES__")
+        || node
+            .as_global_variable_read_node()
+            .is_some_and(|n| program_name(n.name().as_slice()))
+        || node
+            .as_global_variable_write_node()
+            .is_some_and(|n| program_name(n.name().as_slice()))
+        || node
+            .as_global_variable_target_node()
+            .is_some_and(|n| program_name(n.name().as_slice()))
+        || node
+            .as_global_variable_or_write_node()
+            .is_some_and(|n| program_name(n.name().as_slice()))
+        || node
+            .as_global_variable_and_write_node()
+            .is_some_and(|n| program_name(n.name().as_slice()))
+        || node
+            .as_global_variable_operator_write_node()
+            .is_some_and(|n| program_name(n.name().as_slice()))
+        || selector_acquisition_observes(node, |name| {
+            matches!(
+                name,
+                b"__dir__" | b"caller" | b"caller_locations" | b"source_location"
+            )
+        })
 }
 
 fn reflective_dispatch(name: &[u8]) -> bool {
@@ -1562,6 +1643,131 @@ mod tests {
         cops::testing::{assert_correction, correction_offenses},
         pipeline::lint_str,
     };
+    #[test]
+    fn reflected_data_is_listed_only_with_a_data_section() {
+        for (source, listed) in [
+            ("Object.const_get(:DATA)", true),
+            ("Object.const_get(\"DATA\")", true),
+            ("::Object.const_get('::Object::DATA')", true),
+            ("Root = Object; Root.const_get((:DATA))", true),
+            ("Object.const_get(:String)", false),
+            ("Object.const_get('NOT_DATA')", false),
+            ("'Object.const_get(:DATA)'", false),
+            ("# Object.const_get(:DATA)", false),
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            let facts = Bindings::build(&parsed.node());
+            assert!(!facts.has_listed_source_observer(false), "{source}");
+            assert_eq!(facts.has_listed_source_observer(true), listed, "{source}");
+        }
+    }
+    #[test]
+    fn out_of_scope_implicit_and_process_dispatch_is_not_a_listed_observer() {
+        // Parsed only: selector/command subjects are never executed.
+        for source in [
+            "for line in input; print line; end",
+            "for line in [1, 2]; p line; end",
+            "f(1, *input)",
+            "p [*(input)]",
+            "f(**input)",
+            "Array(input)",
+            "Kernel.Array(input)",
+            "Kernel.public_send(:Array, input)",
+            "Kernel.method('Array')",
+            "alias convert Array",
+            "Hash(input)",
+            "Array.try_convert(input)",
+            "system(command)",
+            "Process.spawn(command)",
+            "exec(command)",
+            "fork { body }",
+            "Open3.capture3(command)",
+            "Kernel.public_send(:system, command)",
+            "Kernel.method('system')",
+            "alias launch system",
+            "alias_method :launch, :spawn",
+            ":\"sys\\x74em\"",
+            "p `opaque`",
+            "p %x(opaque #{value})",
+            "object.system ||= value",
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            let facts = Bindings::build(&parsed.node());
+            assert!(!facts.has_listed_source_observer(false), "{source}");
+            // Narrowing the seam does not change older families' barrier.
+            assert!(!facts.observes_source_bytes(), "{source}");
+        }
+    }
+    #[test]
+    fn out_of_scope_stream_positions_are_not_listed_observers() {
+        for source in [
+            "input.seek(0, 2)",
+            "input.sysseek(0, 2)",
+            "input.rewind",
+            "input.pos = 0",
+            "input.pos",
+            "input.tell",
+            "input.eof",
+            "input.eof?",
+            "input.public_send(:tell)",
+            "input.method('pos')",
+            "input.public_send(:public_send, :eof?)",
+            "alias end_position sysseek",
+            "alias_method :cursor, :tell",
+            ":\"te\\x6cl\"",
+            "input.tell ||= value",
+            "input.pos &&= value",
+            "input.tell += value",
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            let facts = Bindings::build(&parsed.node());
+            assert!(!facts.has_listed_source_observer(false), "{source}");
+            // No global source-barrier policy change for unrelated families.
+            assert!(!facts.observes_source_bytes(), "{source}");
+        }
+        for source in [
+            "p 'seek sysseek rewind pos tell eof eof?'",
+            "# input.seek(0, 2)\nf(1, 2)",
+            "input.position",
+            "input.tell_time",
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            assert!(
+                !Bindings::build(&parsed.node()).has_listed_source_observer(false),
+                "{source}"
+            );
+        }
+    }
+    #[test]
+    fn literal_and_unknown_splats_are_outside_the_closed_observer_list() {
+        for source in [
+            "f(1, *[2, 3])",
+            "f(1, *([2, 3]))",
+            "p [*[1, 2]]",
+            "f(**{a: 1})",
+            "a, b = [1, 2]",
+            "p 'system Array for *input `opaque`'",
+            "# system(command)\nf(1, 2)",
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            let facts = Bindings::build(&parsed.node());
+            assert!(!facts.has_listed_source_observer(false), "{source}");
+        }
+        // Nested opaque conversions are equally outside the closed list.
+        for source in ["f(*[*input])", "f(**{**input})", "a, b = [*input]"] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            assert!(
+                !Bindings::build(&parsed.node()).has_listed_source_observer(false),
+                "{source}"
+            );
+        }
+    }
     #[test]
     fn pinned_class_and_module_receiver_locations() {
         for kind in ["class", "module"] {

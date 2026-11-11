@@ -1,5 +1,8 @@
 //! Source-only reference parity, actual CLI and authored native holds.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -68,9 +71,9 @@ fn source(row: &serde_json::Value) -> Vec<u8> {
 }
 #[test]
 fn every_pinned_spec_source_shared_alias_byte_and_control_row_exact_cli_no_write() {
-    let dir = project();
     assert_eq!(rows().len(), 1040);
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         for cop in COPS {
             let findings = row[cop]["findings"].as_array().unwrap();
             let code = i32::from(!findings.is_empty());
@@ -94,12 +97,12 @@ fn every_pinned_spec_source_shared_alias_byte_and_control_row_exact_cli_no_write
                 }
             }
         }
-    }
+    });
 }
 #[test]
 fn actual_metadata_defaults_selectors_and_strict_toml_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let detector = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(detector.default_enabled() && !detector.safe_fixes());

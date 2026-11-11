@@ -25,8 +25,16 @@ unicode-width = "0.2"
 tempfile = "3"
 stacker = "0.1.25"
 
+[target.'cfg(unix)'.dependencies]
+# Safe effective-ID/group queries for Ruby File::Stat permission semantics.
+rustix = { version = "1", features = ["process"] }
+
 [dev-dependencies]
 serde_json = "1"
+
+# The test suite runs about 30 % faster at opt-level 1 than at 0.
+[profile.dev]
+opt-level = 1
 
 [patch.crates-io]
 ruby-prism = { path = "vendor/ruby-prism" }

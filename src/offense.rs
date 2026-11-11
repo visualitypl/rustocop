@@ -15,6 +15,12 @@ pub enum Department {
     Security,
     /// Formatting concerns (only line length in v0.1).
     Layout,
+    /// Method and block complexity metrics.
+    Metrics,
+    /// Bundler manifest and lockfile conventions.
+    Bundler,
+    /// Ruby gem specification conventions.
+    Gemspec,
 }
 
 impl Department {
@@ -25,6 +31,9 @@ impl Department {
         Department::Naming,
         Department::Security,
         Department::Layout,
+        Department::Metrics,
+        Department::Bundler,
+        Department::Gemspec,
     ];
 
     /// The department's name, as used in cop names and config keys.
@@ -35,6 +44,9 @@ impl Department {
             Department::Naming => "Naming",
             Department::Security => "Security",
             Department::Layout => "Layout",
+            Department::Metrics => "Metrics",
+            Department::Bundler => "Bundler",
+            Department::Gemspec => "Gemspec",
         }
     }
 
@@ -70,7 +82,12 @@ impl Severity {
     pub fn for_department(department: Department) -> Self {
         match department {
             Department::Lint | Department::Security => Severity::Error,
-            Department::Style | Department::Naming | Department::Layout => Severity::Convention,
+            Department::Style
+            | Department::Naming
+            | Department::Layout
+            | Department::Metrics
+            | Department::Bundler
+            | Department::Gemspec => Severity::Convention,
         }
     }
 
@@ -121,6 +138,20 @@ pub struct Offense {
     pub end_line: u32,
     /// 1-based (character) column of the offense.
     pub col: u32,
+}
+
+/// A nonfatal finding about the whole supplied file, not a source range.
+///
+/// Deliberately has neither positions nor a correction: filename conventions
+/// and missing gemspec declarations cannot claim a source highlight or repair.
+#[derive(Debug, Clone)]
+pub struct GlobalOffense {
+    /// The full cop name.
+    pub cop: &'static str,
+    /// The severity of the finding.
+    pub severity: Severity,
+    /// Human-readable description.
+    pub message: String,
 }
 
 /// Source text quoted in a message, on one line: line breaks become

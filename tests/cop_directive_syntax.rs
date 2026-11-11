@@ -25,7 +25,10 @@ fn cli(root: &Path, args: &[&str], code: i32) -> Output {
         .current_dir(root)
         .args(args)
         // Isolate syntax policy from the separately tested open-range policy.
-        .args(["--except", "Lint/MissingCopEnableDirective"])
+        .args([
+            "--except",
+            "Lint/MissingCopEnableDirective,Lint/RedundantCopDisableDirective",
+        ])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(code), "{args:?}: {out:?}");
@@ -86,7 +89,11 @@ fn all_51_pinned_calls_exact_diagnostics_and_all_seven_correction_dispositions()
             })
             .collect();
         if row["spec_line"] == 393 {
-            expected.push((1, 7, "Unknown cop name `Metrics/AbcSize`."));
+            expected.push((
+                1,
+                7,
+                "Unknown cop name `Metrics/AbcSize` (did you mean `Metrics/ParameterLists`?).",
+            ));
         }
         assert_eq!(actual, expected, "{row:?}");
         let after = if let Some(after) = row["correction"].as_str() {
@@ -156,7 +163,7 @@ fn actual_registry_defaults_cli_precedence_and_no_write() {
     assert!(c.default_enabled() && c.safe_fixes());
     assert!(c.path_policy().is_none() && c.max_setting().is_none());
     assert_eq!(c.ruby_versions(), Default::default());
-    assert!(!r.has_cop("Lint/Syntax"));
+    assert!(r.has_cop("Lint/Syntax"));
     let dir = project();
     let p = dir.path().join("lib/a.rb");
     fs::write(&p, BEFORE).unwrap();

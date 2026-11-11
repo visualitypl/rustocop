@@ -57,9 +57,13 @@ fn correct<'a>(input: &str, dictionary: &[&'a str]) -> Vec<&'a str> {
         .collect()
 }
 
-/// Lowercased, without `@`.
+/// Ruby String#downcase uses Unicode character mappings, not Rust str's
+/// contextual final-sigma rule. Keep multi-character mappings (e.g. İ) too.
 fn normalize(name: &str) -> Vec<char> {
-    name.to_lowercase().chars().filter(|&c| c != '@').collect()
+    name.chars()
+        .filter(|&c| c != '@')
+        .flat_map(char::to_lowercase)
+        .collect()
 }
 
 /// `DidYouMean::Jaro.distance`.
@@ -164,6 +168,14 @@ mod tests {
         );
         assert_eq!(find_similar_name("j", &["i", "items"]), None);
         assert_eq!(find_similar_name("foo", &[]), None);
+    }
+
+    #[test]
+    fn operator_recovery_downcase_does_not_apply_contextual_final_sigma() {
+        assert_eq!(normalize("aΟΣ"), vec!['a', 'ο', 'σ']);
+        assert_eq!(find_similar_name("aΟΣ", &["aΟσ", "aΟς"]), Some("aΟσ"));
+        assert_eq!(find_similar_name("aΟΣ", &["aΟς", "aΟσ"]), Some("aΟσ"));
+        assert_eq!(normalize("@İΣ"), vec!['i', '\u{307}', 'σ']);
     }
 
     #[test]

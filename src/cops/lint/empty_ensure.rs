@@ -33,7 +33,10 @@ impl Cop for EmptyEnsure {
         if ensure.statements().is_some() {
             return;
         }
-        let (line, col) = file.line_col(ensure.ensure_keyword_loc().start_offset());
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(
+            ensure.ensure_keyword_loc().start_offset(),
+            file,
+        );
         out.push(Offense {
             correction: None,
             cop: self.name(),

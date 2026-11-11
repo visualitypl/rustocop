@@ -1,6 +1,9 @@
 //! Source-only reference, pipeline and rebuilt CLI checks.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
 //! Never execute constructors, callbacks or other fixture input.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},
@@ -13,7 +16,13 @@ type Finding = (u32, u32, u32, String);
 fn rows() -> Vec<serde_json::Value> {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/missing_super.json")).unwrap();
-    assert_eq!(rows.len(), 3639);
+    assert_eq!(rows.len(), 4257);
+    assert_eq!(
+        rows.iter()
+            .filter(|r| r["origin"] == "operator_recovery_20261104")
+            .count(),
+        618
+    );
     assert_eq!(
         rows.iter()
             .filter(|r| r.get("parser_rejection").is_some())
@@ -129,8 +138,8 @@ fn pinned_main_source_and_adversarial_original_bytes_match_pipeline_without_edit
 }
 #[test]
 fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
-    let dir = project();
-    for row in rows() {
+    parallel_rows!(for row in rows() => {
+        let dir = project();
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         for fix in [false, true] {
             let mut args = vec!["--only", COP];
@@ -161,7 +170,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
             assert_eq!(String::from_utf8_lossy(&out.stdout), stdout, "{row}");
             assert!(out.stderr.is_empty(), "{row}: {out:?}");
         }
-    }
+    });
 }
 #[test]
 fn default_metadata_selectors_strict_toml_and_department_precedence() {

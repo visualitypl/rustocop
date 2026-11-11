@@ -36,12 +36,11 @@
 //!   such statement (only the keyword branch of an `if`; every branch and the
 //!   `else` of a `case`).
 //!
-//! Messages quote the expression; a multi-line one is cut after its first
-//! line.
+//! Messages quote the whole reference source buffer, including multiline
+//! expressions and its encoding/CRLF projection.
 //!
-//! The cop walks the tree itself from the program node: void contexts and
-//! the nearest enclosing block are ancestry the shared walker does not
-//! provide.
+//! A single ordered walk from the program maintains synthetic call/block
+//! contexts and statement-list ownership; it never rescans the root per node.
 
 use std::collections::HashSet;
 
@@ -449,7 +448,7 @@ impl<'pr> Walker<'_> {
         } else {
             return;
         };
-        let source = quoted_source(node);
+        let source = quoted_source(node, self.file);
         self.report(
             node.location().start_offset(),
             node.location().end_offset(),
@@ -461,7 +460,7 @@ impl<'pr> Walker<'_> {
         if !self.reported.insert((offset, message.clone())) {
             return;
         }
-        let (line, col) = self.file.line_col(offset);
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, self.file);
         self.out.push(Offense {
             correction: None,
             cop: self.cop.name(),
@@ -474,14 +473,18 @@ impl<'pr> Walker<'_> {
     }
 }
 
-/// The node's source for a message, kept to one line: a multi-line source
-/// is cut after its first line (RuboCop quotes it whole).
-fn quoted_source(node: &Node<'_>) -> String {
-    let source = String::from_utf8_lossy(node.location().as_slice()).into_owned();
-    match source.split_once('\n') {
-        Some((first, _)) => format!("{} ...", first.trim_end()),
-        None => source,
-    }
+/// RuboCop quotes the complete source range, not a first-line preview.
+fn quoted_source(node: &Node<'_>, file: &SourceFile) -> String {
+    file.match_pattern_source(node.location().as_slice())
+        .utf8_chunks()
+        .map(|chunk| {
+            let mut text = chunk.valid().replace("\r\n", "\n");
+            for byte in chunk.invalid() {
+                text.push_str(&format!("\\x{byte:02X}"));
+            }
+            text
+        })
+        .collect()
 }
 
 /// The statement of a one-statement body: the parser gem's branch node. A
@@ -805,12 +808,15 @@ mod tests {
     }
 
     #[test]
-    fn quotes_multi_line_sources_by_their_first_line() {
+    fn quotes_complete_multi_line_sources() {
         assert_eq!(
             found("def foo\n  lambda do |x|\n    x\n  end\n  top\nend\n"),
-            vec![expr(2, 3, "lambda do |x| ...")]
+            vec![expr(2, 3, "lambda do |x|\n    x\n  end")]
         );
-        assert_eq!(found("[\n  1,\n  2\n]\nx\n"), vec![lit(1, 1, "[ ...")]);
+        assert_eq!(
+            found("[\n  1,\n  2\n]\nx\n"),
+            vec![lit(1, 1, "[\n  1,\n  2\n]")]
+        );
     }
 
     #[test]

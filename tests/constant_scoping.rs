@@ -176,25 +176,95 @@ fn native_ruby34_accepts_fixture_syntax_without_executing_inputs() {
 }
 
 #[test]
+fn operator_recovery_source_projection_pipeline_cli_and_native_syntax_only() {
+    let dir = project();
+    let registry = rustocop::cops::Registry::new();
+    let config = rustocop::config::ResolvedConfig::default();
+    let active = rustocop::cops::select_active(&registry, &config, &[SCOPING.into()], &[]);
+    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let mut rows: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/constant_scoping_projection.json")).unwrap();
+    assert_eq!(rows.len(), 532);
+    let review: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/constant_scoping_boundaries.json")).unwrap();
+    assert_eq!(review.len(), 330);
+    rows.extend(review);
+    for row in rows {
+        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let expected: Vec<(u32, u32, u32, String)> =
+            serde_json::from_value(row["raw_findings"].clone()).unwrap();
+        let report = rustocop::pipeline::lint_one(
+            &dir.path().join("lib/a.rb"),
+            Path::new("lib/a.rb"),
+            Some(&bytes),
+            &active,
+            &config,
+        );
+        assert!(
+            report.errors.is_empty() && report.internal_errors.is_empty(),
+            "{row}\n{report:?}"
+        );
+        let actual: Vec<_> = report
+            .result
+            .offenses
+            .iter()
+            .map(|o| {
+                assert!(o.correction.is_none());
+                (o.line, o.col, o.end_line, o.message.clone())
+            })
+            .collect();
+        assert_eq!(actual, expected, "{row}");
+        for args in [
+            vec!["--only", SCOPING, "lib/a.rb"],
+            vec!["--only", SCOPING, "--fix", "lib/a.rb"],
+        ] {
+            let out = unchanged(dir.path(), &bytes, &args);
+            assert_eq!(
+                out.status.code(),
+                Some(i32::from(!expected.is_empty())),
+                "{row}\n{out:?}"
+            );
+            assert_eq!(count(&out, SCOPING), expected.len(), "{row}\n{out:?}");
+            for (line, col, _, msg) in &expected {
+                assert!(
+                    String::from_utf8_lossy(&out.stdout)
+                        .contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({SCOPING})")),
+                    "{row}\n{out:?}"
+                );
+            }
+        }
+        if let Some(ruby) = &ruby {
+            // Parse controlled fixtures only; never execute their Ruby code.
+            let out = Command::new(ruby)
+                .current_dir(dir.path())
+                .args(["--parser=prism", "-c", "lib/a.rb"])
+                .output()
+                .unwrap();
+            assert!(out.status.success(), "{row}\n{out:?}");
+        }
+    }
+}
+
+#[test]
 fn exact_live_metadata_default_opt_in_and_no_new_capabilities() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let lint: Vec<_> = registry
         .cops()
         .iter()
         .filter(|c| c.name().starts_with("Lint/"))
         .collect();
-    assert_eq!(lint.len(), 145);
-    assert_eq!(lint.iter().filter(|c| c.default_enabled()).count(), 140);
+    assert_eq!(lint.len(), 160);
+    assert_eq!(lint.iter().filter(|c| c.default_enabled()).count(), 155);
     let config = rustocop::config::ResolvedConfig::default();
     // Three version-inactive and four genuinely absent-index prerequisites;
-    // registration/configuration is not the default-effective count (133).
+    // registration/configuration is not the default-effective count (148).
     assert_eq!(
         rustocop::cops::select_active(&registry, &config, &[], &[])
             .iter()
             .filter(|c| c.name().starts_with("Lint/"))
             .count(),
-        137
+        152
     );
     for (name, _) in CASES {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();

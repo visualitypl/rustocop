@@ -6,7 +6,7 @@
 //! method too), but not inside a nested method definition or a lambda
 //! (`-> {}`, `lambda {}`), which return from themselves.
 
-use ruby_prism::{CallNode, DefNode, EnsureNode, LambdaNode, Node, ReturnNode, Visit};
+use ruby_prism::Node;
 
 use crate::{
     cops::{Cop, NodeContext},
@@ -25,63 +25,42 @@ impl Cop for EnsureReturn {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some(statements) = node.as_ensure_node().and_then(|ensure| ensure.statements()) else {
+        if node.as_return_node().is_none() {
             return;
-        };
-        let mut search = ReturnSearch {
-            cop: self,
-            file,
-            out,
-        };
-        search.visit_statements_node(&statements);
-    }
-}
-
-/// Reports the `return`s that leave the method from an `ensure` body.
-struct ReturnSearch<'a> {
-    cop: &'a EnsureReturn,
-    file: &'a SourceFile,
-    out: &'a mut Vec<Offense>,
-}
-
-impl<'pr> Visit<'pr> for ReturnSearch<'_> {
-    fn visit_return_node(&mut self, node: &ReturnNode<'pr>) {
-        let (line, col) = self.file.line_col(node.location().start_offset());
-        self.out.push(Offense {
-            correction: None,
-            cop: self.cop.name(),
-            severity: self.cop.severity(),
-            message: "Do not return from an `ensure` block.".to_string(),
-            line,
-            end_line: self.file.last_line_of(node.location()),
-            col,
-        });
-        ruby_prism::visit_return_node(self, node);
-    }
-
-    // Inner scopes: a `return` there leaves the method or lambda itself.
-    fn visit_def_node(&mut self, _node: &DefNode<'pr>) {}
-
-    fn visit_lambda_node(&mut self, _node: &LambdaNode<'pr>) {}
-
-    fn visit_call_node(&mut self, node: &CallNode<'pr>) {
-        // `lambda { }` (any receiver, as RuboCop's `BlockNode#lambda?`). The
-        // parser gem's block wraps the whole call, so skip all of it.
-        let lambda_block = node.name().as_slice() == b"lambda"
-            && node
-                .block()
-                .is_some_and(|block| block.as_block_node().is_some());
-        if !lambda_block {
-            ruby_prism::visit_call_node(self, node);
+        }
+        for ancestor in cx.ancestors() {
+            if ancestor.as_def_node().is_some()
+                || ancestor.as_lambda_node().is_some()
+                || ancestor.as_call_node().is_some_and(|call| {
+                    // The parser AST's lambda block wraps the callee too.
+                    call.name().as_slice() == b"lambda"
+                        && call.block().is_some_and(|b| b.as_block_node().is_some())
+                })
+            {
+                return;
+            }
+            if ancestor.as_ensure_node().is_some() {
+                let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                    node.location().start_offset(),
+                    file,
+                );
+                out.push(Offense {
+                    correction: None,
+                    cop: self.name(),
+                    severity: self.severity(),
+                    message: "Do not return from an `ensure` block.".to_string(),
+                    line,
+                    end_line: file.last_line_of(node.location()),
+                    col,
+                });
+                return;
+            }
         }
     }
-
-    // A nested `ensure` reports its own returns.
-    fn visit_ensure_node(&mut self, _node: &EnsureNode<'pr>) {}
 }
 
 #[cfg(test)]
@@ -102,6 +81,19 @@ mod tests {
 
     fn positions(source: &str) -> Vec<(u32, u32)> {
         offenses(source).iter().map(|o| (o.line, o.col)).collect()
+    }
+
+    #[test]
+    fn inner_ensure_has_its_own_scope_even_in_lambda() {
+        assert_eq!(
+            positions("def f\nensure\n  -> { begin; ensure; return 1; end }\nend\n"),
+            vec![(3, 23)]
+        );
+        assert!(offenses("def f\nensure\n  lambda(return) { x }\nend\n").is_empty());
+        assert_eq!(
+            positions("def f\nensure\n  begin; return; ensure; x; end\nend\n"),
+            vec![(3, 10)]
+        );
     }
 
     #[test]

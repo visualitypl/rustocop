@@ -129,6 +129,32 @@ fn fix(root: &Path) -> Output {
     )
 }
 #[test]
+fn native_witness_limits_include_both_hard_caps_and_disabled_core_dumps() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let d = tempfile::tempdir().unwrap();
+    // Finite authored metadata observation; never fault/dump core to test a cap.
+    let out = run_limited(
+        &ruby,
+        d.path(),
+        &[
+            "-e",
+            "p [:AS, :FSIZE, :CORE].map { |limit| Process.getrlimit(limit) }",
+        ],
+        "5",
+        128 * 1024 * 1024,
+        4096,
+    )
+    .unwrap();
+    assert!(out.status.success(), "{out:?}");
+    assert!(out.stderr.is_empty(), "{out:?}");
+    assert_eq!(
+        String::from_utf8(out.stdout).unwrap(),
+        "[[134217728, 134217728], [4096, 4096], [0, 0]]\n"
+    );
+}
+#[test]
 fn trace_cap_overflow_fails_instead_of_truncating_observations() {
     let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
         return;
@@ -211,7 +237,29 @@ fn native_warning_boundary_is_explicit_not_silently_claimed_equivalent() {
         args.push("safety.rb");
         fs::write(&p, "END { puts :finished }\nreturn 4, 5, 6\n").unwrap();
         let before = run(&ruby, d.path(), &args);
-        assert_eq!(fix(d.path()).status.code(), Some(1));
+        let metadata = fs::metadata(&p).unwrap();
+        let mut held = fs::File::open(&p).unwrap();
+        let cli = fix(d.path());
+        assert_eq!(cli.status.code(), Some(1));
+        assert!(
+            String::from_utf8_lossy(&cli.stdout)
+                .contains("0 corrections applied, 1 offense remaining")
+        );
+        let after_metadata = fs::metadata(&p).unwrap();
+        assert_eq!(
+            metadata.modified().unwrap(),
+            after_metadata.modified().unwrap()
+        );
+        assert_eq!(metadata.permissions(), after_metadata.permissions());
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt;
+            assert_eq!(metadata.ino(), after_metadata.ino());
+            assert_eq!(metadata.mtime_nsec(), after_metadata.mtime_nsec());
+        }
+        let mut held_bytes = Vec::new();
+        std::io::Read::read_to_end(&mut held, &mut held_bytes).unwrap();
+        assert_eq!(held_bytes, b"END { puts :finished }\nreturn 4, 5, 6\n");
         assert_eq!(
             fs::read_to_string(&p).unwrap(),
             "END { puts :finished }\nreturn 4, 5, 6\n"

@@ -24,7 +24,7 @@ use ruby_prism::{CallNode, Node};
 use crate::{
     cops::{
         Cop, NodeContext,
-        ast::{const_name, is_const, is_global_const, short_const_name},
+        ast::{is_const, is_global_const, short_const_name},
         walk::{NodeVisitor, walk},
     },
     offense::Offense,
@@ -111,8 +111,42 @@ struct Walker<'a, 'pr> {
     scopes: HashMap<Region, HashSet<String>>,
 }
 
-fn text(bytes: &[u8]) -> String {
-    String::from_utf8_lossy(bytes).into_owned()
+fn text(bytes: &[u8], file: &SourceFile) -> String {
+    key_text(&file.match_pattern_source(bytes), file).replace("\r\n", "\n")
+}
+
+fn key_text(bytes: &[u8], file: &SourceFile) -> String {
+    if file.match_pattern_binary() {
+        // Byte-to-scalar identity is reversible. Do not use escaped diagnostic
+        // strings as keys: a literal backslash-x spelling is a different name.
+        bytes.iter().map(|&b| char::from(b)).collect()
+    } else {
+        String::from_utf8_lossy(bytes).into_owned()
+    }
+}
+
+/// Project each constant segment without weakening shared raw-name helpers.
+fn const_name(node: &Node<'_>, file: &SourceFile) -> Option<String> {
+    if let Some(read) = node.as_constant_read_node() {
+        return Some(text(read.name().as_slice(), file));
+    }
+    let path = node.as_constant_path_node()?;
+    let mut parts = vec![text(path.name()?.as_slice(), file)];
+    let mut parent = path.parent();
+    while let Some(node) = parent {
+        if let Some(read) = node.as_constant_read_node() {
+            parts.push(text(read.name().as_slice(), file));
+            break;
+        }
+        let Some(path) = node.as_constant_path_node() else {
+            parts.push(String::new());
+            break;
+        };
+        parts.push(text(path.name()?.as_slice(), file));
+        parent = path.parent();
+    }
+    parts.reverse();
+    Some(parts.join("::"))
 }
 
 /// A block with explicit or no parameters (`numblock`/`itblock` are other
@@ -174,22 +208,22 @@ fn is_constant_path_target(write: &Node<'_>, node: &Node<'_>) -> bool {
 }
 
 /// The namespace and name a constant assignment writes.
-fn casgn_target<'pr>(node: &Node<'pr>) -> Option<(Namespace<'pr>, String)> {
+fn casgn_target<'pr>(node: &Node<'pr>, file: &SourceFile) -> Option<(Namespace<'pr>, String)> {
     if let Some(write) = node.as_constant_write_node() {
-        Some((Namespace::None, text(write.name().as_slice())))
+        Some((Namespace::None, text(write.name().as_slice(), file)))
     } else {
         let target = node.as_constant_path_write_node()?.target();
         let namespace = match target.parent() {
             None => Namespace::Cbase,
             Some(parent) => Namespace::Node(parent),
         };
-        Some((namespace, text(target.name()?.as_slice())))
+        Some((namespace, text(target.name()?.as_slice(), file)))
     }
 }
 
 /// RuboCop's `defined_module`: the namespace and name a class, module, or
 /// `Const = Class.new`/`Module.new` assignment defines.
-fn defined_module<'pr>(node: &Node<'pr>) -> Option<(Namespace<'pr>, String)> {
+fn defined_module<'pr>(node: &Node<'pr>, file: &SourceFile) -> Option<(Namespace<'pr>, String)> {
     let path = if let Some(class) = node.as_class_node() {
         class.constant_path()
     } else if let Some(module) = node.as_module_node() {
@@ -202,43 +236,48 @@ fn defined_module<'pr>(node: &Node<'pr>) -> Option<(Namespace<'pr>, String)> {
                 .receiver()
                 .is_some_and(|receiver| is_global_const(&receiver, &["Class", "Module"]));
         return if defines_module {
-            casgn_target(node)
+            casgn_target(node, file)
         } else {
             None
         };
     };
-    destructure_const(&path)
+    destructure_const(&path, file)
 }
 
 /// Split a constant reference into namespace and name.
-fn destructure_const<'pr>(node: &Node<'pr>) -> Option<(Namespace<'pr>, String)> {
+fn destructure_const<'pr>(node: &Node<'pr>, file: &SourceFile) -> Option<(Namespace<'pr>, String)> {
     if let Some(read) = node.as_constant_read_node() {
-        return Some((Namespace::None, text(read.name().as_slice())));
+        return Some((Namespace::None, text(read.name().as_slice(), file)));
     }
     let path = node.as_constant_path_node()?;
     let namespace = match path.parent() {
         None => Namespace::Cbase,
         Some(parent) => Namespace::Node(parent),
     };
-    Some((namespace, text(path.name()?.as_slice())))
+    Some((namespace, text(path.name()?.as_slice(), file)))
 }
 
 /// RuboCop's `const_name` of a `defined_module` result.
-fn qualified_const_name(namespace: &Namespace<'_>, name: &str) -> String {
+fn qualified_const_name(namespace: &Namespace<'_>, name: &str, file: &SourceFile) -> String {
     match namespace {
         Namespace::None | Namespace::Cbase => name.to_string(),
         Namespace::Node(parent) => {
-            format!("{}::{name}", const_name(parent).unwrap_or_default())
+            format!("{}::{name}", const_name(parent, file).unwrap_or_default())
         }
     }
 }
 
 /// RuboCop's `qualified_name(enclosing, namespace, mod_name)`.
-fn qualified_name(enclosing: Option<&str>, namespace: &Namespace<'_>, name: &str) -> String {
+fn qualified_name(
+    enclosing: Option<&str>,
+    namespace: &Namespace<'_>,
+    name: &str,
+    file: &SourceFile,
+) -> String {
     let namespace = match namespace {
         Namespace::None => None,
         Namespace::Cbase => Some(String::new()),
-        Namespace::Node(node) => Some(const_name(node).unwrap_or_default()),
+        Namespace::Node(node) => Some(const_name(node, file).unwrap_or_default()),
     };
     match (enclosing, namespace) {
         (Some("Object"), Some(namespace)) => format!("{namespace}::{name}"),
@@ -302,12 +341,22 @@ fn replace_first_singleton(scope: &str) -> String {
     scope.to_string()
 }
 
-/// A `sym` or `str` argument's value.
-fn sym_or_str_value(node: &Node<'_>) -> Option<String> {
-    if let Some(symbol) = node.as_symbol_node() {
-        Some(text(symbol.unescaped()))
-    } else {
-        node.as_string_node().map(|string| text(string.unescaped()))
+/// Actual parser `sym`, not Prism's broader SymbolNode (empty/multiline
+/// symbols can be `dsym`). Reuse the existing emitted-literal projection.
+fn symbol_value(node: &Node<'_>, file: &SourceFile) -> Option<String> {
+    use super::literal_assignment_in_condition::{ScopeLiteral, scope_literal};
+    match scope_literal(node, file)? {
+        ScopeLiteral::Sym(value) => Some(key_text(&value, file)),
+        _ => None,
+    }
+}
+
+/// A `sym` or `str` argument's value, excluding dynamic parser containers.
+fn sym_or_str_value(node: &Node<'_>, file: &SourceFile) -> Option<String> {
+    use super::literal_assignment_in_condition::{ScopeLiteral, scope_literal};
+    match scope_literal(node, file)? {
+        ScopeLiteral::Sym(value) | ScopeLiteral::Str(value) => Some(key_text(&value, file)),
+        _ => None,
     }
 }
 
@@ -342,13 +391,13 @@ impl<'pr> Walker<'_, 'pr> {
             let ancestor = &self.stack[index];
             match ancestor {
                 Node::ClassNode { .. } | Node::ModuleNode { .. } => {
-                    if let Some((namespace, name)) = defined_module(ancestor) {
-                        parts.push(qualified_const_name(&namespace, &name));
+                    if let Some((namespace, name)) = defined_module(ancestor, self.file) {
+                        parts.push(qualified_const_name(&namespace, &name, self.file));
                     }
                 }
                 Node::ConstantWriteNode { .. } | Node::ConstantPathWriteNode { .. } => {
-                    if let Some((namespace, name)) = defined_module(ancestor) {
-                        parts.push(qualified_const_name(&namespace, &name));
+                    if let Some((namespace, name)) = defined_module(ancestor, self.file) {
+                        parts.push(qualified_const_name(&namespace, &name, self.file));
                     }
                 }
                 Node::SingletonClassNode { .. } => {
@@ -356,7 +405,7 @@ impl<'pr> Walker<'_, 'pr> {
                     if is_const(&subject) {
                         parts.push(format!(
                             "#<Class:{}>",
-                            const_name(&subject).unwrap_or_default()
+                            const_name(&subject, self.file).unwrap_or_default()
                         ));
                     } else if subject.as_self_node().is_some() {
                         let enclosing = self.parent_module_name(index).unwrap_or_default();
@@ -375,7 +424,7 @@ impl<'pr> Walker<'_, 'pr> {
                         match call.receiver() {
                             None => {}
                             Some(receiver) if is_const(&receiver) => {
-                                parts.push(const_name(&receiver).unwrap_or_default());
+                                parts.push(const_name(&receiver, self.file).unwrap_or_default());
                             }
                             Some(_) => return None,
                         }
@@ -551,8 +600,8 @@ impl<'pr> Walker<'_, 'pr> {
         if let Some((receiver, method_name)) = named {
             return Some(format!(
                 "{}.{}",
-                text(receiver.location().as_slice()),
-                text(method_name.as_slice())
+                text(receiver.location().as_slice(), self.file),
+                text(method_name.as_slice(), self.file)
             ));
         }
         match parent {
@@ -599,7 +648,7 @@ impl<'pr> Walker<'_, 'pr> {
             .rev()
             .find_map(|ancestor| ancestor.as_def_node());
         match enclosing {
-            Some(def) => format!("{}.{method_name}", text(def.name().as_slice())),
+            Some(def) => format!("{}.{method_name}", text(def.name().as_slice(), self.file)),
             None => method_name.to_string(),
         }
     }
@@ -612,6 +661,7 @@ impl<'pr> Walker<'_, 'pr> {
                 self.parent_module_name(anon).as_deref(),
                 &Namespace::None,
                 "Object",
+                self.file,
             );
             let in_singleton = self
                 .stack
@@ -645,7 +695,7 @@ impl<'pr> Walker<'_, 'pr> {
         if subject.is_safe_navigation() {
             return;
         }
-        let method_name = format!("{}.{name}", text(subject.name().as_slice()));
+        let method_name = format!("{}.{name}", text(subject.name().as_slice(), self.file));
         self.found_method(node, method_name, None);
     }
 
@@ -657,6 +707,7 @@ impl<'pr> Walker<'_, 'pr> {
                 self.parent_module_name(anon).as_deref(),
                 &Namespace::None,
                 "Object",
+                self.file,
             );
             let scope_id = self.anon_block_scope_id(anon);
             self.found_method(node, format!("{scope}.{name}"), scope_id);
@@ -683,7 +734,7 @@ impl<'pr> Walker<'_, 'pr> {
             ) {
                 continue;
             }
-            let (mut namespace, mut mod_name) = match defined_module(ancestor) {
+            let (mut namespace, mut mod_name) = match defined_module(ancestor, self.file) {
                 Some((namespace, name)) => (namespace, Some(name)),
                 None => (Namespace::None, None),
             };
@@ -694,12 +745,13 @@ impl<'pr> Walker<'_, 'pr> {
                         enclosing.as_deref(),
                         &namespace,
                         mod_name.as_deref().unwrap_or_default(),
+                        self.file,
                     ));
                 }
                 (namespace, mod_name) = match namespace {
                     Namespace::None => break,
                     Namespace::Cbase => (Namespace::None, None),
-                    Namespace::Node(node) => match destructure_const(&node) {
+                    Namespace::Node(node) => match destructure_const(&node, self.file) {
                         Some((namespace, name)) => (namespace, Some(name)),
                         None => (Namespace::None, None),
                     },
@@ -715,7 +767,10 @@ impl<'pr> Walker<'_, 'pr> {
             key = format!("{key}@{scope_id}");
         }
         let region = self.region();
-        let (line, col) = self.file.line_col(node.location().start_offset());
+        let (line, col) = super::array_literal_in_regexp::reference_line_col(
+            node.location().start_offset(),
+            self.file,
+        );
         let Some(&previous) = self.definitions.get(&key) else {
             self.definitions.insert(key, line);
             return;
@@ -739,6 +794,12 @@ impl<'pr> Walker<'_, 'pr> {
             return;
         }
         let path = self.file.path.display();
+        let method_name = if self.file.match_pattern_binary() {
+            let raw: Vec<u8> = method_name.chars().map(|c| c as u8).collect();
+            super::deprecated_class_methods::diagnostic_bytes(&raw)
+        } else {
+            method_name
+        };
         self.out.push(Offense {
             correction: None,
             cop: self.cop.name(),
@@ -764,14 +825,24 @@ impl<'pr> Walker<'_, 'pr> {
             return;
         }
         let def = node.as_def_node().unwrap();
-        let name = text(def.name().as_slice());
-        match def.receiver() {
+        let name = text(def.name().as_slice(), self.file);
+        // The pinned defs builder removes exactly the outer target wrapper,
+        // not arbitrary nested expression parentheses.
+        let receiver = def.receiver().map(|receiver| {
+            receiver
+                .as_parentheses_node()
+                .and_then(|p| p.body())
+                .unwrap_or(receiver)
+        });
+        match receiver {
             None => self.found_instance_method(node, &name),
             Some(receiver) if receiver.as_self_node().is_some() => {
                 self.check_self_receiver(node, &name);
             }
             Some(receiver) if is_const(&receiver) => {
-                let short = short_const_name(&receiver).unwrap_or_default();
+                let short = destructure_const(&receiver, self.file)
+                    .map(|(_, name)| name)
+                    .unwrap_or_default();
                 self.check_const_receiver(node, &name, &short);
             }
             Some(_) => {}
@@ -781,16 +852,16 @@ impl<'pr> Walker<'_, 'pr> {
     fn on_alias(&mut self, node: &Node<'pr>) {
         let alias = node.as_alias_method_node().unwrap();
         let (Some(new_name), Some(old_name)) = (
-            alias.new_name().as_symbol_node(),
-            alias.old_name().as_symbol_node(),
+            symbol_value(&alias.new_name(), self.file),
+            symbol_value(&alias.old_name(), self.file),
         ) else {
             return;
         };
         // `alias foo foo` marks an intentional redefinition.
-        if new_name.unescaped() == old_name.unescaped() || self.inside_if() {
+        if new_name == old_name || self.inside_if() {
             return;
         }
-        self.found_instance_method(node, &text(new_name.unescaped()));
+        self.found_instance_method(node, &new_name);
     }
 
     fn on_send(&mut self, node: &Node<'pr>) {
@@ -809,8 +880,12 @@ impl<'pr> Walker<'_, 'pr> {
         if call.receiver().is_some() || !DEFINERS.contains(&call.name().as_slice()) {
             return;
         }
-        // A block-pass is an argument in RuboCop's AST.
-        if call
+        // A block-pass participates in exact-arity alias/delegator patterns,
+        // but attribute_accessor? still exposes the preceding symbol arguments.
+        if !matches!(
+            call.name().as_slice(),
+            b"attr" | b"attr_reader" | b"attr_writer" | b"attr_accessor"
+        ) && call
             .block()
             .is_some_and(|block| block.as_block_argument_node().is_some())
         {
@@ -825,15 +900,16 @@ impl<'pr> Walker<'_, 'pr> {
                 let [new_name, old_name] = arguments.as_slice() else {
                     return;
                 };
-                let (Some(new_name), Some(old_name)) =
-                    (new_name.as_symbol_node(), old_name.as_symbol_node())
-                else {
+                let (Some(new_name), Some(old_name)) = (
+                    symbol_value(new_name, self.file),
+                    symbol_value(old_name, self.file),
+                ) else {
                     return;
                 };
-                if new_name.unescaped() == old_name.unescaped() || self.inside_if() {
+                if new_name == old_name || self.inside_if() {
                     return;
                 }
-                self.found_instance_method(node, &text(new_name.unescaped()));
+                self.found_instance_method(node, &new_name);
             }
             name @ (b"attr_reader" | b"attr_writer" | b"attr_accessor" | b"attr") => {
                 if arguments.is_empty() {
@@ -841,8 +917,11 @@ impl<'pr> Walker<'_, 'pr> {
                 }
                 let (names, readable, writable) = match name {
                     b"attr" => {
-                        let writable =
-                            arguments.len() == 2 && arguments[1].as_true_node().is_some();
+                        let writable = arguments.len() == 2
+                            && arguments[1].as_true_node().is_some()
+                            && !call
+                                .block()
+                                .is_some_and(|b| b.as_block_argument_node().is_some());
                         (&arguments[..1], true, writable)
                     }
                     b"attr_reader" => (&arguments[..], true, false),
@@ -850,10 +929,9 @@ impl<'pr> Walker<'_, 'pr> {
                     _ => (&arguments[..], true, true),
                 };
                 for argument in names {
-                    let Some(symbol) = argument.as_symbol_node() else {
+                    let Some(attribute) = symbol_value(argument, self.file) else {
                         continue;
                     };
-                    let attribute = text(symbol.unescaped());
                     if readable {
                         self.found_instance_method(node, &attribute);
                     }
@@ -866,7 +944,10 @@ impl<'pr> Walker<'_, 'pr> {
                 if !(arguments.len() == 2 || arguments.len() == 3) {
                     return;
                 }
-                let values: Option<Vec<String>> = arguments.iter().map(sym_or_str_value).collect();
+                let values: Option<Vec<String>> = arguments
+                    .iter()
+                    .map(|n| sym_or_str_value(n, self.file))
+                    .collect();
                 let Some(values) = values else {
                     return;
                 };
@@ -880,7 +961,10 @@ impl<'pr> Walker<'_, 'pr> {
                 if arguments.len() < 2 {
                     return;
                 }
-                let values: Option<Vec<String>> = arguments.iter().map(sym_or_str_value).collect();
+                let values: Option<Vec<String>> = arguments
+                    .iter()
+                    .map(|n| sym_or_str_value(n, self.file))
+                    .collect();
                 let Some(values) = values else {
                     return;
                 };
@@ -1591,6 +1675,30 @@ mod tests {
     }
 
     #[test]
+    fn names_and_columns_use_the_reference_source_buffer() {
+        let source = "# coding: UTF8-MAC\n'e\u{301}'; def e\u{301}; end; def é; end\n";
+        assert_eq!(found(source), vec![(2, 18, msg("Object#é", 2, 2))]);
+        let source = "# coding: UTF8-MAC\nclass É; def e\u{301}; end; def é; end; end\n";
+        assert_eq!(found(source), vec![(2, 22, msg("É#é", 2, 2))]);
+    }
+
+    #[test]
+    fn binary_method_names_are_lossless_keys_not_diagnostic_escape_spellings() {
+        let bytes = b"# coding: ASCII-8BIT\nattr_reader :\"\xff\"; attr_reader :\"\xfe\"; attr_reader :\"\\\\xFF\"; attr_reader :\"\xff\"\n";
+        let report = crate::pipeline::lint_one(
+            std::path::Path::new("test.rb"),
+            std::path::Path::new("test.rb"),
+            Some(bytes),
+            &[&DuplicateMethods],
+            &Default::default(),
+        );
+        assert!(report.errors.is_empty());
+        let found = report.result.offenses;
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].message, msg("Object#\\xFF", 2, 2));
+    }
+
+    #[test]
     fn reports_file_path_in_message() {
         let found = offenses("def something\nend\ndef something\nend\n");
         assert_eq!(found.len(), 1);
@@ -1692,6 +1800,32 @@ mod tests {
                 "{class}"
             );
         }
+    }
+
+    #[test]
+    fn static_symbol_shapes_and_singleton_target_parentheses_match_the_parser() {
+        assert_none("attr_accessor :\"\", :\"\\u{}\"");
+        assert_none("alias :\"\" :a; alias :\"\\u{}\" :b");
+        assert_none("attr :a, true, &b; def a=(x); end");
+        assert_eq!(
+            found("class A; def (::A).f; end; def A.f; end; end"),
+            vec![(1, 28, msg("A.f", 1, 1))]
+        );
+        assert_none("class A; def ((A)).f; end; def A.f; end; end");
+    }
+
+    #[test]
+    fn attribute_symbols_are_still_definitions_with_a_block_pass() {
+        assert_eq!(
+            found("attr_reader :f, :f, &b"),
+            vec![(1, 1, msg("Object#f", 1, 1))]
+        );
+        assert_eq!(
+            found("if x; attr_reader :f, :f, &b; end"),
+            vec![(1, 7, msg("Object#f", 1, 1))]
+        );
+        assert_none("alias_method :f, :g, &b; def f; end");
+        assert_none("def_delegator :x, :f, &b; def f; end");
     }
 
     #[test]

@@ -80,7 +80,17 @@ module FixedPolicy
     end
 
     def path_allowed?(name, path)
-      defaults = live_lint_defaults(name) || STYLE.fetch(name, {}).fetch("upstream_defaults", {})
+      defaults = if name == 'Bundler/GemFilename' && implemented_cops.include?(name)
+                   { 'Include' => %w[**/Gemfile **/gems.rb **/Gemfile.lock **/gems.locked] }
+                 elsif %w[Gemspec/AttributeAssignment Gemspec/DuplicatedAssignment Gemspec/OrderedDependencies Gemspec/AddRuntimeDependency Gemspec/DependencyVersion Gemspec/DeprecatedAttributeAssignment Gemspec/RequireMFA Gemspec/RequiredRubyVersion Gemspec/RubyVersionGlobalsUsage].include?(name) && implemented_cops.include?(name)
+                   { 'Include' => ['**/*.gemspec'] }
+                 elsif name == 'Gemspec/DevelopmentDependencies' && implemented_cops.include?(name)
+                   { 'Include' => %w[**/*.gemspec **/Gemfile **/gems.rb] }
+                 elsif %w[Bundler/DuplicatedGem Bundler/DuplicatedGroup Bundler/GemComment Bundler/GemVersion Bundler/InsecureProtocolSource Bundler/OrderedGems].include?(name) && implemented_cops.include?(name)
+                   { 'Include' => %w[**/*.gemfile **/Gemfile **/gems.rb] }
+                 else
+                   live_lint_defaults(name) || STYLE.fetch(name, {}).fetch("upstream_defaults", {})
+                 end
       includes = defaults.fetch("Include", [])
       # Naming/FileName uses a config-root filename, not a recursive basename glob.
       excludes = name == "Naming/FileName" ? ["Rakefile.rb"] : defaults.fetch("Exclude", [])

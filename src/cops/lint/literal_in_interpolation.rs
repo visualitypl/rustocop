@@ -22,7 +22,7 @@
 use ruby_prism::{EmbeddedStatementsNode, Node, NodeList};
 
 use crate::{
-    cops::{Cop, NodeContext, ast::is_basic_literal},
+    cops::{Cop, NodeContext},
     offense::Offense,
     source::SourceFile,
 };
@@ -86,7 +86,10 @@ impl Cop for LiteralInInterpolation {
             if let Some(interpolation) = part.as_embedded_statements_node()
                 && let Some(literal) = offending_literal(&interpolation, &context, file)
             {
-                let (line, col) = file.line_col(literal.start_offset());
+                let (line, col) = super::array_literal_in_regexp::reference_line_col(
+                    literal.start_offset(),
+                    file,
+                );
                 out.push(Offense {
                     correction: None,
                     cop: self.name(),
@@ -134,10 +137,10 @@ fn offending_literal<'pr>(
     file: &SourceFile,
 ) -> Option<ruby_prism::Location<'pr>> {
     let last = interpolation.statements()?.body().iter().last()?;
-    if is_special_keyword(&last) || !prints_as_self(&last) {
+    if is_special_keyword(&last) || !prints_as_self(&last, file) {
         return None;
     }
-    if context.heredoc && is_space_literal(&last) && ends_line(interpolation, &last, file) {
+    if context.heredoc && is_space_literal(&last, file) && ends_line(interpolation, &last, file) {
         return None;
     }
     if context.in_regexp && last.as_array_node().is_some() {
@@ -163,14 +166,19 @@ fn is_special_keyword(node: &Node<'_>) -> bool {
             .unwrap()
             .opening_loc()
             .is_none_or(|opening| opening.as_slice().starts_with(b"<<")),
+        Node::InterpolatedStringNode { .. } => node
+            .as_interpolated_string_node()
+            .unwrap()
+            .opening_loc()
+            .is_some_and(|opening| opening.as_slice().starts_with(b"<<")),
         _ => false,
     }
 }
 
 /// Whether the node prints as its own source: basic literals, and arrays,
 /// hashes and ranges of such.
-fn prints_as_self(node: &Node<'_>) -> bool {
-    if is_basic_literal(node) {
+fn prints_as_self(node: &Node<'_>, file: &SourceFile) -> bool {
+    if super::reference_basic_literal::is_basic_literal(node, file) {
         return true;
     }
     match node {
@@ -179,36 +187,52 @@ fn prints_as_self(node: &Node<'_>) -> bool {
             .unwrap()
             .elements()
             .iter()
-            .all(|element| prints_as_self(&element)),
-        Node::HashNode { .. } => pairs_print_as_self(&node.as_hash_node().unwrap().elements()),
+            .all(|element| prints_as_self(&element, file)),
+        Node::HashNode { .. } => {
+            pairs_print_as_self(&node.as_hash_node().unwrap().elements(), file)
+        }
         // `[a: 1]`: a plain `hash` in RuboCop's AST. An array's value is
         // inlined as its source, so `Value::of` needs no counterpart.
         Node::KeywordHashNode { .. } => {
-            pairs_print_as_self(&node.as_keyword_hash_node().unwrap().elements())
+            pairs_print_as_self(&node.as_keyword_hash_node().unwrap().elements(), file)
         }
         // RuboCop crashes on endless and beginless ranges, reporting nothing.
         Node::RangeNode { .. } => {
             let range = node.as_range_node().unwrap();
-            range.left().is_some_and(|left| prints_as_self(&left))
-                && range.right().is_some_and(|right| prints_as_self(&right))
+            range.left().is_some_and(|left| prints_as_self(&left, file))
+                && range
+                    .right()
+                    .is_some_and(|right| prints_as_self(&right, file))
         }
         _ => false,
     }
 }
 
-fn pairs_print_as_self(elements: &NodeList<'_>) -> bool {
+fn pairs_print_as_self(elements: &NodeList<'_>, file: &SourceFile) -> bool {
     elements.iter().all(|element| {
-        element
-            .as_assoc_node()
-            .is_some_and(|pair| prints_as_self(&pair.key()) && prints_as_self(&pair.value()))
+        element.as_assoc_node().is_some_and(|pair| {
+            prints_as_self(&pair.key(), file) && prints_as_self(&pair.value(), file)
+        })
     })
 }
 
 /// A string of (Unicode) whitespace only, possibly empty.
-fn is_space_literal(node: &Node<'_>) -> bool {
+fn is_space_literal(node: &Node<'_>, file: &SourceFile) -> bool {
     node.as_string_node().is_some_and(|string| {
-        std::str::from_utf8(string.unescaped())
-            .is_ok_and(|text| text.chars().all(char::is_whitespace))
+        let single = string.opening_loc().is_some_and(|opening| {
+            opening.as_slice().starts_with(b"'") || opening.as_slice().starts_with(b"%q")
+        });
+        // The reference transcodes source characters before parsing escapes.
+        // Align with the main parse's cooked value so numeric/Unicode escape
+        // results keep their bytes instead of being transcoded a second time.
+        let value = crate::cops::ast::require_literal::parts(
+            string.content_loc().as_slice(),
+            string.unescaped(),
+            single,
+            file,
+        )
+        .concat();
+        std::str::from_utf8(&value).is_ok_and(|text| text.chars().all(char::is_whitespace))
     })
 }
 
@@ -220,10 +244,15 @@ fn ends_line(
     file: &SourceFile,
 ) -> bool {
     let last_line = file.line_of(last.location().end_offset().saturating_sub(1));
-    let line_length = String::from_utf8_lossy(file.line_text(last_line))
-        .chars()
-        .count() as u32;
-    let (_, end_col) = file.line_col(interpolation.location().end_offset());
+    let projected = file.match_pattern_source(file.line_text(last_line));
+    let line_length = projected
+        .utf8_chunks()
+        .map(|c| c.valid().chars().count() + c.invalid().len())
+        .sum::<usize>() as u32;
+    let (_, end_col) = super::array_literal_in_regexp::reference_line_col(
+        interpolation.location().end_offset(),
+        file,
+    );
     line_length == end_col - 1
 }
 
@@ -298,10 +327,20 @@ impl Value {
                     .opening_loc()
                     .is_some_and(|opening| opening.as_slice().starts_with(b"%"));
                 if percent {
-                    // `["a", "b"]`: separated by ", " from two words on.
+                    // Upstream splits the original percent contents, not the
+                    // parsed elements: even an escaped space splits two words.
+                    let location = node.location();
+                    let start = array.opening_loc().unwrap().end_offset();
+                    let end = array.closing_loc().unwrap().start_offset();
+                    let contents = &location.as_slice()
+                        [start - location.start_offset()..end - location.start_offset()];
                     Value {
                         first: Some(b'['),
-                        whitespace: array.elements().iter().nth(1).is_some(),
+                        whitespace: contents
+                            .split(|&b| is_ruby_space(b))
+                            .filter(|part| !part.is_empty())
+                            .nth(1)
+                            .is_some(),
                     }
                 } else {
                     Value::text(node.location().as_slice())
@@ -442,6 +481,51 @@ mod tests {
         "true",
         "false",
     ];
+
+    #[test]
+    fn percent_array_significance_uses_source_words_even_for_escaped_spaces() {
+        for prefix in ["%W", "%I"] {
+            for literal in ["%w[a\\ b]", "%i[a\\ b]", "%W[a\\ b]", "%I[a\\ b]"] {
+                let source = format!("{prefix}[#{{{literal}}}]");
+                assert!(offenses(&source).is_empty(), "{source}");
+            }
+        }
+        assert_eq!(cols("%W[#{%w[a]}]"), [6]);
+    }
+
+    #[test]
+    fn static_prism_literals_must_be_reference_basic_literals_recursively() {
+        for literal in [
+            "%q()",
+            "%Q()",
+            "\"a\nb\"",
+            "'a\nb'",
+            ":\"\"",
+            "%s()",
+            ":\"a\nb\"",
+            "\"a\\n\\\n\"",
+        ] {
+            for value in [
+                literal.to_string(),
+                format!("[1, [[{literal}]]]"),
+                format!("{{x: {literal}}}"),
+                format!("{{{literal} => 1}}"),
+                format!("{literal}..1"),
+            ] {
+                let source = format!("\"#{{{value}}}\"\n");
+                assert!(offenses(&source).is_empty(), "{source:?}");
+            }
+        }
+        for literal in ["\"\"", "''", "\"\\u{}\"", ":\"\\u{}\"", ":x", "\"a\\\nb\""] {
+            assert_eq!(
+                positions(&format!("\"#{{{literal}}}\"")),
+                [(1, 4)],
+                "{literal:?}"
+            );
+        }
+        // Quoted hash labels bypass symbol composition, even empty/multiline.
+        assert_eq!(positions("\"#{{\"\": 1}}\""), [(1, 4)]);
+    }
 
     #[test]
     fn flags_literal_with_message() {
@@ -629,6 +713,29 @@ mod tests {
         );
         // Not a heredoc: reported.
         assert_eq!(cols("\"line #{' '}\"\n"), [9]);
+    }
+
+    #[test]
+    fn heredoc_whitespace_projects_source_characters_not_escaped_bytes() {
+        for literal in [
+            r#""\xa0""#,
+            r#""\x85""#,
+            r#""\240""#,
+            r#""\205""#,
+            r#"%Q(\xa0)"#,
+            r#"%q(\xa0)"#,
+            r#"" \xa0""#,
+        ] {
+            let source = format!("# coding: ISO-8859-1\nx = <<~X\n  #{{{literal}}}\nX\n");
+            let found = offenses(&source);
+            assert_eq!(found.len(), 1, "{source:?}");
+            assert_eq!((found[0].line, found[0].col), (3, 5));
+            assert_eq!(found[0].message, "Literal interpolation detected.");
+        }
+        for literal in [r#""\xc2\xa0""#, r#""\u00a0""#, r#""\t ""#] {
+            let source = format!("# coding: ISO-8859-1\nx = <<~X\n  #{{{literal}}}\nX\n");
+            assert!(offenses(&source).is_empty(), "{source:?}");
+        }
     }
 
     #[test]

@@ -1,4 +1,7 @@
 //! Source-only RuboCop MIT spec replay; authored native controls separate.
+#[macro_use]
+#[path = "support/parallel_rows.rs"]
+mod parallel_rows;
 use std::{
     fs,
     io::Write,
@@ -61,15 +64,15 @@ fn all_original_bytes_match_pipeline_cli_and_guarded_canonical_outputs() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let d = project();
-    let path = d.path().join("lib/a.rb");
     let rows = rows();
     assert_eq!(rows.iter().filter(|r| r["origin"] == "spec").count(), 46);
     assert_eq!(
         rows.iter().filter(|r| r["origin"] == "canonical").count(),
         8
     );
-    for row in rows {
+    parallel_rows!(for row in rows => {
+        let d = project();
+        let path = d.path().join("lib/a.rb");
         let source = bytes(&row, "bytes");
         let after = if row.get("project_after").is_some() {
             bytes(&row, "project_after")
@@ -166,7 +169,7 @@ fn all_original_bytes_match_pipeline_cli_and_guarded_canonical_outputs() {
             );
             unchanged(d.path(), &after, &["--only", COP, "--fix", "lib/a.rb"], 0);
         }
-    }
+    });
 }
 #[test]
 fn defaults_selectors_toml_precedence_and_path_stdin_provenance() {

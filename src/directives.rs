@@ -422,6 +422,15 @@ pub fn is_directive_comment(text: &[u8]) -> bool {
     find_marker(text).is_some_and(|(hash, _, _)| !is_commented_out(&text[..hash]))
 }
 
+/// Whether a comment's text is an `enable` or `enable-next` directive in
+/// either spelling, unless it is commented out: RuboCop's
+/// `DirectiveComment#enabled?`.
+pub(crate) fn is_enable_directive(text: &[u8]) -> bool {
+    find_marker(text).is_some_and(|(hash, mode, _)| {
+        matches!(mode, Mode::Enable | Mode::EnableNext) && !is_commented_out(&text[..hash])
+    })
+}
+
 /// The first directive marker in `text`: the offset of its `#`, its mode,
 /// and the text after the mode.
 fn find_marker(text: &[u8]) -> Option<(usize, Mode, &[u8])> {
@@ -638,6 +647,28 @@ mod tests {
         assert!(is_directive_comment(b"# rubocop:todo Foo"));
         assert!(!is_directive_comment(b"# # rubocop:disable Foo"));
         assert!(!is_directive_comment(b"# just a comment"));
+    }
+
+    #[test]
+    fn tells_enable_directives_in_either_spelling() {
+        for text in [
+            b"# rubocop:enable Foo/Bar".as_slice(),
+            b"# rustocop:enable Foo/Bar",
+            b"#rubocop : enable all",
+            b"# rubocop:enable-next Foo",
+            b"# note # rubocop:enable Foo",
+        ] {
+            assert!(is_enable_directive(text), "{text:?}");
+        }
+        for text in [
+            b"# rubocop:disable Foo/Bar".as_slice(),
+            b"# rubocop:enabled Foo",
+            b"# # rubocop:enable Foo",
+            b"# rubocop:todo Foo",
+            b"# enable",
+        ] {
+            assert!(!is_enable_directive(text), "{text:?}");
+        }
     }
 
     #[test]

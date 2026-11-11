@@ -6,12 +6,17 @@ use rustocop::{
 };
 use std::{
     fs,
-    io::Write,
+    io::{self, Write},
     path::Path,
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Lint/RedundantCopEnableDirective";
 const BEFORE: &str = "foo\n# rubocop:enable Layout/LineLength\n";
+const STDIN_FIX_ERROR: &str = concat!(
+    "error: the argument '--stdin <PATH>' cannot be used with '--fix'\n\n",
+    "Usage: rustocop --only <ONLY> --stdin <PATH> [PATHS]...\n\n",
+    "For more information, try '--help'.\n"
+);
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     fs::create_dir(d.path().join(".git")).unwrap();
@@ -27,6 +32,13 @@ fn cli(root: &Path, args: &[&str], code: i32) -> Output {
         .unwrap();
     assert_eq!(out.status.code(), Some(code), "{args:?}: {out:?}");
     out
+}
+// Only the --stdin --fix rejection may close stdin before the test writes.
+fn rejected_stdin_write(result: io::Result<()>) -> io::Result<()> {
+    match result {
+        Err(err) if err.kind() == io::ErrorKind::BrokenPipe => Ok(()),
+        other => other,
+    }
 }
 fn fix(root: &Path, before: &[u8], after: &[u8]) {
     let path = root.join("lib/a.rb");
@@ -279,18 +291,73 @@ fn defaults_selectors_strict_toml_and_supplied_stdin_path() {
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
-        child
-            .stdin
-            .take()
-            .unwrap()
-            .write_all(BEFORE.as_bytes())
-            .unwrap();
+        let write = child.stdin.take().unwrap().write_all(BEFORE.as_bytes());
+        // This exact invocation rejects stdin before reading; accepted stdin
+        // writes must succeed, with even BrokenPipe remaining fatal.
+        if args == ["--only", COP, "--stdin", "lib/a.rb", "--fix"] {
+            rejected_stdin_write(write).unwrap();
+        } else {
+            write.unwrap();
+        }
         let out = child.wait_with_output().unwrap();
-        assert_eq!(out.status.code(), Some(code));
+        assert_eq!(out.status.code(), Some(code), "{out:?}");
         if code == 1 {
             assert!(String::from_utf8_lossy(&out.stdout).contains("virtual/custom.rb:2:18"));
+            assert!(out.stderr.is_empty(), "{out:?}");
+            assert!(!d.path().join("virtual/custom.rb").exists());
+        } else {
+            assert!(out.stdout.is_empty(), "{out:?}");
+            assert_eq!(String::from_utf8(out.stderr).unwrap(), STDIN_FIX_ERROR);
         }
         assert_eq!(fs::read(&p).unwrap(), BEFORE.as_bytes());
+        let new = fs::metadata(&p).unwrap();
+        assert_eq!(new.modified().unwrap(), old.modified().unwrap());
+        assert_eq!(new.permissions(), old.permissions());
+    }
+}
+#[test]
+fn stdin_fix_rejection_handles_a_deterministically_closed_pipe() {
+    let d = project();
+    let path = d.path().join("lib/a.rb");
+    fs::write(&path, BEFORE).unwrap();
+    let old = fs::metadata(&path).unwrap();
+    let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+        .current_dir(d.path())
+        .args(["--only", COP, "--stdin", "lib/a.rb", "--fix"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut stdin = child.stdin.take().unwrap();
+    // Waiting with our pipe still open proves rejection needs neither input nor
+    // EOF, and guarantees the later write hits a closed reader (no sleeps).
+    let out = child.wait_with_output().unwrap();
+    let write = stdin.write_all(BEFORE.as_bytes());
+    assert_eq!(
+        write.as_ref().unwrap_err().kind(),
+        io::ErrorKind::BrokenPipe
+    );
+    rejected_stdin_write(write).unwrap();
+    assert_eq!(out.status.code(), Some(2), "{out:?}");
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert_eq!(String::from_utf8(out.stderr).unwrap(), STDIN_FIX_ERROR);
+    assert_eq!(fs::read(&path).unwrap(), BEFORE.as_bytes());
+    let new = fs::metadata(&path).unwrap();
+    assert_eq!(new.modified().unwrap(), old.modified().unwrap());
+    assert_eq!(new.permissions(), old.permissions());
+}
+#[test]
+fn rejected_stdin_write_preserves_other_errors_and_success() {
+    rejected_stdin_write(Ok(())).unwrap();
+    for kind in [
+        io::ErrorKind::PermissionDenied,
+        io::ErrorKind::WriteZero,
+        io::ErrorKind::Other,
+    ] {
+        let err = rejected_stdin_write(Err(io::Error::new(kind, "stdin control"))).unwrap_err();
+        assert_eq!(err.kind(), kind);
+        assert_eq!(err.to_string(), "stdin control");
     }
 }
 #[test]
@@ -462,7 +529,7 @@ fn reserved_syntax_diagnostic_exclusion_does_not_hide_unknowns_or_parser_errors(
         assert_eq!(new.permissions(), old.permissions());
     }
     assert!(
-        !Registry::new()
+        Registry::new()
             .cops()
             .iter()
             .any(|c| c.name() == "Lint/Syntax")

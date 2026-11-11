@@ -17,6 +17,21 @@ fn escaped_byte_rows() -> Vec<serde_json::Value> {
     ))
     .unwrap()
 }
+fn symbol_rows() -> Vec<serde_json::Value> {
+    serde_json::from_str(include_str!("fixtures/duplicate_require_symbols.json")).unwrap()
+}
+fn projected_rows() -> Vec<serde_json::Value> {
+    serde_json::from_str(include_str!("fixtures/duplicate_require_projected.json")).unwrap()
+}
+fn v10_neighbour_rows() -> Vec<serde_json::Value> {
+    serde_json::from_str(include_str!(
+        "fixtures/duplicate_require_v10_neighbours.json"
+    ))
+    .unwrap()
+}
+fn v10_review_rows() -> Vec<serde_json::Value> {
+    serde_json::from_str(include_str!("fixtures/duplicate_require_identity.json")).unwrap()
+}
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -126,6 +141,300 @@ fn encoded_literal_argument_keys_match_reference_without_writes() {
 
 #[test]
 fn escaped_source_glyphs_and_neighbours_match_reference_without_writes() {
+    byte_rows_match_without_writes(escaped_byte_rows());
+}
+
+#[test]
+fn empty_symbol_and_quoted_label_shapes_match_reference_without_writes() {
+    assert_eq!(symbol_rows().len(), 1269);
+    byte_rows_match_without_writes(symbol_rows());
+}
+
+#[test]
+fn reference_buffer_names_lexical_kinds_and_columns_match_without_writes() {
+    assert_eq!(projected_rows().len(), 1752);
+    byte_rows_match_without_writes(projected_rows());
+}
+
+#[test]
+fn v10_lexical_regexp_and_column_neighbours_match_without_writes() {
+    assert_eq!(v10_neighbour_rows().len(), 209);
+    byte_rows_match_without_writes(v10_neighbour_rows());
+}
+
+#[test]
+fn v10_review_regexp_and_rescue_neighbours_match_without_writes() {
+    assert_eq!(v10_review_rows().len(), 232);
+    byte_rows_match_without_writes(v10_review_rows());
+}
+
+#[test]
+fn review_identities_compose_with_cli_config_directives_stdin_and_atomic_peer() {
+    let dir = project();
+    for source in [
+        "require(if /x/im; [1,2]; end)\nrequire(if %r{x}mi; [1,2]; end)\n",
+        "require(begin; [1,2]; rescue; y; else; end)\nrequire(begin; [1,2]; rescue; y; end)\n",
+    ] {
+        for args in [
+            vec!["lib/a.rb"],
+            vec![
+                "--only",
+                "Lint",
+                "--except",
+                "Lint/RegexpAsCondition",
+                "lib/a.rb",
+            ],
+            vec!["--only", COP, "--fix", "lib/a.rb"],
+        ] {
+            assert_eq!(
+                count(&unchanged(dir.path(), source.as_bytes(), &args, None)),
+                1
+            );
+        }
+        assert_eq!(
+            count(&unchanged(
+                dir.path(),
+                source.as_bytes(),
+                &["--except", COP, "lib/a.rb"],
+                None
+            )),
+            0
+        );
+        for prefix in ["rubocop", "rustocop"] {
+            let suppressed = format!("# {prefix}:disable {COP}\n{source}");
+            unchanged(
+                dir.path(),
+                suppressed.as_bytes(),
+                &["--only", COP, "--fix", "lib/a.rb"],
+                Some(0),
+            );
+        }
+        fs::write(
+            dir.path().join("rustocop.toml"),
+            format!("[cops.Lint]\nenabled = false\n[cops.\"{COP}\"]\nenabled = true\n"),
+        )
+        .unwrap();
+        assert_eq!(
+            count(&unchanged(
+                dir.path(),
+                source.as_bytes(),
+                &["lib/a.rb"],
+                None
+            )),
+            1
+        );
+        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+        let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+            .current_dir(dir.path())
+            .args(["--only", COP, "--stdin", "virtual/review.rb"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(source.as_bytes())
+            .unwrap();
+        let out = child.wait_with_output().unwrap();
+        assert_eq!(out.status.code(), Some(1));
+        assert!(
+            String::from_utf8_lossy(&out.stdout)
+                .contains("virtual/review.rb:2:1: E: Duplicate `require` detected.")
+        );
+        assert!(!dir.path().join("virtual").exists());
+        unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--only", COP, "--stdin", "lib/a.rb", "--fix"],
+            Some(2),
+        );
+        #[cfg(unix)]
+        {
+            use std::io::Read;
+            use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
+            let path = dir.path().join("lib/a.rb");
+            fs::set_permissions(&path, fs::Permissions::from_mode(0o751)).unwrap();
+            let alias = dir.path().join("lib/review.rb");
+            symlink("a.rb", &alias).unwrap();
+            unchanged(
+                dir.path(),
+                source.as_bytes(),
+                &["--only", COP, "--fix", "lib/review.rb"],
+                Some(1),
+            );
+            let old = fs::metadata(&path).unwrap();
+            let mut fd = fs::File::open(&path).unwrap();
+            let out = run(
+                dir.path(),
+                &[
+                    "--only",
+                    "Lint/DuplicateRequire,Layout/SpaceAfterComma",
+                    "--fix",
+                    "lib/review.rb",
+                ],
+            );
+            assert_eq!(out.status.code(), Some(1));
+            assert_eq!(count(&out), 1);
+            let new = fs::metadata(&path).unwrap();
+            assert_ne!(old.ino(), new.ino());
+            assert_eq!(old.permissions(), new.permissions());
+            assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
+            let mut held = Vec::new();
+            fd.read_to_end(&mut held).unwrap();
+            assert_eq!(held, source.as_bytes());
+            let after = source.replace("[1,2]", "[1, 2]");
+            assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
+            unchanged(
+                dir.path(),
+                after.as_bytes(),
+                &[
+                    "--only",
+                    "Lint/DuplicateRequire,Layout/SpaceAfterComma",
+                    "--fix",
+                    "lib/a.rb",
+                ],
+                Some(1),
+            );
+            fs::remove_file(alias).unwrap();
+        }
+    }
+}
+
+#[test]
+fn projected_identity_composes_with_real_cli_gates_stdin_and_atomic_old_peer() {
+    let dir = project();
+    let source = "# coding: UTF8-MAC\nrequire([ae\u{301},1,2]); require([aé,1,2])\n";
+    for selectors in [vec!["--only", COP], vec!["--only", "Lint"], vec![]] {
+        let mut args = selectors;
+        args.push("lib/a.rb");
+        assert_eq!(
+            count(&unchanged(dir.path(), source.as_bytes(), &args, None)),
+            1
+        );
+    }
+    assert_eq!(
+        count(&unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--except", COP, "lib/a.rb"],
+            None
+        )),
+        0
+    );
+    for prefix in ["rubocop", "rustocop"] {
+        let disabled = source.replace(
+            "# coding: UTF8-MAC\n",
+            &format!("# coding: UTF8-MAC\n# {prefix}:disable {COP}\n"),
+        );
+        assert_eq!(
+            count(&unchanged(
+                dir.path(),
+                disabled.as_bytes(),
+                &["--only", COP, "--fix", "lib/a.rb"],
+                None
+            )),
+            0
+        );
+    }
+    fs::write(
+        dir.path().join("rustocop.toml"),
+        format!("[cops.Lint]\nenabled = false\n[cops.\"{COP}\"]\nenabled = true\n"),
+    )
+    .unwrap();
+    assert_eq!(
+        count(&unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["lib/a.rb"],
+            None
+        )),
+        1
+    );
+    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+    let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+        .current_dir(dir.path())
+        .args(["--only", COP, "--stdin", "virtual/projected.rb"])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(source.as_bytes())
+        .unwrap();
+    let out = child.wait_with_output().unwrap();
+    assert_eq!(out.status.code(), Some(1));
+    assert!(
+        String::from_utf8_lossy(&out.stdout)
+            .contains("virtual/projected.rb:2:20: E: Duplicate `require` detected.")
+    );
+    assert!(!dir.path().join("virtual").exists());
+    unchanged(
+        dir.path(),
+        source.as_bytes(),
+        &["--only", COP, "--stdin", "lib/a.rb", "--fix"],
+        Some(2),
+    );
+    #[cfg(unix)]
+    {
+        use std::io::Read;
+        use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
+        let path = dir.path().join("lib/a.rb");
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o751)).unwrap();
+        symlink("a.rb", dir.path().join("lib/alias.rb")).unwrap();
+        unchanged(
+            dir.path(),
+            source.as_bytes(),
+            &["--only", COP, "--fix", "lib/alias.rb"],
+            Some(1),
+        );
+        let mut fd = fs::File::open(&path).unwrap();
+        let old = fs::metadata(&path).unwrap();
+        let out = run(
+            dir.path(),
+            &[
+                "--only",
+                "Lint/DuplicateRequire,Layout/SpaceAfterComma",
+                "--fix",
+                "lib/alias.rb",
+            ],
+        );
+        assert_eq!(out.status.code(), Some(1));
+        assert_eq!(count(&out), 1);
+        let new = fs::metadata(&path).unwrap();
+        assert_ne!(old.ino(), new.ino());
+        assert_eq!(old.permissions(), new.permissions());
+        assert!(
+            fs::symlink_metadata(dir.path().join("lib/alias.rb"))
+                .unwrap()
+                .is_symlink()
+        );
+        let mut held = Vec::new();
+        fd.read_to_end(&mut held).unwrap();
+        assert_eq!(held, source.as_bytes());
+        let after = source.replace(",1,2", ", 1, 2");
+        assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
+        unchanged(
+            dir.path(),
+            after.as_bytes(),
+            &[
+                "--only",
+                "Lint/DuplicateRequire,Layout/SpaceAfterComma",
+                "--fix",
+                "lib/a.rb",
+            ],
+            Some(1),
+        );
+    }
+}
+
+fn byte_rows_match_without_writes(rows: Vec<serde_json::Value>) {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"").unwrap();
@@ -134,7 +443,7 @@ fn escaped_source_glyphs_and_neighbours_match_reference_without_writes() {
         use std::os::unix::fs::PermissionsExt;
         fs::set_permissions(&path, fs::Permissions::from_mode(0o751)).unwrap();
     }
-    for row in escaped_byte_rows() {
+    for row in rows {
         let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let expected = row["findings"].as_array().unwrap();
         for fix in [false, true] {
@@ -182,7 +491,7 @@ fn escaped_source_glyphs_and_neighbours_match_reference_without_writes() {
 #[test]
 fn defaults_metadata_selectors_strict_toml_precedence_and_excludes() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 491);
+    assert_eq!(registry.cops().len(), 582);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && !cop.safe_fixes());
     assert!(cop.ruby_versions().minimum.is_none() && cop.ruby_versions().maximum.is_none());
@@ -512,15 +821,77 @@ fn atomic_validation_readonly_symlink_failure_and_layout_peer_composition() {
     assert!(!dir.path().join("lib/missing.rb").exists());
 }
 fn native(ruby: &str, source: &[u8], args: &[&str]) -> Output {
-    let mut child = Command::new(ruby)
+    limited_native(ruby, source, args, "10s", 1024 * 1024)
+        .expect("bounded authored native or syntax-only probe")
+}
+
+// Local launcher: external process-group wall/memory/output limits.
+// Regular output files make RLIMIT_FSIZE effective; never truncate observations.
+fn limited_native(
+    ruby: &str,
+    source: &[u8],
+    args: &[&str],
+    seconds: &str,
+    output_limit: u64,
+) -> Result<Output, String> {
+    let mut stdout = tempfile::tempfile().unwrap();
+    let mut stderr = tempfile::tempfile().unwrap();
+    let mut child = Command::new("timeout")
+        .args([
+            "--kill-after=1s",
+            seconds,
+            "prlimit",
+            "--as=536870912",
+            "--core=0",
+        ])
+        .arg(format!("--fsize={output_limit}"))
+        .arg("--")
+        .arg(ruby)
         .args(args)
         .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
+        .stdout(stdout.try_clone().unwrap())
+        .stderr(stderr.try_clone().unwrap())
         .spawn()
-        .unwrap();
+        .map_err(|e| format!("native guards unavailable: {e}"))?;
     child.stdin.take().unwrap().write_all(source).unwrap();
-    child.wait_with_output().unwrap()
+    let status = child.wait().map_err(|e| e.to_string())?;
+    if stdout.metadata().unwrap().len() >= output_limit
+        || stderr.metadata().unwrap().len() >= output_limit
+    {
+        return Err("native output limit exceeded".into());
+    }
+    if matches!(status.code(), Some(124 | 137)) {
+        return Err("native wall limit exceeded".into());
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::ExitStatusExt;
+        if status.signal().is_some() {
+            return Err(format!("native killed by signal {:?}", status.signal()));
+        }
+    }
+    use std::io::{Read, Seek};
+    stdout.rewind().unwrap();
+    stderr.rewind().unwrap();
+    let mut out = Output {
+        status,
+        stdout: Vec::new(),
+        stderr: Vec::new(),
+    };
+    stdout.read_to_end(&mut out.stdout).unwrap();
+    stderr.read_to_end(&mut out.stderr).unwrap();
+    Ok(out)
+}
+
+#[test]
+fn authored_native_external_wall_and_output_overflow_are_failures() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let wall = limited_native(&ruby, b"sleep 2\n", &["-"], "0.1s", 1024);
+    assert_eq!(wall.unwrap_err(), "native wall limit exceeded");
+    let output = limited_native(&ruby, b"loop { puts 'x' * 1024 }\n", &["-"], "5s", 1024);
+    assert_eq!(output.unwrap_err(), "native output limit exceeded");
 }
 #[test]
 fn wide_siblings_and_multiple_input_lifecycles_are_file_local() {
@@ -557,6 +928,10 @@ fn all_reference_sources_are_native_syntax_checked_only() {
             bytes
                 .into_iter()
                 .chain(escaped_byte_rows())
+                .chain(symbol_rows())
+                .chain(projected_rows())
+                .chain(v10_neighbour_rows())
+                .chain(v10_review_rows())
                 .map(|r| serde_json::from_value::<Vec<u8>>(r["bytes"].clone()).unwrap()),
         );
     for source in sources {
@@ -564,6 +939,58 @@ fn all_reference_sources_are_native_syntax_checked_only() {
         assert!(out.status.success(), "{source:?}\n{out:?}");
     }
 }
+#[test]
+fn authored_review_identity_counterpairs_still_withhold_unsafe_deletions() {
+    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+        return;
+    };
+    let dir = project();
+    let feature = dir.path().join("review-feature.rb");
+    // Separately authored inert helpers only. Never run a reference fixture.
+    fs::write(&feature, "$events << :loaded\n").unwrap();
+    for (setup, first, second, expected, error) in [
+        (
+            "$_ = 'x'\n",
+            "require(if /x/im; $events << :arg; ARGV[0]; end)\n",
+            "require(if %r{x}mi; $events << :arg; ARGV[0]; end)\n",
+            "[:arg, :loaded, :arg]\n",
+            false,
+        ),
+        (
+            "",
+            "require(begin; ARGV[0]; rescue; ARGV[0]; end)\n",
+            "require(begin; ARGV[0]; rescue; ARGV[0]; else; end)\n",
+            "",
+            true,
+        ),
+    ] {
+        let before = format!("$events = []\n{setup}{first}{second}p $events\n");
+        let after = format!("$events = []\n{setup}{first}p $events\n");
+        assert_eq!(
+            count(&unchanged(
+                dir.path(),
+                before.as_bytes(),
+                &["--only", COP, "--fix", "lib/a.rb"],
+                Some(1)
+            )),
+            1
+        );
+        let args = ["--parser=prism", "-", feature.to_str().unwrap()];
+        let a = native(&ruby, before.as_bytes(), &args);
+        let b = native(&ruby, after.as_bytes(), &args);
+        assert_eq!(a.status.success(), !error, "{a:?}");
+        assert_eq!(a.stdout, expected.as_bytes(), "{a:?}");
+        if error {
+            assert!(
+                String::from_utf8_lossy(&a.stderr).contains("TypeError"),
+                "{a:?}"
+            );
+        }
+        assert!(b.status.success(), "{b:?}");
+        assert_ne!((a.status.code(), a.stdout), (b.status.code(), b.stdout));
+    }
+}
+
 #[test]
 fn authored_native_require_reload_argument_and_error_counterexamples_prove_no_edit_policy() {
     let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {

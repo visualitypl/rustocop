@@ -302,7 +302,8 @@ fn mixed_style_layout_stabilizes_in_two_explicit_passes() {
     let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
     // scan exposes MatchData#regexp; the unknown preceding call also prevents
     // proving constructor dispatch. Stabilize with those diagnostics intact.
-    assert_eq!(after, "\"foo\".scan(/[f]/)\n Regexp.new(/[a]/)\n");
+    // Layout/IndentationConsistency aligns the split statement.
+    assert_eq!(after, "\"foo\".scan(/[f]/)\nRegexp.new(/[a]/)\n");
     unchanged(
         d.path(),
         after.as_bytes(),

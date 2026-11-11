@@ -14,8 +14,8 @@ use crate::{
     cops::{Registry, run_cops_with_corrections, select_active},
     discovery::collect_files,
     isolation::{CaughtPanic, QuietPanics, catch},
-    offense::Offense,
-    source::SourceFile,
+    offense::{GlobalOffense, Offense},
+    source::{SourceFile, SuppliedInputMetadata},
 };
 
 /// CLI-selected run options.
@@ -64,6 +64,9 @@ pub struct FileResult {
     pub path: PathBuf,
     /// The offenses found in it, sorted by (line, column, cop name, message).
     pub offenses: Vec<Offense>,
+    /// Nonfatal whole-file findings, with no invented source positions or edits.
+    /// Sorted by (cop name, message), rendered before located findings.
+    pub global_offenses: Vec<GlobalOffense>,
 }
 
 /// An error for one file (read failure, syntax or excessive AST depth). The run continues.
@@ -139,6 +142,7 @@ impl FileReport {
             result: FileResult {
                 path: display_path.to_path_buf(),
                 offenses: Vec::new(),
+                global_offenses: Vec::new(),
             },
             errors: Vec::new(),
             internal_errors: Vec::new(),
@@ -149,7 +153,10 @@ impl FileReport {
 impl RunReport {
     /// Total offense count.
     pub fn offense_count(&self) -> usize {
-        self.results.iter().map(|r| r.offenses.len()).sum()
+        self.results
+            .iter()
+            .map(|r| r.offenses.len() + r.global_offenses.len())
+            .sum()
     }
 
     /// Whether the run hit any errors, internal ones included.
@@ -257,7 +264,7 @@ pub fn run(
             }
             // Lint all aliases against the same snapshot, retaining path-specific
             // eligibility. If reading fails, report each alias's own read error.
-            let original = fs::read(read_path);
+            let original = read_disk_input(read_path);
             // Every merged edit must be safe under every known loading alias,
             // even an alias excluded for this cop. Use an incompatible path as
             // the snapshot's provenance for all aliases when one is present.
@@ -274,9 +281,11 @@ pub fn run(
                         if original.is_ok() { load_path } else { path },
                         display,
                         original
-                            .as_deref()
+                            .as_ref()
                             .ok()
-                            .map_or(SourceInput::Disk, SourceInput::DiskSnapshot),
+                            .map_or(SourceInput::Disk, |(bytes, metadata)| {
+                                SourceInput::DiskSnapshot(bytes, *metadata)
+                            }),
                         &active,
                         config,
                         CorrectionMode::Collect,
@@ -284,7 +293,9 @@ pub fn run(
                 })
                 .collect();
             match original {
-                Ok(bytes) => correct_files(read_path, &bytes, reports, &active, config),
+                Ok((bytes, metadata)) => {
+                    correct_files(read_path, &bytes, metadata, reports, &active, config)
+                }
                 Err(_) => reports,
             }
         })
@@ -293,6 +304,7 @@ pub fn run(
         .for_each(|mut file| {
             corrections_applied += file.corrections_applied;
             if file.result.offenses.is_empty()
+                && file.result.global_offenses.is_empty()
                 && file.errors.is_empty()
                 && file.internal_errors.is_empty()
             {
@@ -350,14 +362,24 @@ struct CopSelection<'a> {
     disabled: Vec<&'a dyn crate::cops::Cop>,
     // Full configured universe, independent of --only/--except mobilization.
     directive_disabled: Vec<String>,
+    // Full registered universe, not just the CLI-selected or Ruby-active set.
+    universe: Vec<&'a dyn crate::cops::Cop>,
 }
 impl<'a> CopSelection<'a> {
     fn explicit(active: &[&'a dyn crate::cops::Cop], config: &ResolvedConfig) -> Self {
         static REGISTRY: std::sync::LazyLock<Registry> = std::sync::LazyLock::new(Registry::new);
+        let mut universe: Vec<&dyn crate::cops::Cop> =
+            REGISTRY.cops().iter().map(|c| c.as_ref()).collect();
+        for &cop in active {
+            if !universe.iter().any(|c| c.name() == cop.name()) {
+                universe.push(cop);
+            }
+        }
         Self {
             enabled: active.to_vec(),
             disabled: Vec::new(),
             directive_disabled: Self::configured_disabled(&REGISTRY, config),
+            universe,
         }
     }
     fn configured_disabled(registry: &Registry, config: &ResolvedConfig) -> Vec<String> {
@@ -393,6 +415,7 @@ impl<'a> CopSelection<'a> {
             enabled,
             disabled,
             directive_disabled,
+            universe: registry.cops().iter().map(|c| c.as_ref()).collect(),
         }
     }
 }
@@ -410,7 +433,7 @@ enum CorrectionMode {
 #[derive(Clone, Copy)]
 enum SourceInput<'a> {
     Disk,
-    DiskSnapshot(&'a [u8]),
+    DiskSnapshot(&'a [u8], Option<SuppliedInputMetadata>),
     Memory(&'a [u8]),
 }
 impl<'a> From<Option<&'a [u8]>> for SourceInput<'a> {
@@ -495,10 +518,11 @@ fn lint_file(
             && !cop_excluded(config, relative, cop.name())
     };
     let from_disk = !matches!(input, SourceInput::Memory(_));
-    let bytes = match input {
-        SourceInput::Memory(bytes) | SourceInput::DiskSnapshot(bytes) => bytes.to_vec(),
-        SourceInput::Disk => match fs::read(read_path) {
-            Ok(bytes) => bytes,
+    let (bytes, metadata) = match input {
+        SourceInput::Memory(bytes) => (bytes.to_vec(), None),
+        SourceInput::DiskSnapshot(bytes, metadata) => (bytes.to_vec(), metadata),
+        SourceInput::Disk => match read_disk_input(read_path) {
+            Ok(snapshot) => snapshot,
             Err(err) => {
                 report.errors.push(LintError {
                     path: display_path.to_path_buf(),
@@ -509,32 +533,98 @@ fn lint_file(
             }
         },
     };
-    let file = SourceFile::new(display_path.to_path_buf(), bytes).with_source_path(read_path);
+    if crate::discovery::is_filename_only(display_path) {
+        // Locks are opaque: no encoding validation, Prism, comments, directives,
+        // ordinary source/AST hooks or correction pass may inspect their bytes.
+        for cop in active.enabled.iter().copied().filter(eligible) {
+            if let Err(panic) =
+                catch(|| cop.check_filename(relative, &mut report.result.global_offenses))
+            {
+                report.internal_errors.push(InternalError {
+                    path: display_path.to_path_buf(),
+                    cop: Some(cop.name()),
+                    position: None,
+                    panic,
+                });
+            }
+        }
+        sort_global_offenses(&mut report.result.global_offenses);
+        return report;
+    }
+    let file = SourceFile::new(display_path.to_path_buf(), bytes)
+        .with_source_path(read_path)
+        .with_supplied_input_metadata(metadata);
     let file = if from_disk {
         file.with_read_path(read_path)
     } else {
         file
     };
     let result = crate::parser::parse(&file.bytes);
-    // Diagnostics need the same cached encoding metadata as cop offenses;
-    // record it even when this parse has errors, without a second parse.
-    file.record_encoding(&result);
-
-    let positions = file.line_cols(
-        result
-            .errors()
-            .map(|diagnostic| diagnostic.location().start_offset()),
-    );
-    for (diagnostic, (line, col)) in result.errors().zip(positions) {
+    // Retain actual errors AND warnings, with encoding, even on rejected
+    // input. Fatal delivery and later warning consumers share this main parse.
+    file.record_diagnostics(&result);
+    let diagnostics = file.diagnostics();
+    if let Some(message) = &diagnostics.buffer_error {
         report.errors.push(LintError {
             path: file.path.clone(),
-            position: Some((line, col)),
-            message: format!("syntax error on line {line}: {}", diagnostic.message()),
+            position: None,
+            message: message.clone(),
         });
+    } else {
+        let positions = file.line_cols(diagnostics.errors.iter().map(|d| d.range.start));
+        for (diagnostic, (line, col)) in diagnostics.errors.iter().zip(positions) {
+            report.errors.push(LintError {
+                path: file.path.clone(),
+                position: Some((line, col)),
+                message: format!("syntax error on line {line}: {}", diagnostic.message),
+            });
+        }
     }
     if !report.errors.is_empty() {
-        // Preserve syntax-error precedence. Parsed also bounds teardown of
-        // recovered trees, including on early return or unwinding.
+        // Only the bounded fatal lifecycle may inspect this snapshot. No
+        // directives/recovered AST, ordinary cop hook or correction is reached.
+        // Selection filters the named presentation, NEVER mandatory rejection.
+        for cop in active
+            .enabled
+            .iter()
+            .copied()
+            .filter(eligible)
+            .filter(|c| c.wants_fatal_diagnostics())
+        {
+            let mut findings = Vec::new();
+            match catch(|| cop.check_fatal(&file, &mut findings)) {
+                Ok(()) if !findings.is_empty() => {
+                    report.errors = findings
+                        .into_iter()
+                        .map(|finding| {
+                            let position = finding.range.map(|range| file.line_col(range.start));
+                            let message = if let Some((line, _)) = position {
+                                format!(
+                                    "syntax error on line {line}: {} ({})",
+                                    finding.message,
+                                    cop.name()
+                                )
+                            } else {
+                                format!("{} ({})", finding.message, cop.name())
+                            };
+                            LintError {
+                                path: file.path.clone(),
+                                position,
+                                message,
+                            }
+                        })
+                        .collect();
+                }
+                Ok(()) => {}
+                Err(panic) => report.internal_errors.push(InternalError {
+                    path: file.path.clone(),
+                    cop: Some(cop.name()),
+                    position: None,
+                    panic,
+                }),
+            }
+        }
+        // Parsed bounds teardown of recovered trees, even on early return.
         return report;
     }
 
@@ -549,7 +639,6 @@ fn lint_file(
 
     file.record_comments(&result);
     file.record_continuations(&result.continuations);
-    file.record_warnings(&result);
     file.record_data_start(&result);
     file.record_directive_disabled(&active.directive_disabled);
     let disabled: Vec<_> = active.disabled.iter().map(|c| c.name()).collect();
@@ -568,24 +657,87 @@ fn lint_file(
         .filter(eligible)
         .collect();
 
+    let mut globals = Vec::new();
+    let mut live = Vec::with_capacity(running.len());
+    for &cop in &running {
+        match catch(|| {
+            cop.check_filename(relative, &mut globals);
+            cop.check_global(&result, &file, &mut globals);
+        }) {
+            Ok(()) => live.push(cop),
+            Err(panic) => report.internal_errors.push(InternalError {
+                path: file.path.clone(),
+                cop: Some(cop.name()),
+                position: None,
+                panic,
+            }),
+        }
+    }
     let mut offenses = Vec::new();
     let panics = run_cops_with_corrections(
-        &running,
+        &live,
         &result,
         &file,
         &mut offenses,
         mode != CorrectionMode::None,
     );
-    report.internal_errors = panics
-        .into_iter()
-        .map(|panic| InternalError {
+    report
+        .internal_errors
+        .extend(panics.into_iter().map(|panic| InternalError {
             path: file.path.clone(),
             cop: Some(panic.cop),
             position: panic.position,
             panic: panic.panic,
-        })
-        .collect();
+        }));
 
+    if running.iter().any(|cop| cop.wants_post_investigation()) {
+        let cops: Vec<_> = active
+            .universe
+            .iter()
+            .map(|cop| {
+                let investigated = running.iter().any(|c| c.name() == cop.name());
+                crate::cops::InvestigatedCop {
+                    name: cop.name(),
+                    configured_enabled: crate::cops::configured_enabled(*cop, config),
+                    available: active
+                        .enabled
+                        .iter()
+                        .chain(&active.disabled)
+                        .any(|c| c.name() == cop.name())
+                        && eligible(cop),
+                    investigated,
+                    completed: investigated
+                        && !report
+                            .internal_errors
+                            .iter()
+                            .any(|e| e.cop == Some(cop.name())),
+                }
+            })
+            .collect();
+        let cx = crate::cops::PostInvestigation {
+            raw_offenses: &offenses,
+            raw_global_offenses: &globals,
+            directives,
+            cops: &cops,
+            corrections_requested: mode != CorrectionMode::None,
+        };
+        let mut post = Vec::new();
+        let panics = crate::cops::run_post_investigation(&running, &result, &file, &cx, &mut post);
+        report
+            .internal_errors
+            .extend(panics.into_iter().map(|panic| InternalError {
+                path: file.path.clone(),
+                cop: Some(panic.cop),
+                position: panic.position,
+                panic: panic.panic,
+            }));
+        offenses.extend(post);
+    }
+    // RuboCop's NO_LOCATION findings consult directive line1, but that is a
+    // suppression anchor only: neither output nor the model claims a location.
+    globals.retain(|offense| directives.is_enabled(offense.cop, 1));
+    sort_global_offenses(&mut globals);
+    report.result.global_offenses = globals;
     offenses.retain(|offense| {
         directives.is_enabled_for_lines(offense.cop, offense.line, offense.end_line)
     });
@@ -616,9 +768,20 @@ fn lint_file(
     if mode != CorrectionMode::Apply {
         return report;
     }
-    correct_files(read_path, &file.bytes, vec![report], active, config)
-        .pop()
-        .unwrap()
+    correct_files(
+        read_path,
+        &file.bytes,
+        metadata,
+        vec![report],
+        active,
+        config,
+    )
+    .pop()
+    .unwrap()
+}
+
+fn sort_global_offenses(offenses: &mut [GlobalOffense]) {
+    offenses.sort_by(|a, b| (a.cop, a.message.as_str()).cmp(&(b.cop, b.message.as_str())));
 }
 
 /// Merge eligible corrections across aliases, write once, and retain a separate
@@ -626,13 +789,22 @@ fn lint_file(
 fn correct_files(
     read_path: &Path,
     original: &[u8],
+    metadata: Option<SuppliedInputMetadata>,
     mut reports: Vec<FileReport>,
     active: &CopSelection<'_>,
     config: &ResolvedConfig,
 ) -> Vec<FileReport> {
-    if reports
-        .iter()
-        .any(|report| !report.errors.is_empty() || !report.internal_errors.is_empty())
+    // A known opaque loading alias or disk destination vetoes source writes.
+    // Input eligibility still follows supplied names, not canonical targets;
+    // resolving the destination here is solely a conservative no-write guard.
+    if crate::discovery::is_filename_only(read_path)
+        || fs::canonicalize(read_path).is_ok_and(|path| crate::discovery::is_filename_only(&path))
+        || reports
+            .iter()
+            .any(|report| crate::discovery::is_filename_only(&report.result.path))
+        || reports
+            .iter()
+            .any(|report| !report.errors.is_empty() || !report.internal_errors.is_empty())
     {
         return reports;
     }
@@ -677,7 +849,7 @@ fn correct_files(
             lint_one_in_mode(
                 read_path,
                 &report.result.path,
-                SourceInput::DiskSnapshot(&applied.bytes),
+                SourceInput::DiskSnapshot(&applied.bytes, metadata),
                 active,
                 config,
                 CorrectionMode::None,
@@ -714,12 +886,27 @@ fn correct_files(
     corrected
 }
 
+/// Capture bytes and optional facts from one opened input. A failed metadata
+/// query is inapplicable to metadata consumers, not a new lint failure. No
+/// virtual/display path reaches this function; no descriptor survives the read.
+fn read_disk_input(path: &Path) -> std::io::Result<(Vec<u8>, Option<SuppliedInputMetadata>)> {
+    let mut input = fs::File::open(path)?;
+    let metadata = SuppliedInputMetadata::from_file(&input);
+    let mut bytes = Vec::new();
+    input.read_to_end(&mut bytes)?;
+    Ok((bytes, metadata))
+}
+
 /// Write through a sibling temporary file, so a failed write cannot truncate
 /// the original. Resolve symlinks first to preserve them, and retain permissions.
 fn write_corrected(path: &Path, original: &[u8], corrected: &[u8]) -> Result<()> {
     use std::io::Write;
 
     let path = fs::canonicalize(path)?;
+    anyhow::ensure!(
+        !crate::discovery::is_filename_only(&path),
+        "opaque gem lock files cannot be source-corrected"
+    );
     let metadata = fs::metadata(&path)?;
     anyhow::ensure!(!metadata.permissions().readonly(), "file is read-only");
     anyhow::ensure!(
@@ -772,6 +959,26 @@ pub(crate) fn lint_str_with_corrections(
     lint_str_in_mode(active, source, CorrectionMode::Collect)
 }
 
+/// The correction test seam for a supplied path (cop path policies apply).
+#[cfg(test)]
+pub(crate) fn lint_path_with_corrections(
+    active: &[&dyn crate::cops::Cop],
+    path: &str,
+    source: &str,
+) -> Vec<Offense> {
+    let config = ResolvedConfig::default();
+    let report = lint_one_in_mode(
+        Path::new(path),
+        Path::new(path),
+        SourceInput::Memory(source.as_bytes()),
+        &CopSelection::explicit(active, &config),
+        &config,
+        CorrectionMode::Collect,
+    );
+    assert!(report.internal_errors.is_empty(), "{source:?}");
+    report.result.offenses
+}
+
 #[cfg(test)]
 fn lint_str_in_mode(
     active: &[&dyn crate::cops::Cop],
@@ -815,6 +1022,12 @@ fn lint_str_selected(
 
 #[cfg(test)]
 mod fix_tests;
+#[cfg(test)]
+mod gem_input_tests;
+#[cfg(test)]
+mod metadata_tests;
+#[cfg(test)]
+mod post_tests;
 
 #[cfg(test)]
 mod tests {
@@ -1547,6 +1760,7 @@ mod tests {
         let mut report = RunReport::default();
         assert_eq!(report.exit_code(), EXIT_CLEAN);
         report.results.push(FileResult {
+            global_offenses: Vec::new(),
             path: PathBuf::from("a.rb"),
             offenses: lint_str("binding.pry\n"),
         });
