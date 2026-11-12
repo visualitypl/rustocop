@@ -220,13 +220,17 @@ fn rubies() -> Vec<String> {
     {
         result.push("ruby".into());
     }
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         let output = Command::new(&ruby)
             .args(["-e", "print RUBY_VERSION"])
             .output()
             .expect("explicit Ruby 3.4 executable");
         assert!(output.status.success());
-        assert!(output.stdout.starts_with(b"3.4."));
+        assert!(
+            output
+                .stdout
+                .starts_with(crate::support::runtime::version_prefix().as_bytes())
+        );
         result.push(ruby);
     }
     result

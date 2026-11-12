@@ -614,7 +614,10 @@ y = x; x << :tail; p [x, y.equal?(x)]
 }
 #[test]
 fn native_chilled_constructor_context_counterexample_and_cli_no_write() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("Ruby 4.0 warns about the chilled string in both forms") {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         eprintln!("SKIP native Ruby 3.4; set RUSTOCOP_RUBY34");
         return;
     };
@@ -652,7 +655,12 @@ fn native_chilled_constructor_context_counterexample_and_cli_no_write() {
 }
 #[test]
 fn native_adjacent_string_constructor_context_counterexample_and_cli_no_write() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "Ruby 4.0 no longer freezes adjacent string literals in an array literal",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         eprintln!("SKIP native Ruby 3.4; set RUSTOCOP_RUBY34");
         return;
     };
@@ -722,10 +730,10 @@ fn controlled_host_runtime_canonicals_mutation_warnings_and_unsafe_counterexampl
 }
 #[test]
 fn controlled_fixed_34_runtime_canonicals_mutation_warnings_and_unsafe_counterexamples() {
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         assert!(
             String::from_utf8_lossy(&observation(&ruby, "print RUBY_VERSION").0)
-                .starts_with("3.4.")
+                .starts_with(crate::support::runtime::version_prefix())
         );
         witnesses(&ruby);
     } else {
@@ -759,8 +767,7 @@ fn curated_original_array_literal_and_layout_peers_stabilize_in_six_explicit_pas
                 .unwrap();
             assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
             let after = fs::read(d.path().join("a.rb")).unwrap();
-            for ruby in std::iter::once("ruby".to_string()).chain(std::env::var("RUSTOCOP_RUBY34"))
-            {
+            for ruby in std::iter::once("ruby".to_string()).chain(crate::support::runtime::ruby()) {
                 if Command::new(&ruby).arg("--version").output().is_ok() {
                     assert_eq!(
                         observation(&ruby, source),

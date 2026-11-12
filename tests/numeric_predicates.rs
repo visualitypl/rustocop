@@ -284,7 +284,7 @@ fn source_envelopes_comments_line_values_and_data_are_preserved() {
 }
 fn rubies() -> Vec<String> {
     let mut r = vec!["ruby".into()];
-    if let Ok(p) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(p) = crate::support::runtime::ruby() {
         r.push(p);
     }
     r

@@ -236,7 +236,7 @@ fn observe(root: &Path, source: &str, selected: &str, minimum_edits: usize) {
         "{o:?}"
     );
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

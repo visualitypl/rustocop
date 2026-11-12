@@ -359,12 +359,16 @@ fn rubies() -> Vec<String> {
     {
         r.push("ruby".into());
     }
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         let o = Command::new(&path)
             .args(["-e", "print RUBY_VERSION"])
             .output()
             .unwrap();
-        assert!(o.status.success() && o.stdout.starts_with(b"3.4."));
+        assert!(
+            o.status.success()
+                && o.stdout
+                    .starts_with(crate::support::runtime::version_prefix().as_bytes())
+        );
         r.push(path);
     }
     r
@@ -542,7 +546,7 @@ fn querying_assignment_parent_exemption_and_rhs_reports_hold_cli_bytes() {
 }
 #[test]
 fn native_implicit_it_binding_remains_unchanged_when_available() {
-    let Some(ruby) = std::env::var("RUSTOCOP_RUBY34").ok() else {
+    let Some(ruby) = crate::support::runtime::ruby().ok() else {
         return;
     };
     let s = "p [nil,1,2].reject { it.nil? }\np [1,2].collect { it + 1 }\np [1,2].count { it > 0 }.positive?\n";

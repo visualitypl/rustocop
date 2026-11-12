@@ -693,11 +693,13 @@ fn source_file_literal_uses_supplied_stdin_path_not_display_or_disk_contents() {
 }
 #[test]
 fn native_syntax_only_original_and_canonical_bytes() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         for key in ["bytes", "project_after", "upstream_after"] {
             let Some(value) = row.get(key) else {

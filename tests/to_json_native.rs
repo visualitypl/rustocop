@@ -60,7 +60,12 @@ const A: &str = "if false\n  def to_json\n  end\nend\n";
 const B: &str = "if false\n  def to_json(*_args)\n  end\nend\n";
 #[test]
 fn authored_inactive_canonical_native_value_binding_hooks_events_warnings_vm_and_heap() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -166,7 +171,7 @@ puts 'authored VM/heap passed'
 }
 #[test]
 fn authored_live_signature_changes_are_real_counterexamples_not_safe_edits() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -205,7 +210,7 @@ fn authored_live_signature_changes_are_real_counterexamples_not_safe_edits() {
 }
 #[test]
 fn trace_overflow_is_a_failure_never_truncated_success() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();

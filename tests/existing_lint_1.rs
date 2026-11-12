@@ -585,12 +585,14 @@ fn observer_bytes_parser_gate_style_layout_composition_and_symlink_atomic_failur
 }
 #[test]
 fn native_ruby34_syntax_only_all_reference_and_adversarial_original_bytes() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let mut child = Command::new(&ruby)

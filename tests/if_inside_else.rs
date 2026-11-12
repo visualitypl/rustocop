@@ -336,7 +336,7 @@ p $trace
     assert_ne!(after, source);
     assert!(after.contains("elsif guard(b)") && after.contains("value = 1 if value"));
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

@@ -258,7 +258,7 @@ p 1.times.map { if false; next :skip; else; next :skip; end }
         Some(1),
     );
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

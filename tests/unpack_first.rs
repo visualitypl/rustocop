@@ -341,12 +341,14 @@ fn controlled_host_values_encoding_mutability_and_frozen_modes() {
 }
 #[test]
 fn explicit_native_ruby34_runtime_gate() {
-    let Ok(exe) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(exe) = crate::support::runtime::ruby() else {
         eprintln!("SKIP: set RUSTOCOP_RUBY34 for native 3.4");
         return;
     };
     let out = Command::new(&exe).arg("--version").output().unwrap();
-    assert!(String::from_utf8_lossy(&out.stdout).starts_with("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&out.stdout).starts_with(crate::support::runtime::banner_prefix())
+    );
     runtime_matrix(&exe);
     // Since Ruby 3.3, even a trailing unknown directive is an exception.
     let observe = |s: &str| {

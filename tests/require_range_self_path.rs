@@ -569,7 +569,7 @@ fn parser_errors_composition_and_symlink_atomic_failure_preserve_contracts() {
 }
 #[test]
 fn native_syntax_only_all_original_inputs_never_execute_snippets() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {
@@ -597,7 +597,7 @@ fn native_syntax_only_all_original_inputs_never_execute_snippets() {
 }
 #[test]
 fn authored_bounded_native_warning_value_binding_dispatch_and_observation_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let execute = |s: &str, syntax: bool| {

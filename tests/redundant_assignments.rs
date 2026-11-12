@@ -455,7 +455,7 @@ p $trace
         locals
     );
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {
@@ -496,7 +496,7 @@ p $trace
 fn compound_local_table_observations_survive_fix() {
     let d = project();
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for operator in ["||=", "+="] {
@@ -543,7 +543,7 @@ fn terminal_rescue_modifier_corrections_preserve_runtime_results() {
     fix(d.path(), ASSIGN, before, after);
     fs::write(d.path().join("before.rb"), before).unwrap();
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

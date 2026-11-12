@@ -228,7 +228,7 @@ fn stdin_reports_without_writing_and_rejects_fix() {
 fn controlled_ruby_witnesses_explain_why_fusion_and_for_to_each_are_unsafe() {
     let d = project();
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

@@ -307,7 +307,7 @@ fn runtimes() -> Vec<String> {
     {
         result.push("ruby".into());
     }
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34")
+    if let Ok(native) = crate::support::runtime::ruby()
         && !result.contains(&native)
     {
         result.push(native);
@@ -458,7 +458,7 @@ fn begin_timing_and_end_backtrace_rescue_scope_witnesses_stay_unchanged() {
 }
 #[test]
 fn native_ruby34_unhandled_errors_need_no_explicit_backtrace_observer_to_differ() {
-    let Ok(runtime) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(runtime) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -483,7 +483,7 @@ fn native_ruby34_unhandled_errors_need_no_explicit_backtrace_observer_to_differ(
 
 #[test]
 fn native_ruby34_naive_backtrace_and_implicit_it_changes_are_observable() {
-    let Ok(runtime) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(runtime) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();

@@ -237,7 +237,7 @@ fn no_writes_for_source_envelopes_clean_and_error_files() {
 }
 fn rubies() -> Vec<String> {
     let mut r = vec!["ruby".into()];
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         r.push(path);
     }
     r

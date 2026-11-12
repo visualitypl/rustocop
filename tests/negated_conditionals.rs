@@ -273,7 +273,7 @@ fn source_envelopes_keep_bom_crlf_encoding_data_payloads_and_line_values() {
 }
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {
@@ -414,7 +414,7 @@ fn runtime_preceding_comparisons_and_implicit_conversions_keep_bytes_and_behavio
         let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
         assert_ne!(o.status.code(), Some(2), "{o:?}");
         let mut rubies = vec!["ruby".to_owned()];
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             rubies.push(ruby);
         }
         for ruby in rubies {

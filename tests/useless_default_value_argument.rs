@@ -421,12 +421,14 @@ fn observers_parser_gate_style_layout_composition_and_symlink_atomic_failure() {
 }
 #[test]
 fn native_ruby34_syntax_only_for_all_inputs_and_upstream_canonicals() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         for key in ["bytes", "upstream_after"] {
             let Some(value) = row.get(key) else {

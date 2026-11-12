@@ -435,7 +435,7 @@ p $trace
             && after.contains("tmp = a\na = b\nb = tmp")
     );
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

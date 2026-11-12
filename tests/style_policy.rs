@@ -767,7 +767,7 @@ fn security_eval_fixtures_are_valid_host_and_native_ruby_source_without_executio
     let source = "eval(code)\nbinding.eval(\"#{code}\")\nKernel.eval(code, binding, __FILE__, __LINE__)\n::Kernel.eval(code)\neval(<<~CODE)\n  #{code}\nCODE\n";
     fs::write(&path, source).unwrap();
     for ruby in
-        std::iter::once(std::ffi::OsString::from("ruby")).chain(std::env::var_os("RUSTOCOP_RUBY34"))
+        std::iter::once(std::ffi::OsString::from("ruby")).chain(crate::support::runtime::ruby_os())
     {
         let output = match Command::new(&ruby).arg("-c").arg(&path).output() {
             Ok(output) => output,
@@ -1248,7 +1248,7 @@ fn ns04_legacy_encodings_preserve_identifier_bindings_and_withhold_invalid_inter
 
 fn ns04_runtimes() -> Vec<std::ffi::OsString> {
     std::iter::once(std::ffi::OsString::from("ruby"))
-        .chain(std::env::var_os("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby_os())
         .collect()
 }
 fn ns04_ruby(ruby: &std::ffi::OsStr, path: &std::path::Path) -> Option<std::process::Output> {
@@ -1926,6 +1926,11 @@ fn ns10_supplied_symlink_names_not_targets_and_permission_bits_are_not_shebangs(
 
 #[test]
 fn ns10_native_ruby34_syntax_only_evidence_for_all_pinned_sources() {
+    if crate::support::runtime::skips(
+        "Ruby 4.0 finds no script after a byte order mark and a shebang line",
+    ) {
+        return;
+    }
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns10_pinned.json")).unwrap();
     let matrix: Vec<serde_json::Value> =
@@ -2150,11 +2155,14 @@ fn ns09_existing_canonical_naming_style_and_layout_fixes_survive() {
 fn ns09_native_syntax_encoded_boundaries_and_runtime_no_write_evidence() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(ruby) = crate::support::runtime::ruby_os() {
         let version = Command::new(&ruby)
             .args([
                 "-e",
-                "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+                crate::support::runtime::script(
+                    "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+                )
+                .as_str(),
             ])
             .output()
             .unwrap();
@@ -2183,7 +2191,7 @@ fn ns09_native_syntax_encoded_boundaries_and_runtime_no_write_evidence() {
         source.extend(b"slave\r\nwhitelist = 1\r\n__END__\r\nblacklist\r\n");
         fs::write(&path, &source).unwrap();
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             assert!(
                 Command::new(ruby)
                     .arg("-c")
@@ -2248,7 +2256,7 @@ fn ns09_encoded_pin_projections_keep_diagnostics_and_never_rewrite() {
             .collect();
         fs::write(&path, &source).unwrap();
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             let native = Command::new(ruby).arg("-c").arg(&path).output().unwrap();
             assert!(native.status.success(), "{row}: {native:?}");
         }
@@ -2760,7 +2768,7 @@ fn ns02_review2_decoded_symbols_and_destructured_comments_are_detection_only() {
             } else { vec![] }
         }));
     }
-    if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(ruby) = crate::support::runtime::ruby_os() {
         let dir = project();
         let path = dir.path().join("lib/a.rb");
         for call in &calls {
@@ -2797,7 +2805,7 @@ fn ns02_ascii_selector_ownership_preserves_nested_and_encoded_names_without_writ
         }
         fs::write(&path, &source).unwrap();
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             let native = Command::new(ruby).arg("-c").arg(&path).output().unwrap();
             assert!(native.status.success(), "{encoding}: {native:?}");
             assert!(String::from_utf8_lossy(&native.stdout).contains("Syntax OK"));
@@ -2882,7 +2890,7 @@ fn ns11_predicate_elsif_controls_are_native_valid_and_detection_only() {
         serde_json::from_str(include_str!("fixtures/ns11_predicate_branches.json")).unwrap();
     for row in &mut rows {
         row["cop"] = "Naming/PredicateMethod".into();
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             let dir = project();
             let path = dir.path().join("lib/a.rb");
             fs::write(&path, row["source"].as_str().unwrap()).unwrap();
@@ -2903,11 +2911,14 @@ fn ns08_native_syntax_and_encoded_method_name_columns() {
         serde_json::from_str(include_str!("fixtures/ns08_source.json")).unwrap();
     let syntax: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns08_syntax.json")).unwrap();
-    if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(ruby) = crate::support::runtime::ruby_os() {
         let version = Command::new(&ruby)
             .args([
                 "-e",
-                "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+                crate::support::runtime::script(
+                    "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+                )
+                .as_str(),
             ])
             .output()
             .unwrap();
@@ -2937,7 +2948,7 @@ fn ns08_native_syntax_and_encoded_method_name_columns() {
         source.extend(letter);
         source.extend(b"; true; end\r\n__END__\r\nraw\r\n");
         fs::write(&path, &source).unwrap();
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             let run = Command::new(ruby).arg("-c").arg(&path).output().unwrap();
             assert!(run.status.success(), "{encoding}: {run:?}");
         }
@@ -3039,11 +3050,14 @@ fn ns07_native_syntax_pinned_shapes_and_encoded_identifier_positions() {
         serde_json::from_str(include_str!("fixtures/ns07_syntax.json")).unwrap();
     let review: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns07_review.json")).unwrap();
-    if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(ruby) = crate::support::runtime::ruby_os() {
         let version = Command::new(&ruby)
             .args([
                 "-e",
-                "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+                crate::support::runtime::script(
+                    "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+                )
+                .as_str(),
             ])
             .output()
             .unwrap();
@@ -3074,7 +3088,7 @@ fn ns07_native_syntax_pinned_shapes_and_encoded_identifier_positions() {
         source.extend(letter);
         source.extend(b"; @bad ||= 1; end\r\n__END__\r\nraw\r\n");
         fs::write(&path, &source).unwrap();
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             let run = Command::new(ruby).arg("-c").arg(&path).output().unwrap();
             assert!(run.status.success(), "{encoding}: {run:?}");
         }
@@ -3234,7 +3248,7 @@ fn ns03_pinned_and_legacy_sources_have_host_and_native_syntax_witnesses() {
     for source in sources {
         fs::write(&path, source).unwrap();
         for ruby in std::iter::once(std::ffi::OsString::from("ruby"))
-            .chain(std::env::var_os("RUSTOCOP_RUBY34"))
+            .chain(crate::support::runtime::ruby_os())
         {
             let run = match Command::new(&ruby).arg("-c").arg(&path).output() {
                 Ok(run) => run,
@@ -3263,7 +3277,7 @@ fn ns03_pinned_and_legacy_sources_have_host_and_native_syntax_witnesses() {
         fs::write(&path, &source).unwrap();
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
         for ruby in std::iter::once(std::ffi::OsString::from("ruby"))
-            .chain(std::env::var_os("RUSTOCOP_RUBY34"))
+            .chain(crate::support::runtime::ruby_os())
         {
             let run = match Command::new(&ruby).arg("-c").arg(&path).output() {
                 Ok(run) => run,
@@ -3674,7 +3688,7 @@ fn ns02_legacy_positions_uppercase_and_native_syntax_witnesses() {
         fs::write(&path, &source).unwrap();
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
         for ruby in std::iter::once(std::ffi::OsString::from("ruby"))
-            .chain(std::env::var_os("RUSTOCOP_RUBY34"))
+            .chain(crate::support::runtime::ruby_os())
         {
             let output = match Command::new(&ruby).arg("-c").arg(&path).output() {
                 Ok(output) => output,
@@ -4042,14 +4056,17 @@ fn ns05_style_peers_keep_diagnostics_and_compose_in_bounded_explicit_passes() {
 
 #[test]
 fn ns05_native_ruby34_runtime_forwarding_evaluation_identity_control_flow_and_lines() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         eprintln!("Set RUSTOCOP_RUBY34 for native anonymous forwarding evidence");
         return;
     };
     let version = Command::new(&ruby)
         .args([
             "-e",
-            "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+            crate::support::runtime::script(
+                "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+            )
+            .as_str(),
         ])
         .output()
         .unwrap();
@@ -4138,7 +4155,7 @@ p $events
 
 #[test]
 fn ns05_native_counterexamples_justify_reflection_and_channel_withholds() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     let dir = project();
@@ -4193,7 +4210,7 @@ fn ns05_native_counterexamples_justify_reflection_and_channel_withholds() {
 
 #[test]
 fn ns05_native_syntactic_matches_never_authorize_unrelated_or_stranded_reads() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     let dir = project();
@@ -4266,7 +4283,7 @@ fn ns05_native_syntactic_matches_never_authorize_unrelated_or_stranded_reads() {
 
 #[test]
 fn ns05_native_external_conversion_witnesses_the_two_pinned_correction_holds() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     let fixture: serde_json::Value =
@@ -4594,7 +4611,7 @@ fn ns06_live_default_renaming_does_not_weaken_prior_body_to_terminator_guards() 
         ),
     ] {
         fs::write(&path, source).unwrap();
-        let ruby = std::env::var_os("RUSTOCOP_RUBY34");
+        let ruby = crate::support::runtime::ruby_os();
         let before = ruby.as_ref().map(|r| ns04_ruby(r, &path).unwrap());
         for _ in 0..3 {
             let run = cli(
@@ -4620,13 +4637,16 @@ fn ns06_live_default_renaming_does_not_weaken_prior_body_to_terminator_guards() 
 
 #[test]
 fn ns06_native_ruby34_preserves_values_bindings_effects_exceptions_lines_and_data() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     let version = Command::new(&ruby)
         .args([
             "-e",
-            "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+            crate::support::runtime::script(
+                "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+            )
+            .as_str(),
         ])
         .output()
         .unwrap();
@@ -4739,7 +4759,7 @@ fn ns06_individual_withholds_and_native_source_observation_witnesses() {
         assert_eq!(fs::read_to_string(&path).unwrap(), source);
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
     }
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     for (source, naive) in [

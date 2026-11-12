@@ -304,7 +304,7 @@ fn genuine_candidates_stdin_provenance_is_detection_only_and_fix_is_rejected() {
 fn supplemental_reference_sources_get_native_syntax_checks_only() {
     use std::io::Write;
     use std::process::Stdio;
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
@@ -353,7 +353,7 @@ fn successful_pair(ruby: &str, before: &str, after: &str) -> Output {
 }
 #[test]
 fn authored_native_limits_and_trace_overflow_fail_not_truncate_observations() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let timed = native_guard::limited(&ruby, "sleep 2", "0.2", 512 * 1024 * 1024, 65536);
@@ -400,7 +400,10 @@ fn authored_native_limits_and_trace_overflow_fail_not_truncate_observations() {
 
 #[test]
 fn native_real_c_factory_wrapper_value_class_formals_bindings_warnings_and_encodings() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("pins Ruby 3.4.1 and the versions of its bundled libraries") {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let out = native(
@@ -461,7 +464,10 @@ fn native_real_c_factory_wrapper_value_class_formals_bindings_warnings_and_encod
 }
 #[test]
 fn native_real_erb_method_reference_result_binding_no_evaluation_or_warnings() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("pins Ruby 3.4.1 and the versions of its bundled libraries") {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let out = native(
@@ -517,7 +523,7 @@ fn native_real_erb_method_reference_result_binding_no_evaluation_or_warnings() {
 }
 #[test]
 fn native_removed_api_error_backtrace_trace_source_code_heap_and_binding_boundaries() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();

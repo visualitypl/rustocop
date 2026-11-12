@@ -471,7 +471,7 @@ fn readonly_symlink_open_fd_invalid_source_atomic_failure_and_actual_peer_edit()
 }
 #[test]
 fn authored_native_pattern_and_symbol_value_counterexamples_remain_unedited() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -541,7 +541,7 @@ fn authored_native_pattern_and_symbol_value_counterexamples_remain_unedited() {
 }
 #[test]
 fn all_reference_inputs_and_canonical_outputs_are_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let mut invalid = vec![];

@@ -307,7 +307,7 @@ fn runtimes() -> Vec<String> {
     if Command::new("ruby").arg("--version").output().is_ok() {
         out.push("ruby".into());
     }
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         out.push(ruby);
     }
     out

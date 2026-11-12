@@ -279,7 +279,7 @@ fn ruby_with(source: &[u8], program: &std::ffi::OsStr) -> std::process::Output {
 }
 fn assert_runtime(before: &[u8], after: &[u8]) {
     let mut programs = vec![std::ffi::OsString::from("ruby")];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         programs.push(native);
     }
     for program in programs {
@@ -328,7 +328,7 @@ fn controlled_return_values_effect_order_nested_guards_and_ensure_match_ruby() {
 
 #[test]
 fn native_34_implicit_method_block_parameters_preserve_results() {
-    let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(native) = crate::support::runtime::ruby_os() else {
         return;
     };
     let d = project();

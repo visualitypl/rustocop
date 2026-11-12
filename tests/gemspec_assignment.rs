@@ -416,7 +416,7 @@ fn supplied_gemspec_is_not_evaluated_or_loaded_and_safe_peer_fixes_stabilize() {
             .modified()
             .unwrap()
     );
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         // Authored, finite semantic witness only: deleting repeated setters or
         // merging mixed assignments would alter this trace/value/control flow.
         let witness = "class Spec; attr_reader :metadata; def metadata=(v); puts [:set,v].inspect; @metadata=v; end; end; spec=Spec.new; spec.metadata={}; spec.metadata[:x]=1; spec.metadata[:x]=2; p spec.metadata\n";
@@ -482,7 +482,7 @@ fn opaque_alias_and_atomic_readonly_peer_failure_retain_all_detection() {
 #[test]
 fn native_ruby34_checks_every_reference_source_without_execution() {
     use std::{io::Write, process::Stdio};
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -493,7 +493,7 @@ fn native_ruby34_checks_every_reference_source_without_execution() {
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();

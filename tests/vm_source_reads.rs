@@ -15,10 +15,13 @@ const CASES: &[(&str, &str, &str)] = &[
 
 fn runtimes() -> Vec<String> {
     let mut runtimes = vec!["ruby".into()];
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(native) = crate::support::runtime::ruby() {
         let version = Command::new(&native).arg("-v").output().unwrap();
         assert!(version.status.success());
-        assert!(String::from_utf8_lossy(&version.stdout).starts_with("ruby 3.4."));
+        assert!(
+            String::from_utf8_lossy(&version.stdout)
+                .starts_with(crate::support::runtime::banner_prefix())
+        );
         runtimes.push(native);
     }
     runtimes
@@ -49,6 +52,11 @@ fn cli(dir: &Path, cop: &str, fixing: bool, path: &str, status: i32) -> String {
 
 #[test]
 fn retained_vm_lines_preserve_runtime_bytes_mtime_and_converging_siblings() {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
     use std::sync::atomic::{AtomicUsize, Ordering};
     for runtime in runtimes() {
         let native = runtime != "ruby";

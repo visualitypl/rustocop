@@ -102,7 +102,7 @@ fn fix(root: &Path, source: &[u8], args: &[&str]) -> (Output, Vec<u8>) {
 /// `example.rb`'s output and `-w` warnings under native Ruby
 /// 3.4, when available. Only these authored programs are executed.
 fn ruby(root: &Path) -> Option<String> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let run = Command::new(ruby)
         .current_dir(root)
         .args(["--parser=prism", "-w", "example.rb"])
@@ -120,7 +120,7 @@ fn ruby(root: &Path) -> Option<String> {
 /// stream without layout tokens, the AST without locations and the comments
 /// must be equal.
 fn same_shape(before: &[u8], after: &[u8]) {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = tempfile::tempdir().unwrap();

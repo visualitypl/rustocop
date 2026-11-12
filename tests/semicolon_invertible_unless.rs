@@ -328,7 +328,7 @@ p $trace
         "{after}"
     );
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {
@@ -389,7 +389,7 @@ fn range_endpoint_corrections_preserve_runtime_values() {
     let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
     assert!(!after.contains("if "), "{after}");
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

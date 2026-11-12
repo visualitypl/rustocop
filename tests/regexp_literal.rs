@@ -297,7 +297,7 @@ fn bom_crlf_options_line_and_end_data_are_preserved() {
 use crate::support::source_getter;
 
 fn ruby(dir: &Path) -> Output {
-    Command::new(std::env::var_os("RUSTOCOP_RUBY34").unwrap_or_else(|| "ruby".into()))
+    Command::new(crate::support::runtime::ruby_os().unwrap_or_else(|| "ruby".into()))
         .current_dir(dir)
         .arg("a.rb")
         .output()

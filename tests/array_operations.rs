@@ -361,12 +361,15 @@ fn controlled_host_ruby_runtime_and_unsafe_counterexamples() {
 }
 #[test]
 fn controlled_fixed_34_runtime_and_unsafe_counterexamples() {
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         let out = Command::new(&ruby)
             .args(["-e", "print RUBY_VERSION"])
             .output()
             .unwrap();
-        assert!(String::from_utf8_lossy(&out.stdout).starts_with("3.4."));
+        assert!(
+            String::from_utf8_lossy(&out.stdout)
+                .starts_with(crate::support::runtime::version_prefix())
+        );
         witnesses(&ruby);
     } else {
         eprintln!("SKIP native Ruby 3.4 runtime; set RUSTOCOP_RUBY34");

@@ -131,7 +131,7 @@ fn runtimes() -> Vec<String> {
     {
         runtimes.push("ruby".into());
     }
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34")
+    if let Ok(native) = crate::support::runtime::ruby()
         && !runtimes.contains(&native)
     {
         runtimes.push(native);

@@ -261,12 +261,16 @@ fn rubies() -> Vec<String> {
     {
         r.push("ruby".into());
     }
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         let o = Command::new(&path)
             .args(["-e", "print RUBY_VERSION"])
             .output()
             .unwrap();
-        assert!(o.status.success() && o.stdout.starts_with(b"3.4."));
+        assert!(
+            o.status.success()
+                && o.stdout
+                    .starts_with(crate::support::runtime::version_prefix().as_bytes())
+        );
         r.push(path);
     }
     r

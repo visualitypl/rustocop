@@ -446,7 +446,7 @@ fn atomic_permissions_symlink_and_failure_controls() {
 }
 #[test]
 fn native_ruby34_syntax_only_for_every_reference_input_and_canonical_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

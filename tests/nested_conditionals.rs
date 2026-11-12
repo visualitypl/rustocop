@@ -223,7 +223,7 @@ fn unsafe_clean_invalid_encoded_and_source_sensitive_files_do_not_write() {
 }
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

@@ -418,7 +418,7 @@ fn readonly_symlink_parser_failure_and_existing_atomic_peer_composition() {
 }
 #[test]
 fn native_34_parses_reference_and_upstream_edits_but_never_executes_them() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

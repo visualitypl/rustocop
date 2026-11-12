@@ -509,7 +509,7 @@ fn symlink_failure_and_style_layout_atomic_composition() {
 }
 #[test]
 fn native_ruby34_syntax_only_for_every_reference_input_and_canonical_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -520,7 +520,7 @@ fn native_ruby34_syntax_only_for_every_reference_input_and_canonical_output() {
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
         for key in ["bytes", "project_after", "upstream_after"] {

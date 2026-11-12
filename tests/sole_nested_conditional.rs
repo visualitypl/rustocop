@@ -613,7 +613,7 @@ p $trace
     assert!(after.contains("if guard(a) && guard(b)"));
     assert!(after.contains("x = 1 if x") && after.contains("__LINE__"));
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

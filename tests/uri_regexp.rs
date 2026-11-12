@@ -477,7 +477,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_stdlib_binding_method_availability_warning_value_and_evaluation_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -607,7 +607,7 @@ fn authored_native_stdlib_binding_method_availability_warning_value_and_evaluati
 }
 #[test]
 fn every_reference_input_and_upstream_rewrite_is_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

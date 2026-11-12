@@ -501,7 +501,7 @@ fn shared_atomic_validation_readonly_symlink_failure_and_peer_composition() {
 }
 #[test]
 fn all_reference_inputs_are_native_syntax_checked_only_never_executed() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

@@ -265,7 +265,7 @@ fn source_envelopes_are_preserved_and_sensitive_edits_stay_reported() {
 }
 fn rubies() -> Vec<String> {
     let mut r = vec!["ruby".into()];
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         r.push(path);
     }
     r

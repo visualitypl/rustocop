@@ -387,7 +387,7 @@ fn no_fix_never_writes_but_existing_style_layout_atomic_corrections_still_compos
 }
 #[test]
 fn native_ruby34_syntax_only_all_original_reference_inputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

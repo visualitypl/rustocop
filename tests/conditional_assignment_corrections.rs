@@ -259,7 +259,7 @@ fn ruby(source: &[u8], program: &std::ffi::OsStr) -> std::process::Output {
 }
 fn same_runtime(before: &[u8], after: &[u8]) {
     let mut programs = vec![std::ffi::OsString::from("ruby")];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         programs.push(native);
     }
     for program in programs {
@@ -344,7 +344,7 @@ fn unsafe_upstream_extractions_have_controlled_runtime_counterexamples() {
             1,
         );
         let mut programs = vec![std::ffi::OsString::from("ruby")];
-        if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(native) = crate::support::runtime::ruby_os() {
             programs.push(native);
         }
         for program in programs {
@@ -386,7 +386,7 @@ fn predicate_block_declarations_remain_independent_and_do_not_write() {
     let unsafe_after =
         "value = if [1].any? { value = 42; true }\n  value\nelse\n  0\nend\np value\n";
     let mut programs = vec![std::ffi::OsString::from("ruby")];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         programs.push(native);
     }
     for program in programs {

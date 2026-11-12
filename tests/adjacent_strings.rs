@@ -271,7 +271,7 @@ fn source_only_all_child_projection_pipeline_cli_stdin_and_no_dynamic_fix() {
 }
 #[test]
 fn native_syntax_only_for_interpolation_projection_inputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let rows: Vec<serde_json::Value> =
@@ -635,7 +635,7 @@ fn atomic_mode_symlink_and_readonly_failures() {
 fn authored_native_continuation_line_events_and_cli_no_write_hold() {
     let d = project();
     let path = d.path().join("lib/a.rb");
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     // Separately authored bounded witness: observe actual line events, not just
     // values or a TracePoint that never reports its captured events.
     let source = "events = []\ntrace = TracePoint.new(:line) { |event| events << event.lineno }\ntrace.enable\n\"\"\"\" \\\n\"authored\".bytes\ntrace.disable\np events.take(2)\n";
@@ -687,7 +687,7 @@ fn authored_native_continuation_line_events_and_cli_no_write_hold() {
 fn authored_native_start_end_events_both_quotes_continuations_and_union() {
     let d = project();
     let path = d.path().join("lib/a.rb");
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     // Independently authored executable witnesses only, never reference inputs.
     // A trailing empty child owns the endless body's return-event line even
     // when removing it does not remove a newline or move the first survivor.
@@ -805,7 +805,7 @@ fn authored_native_start_end_events_both_quotes_continuations_and_union() {
 }
 #[test]
 fn authored_native_allocation_chilled_mutation_dispatch_and_trace_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for (before, after) in [
@@ -856,7 +856,7 @@ fn original_legacy_payload_canonical_removal_and_unrepresentable_batch_hold() {
         &["--only", COPS[1], "--fix", "lib/a.rb"],
         1,
     );
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let mut outputs = Vec::new();
@@ -882,7 +882,7 @@ fn original_legacy_payload_canonical_removal_and_unrepresentable_batch_hold() {
 }
 #[test]
 fn native_syntax_only_for_all_reference_inputs_and_outputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {
@@ -908,7 +908,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_values_frozen_chilled_encoding_bindings_dispatch_and_source_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -919,7 +919,7 @@ fn authored_native_values_frozen_chilled_encoding_bindings_dispatch_and_source_c
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     // Authored live literals. These are not executed spec/reference fixtures.
     for header in [

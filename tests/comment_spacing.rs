@@ -329,7 +329,7 @@ fn composed_header_moves_and_continuations_are_held() {
             String::from_utf8_lossy(&out.stdout).contains("0 corrections"),
             "{out:?}"
         );
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             let run = Command::new(ruby)
                 .current_dir(dir.path())
                 .args(["--parser=prism", "-W0", "example.rb"])

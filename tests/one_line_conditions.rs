@@ -203,7 +203,7 @@ fn clean_invalid_uncertain_and_legacy_files_retain_bytes_and_mtime() {
 }
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

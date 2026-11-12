@@ -197,12 +197,14 @@ fn encoded_original_bytes_match_exact_pinned_pipeline_positions_without_edits() 
 
 #[test]
 fn native_ruby34_checks_encoded_position_controls_without_executing_source() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in encoded_rows() {
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-c", "-W0", "-"])
@@ -589,12 +591,14 @@ fn encoding_envelopes_and_runtime_observer_source_text_never_get_fabricated_edit
 
 #[test]
 fn native_ruby34_checks_every_reference_fixture_syntax_only_never_executes_inputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/float_literals.json")).unwrap();
     for row in rows.as_array().unwrap() {

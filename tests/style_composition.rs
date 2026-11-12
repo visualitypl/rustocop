@@ -113,7 +113,7 @@ fn regexp_value_observers_preserve_runtime_and_keep_findings() {
         }
     }
     let rubies: Vec<_> = std::iter::once("ruby".to_owned())
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
         .collect();
     for (selection, source) in cases {
         let d = tempfile::tempdir().unwrap();
@@ -149,7 +149,7 @@ fn regexp_value_observers_preserve_runtime_and_keep_findings() {
 #[test]
 fn closed_regexp_match_predicates_still_correct_and_preserve_runtime() {
     let rubies: Vec<_> = std::iter::once("ruby".to_owned())
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
         .collect();
     for (cop, before, after) in [
         (
@@ -227,7 +227,7 @@ fn default_style_and_style_layout_and_explicit_opt_ins_have_exact_finite_pass_bo
         fs::write(d.path().join("rustocop.toml"), config).unwrap();
         let path = d.path().join("x.rb");
         let rubies: Vec<_> = std::iter::once("ruby".to_owned())
-            .chain(std::env::var("RUSTOCOP_RUBY34"))
+            .chain(crate::support::runtime::ruby())
             .collect();
         for variant in 0..=2 {
             // Binary-source witness only has an encoding header in this fixture.

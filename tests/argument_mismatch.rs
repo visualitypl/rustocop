@@ -396,7 +396,7 @@ fn envelopes_parser_failures_readonly_symlinks_and_no_external_index() {
 }
 #[test]
 fn native_ruby34_syntax_only_reference_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let rows: serde_json::Value =

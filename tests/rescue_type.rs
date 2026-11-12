@@ -368,7 +368,7 @@ fn binary_diagnostics_are_lossless_without_edits() {
 }
 #[test]
 fn native_syntax_only_all_reference_bytes_and_canonical_outputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {
@@ -388,7 +388,7 @@ fn native_syntax_only_all_reference_bytes_and_canonical_outputs() {
 }
 #[test]
 fn authored_native_live_handler_warnings_events_values_binding_and_exception_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // These bounded programs are authored runtime controls, not executed

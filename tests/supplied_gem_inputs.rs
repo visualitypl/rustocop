@@ -401,7 +401,7 @@ fn ruby_gem_sources_retain_atomic_canonical_corrections_and_idempotence() {
             0,
         );
         unchanged(&path, after.as_bytes(), &old);
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             // Only this finite, authored witness executes, externally bounded.
             let a = native::run(&ruby, before);
             let b = native::run(&ruby, &after);
@@ -451,7 +451,7 @@ fn future_selectors_config_and_stdin_fix_are_rejected_without_writes() {
 
 #[test]
 fn native_ruby34_checks_supplied_ruby_bytes_as_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for bytes in [

@@ -100,7 +100,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_no_edits() {
 }
 #[test]
 fn native_ruby34_syntax_only_all_sources() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

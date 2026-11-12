@@ -389,7 +389,7 @@ fn readonly_symlink_target_and_permissions_are_unchanged() {
 }
 #[test]
 fn native_ruby34_syntax_only_reference_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

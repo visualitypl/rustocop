@@ -291,7 +291,7 @@ fn controlled_runtime_binding_evaluation_jumps_results_and_exceptions_agree() {
     if Command::new("ruby").arg("--version").output().is_ok() {
         rubies.push("ruby".to_owned());
     }
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     if rubies.is_empty() {
@@ -363,7 +363,7 @@ fn controlled_runtime_binding_evaluation_jumps_results_and_exceptions_agree() {
 fn lead_open_flip_flop_do_regression_preserves_bytes_diagnostic_and_native_result() {
     let d = project();
     let source = "events=[]; r=until false.. do\n events << :body\n break :done\nend; p [r,events]";
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         assert_eq!(ruby_observation(&ruby, source), b"[:done, [:body]]\n");
     }
     let o = unchanged(
@@ -378,7 +378,7 @@ fn lead_open_flip_flop_do_regression_preserves_bytes_diagnostic_and_native_resul
         ),
         "{o:?}"
     );
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
         assert_eq!(ruby_observation(&ruby, &after), b"[:done, [:body]]\n");
     }
@@ -387,7 +387,7 @@ fn lead_open_flip_flop_do_regression_preserves_bytes_diagnostic_and_native_resul
 fn do_range_wrappers_and_continuations_preserve_runtime_per_individual_edit() {
     let d = project();
     let rubies: Vec<_> = std::iter::once("ruby".to_owned())
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
         .filter(|ruby| Command::new(ruby).arg("--version").output().is_ok())
         .collect();
     for word in ["while", "until"] {
@@ -459,7 +459,7 @@ fn withheld_open_range_does_not_block_unrelated_safe_do_fixes() {
     let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
     assert_eq!(after, expected);
     unchanged(d.path(), after.as_bytes(), &["--only", DO, "--fix", "a.rb"]);
-    for ruby in std::iter::once("ruby".to_owned()).chain(std::env::var("RUSTOCOP_RUBY34")) {
+    for ruby in std::iter::once("ruby".to_owned()).chain(crate::support::runtime::ruby()) {
         if Command::new(&ruby).arg("--version").output().is_ok() {
             assert_eq!(
                 ruby_observation(&ruby, before),

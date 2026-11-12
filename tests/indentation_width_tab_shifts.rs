@@ -119,7 +119,7 @@ fn count(out: &Output) -> usize {
 /// Native Ruby 3.4 `-w -c` diagnostics of `example.rb`, when `RUSTOCOP_RUBY34`
 /// is configured.
 fn warnings(root: &Path) -> Option<String> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let out = Command::new(ruby)
         .current_dir(root)
         .args(["-w", "-c", "example.rb"])

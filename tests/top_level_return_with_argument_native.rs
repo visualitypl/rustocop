@@ -78,7 +78,7 @@ fn run_limited(
 }
 #[test]
 fn subprocess_guards_fail_safely_on_time_memory_and_output_limits() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -130,7 +130,7 @@ fn fix(root: &Path) -> Output {
 }
 #[test]
 fn native_witness_limits_include_both_hard_caps_and_disabled_core_dumps() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -156,7 +156,7 @@ fn native_witness_limits_include_both_hard_caps_and_disabled_core_dumps() {
 }
 #[test]
 fn trace_cap_overflow_fails_instead_of_truncating_observations() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -174,7 +174,7 @@ fn trace_cap_overflow_fails_instead_of_truncating_observations() {
 }
 #[test]
 fn live_primitive_cli_withholds_edits_preserving_termination_end_status_and_bindings() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -224,7 +224,7 @@ fn live_primitive_cli_withholds_edits_preserving_termination_end_status_and_bind
 }
 #[test]
 fn native_warning_boundary_is_explicit_not_silently_claimed_equivalent() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -287,7 +287,7 @@ fn native_warning_boundary_is_explicit_not_silently_claimed_equivalent() {
 }
 #[test]
 fn authored_trace_dispatch_exception_load_value_and_heredoc_line_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -321,7 +321,7 @@ fn authored_trace_dispatch_exception_load_value_and_heredoc_line_controls() {
 }
 #[test]
 fn effectful_assignments_splats_exceptions_and_interpolations_are_actual_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -356,7 +356,7 @@ fn effectful_assignments_splats_exceptions_and_interpolations_are_actual_counter
 }
 #[test]
 fn source_code_object_heap_and_data_observations_prevent_edits() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();

@@ -378,7 +378,7 @@ fn rubies() -> Vec<String> {
     if Command::new("ruby").arg("--version").output().is_ok() {
         r.push("ruby".into());
     }
-    if let Ok(p) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(p) = crate::support::runtime::ruby() {
         r.push(p);
     }
     r

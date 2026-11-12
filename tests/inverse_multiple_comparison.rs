@@ -277,7 +277,7 @@ fn safe_edits_preserve_encoding_bom_crlf_line_and_data_envelopes() {
 #[test]
 fn controlled_runtime_observations_preserve_safe_edits_and_explain_withholds() {
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(p) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(p) = crate::support::runtime::ruby() {
         rubies.push(p);
     }
     let run = |ruby: &str, s: &str| {

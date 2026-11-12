@@ -465,14 +465,21 @@ fn recovery_four_byte_gb18030_and_cp949_extension_keep_punctuation_visible() {
 
 #[test]
 fn recovery_review_utf8_unicode_version_offenses_and_neighbor_controls() {
+    if crate::support::runtime::skips("pins the Unicode version of Ruby 3.4") {
+        return;
+    }
     let dir = project();
     let mut runtimes = Vec::new();
     if has_ruby() {
         runtimes.push("ruby".to_string());
     }
-    if let Ok(exe) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(exe) = crate::support::runtime::ruby() {
         let version = Command::new(&exe)
-            .args(["-e", "exit(RUBY_VERSION.start_with?('3.4.') ? 0 : 1)"])
+            .args([
+                "-e",
+                crate::support::runtime::script("exit(RUBY_VERSION.start_with?('3.4.') ? 0 : 1)")
+                    .as_str(),
+            ])
             .output()
             .unwrap();
         assert!(version.status.success(), "{version:?}");
@@ -635,7 +642,7 @@ fn continuation_unicode_profiles_preserve_host_and_native_runtime_observations()
     if has_ruby() {
         runtimes.push("ruby".to_string());
     }
-    if let Ok(exe) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(exe) = crate::support::runtime::ruby() {
         runtimes.push(exe);
     }
     for exe in runtimes {
@@ -1151,9 +1158,13 @@ w.call(r.value)
 
 #[test]
 fn recovery_native_34_keeps_original_escape_holds_and_heredoc_effects() {
-    let exe = std::env::var("RUSTOCOP_RUBY34").unwrap_or_else(|_| "ruby".into());
+    let exe = crate::support::runtime::ruby().unwrap_or_else(|_| "ruby".into());
     if !Command::new(&exe)
-        .args(["-e", "exit(RUBY_VERSION.start_with?('3.4.') ? 0 : 1)"])
+        .args([
+            "-e",
+            crate::support::runtime::script("exit(RUBY_VERSION.start_with?('3.4.') ? 0 : 1)")
+                .as_str(),
+        ])
         .output()
         .is_ok_and(|o| o.status.success())
     {
@@ -1237,9 +1248,13 @@ end
 
 #[test]
 fn ruby_34_runtime_chilled_and_explicit_flags_gate() {
-    let exe = std::env::var("RUSTOCOP_RUBY34").unwrap_or_else(|_| "ruby".into());
+    let exe = crate::support::runtime::ruby().unwrap_or_else(|_| "ruby".into());
     if !Command::new(&exe)
-        .args(["-e", "exit(RUBY_VERSION.start_with?('3.4.') ? 0 : 1)"])
+        .args([
+            "-e",
+            crate::support::runtime::script("exit(RUBY_VERSION.start_with?('3.4.') ? 0 : 1)")
+                .as_str(),
+        ])
         .output()
         .is_ok_and(|o| o.status.success())
     {

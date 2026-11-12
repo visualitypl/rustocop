@@ -51,7 +51,12 @@ fn success(o: &Output) {
 }
 #[test]
 fn authored_inactive_identities_preserve_values_binding_warnings_trace_vm_and_heap() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -129,7 +134,7 @@ puts 'authored VM and heap passed'
 }
 #[test]
 fn authored_live_dispatch_binding_assignment_value_source_and_deferred_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();

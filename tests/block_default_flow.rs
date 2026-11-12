@@ -18,13 +18,21 @@ use std::{
 
 #[test]
 fn native_ruby34_source_only_flow_default_boundaries() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         eprintln!("SKIP native Ruby 3.4: set RUSTOCOP_RUBY34");
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(version.stdout.starts_with(b"ruby 3.4."), "{version:?}");
+    assert!(
+        version
+            .stdout
+            .starts_with(crate::support::runtime::banner_prefix().as_bytes()),
+        "{version:?}"
+    );
     let cases = witnesses::cases();
     for case in &cases {
         let mut child = Command::new(&ruby)

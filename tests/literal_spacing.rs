@@ -92,7 +92,7 @@ fn fix(root: &Path, source: &[u8], args: &[&str]) -> (Output, Vec<u8>) {
 /// 3.4, when available. Only these authored programs are executed; none of
 /// them runs a command.
 fn ruby(root: &Path) -> Option<String> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let source = fs::read(root.join("example.rb")).unwrap();
     assert!(
         !source.contains(&b'`') && !source.windows(2).any(|w| w == b"%x"),
@@ -116,7 +116,7 @@ fn ruby(root: &Path) -> Option<String> {
 /// without locations or their slices, the comments and the source encoding
 /// must be equal.
 fn same_shape(before: &[u8], after: &[u8]) {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = tempfile::tempdir().unwrap();

@@ -102,7 +102,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
 
 #[test]
 fn native_ruby34_accepts_every_reference_fixture_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let rows: serde_json::Value =

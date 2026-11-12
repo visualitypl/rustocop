@@ -394,12 +394,15 @@ fn controlled_host_legacy_encoded_literal_values_and_mutability_are_preserved() 
 
 #[test]
 fn explicit_ruby34_runtime_gate() {
-    let Ok(exe) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(exe) = crate::support::runtime::ruby() else {
         eprintln!("SKIP: set RUSTOCOP_RUBY34 for native 3.4 runtime");
         return;
     };
     let version = Command::new(&exe).arg("--version").output().unwrap();
-    assert!(String::from_utf8_lossy(&version.stdout).starts_with("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout)
+            .starts_with(crate::support::runtime::banner_prefix())
+    );
     runtime_matrix(&exe);
 }
 #[test]

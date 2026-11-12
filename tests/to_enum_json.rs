@@ -342,7 +342,7 @@ fn withheld_edits_preserve_held_inode_permissions_and_symlinks() {
 }
 #[test]
 fn native_syntax_only_for_all_reference_valid_byte_rows() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();

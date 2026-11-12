@@ -2,10 +2,15 @@
 use std::{fs, process::Command};
 const COP: &str = "Lint/SendWithMixinArgument";
 fn ruby() -> Option<String> {
-    std::env::var("RUSTOCOP_RUBY34").ok()
+    crate::support::runtime::ruby().ok()
 }
 #[test]
 fn closed_canonical_preserves_vm_warnings_events_value_and_bindings() {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
     let Some(ruby) = ruby() else {
         return;
     };

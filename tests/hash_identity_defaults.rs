@@ -421,11 +421,13 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_value_binding_evaluation_control_flow_heap_and_observer_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for receiver in ["Hash", "::Hash"] {
         for arg in ["key: :value", "capacity: 42, key: :value", ":key => :value"] {
             let a = format!("[defined?({receiver}.new({arg}))]");
@@ -503,7 +505,7 @@ fn authored_native_value_binding_evaluation_control_flow_heap_and_observer_proof
 }
 #[test]
 fn native_ruby34_syntax_only_for_all_reference_inputs_and_canonical_outputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

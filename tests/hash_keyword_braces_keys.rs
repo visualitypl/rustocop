@@ -341,9 +341,13 @@ fn fixed_no_comma_incompatibility_and_peers_stabilize_with_bounded_explicit_pass
 }
 fn rubies() -> Vec<String> {
     let mut r = vec!["ruby".to_string()];
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(native) = crate::support::runtime::ruby() {
         let o = Command::new(&native)
-            .args(["-e", "raise unless RUBY_VERSION.start_with?('3.4.')"])
+            .args([
+                "-e",
+                crate::support::runtime::script("raise unless RUBY_VERSION.start_with?('3.4.')")
+                    .as_str(),
+            ])
             .output()
             .unwrap();
         assert!(o.status.success(), "{o:?}");

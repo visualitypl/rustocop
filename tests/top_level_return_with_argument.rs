@@ -471,7 +471,7 @@ fn withheld_fix_preserves_permissions_held_inode_symlink_and_readonly_file() {
 }
 #[test]
 fn native_syntax_only_for_every_original_input_and_expected_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

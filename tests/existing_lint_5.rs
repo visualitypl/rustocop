@@ -603,12 +603,17 @@ fn binary_void_messages_escape_unrepresentable_bytes_without_flattening() {
 
 #[test]
 fn native_ruby34_syntax_only_all_reference_and_adversarial_original_bytes() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     parallel_rows!(for row in rows() => {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let mut child = Command::new(&ruby)

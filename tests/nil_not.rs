@@ -300,7 +300,7 @@ fn source_envelopes_preserve_bom_crlf_line_and_data_bytes() {
 fn safe_not_edits_preserve_custom_negation_truthiness_calls_and_control_flow() {
     let d = project();
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(p) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(p) = crate::support::runtime::ruby() {
         rubies.push(p);
     }
     for ruby in rubies {
@@ -354,7 +354,7 @@ fn safe_not_edits_preserve_custom_negation_truthiness_calls_and_control_flow() {
 fn assert_not_grouping_corrections(cases: &[(&str, &str)]) {
     let d = project();
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         rubies.push(path);
     }
     for &(source, expected) in cases {

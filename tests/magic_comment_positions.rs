@@ -382,7 +382,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_unsafe_activation_value_encoding_warning_position_and_heap_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -442,7 +442,7 @@ fn authored_native_unsafe_activation_value_encoding_warning_position_and_heap_co
 }
 #[test]
 fn authored_native_file_source_data_vm_error_bom_crlf_and_heredoc_observers_hold() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -491,7 +491,7 @@ fn authored_native_file_source_data_vm_error_bom_crlf_and_heredoc_observers_hold
 }
 #[test]
 fn all_reference_inputs_and_main_canonical_outputs_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

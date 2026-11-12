@@ -650,7 +650,7 @@ fn source_envelopes_and_shared_source_code_heap_position_barriers() {
 }
 #[test]
 fn controlled_native_ruby34_bindings_values_control_and_comments() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     let d = project();

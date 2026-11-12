@@ -259,7 +259,7 @@ fn truthiness_dispatch_short_circuit_side_effects_and_assignment_binding_are_not
         o.stdout
     };
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

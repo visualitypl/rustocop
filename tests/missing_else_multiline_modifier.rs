@@ -331,7 +331,7 @@ p $trace
         "{after}"
     );
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {
@@ -365,7 +365,7 @@ fn literal_values_encodings_frozen_state_bom_and_crlf_survive_runtime() {
     let d = project();
     let body = "def sample(ready)\n  [\n    \"é\\nline\n  b\", %q(c\n  d), /e\n  f/x, %s(g\n  h)\n  ] unless ready\nend\np [false,true].map { |r| sample(r)&.map { |v| [v.class.to_s, v.is_a?(Regexp) ? v.source.bytes : v.to_s.bytes, v.encoding.name, v.frozen?] } }\n";
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for frozen in ["true", "false"] {
@@ -405,7 +405,7 @@ fn literal_values_encodings_frozen_state_bom_and_crlf_survive_runtime() {
 fn implicit_match_regexps_preserve_runtime_results() {
     let d = project();
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for regexp in ["/a\n  b/", "/#{'a'}\n  b/"] {

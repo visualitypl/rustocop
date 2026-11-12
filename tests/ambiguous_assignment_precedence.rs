@@ -351,7 +351,7 @@ fn native_runtime_binding_dispatch_evaluation_flow_values_and_exceptions() {
     assert!(after.contains("a + (b * c)"));
     assert!(after.contains("false || ((x = true) && :chosen)"));
     let mut rubies = vec![std::path::PathBuf::from("ruby")];
-    if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(ruby) = crate::support::runtime::ruby_os() {
         rubies.push(ruby.into());
     }
     for ruby in rubies {
@@ -378,7 +378,7 @@ fn native_comments_encoding_heredoc_lines_and_nonlocal_flow() {
         let after = fs::read_to_string(dir.path().join("lib/a.rb")).unwrap();
         assert_ne!(before, after);
         let mut rubies = vec![std::path::PathBuf::from("ruby")];
-        if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(ruby) = crate::support::runtime::ruby_os() {
             rubies.push(ruby.into());
         }
         for ruby in rubies {

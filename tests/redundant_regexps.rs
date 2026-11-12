@@ -275,7 +275,7 @@ fn singleton_escape_comment_and_nested_set_runtime_regressions() {
         if Command::new("ruby").arg("--version").output().is_ok() {
             runtimes.push(std::ffi::OsString::from("ruby"));
         }
-        if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(native) = crate::support::runtime::ruby_os() {
             runtimes.push(native);
         }
         for runtime in runtimes {
@@ -381,7 +381,7 @@ fn runtime_match_results_captures_options_encodings_and_match_state_survive() {
     if Command::new("ruby").arg("--version").output().is_ok() {
         runtimes.push(std::ffi::OsString::from("ruby"));
     }
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         runtimes.push(native);
     }
     for method in ["scan", "sub", "gsub", "sub!", "gsub!"] {

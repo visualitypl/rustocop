@@ -320,7 +320,7 @@ fn symlink_readonly_invalid_and_atomic_composition_reuse_shared_controls() {
 
 #[test]
 fn native_fixture_syntax_only_and_authored_semantic_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

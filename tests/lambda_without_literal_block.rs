@@ -394,7 +394,12 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_values_binding_dispatch_evaluation_control_flow_and_observers() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -405,7 +410,7 @@ fn authored_native_values_binding_dispatch_evaluation_control_flow_and_observers
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     // Authored dead-code witnesses, never original/spec/reference/corpus inputs.
     let before = "if false\n  lambda(authored_unreachable)\nend\n";
@@ -534,7 +539,7 @@ fn authored_native_values_binding_dispatch_evaluation_control_flow_and_observers
 }
 #[test]
 fn native_syntax_only_for_every_reference_input_and_project_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     parallel_rows!(for row in rows() => {

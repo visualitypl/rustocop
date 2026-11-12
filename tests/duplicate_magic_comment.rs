@@ -449,7 +449,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_canonical_nil_binding_instructions_trace_heap_and_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -551,7 +551,7 @@ fn authored_native_canonical_nil_binding_instructions_trace_heap_and_counterexam
 }
 #[test]
 fn authored_native_source_data_error_and_vm_observers_retain_findings_without_edits() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -589,7 +589,7 @@ fn authored_native_source_data_error_and_vm_observers_retain_findings_without_ed
 
 #[test]
 fn reference_sources_and_upstream_outputs_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let mut sources: Vec<(Vec<u8>, bool)> = rows()

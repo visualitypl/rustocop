@@ -236,7 +236,10 @@ fn native(ruby: &str, authored: &str) -> Output {
 }
 #[test]
 fn native_actual_openssl_digest_values_bindings_encodings_warnings_and_errors() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("pins Ruby 3.4.1 and the versions of its bundled libraries") {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let out = native(
@@ -350,7 +353,7 @@ fn native_actual_openssl_digest_values_bindings_encodings_warnings_and_errors() 
 }
 #[test]
 fn native_real_constructor_dispatch_and_observer_counterexamples_stay_unedited() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();

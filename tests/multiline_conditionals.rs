@@ -238,7 +238,7 @@ fn sensitive_clean_invalid_and_non_utf8_files_do_not_write() {
 }
 fn rubies() -> Vec<String> {
     let mut v = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         v.push(ruby);
     }
     v

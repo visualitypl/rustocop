@@ -405,7 +405,7 @@ fn disk_no_write_no_companion_lookup_or_rename_and_old_cop_correction() {
         1,
     );
     unchanged(&path, after, &old);
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         let a = native::run(&ruby, "value=7\nputs value\n");
         let b = native::run(&ruby, std::str::from_utf8(after).unwrap());
         assert_eq!(
@@ -450,7 +450,7 @@ fn directory_discovery_ignores_hidden_vendor_and_config_excluded_inputs() {
 
 #[test]
 fn native_syntax_only_and_supplied_ruby_is_never_executed() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();

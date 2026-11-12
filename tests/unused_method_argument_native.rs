@@ -53,7 +53,7 @@ fn success(o: &Output) {
 }
 #[test]
 fn authored_inactive_parameter_rename_preserves_native_values_binding_trace_warnings_vm_and_heap() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();
@@ -132,7 +132,7 @@ puts 'authored VM and heap control passed'
 }
 #[test]
 fn authored_live_binding_reflection_keyword_and_collision_counterexamples_are_held() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = tempfile::tempdir().unwrap();

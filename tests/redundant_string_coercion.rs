@@ -414,7 +414,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_values_bindings_dispatch_evaluation_warnings_and_observability() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -425,7 +425,7 @@ fn authored_native_values_bindings_dispatch_evaluation_warnings_and_observabilit
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     // Independently authored runtime controls, never spec/reference/probe inputs.
     for (before, after) in [
@@ -524,7 +524,7 @@ fn authored_native_values_bindings_dispatch_evaluation_warnings_and_observabilit
 }
 #[test]
 fn native_syntax_only_for_every_reference_input_and_project_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

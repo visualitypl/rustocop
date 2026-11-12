@@ -164,7 +164,7 @@ fn encoded_argument_diagnostics_match_reference_in_real_lint_fix_and_stdin() {
             check(&child.wait_with_output().unwrap(), "virtual/encoded.rb");
             assert!(!dir.path().join("virtual").exists());
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             // Syntax only. Never run the pinned sources or template contents.
             let syntax = Command::new(ruby)
                 .args(["--parser=prism", "-c"])
@@ -206,7 +206,7 @@ fn utf8_mac_columns_in_actual_lint_and_fix_preserve_original_bytes() {
                         );
                     }
                 }
-                if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+                if let Ok(ruby) = crate::support::runtime::ruby() {
                     // Syntax only: these position fixtures must never execute.
                     let out = Command::new(ruby)
                         .args(["--parser=prism", "-c"])
@@ -578,7 +578,12 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_api_binding_warning_order_value_and_error_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "Ruby 4.0 removed the positional arguments of ERB.new, so the original code raises",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Only authored controls execute. None of the source/spec fixture programs do.
@@ -674,7 +679,7 @@ fn authored_native_api_binding_warning_order_value_and_error_counterexamples() {
 }
 #[test]
 fn all_reference_inputs_are_native_syntax_checked_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

@@ -430,7 +430,7 @@ fn atomic_symlink_readonly_validation_and_composition_share_existing_controls() 
     assert_eq!(fs::read_dir(dir.path().join("lib")).unwrap().count(), 2);
 }
 fn native(source: &str) -> Option<Output> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let mut child = Command::new(ruby)
         .args(["--parser=prism", "-W0", "-"])
         .stdin(Stdio::piped())
@@ -511,7 +511,7 @@ fn authored_native_trace_hook_counterexample_is_withheld() {
 
 #[test]
 fn authored_native_line_data_and_own_source_guards() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -563,7 +563,7 @@ fn authored_native_line_data_and_own_source_guards() {
 
 #[test]
 fn native_reference_fixture_validation_is_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let rows: Vec<serde_json::Value> =

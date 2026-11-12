@@ -252,11 +252,16 @@ fn mutated_core_getters_and_dynamic_evaluation_preserve_runtime_and_disk() {
 
 #[test]
 fn operator_recovery_serialized_factories_preserve_host_and_native_runtime_and_disk() {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
     let mut runtimes = Vec::new();
     if Command::new("ruby").arg("--version").output().is_ok() {
         runtimes.push(("ruby".to_owned(), false));
     }
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(native) = crate::support::runtime::ruby() {
         runtimes.push((native.clone(), false)); // Native default Prism: ISeq witnesses.
         runtimes.push((native, true)); // AST.of is unavailable for Prism-compiled ISeqs.
     }
@@ -414,7 +419,7 @@ fn operator_recovery_serializer_metadata_controls_fix_and_converge_on_host_and_n
     for runtime in host
         .then(|| "ruby".to_owned())
         .into_iter()
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
     {
         for observer in [
             "p Marshal.name",

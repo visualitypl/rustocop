@@ -129,7 +129,7 @@ fn shorthand_cli_lint_and_fix_preserve_open_fd_inode_mtime_and_mode() {
     };
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     for part in ["#@value", "#@@value", "#$value"] {
         for options in ["", "x"] {
             for (pattern, cols) in [
@@ -178,7 +178,7 @@ fn interpolation_type_percent_matchlastline_options_and_encoded_projection_contr
     .unwrap();
     assert_eq!(rows.len(), 386);
     let dir = project();
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     let path = dir.path().join("lib/a.rb");
     for row in rows {
         let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
@@ -243,7 +243,7 @@ fn interpolation_type_percent_matchlastline_options_and_encoded_projection_contr
 #[test]
 fn octal_token_boundaries_preserve_cli_findings_and_no_write_holds() {
     let dir = project();
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     for (octal, expected) in [
         (r"\0000", 0),
         (r"\012345", 0),
@@ -314,7 +314,7 @@ fn nested_overlapping_atomic_envelopes_retain_findings_and_converge() {
 }
 #[test]
 fn all_reference_inputs_and_upstream_edits_are_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {
@@ -374,7 +374,7 @@ fn legacy_original_bytes_projected_columns_and_no_edits() {
                 );
             }
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             assert!(syntax(&ruby, &bytes).status.success(), "{row}");
         }
     }
@@ -730,7 +730,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_value_binding_warning_control_flow_and_heap_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -810,7 +810,12 @@ fn authored_native_value_binding_warning_control_flow_and_heap_proofs() {
 }
 #[test]
 fn authored_native_source_data_code_object_and_encoding_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();

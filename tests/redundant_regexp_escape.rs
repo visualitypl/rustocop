@@ -282,7 +282,7 @@ if /(?<implicit>a)\-/; p [$1, $~.to_a]; end
 p [$events, __LINE__]
 "##;
     let mut rubies = vec!["ruby".into()];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         rubies.push(native);
     }
     for executable in rubies {
@@ -314,7 +314,7 @@ p [$events, __LINE__]
 fn withheld_edits_have_concrete_runtime_semantic_witnesses() {
     let d = project();
     let mut rubies = vec!["ruby".into()];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         rubies.push(native);
     }
     for executable in rubies {
@@ -371,7 +371,7 @@ fn withheld_edits_have_concrete_runtime_semantic_witnesses() {
 fn runtime_named_tokens_preserve_necessary_escapes_and_safe_siblings() {
     let d = project();
     let mut rubies = vec!["ruby".into()];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         rubies.push(native);
     }
     for executable in rubies {

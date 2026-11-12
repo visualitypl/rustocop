@@ -251,7 +251,7 @@ fn all_20_applicable_pinned_examples_and_10_individually_withheld_corrections() 
 }
 fn rubies() -> Vec<String> {
     let mut paths = vec!["ruby".into()];
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         paths.push(path);
     }
     paths

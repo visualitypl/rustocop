@@ -225,7 +225,7 @@ fn byte_envelopes_literals_and_source_sensitive_withholds() {
 
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {
@@ -236,7 +236,10 @@ fn observations_equal(root: &Path) {
         let version = version.expect("explicit RUSTOCOP_RUBY34 must be executable");
         assert!(version.status.success(), "{ruby}: {version:?}");
         if ruby != "ruby" {
-            assert!(String::from_utf8_lossy(&version.stdout).starts_with("ruby 3.4."));
+            assert!(
+                String::from_utf8_lossy(&version.stdout)
+                    .starts_with(crate::support::runtime::banner_prefix())
+            );
         }
         let before = Command::new(&ruby)
             .arg(root.join("before.rb"))

@@ -482,7 +482,12 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_dead_branch_values_bindings_warnings_and_live_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -493,7 +498,7 @@ fn authored_native_dead_branch_values_bindings_warnings_and_live_counterexamples
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     // Separately authored, bounded Safety witnesses. NEVER execute fixture,
     // spec, documentation or generated differential inputs.
@@ -585,7 +590,7 @@ puts 'authored VM/heap control passed'
 }
 #[test]
 fn native_syntax_only_for_every_reference_input_and_project_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

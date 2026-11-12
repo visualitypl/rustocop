@@ -412,7 +412,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_value_binding_evaluation_control_flow_warning_and_observer_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -423,7 +423,7 @@ fn authored_native_value_binding_evaluation_control_flow_warning_and_observer_pr
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     for method in ["strip_indent", "strip", "freeze"] {
         let before = format!("[defined?(<<-SQL\n  authored\nSQL\n.{method}\n)]\n");
@@ -490,7 +490,7 @@ fn authored_native_value_binding_evaluation_control_flow_warning_and_observer_pr
 }
 #[test]
 fn native_syntax_only_for_all_reference_sources_and_canonical_outputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

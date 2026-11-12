@@ -99,7 +99,7 @@ fn fix(root: &Path, source: &[u8], args: &[&str]) -> (Output, Vec<u8>) {
 
 /// `example.rb`'s output under native Ruby 3.4, when available.
 fn ruby(root: &Path) -> Option<String> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let run = Command::new(ruby)
         .current_dir(root)
         .args(["--parser=prism", "-w", "example.rb"])
@@ -118,7 +118,7 @@ fn ruby(root: &Path) -> Option<String> {
 /// locations must be equal before and after: an inserted line break changes
 /// nothing else. Never executes either side.
 fn same_tokens_and_ast(before: &[u8], after: &[u8]) {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = tempfile::tempdir().unwrap();

@@ -446,11 +446,14 @@ fn whitespace_token_and_independent_safe_sibling_commit_together() {
 }
 #[test]
 fn explicit_ruby34_runtime_gate() {
-    let Ok(executable) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(executable) = crate::support::runtime::ruby() else {
         eprintln!("Ruby 3.4 runtime gate skipped: set RUSTOCOP_RUBY34");
         return;
     };
-    let version = ruby(&executable, "abort unless RUBY_VERSION.start_with?('3.4.')");
+    let version = ruby(
+        &executable,
+        crate::support::runtime::script("abort unless RUBY_VERSION.start_with?('3.4.')").as_str(),
+    );
     assert!(version.status.success(), "{version:?}");
     runtime_matrix(&executable);
     whitespace_token_runtime_matrix(Some(&executable));

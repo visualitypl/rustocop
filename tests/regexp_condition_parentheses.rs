@@ -667,7 +667,7 @@ fn correction_uncertainty_keeps_findings_and_bytes() {
 }
 #[test]
 fn authored_native_warning_dispatch_binding_value_and_inactive_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -779,12 +779,17 @@ fn authored_native_warning_dispatch_binding_value_and_inactive_controls() {
 
 #[test]
 fn native_ruby34_syntax_only_never_execute_reference_inputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let after = row.get("after").or_else(|| {

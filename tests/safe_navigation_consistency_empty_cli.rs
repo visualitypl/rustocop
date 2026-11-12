@@ -764,7 +764,7 @@ fn actual_empty_canonical_atomic_readonly_symlink_and_idempotence() {
 
 #[test]
 fn authored_native_value_changes_are_not_intention_repairs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Separately authored bounded witnesses; never execute reference fixtures.
@@ -818,7 +818,12 @@ fn authored_native_value_changes_are_not_intention_repairs() {
 
 #[test]
 fn authored_native_closed_canonical_preserves_vm_bindings_events_and_warnings() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Authored bounded programs only. No fixture is evaluated. Both versions
@@ -862,12 +867,14 @@ p [iseq.to_a, result, events, local_variables.sort]
 
 #[test]
 fn native_ruby34_syntax_only_never_execute_reference_inputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         for key in ["bytes", "project_after", "upstream_after"] {
             let Some(value) = row.get(key) else {

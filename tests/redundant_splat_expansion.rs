@@ -423,7 +423,7 @@ fn atomic_validation_readonly_symlink_and_bounded_composition() {
     assert_eq!(fs::read_dir(d.path().join("lib")).unwrap().count(), 2);
 }
 fn native(source: &[u8], syntax: bool) -> Option<Output> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let mut cmd = Command::new(ruby);
     cmd.args(["--parser=prism", "-w"]);
     if syntax {
@@ -543,7 +543,7 @@ fn authored_native_values_bindings_evaluation_filter_and_allocation_controls() {
 }
 #[test]
 fn authored_native_line_data_source_heap_and_code_object_observers() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();

@@ -282,13 +282,17 @@ fn rubies() -> Vec<String> {
     } else {
         eprintln!("host Ruby runtime gate skipped: ruby is unavailable");
     }
-    if let Ok(path) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(path) = crate::support::runtime::ruby() {
         let o = Command::new(&path)
             .args(["-e", "print RUBY_VERSION"])
             .output()
             .unwrap();
         assert!(o.status.success());
-        assert!(o.stdout.starts_with(b"3.4."), "{o:?}");
+        assert!(
+            o.stdout
+                .starts_with(crate::support::runtime::version_prefix().as_bytes()),
+            "{o:?}"
+        );
         r.push(path);
     } else {
         eprintln!("native Ruby 3.4 gate skipped: set RUSTOCOP_RUBY34");
@@ -470,6 +474,10 @@ fn native_shareable_literal_exception_is_not_replaced_by_successful_deep_freeze(
 }
 #[test]
 fn shareable_runtime_modes_constant_forms_errors_state_and_unprotected_controls() {
+    if crate::support::runtime::skips("Ruby 4.0.9 stops with a segmentation fault on this program")
+    {
+        return;
+    }
     let rubies = rubies();
     for mode in [
         "literal",

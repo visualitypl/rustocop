@@ -420,7 +420,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_control_flow_values_bindings_dispatch_warnings_and_observers() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -431,7 +431,7 @@ fn authored_native_control_flow_values_bindings_dispatch_warnings_and_observers(
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     // Separately authored bounded witnesses, never reference/corpus execution.
     for name in ["public", "protected", "private", "module_function"] {
@@ -517,7 +517,7 @@ fn authored_native_control_flow_values_bindings_dispatch_warnings_and_observers(
 }
 #[test]
 fn native_syntax_only_for_all_reference_inputs_and_project_outputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

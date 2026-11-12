@@ -521,7 +521,7 @@ fn shared_atomic_validation_readonly_symlink_failure_and_layout_composition() {
 }
 #[test]
 fn every_reference_input_is_native_syntax_checked_only_never_executed() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let byte_rows: Vec<serde_json::Value> = [

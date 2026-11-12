@@ -230,7 +230,8 @@ The version selects three things:
   same grammar.
 
 The Ruby 4.0 grammar is compared with Ruby 4.0.9 in the tests. The tests that
-run corrected code compare it with Ruby 3.4.1 only.
+run code before and after a correction run on Ruby 3.4.1 and again on Ruby
+4.0.9.
 
 Cops with a fixed path policy (for example `Style/FrozenStringLiteralComment`
 skipping `*.arb` files) keep it even under `--only`, and the policy applies to
@@ -298,10 +299,16 @@ tools/docker-test.sh                      # fmt, clippy and all tests
 tools/docker-test.sh cargo test --lib     # any other command
 ```
 
-The tests run in parallel through
-[cargo-nextest](https://nexte.st). A full run needs Docker with 8 GB of
-memory and about 4 GB of disk. It takes about 8 minutes the first time and
-about 5 minutes once the build output exists. The source is mounted
+The tests run in parallel through [cargo-nextest](https://nexte.st), in two
+passes. The first pass runs every test, and the tests that start a Ruby
+program use Ruby 3.4.1. The second pass sets `RUSTOCOP_TEST_RUBY=4.0` and
+runs the integration tests again with Ruby 4.0.9. A test that is valid on
+Ruby 3.4 only starts with `if crate::support::runtime::skips("reason")
+{ return; }`, so the second pass skips it and the reason stays in the code.
+
+A full run needs Docker with 8 GB of memory and about 4 GB of disk. It takes
+about 15 minutes the first time and about 13 minutes once the build output
+exists. The source is mounted
 read-only. Build output stays in the Docker volume `rustocop-test-target`
 (about 1.4 GB); remove it with
 `docker volume rm rustocop-test-target`.
@@ -319,7 +326,8 @@ mise exec -- cargo test
 A native run covers less than the Docker run. The checks against Ruby 3.4.1
 run only when `RUSTOCOP_RUBY34` names its executable, and they need the Linux
 tools `timeout` and `prlimit`. The checks against Ruby 4.0 run only when
-`RUSTOCOP_RUBY40` names its executable. On macOS some tests fail, because
+`RUSTOCOP_RUBY40` names its executable. `RUSTOCOP_TEST_RUBY=4.0` makes the
+integration tests use that executable in place of the Ruby 3.4 one. On macOS some tests fail, because
 `/usr/bin/ruby` is Ruby 2.6 there and the temporary directory sits behind a
 symlink.
 

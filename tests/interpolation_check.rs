@@ -313,12 +313,14 @@ fn stdin_virtual_paths_have_no_fixed_path_gate_and_never_write() {
 }
 #[test]
 fn original_fixture_sources_pass_native_ruby34_syntax_only_never_execute_interpolation() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let mut child = Command::new(&ruby)
@@ -335,6 +337,9 @@ fn original_fixture_sources_pass_native_ruby34_syntax_only_never_execute_interpo
 }
 #[test]
 fn individual_when_not_conversions_are_fixed34_reference_grammar_differences() {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
     // NOT ordinary parity fixtures or baseline waivers: pinned Prism1.9 rejects
     // each exact converted literal, whereas native fixed Ruby3.4 accepts it.
     // The Ruby tool checks each main source, candidate and reference diagnostic.
@@ -385,7 +390,7 @@ fn individual_when_not_conversions_are_fixed34_reference_grammar_differences() {
                 );
             }
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             for bytes in [source, row["converted"].as_str().unwrap().as_bytes()] {
                 let mut child = Command::new(&ruby)
                     .args(["--parser=prism", "-W0", "-c"])

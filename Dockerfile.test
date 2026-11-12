@@ -64,4 +64,4 @@ RUN git init -q "$RUBOCOP_SRC" \
     && git -C "$RUBOCOP_SRC" checkout -q FETCH_HEAD
 
 WORKDIR /work
-CMD ["sh", "-c", "cargo fmt --check && cargo clippy --all-targets --locked -- -D warnings && cargo build --locked && cargo nextest run --locked --no-fail-fast && cargo test --doc --locked"]
+CMD ["sh", "-c", "cargo fmt --check && cargo clippy --all-targets --locked -- -D warnings && cargo build --locked && cargo nextest run --locked --no-fail-fast && cargo test --doc --locked && RUSTOCOP_TEST_RUBY=4.0 cargo nextest run --locked --no-fail-fast --test integration"]

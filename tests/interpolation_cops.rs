@@ -749,14 +749,15 @@ fn constant_branches_preserve_cli_bytes_and_host_runtime_across_individual_peer_
 #[test]
 fn gated_ruby34_constant_branch_runtime() {
     // Set an existing local executable; never install/fetch a runtime in tests.
-    let exe = std::env::var("RUSTOCOP_RUBY34").unwrap_or_else(|_| "ruby".into());
+    let exe = crate::support::runtime::ruby().unwrap_or_else(|_| "ruby".into());
     let version = Command::new(&exe)
         .args(["--disable-gems", "-e", "print RUBY_VERSION"])
         .output();
-    if !version
-        .as_ref()
-        .is_ok_and(|o| o.status.success() && o.stdout.starts_with(b"3.4."))
-    {
+    if !version.as_ref().is_ok_and(|o| {
+        o.status.success()
+            && o.stdout
+                .starts_with(crate::support::runtime::version_prefix().as_bytes())
+    }) {
         eprintln!(
             "SKIP Ruby 3.4 runtime (set RUSTOCOP_RUBY34); host Ruby/Prism checks are separate"
         );

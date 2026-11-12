@@ -851,7 +851,7 @@ fn external_stream_position_and_eof_observers_allow_shared_alignment_edits() {
 fn literal_splats_remain_real_shared_cli_edits_with_vm_conversion_runtime_proofs() {
     let d = project();
     let path = d.path().join("example.rb");
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     for prefix in ["", "\u{b}"] {
         let access_shift = " ".repeat(2 - prefix.len());
         for (cop, stem, after) in [
@@ -966,7 +966,7 @@ fn shared_reader_guard_preserves_real_prefix_and_whole_subtree_corrections() {
                 Some(0)
             );
             assert_unchanged(&path, after.as_bytes(), &old);
-            if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+            if let Ok(ruby) = crate::support::runtime::ruby() {
                 // Only these separately authored closed programs execute.
                 let before = native::run(&ruby, &source);
                 let after = native::run(&ruby, &after);
@@ -1081,7 +1081,7 @@ fn assignment_access_existing_alignment_and_style_peers_converge_without_cycles(
 #[test]
 fn native_ruby34_parses_all_reference_bytes_without_executing_them() {
     use std::{io::Write, process::Stdio};
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {
@@ -1114,7 +1114,7 @@ fn native_ruby34_parses_all_reference_bytes_without_executing_them() {
 use crate::support::deprecated_constructor_native as native;
 #[test]
 fn partial_negative_shift_cannot_erase_native_warnings_or_write_source() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();
@@ -1193,7 +1193,7 @@ fn emoji_width_cli_exact_corrections_and_no_offense_identity() {
 }
 #[test]
 fn mixed_tab_negative_shifts_preserve_native_warnings_and_file_identity() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();
@@ -1228,7 +1228,7 @@ fn mixed_tab_negative_shifts_preserve_native_warnings_and_file_identity() {
 }
 #[test]
 fn bounded_authored_implicit_and_nested_classic_callbacks_preserve_runtime() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let source = "$trace=[]\nclass C\n  def self.private; $trace << :private; end\n  def self.protected; $trace << :protected; end\n  def self.foo; yield 7; end\n  foo do\nprivate\n    $trace << _1\n    foo do\nprotected\n      $trace << :inner\n    end\n  end\n  -> do\nprivate\n    $trace << it\n  end.call(9)\nend\np [$trace, __LINE__]\n";
@@ -1283,7 +1283,7 @@ fn assert_possible_reader_corrects(ruby: &str, original: &str, cop: &str) {
 }
 #[test]
 fn bounded_authored_safe_setter_parent_preserves_nil_short_circuit_and_dispatch() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Constructor and Enumerable dispatch do not imply a listed observer.
@@ -1322,7 +1322,7 @@ fn bounded_authored_safe_setter_parent_preserves_nil_short_circuit_and_dispatch(
 }
 #[test]
 fn bounded_authored_native_runtime_preserves_dispatch_values_lines_control_and_warnings() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Both construction and allocation allow these intended whitespace edits.

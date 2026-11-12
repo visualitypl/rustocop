@@ -522,7 +522,7 @@ fn uncertain_edits_observers_fatal_errors_and_peer_composition() {
 }
 #[test]
 fn authored_native34_value_binding_evaluation_exceptions_and_trace_witnesses() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -599,11 +599,13 @@ fn authored_native34_value_binding_evaluation_exceptions_and_trace_witnesses() {
 }
 #[test]
 fn native_ruby34_syntax_only_checks_all_reference_inputs_and_actual_edits() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let invalid =

@@ -247,6 +247,9 @@ fn ruby_34_it_forwarding_and_necessary_logical_continuations_survive_fix_validat
 
 #[test]
 fn ruby34_nested_english_not_survives_files_stdin_and_fix_validation() {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
     let source =
         "def probe(x); x; end\np [not probe false]\nr = case\nwhen [not false]\n :yes\nend\np r\n";
     let expected = source.replace("case\nwhen [not false]", "if ([not false])");
@@ -281,7 +284,7 @@ fn ruby34_nested_english_not_survives_files_stdin_and_fix_validation() {
             expected.as_bytes()
         );
     }
-    if let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(ruby) = crate::support::runtime::ruby_os() {
         for program in [source, &expected] {
             let output = Command::new(&ruby)
                 .env_remove("RUBYOPT")

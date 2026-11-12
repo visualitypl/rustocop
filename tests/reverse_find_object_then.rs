@@ -204,7 +204,7 @@ fn observable_source_and_data_positions_retain_diagnostics_without_edits() {
     }
 }
 fn observe(dir: &Path) -> Option<Vec<u8>> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").unwrap_or_else(|_| "ruby".into());
+    let ruby = crate::support::runtime::ruby().unwrap_or_else(|_| "ruby".into());
     let output = match Command::new(&ruby).current_dir(dir).arg("a.rb").output() {
         Ok(output) => output,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return None,

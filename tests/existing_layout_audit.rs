@@ -826,7 +826,7 @@ fn runtimes() -> Vec<String> {
     let host = Command::new("ruby").arg("--version").output().is_ok();
     host.then(|| "ruby".to_owned())
         .into_iter()
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
         .collect()
 }
 

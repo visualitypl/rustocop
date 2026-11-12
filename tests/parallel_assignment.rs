@@ -332,7 +332,7 @@ p $trace
         "{after}"
     );
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(r) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(r) = crate::support::runtime::ruby() {
         rubies.push(r);
     }
     for ruby in rubies {

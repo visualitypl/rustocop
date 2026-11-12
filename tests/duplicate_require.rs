@@ -885,7 +885,7 @@ fn limited_native(
 
 #[test]
 fn authored_native_external_wall_and_output_overflow_are_failures() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let wall = limited_native(&ruby, b"sleep 2\n", &["-"], "0.1s", 1024);
@@ -916,7 +916,7 @@ fn wide_siblings_and_multiple_input_lifecycles_are_file_local() {
 
 #[test]
 fn all_reference_sources_are_native_syntax_checked_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let bytes: Vec<serde_json::Value> =
@@ -941,7 +941,7 @@ fn all_reference_sources_are_native_syntax_checked_only() {
 }
 #[test]
 fn authored_review_identity_counterpairs_still_withhold_unsafe_deletions() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -993,7 +993,7 @@ fn authored_review_identity_counterpairs_still_withhold_unsafe_deletions() {
 
 #[test]
 fn authored_native_require_reload_argument_and_error_counterexamples_prove_no_edit_policy() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();

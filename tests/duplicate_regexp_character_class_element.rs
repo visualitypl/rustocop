@@ -156,7 +156,7 @@ fn operator_recovery_exact_cli_no_internal_errors_no_writes_and_native_syntax() 
         }
         // All generated fixtures are controlled source-only inputs. This does
         // NOT construct a Regexp or execute interpolation/reference code.
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-c", "-"])
                 .stdin(Stdio::piped())
@@ -260,7 +260,7 @@ fn operator_round2_review_extended_whitespace_cli_no_write_and_native_syntax() {
             assert!(out.stderr.is_empty(), "{source:?}\n{out:?}");
             assert_eq!(count(&out), expected as usize, "{source:?}\n{out:?}");
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             // Syntax only: interpolation and regexp/program code never execute.
             let out = Command::new("timeout")
                 .args([
@@ -313,7 +313,7 @@ fn legacy_source_buffer_projection_columns_and_bytes_are_preserved() {
                 );
             }
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-c", "-"])
                 .stdin(Stdio::piped())
@@ -682,7 +682,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -761,7 +761,7 @@ fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
 }
 #[test]
 fn authored_native_trace_overflow_is_failure_not_a_truncated_proof() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let out = native(
@@ -777,7 +777,7 @@ fn authored_native_trace_overflow_is_failure_not_a_truncated_proof() {
 }
 #[test]
 fn all_reference_sources_and_upstream_rewrites_are_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

@@ -429,12 +429,14 @@ fn source_observers_encoding_data_heredocs_comments_and_atomic_peers_keep_findin
 
 #[test]
 fn native_ruby34_parses_every_reference_input_without_execution() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let mut child = Command::new(&ruby)

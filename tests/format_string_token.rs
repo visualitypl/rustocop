@@ -594,13 +594,16 @@ fn controlled_legacy_encoded_files_bom_crlf_line_and_data_keep_runtime_observati
 }
 #[test]
 fn explicit_ruby34_runtime_gate() {
-    let Ok(executable) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(executable) = crate::support::runtime::ruby() else {
         eprintln!("SKIP Ruby 3.4 runtime: set RUSTOCOP_RUBY34");
         return;
     };
     let out = ruby(
         &executable,
-        "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+        crate::support::runtime::script(
+            "abort RUBY_VERSION unless RUBY_VERSION.start_with?('3.4.')",
+        )
+        .as_str(),
     );
     assert!(out.status.success(), "{out:?}");
     runtime_matrix(&executable);

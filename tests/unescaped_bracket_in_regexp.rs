@@ -149,7 +149,7 @@ fn legacy_source_buffer_projection_columns_and_bytes_are_preserved() {
                 );
             }
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-c", "-"])
                 .stdin(Stdio::piped())
@@ -517,7 +517,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -596,7 +596,12 @@ fn authored_native_value_binding_evaluation_warning_and_source_proofs() {
 }
 #[test]
 fn authored_native_heap_constructor_and_source_observer_controls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    if crate::support::runtime::skips(
+        "pins compiled code or VM state that Ruby 4.0 builds differently",
+    ) {
+        return;
+    }
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -695,7 +700,7 @@ fn authored_native_heap_constructor_and_source_observer_controls() {
 }
 #[test]
 fn all_reference_sources_and_upstream_rewrites_are_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

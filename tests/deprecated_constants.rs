@@ -415,7 +415,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn native_closed_alias_values_bindings_constants_and_semantic_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -494,7 +494,7 @@ fn native_closed_alias_values_bindings_constants_and_semantic_counterexamples() 
 }
 #[test]
 fn all_reference_and_corrected_sources_are_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

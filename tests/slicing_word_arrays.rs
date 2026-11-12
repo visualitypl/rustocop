@@ -325,7 +325,7 @@ fn controlled_host_runtime_every_child_bytes_encoding_identity_mutation_and_warn
 #[test]
 fn deferred_literals_and_encoded_ascii_children_keep_warning_and_identity_profiles() {
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {
@@ -382,12 +382,16 @@ fn deferred_literals_and_encoded_ascii_children_keep_warning_and_identity_profil
 }
 #[test]
 fn controlled_native_34_runtime_every_child_in_all_frozen_modes() {
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         let version = Command::new(&ruby)
             .args(["-e", "print RUBY_VERSION"])
             .output()
             .unwrap();
-        assert!(version.stdout.starts_with(b"3.4."));
+        assert!(
+            version
+                .stdout
+                .starts_with(crate::support::runtime::version_prefix().as_bytes())
+        );
         for literal in ["['one','two']", "%w[one two]", "%W[one two]"] {
             for (magic, warnings) in [
                 ("", 2),

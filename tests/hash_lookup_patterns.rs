@@ -422,9 +422,13 @@ raise unless v == [1] && trace == [:a]
 puts :ok
 "#;
     let mut rubies = vec!["ruby".to_string()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         let o = Command::new(&ruby)
-            .args(["-e", "raise unless RUBY_VERSION.start_with?('3.4.')"])
+            .args([
+                "-e",
+                crate::support::runtime::script("raise unless RUBY_VERSION.start_with?('3.4.')")
+                    .as_str(),
+            ])
             .output()
             .unwrap();
         assert!(o.status.success(), "{o:?}");

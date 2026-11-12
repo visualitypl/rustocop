@@ -100,7 +100,7 @@ fn fix(root: &Path, source: &[u8], args: &[&str]) -> (Output, Vec<u8>) {
 /// The native Ruby 3.4 result of `example.rb`, when `RUSTOCOP_RUBY34` is
 /// configured.
 fn ruby(root: &Path) -> Option<String> {
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok()?;
+    let ruby = crate::support::runtime::ruby().ok()?;
     let run = Command::new(ruby)
         .current_dir(root)
         .args(["--parser=prism", "-W0", "example.rb"])

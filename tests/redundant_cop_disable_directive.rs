@@ -256,7 +256,7 @@ fn invalid_input_is_fatal_and_symlink_atomic_controls_remain_shared() {
 }
 #[test]
 fn authored_native_closed_comment_nil_vm_trace_heap_binding_proofs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let native = |source: &str| {

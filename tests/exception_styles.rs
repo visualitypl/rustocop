@@ -304,13 +304,16 @@ fn rubies() -> Vec<String> {
     if Command::new("ruby").arg("--version").output().is_ok() {
         result.push("ruby".into());
     }
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(native) = crate::support::runtime::ruby() {
         let version = Command::new(&native)
             .arg("--version")
             .output()
             .expect("configured Ruby 3.4 must run");
         assert!(version.status.success());
-        assert!(String::from_utf8_lossy(&version.stdout).starts_with("ruby 3.4."));
+        assert!(
+            String::from_utf8_lossy(&version.stdout)
+                .starts_with(crate::support::runtime::banner_prefix())
+        );
         result.push(native);
     }
     result

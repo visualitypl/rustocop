@@ -480,7 +480,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_alias_identity_binding_warning_value_and_control_flow_witnesses() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -569,7 +569,7 @@ fn authored_native_alias_identity_binding_warning_value_and_control_flow_witness
 }
 #[test]
 fn every_reference_and_corrected_source_is_native_syntax_only() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

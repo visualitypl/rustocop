@@ -241,7 +241,7 @@ fn rubies() -> Vec<String> {
     {
         r.push("ruby".into());
     }
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         r.push(ruby);
     }
     r

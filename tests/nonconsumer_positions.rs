@@ -8,7 +8,7 @@ use std::{
 
 fn ruby(path: &Path) -> Vec<Vec<u8>> {
     std::iter::once("ruby".to_string())
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
         .map(|runtime| {
             let mut command = Command::new(&runtime);
             if runtime != "ruby" {

@@ -527,7 +527,7 @@ fn binary_comment_bytes_have_a_lossless_utf8_diagnostic_not_replacement_characte
 
 #[test]
 fn native_authored_counterexample_explains_why_upstream_rewrite_is_not_a_fix() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Separately authored bounded control, NOT a reference/fixture/corpus input.
@@ -549,12 +549,14 @@ fn native_authored_counterexample_explains_why_upstream_rewrite_is_not_a_fix() {
 
 #[test]
 fn native_ruby34_syntax_only_never_execute_comparisons_or_random_calls() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let version = Command::new(&ruby).arg("--version").output().unwrap();
     assert!(version.status.success());
-    assert!(String::from_utf8_lossy(&version.stdout).contains("ruby 3.4."));
+    assert!(
+        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
+    );
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
         let mut child = Command::new(&ruby)

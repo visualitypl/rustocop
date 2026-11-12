@@ -246,7 +246,7 @@ fn stdin_reports_without_writing_and_rejects_fix() {
 
 fn rubies() -> Vec<String> {
     std::iter::once("ruby".to_owned())
-        .chain(std::env::var("RUSTOCOP_RUBY34"))
+        .chain(crate::support::runtime::ruby())
         .filter(|ruby| Command::new(ruby).arg("--version").output().is_ok())
         .collect()
 }

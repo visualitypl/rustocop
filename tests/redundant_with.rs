@@ -434,7 +434,7 @@ fn native(ruby: &str, source: &str) -> Output {
 }
 #[test]
 fn authored_native_dead_branch_values_bindings_warnings_and_live_counterexamples() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     assert!(
@@ -445,7 +445,7 @@ fn authored_native_dead_branch_values_bindings_warnings_and_live_counterexamples
                 .unwrap()
                 .stdout
         )
-        .contains("ruby 3.4.")
+        .contains(crate::support::runtime::banner_prefix())
     );
     // Only bounded authored programs execute. No reference/spec/corpus inputs.
     for call in [
@@ -560,7 +560,7 @@ fn authored_native_dead_branch_values_bindings_warnings_and_live_counterexamples
 }
 #[test]
 fn native_syntax_only_for_every_reference_input_and_project_output() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     parallel_rows!(for row in rows() => {

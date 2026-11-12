@@ -207,7 +207,7 @@ fn terminal_endless_ranges_do_not_block_unrelated_safe_edits() {
 }
 #[test]
 fn operand_boundaries_preserve_native_ruby34_values_captures_and_effects() {
-    let Some(program) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(program) = crate::support::runtime::ruby_os() else {
         eprintln!("set RUSTOCOP_RUBY34 for native Ruby 3.4 operand regressions");
         return;
     };
@@ -375,7 +375,7 @@ fn uncertain_operand_wrappers_do_not_block_unrelated_cli_fixes() {
             &["--only", COP, "--fix", "a.rb"],
             1,
         );
-        if let Some(program) = std::env::var_os("RUSTOCOP_RUBY34") {
+        if let Some(program) = crate::support::runtime::ruby_os() {
             // Replace the unrelated undefined calls with controlled literals.
             let before = before.replace("ready", "true").replace("work", "p :safe");
             let after = after.replace("ready", "true").replace("work", "p :safe");
@@ -472,7 +472,7 @@ fn controlled_values_binding_effect_order_guards_rescue_and_ensure_match_ruby() 
     }
     let d = project();
     let mut programs = vec![std::ffi::OsString::from("ruby")];
-    if let Some(native) = std::env::var_os("RUSTOCOP_RUBY34") {
+    if let Some(native) = crate::support::runtime::ruby_os() {
         programs.push(native);
     }
     for source in [
@@ -550,7 +550,7 @@ fn lexical_reordering_withholds_edits_that_would_change_ruby_bindings() {
 }
 #[test]
 fn native_34_implicit_it_and_numbered_parameters_keep_their_binding() {
-    let Some(program) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(program) = crate::support::runtime::ruby_os() else {
         return;
     };
     let d = project();

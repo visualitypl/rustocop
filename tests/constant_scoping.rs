@@ -148,7 +148,7 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
 
 #[test]
 fn native_ruby34_accepts_fixture_syntax_without_executing_inputs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let mut rows: Vec<serde_json::Value> =
@@ -181,7 +181,7 @@ fn operator_recovery_source_projection_pipeline_cli_and_native_syntax_only() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[SCOPING.into()], &[]);
-    let ruby = std::env::var("RUSTOCOP_RUBY34").ok();
+    let ruby = crate::support::runtime::ruby().ok();
     let mut rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/constant_scoping_projection.json")).unwrap();
     assert_eq!(rows.len(), 532);

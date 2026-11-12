@@ -81,7 +81,7 @@ fn every_reference_case_has_host_and_explicit_native_syntax_only_witnesses() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("syntax.rb");
     for runtime in
-        std::iter::once(std::ffi::OsString::from("ruby")).chain(std::env::var_os("RUSTOCOP_RUBY34"))
+        std::iter::once(std::ffi::OsString::from("ruby")).chain(crate::support::runtime::ruby_os())
     {
         for row in &rows {
             fs::write(&path, source(row)).unwrap();

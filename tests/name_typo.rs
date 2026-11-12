@@ -460,7 +460,7 @@ fn peer_atomic_failure_preserves_readonly_symlink_target() {
 }
 #[test]
 fn native_ruby34_syntax_only_for_every_inspected_source() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {

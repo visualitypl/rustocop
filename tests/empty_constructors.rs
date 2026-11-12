@@ -334,7 +334,7 @@ fn runtimes() -> Vec<String> {
     {
         v.push("ruby".into());
     }
-    if let Ok(native) = std::env::var("RUSTOCOP_RUBY34")
+    if let Ok(native) = crate::support::runtime::ruby()
         && !v.contains(&native)
     {
         v.push(native);
@@ -586,7 +586,7 @@ fn startup_constants_are_not_fresh_class_names_even_without_source_reopening() {
 
 #[test]
 fn native_ruby34_chilled_literal_mutation_is_not_equivalent_to_string_new() {
-    let Ok(runtime) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(runtime) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();

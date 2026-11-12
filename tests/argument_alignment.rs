@@ -201,7 +201,7 @@ fn actual_cli_lint_never_writes_and_all_corrections_are_canonical_or_explicit_ho
             } else {
                 assert_eq!(actual, canonical, "{row}: {out:?}");
             }
-            if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+            if let Ok(ruby) = crate::support::runtime::ruby() {
                 let original = syntax(&ruby, &source);
                 let fixed = syntax(&ruby, &actual);
                 assert!(
@@ -440,7 +440,7 @@ fn vertical_tab_cli_positions_canonical_positive_shifts_and_shared_assignment_co
         if source == after {
             unchanged(&path, source.as_bytes(), &old);
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             let before = syntax(&ruby, source.as_bytes());
             let after = syntax(&ruby, after.as_bytes());
             assert!(
@@ -697,7 +697,7 @@ fn syntax(ruby: &str, source: &[u8]) -> Output {
 }
 #[test]
 fn native_ruby34_syntax_only_all_reference_sides_never_execute() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     for row in rows() {
@@ -722,7 +722,7 @@ fn native_ruby34_syntax_only_all_reference_sides_never_execute() {
 use crate::support::deprecated_constructor_native as native;
 #[test]
 fn bounded_authored_source_and_code_object_observers_hold_real_files() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();
@@ -754,7 +754,7 @@ fn bounded_authored_source_and_code_object_observers_hold_real_files() {
 }
 #[test]
 fn bounded_authored_runtime_dispatch_values_control_literals_lines_and_warnings() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let d = project();

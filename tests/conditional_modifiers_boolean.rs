@@ -342,7 +342,7 @@ p $trace
     );
     assert!(after.contains("end if value") && after.contains("if ready?; true; else; false; end"));
     let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         rubies.push(ruby);
     }
     for ruby in rubies {

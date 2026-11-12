@@ -317,7 +317,7 @@ fn sensitive_line_data_legacy_encoding_and_reflective_files_retain_bytes() {
 }
 fn rubies() -> Vec<String> {
     let mut result = vec!["ruby".to_owned()];
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         result.push(ruby);
     }
     result
@@ -448,11 +448,14 @@ p [values,log]
 }
 #[test]
 fn lead_setter_and_english_not_cli_runtime_regressions() {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
     let d = project();
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         assert!(
             String::from_utf8_lossy(&observe(&ruby, "print RUBY_VERSION").stdout)
-                .starts_with("3.4.")
+                .starts_with(crate::support::runtime::version_prefix())
         );
     } else {
         eprintln!("SKIP native Ruby 3.4 when-not runtime: set RUSTOCOP_RUBY34");
@@ -498,7 +501,7 @@ fn lead_setter_and_english_not_cli_runtime_regressions() {
             }
             if source.contains("not ")
                 && !String::from_utf8_lossy(&observe(&ruby, "print RUBY_VERSION").stdout)
-                    .starts_with("3.4.")
+                    .starts_with(crate::support::runtime::version_prefix())
             {
                 eprintln!("SKIP unparenthesized when-not on non-3.4 runtime {ruby}");
                 continue;
@@ -600,6 +603,9 @@ class Host
 }
 #[test]
 fn uncertain_not_comment_edit_does_not_block_unrelated_safe_cli_fixes() {
+    if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {
+        return;
+    }
     let d = project();
     let source = "a=[]\nblocked = case\nwhen not # keep operand comment\n false\n :yes\nelse\n :no\nend\nsafe = case\nwhen a[0] = false, true\n :yes\nelse\n :no\nend\ncase :x\nwhen :x; a << :done\nend\np [blocked,safe,a]\n";
     let expected = "a=[]\nblocked = case\nwhen not # keep operand comment\n false\n :yes\nelse\n :no\nend\nsafe = if (a[0] = false) || true\n :yes\nelse\n :no\nend\ncase :x\nwhen :x then a << :done\nend\np [blocked,safe,a]\n";
@@ -633,10 +639,10 @@ fn uncertain_not_comment_edit_does_not_block_unrelated_safe_cli_fixes() {
         ],
         1,
     );
-    if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+    if let Ok(ruby) = crate::support::runtime::ruby() {
         assert!(
             String::from_utf8_lossy(&observe(&ruby, "print RUBY_VERSION").stdout)
-                .starts_with("3.4.")
+                .starts_with(crate::support::runtime::version_prefix())
         );
         for text in [source, expected] {
             let o = observe(&ruby, text);

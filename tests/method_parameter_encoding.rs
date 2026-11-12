@@ -136,7 +136,7 @@ fn encoded_sources_have_host_and_native_syntax_witnesses() {
     let crlf: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/method_parameter_crlf.json")).unwrap();
     for runtime in
-        std::iter::once(std::ffi::OsString::from("ruby")).chain(std::env::var_os("RUSTOCOP_RUBY34"))
+        std::iter::once(std::ffi::OsString::from("ruby")).chain(crate::support::runtime::ruby_os())
     {
         parallel_rows!(for row in fixture["encoded"]
             .as_array()

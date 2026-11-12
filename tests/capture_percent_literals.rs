@@ -466,7 +466,7 @@ fn source_observers_and_encoding_envelopes_still_have_no_edits() {
 }
 #[test]
 fn authored_native_values_stay_unchanged_without_invented_intention_repairs() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let dir = project();
@@ -499,7 +499,7 @@ fn authored_native_values_stay_unchanged_without_invented_intention_repairs() {
 }
 #[test]
 fn all_reference_rows_native_syntax_only_and_authored_parser_rejections_accounted() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     let syntax = |bytes: &[u8]| {
@@ -619,7 +619,7 @@ fn capture_name_reference_boundaries_exact_pipeline_cli_native_syntax_and_no_wri
                 assert_eq!(open_bytes, bytes);
             }
         }
-        if let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") {
+        if let Ok(ruby) = crate::support::runtime::ruby() {
             let mut child = Command::new(ruby)
                 .args(["--parser=prism", "-c", "-"])
                 .stdin(Stdio::piped())

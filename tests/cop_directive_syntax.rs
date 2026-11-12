@@ -455,7 +455,7 @@ fn repeated_markers_and_many_comments_do_not_require_root_rescans() {
 }
 #[test]
 fn native_ruby34_controlled_binding_evaluation_flow_values_and_positions_match() {
-    let Some(ruby) = std::env::var_os("RUSTOCOP_RUBY34") else {
+    let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
     let dir = project();

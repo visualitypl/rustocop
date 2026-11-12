@@ -524,7 +524,7 @@ fn canonical_stdin_is_detection_only_and_fix_rejected_without_touching_named_fil
 
 #[test]
 fn authored_native_warning_and_live_rescue_boundaries_are_independent_of_reference() {
-    let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {
+    let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
     // Separately authored closed programs, not loaded reference/corpus fixtures.
