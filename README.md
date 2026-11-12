@@ -68,9 +68,9 @@ only to Ruby versions older than 3.4; they stay registered but report nothing.
   [Fixed defaults](#fixed-defaults).
 - **Ruby 3.4 or 4.0.** Source is parsed with Ruby 3.4 grammar by default,
   including implicit `it`, argument forwarding and encoding comments. Ruby 4
-  only syntax is then a parse error. Set `ruby_version = "4.0"` in
-  `rustocop.toml` for code that runs on Ruby 4.0. Older Ruby versions are not
-  supported. See [Ruby version](#ruby-version).
+  only syntax is then a parse error. A project that declares Ruby 4.0 is
+  parsed with Ruby 4.0 grammar. Older Ruby versions are checked as Ruby 3.4.
+  See [Ruby version](#ruby-version).
 - **File-local analysis.** Every file is linted independently and in
   parallel. Cops that need cross-file state in RuboCop (for example
   `Lint/DuplicateMethods` across files) work within one file here.
@@ -204,7 +204,22 @@ ruby_version = "4.0"
 ```
 
 `ruby_version` names the Ruby version that the code runs on. The values are
-`"3.4"`, which is the default, and `"4.0"`. The version selects three things:
+`"3.4"` and `"4.0"`. Without this key, rustocop reads the version from the
+project. It looks at these files in this order, first in the directory of
+`rustocop.toml` (or the current directory when there is no config file), then
+in each parent directory up to the git root:
+
+1. `.ruby-version`
+2. `.tool-versions`
+3. `mise.toml`, then `.mise.toml`
+4. `Gemfile.lock`, then `gems.locked` (the `RUBY VERSION` section)
+
+Outside a git repository, rustocop reads the first directory only. A file
+that names no version, or another Ruby implementation such as JRuby, is
+skipped. A version older than 3.4 counts as 3.4, and a version newer than 4.0
+counts as 4.0. When no file names a version, the version is 3.4.
+
+The version selects three things:
 
 - the grammar. With `"4.0"`, a line can start with `&&` or `||`, and
   `private def name = command argument` is valid. With `"3.4"`, both are

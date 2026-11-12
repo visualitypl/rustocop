@@ -121,6 +121,68 @@ fn ruby_version_in_the_config_selects_the_grammar_and_the_cops() {
 }
 
 #[test]
+fn the_ruby_version_comes_from_project_files_unless_the_config_sets_it() {
+    let lock_4_0 = "GEM\n  specs:\n\nRUBY VERSION\n   ruby 4.0.9p0\n";
+    let accepts_ruby_4 = |files: &[(&str, &str)], cwd: &str| {
+        let mut all = vec![("app/a.rb", "foo\n  && bar\n")];
+        all.extend_from_slice(files);
+        let dir = project(&all);
+        let output = rustocop(&dir.path().join(cwd), &["--only", "Lint/Debugger"], "");
+        let stdout = String::from_utf8(output.stdout).unwrap();
+        match output.status.code() {
+            Some(0) => {
+                assert!(!stdout.contains("syntax error"), "{stdout}");
+                true
+            }
+            code => {
+                assert_eq!(code, Some(2), "{stdout}");
+                assert!(stdout.contains("syntax error on line 2:"), "{stdout}");
+                false
+            }
+        }
+    };
+
+    assert!(!accepts_ruby_4(&[], ""));
+    assert!(accepts_ruby_4(&[(".ruby-version", "4.0.9\n")], ""));
+    assert!(accepts_ruby_4(&[(".ruby-version", "4.0.9\n")], "app"));
+    assert!(accepts_ruby_4(&[(".tool-versions", "ruby 4.0.9\n")], ""));
+    assert!(accepts_ruby_4(
+        &[("mise.toml", "[tools]\nruby = \"4.0\"\n")],
+        ""
+    ));
+    assert!(accepts_ruby_4(&[("Gemfile.lock", lock_4_0)], ""));
+    assert!(accepts_ruby_4(
+        &[
+            (".ruby-version", "4.0.9\n"),
+            ("rustocop.toml", "exclude = []\n")
+        ],
+        ""
+    ));
+
+    assert!(!accepts_ruby_4(&[(".ruby-version", "3.4.1\n")], ""));
+    assert!(!accepts_ruby_4(&[(".ruby-version", "3.2.2\n")], ""));
+    assert!(!accepts_ruby_4(&[(".ruby-version", "jruby-9.4.8.0\n")], ""));
+    assert!(!accepts_ruby_4(
+        &[(".ruby-version", "3.4.1\n"), ("Gemfile.lock", lock_4_0)],
+        ""
+    ));
+    assert!(!accepts_ruby_4(
+        &[
+            (".ruby-version", "4.0.9\n"),
+            ("rustocop.toml", "ruby_version = \"3.4\"\n")
+        ],
+        ""
+    ));
+    assert!(accepts_ruby_4(
+        &[
+            (".ruby-version", "3.4.1\n"),
+            ("rustocop.toml", "ruby_version = \"4.0\"\n")
+        ],
+        ""
+    ));
+}
+
+#[test]
 fn ruby_4_logical_chains_are_syntax_errors_for_files_stdin_and_fix() {
     for operator in ["&&", "||"] {
         let source = format!("foo\n  {operator} bar\nfail\n");

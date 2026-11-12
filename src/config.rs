@@ -21,6 +21,8 @@ use anyhow::{Context, Result, bail};
 use globset::{Glob, GlobMatcher};
 use serde::Deserialize;
 
+mod ruby_version;
+
 use crate::{
     cops::{
         Cop, Registry,
@@ -106,23 +108,33 @@ impl Default for ResolvedConfig {
 
 impl ResolvedConfig {
     /// Load, discover, and validate the config. `None` config path means the
-    /// defaults.
+    /// defaults. Without a `ruby_version` setting, the Ruby version comes from
+    /// the project's version files, and is the default when there are none.
     pub fn load(registry: &Registry) -> Result<ResolvedConfig> {
-        let found = find_config()?;
-        match found {
-            Some((path, raw)) => ResolvedConfig::resolve(raw, Some(&path), registry),
-            None => {
-                let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-                Ok(ResolvedConfig {
-                    root,
+        let (mut config, version_is_set) = match find_config()? {
+            Some((path, raw)) => {
+                let version_is_set = raw.ruby_version.is_some();
+                (
+                    ResolvedConfig::resolve(raw, Some(&path), registry)?,
+                    version_is_set,
+                )
+            }
+            None => (
+                ResolvedConfig {
+                    root: std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
                     ruby_version: DEFAULT_RUBY_VERSION,
                     global_excludes: compile_globs(BUILTIN_EXCLUDES, "builtin excludes")?,
                     cop_settings: BTreeMap::new(),
                     params: BTreeMap::new(),
                     configured: BTreeMap::new(),
-                })
-            }
+                },
+                false,
+            ),
+        };
+        if !version_is_set && let Some(version) = ruby_version::detect(&config.root) {
+            config.ruby_version = version;
         }
+        Ok(config)
     }
 
     /// Validate the raw config against the cop registry and compile globs.
