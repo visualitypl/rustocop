@@ -89,7 +89,7 @@ const EDGE_CASES: &[(&str, bool)] = &[
     ("[not; false]", false),
 ];
 
-fn cases() -> impl Iterator<Item = (String, bool)> {
+pub(super) fn cases() -> impl Iterator<Item = (String, bool)> {
     CONTEXTS
         .iter()
         .flat_map(|&(context, command, not, chain)| {

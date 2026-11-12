@@ -74,6 +74,14 @@ pub struct RubyVersion(pub u8, pub u8);
 
 pub const DEFAULT_RUBY_VERSION: RubyVersion = RubyVersion(3, 4);
 
+pub const SUPPORTED_RUBY_VERSIONS: [RubyVersion; 2] = [RubyVersion(3, 4), RubyVersion(4, 0)];
+
+impl std::fmt::Display for RubyVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.{}", self.0, self.1)
+    }
+}
+
 /// Inclusive upstream min/max bounds. An absent bound is unbounded.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct RubyVersions {

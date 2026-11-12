@@ -16,6 +16,8 @@ module FixedPolicy
              .fetch("cops").to_h { |record| [record.fetch("name"), record] }.freeze
   LINT_DEFAULTS = LINT.transform_values { |record| record.fetch("upstream_defaults") }.freeze
   TARGET_RUBY = INVENTORY.fetch("fixed_target_ruby").to_f
+  # The versions `ruby_version` in rustocop.toml accepts; TARGET_RUBY is the default.
+  SUPPORTED_RUBY = [TARGET_RUBY, 4.0].freeze
   # These two unchanged upstream defaults are also explicit existing choices.
   EXISTING_KEYS = %w[AllowMultipleReturnValues AllowAsExpressionSeparator].freeze
   OPTIONS = STYLE.to_h do |name, record|
@@ -57,6 +59,12 @@ module FixedPolicy
 
     # A fixed-version-inactive cop remains selectable in rustocop, but must not
     # be compared to offenses expected under an unsupported, newer API contract.
+    # The Ruby version rustocop runs an example at: the spec's own version
+    # when rustocop supports it, otherwise the default.
+    def run_ruby(spec_version)
+      SUPPORTED_RUBY.include?(spec_version.to_f) ? spec_version.to_f : TARGET_RUBY
+    end
+
     def ruby_mismatch(name, spec_version)
       record = STYLE[name]
       if record
@@ -70,9 +78,10 @@ module FixedPolicy
       else
         return
       end
-      unless supports?(TARGET_RUBY, min, max)
+      run = run_ruby(spec_version)
+      unless supports?(run, min, max)
         bounds = [min && "requires Ruby >= #{min}", max && "requires Ruby <= #{max}"].compact.join(", ")
-        return "Ruby applicability: #{name} #{bounds}; rustocop is fixed at #{TARGET_RUBY}"
+        return "Ruby applicability: #{name} #{bounds}; rustocop runs this example at #{run}"
       end
       return if supports?(spec_version, min, max)
 

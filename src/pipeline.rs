@@ -1134,6 +1134,29 @@ pub(crate) fn lint_str_with(active: &[&dyn crate::cops::Cop], source: &str) -> V
     lint_str_in_mode(active, source, CorrectionMode::None)
 }
 
+#[cfg(test)]
+pub(crate) fn lint_str_at(
+    ruby_version: crate::cops::policy::RubyVersion,
+    active: &[&dyn crate::cops::Cop],
+    source: &str,
+) -> Vec<Offense> {
+    let config = ResolvedConfig {
+        ruby_version,
+        ..ResolvedConfig::default()
+    };
+    let report = lint_one_in_mode(
+        Path::new("test.rb"),
+        Path::new("test.rb"),
+        SourceInput::Memory(source.as_bytes()),
+        &CopSelection::explicit(active, &config),
+        &config,
+        CorrectionMode::Collect,
+    );
+    assert!(report.internal_errors.is_empty(), "{source:?}");
+    assert!(report.errors.is_empty(), "{source:?}: {:?}", report.errors);
+    report.result.offenses
+}
+
 /// The correction test seam: collect eligible corrections, but never write.
 #[cfg(test)]
 pub(crate) fn lint_str_with_corrections(

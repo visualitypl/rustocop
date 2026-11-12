@@ -3080,11 +3080,14 @@ class ConfigMismatchTest < Minitest::Test
   end
 
   def test_fixed_ruby_applicability_is_not_an_inert_config_key
-    [3.3, 3.4, 4.0].each do |target|
+    [3.3, 3.4].each do |target|
       config = { 'AllCops' => { 'TargetRubyVersion' => target },
                  'Style/ReverseFind' => DEFAULTS['Style/ReverseFind'] }
       assert_match(/requires Ruby >= 4.0/, mismatch('Style/ReverseFind', config).first.join)
     end
+    config = { 'AllCops' => { 'TargetRubyVersion' => 4.0 },
+               'Style/ReverseFind' => DEFAULTS['Style/ReverseFind'] }
+    assert_equal [nil, { 'ruby_version' => '4.0' }], mismatch('Style/ReverseFind', config)
     config = { 'AllCops' => { 'TargetRubyVersion' => 3.3 },
                'Style/ItBlockParameter' => DEFAULTS['Style/ItBlockParameter'] }
     assert_match(/Ruby applicability/, mismatch('Style/ItBlockParameter', config).first.join)

@@ -352,7 +352,9 @@ module Oracle
     end
 
     def toml_text(toml)
-      toml.sort.map do |section, values|
+      version = toml["ruby_version"]
+      head = version ? "ruby_version = #{version.inspect}\n" : ""
+      head + toml.reject { |section, _| section == "ruby_version" }.sort.map do |section, values|
         lines = values.sort.map { |key, value| "#{key} = #{value.inspect}" }
         "[cops.#{section.inspect}]\n#{lines.join("\n")}\n"
       end.join

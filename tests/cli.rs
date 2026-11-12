@@ -67,6 +67,60 @@ fn local_v1_version_exits_without_linting_or_loading_configuration() {
 }
 
 #[test]
+fn ruby_version_in_the_config_selects_the_grammar_and_the_cops() {
+    let source = "require 'pathname'\nlist.reverse.find { |x| x }\nfoo\n  && bar\n";
+    let cops = "Lint/RedundantRequireStatement,Style/ReverseFind";
+    let lint = |config: &str| {
+        let dir = project(&[("a.rb", source), ("rustocop.toml", config)]);
+        let output = rustocop(dir.path(), &["--only", cops, "a.rb"], "");
+        (
+            output.status.code(),
+            String::from_utf8(output.stdout).unwrap(),
+            String::from_utf8(output.stderr).unwrap(),
+        )
+    };
+
+    for config in ["", "ruby_version = \"3.4\"\n"] {
+        let (code, stdout, stderr) = lint(config);
+        assert_eq!(code, Some(2), "{stdout}{stderr}");
+        assert!(
+            stdout.contains("a.rb: error: syntax error on line 4:"),
+            "{stdout}"
+        );
+        assert!(
+            !stdout.contains("Lint/RedundantRequireStatement"),
+            "{stdout}"
+        );
+        assert!(!stdout.contains("Style/ReverseFind"), "{stdout}");
+    }
+
+    let (code, stdout, stderr) = lint("ruby_version = \"4.0\"\n");
+    assert_eq!(code, Some(1), "{stdout}{stderr}");
+    assert!(!stdout.contains("syntax error"), "{stdout}");
+    assert!(
+        stdout.contains(
+            "a.rb:1:1: E: Remove unnecessary `require` statement. (Lint/RedundantRequireStatement)"
+        ),
+        "{stdout}"
+    );
+    assert!(
+        stdout.contains("a.rb:2:6: C: Use `rfind` instead. (Style/ReverseFind)"),
+        "{stdout}"
+    );
+
+    for unsupported in ["3.3", "4.1", "latest"] {
+        let (code, stdout, stderr) = lint(&format!("ruby_version = \"{unsupported}\"\n"));
+        assert_eq!(code, Some(2), "{stdout}{stderr}");
+        assert!(stdout.is_empty(), "{stdout}");
+        assert!(
+            stderr.contains(&format!("unsupported `ruby_version = \"{unsupported}\"`")),
+            "{stderr}"
+        );
+        assert!(stderr.contains("use \"3.4\" or \"4.0\""), "{stderr}");
+    }
+}
+
+#[test]
 fn ruby_4_logical_chains_are_syntax_errors_for_files_stdin_and_fix() {
     for operator in ["&&", "||"] {
         let source = format!("foo\n  {operator} bar\nfail\n");

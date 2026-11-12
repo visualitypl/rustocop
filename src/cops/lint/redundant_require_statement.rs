@@ -1,18 +1,17 @@
 //! `Lint/RedundantRequireStatement` — flags `require` of a feature Ruby
 //! already loads at boot.
 //!
-//! Matches RuboCop's semantics for a fixed target of Ruby 3.4 (rustocop has
-//! no target-version setting): `enumerator`, `thread`,
-//! `rational`, `complex`, `ruby2_keywords`, `fiber` and `set` are redundant.
-//! `pathname` (preloaded from Ruby 4.0) is not flagged, so code that still
-//! runs on 3.x keeps its `require`. Only a receiverless `require` with one
+//! Matches RuboCop's semantics for the Ruby version of the run: `enumerator`,
+//! `thread`, `rational`, `complex`, `ruby2_keywords`, `fiber` and `set` are
+//! redundant. `pathname` is preloaded from Ruby 4.0, so it is redundant only
+//! when the run targets Ruby 4.0 or newer. Only a receiverless `require` with one
 //! plain string argument counts, as in RuboCop. The offense is reported at
 //! the call.
 
 use ruby_prism::Node;
 
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Cop, NodeContext, policy::RubyVersion},
     offense::Offense,
     source::SourceFile,
 };
@@ -64,7 +63,10 @@ impl Cop for RedundantRequireStatement {
         let Some(feature) = feature.as_string_node() else {
             return;
         };
-        if !REDUNDANT_FEATURES.contains(&feature.unescaped()) {
+        let feature = feature.unescaped();
+        let preloaded = REDUNDANT_FEATURES.contains(&feature)
+            || (feature == b"pathname" && file.ruby_version() >= RubyVersion(4, 0));
+        if !preloaded {
             return;
         }
         let (line, col) = super::array_literal_in_regexp::reference_line_col(
@@ -163,6 +165,19 @@ require 'uri'
         ] {
             assert!(offenses(source).is_empty(), "should not flag {source:?}");
         }
+    }
+
+    #[test]
+    fn pathname_is_redundant_from_ruby_4_0() {
+        let source = "require 'pathname'\nrequire 'set'\nrequire 'uri'\n";
+        let at = |version| {
+            crate::pipeline::lint_str_at(version, &[&RedundantRequireStatement], source)
+                .iter()
+                .map(|o| (o.line, o.col))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(at(RubyVersion(3, 4)), [(2, 1)]);
+        assert_eq!(at(RubyVersion(4, 0)), [(1, 1), (2, 1)]);
     }
 
     #[test]

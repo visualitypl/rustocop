@@ -24,7 +24,7 @@ use serde::Deserialize;
 use crate::{
     cops::{
         Cop, Registry,
-        policy::{DEFAULT_RUBY_VERSION, RubyVersion},
+        policy::{DEFAULT_RUBY_VERSION, RubyVersion, SUPPORTED_RUBY_VERSIONS},
     },
     offense::Department,
 };
@@ -39,6 +39,8 @@ pub const BUILTIN_EXCLUDES: &[&str] = &["db/schema.rb", "vendor/**", "node_modul
 #[derive(Deserialize, Debug, Default)]
 #[serde(deny_unknown_fields, default)]
 pub struct RawConfig {
+    /// The Ruby version the code runs on, as `"3.4"` or `"4.0"`.
+    pub ruby_version: Option<String>,
     /// Glob patterns for paths to skip, relative to the config file.
     pub exclude: Vec<String>,
     /// Per-cop or per-department settings, keyed by full cop name (`Lint/Debugger`)
@@ -132,6 +134,25 @@ impl ResolvedConfig {
         let root = match config_path.and_then(Path::parent) {
             Some(dir) if !dir.as_os_str().is_empty() => dir.to_path_buf(),
             _ => std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
+        };
+
+        let ruby_version = match raw.ruby_version {
+            None => DEFAULT_RUBY_VERSION,
+            Some(text) => SUPPORTED_RUBY_VERSIONS
+                .into_iter()
+                .find(|version| version.to_string() == text)
+                .with_context(|| {
+                    let supported: Vec<_> = SUPPORTED_RUBY_VERSIONS
+                        .iter()
+                        .map(|version| format!("\"{version}\""))
+                        .collect();
+                    format!(
+                        "unsupported `ruby_version = \"{text}\"` in {}; use {}",
+                        config_path
+                            .map_or_else(|| CONFIG_FILE_NAME.into(), |p| p.display().to_string()),
+                        supported.join(" or ")
+                    )
+                })?,
         };
 
         let mut cop_settings = BTreeMap::new();
@@ -312,7 +333,7 @@ impl ResolvedConfig {
 
         Ok(ResolvedConfig {
             root,
-            ruby_version: DEFAULT_RUBY_VERSION,
+            ruby_version,
             global_excludes,
             cop_settings,
             params,
@@ -387,6 +408,34 @@ mod tests {
     fn rejects_unknown_top_level_keys() {
         let raw: Result<RawConfig> = toml::from_str("unknown_key = true\n").context("test");
         assert!(raw.is_err());
+    }
+
+    #[test]
+    fn ruby_version_selects_a_supported_version_and_defaults_to_3_4() {
+        let registry = Registry::new();
+        let resolve = |text: &str| {
+            ResolvedConfig::resolve(toml::from_str(text).unwrap(), None, &registry)
+                .map(|config| config.ruby_version)
+        };
+        assert_eq!(resolve("").unwrap(), RubyVersion(3, 4));
+        assert_eq!(
+            resolve("ruby_version = \"3.4\"\n").unwrap(),
+            RubyVersion(3, 4)
+        );
+        assert_eq!(
+            resolve("ruby_version = \"4.0\"\n").unwrap(),
+            RubyVersion(4, 0)
+        );
+        for unsupported in ["3.3", "4.1", "4", "4.0.9", "latest", ""] {
+            let error = resolve(&format!("ruby_version = \"{unsupported}\"\n")).unwrap_err();
+            assert_eq!(
+                error.to_string(),
+                format!(
+                    "unsupported `ruby_version = \"{unsupported}\"` in rustocop.toml; use \"3.4\" or \"4.0\""
+                )
+            );
+        }
+        assert!(toml::from_str::<RawConfig>("ruby_version = 4.0\n").is_err());
     }
 
     #[test]

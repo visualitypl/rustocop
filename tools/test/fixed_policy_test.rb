@@ -131,7 +131,12 @@ class FixedPolicyTest < Minitest::Test
     assert_equal 3.4, FixedPolicy::TARGET_RUBY
     assert_nil FixedPolicy.ruby_mismatch("Style/ItBlockParameter", 3.4)
     assert_match(/Ruby applicability/, FixedPolicy.ruby_mismatch("Style/ItBlockParameter", 3.3))
-    assert_match(/requires Ruby >= 4.0/, FixedPolicy.ruby_mismatch("Style/ReverseFind", 4.0))
+    assert_equal [3.4, 4.0], FixedPolicy::SUPPORTED_RUBY
+    assert_equal 4.0, FixedPolicy.run_ruby(4.0)
+    assert_equal 3.4, FixedPolicy.run_ruby(3.3)
+    assert_equal 3.4, FixedPolicy.run_ruby(4.1)
+    assert_nil FixedPolicy.ruby_mismatch("Style/ReverseFind", 4.0)
+    assert_match(/requires Ruby >= 4.0/, FixedPolicy.ruby_mismatch("Style/ReverseFind", 3.4))
     assert_nil FixedPolicy.ruby_mismatch("Style/HashSlice", 3.3)
     assert_nil FixedPolicy.ruby_mismatch("Lint/Debugger", 3.3)
     assert_nil FixedPolicy.ruby_mismatch('Lint/SafeNavigationChain', 3.4)
@@ -150,7 +155,7 @@ class FixedPolicyTest < Minitest::Test
       'Lint/NonDeterministicRequireOrder' => 2.7
     }.each do |name, max|
       assert_match(/requires Ruby <= #{max}/, FixedPolicy.ruby_mismatch(name, max))
-      assert_match(/fixed at 3.4/, FixedPolicy.ruby_mismatch(name, 3.4))
+      assert_match(/runs this example at 3.4/, FixedPolicy.ruby_mismatch(name, 3.4))
     end
     names = FixedPolicy.implemented_cops
     FixedPolicy.stub(:implemented_cops, names - ['Lint/ItWithoutArgumentsInBlock']) do

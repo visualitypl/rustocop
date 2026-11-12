@@ -55,20 +55,22 @@ cops, 14 Layout cops (the line-break cops, `Layout/ClassStructure`,
 `Lint/NumberConversion`, `Lint/ShadowingOuterLocalVariable`,
 `Lint/UnusedPrivateMethod`), `Bundler/GemComment`, `Bundler/GemVersion`,
 `Gemspec/DependencyVersion`, `Naming/InclusiveLanguage` and
-`Style/FrozenStringLiteralComment` are opt-in. A few cops apply only to Ruby
-versions other than the fixed 3.4 target
-(`Security/YAMLLoad`, `Style/ReverseFind`, `Lint/ItWithoutArgumentsInBlock`,
-`Lint/UselessElseWithoutRescue`, `Lint/NonDeterministicRequireOrder`); they
-stay registered but report nothing.
+`Style/FrozenStringLiteralComment` are opt-in. A few cops apply only to some
+Ruby versions. `Style/ReverseFind` runs only when `ruby_version` is `"4.0"`.
+`Security/YAMLLoad`, `Lint/ItWithoutArgumentsInBlock`,
+`Lint/UselessElseWithoutRescue` and `Lint/NonDeterministicRequireOrder` apply
+only to Ruby versions older than 3.4; they stay registered but report nothing.
 
 ## How it differs from RuboCop
 
 - **One style.** Where RuboCop offers a choice (`EnforcedStyle`, thresholds,
   allow-lists), rustocop picks one and does not expose the setting. See
   [Fixed defaults](#fixed-defaults).
-- **Ruby 3.4 only.** Source is parsed with Ruby 3.4 grammar, including
-  implicit `it`, argument forwarding and encoding comments. Ruby 4 only syntax
-  is a parse error. There is no target version setting.
+- **Ruby 3.4 or 4.0.** Source is parsed with Ruby 3.4 grammar by default,
+  including implicit `it`, argument forwarding and encoding comments. Ruby 4
+  only syntax is then a parse error. Set `ruby_version = "4.0"` in
+  `rustocop.toml` for code that runs on Ruby 4.0. Older Ruby versions are not
+  supported. See [Ruby version](#ruby-version).
 - **File-local analysis.** Every file is linted independently and in
   parallel. Cops that need cross-file state in RuboCop (for example
   `Lint/DuplicateMethods` across files) work within one file here.
@@ -185,8 +187,8 @@ exclude = ["spec/support/**"]
 max = 100
 ```
 
-Validation is strict: unknown keys, unknown cops or departments and invalid
-globs are errors before any linting. Department tables accept only `enabled`.
+Validation is strict: unknown keys, unknown cops or departments, invalid
+globs and unsupported Ruby versions are errors before any linting. Department tables accept only `enabled`.
 `max` is accepted only by `Layout/LineLength`.
 
 Selection precedence, highest first: `--except`, `--only` (which also
@@ -194,6 +196,26 @@ force-enables opt-in cops), per-cop `enabled`, department `enabled`, the
 cop's default. `--only Style` enables the opt-in Style cops too, including
 ones that hold competing opinions. Unknown selectors are errors with a
 did-you-mean suggestion where possible.
+
+### Ruby version
+
+```toml
+ruby_version = "4.0"
+```
+
+`ruby_version` names the Ruby version that the code runs on. The values are
+`"3.4"`, which is the default, and `"4.0"`. The version selects three things:
+
+- the grammar. With `"4.0"`, a line can start with `&&` or `||`, and
+  `private def name = command argument` is valid. With `"3.4"`, both are
+  syntax errors, as in Ruby 3.4.
+- the cops that apply. `Style/ReverseFind` runs only with `"4.0"`, and
+  `Lint/RedundantRequireStatement` then also reports `require 'pathname'`.
+- the check of corrected code. `--fix` validates each correction with the
+  same grammar.
+
+The Ruby 4.0 grammar is compared with Ruby 4.0.9 in the tests. The tests that
+run corrected code compare it with Ruby 3.4.1 only.
 
 Cops with a fixed path policy (for example `Style/FrozenStringLiteralComment`
 skipping `*.arb` files) keep it even under `--only`, and the policy applies to
@@ -250,8 +272,8 @@ cargo test --test integration cli::
 ```
 
 **Tests in Docker.** The tests assume one environment: Ubuntu 24.04, its
-system Ruby 3.2 at `/usr/bin/ruby`, Ruby 3.4.1 built against the system
-OpenSSL, and the RuboCop checkout at the pinned revision.
+system Ruby 3.2 at `/usr/bin/ruby`, Ruby 3.4.1 and Ruby 4.0.9 built against
+the system OpenSSL, and the RuboCop checkout at the pinned revision.
 `tools/docker-test.sh` builds an image with exactly that and runs fmt, clippy
 and the tests in it. It gives the same result on every machine, and the
 oracle always runs there. Pass a command to run something else:
@@ -281,7 +303,8 @@ mise exec -- cargo test
 
 A native run covers less than the Docker run. The checks against Ruby 3.4.1
 run only when `RUSTOCOP_RUBY34` names its executable, and they need the Linux
-tools `timeout` and `prlimit`. On macOS some tests fail, because
+tools `timeout` and `prlimit`. The checks against Ruby 4.0 run only when
+`RUSTOCOP_RUBY40` names its executable. On macOS some tests fail, because
 `/usr/bin/ruby` is Ruby 2.6 there and the temporary directory sits behind a
 symlink.
 

@@ -1,4 +1,4 @@
-//! `Style/ReverseFind` — Ruby 4.0 `rfind` hints (inactive at fixed Ruby 3.4).
+//! `Style/ReverseFind` — Ruby 4.0 `rfind` hints (runs only when the Ruby version is 4.0).
 //! Unsafe for unknown/lazy receivers; never emits corrections.
 use crate::{
     cops::{Cop, NodeContext},

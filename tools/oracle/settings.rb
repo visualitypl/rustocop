@@ -1114,6 +1114,8 @@ module Oracle
         mismatches << 'Ruby behavior: implicit it binding differs before fixed Ruby 3.4'
       end
       toml = {}
+      run = FixedPolicy.run_ruby(target)
+      toml["ruby_version"] = run.to_s unless run == FixedPolicy::TARGET_RUBY
       sections = { cop => {} }.merge(config)
       sections.each do |section, values|
         next unless values.is_a?(Hash)

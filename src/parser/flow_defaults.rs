@@ -1,6 +1,6 @@
 //! Native Ruby 3.4 source-only flow/default scope regressions.
 #[path = "../../tests/support/flow_defaults.rs"]
-mod witnesses;
+pub(super) mod witnesses;
 
 use super::parse;
 

@@ -15,6 +15,8 @@ mod continuations;
 mod english_not;
 #[cfg(test)]
 mod flow_defaults;
+#[cfg(test)]
+mod ruby_4_0;
 pub(crate) mod tokens;
 pub(crate) use continuations::Continuation;
 
