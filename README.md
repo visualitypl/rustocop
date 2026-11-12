@@ -2,8 +2,8 @@
 
 A fast, opinionated Ruby linter written in Rust.
 
-rustocop ships 582 cops that behave like their RuboCop counterparts, but it
-makes the style decisions for you, needs no Ruby installation to run, and
+rustocop ships all 613 standard RuboCop cops. They behave like their RuboCop
+counterparts, but rustocop makes the style decisions for you, needs no Ruby installation to run, and
 lints thousands of files in a fraction of a second.
 
 ```
@@ -30,30 +30,33 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 
 ## Status
 
-Version 0.5.0, built from source; there is no published release yet.
+Version 1.0.0, built from source; there is no published release yet.
 
 | Department | Cops |
 | --- | ---: |
 | Style | 299 |
 | Lint | 160 |
-| Layout | 79 |
+| Layout | 100 |
 | Naming | 19 |
 | Gemspec | 10 |
+| Metrics | 10 |
 | Bundler | 7 |
 | Security | 7 |
-| Metrics | 1 |
+| Migration | 1 |
 
 Each cop matches the behaviour of its RuboCop 1.92.0 counterpart at
 rustocop's fixed settings and is verified against RuboCop's own spec examples
 (see [Development](#development)). Most cops are on by default; 34 Style
-cops, eleven Layout cops (the line-break cops,
-`Layout/MultilineAssignmentLayout`, `Layout/EmptyLineAfterMultilineCondition`
-and `Layout/HeredocArgumentClosingParenthesis`), five Lint cops
+cops, 14 Layout cops (the line-break cops, `Layout/ClassStructure`,
+`Layout/SingleLineBlockChain`, `Layout/MultilineAssignmentLayout`,
+`Layout/EmptyLineAfterMultilineCondition` and
+`Layout/HeredocArgumentClosingParenthesis`), five Lint cops
 (`Lint/ConstantResolution`, `Lint/HeredocMethodCallPosition`,
 `Lint/NumberConversion`, `Lint/ShadowingOuterLocalVariable`,
 `Lint/UnusedPrivateMethod`), `Bundler/GemComment`, `Bundler/GemVersion`,
 `Gemspec/DependencyVersion`, `Naming/InclusiveLanguage` and
-`Style/FrozenStringLiteralComment` are opt-in. A few cops apply only to Ruby versions other than the fixed 3.4 target
+`Style/FrozenStringLiteralComment` are opt-in. A few cops apply only to Ruby
+versions other than the fixed 3.4 target
 (`Security/YAMLLoad`, `Style/ReverseFind`, `Lint/ItWithoutArgumentsInBlock`,
 `Lint/UselessElseWithoutRescue`, `Lint/NonDeterministicRequireOrder`); they
 stay registered but report nothing.
@@ -69,9 +72,9 @@ stay registered but report nothing.
 - **File-local analysis.** Every file is linted independently and in
   parallel. Cops that need cross-file state in RuboCop (for example
   `Lint/DuplicateMethods` across files) work within one file here.
-- **Eight departments.** Metrics has only `Metrics/ParameterLists` so far, 21
-  Layout cops are still missing, and there is no support for extension gems
-  such as rubocop-rails or rubocop-rspec.
+- **Standard cops only.** All nine RuboCop departments are covered, with
+  Metrics thresholds fixed at RuboCop's defaults. There is no support for
+  extension gems such as rubocop-rails or rubocop-rspec.
 - **No unsafe autocorrect, formatter or server mode.**
 
 ## Installation

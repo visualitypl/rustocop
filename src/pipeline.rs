@@ -761,6 +761,26 @@ fn lint_file(
             }
         }
     }
+    // Per-pass precedence of upstream-incompatible companions
+    // (`Cop::autocorrect_deferred_to`): only companions' surviving edits defer.
+    let deferring: Vec<&str> = running
+        .iter()
+        .filter(|cop| {
+            cop.autocorrect_deferred_to().iter().any(|peer| {
+                offenses
+                    .iter()
+                    .any(|o| o.cop == *peer && o.correction.is_some())
+            })
+        })
+        .map(|cop| cop.name())
+        .collect();
+    if !deferring.is_empty() {
+        for offense in &mut offenses {
+            if deferring.contains(&offense.cop) {
+                offense.correction = None;
+            }
+        }
+    }
     if mode != CorrectionMode::None && offenses.iter().any(|o| o.correction.is_some()) {
         report.heredoc_boundaries = file.cached_heredoc_boundaries().cloned();
     }

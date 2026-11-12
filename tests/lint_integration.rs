@@ -154,6 +154,37 @@ fn all160_defaults_versions_severity_ownership_and_exact_current520_projection()
         "Layout/MultilineHashBraceLayout",
         "Layout/MultilineMethodCallBraceLayout",
         "Layout/MultilineMethodDefinitionBraceLayout",
+        "Layout/MultilineBlockLayout",
+        "Layout/BlockEndNewline",
+        "Layout/SingleLineBlockChain",
+        "Layout/RedundantLineBreak",
+        "Layout/LineContinuationLeadingSpace",
+        "Layout/LineContinuationSpacing",
+        "Layout/LineEndStringConcatenationIndentation",
+        "Layout/SpaceAfterColon",
+        "Layout/SpaceAfterMethodName",
+        "Layout/SpaceAfterNot",
+        "Layout/SpaceAroundKeyword",
+        "Layout/SpaceAroundMethodCallOperator",
+        "Layout/SpaceAroundBlockParameters",
+        "Layout/SpaceInLambdaLiteral",
+        "Layout/SpaceBeforeBlockBraces",
+        "Layout/SpaceBeforeBrackets",
+        "Layout/SpaceInsideArrayPercentLiteral",
+        "Layout/SpaceInsidePercentLiteralDelimiters",
+        "Layout/SpaceInsideRangeLiteral",
+        "Layout/SpaceInsideStringInterpolation",
+        "Layout/ClassStructure",
+        "Metrics/MethodLength",
+        "Metrics/BlockLength",
+        "Metrics/ClassLength",
+        "Metrics/ModuleLength",
+        "Metrics/BlockNesting",
+        "Metrics/CollectionLiteralLength",
+        "Metrics/CyclomaticComplexity",
+        "Metrics/PerceivedComplexity",
+        "Metrics/AbcSize",
+        "Migration/DepartmentName",
         "Bundler/DuplicatedGem",
         "Bundler/DuplicatedGroup",
         "Bundler/GemComment",
@@ -191,7 +222,7 @@ fn all160_defaults_versions_severity_ownership_and_exact_current520_projection()
             assert_eq!(actual, r[key].as_f64(), "{name}/{key}");
         }
     }
-    assert_eq!(env!("CARGO_PKG_VERSION"), "0.5.0");
+    assert_eq!(env!("CARGO_PKG_VERSION"), "1.0.0");
 }
 
 #[test]

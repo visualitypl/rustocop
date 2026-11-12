@@ -1,6 +1,7 @@
 //! Cross-family regression for the shared correction emission boundary.
 mod code_objects;
 mod heap;
+mod listed_observers;
 mod positions;
 mod style_emission;
 use super::{Cop, NodeContext, Registry, run_cops};
@@ -260,10 +261,12 @@ fn finite_io_and_enumerable_surface_includes_alias_reflective_and_deferred_reads
                 .replace("DATA", "ARGF");
             let found = collect(&cop, &argf);
             assert!(found[0].correction.is_none(), "{argf}");
-            // The very same consumer without repositioning sees only payload.
+            // The very same consumer without repositioning sees only payload,
+            // but DATA with a data section is the listed observer:
+            // the original Layout cop's edit is withheld.
             let payload_only = source.replace("DATA.rewind; ", "");
             let found = collect(&cop, &payload_only);
-            assert!(found[0].correction.is_some(), "{payload_only}");
+            assert!(found[0].correction.is_none(), "{payload_only}");
         }
     }
 }
@@ -355,10 +358,19 @@ fn constructor_uncertainty_is_not_a_non_io_proof() {
         "tp = TracePoint.new(:line) { |t| p t.path }; p __FILE__",
         "p [__FILE__].map(&:itself)",
     ] {
-        let source = format!("x = 1  \n{observer}\n");
-        let found = collect(&cop, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_some(), "{source}");
+        // The bare listed `__FILE__` withholds every
+        // cop's edit. The constructor barrier itself still admits the edit when
+        // the path comes from an unlisted acquisition.
+        for cop in [&cop as &dyn super::Cop, &super::style::StringLiterals] {
+            let source = format!("x = 'hi'  \n{observer}\n");
+            let found = collect(cop, &source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert!(found[0].correction.is_none(), "{source}");
+            let source = source.replace("__FILE__", "Process.argv0");
+            let found = collect(cop, &source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert!(found[0].correction.is_some(), "{source}");
+        }
     }
 }
 
@@ -488,6 +500,26 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
         "x = { a: 1,\n  b: 2\n}\n",
         "foo(1,\n  2\n)\n",
         "def f(a,\n  b\n); end\n",
+        "foo do 1\nend\n",
+        "foo do\n  1 end\n",
+        "x = [1].map { 1 }.size\n",
+        "x = 1\\\n  + 2\n",
+        "x = 'a' \\\n  ' b'\n",
+        "x = 'a' \\\n  'b'\n",
+        "x = {a:1}\n",
+        "def f (x); end\n",
+        "x = ! a\n",
+        "x = 1if a\n",
+        "a . b\n",
+        "f { | a| a }\n",
+        "f = -> (a) { a }\n",
+        "f{ 1 }\n",
+        "@a [0]\n",
+        "x = %w(a  b)\n",
+        "x = %w( a)\n",
+        "x = 1 .. 2\n",
+        "x = \"#{ 1}\"\n",
+        "# rubocop:disable Alias\nx = 1\n",
     ];
     let registry = Registry::new();
     let dir = tempfile::tempdir().unwrap();
@@ -552,6 +584,19 @@ fn every_registered_safe_family_uses_shared_observer_barriers() {
                 let found = collect(cop.as_ref(), "if ready; work; end\n");
                 assert_eq!(found.len(), 1);
                 assert!(found[0].correction.is_none());
+                continue;
+            }
+            if let Some(subject) = match cop.name() {
+                "Style/Dir" => Some("p File.expand_path(File.dirname(__FILE__))\n"),
+                "Style/ExpandPathArguments" => Some("p File.expand_path('..', __FILE__)\n"),
+                _ => None,
+            } {
+                // Every edit of these cops
+                // rewrites a listed `__FILE__`, so the file always holds a
+                // listed observer and every correction is withheld.
+                let found = collect(cop.as_ref(), subject);
+                assert_eq!(found.len(), 1, "{}", cop.name());
+                assert!(found[0].correction.is_none(), "{}", cop.name());
                 continue;
             }
             missing.push(cop.name());

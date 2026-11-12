@@ -158,7 +158,7 @@
   },
   {
     "name": "Style/DisableCopsWithinSourceCodeDirective",
-    "before": "work # rustocop:todo Metrics/AbcSize\n",
+    "before": "work # rustocop:todo Migration/Nonexistent\n",
     "after": "work \n",
     "origin": "tests/fixtures/style_evidence.json"
   },

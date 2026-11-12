@@ -230,6 +230,14 @@ fn stdin_reports_without_writing_and_rejects_fix() {
         stdin_support::write_stdin(child.stdin.take().unwrap(), SOURCE.as_bytes(), fix).unwrap();
         let out = child.wait_with_output().unwrap();
         assert_eq!(out.status.code(), Some(if fix { 2 } else { 1 }), "{out:?}");
+        if fix {
+            assert!(out.stdout.is_empty(), "{out:?}");
+            assert!(
+                String::from_utf8_lossy(&out.stderr)
+                    .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                "{out:?}"
+            );
+        }
         if !fix {
             assert!(String::from_utf8_lossy(&out.stdout).contains("a.rb:1:1:"));
         }

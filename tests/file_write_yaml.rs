@@ -353,6 +353,11 @@ fn headers_data_line_values_legacy_bytes_disabled_spans_and_errors_never_get_los
             "\u{feff}# encoding: UTF-8\r\nrequire 'yaml'\r\np YAML.load_file(File::NULL) # keep\r\np __LINE__\r\np DATA.read.bytes\r\n__END__\r\nraw\0\r\n",
         ),
     ] {
+        // Reading `DATA` is a listed observer: that file keeps its
+        // finding and bytes. The unread data section survives.
+        unchanged(dir.path(), cop, source.as_bytes(), 1);
+        let source = &source.replace("p DATA.read.bytes\r\n", "p :data\r\n");
+        let expected = expected.replace("p DATA.read.bytes\r\n", "p :data\r\n");
         fs::write(dir.path().join("a.rb"), source).unwrap();
         let before = has_ruby().then(|| ruby(dir.path()));
         fix(dir.path(), cop, 0);

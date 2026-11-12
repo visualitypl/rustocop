@@ -100,7 +100,7 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
         .iter()
         .filter(|c| c.name().starts_with("Layout/"))
         .collect();
-    assert_eq!(layout.len(), 79);
+    assert_eq!(layout.len(), 100);
     let expected: HashSet<_> = CANONICAL
         .iter()
         .map(|(name, _, _)| format!("Layout/{name}"))
@@ -164,6 +164,27 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
             "Layout/MultilineHashBraceLayout".into(),
             "Layout/MultilineMethodCallBraceLayout".into(),
             "Layout/MultilineMethodDefinitionBraceLayout".into(),
+            "Layout/MultilineBlockLayout".into(),
+            "Layout/BlockEndNewline".into(),
+            "Layout/SingleLineBlockChain".into(),
+            "Layout/RedundantLineBreak".into(),
+            "Layout/LineContinuationLeadingSpace".into(),
+            "Layout/LineContinuationSpacing".into(),
+            "Layout/LineEndStringConcatenationIndentation".into(),
+            "Layout/SpaceAfterColon".into(),
+            "Layout/SpaceAfterMethodName".into(),
+            "Layout/SpaceAfterNot".into(),
+            "Layout/SpaceAroundKeyword".into(),
+            "Layout/SpaceAroundMethodCallOperator".into(),
+            "Layout/SpaceAroundBlockParameters".into(),
+            "Layout/SpaceInLambdaLiteral".into(),
+            "Layout/SpaceBeforeBlockBraces".into(),
+            "Layout/SpaceBeforeBrackets".into(),
+            "Layout/SpaceInsideArrayPercentLiteral".into(),
+            "Layout/SpaceInsidePercentLiteralDelimiters".into(),
+            "Layout/SpaceInsideRangeLiteral".into(),
+            "Layout/SpaceInsideStringInterpolation".into(),
+            "Layout/ClassStructure".into(),
         ])
         .collect();
     assert_eq!(
@@ -175,10 +196,10 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
     );
     for cop in layout {
         // HeredocArgumentClosingParenthesis, MultilineAssignmentLayout,
-        // EmptyLineAfterMultilineCondition, the first-element line breaks
-        // and the multi-line item line breaks are opt-in upstream; all but
-        // the first are
-        // never enabled by a department selection.
+        // EmptyLineAfterMultilineCondition, the first-element line breaks,
+        // the multi-line item line breaks, SingleLineBlockChain,
+        // RedundantLineBreak and ClassStructure are opt-in upstream; all
+        // but the first are never enabled by a department selection.
         let opt_in = matches!(
             cop.name(),
             "Layout/HeredocArgumentClosingParenthesis"
@@ -192,6 +213,9 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
                 | "Layout/MultilineHashKeyLineBreaks"
                 | "Layout/MultilineMethodArgumentLineBreaks"
                 | "Layout/MultilineMethodParameterLineBreaks"
+                | "Layout/SingleLineBlockChain"
+                | "Layout/RedundantLineBreak"
+                | "Layout/ClassStructure"
         );
         assert_eq!(cop.default_enabled(), !opt_in, "{}", cop.name());
         assert_eq!(
@@ -208,14 +232,21 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
                     | "Layout/MultilineHashKeyLineBreaks"
                     | "Layout/MultilineMethodArgumentLineBreaks"
                     | "Layout/MultilineMethodParameterLineBreaks"
+                    | "Layout/SingleLineBlockChain"
+                    | "Layout/RedundantLineBreak"
+                    | "Layout/ClassStructure"
             ),
             "{}",
             cop.name()
         );
-        // EndOfLine is detection-only upstream, like LineLength.
+        // EndOfLine is detection-only upstream, like LineLength;
+        // the ClassStructure reorder is unsafe upstream.
         assert_eq!(
             cop.safe_fixes(),
-            !matches!(cop.name(), "Layout/LineLength" | "Layout/EndOfLine")
+            !matches!(
+                cop.name(),
+                "Layout/LineLength" | "Layout/EndOfLine" | "Layout/ClassStructure"
+            )
         );
         assert_eq!(
             cop.max_setting(),
@@ -528,9 +559,15 @@ fn mixed_layout_and_style_converge_without_cycles_or_runtime_changes() {
     // Naming/RescuedExceptionsVariableName adds safe renames in v0.5;
     // The Naming rename cops separately test current default composition. Keep this historical
     // convergence assertion about the v0.3 correcting set.
+    // SpaceAroundBlockParameters and
+    // SpaceBeforeBlockBraces (v1.0) would add blanks around the fixture's
+    // `map{ |entry|`; tests/block_bracket_spacing.rs covers them.
+    // SpaceInsideStringInterpolation (v1.0) would remove the
+    // blanks of the fixture's `#{ "message".upcase }`;
+    // tests/literal_spacing.rs covers it.
     let dir = project(
         before,
-        "[cops.\"Style/GuardClause\"]\nenabled = false\n[cops.\"Style/IfUnlessModifier\"]\nenabled = false\n[cops.\"Style/Documentation\"]\nenabled = false\n[cops.\"Style/MapJoin\"]\nenabled = false\n[cops.\"Style/SymbolProc\"]\nenabled = false\n[cops.\"Style/NumericPredicate\"]\nenabled = false\n[cops.\"Style/RescueStandardError\"]\nenabled = false\n[cops.\"Naming/RescuedExceptionsVariableName\"]\nenabled = false\n",
+        "[cops.\"Layout/SpaceInsideStringInterpolation\"]\nenabled = false\n[cops.\"Layout/SpaceAroundBlockParameters\"]\nenabled = false\n[cops.\"Layout/SpaceBeforeBlockBraces\"]\nenabled = false\n[cops.\"Style/GuardClause\"]\nenabled = false\n[cops.\"Style/IfUnlessModifier\"]\nenabled = false\n[cops.\"Style/Documentation\"]\nenabled = false\n[cops.\"Style/MapJoin\"]\nenabled = false\n[cops.\"Style/SymbolProc\"]\nenabled = false\n[cops.\"Style/NumericPredicate\"]\nenabled = false\n[cops.\"Style/RescueStandardError\"]\nenabled = false\n[cops.\"Naming/RescuedExceptionsVariableName\"]\nenabled = false\n",
     );
     let path = dir.path().join("x.rb");
     let plain = cli(dir.path(), &["x.rb"]);

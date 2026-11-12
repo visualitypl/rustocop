@@ -85,26 +85,30 @@ fn source_node_leave_positions_filter_each_delta_not_whole_files() {
     ] {
         position_edit(&format!("1\n{observer}\n"), 0..1, "2", false);
     }
+    // A listed observer (`__FILE__`,
+    // `DATA` with a data section, `caller_locations`, `source_location`)
+    // withholds every edit, even one the position barrier would admit.
     position_edit(
         "1\np [__FILE__, File.size('unrelated')]\n",
         0..1,
         "22",
-        true,
+        false,
     );
     for observer in [
         "p DATA.pos\n__END__\npayload",
         "p DATA.tell\n__END__\npayload",
         "p File.size(__FILE__)",
-    ] {
-        let source = format!("1\n{observer}\n");
-        position_edit(&source, 0..1, "22", false);
-        position_edit(&source, 0..1, "2", true);
-    }
-    for observer in [
-        "p __LINE__",
         "p DATA.lineno\n__END__\npayload",
         "p caller_locations(0)",
         "p method(:f).source_location",
+    ] {
+        let source = format!("1\n{observer}\n");
+        position_edit(&source, 0..1, "22", false);
+        position_edit(&source, 0..1, "2", false);
+        position_edit(&source, 1..2, "\n\n", false);
+    }
+    for observer in [
+        "p __LINE__",
         "TracePoint.new {}",
         "Object.const_get(:TracePoint).new {}",
         "Object.const_get('::TracePoint').new {}",
@@ -133,12 +137,21 @@ fn source_node_leave_positions_filter_each_delta_not_whole_files() {
 fn filesystem_uncertainty_is_shared_by_source_node_and_leave_emissions() {
     for observer in [
         "p File.size(File.join(__dir__, 'case.rb'))",
+        "File.symlink(__FILE__, 'alias'); p File.size('alias')",
+    ] {
+        // Listed `__dir__` / `__FILE__`: every edit is held.
+        let source = format!("1\n{observer}\n");
+        position_edit(&source, 0..1, "22", false);
+        position_edit(&source, 0..1, "2", false);
+    }
+    for observer in [
+        "p File.size(File.join(Dir.pwd, 'case.rb'))",
         "p File.size('case' + '.rb')",
         "p test(?s, 'case' + '.rb')",
         "F = File; p F.size(path)",
         "p File.stat(path).size",
         "p File.send(:stat, path).public_send(:size)",
-        "File.symlink(__FILE__, 'alias'); p File.size('alias')",
+        "File.symlink(path, 'alias'); p File.size('alias')",
     ] {
         let source = format!("1\n{observer}\n");
         position_edit(&source, 0..1, "22", false);
@@ -173,11 +186,19 @@ fn filesystem_uncertainty_is_shared_by_source_node_and_leave_emissions() {
         "p DATA.stat.file?\n__END__\npayload",
         "p File.stat(__FILE__).ftype",
         "p File.lstat(__FILE__).symlink?",
+        "p [__FILE__, Dir.children('.').size, [1].size, {a: 1}.size]",
+    ] {
+        // Listed observers: every edit is held.
+        position_edit(&format!("1\n{observer}\n"), 0..1, "22", false);
+    }
+    for observer in [
+        "p File.stat(path).ftype",
+        "p File.lstat(path).symlink?",
         "p File.stat('unrelated')",
         "p File.atime('unrelated')",
         "p File.identical?('other', 'unrelated')",
         "p test(?=, 'other', 'unrelated')",
-        "p [__FILE__, Dir.children('.').size, [1].size, {a: 1}.size]",
+        "p [Dir.children('.').size, [1].size, {a: 1}.size]",
     ] {
         position_edit(&format!("1\n{observer}\n"), 0..1, "22", true);
     }
@@ -223,9 +244,11 @@ fn relative_symlink_acquisition_invalidates_unrelated_paths() {
         "getter = :ln_sr.to_proc",
         "class << FileUtils; alias make_alias ln_sr; end",
     ] {
+        // A listed `__FILE__` holds every edit.
+        let listed = acquisition.contains("__FILE__");
         let source = format!("1\n{acquisition}; p File.size('alias')\n");
         position_edit(&source, 0..1, "22", false);
-        position_edit(&source, 0..1, "2", true);
+        position_edit(&source, 0..1, "2", !listed);
         let source = format!("1\n{acquisition}; p File.mtime('alias')\n");
         position_edit(&source, 0..1, "2", false);
     }
@@ -249,13 +272,17 @@ fn move_alias_acquisition_filters_source_node_and_leave_by_metadata_delta() {
             format!("include FileUtils; {name}(__FILE__, 'alias')"),
             format!("def later; FileUtils.{name}(__FILE__, 'alias'); end"),
         ] {
+            // A listed `__FILE__` holds every edit.
+            let listed = acquisition.contains("__FILE__");
             let source = format!("1\n{acquisition}; p File.size('alias')\n");
             position_edit(&source, 0..1, "22", false);
-            position_edit(&source, 0..1, "2", true);
+            position_edit(&source, 0..1, "2", !listed);
             let source = format!("1\n{acquisition}; p File.mtime('alias')\n");
             position_edit(&source, 0..1, "2", false);
         }
         let projection = format!("FileUtils.{name}(__FILE__, 'alias'); p File.stat('alias').size");
+        position_edit(&format!("1\n{projection}\n"), 0..1, "2", false);
+        let projection = format!("FileUtils.{name}(path, 'alias'); p File.stat('alias').size");
         position_edit(&format!("1\n{projection}\n"), 0..1, "2", true);
         // A visible load revokes the existing independent heap metadata
         // exemption; equal bytes are only the positional half of the proof.
@@ -288,16 +315,25 @@ fn parsed_line_markers_inside_atomic_spans_keep_their_own_ordinals() {
 
 #[test]
 fn inert_metadata_spellings_and_unrelated_handles_do_not_block_edits() {
+    // Listed observers hold every edit; the
+    // symbol `:source_location` is a conservative listed selector.
     for observer in [
         "p [:pos, :tell, :mtime, :source_location]",
+        "p [__FILE__, test(?s, '/dev/null'), File.send(:size, '/dev/null')]",
+        "p DATA.read\n__END__\npayload DATA.pos __LINE__",
+    ] {
+        position_edit(&format!("1\n{observer}\n"), 0..1, "22", false);
+        position_edit(&format!("1\n{observer}\n"), 1..2, "\n\n", false);
+    }
+    for observer in [
+        "p [:pos, :tell, :mtime]",
         "p 'DATA.pos __LINE__ File.mtime(__FILE__)'",
         "# DATA.tell __LINE__ caller_locations",
         "p File.size('/dev/null')",
-        "p [__FILE__, test(?s, '/dev/null'), File.send(:size, '/dev/null')]",
+        "p [test(?s, '/dev/null'), File.send(:size, '/dev/null')]",
         "p Object.const_get(:String)",
         "p :TracePoint",
         "def pos; 1; end; p pos",
-        "p DATA.read\n__END__\npayload DATA.pos __LINE__",
     ] {
         position_edit(&format!("1\n{observer}\n"), 0..1, "22", true);
         position_edit(&format!("1\n{observer}\n"), 1..2, "\n\n", true);
@@ -306,9 +342,10 @@ fn inert_metadata_spellings_and_unrelated_handles_do_not_block_edits() {
 
 #[test]
 fn data_positions_depend_on_prefix_not_unobserved_payload_edits() {
+    // `DATA` with a data section is listed: every edit is held.
     let source = "p DATA.pos\n__END__\npayload\n";
     let start = source.find("payload").unwrap();
-    position_edit(source, start..start + 7, "longer payload", true);
+    position_edit(source, start..start + 7, "longer payload", false);
     let source = "p __LINE__\n1\n";
     position_edit(source, source.len()..source.len(), "\n", true);
 }

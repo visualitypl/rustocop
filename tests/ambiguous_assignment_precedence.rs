@@ -107,7 +107,7 @@ fn defaults_selectors_department_precedence_and_no_write() {
 #[test]
 fn fixed_policy_and_only_real_names_are_admitted() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for (name, safe) in [(ASSIGN, false), (PREC, true)] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled());

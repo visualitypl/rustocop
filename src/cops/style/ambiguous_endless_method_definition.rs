@@ -387,8 +387,14 @@ mod tests {
         assert!(found[0].correction.is_none());
         assert_correction(
             &AmbiguousEndlessMethodDefinition,
+            "def f = :backtrace if true\np [:full_message, :backtrace_locations].map(&:to_s)\n",
+            "def f\n  :backtrace\nend if true\np [:full_message, :backtrace_locations].map(&:to_s)\n",
+        );
+        // A `:source_location` selector is a listed observer
+        // (conservatively, also as data): every edit is held.
+        crate::cops::testing::assert_listed_hold(
+            &AmbiguousEndlessMethodDefinition,
             "def f = :backtrace if true\np [:full_message, :source_location].map(&:to_s)\n",
-            "def f\n  :backtrace\nend if true\np [:full_message, :source_location].map(&:to_s)\n",
         );
     }
     #[test]

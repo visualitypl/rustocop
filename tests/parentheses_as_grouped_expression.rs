@@ -228,7 +228,9 @@ fn every_original_byte_row_matches_rebuilt_cli_and_correction_pipeline() {
             );
         }
     });
-    assert_eq!(edits.load(Ordering::Relaxed), 87);
+    // 87 historical edit rows less 10 whose bytes hold a listed
+    // observer: the pipeline withholds those edits.
+    assert_eq!(edits.load(Ordering::Relaxed), 77);
 }
 #[test]
 fn canonical_bytes_atomic_idempotence_and_encoding() {

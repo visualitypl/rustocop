@@ -10,6 +10,9 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 const COP: &str = "Lint/RedundantCopEnableDirective";
 const BEFORE: &str = "foo\n# rubocop:enable Layout/LineLength\n";
 const STDIN_FIX_ERROR: &str = concat!(
@@ -32,13 +35,6 @@ fn cli(root: &Path, args: &[&str], code: i32) -> Output {
         .unwrap();
     assert_eq!(out.status.code(), Some(code), "{args:?}: {out:?}");
     out
-}
-// Only the --stdin --fix rejection may close stdin before the test writes.
-fn rejected_stdin_write(result: io::Result<()>) -> io::Result<()> {
-    match result {
-        Err(err) if err.kind() == io::ErrorKind::BrokenPipe => Ok(()),
-        other => other,
-    }
 }
 fn fix(root: &Path, before: &[u8], after: &[u8]) {
     let path = root.join("lib/a.rb");
@@ -291,14 +287,11 @@ fn defaults_selectors_strict_toml_and_supplied_stdin_path() {
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
-        let write = child.stdin.take().unwrap().write_all(BEFORE.as_bytes());
-        // This exact invocation rejects stdin before reading; accepted stdin
-        // writes must succeed, with even BrokenPipe remaining fatal.
-        if args == ["--only", COP, "--stdin", "lib/a.rb", "--fix"] {
-            rejected_stdin_write(write).unwrap();
-        } else {
-            write.unwrap();
-        }
+        // Only the asserted `--stdin --fix` rejection (exit 2) may close stdin
+        // before reading; accepted stdin writes must succeed, with even
+        // BrokenPipe remaining fatal.
+        stdin_support::write_stdin(child.stdin.take().unwrap(), BEFORE.as_bytes(), code == 2)
+            .unwrap();
         let out = child.wait_with_output().unwrap();
         assert_eq!(out.status.code(), Some(code), "{out:?}");
         if code == 1 {
@@ -338,7 +331,7 @@ fn stdin_fix_rejection_handles_a_deterministically_closed_pipe() {
         write.as_ref().unwrap_err().kind(),
         io::ErrorKind::BrokenPipe
     );
-    rejected_stdin_write(write).unwrap();
+    stdin_support::write_stdin(stdin, BEFORE.as_bytes(), true).unwrap();
     assert_eq!(out.status.code(), Some(2), "{out:?}");
     assert!(out.stdout.is_empty(), "{out:?}");
     assert_eq!(String::from_utf8(out.stderr).unwrap(), STDIN_FIX_ERROR);
@@ -348,14 +341,30 @@ fn stdin_fix_rejection_handles_a_deterministically_closed_pipe() {
     assert_eq!(new.permissions(), old.permissions());
 }
 #[test]
-fn rejected_stdin_write_preserves_other_errors_and_success() {
-    rejected_stdin_write(Ok(())).unwrap();
+fn shared_stdin_guard_preserves_other_errors_and_success() {
+    /// Fails every write with one error kind, as a closed or broken stdin would.
+    struct Failing(io::ErrorKind);
+    impl Write for Failing {
+        fn write(&mut self, _: &[u8]) -> io::Result<usize> {
+            Err(io::Error::new(self.0, "stdin control"))
+        }
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut delivered = Vec::new();
+    stdin_support::write_stdin(&mut delivered, BEFORE.as_bytes(), true).unwrap();
+    assert_eq!(delivered, BEFORE.as_bytes());
+    stdin_support::write_stdin(Failing(io::ErrorKind::BrokenPipe), b"x", true).unwrap();
+    let err =
+        stdin_support::write_stdin(Failing(io::ErrorKind::BrokenPipe), b"x", false).unwrap_err();
+    assert_eq!(err.kind(), io::ErrorKind::BrokenPipe);
     for kind in [
         io::ErrorKind::PermissionDenied,
         io::ErrorKind::WriteZero,
         io::ErrorKind::Other,
     ] {
-        let err = rejected_stdin_write(Err(io::Error::new(kind, "stdin control"))).unwrap_err();
+        let err = stdin_support::write_stdin(Failing(kind), b"x", true).unwrap_err();
         assert_eq!(err.kind(), kind);
         assert_eq!(err.to_string(), "stdin control");
     }

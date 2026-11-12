@@ -175,9 +175,13 @@ fn quote(path: &str) -> String {
 mod tests {
     //! Examples ported from RuboCop's style/expand_path_arguments_spec.rb
     //! (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+    //!
+    //! Every target names `__FILE__`, a listed source observer,
+    //! so every edit is withheld and the finding stays
+    //! (`assert_listed_hold`).
     use super::*;
     use crate::{
-        cops::testing::{assert_correction, correction_offenses},
+        cops::testing::{assert_listed_hold, correction_offenses},
         pipeline::lint_str,
     };
 
@@ -228,11 +232,11 @@ mod tests {
             let source = format!("{binding}\nFile.expand_path('..', __FILE__)\n");
             // Unknown evaluated Ruby can return/acquire VM factories even
             // when it does not affect this cop's own File binding.
-            assert_eq!(
+            // The listed `__FILE__` withholds every edit.
+            assert!(
                 correction_offenses(&ExpandPathArguments, &source)[0]
                     .correction
-                    .is_some(),
-                binding != "Pathname.class_eval(dynamic)",
+                    .is_none(),
                 "{source}"
             );
         }
@@ -240,16 +244,14 @@ mod tests {
     #[test]
     fn decoded_literal_variants_and_source_headers() {
         for literal in ["%q(../..)", "\"..\\x2f..\"", "'./../..'", "\"./../..\""] {
-            assert_correction(
+            assert_listed_hold(
                 &ExpandPathArguments,
                 &format!("File.expand_path({literal}, __FILE__)"),
-                "File.expand_path('..', __dir__)",
             );
         }
-        assert_correction(
+        assert_listed_hold(
             &ExpandPathArguments,
             "\u{feff}# encoding: UTF-8\r\nFile.expand_path('../..', __FILE__)\r\np __LINE__\r\n__END__\r\nraw\r\n",
-            "\u{feff}# encoding: UTF-8\r\nFile.expand_path('..', __dir__)\r\np __LINE__\r\n__END__\r\nraw\r\n",
         );
     }
     #[test]
@@ -260,11 +262,18 @@ mod tests {
             ("../~root", "./~root"),
             ("./..//./~nobody/lib", "./~nobody/lib"),
         ] {
-            assert_correction(
-                &ExpandPathArguments,
-                &format!("File.expand_path('{path}', __FILE__)"),
-                &format!("File.expand_path('{expected}', __dir__)"),
+            // The edit is held; the message still names the relative path.
+            let source = format!("File.expand_path('{path}', __FILE__)");
+            let found = correction_offenses(&ExpandPathArguments, &source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert!(
+                found[0]
+                    .message
+                    .starts_with(&format!("Use `expand_path('{expected}', __dir__)`")),
+                "{source}: {}",
+                found[0].message
             );
+            assert_listed_hold(&ExpandPathArguments, &source);
         }
     }
     #[test]
@@ -294,11 +303,7 @@ mod tests {
                         "Use `expand_path({argument})` instead of `expand_path('{path}', __FILE__)`."
                     )
                 );
-                assert_correction(
-                    &ExpandPathArguments,
-                    &source,
-                    &format!("# header\n  {receiver}.expand_path({argument})\n"),
-                );
+                assert_listed_hold(&ExpandPathArguments, &source);
             }
         }
     }
@@ -319,11 +324,7 @@ mod tests {
                     "Use `{message_constructor}(__dir__).expand_path` instead of `{message_constructor}(__FILE__).parent.expand_path`."
                 )
             );
-            assert_correction(
-                &ExpandPathArguments,
-                &source,
-                &format!("{constructor}(__dir__).expand_path\n"),
-            );
+            assert_listed_hold(&ExpandPathArguments, &source);
         }
         for source in [
             "File.expand_path(__dir__)",

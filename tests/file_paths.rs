@@ -92,8 +92,9 @@ p [Pathname(__FILE__).parent.expand_path, Pathname.new(__FILE__).parent.expand_p
 p __LINE__
 "#;
     // A dynamic load plus a Symbol#to_proc getter no longer proves unchanged
-    // core dispatch. Keep that original control as a no-write case;
-    // the explicit block still exercises all canonical Pathname path fixes.
+    // core dispatch. Every target names `__FILE__`, a listed source
+    // observer, so both variants keep their findings and are never
+    // written.
     for reflective in [true, false] {
         let source = if reflective {
             source.to_owned()
@@ -105,17 +106,10 @@ p __LINE__
         for script in ["a.rb", path.to_str().unwrap()] {
             let before = ruby(dir.path(), script);
             let modified = fs::metadata(&path).unwrap().modified().unwrap();
-            fix(
-                dir.path(),
-                "Style/ExpandPathArguments",
-                "a.rb",
-                i32::from(reflective),
-            );
+            fix(dir.path(), "Style/ExpandPathArguments", "a.rb", 1);
             same(&before, &ruby(dir.path(), script), &source);
-            if reflective {
-                assert_eq!(fs::read_to_string(&path).unwrap(), source);
-                assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-            }
+            assert_eq!(fs::read_to_string(&path).unwrap(), source);
+            assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
             fs::write(&path, &source).unwrap();
         }
     }
@@ -133,7 +127,20 @@ fn require_relative_preserves_feature_identity_interpolation_effects_and_source_
         "$loaded = ($loaded || 0) + 1\n",
     )
     .unwrap();
-    let source = "\u{feff}# encoding: UTF-8\r\n$count = 0\r\ndef feature; $count += 1; 'feature'; end\r\np require_relative(\".///./features/#{feature}\")\r\np require_relative('./features/feature')\r\np [$count, $loaded, __LINE__, DATA.read.bytes]\r\n__END__\r\nraw\r\n";
+    // Reading `DATA` is a listed observer that withholds every
+    // edit: that variant keeps its findings and bytes.
+    let listed = "\u{feff}# encoding: UTF-8\r\n$count = 0\r\ndef feature; $count += 1; 'feature'; end\r\np require_relative(\".///./features/#{feature}\")\r\np require_relative('./features/feature')\r\np [$count, $loaded, __LINE__, DATA.read.bytes]\r\n__END__\r\nraw\r\n";
+    fs::write(dir.path().join("a.rb"), listed).unwrap();
+    let before = ruby(dir.path(), "a.rb");
+    fix(
+        dir.path(),
+        "Style/RedundantCurrentDirectoryInPath",
+        "a.rb",
+        1,
+    );
+    same(&before, &ruby(dir.path(), "a.rb"), listed);
+    assert_eq!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), listed);
+    let source = "\u{feff}# encoding: UTF-8\r\n$count = 0\r\ndef feature; $count += 1; 'feature'; end\r\np require_relative(\".///./features/#{feature}\")\r\np require_relative('./features/feature')\r\np [$count, $loaded, __LINE__]\r\n__END__\r\nraw\r\n";
     fs::write(dir.path().join("a.rb"), source).unwrap();
     let before = ruby(dir.path(), "a.rb");
     fix(
@@ -209,7 +216,7 @@ fn uncertain_runtime_cases_retain_offenses_bytes_and_mtime() {
 
 #[cfg(unix)]
 #[test]
-fn symlink_provenance_withholds_dir_canonicalization_but_not_lexical_edits() {
+fn symlink_provenance_and_the_listed_file_observer_withhold_expand_path_edits() {
     use std::os::unix::fs::symlink;
     let dir = project();
     fs::create_dir(dir.path().join("real")).unwrap();
@@ -243,15 +250,17 @@ fn symlink_provenance_withholds_dir_canonicalization_but_not_lexical_edits() {
                 same(&before, &ruby(dir.path(), alias), source);
             }
         }
+        // The lexical edit is safe through the alias, but the listed
+        // `__FILE__` withholds it.
         fs::write(
             dir.path().join("real/a.rb"),
             "p File.expand_path('.', __FILE__)\n",
         )
         .unwrap();
-        fix(dir.path(), "Style/ExpandPathArguments", alias, 0);
+        fix(dir.path(), "Style/ExpandPathArguments", alias, 1);
         assert_eq!(
             fs::read_to_string(dir.path().join("real/a.rb")).unwrap(),
-            "p File.expand_path(__FILE__)\n"
+            "p File.expand_path('.', __FILE__)\n"
         );
     }
     assert!(
@@ -308,9 +317,22 @@ fn directives_outside_selector_highlights_still_protect_whole_expression_edits()
 fn mixed_path_style_layout_fixes_stabilize_within_four_explicit_passes() {
     let dir = project();
     let path = dir.path().join("a.rb");
-    fs::write(&path, "def f\n  return (File.dirname(File.dirname('a/b/c')));  \nend\nFile.expand_path('../..', __FILE__)\nrequire_relative './feature'\n").unwrap();
+    let listed = "def f\n  return (File.dirname(File.dirname('a/b/c')));  \nend\nFile.expand_path('../..', __FILE__)\nrequire_relative './feature'\n";
     let cops = "Style/NestedFileDirname,Style/ExpandPathArguments,Style/RedundantCurrentDirectoryInPath,Style/StringLiterals,Style/HashSyntax,Style/RedundantReturn,Style/RedundantParentheses,Style/Semicolon,Style/SignalException,Layout";
-    let mut clean = false;
+    // A file naming `__FILE__`, a listed observer,
+    // keeps every finding and is never written.
+    fs::write(&path, listed).unwrap();
+    let modified = fs::metadata(&path).unwrap().modified().unwrap();
+    fix(dir.path(), cops, "a.rb", 1);
+    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
+    assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
+    // Without it the mixed fixes converge within four explicit passes.
+    fs::write(
+        &path,
+        listed.replace("File.expand_path('../..', __FILE__)\n", ""),
+    )
+    .unwrap();
+    let mut stable = false;
     for _ in 0..4 {
         let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
             .current_dir(dir.path())
@@ -318,12 +340,18 @@ fn mixed_path_style_layout_fixes_stabilize_within_four_explicit_passes() {
             .output()
             .unwrap();
         assert_ne!(out.status.code(), Some(2), "{out:?}");
-        if out.status.success() {
-            clean = true;
+        if out.status.code() == Some(0)
+            && String::from_utf8_lossy(&out.stdout).contains("0 corrections applied")
+        {
+            stable = true;
             break;
         }
     }
-    assert!(clean, "{}", fs::read_to_string(&path).unwrap());
+    assert!(stable, "{}", fs::read_to_string(&path).unwrap());
+    assert_eq!(
+        fs::read_to_string(&path).unwrap(),
+        "def f\n  File.dirname(\"a/b/c\", 2)\nend\nrequire_relative \"feature\"\n"
+    );
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
     fix(dir.path(), cops, "a.rb", 0);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);

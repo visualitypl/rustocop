@@ -327,8 +327,14 @@ mod tests {
         }
         crate::cops::testing::assert_correction(
             &super::EndlessMethod,
+            "def f = [\n  :backtrace]\nitems.map(&:to_s)\n",
+            "def f\n  [\n  :backtrace]\nend\nitems.map(&:to_s)\n",
+        );
+        // A `:caller` selector is a listed observer
+        // (conservatively, also as data): the edit is held.
+        crate::cops::testing::assert_listed_hold(
+            &super::EndlessMethod,
             "def f = [\n  :caller]\nitems.map(&:to_s)\n",
-            "def f\n  [\n  :caller]\nend\nitems.map(&:to_s)\n",
         );
     }
 

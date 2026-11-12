@@ -434,6 +434,14 @@ fn stdin_never_writes_to_the_named_disk_file() {
             stdin::write_stdin(child.stdin.take().unwrap(), source.as_bytes(), fix).unwrap();
             let output = child.wait_with_output().unwrap();
             assert_eq!(output.status.code(), Some(if fix { 2 } else { 1 }));
+            if fix {
+                assert!(output.stdout.is_empty(), "{output:?}");
+                assert!(
+                    String::from_utf8_lossy(&output.stderr)
+                        .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                    "{output:?}"
+                );
+            }
             assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), b"disk bytes\n");
         }
     }

@@ -6,6 +6,9 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 const COP: &str = "Lint/UnusedPrivateMethod";
 const SOURCE: &str = "class Service\n  private\n\n  def helper\n  end\nend\n";
 fn project() -> tempfile::TempDir {
@@ -22,7 +25,9 @@ fn run(root: &Path, args: &[&str]) -> Output {
         .output()
         .unwrap()
 }
-fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
+/// `expect_early_error` only for runs whose asserted exit is the early
+/// `--stdin --fix` rejection, which may exit before reading stdin.
+fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
         .args(args)
@@ -31,7 +36,7 @@ fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(source).unwrap();
+    stdin_support::write_stdin(child.stdin.take().unwrap(), source, expect_early_error).unwrap();
     child.wait_with_output().unwrap()
 }
 fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
@@ -220,6 +225,7 @@ fn exclusions_supplied_paths_and_stdin_provenance_never_provide_an_index() {
             dir.path(),
             SOURCE.as_bytes(),
             &["--only", COP, "--stdin", "lib/display.rb"],
+            false,
         );
         assert!(out.status.success(), "{out:?}");
     }
@@ -234,8 +240,15 @@ fn exclusions_supplied_paths_and_stdin_provenance_never_provide_an_index() {
         dir.path(),
         SOURCE.as_bytes(),
         &["--only", COP, "--stdin", "lib/display.rb", "--fix"],
+        true,
     );
     assert_eq!(out.status.code(), Some(2));
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
+    );
     assert_eq!(fs::read(&sentinel).unwrap(), b"sentinel\n");
     let new = fs::metadata(sentinel).unwrap();
     assert_eq!(old.modified().unwrap(), new.modified().unwrap());

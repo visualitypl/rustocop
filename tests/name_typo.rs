@@ -6,6 +6,9 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 const COP: &str = "Lint/NameTypo";
 const SOURCE: &str = "module Services\n  class UserCreator; VALUE = 1; end\nend\nclass Report\n  def self.generate_summary; end\nend\n::Services::UserCraetor.new\n::Report.generate_sumary\n";
 fn project() -> tempfile::TempDir {
@@ -22,7 +25,9 @@ fn run(root: &Path, args: &[&str]) -> Output {
         .output()
         .unwrap()
 }
-fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
+/// `expect_early_error` only for runs whose asserted exit is the early
+/// `--stdin --fix` rejection, which may exit before reading stdin.
+fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
         .args(args)
@@ -31,7 +36,7 @@ fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(source).unwrap();
+    stdin_support::write_stdin(child.stdin.take().unwrap(), source, expect_early_error).unwrap();
     child.wait_with_output().unwrap()
 }
 fn count(out: &Output) -> usize {
@@ -231,6 +236,7 @@ fn supplied_paths_stdin_exclusions_and_no_hidden_discovery() {
             dir.path(),
             SOURCE.as_bytes(),
             &["--only", COP, "--stdin", "lib/display.rb"],
+            false,
         );
         assert!(out.status.success(), "{out:?}");
         assert_eq!(count(&out), 0);
@@ -246,8 +252,15 @@ fn supplied_paths_stdin_exclusions_and_no_hidden_discovery() {
         dir.path(),
         SOURCE.as_bytes(),
         &["--only", COP, "--stdin", "lib/display.rb", "--fix"],
+        true,
     );
     assert_eq!(out.status.code(), Some(2));
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
+    );
     assert_eq!(fs::read(&sentinel).unwrap(), b"sentinel\n");
     assert_eq!(
         old.modified().unwrap(),

@@ -477,19 +477,18 @@ fn fixed_34_main_parse_binding_payload_and_encoding_flags_match() {
 }
 
 #[test]
-fn data_positions_withhold_length_changes_and_keep_equal_length_word_fixes() {
+fn data_positions_withhold_length_changes_and_equal_length_word_fixes() {
     let dir = project();
     for (name, before, _) in CASES {
+        // The equal-length `%W` fix would keep DATA's offsets, but `DATA`
+        // with a data section is a listed observer: every edit is
+        // withheld and the finding stays.
         let source = format!("{before}p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n");
         fs::write(dir.path().join("a.rb"), &source).unwrap();
         let before = has_ruby().then(|| ruby(dir.path()));
-        cli(
-            dir.path(),
-            &["--only", name, "--fix", "a.rb"],
-            i32::from(name != W),
-        );
+        cli(dir.path(), &["--only", name, "--fix", "a.rb"], 1);
         let after = fs::read_to_string(dir.path().join("a.rb")).unwrap();
-        assert_eq!(after == source, name != W);
+        assert_eq!(after, source);
         if let Some(before) = before {
             let after = ruby(dir.path());
             assert!(before.status.success());

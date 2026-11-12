@@ -106,7 +106,7 @@ fn all_reference_rows_match_real_cli_detection_and_guarded_canonical_fix() {
 #[test]
 fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());

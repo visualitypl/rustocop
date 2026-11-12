@@ -511,10 +511,6 @@ mod tests {
                 "eval('42', binding, __FILE__, __LINE__)",
             ),
             (
-                "Kernel.eval('42', binding, __FILE__)",
-                "Kernel.eval('42', binding, __FILE__, __LINE__)",
-            ),
-            (
                 "::Kernel.eval('42', binding, 'old', 99)",
                 "::Kernel.eval('42', binding, __FILE__, __LINE__)",
             ),
@@ -523,16 +519,8 @@ mod tests {
                 "Object.class_eval <<~CODE, __FILE__, __LINE__ + 1\n  42\nCODE\n",
             ),
             (
-                "Module.module_eval <<-CODE, __FILE__, __LINE__\n42\nCODE\n",
-                "Module.module_eval <<-CODE, __FILE__, __LINE__ + 1\n42\nCODE\n",
-            ),
-            (
                 "instance_eval('nil')",
                 "instance_eval('nil', __FILE__, __LINE__)",
-            ),
-            (
-                "eval('true',\n binding,\n __FILE__,\n __LINE__)",
-                "eval('true',\n binding,\n __FILE__,\n __LINE__ - 3)",
             ),
             (
                 "eval(\"\\x34\\x32\", binding)",
@@ -544,6 +532,15 @@ mod tests {
                 correction_offenses(&EvalWithLocation, after).is_empty(),
                 "{after}"
             );
+        }
+        // A target that already names the listed `__FILE__` keeps its finding
+        // without an edit.
+        for before in [
+            "Kernel.eval('42', binding, __FILE__)",
+            "Module.module_eval <<-CODE, __FILE__, __LINE__\n42\nCODE\n",
+            "eval('true',\n binding,\n __FILE__,\n __LINE__)",
+        ] {
+            crate::cops::testing::assert_listed_hold(&EvalWithLocation, before);
         }
     }
     #[test]

@@ -242,6 +242,16 @@ fn selector_edits_preserve_bom_crlf_encodings_data_comments_and_line_values() {
         b"\xef\xbb\xbf# coding: utf-8\r\ns = 'caf\xc3\xa9'; p [s.kind_of?(String), s.encoding.name, s.bytes, __LINE__, DATA.read.bytes]\r\n# keep\r\n__END__\r\nraw.kind_of?\xff\r\n".to_vec(),
         b"# coding: ISO-8859-1\r\ns = '\xe9'; p [s.kind_of?(String), s.encoding.name, s.bytes, __LINE__, DATA.read.bytes]\r\n__END__\r\n\xe9.kind_of?\r\n".to_vec(),
     ] {
+        // Reading `DATA` is a listed observer: that file keeps
+        // its finding and bytes. Without the read, the data
+        // section's bytes still survive the canonical edit.
+        fs::write(&path, &source).unwrap();
+        let modified = fs::metadata(&path).unwrap().modified().unwrap();
+        run(dir.path(), &["--only", CHECK, "--fix", "lib/a.rb"], 1, [1, 0, 0]);
+        assert_eq!(fs::read(&path).unwrap(), source);
+        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
+        let at = source.windows(18).position(|w| w == b", DATA.read.bytes]").unwrap();
+        let source = [&source[..at], &source[at + 17..]].concat();
         fs::write(&path, &source).unwrap();
         let before = ruby(dir.path());
         run(dir.path(), &["--only", CHECK, "--fix", "lib/a.rb"], 0, [0, 0, 0]);
@@ -313,7 +323,18 @@ fn same(before: &Output, after: &Output) {
 fn ruby_canonical_aliases_preserve_evaluation_binding_control_flow_match_state_and_locations() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let source = "# coding: UTF-8\n$events = []\ndef receiver; $events << :receiver; 'café'; end\ndef argument; $events << :argument; String; end\ndef callback; $events << :callback; proc { raise 'ignored' }; end\ndef f(value = receiver.kind_of?(argument, &callback)); return value; end\ndef g; receiver.kind_of?(argument) { break :wrong }; end\n/(ca)(fé)/ =~ 'café'\nvalues = [f, g, nil&.kind_of?(argument), catch(:done) { throw :done, 'x'.kind_of?(String) }, -> { kind_of?(Object) }.call]\np [values, $events, $~, $1, $2, __LINE__, method(:f).source_location, 'é'.encoding.name]\n";
+    // `method(:f).source_location` is a listed observer that
+    // would withhold every edit; `__LINE__` keeps locations.
+    let source = "# coding: UTF-8\n$events = []\ndef receiver; $events << :receiver; 'café'; end\ndef argument; $events << :argument; String; end\ndef callback; $events << :callback; proc { raise 'ignored' }; end\ndef f(value = receiver.kind_of?(argument, &callback)); return value; end\ndef g; receiver.kind_of?(argument) { break :wrong }; end\n/(ca)(fé)/ =~ 'café'\nvalues = [f, g, nil&.kind_of?(argument), catch(:done) { throw :done, 'x'.kind_of?(String) }, -> { kind_of?(Object) }.call]\np [values, $events, $~, $1, $2, __LINE__, 'é'.encoding.name]\n";
+    let listed = source.replace("__LINE__,", "__LINE__, method(:f).source_location,");
+    fs::write(&path, &listed).unwrap();
+    run(
+        dir.path(),
+        &["--only", CHECK, "--fix", "lib/a.rb"],
+        1,
+        [5, 0, 0],
+    );
+    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
     // An arbitrary callback factory no longer proves harmless proc acquisition,
     // even when its local definition happens to return a Proc. No return flow
     // analysis is attempted; retain diagnostics without writing this variant.

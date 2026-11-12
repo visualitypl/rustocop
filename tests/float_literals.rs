@@ -369,7 +369,7 @@ fn encoded_defaults_config_paths_directives_and_stdin_keep_projected_positions()
 #[test]
 fn metadata_matches_real_detection_only_policy() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for name in [COMPARISON, RANGE] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled());

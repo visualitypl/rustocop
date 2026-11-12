@@ -101,7 +101,7 @@ fn all_pinned_specs_documentation_and_controls_match_pipeline_and_rebuilt_cli_wi
 #[test]
 fn metadata_matches_actual_detection_only_default_policy() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for name in [BLOCK, CLASS] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled());

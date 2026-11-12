@@ -37,9 +37,21 @@ b6d9a0fa4bc3 Layout/RescueEnsureAlignment miss 4:1 -- the spec's :config omits L
 # spec/rubocop/cop/layout/rescue_ensure_alignment_spec.rb:696 RuboCop::Cop::Layout::RescueEnsureAlignment registers an offense and corrects unindented `ensure` with do-end block that line break with trailing dot for method calls
 7dc06d022bc1 Layout/RescueEnsureAlignment miss 4:1 -- the spec's :config omits Layout/BeginEndAlignment; at the fixed defaults (enabled, start_of_line) the anchor is the block's first line `[1, 2, 3]` at column 0, so RuboCop accepts the column-0 clause exactly as rustocop (unit-tested)
 
-## Lint/CopDirectiveSyntax
-# spec/rubocop/cop/lint/cop_directive_syntax_spec.rb:393 RuboCop::Cop::Lint::CopDirectiveSyntax with more than one directive on a line does not register an offense for a single directive listing several cops
-24f89d6f7def Lint/CopDirectiveSyntax fp 1:7 -- Metrics/AbcSize is not implemented/registered in rustocop; syntax validates the landed registry, not RuboCop's larger universe.
+## Layout/SpaceAroundKeyword
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:19 RuboCop::Cop::Layout::SpaceAroundKeyword behaves like missing after registers an offense for missing space after keyword in `yield""` and autocorrects
+d18037dd3aa8 Layout/SpaceAroundKeyword miss 1:1; error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped diagnostic and correction are unit-tested
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:30 RuboCop::Cop::Layout::SpaceAroundKeyword behaves like accepts before accepts `!` before keyword in `!yield`
+781275d8b101 Layout/SpaceAroundKeyword error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped no-offense example is unit-tested
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:30 RuboCop::Cop::Layout::SpaceAroundKeyword behaves like accepts before accepts `!` before keyword in `!yield.method`
+e0f96dd91a4e Layout/SpaceAroundKeyword error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped no-offense example is unit-tested
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:36 RuboCop::Cop::Layout::SpaceAroundKeyword behaves like accepts after accepts `(` after keyword in `yield(1)`
+4d44394f0241 Layout/SpaceAroundKeyword error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped no-offense example is unit-tested
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:36 RuboCop::Cop::Layout::SpaceAroundKeyword &. behaves like accepts after accepts `&.` after keyword in `yield&.foo`
+702925e45933 Layout/SpaceAroundKeyword error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped no-offense example is unit-tested
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:36 RuboCop::Cop::Layout::SpaceAroundKeyword behaves like accepts after accepts `.` after keyword in `yield.method`
+7c09b9823cc1 Layout/SpaceAroundKeyword error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped no-offense example is unit-tested
+# spec/rubocop/cop/layout/space_around_keyword_spec.rb:36 RuboCop::Cop::Layout::SpaceAroundKeyword behaves like accepts after accepts `[` after keyword in `yield[1]`
+cc58702c1329 Layout/SpaceAroundKeyword error -- invalid Ruby: top-level yield (Prism and native Ruby 3.4 reject it); the method-wrapped no-offense example is unit-tested
 
 ## Lint/DuplicateMethods
 # spec/rubocop/cop/lint/duplicate_methods_spec.rb:189 RuboCop::Cop::Lint::DuplicateMethods behaves like in scope only registers an offense for the second instance of a duplicate instance method in separate files

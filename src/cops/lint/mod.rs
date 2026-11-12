@@ -20,7 +20,7 @@ mod constant_definition_in_block;
 mod constant_overwritten_in_rescue;
 mod constant_reassignment;
 mod constant_resolution;
-mod cop_directive_syntax;
+pub(crate) mod cop_directive_syntax;
 mod data_define_override;
 mod debugger;
 mod deprecated_class_methods;

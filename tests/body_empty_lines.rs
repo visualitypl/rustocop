@@ -459,7 +459,9 @@ fn body_removals_converge_with_the_default_selection() {
     assert_eq!(count_all(&out), 0, "{out:?}");
     assert_eq!(
         String::from_utf8_lossy(&current),
-        "module M\n  def self.run\n    begin\n      [1, 2].each_slice(2).map do |a,\n        b|\n        Class.new do\n          private\n\n          def v = 1\n        end\n\n        a + b\n      end\n    end\n  end\nend\np M.run\n"
+        // Default-on Layout/MultilineBlockLayout joins the split
+        // block parameters, as upstream.
+        "module M\n  def self.run\n    begin\n      [1, 2].each_slice(2).map do |a, b|\n        Class.new do\n          private\n\n          def v = 1\n        end\n\n        a + b\n      end\n    end\n  end\nend\np M.run\n"
     );
 }
 

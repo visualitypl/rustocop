@@ -170,8 +170,20 @@ fn runtime_feature_identity_load_count_control_flow_encoding_line_and_data_are_p
         "$loads = ($loads || 0) + 1\np [:loaded, __LINE__]\n",
     )
     .unwrap();
-    let source = "\u{feff}# encoding: UTF-8\r\n$LOAD_PATH.unshift(File.join(__dir__, 'features'))\r\np require('feature.rb')\r\np require_relative(%q(features/feature.rb))\r\np require(\"feat\\u0075re.rb\") if true\r\nrequire 'never.rb' if false\r\np [$loads, __LINE__, DATA.read.bytes, 'é'.encoding.name]\r\n__END__\r\nraw\r\n";
+    let listed = "\u{feff}# encoding: UTF-8\r\n$LOAD_PATH.unshift(File.join(__dir__, 'features'))\r\np require('feature.rb')\r\np require_relative(%q(features/feature.rb))\r\np require(\"feat\\u0075re.rb\") if true\r\nrequire 'never.rb' if false\r\np [$loads, __LINE__, DATA.read.bytes, 'é'.encoding.name]\r\n__END__\r\nraw\r\n";
     let path = dir.path().join("a.rb");
+    // `__dir__` and reading `DATA` are listed observers: that
+    // file keeps its findings and bytes. The sibling below uses
+    // the working directory and leaves its data section unread.
+    fs::write(&path, listed).unwrap();
+    run(dir.path(), &["--only", EXT, "--fix", "a.rb"], 1, (4, 0));
+    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
+    let source = &listed
+        .replace(
+            "File.join(__dir__, 'features')",
+            "File.join(Dir.pwd, 'features')",
+        )
+        .replace(", DATA.read.bytes,", ",");
     fs::write(&path, source).unwrap();
     let before = ruby(dir.path());
     run(dir.path(), &["--only", EXT, "--fix", "a.rb"], 0, (0, 0));

@@ -299,6 +299,17 @@ fn payload_only_data_and_metadata_only_tracing_keep_layout_fixes() {
         "tp = TracePoint.new(:line) { |t| p File.binread(\"/dev/null\"); t.disable }; tp.enable\nx = 2",
     ] {
         fs::write(&path, format!("x = 1  \n{observer}\n")).unwrap();
+        // A bare listed observer (`__FILE__`, `DATA`
+        // with a data section) withholds the original Layout cop's edit.
+        if observer.contains("__FILE__") || observer.contains("__END__") {
+            fix(dir.path(), "Layout/TrailingWhitespace", "case.rb", 1);
+            assert_eq!(
+                fs::read_to_string(&path).unwrap(),
+                format!("x = 1  \n{observer}\n"),
+                "{observer}"
+            );
+            continue;
+        }
         let before = Command::new("ruby")
             .arg("--version")
             .output()
@@ -348,13 +359,26 @@ fn metadata_only_same_byte_line_preserving_string_fix_remains_available() {
             .output()
             .ok()
             .map(|_| ruby(&dir.path().join("case.rb")));
-        fix(dir.path(), "Style/StringLiterals", "case.rb", 0);
+        // Metadata-only observations do not read the source, but a
+        // listed observer (`__FILE__`, `$0`, `source_location`,
+        // `caller_locations`) withholds the edit anyway.
+        let listed = ["__FILE__", "$0", "source_location", "caller_locations"]
+            .iter()
+            .any(|name| observer.contains(name));
+        fix(
+            dir.path(),
+            "Style/StringLiterals",
+            "case.rb",
+            i32::from(listed),
+        );
         if let Some(before) = before {
             assert_eq!(ruby(&dir.path().join("case.rb")), before);
         }
+        let quote = if listed { "'hi'" } else { "\"hi\"" };
         assert_eq!(
             fs::read_to_string(dir.path().join("case.rb")).unwrap(),
-            format!("x = \"hi\"\n{observer}\n")
+            format!("x = {quote}\n{observer}\n"),
+            "{observer}"
         );
     }
 }

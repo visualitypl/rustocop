@@ -294,7 +294,7 @@ fn known_name(name: &str) -> bool {
 
 /// RuboCop Badge.camel_case: uppercase an initial lowercase letter and replace
 /// underscore + lowercase pairs (not arbitrary underscore or case folding).
-fn camel_case(part: &str) -> String {
+pub(crate) fn camel_case(part: &str) -> String {
     let mut result = String::with_capacity(part.len());
     let mut bytes = part.bytes().enumerate().peekable();
     while let Some((i, byte)) = bytes.next() {
@@ -390,8 +390,10 @@ mod tests {
             }
             assert_correction(
                 &CopDirectiveSyntax,
-                &format!("x = 1 # {prefix}:todo Style/For # rubocop:disable Metrics/AbcSize\n"),
-                &format!("x = 1 # {prefix}:todo Style/For, Metrics/AbcSize\n"),
+                &format!(
+                    "x = 1 # {prefix}:todo Style/For # rubocop:disable Migration/Nonexistent\n"
+                ),
+                &format!("x = 1 # {prefix}:todo Style/For, Migration/Nonexistent\n"),
             );
             assert_correction(
                 &CopDirectiveSyntax,
@@ -404,6 +406,10 @@ mod tests {
         for source in [
             // The upstream canonical edit adds a new active suppression.
             "# rubocop:disable Layout/LineLength # rubocop:disable Style/Encoding\n",
+            "x = 1 # rustocop:todo Style/For # rubocop:disable Metrics/AbcSize\n",
+            // Migration/DepartmentName is a registered cop.
+            "x = 1 # rustocop:todo Style/For # rubocop:disable Migration/DepartmentName\n",
+            "x = 1 # rubocop:todo Style/For # rubocop:disable Migration/DepartmentName\n",
             "# rubocop:disable Style/For # rubocop:enable Style/For\n",
             "# rubocop:disable Style/For -- keep it # rubocop:disable Style/For\n",
             "# rubocop:disable Style/For # rubocop:disable all\n",
@@ -463,10 +469,13 @@ mod tests {
         assert!(offenses("# rubocop:disable Style/FrozenStringLiteralComment\n").is_empty());
         // Names are the actual landed registry, not a future-cop whitelist.
         assert!(
-            offenses("# rubocop:disable Metrics/AbcSize\n")[0]
+            offenses("# rubocop:disable Migration/Nonexistent\n")[0]
                 .message
                 .starts_with("Unknown cop name")
         );
+        assert!(offenses("# rubocop:disable Metrics/AbcSize\n").is_empty());
+        assert!(offenses("# rubocop:disable Migration/DepartmentName\n").is_empty());
+        assert!(offenses("# rubocop:disable Migration\n").is_empty());
         for mode in ["disable-next", "todo-next", "enable-next", "next -"] {
             let s = format!(
                 "foo # rustocop:{mode}{}Layout/LineLength\nbar\n",
@@ -497,6 +506,10 @@ mod tests {
                 "line_length",
                 "Wrong/line_length",
                 "Wrong/frozen_string_literal_comment",
+                "Wrong/AbcSize",
+                "abc_size",
+                "Wrong/DepartmentName",
+                "department_name",
             ] {
                 for mode in [
                     "disable",
@@ -517,8 +530,8 @@ mod tests {
             }
         }
         for name in [
-            "Wrong/AbcSize",
-            "abc_size",
+            "Wrong/Nonexistent",
+            "nonexistent",
             "LINE_LENGTH",
             "layout/line_length",
         ] {

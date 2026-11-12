@@ -164,10 +164,12 @@ fn compound_data_reads_withhold_byte_changes_but_other_constants_still_correct()
 }
 
 #[test]
-fn equal_byte_parenthesizing_edits_remain_available_with_data_observers() {
+fn equal_byte_parenthesizing_edits_are_held_by_listed_data_observers() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    // Two spaces exchanged for two delimiters: DATA offsets and __LINE__ survive.
+    // Two spaces exchanged for two delimiters would keep DATA offsets and
+    // __LINE__, but `DATA` with a data section is a listed
+    // observer: the finding stays and the file is not written.
     for index in [0, 2] {
         let (cop, before, after) = CASES[index];
         for (crlf, reference) in [
@@ -189,8 +191,13 @@ fn equal_byte_parenthesizing_edits_remain_available_with_data_observers() {
             assert_eq!(source.len(), expected.len());
             fs::write(&path, &source).unwrap();
             let original = ruby_available().then(|| execute(&path));
-            cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 0);
-            assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
+            let out = unchanged(
+                dir.path(),
+                source.as_bytes(),
+                &["--only", cop, "--fix", "lib/a.rb"],
+                1,
+            );
+            assert!(String::from_utf8_lossy(&out.stdout).contains(cop));
             if let Some(original) = original {
                 assert_eq!(execute(&path), original);
             }
@@ -203,8 +210,10 @@ fn independent_equal_byte_edits_compose_without_releasing_withheld_edits() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
+        // `DATA` with a data section is a listed observer: the
+        // independent string edit is withheld too.
         let source = observed(before, "p 'x'\n", "DATA", "tell");
-        let expected = source.replace("'x'", "\"x\"");
+        let expected = source.clone();
         fs::write(&path, &source).unwrap();
         let original = ruby_available().then(|| execute(&path));
         let selector = format!("{cop},Style/StringLiterals");
@@ -222,7 +231,7 @@ fn independent_equal_byte_edits_compose_without_releasing_withheld_edits() {
 }
 
 #[test]
-fn same_pass_equal_byte_sibling_call_survives_overlapping_withheld_calls() {
+fn same_pass_equal_byte_sibling_call_is_held_with_overlapping_withheld_calls() {
     let dir = project();
     let source = observed(
         "x = identity(identity 1)\ny = identity  2\n",
@@ -230,14 +239,15 @@ fn same_pass_equal_byte_sibling_call_survives_overlapping_withheld_calls() {
         "DATA",
         "pos",
     );
-    let expected = source.replace("identity  2", "identity(2)");
+    // The listed `DATA` withholds the equal-byte sibling too.
+    let expected = source.clone();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, &source).unwrap();
     let original = ruby_available().then(|| execute(&path));
     let selector = "Style/MethodCallWithArgsParentheses,Style/NestedParenthesizedCalls,Style/MethodCallWithoutArgsParentheses,Layout/SpaceInsideParens";
     let out = cli(dir.path(), &["--only", selector, "--fix", "lib/a.rb"], 1);
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("1 correction applied"), "{stdout}");
+    assert!(stdout.contains("0 corrections applied"), "{stdout}");
     assert!(
         stdout.contains(CASES[0].0) && stdout.contains(CASES[2].0),
         "{stdout}"

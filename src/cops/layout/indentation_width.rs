@@ -70,6 +70,7 @@ impl Cop for IndentationWidth {
             ancestors: Vec<Node<'pr>>,
             checks: Vec<Check>,
             interiors: Vec<Range<usize>>,
+            pairs: Vec<(usize, usize)>,
         }
         impl<'pr> NodeVisitor<'pr> for Plans<'_, 'pr> {
             fn enter(&mut self, node: Node<'pr>) {
@@ -82,6 +83,7 @@ impl Cop for IndentationWidth {
                 if let Some(range) = literal_interior(&node, self.file) {
                     self.interiors.push(range);
                 }
+                keyword_pairs(&node, &mut self.pairs);
                 self.ancestors.push(node);
             }
             fn leave(&mut self) {
@@ -93,12 +95,16 @@ impl Cop for IndentationWidth {
             ancestors: Vec::new(),
             checks: Vec::new(),
             interiors: Vec::new(),
+            pairs: Vec::new(),
         };
         walk(&mut plans, node);
         plans
             .checks
             .sort_unstable_by_key(|c| (c.expression.start, std::cmp::Reverse(c.expression.end)));
         plans.interiors.sort_unstable_by_key(|r| (r.start, r.end));
+        plans
+            .pairs
+            .sort_unstable_by_key(|&(opener, keyword)| (keyword, opener));
         let mut interiors: Vec<Range<usize>> = Vec::new();
         for range in plans.interiors {
             if let Some(last) = interiors.last_mut()
@@ -118,7 +124,7 @@ impl Cop for IndentationWidth {
             // Reserve even withheld spans, so descendants of a block comment
             // or a disabled region cannot receive partial subtree corrections.
             covered_until = check.expression.end;
-            if let Some(fix) = correction(file, node, &check, &interiors) {
+            if let Some(fix) = correction(file, node, &check, &interiors, &plans.pairs) {
                 fixes.insert(file.line_col(check.highlight), fix);
             }
         }
@@ -513,11 +519,177 @@ fn checks<'pr>(
     }
 }
 
+/// Record the keywords native Ruby 3.4 compares for its "mismatched
+/// indentations" warning as `(earlier, later keyword)` offsets, as its
+/// parser pairs them: each `elsif`, `when` and `in` and a conditional's `else`
+/// with the construct's opening keyword; each `rescue` and a protected body's
+/// `else` with the opener (`begin`, `def`, `class`, `module`, `class << self`
+/// or a stabby lambda's `->`); `ensure` and `end` (or a lambda's `}`) with a
+/// preceding `else` when there is one and otherwise with the opener. A `case`
+/// `else` is recorded too, conservatively; Ruby compares no block keywords.
+fn keyword_pairs(node: &Node<'_>, out: &mut Vec<(usize, usize)>) {
+    fn pair(out: &mut Vec<(usize, usize)>, opener: usize, keyword: Option<Location<'_>>) {
+        if let Some(keyword) = keyword {
+            out.push((opener, keyword.start_offset()));
+        }
+    }
+    /// A protected body's clauses and closing keyword.
+    fn protected(
+        body: Option<Node<'_>>,
+        opener: usize,
+        end: Option<Location<'_>>,
+        out: &mut Vec<(usize, usize)>,
+    ) {
+        let begin = body
+            .as_ref()
+            .and_then(Node::as_begin_node)
+            .filter(|b| b.begin_keyword_loc().is_none());
+        let Some(begin) = begin else {
+            return pair(out, opener, end);
+        };
+        clauses(&begin, opener, end, out);
+    }
+    fn clauses(
+        begin: &ruby_prism::BeginNode<'_>,
+        opener: usize,
+        end: Option<Location<'_>>,
+        out: &mut Vec<(usize, usize)>,
+    ) {
+        let mut rescue = begin.rescue_clause();
+        while let Some(clause) = rescue {
+            pair(out, opener, Some(clause.keyword_loc()));
+            rescue = clause.subsequent();
+        }
+        let mut last = opener;
+        if let Some(clause) = begin.else_clause() {
+            pair(out, opener, Some(clause.else_keyword_loc()));
+            last = clause.else_keyword_loc().start_offset();
+        }
+        if let Some(clause) = begin.ensure_clause() {
+            pair(out, last, Some(clause.ensure_keyword_loc()));
+        }
+        pair(out, last, end);
+    }
+    match node {
+        Node::IfNode { .. } => {
+            let n = node.as_if_node().unwrap();
+            // `elsif` nodes are recorded by their `if`.
+            let Some(opener) = n.if_keyword_loc().filter(|k| k.as_slice() == b"if") else {
+                return;
+            };
+            let opener = opener.start_offset();
+            let mut last = opener;
+            let mut next = n.subsequent();
+            while let Some(clause) = next {
+                if let Some(elsif) = clause.as_if_node() {
+                    pair(out, opener, elsif.if_keyword_loc());
+                    next = elsif.subsequent();
+                } else {
+                    let keyword = clause.as_else_node().unwrap().else_keyword_loc();
+                    last = keyword.start_offset();
+                    pair(out, opener, Some(keyword));
+                    next = None;
+                }
+            }
+            pair(out, last, n.end_keyword_loc());
+        }
+        Node::UnlessNode { .. } => {
+            let n = node.as_unless_node().unwrap();
+            let opener = n.keyword_loc().start_offset();
+            let mut last = opener;
+            if let Some(clause) = n.else_clause() {
+                last = clause.else_keyword_loc().start_offset();
+                pair(out, opener, Some(clause.else_keyword_loc()));
+            }
+            pair(out, last, n.end_keyword_loc());
+        }
+        Node::WhileNode { .. } => {
+            let n = node.as_while_node().unwrap();
+            pair(out, n.keyword_loc().start_offset(), n.closing_loc());
+        }
+        Node::UntilNode { .. } => {
+            let n = node.as_until_node().unwrap();
+            pair(out, n.keyword_loc().start_offset(), n.closing_loc());
+        }
+        Node::ForNode { .. } => {
+            let n = node.as_for_node().unwrap();
+            pair(
+                out,
+                n.for_keyword_loc().start_offset(),
+                Some(n.end_keyword_loc()),
+            );
+        }
+        Node::CaseNode { .. } => {
+            let n = node.as_case_node().unwrap();
+            let opener = n.case_keyword_loc().start_offset();
+            for when in n.conditions().iter().filter_map(|c| c.as_when_node()) {
+                pair(out, opener, Some(when.keyword_loc()));
+            }
+            pair(out, opener, n.else_clause().map(|e| e.else_keyword_loc()));
+            pair(out, opener, Some(n.end_keyword_loc()));
+        }
+        Node::CaseMatchNode { .. } => {
+            let n = node.as_case_match_node().unwrap();
+            let opener = n.case_keyword_loc().start_offset();
+            for clause in n.conditions().iter().filter_map(|c| c.as_in_node()) {
+                pair(out, opener, Some(clause.in_loc()));
+            }
+            pair(out, opener, n.else_clause().map(|e| e.else_keyword_loc()));
+            pair(out, opener, Some(n.end_keyword_loc()));
+        }
+        Node::BeginNode { .. } => {
+            let n = node.as_begin_node().unwrap();
+            if let Some(opener) = n.begin_keyword_loc() {
+                clauses(&n, opener.start_offset(), n.end_keyword_loc(), out);
+            }
+        }
+        Node::DefNode { .. } => {
+            let n = node.as_def_node().unwrap();
+            let opener = n.def_keyword_loc().start_offset();
+            protected(n.body(), opener, n.end_keyword_loc(), out);
+        }
+        Node::ClassNode { .. } => {
+            let n = node.as_class_node().unwrap();
+            let opener = n.class_keyword_loc().start_offset();
+            protected(n.body(), opener, Some(n.end_keyword_loc()), out);
+        }
+        Node::ModuleNode { .. } => {
+            let n = node.as_module_node().unwrap();
+            let opener = n.module_keyword_loc().start_offset();
+            protected(n.body(), opener, Some(n.end_keyword_loc()), out);
+        }
+        Node::SingletonClassNode { .. } => {
+            let n = node.as_singleton_class_node().unwrap();
+            let opener = n.class_keyword_loc().start_offset();
+            protected(n.body(), opener, Some(n.end_keyword_loc()), out);
+        }
+        // Unlike blocks, a stabby lambda's `->` is compared with its closing
+        // `end` or `}` and its clauses.
+        Node::LambdaNode { .. } => {
+            let n = node.as_lambda_node().unwrap();
+            let opener = n.operator_loc().start_offset();
+            protected(n.body(), opener, Some(n.closing_loc()), out);
+        }
+        _ => {}
+    }
+}
+
+/// The column native Ruby (Prism) reports for its mismatched-indentation
+/// warning after `bytes`: a tab advances to the next multiple of 8, every
+/// other byte by one.
+fn native_column<'a>(bytes: impl Iterator<Item = &'a u8>) -> usize {
+    bytes.fold(0, |column, &b| match b {
+        b'\t' => (column / 8 + 1) * 8,
+        _ => column + 1,
+    })
+}
+
 fn correction(
     file: &SourceFile,
     root: &Node<'_>,
     check: &Check,
     interiors: &[Range<usize>],
+    pairs: &[(usize, usize)],
 ) -> Option<Correction> {
     let first = file.line_of(check.expression.start);
     let last = file.line_of(check.expression.end.saturating_sub(1));
@@ -541,6 +713,8 @@ fn correction(
     let delta = 2 - check.indentation;
     let mut replacement = Vec::new();
     let mut cursor = start;
+    let mut moved = Vec::new();
+    let mut partial = false;
     for line in first..=last {
         let line_start = file.line_start(line);
         let text = file.line_text(line);
@@ -561,18 +735,80 @@ fn correction(
         let target = prefix as i64 + delta;
         // Like upstream, do not remove tokens from less-indented clause lines.
         if target < 0 || (target == 0 && &text[prefix..] == b"__END__") {
+            partial |= target < 0;
             continue;
         }
         replacement.extend_from_slice(&file.bytes[cursor..range.start]);
-        if delta > 0 {
+        let kept = if delta > 0 {
             replacement.extend_from_slice(&file.bytes[range.clone()]);
             replacement.extend(std::iter::repeat_n(b' ', delta as usize));
+            range.clone()
         } else if line == first {
-            replacement.extend_from_slice(&file.bytes[range.start..range.end - (-delta) as usize]);
+            range.start..range.end - (-delta) as usize
         } else {
-            replacement.extend_from_slice(&file.bytes[range.start + (-delta) as usize..range.end]);
+            range.start + (-delta) as usize..range.end
+        };
+        if delta < 0 {
+            replacement.extend_from_slice(&file.bytes[kept.clone()]);
         }
+        moved.push((line, kept, delta.max(0) as usize, range.end));
         cursor = range.end;
+    }
+    let moved_line = |offset: usize| {
+        moved
+            .binary_search_by_key(&file.line_of(offset), |m| m.0)
+            .ok()
+    };
+    // A partial negative shift leaves less-indented lines behind. When that
+    // moves only one keyword of a natively compared pair, such as an opener
+    // whose less-indented `end` stays, it would erase or introduce a native
+    // mismatched-indentation warning: withhold the complete edit.
+    // Pairs are indexed by their later keyword, which lies in the span
+    // whenever the opener does (nested constructs end inside it).
+    let first_pair = pairs.partition_point(|&(_, keyword)| keyword < start);
+    let span_pairs = || {
+        pairs[first_pair..]
+            .iter()
+            .take_while(|&&(_, keyword)| keyword < end)
+    };
+    if partial {
+        let is_moved = |offset: usize| moved_line(offset).is_some();
+        if span_pairs().any(|&(opener, keyword)| is_moved(opener) != is_moved(keyword)) {
+            return None;
+        }
+    }
+    // Native Ruby expands tabs to 8-column stops. Removing trailing prefix
+    // bytes on the first line and leading ones on the others can then move
+    // compared keywords by different amounts: withhold the edit when any
+    // pair's native column order would change, erasing or introducing the
+    // warning. Space-only spans move uniformly and skip this; a
+    // space-only clause moved away from an outside opener is not guarded yet.
+    if file.bytes[start..end].contains(&b'\t') {
+        let column = |offset: usize, shifted: bool| {
+            let line = file.line_of(offset);
+            let mut line_start = file.line_start(line);
+            if line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf") {
+                line_start += 3;
+            }
+            let (prefix, added, rest) = match moved_line(offset).map(|i| &moved[i]) {
+                Some((_, kept, added, prefix_end)) if shifted => {
+                    (kept.clone(), *added, *prefix_end..offset)
+                }
+                _ => (line_start..line_start, 0, line_start..offset),
+            };
+            native_column(
+                file.bytes[prefix]
+                    .iter()
+                    .chain(std::iter::repeat_n(&b' ', added))
+                    .chain(&file.bytes[rest]),
+            )
+        };
+        if span_pairs().any(|&(opener, keyword)| {
+            let order = |shifted| column(keyword, shifted).cmp(&column(opener, shifted));
+            order(false) != order(true)
+        }) {
+            return None;
+        }
     }
     replacement.extend_from_slice(&file.bytes[cursor..end]);
     let replacement = String::from_utf8(replacement).ok()?;
@@ -987,6 +1223,295 @@ mod tests {
             "class A\n    def x\n  __END__\n    end\nend\n",
             "class A\n  def x\n  __END__\n  end\nend\n",
         );
+    }
+
+    /// A partial negative shift (less-indented lines stay) that
+    /// moves only one keyword of a pair native Ruby compares (an opener whose
+    /// less-indented clause or `end` stays, a less-indented opener whose `end`
+    /// moves, or a clause whose opener lies outside the span) would erase or
+    /// introduce its mismatched-indentation warning. Every finding stays; the
+    /// whole correction is withheld. Each source warns natively.
+    #[test]
+    fn partial_negative_shifts_keep_findings_and_withhold_the_whole_edit() {
+        for (source, expected) in [
+            // The exact reproducer.
+            (
+                "if true\n          if true\n  1\n  end\nend\n",
+                &[(2, 1, 10), (3, 3, -8)][..],
+            ),
+            (
+                "def f\n      while x\n  y\n  end\nend\n",
+                &[(2, 1, 6), (3, 3, -4)],
+            ),
+            ("class A\n      def x\n  end\nend\n", &[(2, 1, 6)]),
+            ("class A\n      class << self\n  end\nend\n", &[(2, 1, 6)]),
+            (
+                "unless a\n      case b\n  when c\n  end\nend\n",
+                &[(2, 1, 6)],
+            ),
+            (
+                "if a\n      case b\n        when c\n  end\nend\n",
+                &[(2, 1, 6)],
+            ),
+            ("if a\n      case b\n  in c\n      end\nend\n", &[(2, 1, 6)]),
+            ("if a\n      for x in y\n  end\nend\n", &[(2, 1, 6)]),
+            (
+                "module M\n      begin\n  x\n  end\nend\n",
+                &[(2, 1, 6), (3, 3, 0)],
+            ),
+            (
+                "if a\n          until b\n    c\n    end\nend\n",
+                &[(2, 1, 10), (3, 5, -6)],
+            ),
+            (
+                "if a\n      if b\n        c\n  elsif d\n        e\n      end\nend\n",
+                &[(2, 1, 6), (5, 3, 6)],
+            ),
+            (
+                "if a\n      unless b\n        c\n  else\n        e\n      end\nend\n",
+                &[(2, 1, 6), (5, 3, 6)],
+            ),
+            // The less-indented opener stays while its `end` would move.
+            ("if a\n      x = [\n  if y\n      end]\nend\n", &[(2, 1, 6)]),
+            // `b` stays, and the clause would move while its `def` stays.
+            (
+                "def x\n      a\n    rescue\n  b\nend\n",
+                &[(2, 1, 6), (4, 3, -2)],
+            ),
+        ] {
+            let found = correction_offenses(&IndentationWidth, source);
+            let expected: Vec<_> = expected
+                .iter()
+                .map(|&(line, col, width)| {
+                    (
+                        line,
+                        col,
+                        format!("Use 2 (not {width}) spaces for indentation."),
+                    )
+                })
+                .collect();
+            assert_eq!(
+                found
+                    .iter()
+                    .map(|o| (o.line, o.col, o.message.clone()))
+                    .collect::<Vec<_>>(),
+                expected,
+                "{source:?}"
+            );
+            assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
+            assert_correction(&IndentationWidth, source, source);
+        }
+    }
+
+    /// Complete shifts, positive shifts, and partial negative shifts whose
+    /// skipped lines pair no keyword with a moved line stay corrected.
+    #[test]
+    fn warning_neutral_negative_shifts_stay_corrected() {
+        for (before, after) in [
+            (
+                "if true\n          if true\n            1\n          end\nend\n",
+                "if true\n  if true\n    1\n  end\nend\n",
+            ),
+            (
+                "class A\n      def x\n      end\nend\n",
+                "class A\n  def x\n  end\nend\n",
+            ),
+            (
+                "def f\n      while x\n\n        y(1,\n          2)\n      end\nend\n",
+                "def f\n  while x\n\n    y(1,\n      2)\n  end\nend\n",
+            ),
+            // Heredoc bodies are literal text, not skipped code lines.
+            (
+                "def f\n      x(<<~T)\nbody\nT\nend\n",
+                "def f\n  x(<<~T)\nbody\nT\nend\n",
+            ),
+            // Only a plain statement stays; `if` and `end` both move.
+            (
+                "def f\n      if x\n  y\n      end\nend\n",
+                "def f\n  if x\n  y\n  end\nend\n",
+            ),
+            // Ruby compares no block keywords.
+            (
+                "foo do\n      bar do\n  end\nend\n",
+                "foo do\n  bar do\n  end\nend\n",
+            ),
+            // The skipped clause and its opener both stay.
+            (
+                "def x\n      a\n  rescue\n      b\nend\n",
+                "def x\n  a\n  rescue\n  b\nend\n",
+            ),
+            (
+                "begin\n      x\n  rescue\n      y\nend\n",
+                "begin\n  x\n  rescue\n  y\nend\n",
+            ),
+            // A complete protected-body shift is not partial: like upstream
+            // it moves the clause with the body (its warning is a known gap).
+            (
+                "def x\n      a\n    rescue\n      b\nend\n",
+                "def x\n  a\nrescue\n  b\nend\n",
+            ),
+        ] {
+            assert_correction(&IndentationWidth, before, after);
+        }
+        for source in [
+            "if true\n  if true\n    1\n  end\nend\n",
+            "class A\n  def x\n  end\nend\n",
+        ] {
+            assert_unchanged(source);
+        }
+    }
+
+    /// A negative shift removes trailing prefix bytes on its first
+    /// line and leading prefix bytes on the others. With tabs, native Ruby's
+    /// 8-column tab stops then move compared keywords by different amounts
+    /// (the exact reproducer moves the inner `if` to column 2 while
+    /// its `end` stays at column 8). When the native column order of any
+    /// compared pair in the span changes, every finding stays and the whole
+    /// edit is withheld. Each pair here is equal before and unequal after, or
+    /// the reverse.
+    #[test]
+    fn tab_shifts_that_change_native_keyword_order_are_withheld() {
+        for (source, expected) in [
+            // The exact reproducer.
+            (
+                "if true\n  \tif true\n  \t  1\n  \tend\nend\n",
+                &[(2, 1, 3)][..],
+            ),
+            (
+                "if true\n  \tif a\n  \t  1\n  \telse\n  \t  2\n  \tend\nend\n",
+                &[(2, 1, 3)],
+            ),
+            // A stabby lambda's `end` is natively compared with its `->`.
+            ("if a\n  \t-> do\n  \t  1\n  \tend\nend\n", &[(2, 1, 3)]),
+            ("if a\n  \t-> {\n  \t  1\n  \t}\nend\n", &[(2, 1, 3)]),
+            // The same pair guards a space-only partial shift.
+            ("if a\n      -> do\n  end\nend\n", &[(2, 1, 6)]),
+            ("if a\n  \tcase b\n  \twhen c\n  \tend\nend\n", &[(2, 1, 3)]),
+            ("if a\n \t\tif b\n \t\tend\nend\n", &[(2, 1, 3)]),
+            // The clause's opener is outside the span: `rescue` would move
+            // from column 8 to column 0, erasing its `def` warning.
+            ("def f\n  \t x\n \trescue\n  \t y\nend\n", &[(2, 1, 4)]),
+            // `end` is compared with the `else`, not the `if` (found by an
+            // authored native sweep): only that pair's order would change.
+            (
+                "if true\n \t if x\n1\n\telse\n 2\n end\nend\n",
+                &[(2, 1, 3), (3, 1, -3), (5, 2, 0)],
+            ),
+            // CRLF line ends and a BOM change neither columns nor the hold.
+            (
+                "if true\r\n  \tif true\r\n  \t  1\r\n  \tend\r\nend\r\n",
+                &[(2, 1, 3)],
+            ),
+            (
+                "\u{feff}if true\n  \tif true\n  \t  1\n  \tend\nend\n",
+                &[(2, 1, 3)],
+            ),
+        ] {
+            let found = correction_offenses(&IndentationWidth, source);
+            let expected: Vec<_> = expected
+                .iter()
+                .map(|&(line, col, width)| {
+                    (
+                        line,
+                        col,
+                        format!("Use 2 (not {width}) spaces for indentation."),
+                    )
+                })
+                .collect();
+            assert_eq!(
+                found
+                    .iter()
+                    .map(|o| (o.line, o.col, o.message.clone()))
+                    .collect::<Vec<_>>(),
+                expected,
+                "{source:?}"
+            );
+            assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
+            assert_correction(&IndentationWidth, source, source);
+        }
+    }
+
+    /// The pairs follow Ruby 3.4.1's native comparisons, confirmed with
+    /// authored `-w -c` controls: `elsif`/`else` with the `if`, `end` and a
+    /// rescue `ensure` with a preceding `else`, `when` with `case` (plus the
+    /// conservative `case` `else`), lambdas but no blocks.
+    #[test]
+    fn keyword_pairs_follow_native_ruby() {
+        fn lines(source: &str) -> Vec<(u32, u32)> {
+            struct Pairs(Vec<(usize, usize)>);
+            impl<'pr> NodeVisitor<'pr> for Pairs {
+                fn enter(&mut self, node: Node<'pr>) {
+                    keyword_pairs(&node, &mut self.0);
+                }
+                fn leave(&mut self) {}
+            }
+            let result = ruby_prism::parse(source.as_bytes());
+            assert_eq!(result.errors().count(), 0, "{source:?}");
+            let mut pairs = Pairs(Vec::new());
+            walk(&mut pairs, &result.node());
+            let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
+            let mut lines: Vec<_> = pairs
+                .0
+                .iter()
+                .map(|&(a, b)| (file.line_of(a), file.line_of(b)))
+                .collect();
+            lines.sort_unstable();
+            lines
+        }
+        for (source, expected) in [
+            (
+                "if a\n1\nelsif b\n2\nelsif c\n3\nelse\n4\nend\n",
+                &[(1, 3), (1, 5), (1, 7), (7, 9)][..],
+            ),
+            ("if a\n1\nelsif b\n2\nend\n", &[(1, 3), (1, 5)]),
+            ("unless a\n1\nelse\n2\nend\n", &[(1, 3), (3, 5)]),
+            (
+                "def f\n1\nrescue\n2\nrescue\n3\nelse\n4\nensure\n5\nend\n",
+                &[(1, 3), (1, 5), (1, 7), (7, 9), (7, 11)],
+            ),
+            (
+                "begin\n1\nrescue\n2\nensure\n3\nend\n",
+                &[(1, 3), (1, 5), (1, 7)],
+            ),
+            (
+                "case a\nwhen 1\n2\nelse\n3\nend\n",
+                &[(1, 2), (1, 4), (1, 6)],
+            ),
+            ("p(-> {\n1\n})\n", &[(1, 3)]),
+            ("p(-> do\n1\nrescue\n2\nend)\n", &[(1, 3), (1, 5)]),
+            ("foo do\n1\nrescue\n2\nend\nx if y\n", &[]),
+        ] {
+            assert_eq!(lines(source), expected, "{source:?}");
+        }
+    }
+
+    /// Tab-containing shifts that keep every compared pair's native column
+    /// order stay corrected, as do positive shifts (they append spaces after
+    /// the whole prefix, so every tab stop is kept).
+    #[test]
+    fn tab_shifts_that_keep_native_keyword_order_stay_corrected() {
+        for (before, after) in [
+            (
+                "if true\n  \t  if x\n  \t    1\n  \t  end\nend\n",
+                "if true\n  if x\n    1\n  end\nend\n",
+            ),
+            (
+                "if true\r\n  \t  if x\r\n  \t    1\r\n  \t  end\r\nend\r\n",
+                "if true\r\n  if x\r\n    1\r\n  end\r\nend\r\n",
+            ),
+            // `rescue` keeps column 8 against its `def` at column 0.
+            (
+                "def f\n   \tx\n  \trescue\n   \ty\nend\n",
+                "def f\n  x\n\trescue\n \ty\nend\n",
+            ),
+            ("if a\n\tb\nend\n", "if a\n\t b\nend\n"),
+            (
+                "if a\n\tif b\n\t\tc\n\tend\nend\n",
+                "if a\n\t if b\n\t\t c\n\t end\nend\n",
+            ),
+        ] {
+            assert_correction(&IndentationWidth, before, after);
+        }
     }
 
     #[test]

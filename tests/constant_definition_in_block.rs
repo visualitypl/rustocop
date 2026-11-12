@@ -129,7 +129,7 @@ fn native_ruby34_accepts_every_reference_fixture_syntax_only() {
 #[test]
 fn metadata_default_on_ruby34_eligible_detection_only_without_paths_or_settings() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     assert_eq!(
         registry
             .cops()

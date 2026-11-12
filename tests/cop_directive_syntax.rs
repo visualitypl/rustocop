@@ -75,7 +75,7 @@ fn all_51_pinned_calls_exact_diagnostics_and_all_seven_correction_dispositions()
             .iter()
             .map(|o| (o.line, o.col, o.message.as_str()))
             .collect();
-        let mut expected: Vec<_> = row["positions"]
+        let expected: Vec<_> = row["positions"]
             .as_array()
             .unwrap()
             .iter()
@@ -88,19 +88,14 @@ fn all_51_pinned_calls_exact_diagnostics_and_all_seven_correction_dispositions()
                 )
             })
             .collect();
-        if row["spec_line"] == 393 {
-            expected.push((
-                1,
-                7,
-                "Unknown cop name `Metrics/AbcSize` (did you mean `Metrics/ParameterLists`?).",
-            ));
-        }
         assert_eq!(actual, expected, "{row:?}");
         let after = if let Some(after) = row["correction"].as_str() {
             corrections += 1;
             // Upstream's first witness changes the effective suppression of
-            // registered Style/Encoding. Keep the diagnostic, not that edit.
-            if row["spec_line"] == 48 {
+            // registered Style/Encoding, and the merges into a list naming
+            // Metrics/AbcSize add an active suppression
+            // of it. Keep the diagnostic, not that edit.
+            if row["spec_line"] == 48 || after.contains("Metrics/AbcSize") {
                 source
             } else {
                 after
@@ -381,10 +376,12 @@ fn source_envelopes_encoding_and_global_observers_use_existing_guards() {
     fix(dir.path(), &before, &after);
     fix(
         dir.path(),
-        format!("{BEFORE}p DATA.read\n__END__\nraw\n").as_bytes(),
-        format!("{AFTER}p DATA.read\n__END__\nraw\n").as_bytes(),
+        format!("{BEFORE}p 1\n__END__\nraw\n").as_bytes(),
+        format!("{AFTER}p 1\n__END__\nraw\n").as_bytes(),
     );
+    // Reading `DATA` is a listed observer.
     for observer in [
+        "p DATA.read\n__END__\nraw\n",
         "p File.binread(__FILE__)\n",
         "p DATA.pos\n__END__\nraw\n",
         "p RubyVM::InstructionSequence.of(method(:f))\ndef f; 1; end\n",

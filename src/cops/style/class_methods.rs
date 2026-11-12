@@ -136,6 +136,8 @@ pub(crate) struct Bindings {
     consumes_stream: bool,
     // The closed list, independent of older accepted-family proofs.
     listed_source_observer: bool,
+    // `SCRIPT_LINES__` alone, the listed observer that collects source lines.
+    script_lines_observer: bool,
     listed_data_observer: bool,
     observes_argf: bool,
     metadata_constructor_acquisition: bool,
@@ -309,6 +311,13 @@ impl Bindings {
         self.observes_snippets || (self.acquires_source_path && self.reads_source)
     }
 
+    /// Whether `SCRIPT_LINES__` is named (directly, rooted or through a
+    /// literal `const_get`): loaded sources, the linted file included, can
+    /// be collected line by line. Read by the original Layout cops' hold.
+    pub(crate) fn observes_script_lines(&self) -> bool {
+        self.script_lines_observer
+    }
+
     /// Unconditional listed-observer hold: no reader or value-flow proof needed.
     /// DATA is an observer only when the parser found an actual data section.
     pub(crate) fn has_listed_source_observer(&self, has_data: bool) -> bool {
@@ -391,25 +400,10 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Bindings {
         self.repositions_data |= selector_acquisition_observes(&node, data_reposition);
         self.consumes_stream |= selector_acquisition_observes(&node, stream_consumer);
         self.listed_source_observer |= listed_source_observer(&node);
-        self.listed_data_observer |= named_constant(&node, b"DATA")
-            || node.as_call_node().is_some_and(|call| {
-                call.name().as_slice() == b"const_get"
-                    && call
-                        .arguments()
-                        .and_then(|args| args.arguments().iter().next())
-                        .is_some_and(|arg| {
-                            let arg = dispatch_expression(arg);
-                            let symbol = arg.as_symbol_node();
-                            let string = arg.as_string_node();
-                            // Literal reflected DATA is the same listed handle,
-                            // regardless of its namespace or receiver alias.
-                            symbol
-                                .as_ref()
-                                .map(|s| s.unescaped())
-                                .or_else(|| string.as_ref().map(|s| s.unescaped()))
-                                .is_some_and(|name| name == b"DATA" || name.ends_with(b"::DATA"))
-                        })
-            });
+        self.script_lines_observer |= named_constant(&node, b"SCRIPT_LINES__")
+            || reflected_constant(&node, b"SCRIPT_LINES__");
+        self.listed_data_observer |=
+            named_constant(&node, b"DATA") || reflected_constant(&node, b"DATA");
         self.observes_argf |= argf_acquisition(&node);
         self.metadata_constructor_acquisition |= node.as_call_node().is_some_and(|c| {
             metadata_constructor(&c)
@@ -778,11 +772,40 @@ fn selector_acquisition_observes(node: &Node<'_>, observer: fn(&[u8]) -> bool) -
             .is_some_and(|c| observer(c.read_name().as_slice()))
 }
 
+/// A `const_get` of the literal constant `name`. The reflected constant is
+/// the same listed object, regardless of its namespace or receiver alias.
+fn reflected_constant(node: &Node<'_>, name: &[u8]) -> bool {
+    node.as_call_node().is_some_and(|call| {
+        call.name().as_slice() == b"const_get"
+            && call
+                .arguments()
+                .and_then(|args| args.arguments().iter().next())
+                .is_some_and(|arg| {
+                    let arg = dispatch_expression(arg);
+                    let symbol = arg.as_symbol_node();
+                    let string = arg.as_string_node();
+                    symbol
+                        .as_ref()
+                        .map(|s| s.unescaped())
+                        .or_else(|| string.as_ref().map(|s| s.unescaped()))
+                        .is_some_and(|literal| {
+                            literal == name
+                                || literal
+                                    .strip_suffix(name)
+                                    .is_some_and(|prefix| prefix.ends_with(b"::"))
+                        })
+                })
+    })
+}
+
 fn named_constant(node: &Node<'_>, name: &[u8]) -> bool {
     node.as_constant_read_node()
         .is_some_and(|n| n.name().as_slice() == name)
         || node
             .as_constant_path_node()
+            .is_some_and(|n| n.name().is_some_and(|n| n.as_slice() == name))
+        || node
+            .as_constant_path_target_node()
             .is_some_and(|n| n.name().is_some_and(|n| n.as_slice() == name))
         || node
             .as_constant_write_node()
@@ -1663,6 +1686,28 @@ mod tests {
         }
     }
     #[test]
+    fn script_lines_is_named_directly_rooted_assigned_or_reflected() {
+        for (source, named) in [
+            ("p SCRIPT_LINES__", true),
+            ("p ::SCRIPT_LINES__", true),
+            ("SCRIPT_LINES__ = {}", true),
+            ("SCRIPT_LINES__ ||= {}", true),
+            ("Object.const_get(:SCRIPT_LINES__)", true),
+            ("Object.const_get('Object::SCRIPT_LINES__')", true),
+            ("p SCRIPT_LINES", false),
+            ("p NOT_SCRIPT_LINES__", false),
+            ("Object.const_get('XSCRIPT_LINES__')", false),
+            ("'SCRIPT_LINES__'", false),
+            ("# SCRIPT_LINES__", false),
+            ("p __FILE__", false),
+        ] {
+            let parsed = ruby_prism::parse(source.as_bytes());
+            assert_eq!(parsed.errors().count(), 0, "{source}");
+            let facts = Bindings::build(&parsed.node());
+            assert_eq!(facts.observes_script_lines(), named, "{source}");
+        }
+    }
+    #[test]
     fn out_of_scope_implicit_and_process_dispatch_is_not_a_listed_observer() {
         // Parsed only: selector/command subjects are never executed.
         for source in [
@@ -2003,8 +2048,13 @@ mod tests {
     #[test]
     fn harmless_static_dispatch_and_inert_selector_data_keep_newline_fixes() {
         use crate::cops::style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions};
+        // `:source_location` is a listed selector: held.
+        crate::cops::testing::assert_listed_hold(
+            &AmbiguousEndlessMethodDefinition,
+            "def f = true if true\np [:backtrace, :full_message, :source_location]\n",
+        );
         for suffix in [
-            "p [:backtrace, :full_message, :source_location]",
+            "p [:backtrace, :full_message, :backtrace_locations]",
             "items.map(&:to_s)",
             "items.map(&((:to_s)))",
             "items.map(&(:\"to_s\".to_proc))",
@@ -2348,11 +2398,8 @@ mod tests {
             "class C\n def run; File.dirname(File.realpath(__FILE__)); end\nend\np C.new.run\n";
         let parsed = ruby_prism::parse(source.as_bytes());
         assert!(!Bindings::build(&parsed.node()).observes_source_bytes());
-        assert_correction(
-            &crate::cops::style::Dir,
-            source,
-            &source.replace("File.dirname(File.realpath(__FILE__))", "__dir__"),
-        );
+        // Not a reader; the listed `__FILE__` still holds the edit.
+        crate::cops::testing::assert_listed_hold(&crate::cops::style::Dir, source);
     }
 
     #[test]
@@ -2456,7 +2503,6 @@ mod tests {
             "p :argv0_like",
             "p $ordinary",
             "p object.argv0_like",
-            "$PROGRAM_NAME = \"display title\"",
             "p [1].map(&:to_s)",
             "p [1].map(&((:to_s)))",
             "p [1].map(&(:to_s.to_proc))",
@@ -2478,6 +2524,11 @@ mod tests {
                 &source.replace("def A.f", "def self.f"),
             );
         }
+        // A listed `$PROGRAM_NAME` holds every edit.
+        crate::cops::testing::assert_listed_hold(
+            &ClassMethods,
+            "class A\n  def A.f; end\nend\n$PROGRAM_NAME = \"display title\"\n",
+        );
         // No receiver/value-flow proof is attempted for the actual selector.
         // Unknown receivers and inert selector data conservatively withhold.
         for suffix in ["p object.argv0", "p :argv0", "def later\n $0\nend"] {

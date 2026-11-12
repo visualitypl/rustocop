@@ -266,7 +266,7 @@ mod tests {
     #[test]
     fn canonical_correction_and_uncertain_context_holds() {
         use super::ParenthesesAsGroupedExpression;
-        use crate::cops::testing::{assert_correction, correction_offenses};
+        use crate::cops::testing::{assert_correction, assert_listed_hold, correction_offenses};
         for (before, after) in [
             ("a.func (x)\n", "a.func(x)\n"),
             ("is? \t (x)\n", "is?(x)\n"),
@@ -283,10 +283,11 @@ mod tests {
             ("foo (C)\n", "foo(C)\n"),
             ("foo (__LINE__)\n", "foo(__LINE__)\n"),
             ("foo (__ENCODING__)\n", "foo(__ENCODING__)\n"),
-            ("foo (__FILE__)\n", "foo(__FILE__)\n"),
         ] {
             assert_correction(&ParenthesesAsGroupedExpression, before, after);
         }
+        // The listed `__FILE__` withholds the edit.
+        assert_listed_hold(&ParenthesesAsGroupedExpression, "foo (__FILE__)\n");
         for source in [
             "foo (x; y)",
             "foo (;x)",

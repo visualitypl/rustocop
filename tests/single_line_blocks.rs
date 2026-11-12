@@ -79,6 +79,10 @@ fn default_opt_in_only_except_and_config_precedence() {
                 after,
             ),
         ] {
+            // `{ it }` opens and closes on one line: the default-on
+            // Layout/MultilineBlockLayout and BlockEndNewline leave it alone
+            // although the chained call starts at `foo`, as the pinned Team
+            // does (rubocop-ast `BlockNode#single_line?`).
             fs::write(dir.path().join("rustocop.toml"), config).unwrap();
             fs::write(dir.path().join("x.rb"), before).unwrap();
             let out = cli(dir.path(), &args);

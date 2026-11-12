@@ -78,14 +78,19 @@ impl Cop for Dir {
 mod tests {
     //! Examples ported from RuboCop's style/dir_spec.rb
     //! (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+    //!
+    //! Every target names `__FILE__`, a listed source observer,
+    //! so every edit is withheld and the finding stays
+    //! (`assert_listed_hold`); the binding guards below still decide the
+    //! cop's own emission.
     use super::*;
     use crate::{
-        cops::testing::{assert_correction, correction_offenses},
+        cops::testing::{assert_listed_hold, correction_offenses},
         pipeline::lint_str,
     };
 
     #[test]
-    fn pinned_diagnostics_and_corrections() {
+    fn pinned_diagnostics_and_listed_observer_holds() {
         for outer in ["File", "::File"] {
             for inner in ["File", "::File"] {
                 for (a, b) in [("expand_path", "dirname"), ("dirname", "realpath")] {
@@ -100,7 +105,7 @@ mod tests {
                         found[0].message,
                         "Use `__dir__` to get an absolute path to the current file's directory."
                     );
-                    assert_correction(&Dir, &source, "# header\n  __dir__\n");
+                    assert_listed_hold(&Dir, &source);
                 }
             }
         }
@@ -129,10 +134,9 @@ mod tests {
     #[test]
     fn groups_replacement_when_used_as_a_receiver() {
         for suffix in [" [0]", "[0]", " [0] = value", " +\"suffix\"", ".bytes"] {
-            assert_correction(
+            assert_listed_hold(
                 &Dir,
                 &format!("File.dirname(File.realpath(__FILE__)){suffix}\n"),
-                &format!("(__dir__){suffix}\n"),
             );
         }
     }
@@ -152,10 +156,9 @@ mod tests {
             assert_eq!(found.len(), 1);
             assert!(found[0].correction.is_none(), "{source}");
         }
-        assert_correction(
+        assert_listed_hold(
             &Dir,
             "class C; alias other object_id; def run; File.dirname(File.realpath(__FILE__)); end; end",
-            "class C; alias other object_id; def run; __dir__; end; end",
         );
     }
 
@@ -201,7 +204,7 @@ mod tests {
     }
 
     #[test]
-    fn unrelated_method_binding_names_keep_canonical_edits() {
+    fn unrelated_method_binding_names_keep_findings_under_the_listed_hold() {
         for binding in [
             "alias_method :other, :__dir__",
             "self.alias_method '__dir__=', :object_id",
@@ -214,7 +217,7 @@ mod tests {
             "# alias_method :__dir__, :object_id",
         ] {
             let source = format!("{binding}\nFile.dirname(File.realpath(__FILE__))\n");
-            assert_correction(&Dir, &source, &format!("{binding}\n__dir__\n"));
+            assert_listed_hold(&Dir, &source);
         }
     }
 
@@ -244,14 +247,15 @@ mod tests {
             let found = correction_offenses(&Dir, &source);
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
+            // The listed `__FILE__` holds the peer's edit too.
             let dir_empty = correction_offenses(&super::super::DirEmpty, &source);
             assert_eq!(dir_empty.len(), 1, "{source}");
-            assert!(dir_empty[0].correction.is_some(), "{source}");
+            assert!(dir_empty[0].correction.is_none(), "{source}");
         }
     }
 
     #[test]
-    fn equivalent_binding_unrelated_names_do_not_block_canonical_fixes() {
+    fn equivalent_binding_unrelated_names_keep_findings_under_the_listed_hold() {
         for binding in [
             "attr_reader :other",
             "attr_accessor '__dir__other'",
@@ -267,7 +271,7 @@ mod tests {
             "undef :other",
         ] {
             let source = format!("{binding}\nFile.dirname(File.realpath(__FILE__))\n");
-            assert_correction(&Dir, &source, &format!("{binding}\n__dir__\n"));
+            assert_listed_hold(&Dir, &source);
         }
     }
 
@@ -301,10 +305,11 @@ mod tests {
                         "Use `__dir__` to get an absolute path to the current file's directory."
                     );
                     assert!(found[0].correction.is_none(), "{source}");
+                    // The listed `__FILE__` holds the peer's edit too.
                     assert!(
                         correction_offenses(&super::super::DirEmpty, &source)[0]
                             .correction
-                            .is_some(),
+                            .is_none(),
                         "{source}"
                     );
                 }
@@ -326,7 +331,7 @@ mod tests {
     }
 
     #[test]
-    fn unrelated_struct_and_data_members_keep_canonical_edits() {
+    fn unrelated_struct_and_data_members_keep_findings_under_the_listed_hold() {
         for constructor in [
             "Struct.new(:other)",
             "::Struct.new(:other, keyword_init: true)",
@@ -341,7 +346,7 @@ mod tests {
             "Data.new(:__dir__)",
         ] {
             let source = format!("C = {constructor}\nFile.dirname(File.realpath(__FILE__))\n");
-            assert_correction(&Dir, &source, &format!("C = {constructor}\n__dir__\n"));
+            assert_listed_hold(&Dir, &source);
         }
         // Other may be an IO-class alias. An unknown constructor can expose
         // the acquired __FILE__ bytes; unlike Struct/Data it has no proof.
@@ -355,16 +360,11 @@ mod tests {
 
     #[test]
     fn preserves_headers_line_endings_data_and_trailing_comments() {
-        assert_correction(
+        assert_listed_hold(
             &Dir,
             "\u{feff}# encoding: UTF-8\r\nx = File.dirname(File.realpath(__FILE__)) # keep\r\np __LINE__\r\n__END__\r\nraw\r\n",
-            "\u{feff}# encoding: UTF-8\r\nx = __dir__ # keep\r\np __LINE__\r\n__END__\r\nraw\r\n",
         );
-        assert_correction(
-            &Dir,
-            "File.\n expand_path(File.dirname(__FILE__))\n",
-            "__dir__\n",
-        );
+        assert_listed_hold(&Dir, "File.\n expand_path(File.dirname(__FILE__))\n");
     }
 
     #[test]

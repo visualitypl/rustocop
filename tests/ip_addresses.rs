@@ -1,10 +1,12 @@
 //! source-only opt-in detection, fixed path policy and no-write CLI.
 use std::{
     fs,
-    io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 
 const COP: &str = "Style/IpAddresses";
 const SOURCE: &str = "puts \"127.0.0.1\"\n";
@@ -254,14 +256,18 @@ fn stdin_honors_opt_in_and_pinned_paths_without_writing_display_files() {
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
-        child
-            .stdin
-            .take()
-            .unwrap()
-            .write_all(SOURCE.as_bytes())
-            .unwrap();
+        // Only the expected `--fix --stdin` rejection may exit before reading.
+        stdin_support::write_stdin(child.stdin.take().unwrap(), SOURCE.as_bytes(), fix).unwrap();
         let out = child.wait_with_output().unwrap();
         assert_eq!(out.status.code(), Some(status), "{out:?}");
+        if fix {
+            assert!(out.stdout.is_empty(), "{out:?}");
+            assert!(
+                String::from_utf8_lossy(&out.stderr)
+                    .contains("the argument '--fix' cannot be used with '--stdin <PATH>'"),
+                "{out:?}"
+            );
+        }
         assert_eq!(fs::read(&path).unwrap(), b"sentinel\n");
         assert_eq!(fs::metadata(path).unwrap().modified().unwrap(), mtime);
     }

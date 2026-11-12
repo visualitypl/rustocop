@@ -62,12 +62,18 @@ fn successful_fixes_preserve_binding_edges_dispatch_control_flow_and_literal_val
         }
     }
     let d = project();
+    // `DATA` with a data section is a listed observer that holds
+    // every edit.
+    let listed = "foo { [\"café\", _1, __LINE__] }; p DATA.pos\n__END__\nraw\n";
+    fs::write(d.path().join("x.rb"), listed).unwrap();
+    cli(d.path(), &["--only", IT, "--fix", "x.rb"], 1);
+    assert_eq!(fs::read(d.path().join("x.rb")).unwrap(), listed.as_bytes());
     for source in [
         "def f(v); xs.map { _1 + v }; end\n",
         "proc { use(_1); inner { |it| use(it) }; next _1 }\n",
         "-> { use(_1); inner { |(x,y)| use(x,y) }; _1.foo { |x=1| x } }\n",
         "foo { use(_1); def (build(<<~TXT)).tag(x=1); end }\n#{_1} #{__LINE__} _1 literal\nTXT\n",
-        "foo { [\"café\", _1, __LINE__] }; p DATA.pos\n__END__\nraw\n",
+        "foo { [\"café\", _1, __LINE__] }; p :data\n__END__\nraw\n",
         "f = -> { return _1 if _1; next _1 }; g = proc { break _1 }\n",
     ] {
         fs::write(d.path().join("x.rb"), source).unwrap();

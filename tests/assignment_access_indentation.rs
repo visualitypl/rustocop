@@ -426,7 +426,7 @@ fn actual_metadata_default_config_only_except_and_strict_no_new_knobs() {
     let d = project();
     let path = d.path().join("example.rb");
     let registry = Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for (cop, source) in [
         (ACCESS, "class A\nprivate\n  def foo; end\nend\n"),
         (ASSIGN, "a =\n1\n"),

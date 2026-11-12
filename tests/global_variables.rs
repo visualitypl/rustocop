@@ -331,7 +331,18 @@ fn runtime_object_namespace_and_method_object_mutations_remain_unedited() {
 fn source_bytes_line_data_and_mixed_style_layout_composition_are_preserved() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let source = "\u{feff}# encoding: UTF-8\r\n/(é)/ =~ 'é'\r\np [$1, \"#$1\", __LINE__, 'é'.encoding.name, DATA.read.bytes]\r\n__END__\r\nraw\0\r\n";
+    let listed = "\u{feff}# encoding: UTF-8\r\n/(é)/ =~ 'é'\r\np [$1, \"#$1\", __LINE__, 'é'.encoding.name, DATA.read.bytes]\r\n__END__\r\nraw\0\r\n";
+    // Reading `DATA` is a listed observer: that file keeps its
+    // findings and bytes. The unread data section survives below.
+    fs::write(&path, listed).unwrap();
+    run(
+        dir.path(),
+        &["--only", PERL, "--fix", "lib/a.rb"],
+        1,
+        [0, 0, 2],
+    );
+    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
+    let source = &listed.replace(", DATA.read.bytes]", "]");
     fs::write(&path, source).unwrap();
     let before = has_ruby().then(|| ruby(dir.path()));
     run(

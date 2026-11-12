@@ -123,6 +123,14 @@ fn every_emitting_safe_style_capability_honors_source_code_object_and_heap_barri
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         let source = case["before"].as_str().unwrap();
         let original = collect_selected(&[cop.as_ref()], source.as_bytes());
+        if matches!(name, "Style/Dir" | "Style/ExpandPathArguments") {
+            // These edits rewrite a listed
+            // `__FILE__`, so they are always withheld; findings stay.
+            assert!(source.contains("__FILE__"), "{name}");
+            assert!(!original.is_empty(), "{name}");
+            assert!(original.iter().all(|o| o.correction.is_none()), "{name}");
+            continue;
+        }
         assert!(original.iter().any(|o| o.correction.is_some()), "{name}");
         checked += 1;
         for observer in [
@@ -139,5 +147,6 @@ fn every_emitting_safe_style_capability_honors_source_code_object_and_heap_barri
             );
         }
     }
-    assert_eq!(checked, 173);
+    // 173 emitting capabilities less Style/Dir and Style/ExpandPathArguments.
+    assert_eq!(checked, 171);
 }

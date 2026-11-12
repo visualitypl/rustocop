@@ -548,8 +548,11 @@ fn authored_native_line_data_source_heap_and_code_object_observers() {
     };
     let d = project();
     let path = d.path().join("lib/a.rb");
+    // Reading `DATA` is a listed observer; an unread
+    // data section and `__LINE__` are stable.
     for (observer, safe) in [
-        ("p [__LINE__, DATA.read]", true),
+        ("p [__LINE__]", true),
+        ("p [__LINE__, DATA.read]", false),
         ("p DATA.pos", false),
         ("print File.binread(__FILE__)", false),
         (

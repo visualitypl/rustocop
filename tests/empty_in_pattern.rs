@@ -2,10 +2,12 @@
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
 use std::{
     fs,
-    io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 
 const COP: &str = "Lint/EmptyInPattern";
 const SOURCE: &str = "case value\nin [a]\nend\n";
@@ -46,7 +48,9 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
     out
 }
 
-fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
+/// `expect_early_error` only for runs whose asserted exit is the early
+/// `--stdin --fix` rejection, which may exit before reading stdin.
+fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
         .args(args)
@@ -55,7 +59,7 @@ fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(source).unwrap();
+    stdin_support::write_stdin(child.stdin.take().unwrap(), source, expect_early_error).unwrap();
     child.wait_with_output().unwrap()
 }
 
@@ -189,7 +193,7 @@ fn block_pseudo_directives_do_not_suppress_code_or_opt_in_config_disabled_cops()
 fn real_minimum_ruby_gate_and_detection_only_metadata() {
     use rustocop::cops::policy::{RubyVersion, RubyVersions};
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());
@@ -284,6 +288,7 @@ fn user_exclusions_supplied_paths_and_stdin_provenance() {
             dir.path(),
             SOURCE.as_bytes(),
             &["--only", COP, "--stdin", "lib/display.rb"],
+            false,
         );
         assert_eq!(out.status.code(), Some(i32::from(!excluded)), "{out:?}");
         assert_eq!(count(&out), usize::from(!excluded));
@@ -301,8 +306,15 @@ fn user_exclusions_supplied_paths_and_stdin_provenance() {
         dir.path(),
         SOURCE.as_bytes(),
         &["--only", COP, "--stdin", "lib/display.rb", "--fix"],
+        true,
     );
     assert_eq!(out.status.code(), Some(2));
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
+    );
     assert_eq!(fs::read(&sentinel).unwrap(), b"sentinel\n");
     let new = fs::metadata(sentinel).unwrap();
     assert_eq!(old.modified().unwrap(), new.modified().unwrap());

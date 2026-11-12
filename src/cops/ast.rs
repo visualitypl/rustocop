@@ -599,6 +599,125 @@ pub fn fingerprint_ignoring_grouping<'pr>(node: &Node<'pr>, source: &'pr [u8]) -
     Fingerprint(builder.tokens, PhantomData)
 }
 
+/// [`fingerprint`] with every string concatenation folded to a canonical
+/// form, as `Layout/RedundantLineBreak`'s `normalize_reparsed_ast`
+/// (`fold_string_concatenation`): adjacent literal parts (`"a" "b"`) and
+/// `+` sends whose receiver and arguments are all `str`/`dstr` are
+/// flattened into one string whose adjacent plain parts are merged; a
+/// single plain part becomes a plain string. Only for comparing two parses
+/// whose `__LINE__`s were rewritten (`SourceLineNode` keys are positions).
+pub(crate) fn fingerprint_folding_strings<'pr>(
+    node: &Node<'pr>,
+    _source: &'pr [u8],
+) -> Fingerprint<'pr> {
+    let Fingerprint(tokens, _) = fingerprint(node);
+    let mut folded = Vec::with_capacity(tokens.len());
+    let mut stack: Vec<(Token, Vec<FoldTree>)> = Vec::new();
+    let mut roots = Vec::new();
+    for token in tokens {
+        match token {
+            Token::Open(_) => stack.push((token, Vec::new())),
+            Token::Close(_) => {
+                let (open, children) = stack.pop().expect("balanced fingerprint");
+                let tree = fold_tree(open, children, token);
+                match stack.last_mut() {
+                    Some((_, siblings)) => siblings.push(tree),
+                    None => roots.push(tree),
+                }
+            }
+            leaf => {
+                let tree = FoldTree::Leaf(leaf);
+                match stack.last_mut() {
+                    Some((_, siblings)) => siblings.push(tree),
+                    None => roots.push(tree),
+                }
+            }
+        }
+    }
+    for tree in roots {
+        tree.flatten(&mut folded);
+    }
+    Fingerprint(folded, PhantomData)
+}
+
+/// A fingerprint token tree for [`fingerprint_folding_strings`].
+enum FoldTree {
+    Leaf(Token),
+    Branch(Token, Vec<FoldTree>, Token),
+}
+
+impl FoldTree {
+    fn flatten(self, out: &mut Vec<Token>) {
+        match self {
+            FoldTree::Leaf(token) => out.push(token),
+            FoldTree::Branch(open, children, close) => {
+                out.push(open);
+                for child in children {
+                    child.flatten(out);
+                }
+                out.push(close);
+            }
+        }
+    }
+
+    fn is_str(&self) -> bool {
+        matches!(self, FoldTree::Leaf(Token::Leaf(Kind::String, _)))
+    }
+
+    fn is_dstr(&self) -> bool {
+        matches!(
+            self,
+            FoldTree::Branch(Token::Open(Kind::InterpolatedString), _, _)
+        )
+    }
+}
+
+/// Folds a closed branch whose children are already folded.
+fn fold_tree(open: Token, mut children: Vec<FoldTree>, close: Token) -> FoldTree {
+    let parts = if matches!(open, Token::Open(Kind::InterpolatedString)) {
+        std::mem::take(&mut children)
+    } else if matches!(&close, Token::Close(text) if text.as_slice() == b"\0+\0" || text.as_slice() == b"\0.+\0")
+        && children.len() == 2
+        && (children[0].is_str() || children[0].is_dstr())
+        && matches!(&children[1], FoldTree::Branch(_, arguments, _)
+            if !arguments.is_empty() && arguments.iter().all(|a| a.is_str() || a.is_dstr()))
+    {
+        // `string_concatenation_parts` of a `+` send: receiver and arguments.
+        let Some(FoldTree::Branch(_, arguments, _)) = children.pop() else {
+            unreachable!()
+        };
+        children.extend(arguments);
+        std::mem::take(&mut children)
+    } else {
+        return FoldTree::Branch(open, children, close);
+    };
+    // `merge_string_parts`: flatten dstr parts, merge adjacent strs.
+    let mut merged: Vec<FoldTree> = Vec::new();
+    for part in parts {
+        let flattened = match part {
+            FoldTree::Branch(Token::Open(Kind::InterpolatedString), inner, _) => inner,
+            other => vec![other],
+        };
+        for piece in flattened {
+            match (merged.last_mut(), piece) {
+                (
+                    Some(FoldTree::Leaf(Token::Leaf(Kind::String, left))),
+                    FoldTree::Leaf(Token::Leaf(Kind::String, right)),
+                ) => left.extend_from_slice(&right),
+                (_, piece) => merged.push(piece),
+            }
+        }
+    }
+    if merged.len() == 1 && merged[0].is_str() {
+        return merged.pop().unwrap();
+    }
+    FoldTree::Branch(
+        Token::Open(Kind::InterpolatedString),
+        merged,
+        Token::Close(Vec::new()),
+    )
+}
+
 /// Whether two nodes are structurally equal (RuboCop's node `==`).
 pub fn same_node(a: &Node<'_>, b: &Node<'_>) -> bool {
     kind(a) == kind(b) && fingerprint(a) == fingerprint(b)
@@ -3183,5 +3302,56 @@ mod tests {
                 vec!["BlockArgumentNode"],
             ]
         );
+    }
+}
+
+#[cfg(test)]
+mod folding_tests {
+    use super::*;
+
+    fn folded(source: &str) -> Fingerprint<'static> {
+        let parsed = crate::parser::parse(source.as_bytes());
+        assert_eq!(parsed.errors().count(), 0, "{source}");
+        fingerprint_folding_strings(&parsed.node(), source.as_bytes()).into_owned()
+    }
+
+    #[test]
+    fn string_concatenations_fold_to_one_canonical_string() {
+        for (a, b) in [
+            ("x('a' \\\n  'b')", "x('ab')"),
+            ("x(\"a\" \\\n  'b')", "x(\"a\" + 'b')"),
+            ("x('a' \\\n  \"b\")", "x('a' + \"b\")"),
+            ("x(\"#{y}a\" \\\n 'b')", "x(\"#{y}ab\")"),
+            ("x('a' + \"#{y}\" + 'b')", "x(\"a#{y}b\")"),
+            ("x(\"a\".+('b'))", "x('ab')"),
+            ("x(\"a\" \"b\" \"c\")", "x(\"abc\")"),
+        ] {
+            assert_eq!(folded(a), folded(b), "{a} / {b}");
+        }
+    }
+
+    #[test]
+    fn other_trees_stay_distinct() {
+        for (a, b) in [
+            ("x('a' + b)", "x('ab')"),
+            ("x('a' - 'b')", "x('ab')"),
+            ("x('a', 'b')", "x('ab')"),
+            ("x(:a)", "x('a')"),
+            ("x(`a`)", "x('a')"),
+            ("x(\"#{y}\")", "x(y)"),
+            ("x('a' + 'b')", "x('ba')"),
+            ("x(a + 'b')", "x(a + 'c')"),
+            ("x(1 + 2)", "x(3)"),
+        ] {
+            assert_ne!(folded(a), folded(b), "{a} / {b}");
+        }
+        // Without strings, the plain fingerprint is unchanged.
+        for source in ["foo(1, bar(2)) { |x| x + 1 }", "a = b.c&.d(*e, **f)"] {
+            let parsed = crate::parser::parse(source.as_bytes());
+            assert_eq!(
+                fingerprint_folding_strings(&parsed.node(), source.as_bytes()),
+                fingerprint(&parsed.node())
+            );
+        }
     }
 }

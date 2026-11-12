@@ -104,7 +104,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
 #[test]
 fn metadata_default_on_ruby34_detection_only_without_paths_settings_or_future_admissions() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     assert_eq!(
         registry
             .cops()

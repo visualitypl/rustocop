@@ -177,11 +177,19 @@ fn directive_envelopes_forbid_partial_all_use_renames() {
 #[test]
 fn exact_bytes_encoding_bom_crlf_comments_heredocs_line_and_data_positions() {
     let d = project();
+    // `DATA` with a data section is a listed observer that holds
+    // every edit.
+    unchanged(
+        d.path(),
+        b"foo { use(_1, _1) }; p DATA.pos\n__END__\nraw\xff\n",
+        &["--only", IT, "--fix", "x.rb"],
+        1,
+    );
     for source in [
         "\u{feff}# encoding: UTF-8\r\nfoo { [\"café\", _1, __LINE__, _1] } # _1 unchanged\r\np __LINE__\r\n__END__\r\n_1 rawÿ\r\n".as_bytes(),
         b"# encoding: ISO-8859-1\r\nfoo { use(_1, \"caf\xe9\") }\r\n__END__\r\nraw\xff\r\n",
         b"foo { [<<~TXT, _1] }\n#{_1} literal _1 #{__LINE__}\nTXT\np __LINE__\n",
-        b"foo { use(_1, _1) }; p DATA.pos\n__END__\nraw\xff\n",
+        b"foo { use(_1, _1) }; p :data\n__END__\nraw\xff\n",
     ] {
         fs::write(d.path().join("x.rb"),source).unwrap();
         cli(d.path(),&["--only",IT,"--fix","x.rb"],0);

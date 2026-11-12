@@ -196,8 +196,20 @@ fn default_style_and_style_layout_and_explicit_opt_ins_have_exact_finite_pass_bo
         9
     );
     for c in cases {
+        // the default-on Layout/MultilineBlockLayout and
+        // BlockEndNewline break the `mixed` lambda that Style/Semicolon
+        // splits, and the indentation cops then settle its body: two more
+        // passes, still ending in an exact stable zero-correction run.
+        // the default-on Layout/SpaceInsideStringInterpolation
+        // removes the `mixed` fixture's `#{ "message".upcase }` blanks in
+        // the first Layout pass, within the same bounds.
+        let bound = if c.fixture == "mixed" && c.selection != "default-style" {
+            5
+        } else {
+            3
+        };
         assert!(
-            !c.passes.is_empty() && c.passes.len() <= 3,
+            !c.passes.is_empty() && c.passes.len() <= bound,
             "{} / {}",
             c.fixture,
             c.selection

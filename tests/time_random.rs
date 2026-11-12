@@ -420,7 +420,23 @@ fn visible_api_mutations_reflections_and_bound_type_hazards_are_never_substitute
 fn bom_crlf_encoding_data_and_line_survive_edits_and_mixed_fixes_stabilize() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let source = "\u{feff}# encoding: UTF-8\r\nsrand(42)\r\np [Time.new.class, rand(0x6).succ, __LINE__, 'é'.encoding.name, DATA.read.bytes]\r\n__END__\r\nraw\0\r\n";
+    let listed = "\u{feff}# encoding: UTF-8\r\nsrand(42)\r\np [Time.new.class, rand(0x6).succ, __LINE__, 'é'.encoding.name, DATA.read.bytes]\r\n__END__\r\nraw\0\r\n";
+    // Reading `DATA` is a listed observer: that file keeps its
+    // findings and bytes. The unread data section survives below.
+    fs::write(&path, listed).unwrap();
+    run(
+        dir.path(),
+        &[
+            "--only",
+            "Style/TimeNow,Style/RandomWithOffset",
+            "--fix",
+            "lib/a.rb",
+        ],
+        1,
+        [1, 1],
+    );
+    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
+    let source = &listed.replace(", DATA.read.bytes]", "]");
     fs::write(&path, source).unwrap();
     let before = has_ruby().then(|| ruby(dir.path()));
     run(

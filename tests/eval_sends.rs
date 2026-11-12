@@ -310,8 +310,15 @@ fn inert_corrections_preserve_values_binding_context_and_regexp_state_at_runtime
             String::from_utf8_lossy(&before.stdout).contains(", \"a\", true]"),
             "{before:?}"
         );
-        run(dir.path(), &["--only", EVAL, "--fix", "a.rb"], 0, [0, 0, 0]);
-        assert_ne!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), source);
+        // A target already naming the listed `__FILE__` keeps its finding
+        // without an edit.
+        if source.contains("__FILE__") {
+            run(dir.path(), &["--only", EVAL, "--fix", "a.rb"], 1, [1, 0, 0]);
+            assert_eq!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), source);
+        } else {
+            run(dir.path(), &["--only", EVAL, "--fix", "a.rb"], 0, [0, 0, 0]);
+            assert_ne!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), source);
+        }
         same(&before, &observe(dir.path()));
     }
 }

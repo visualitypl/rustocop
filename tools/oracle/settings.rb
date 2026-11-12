@@ -1286,7 +1286,7 @@ module Oracle
           # IfUnlessModifier reads LineLength's enable/max policy even when
           # --only selects just the Style cop. Disabled is representable in
           # our TOML, not an alternate fixed style to skip.
-          if ['Style/IfUnlessModifier', 'Style/WhileUntilModifier', 'Style/MultilineMethodSignature', 'Style/SingleLineDoEndBlock', 'Style/RedundantBegin', 'Style/EmptyMethod'].include?(cop) && section == 'Layout/LineLength' &&
+          if ['Style/IfUnlessModifier', 'Style/WhileUntilModifier', 'Style/MultilineMethodSignature', 'Style/SingleLineDoEndBlock', 'Style/RedundantBegin', 'Style/EmptyMethod', 'Layout/MultilineBlockLayout', 'Layout/RedundantLineBreak'].include?(cop) && section == 'Layout/LineLength' &&
              values['Enabled'] == false
             toml[section] = (toml[section] || {}).merge('enabled' => false)
             values = values.reject { |key, _| key == 'Enabled' }
@@ -1335,6 +1335,13 @@ module Oracle
           # canonical corrections. Both enable states are representable; styles
           # other than the fixed allow_single_line remain genuine config skips.
           if cop == 'Style/SingleLineMethods' && section == 'Style/EndlessMethod' &&
+             [true, false].include?(values['Enabled'])
+            toml[section] = (toml[section] || {}).merge('enabled' => values['Enabled'])
+            values = values.reject { |key, _| key == 'Enabled' }
+          end
+          # RedundantLineBreak defers chains on single-line blocks to the
+          # configured SingleLineBlockChain enablement, even under --only.
+          if cop == 'Layout/RedundantLineBreak' && section == 'Layout/SingleLineBlockChain' &&
              [true, false].include?(values['Enabled'])
             toml[section] = (toml[section] || {}).merge('enabled' => values['Enabled'])
             values = values.reject { |key, _| key == 'Enabled' }

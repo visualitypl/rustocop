@@ -110,6 +110,13 @@ fn genuinely_fresh_counterparts_keep_their_canonical_corrections() {
         let after = source(after, "FreshStartupAudit");
         fs::write(d.path().join("a.rb"), &before).unwrap();
         let out = cli(d.path(), cop, true);
+        // Style/Dir's target names `__FILE__`, a listed observer
+        // that withholds the edit; the finding stays.
+        if before.contains("__FILE__") {
+            assert_eq!(out.status.code(), Some(1), "{cop}: {out:?}");
+            assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), before);
+            continue;
+        }
         assert_eq!(out.status.code(), Some(0), "{cop}: {out:?}");
         assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
     }

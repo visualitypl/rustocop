@@ -7,6 +7,9 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 const COP: &str = "Lint/DeprecatedReference";
 const SOURCE: &str = "class Base\n  # @deprecated Use modern instead.\n  def old(first); end\nend\nclass Child < Base\n  def run(first)\n    self.old(first)\n  end\nend\n";
 fn project() -> tempfile::TempDir {
@@ -42,7 +45,9 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
     assert_eq!(old.permissions(), new.permissions());
     out
 }
-fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
+/// `expect_early_error` only for runs whose asserted exit is the early
+/// `--stdin --fix` rejection, which may exit before reading stdin.
+fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
         .args(args)
@@ -51,7 +56,7 @@ fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(source).unwrap();
+    stdin_support::write_stdin(child.stdin.take().unwrap(), source, expect_early_error).unwrap();
     child.wait_with_output().unwrap()
 }
 fn rows() -> Vec<serde_json::Value> {
@@ -214,6 +219,7 @@ fn excludes_and_supplied_file_stdin_path_provenance() {
             dir.path(),
             SOURCE.as_bytes(),
             &["--only", COP, "--stdin", "lib/display.rb"],
+            false,
         );
         assert!(out.status.success(), "{out:?}");
         assert_eq!(count(&out), 0);
@@ -229,8 +235,15 @@ fn excludes_and_supplied_file_stdin_path_provenance() {
         dir.path(),
         SOURCE.as_bytes(),
         &["--only", COP, "--stdin", "lib/display.rb", "--fix"],
+        true,
     );
     assert_eq!(out.status.code(), Some(2));
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
+    );
     assert_eq!(fs::read(&sentinel).unwrap(), b"sentinel\n");
     let new = fs::metadata(sentinel).unwrap();
     assert_eq!(old.modified().unwrap(), new.modified().unwrap());

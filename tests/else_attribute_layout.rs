@@ -168,7 +168,7 @@ fn all_pinned_original_bytes_match_pipeline_and_guarded_canonical_outputs() {
 #[test]
 fn metadata_defaults_selectors_toml_department_precedence_paths_and_stdin() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let d = project();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let rule = registry.cops().iter().find(|c| c.name() == cop).unwrap();

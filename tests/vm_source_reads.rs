@@ -272,13 +272,22 @@ fn vm_metadata_and_original_payload_controls_keep_canonical_runtime_fixes() {
             let source = format!("x = 'hi'\n{observer}\n");
             fs::write(&path, &source).unwrap();
             let before = run(&runtime, &path);
-            cli(dir.path(), "Style/StringLiterals", true, "case.rb", 0);
-            assert_eq!(
-                fs::read_to_string(&path).unwrap(),
+            // A code-level `__FILE__` or `DATA` read is a listed
+            // observer: the finding stays without an edit.
+            let listed = observer.starts_with("p File.stat(__FILE__)")
+                || observer.starts_with("p [__FILE__]")
+                || observer.starts_with("ARGV << __FILE__")
+                || observer.contains("__END__");
+            let status = i32::from(listed);
+            cli(dir.path(), "Style/StringLiterals", true, "case.rb", status);
+            let expected = if listed {
+                source.clone()
+            } else {
                 source.replace("'hi'", "\"hi\"")
-            );
+            };
+            assert_eq!(fs::read_to_string(&path).unwrap(), expected, "{observer}");
             assert_eq!(run(&runtime, &path), before, "{runtime}: {source}");
-            cli(dir.path(), "Style/StringLiterals", true, "case.rb", 0);
+            cli(dir.path(), "Style/StringLiterals", true, "case.rb", status);
         }
     }
 }

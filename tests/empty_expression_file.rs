@@ -3,10 +3,12 @@
 use rustocop::offense::Offense;
 use std::{
     fs,
-    io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
@@ -44,7 +46,9 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
     out
 }
 
-fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
+/// `expect_early_error` only for runs whose asserted exit is the early
+/// `--stdin --fix` rejection, which may exit before reading stdin.
+fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
         .args(args)
@@ -53,7 +57,7 @@ fn stdin(root: &Path, source: &[u8], args: &[&str]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(source).unwrap();
+    stdin_support::write_stdin(child.stdin.take().unwrap(), source, expect_early_error).unwrap();
     child.wait_with_output().unwrap()
 }
 
@@ -101,7 +105,7 @@ fn every_pinned_spec_documentation_and_control_matches_pipeline_and_rebuilt_cli_
 #[test]
 fn metadata_matches_actual_default_detection_only_policy() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for name in [EXPR, FILE] {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(cop.default_enabled());
@@ -267,6 +271,7 @@ fn stdin_provenance_never_reads_or_writes_the_display_path_and_fix_is_rejected()
                 dir.path(),
                 source.as_bytes(),
                 &["--only", cop, "--stdin", "lib/a.rb"],
+                false,
             );
             assert_eq!(out.status.code(), Some(i32::from(expected > 0)), "{out:?}");
             assert_eq!(count(&out, cop), expected, "{out:?}");
@@ -278,8 +283,15 @@ fn stdin_provenance_never_reads_or_writes_the_display_path_and_fix_is_rejected()
             dir.path(),
             source.as_bytes(),
             &["--only", cop, "--stdin", "lib/a.rb", "--fix"],
+            true,
         );
         assert_eq!(out.status.code(), Some(2));
+        assert!(out.stdout.is_empty(), "{out:?}");
+        assert!(
+            String::from_utf8_lossy(&out.stderr)
+                .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+            "{out:?}"
+        );
     }
     assert_eq!(fs::read(&path).unwrap(), b"sentinel\n");
     let new = fs::metadata(path).unwrap();

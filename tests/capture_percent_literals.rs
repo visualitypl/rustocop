@@ -162,7 +162,7 @@ fn all_rows_rebuilt_cli_lint_fix_preserve_bytes_mtime_permissions_inode() {
 #[test]
 fn registry_fixed_defaults_selectors_strict_toml_department_precedence_and_excludes() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let c = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(c.default_enabled() && !c.safe_fixes());

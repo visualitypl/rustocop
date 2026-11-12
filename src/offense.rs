@@ -21,6 +21,8 @@ pub enum Department {
     Bundler,
     /// Ruby gem specification conventions.
     Gemspec,
+    /// Migration aids for directive comments.
+    Migration,
 }
 
 impl Department {
@@ -34,6 +36,7 @@ impl Department {
         Department::Metrics,
         Department::Bundler,
         Department::Gemspec,
+        Department::Migration,
     ];
 
     /// The department's name, as used in cop names and config keys.
@@ -47,6 +50,7 @@ impl Department {
             Department::Metrics => "Metrics",
             Department::Bundler => "Bundler",
             Department::Gemspec => "Gemspec",
+            Department::Migration => "Migration",
         }
     }
 
@@ -87,7 +91,8 @@ impl Severity {
             | Department::Layout
             | Department::Metrics
             | Department::Bundler
-            | Department::Gemspec => Severity::Convention,
+            | Department::Gemspec
+            | Department::Migration => Severity::Convention,
         }
     }
 

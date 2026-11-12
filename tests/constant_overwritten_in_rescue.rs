@@ -105,7 +105,7 @@ fn every_pinned_source_and_control_runs_through_rebuilt_cli_and_canonical_fix() 
 #[test]
 fn metadata_and_current_only_admission_preserve_fixed_policy() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());
@@ -516,10 +516,12 @@ fn authored_native_line_data_and_own_source_guards() {
     };
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    // Payload-only DATA consumption and __LINE__ are stable; byte-offset and
-    // own-source observations are not. Run only these authored scripts.
+    // __LINE__ and an unread data section are stable; byte-offset and
+    // own-source observations are not, and reading `DATA` is a
+    // listed observer. Run only these authored scripts.
     for (observer, safe) in [
-        ("p [__LINE__, DATA.read]", true),
+        ("p [__LINE__]", true),
+        ("p [__LINE__, DATA.read]", false),
         ("p DATA.pos", false),
         ("print File.binread(__FILE__)", false),
         (

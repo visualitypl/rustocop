@@ -581,6 +581,12 @@ fn insecure_source_edits_only_the_inert_envelope_and_composes_with_peers() {
         Some(ENVELOPE.as_bytes()),
     );
     assert_eq!(out.status.code(), Some(2), "{out:?}");
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
+    );
     assert_eq!(fs::read(&path).unwrap(), b"sentinel");
     #[cfg(unix)]
     {

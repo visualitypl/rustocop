@@ -189,7 +189,7 @@ fn source_filename_value_counts_unicode_characters_with_real_stdin_provenance() 
 #[test]
 fn metadata_defaults_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let c = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(c.default_enabled() && !c.safe_fixes());

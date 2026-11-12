@@ -351,10 +351,11 @@ mod tests {
                 .correction
                 .is_none()
         );
-        assert_correction(
+        // An equal-length edit keeps DATA's position, but `DATA` with a data
+        // section is a listed observer: held.
+        crate::cops::testing::assert_listed_hold(
             &MethodCallWithArgsParentheses,
             "self.f  1\np DATA.pos\n__END__\nraw\n",
-            "self.f(1)\np DATA.pos\n__END__\nraw\n",
         );
     }
 

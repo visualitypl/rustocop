@@ -271,6 +271,35 @@ impl ResolvedConfig {
             }
         }
 
+        // Upstream's `cop_enabled?`: only the cop's own configured setting
+        // enables the opt-in SingleLineBlockChain (never its department).
+        let single_line_block_chain = cop_settings
+            .get("Layout/SingleLineBlockChain")
+            .and_then(|s| s.enabled)
+            .unwrap_or(false);
+        for cop in registry.cops() {
+            let base = configured
+                .get(cop.name())
+                .map_or(cop.as_ref(), |configured| configured.as_ref());
+            if let Some(configured_cop) = base.with_single_line_block_chain(single_line_block_chain)
+            {
+                configured.insert(cop.name().to_owned(), configured_cop);
+            }
+        }
+
+        // Upstream's `cop_enabled?`: the configured Layout/SpaceInsideParens,
+        // or its department, never the CLI selection.
+        let space_inside_parens = cop_settings
+            .get("Layout/SpaceInsideParens")
+            .and_then(|s| s.enabled)
+            .or_else(|| cop_settings.get("Layout").and_then(|s| s.enabled))
+            .unwrap_or(true);
+        for cop in registry.cops() {
+            if let Some(configured_cop) = cop.with_space_inside_parens(space_inside_parens) {
+                configured.insert(cop.name().to_owned(), configured_cop);
+            }
+        }
+
         let mut global_excludes = compile_globs(BUILTIN_EXCLUDES, "builtin excludes")?;
         global_excludes.extend(compile_globs(&raw.exclude, "exclude")?);
 

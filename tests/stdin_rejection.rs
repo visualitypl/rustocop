@@ -106,3 +106,97 @@ fn fix_stdin_rejection_closes_before_write_without_touching_display_path() {
         }
     }
 }
+
+/// Larger than any Linux pipe buffer (the unprivileged maximum is 1 MiB), so a
+/// writer to a child that never reads must block until the child exits and then
+/// hit a broken pipe: the scheduling race is forced the same way on every run.
+const LARGE: usize = 8 << 20;
+
+fn large_source() -> Vec<u8> {
+    b"# padding comment line\n".repeat(LARGE / 23 + 1)
+}
+
+fn spawn_stdin_run(dir: &std::path::Path, args: &[&str]) -> std::process::Child {
+    Command::new(env!("CARGO_BIN_EXE_rustocop"))
+        .current_dir(dir)
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap()
+}
+
+#[test]
+fn large_input_to_an_early_rejection_breaks_the_pipe_on_every_repetition() {
+    let dir = tempfile::tempdir().unwrap();
+    fs::create_dir(dir.path().join(".git")).unwrap();
+    let path = dir.path().join("x.rb");
+    fs::write(&path, b"disk bytes\n").unwrap();
+    let mtime = fs::metadata(&path).unwrap().modified().unwrap();
+    let source = large_source();
+    let rejections: [(&[&str], &str); 3] = [
+        (
+            &["--fix", "--stdin", "x.rb"],
+            "the argument '--fix' cannot be used with '--stdin <PATH>'",
+        ),
+        (
+            &["--stdin", "x.rb", "--fix"],
+            "the argument '--stdin <PATH>' cannot be used with '--fix'",
+        ),
+        (
+            &["--only", "Lint/NoSuchCop", "--stdin", "x.rb"],
+            "unknown cop or department `Lint/NoSuchCop` in --only",
+        ),
+    ];
+    for (args, diagnostic) in rejections {
+        for repetition in 0..3 {
+            for expect_early_error in [false, true] {
+                let mut child = spawn_stdin_run(dir.path(), args);
+                let written =
+                    stdin::write_stdin(child.stdin.take().unwrap(), &source, expect_early_error);
+                let output = child.wait_with_output().unwrap();
+                if expect_early_error {
+                    written.unwrap();
+                } else {
+                    // Unflagged writes keep failing loudly on the same broken pipe.
+                    assert_eq!(
+                        written.unwrap_err().kind(),
+                        ErrorKind::BrokenPipe,
+                        "{args:?} #{repetition}"
+                    );
+                }
+                assert_eq!(output.status.code(), Some(2), "{args:?} {output:?}");
+                assert!(output.stdout.is_empty(), "{args:?} {output:?}");
+                assert!(
+                    String::from_utf8_lossy(&output.stderr).contains(diagnostic),
+                    "{args:?} {output:?}"
+                );
+                assert_eq!(fs::read(&path).unwrap(), b"disk bytes\n");
+                assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
+            }
+        }
+    }
+}
+
+#[test]
+fn large_input_to_a_valid_stdin_run_is_read_completely_in_both_modes() {
+    let dir = tempfile::tempdir().unwrap();
+    fs::create_dir(dir.path().join(".git")).unwrap();
+    let mut source = large_source();
+    source.extend_from_slice(b"binding.pry\n");
+    let line = source.iter().filter(|&&b| b == b'\n').count();
+    for expect_early_error in [false, true] {
+        let mut child =
+            spawn_stdin_run(dir.path(), &["--only", "Lint/Debugger", "--stdin", "x.rb"]);
+        stdin::write_stdin(child.stdin.take().unwrap(), &source, expect_early_error).unwrap();
+        let output = child.wait_with_output().unwrap();
+        assert_eq!(output.status.code(), Some(1), "{output:?}");
+        // The offense on the final line proves every byte was delivered and read.
+        assert!(
+            String::from_utf8_lossy(&output.stdout).contains(&format!("x.rb:{line}:1:")),
+            "{output:?}"
+        );
+        assert!(!dir.path().join("x.rb").exists());
+    }
+}

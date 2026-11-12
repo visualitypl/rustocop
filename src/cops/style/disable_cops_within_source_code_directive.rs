@@ -158,27 +158,39 @@ mod tests {
     fn canonical_push_pop_and_signed_next_removals_are_atomic() {
         assert_correction(
             &DisableCopsWithinSourceCodeDirective,
-            "# rubocop:push -Metrics/AbcSize\n# rubocop:push\ndef foo\nend\n# rubocop:pop\n# rubocop:pop\n",
+            "# rubocop:push -Migration/Nonexistent\n# rubocop:push\ndef foo\nend\n# rubocop:pop\n# rubocop:pop\n",
             "\n# rubocop:push\ndef foo\nend\n# rubocop:pop\n\n",
         );
         assert_correction(
             &DisableCopsWithinSourceCodeDirective,
-            // Both selectors must remain unregistered: Style/For now exists.
-            "# rustocop:next -Metrics/AbcSize +Metrics/CyclomaticComplexity\ndef foo\nend\n",
+            // Both selectors must remain unregistered: Style/For, the
+            // Metrics complexity cops and
+            // Migration/DepartmentName now exist.
+            "# rustocop:next -Migration/Nonexistent +Metrics/Future\ndef foo\nend\n",
             "\ndef foo\nend\n",
         );
         assert_correction(
             &DisableCopsWithinSourceCodeDirective,
-            "# rustocop:disable-next Metrics/AbcSize -- legacy\ndef foo\nend\n",
+            "# rustocop:disable-next Migration/Nonexistent -- legacy\ndef foo\nend\n",
             "\ndef foo\nend\n",
         );
+        // The landed Migration/DepartmentName is an active selector.
+        for source in [
+            "# rubocop:push -Migration/DepartmentName\n# rubocop:push\ndef foo\nend\n# rubocop:pop\n# rubocop:pop\n",
+            "# rustocop:next -Migration/DepartmentName +Metrics/Future\ndef foo\nend\n",
+            "# rustocop:disable-next Migration/DepartmentName -- legacy\ndef foo\nend\n",
+        ] {
+            let found = correction_offenses(&DisableCopsWithinSourceCodeDirective, source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert!(found[0].correction.is_none(), "{source}");
+        }
     }
     #[test]
     fn self_disabling_cannot_bypass_explicit_opt_in() {
         for prefix in ["rubocop", "rustocop"] {
             for target in [BAN, "DisableCopsWithinSourceCodeDirective", "Style", "all"] {
                 let source = format!(
-                    "# {prefix}:disable {target}\ndef foo # {prefix}:disable Metrics/CyclomaticComplexity\nend\n"
+                    "# {prefix}:disable {target}\ndef foo # {prefix}:disable Migration/Nonexistent\nend\n"
                 );
                 let found = correction_offenses(&DisableCopsWithinSourceCodeDirective, &source);
                 assert_eq!(found.len(), 2, "{source}");
@@ -291,13 +303,13 @@ mod tests {
     }
     #[test]
     fn embedded_directives_are_real_but_plain_mentions_are_not() {
-        let source = "# example # rubocop:disable Metrics/AbcSize -- legacy\n";
+        let source = "# example # rubocop:disable Migration/Nonexistent -- legacy\n";
         let found = correction_offenses(&DisableCopsWithinSourceCodeDirective, source);
         assert_eq!((found[0].line, found[0].col), (1, 1));
         assert_correction(&DisableCopsWithinSourceCodeDirective, source, "\n");
         assert_correction(
             &DisableCopsWithinSourceCodeDirective,
-            "#\u{b}rustocop\u{b}:\u{b}todo\u{b}Metrics/AbcSize\n",
+            "#\u{b}rustocop\u{b}:\u{b}todo\u{b}Migration/Nonexistent\n",
             "\n",
         );
     }
@@ -340,9 +352,7 @@ mod tests {
                 "todo-next",
                 "enable-next",
             ] {
-                let s = format!(
-                    "def foo # {prefix}:{mode} Metrics/CyclomaticComplexity -- legacy\nend\n"
-                );
+                let s = format!("def foo # {prefix}:{mode} Migration/Nonexistent -- legacy\nend\n");
                 let found = correction_offenses(&DisableCopsWithinSourceCodeDirective, &s);
                 assert_eq!(found.len(), 1, "{s}");
                 assert_eq!((found[0].line, found[0].col), (1, 9));
@@ -351,6 +361,15 @@ mod tests {
                     "RuboCop disable/enable directives are not permitted."
                 );
                 assert_correction(&DisableCopsWithinSourceCodeDirective, &s, "def foo \nend\n");
+                // A landed cop's directive (the Metrics complexity cops,
+                // Migration/DepartmentName) is an
+                // active selector: reported, not removed.
+                for cop in ["Metrics/CyclomaticComplexity", "Migration/DepartmentName"] {
+                    let s = format!("def foo # {prefix}:{mode} {cop} -- legacy\nend\n");
+                    let found = correction_offenses(&DisableCopsWithinSourceCodeDirective, &s);
+                    assert_eq!(found.len(), 1, "{s}");
+                    assert!(found[0].correction.is_none(), "{s}");
+                }
             }
         }
     }

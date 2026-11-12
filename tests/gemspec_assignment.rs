@@ -369,6 +369,11 @@ fn both_directives_and_syntax_encoding_resource_io_failures_compose() {
     );
     assert_eq!(out.status.code(), Some(2));
     assert!(out.stdout.is_empty());
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
+    );
     assert_eq!(fs::read(d.path().join("a.gemspec")).unwrap(), b"sentinel");
     assert_eq!(
         old.modified().unwrap(),

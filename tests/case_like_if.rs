@@ -341,6 +341,14 @@ fn stdin_positions_and_no_write_contract() {
             Some(if fix { 2 } else { 1 }),
             "{output:?}"
         );
+        if fix {
+            assert!(output.stdout.is_empty(), "{output:?}");
+            assert!(
+                String::from_utf8_lossy(&output.stderr)
+                    .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                "{output:?}"
+            );
+        }
         if !fix {
             let stdout = String::from_utf8_lossy(&output.stdout);
             assert!(

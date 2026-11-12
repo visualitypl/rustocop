@@ -1954,7 +1954,7 @@
   {
     "name": "Style/DisableCopsWithinSourceCodeDirective",
     "cases": [
-      {"source": "work # rustocop:todo Metrics/AbcSize\n", "expected": [{"line": 1, "col": 6, "message": "RuboCop disable/enable directives are not permitted."}]},
+      {"source": "work # rustocop:todo Migration/Nonexistent\n", "expected": [{"line": 1, "col": 6, "message": "RuboCop disable/enable directives are not permitted."}]},
       {"source": "# mention rubocop:disable Metrics/AbcSize\n", "expected": []}
     ]
   },

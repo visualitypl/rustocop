@@ -491,7 +491,7 @@ fn byte_rows_match_without_writes(rows: Vec<serde_json::Value>) {
 #[test]
 fn defaults_metadata_selectors_strict_toml_precedence_and_excludes() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && !cop.safe_fixes());
     assert!(cop.ruby_versions().minimum.is_none() && cop.ruby_versions().maximum.is_none());

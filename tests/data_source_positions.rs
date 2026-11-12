@@ -276,12 +276,14 @@ fn ruby_main_scripts_preserve_data_positions_where_naive_edits_do_not() {
 }
 
 #[test]
-fn independent_equal_length_line_preserving_edits_remain_available() {
+fn independent_equal_length_line_preserving_edits_are_held_by_listed_data() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
+        // `DATA` with a data section is a listed observer: the
+        // independent string edit is withheld too.
         let source = observed(&format!("{before}p 'x'\n"), "", "DATA");
-        let expected = source.replace("'x'", "\"x\"");
+        let expected = source.clone();
         fs::write(&path, &source).unwrap();
         let original = ruby_available().then(|| execute(&path));
         let selector = format!("{cop},Style/StringLiterals");

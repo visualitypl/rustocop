@@ -410,6 +410,13 @@ fn supplied_file_stdin_paths_and_stdin_fix_rejection() {
         assert_eq!(out.status.code(), Some(code), "{out:?}");
         if code == 1 {
             assert!(String::from_utf8_lossy(&out.stdout).contains("virtual/custom.rb:1:1: E:"));
+        } else {
+            assert!(out.stdout.is_empty(), "{out:?}");
+            assert!(
+                String::from_utf8_lossy(&out.stderr)
+                    .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                "{out:?}"
+            );
         }
         unchanged(&path, BEFORE.as_bytes(), &old);
     }

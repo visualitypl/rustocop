@@ -1,10 +1,12 @@
 //! chain-length policy and noncorrectable/no-write CLI contract.
 use std::{
     fs,
-    io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 
 const COP: &str = "Style/SafeNavigationChainLength";
 const SOURCE: &str = "x&.a&.b&.c\n";
@@ -201,14 +203,19 @@ fn stdin_selectors_and_fix_rejection_never_write_the_display_path() {
             .stderr(Stdio::piped())
             .spawn()
             .unwrap();
-        child
-            .stdin
-            .take()
-            .unwrap()
-            .write_all(SOURCE.as_bytes())
+        // Only the expected `--fix --stdin` rejection may exit before reading.
+        stdin_support::write_stdin(child.stdin.take().unwrap(), SOURCE.as_bytes(), code == 2)
             .unwrap();
         let out = child.wait_with_output().unwrap();
         assert_eq!(out.status.code(), Some(code), "{out:?}");
+        if code == 2 {
+            assert!(out.stdout.is_empty(), "{out:?}");
+            assert!(
+                String::from_utf8_lossy(&out.stderr)
+                    .contains("the argument '--fix' cannot be used with '--stdin <PATH>'"),
+                "{out:?}"
+            );
+        }
         assert_eq!(fs::read(&path).unwrap(), b"sentinel\n");
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
     }

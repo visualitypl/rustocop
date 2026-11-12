@@ -118,7 +118,7 @@ fn complete_fixed_reference_bytes_match_pipeline_and_actual_cli_no_write() {
 #[test]
 fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
     let registry = Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
     assert!(!cop.safe_fixes());
@@ -133,14 +133,20 @@ fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
             .filter(|c| c.name().starts_with("Metrics/"))
             .map(|c| c.name())
             .collect::<Vec<_>>(),
-        [COP]
+        [
+            COP,
+            "Metrics/BlockLength",
+            "Metrics/ClassLength",
+            "Metrics/MethodLength",
+            "Metrics/ModuleLength",
+            "Metrics/BlockNesting",
+            "Metrics/CollectionLiteralLength",
+            "Metrics/CyclomaticComplexity",
+            "Metrics/PerceivedComplexity",
+            "Metrics/AbcSize"
+        ]
     );
-    for name in [
-        "Metrics/MethodLength",
-        "Metrics/AbcSize",
-        "Metrics/Future",
-        "Gemspec/Future",
-    ] {
+    for name in ["Metrics/Future", "Gemspec/Future"] {
         assert!(!registry.has_cop(name));
     }
 }
@@ -205,7 +211,7 @@ fn defaults_config_department_only_except_exclusions_and_strict_errors() {
         .unwrap();
         unchanged(d.path(), SOURCE, &["--only", COP, "--fix", "lib/a.rb"], 2);
     }
-    for name in ["Metrics/MethodLength", "Metrics/AbcSize", "Metrics/Future"] {
+    for name in ["Migration/Nonexistent", "Metrics/Future"] {
         fs::write(
             d.path().join("rustocop.toml"),
             format!("[cops.\"{name}\"]\nenabled=true\n"),

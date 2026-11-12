@@ -49,9 +49,11 @@ fn registry_defaults_and_safety() {
 fn default_opt_in_selectors_config_and_no_write() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let scope = "# rubocop:disable Metrics/AbcSize\nwork\n# rubocop:enable Metrics/AbcSize\n";
+    let scope =
+        "# rubocop:disable Migration/Nonexistent\nwork\n# rubocop:enable Migration/Nonexistent\n";
     fs::write(&path, scope).unwrap();
-    // Isolate Style rules: Metrics is deliberately not a landed cop name.
+    // Isolate Style rules: Migration/Nonexistent is deliberately not a landed
+    // cop name (all standard departments have cops).
     let out = cli(
         dir.path(),
         &["--except", "Lint/CopDirectiveSyntax", "lib/a.rb"],
@@ -63,7 +65,7 @@ fn default_opt_in_selectors_config_and_no_write() {
         "{text}"
     );
     assert!(!text.contains(BAN));
-    fs::write(&path, "# rubocop:enable Metrics/AbcSize\n").unwrap();
+    fs::write(&path, "# rubocop:enable Migration/Nonexistent\n").unwrap();
     cli(
         dir.path(),
         &["--except", "Lint/CopDirectiveSyntax", "lib/a.rb"],
@@ -71,7 +73,7 @@ fn default_opt_in_selectors_config_and_no_write() {
     );
     for (cop, before, after, fix_code) in [
         (SCOPE, scope, scope, 1),
-        (BAN, "# rubocop:enable Metrics/AbcSize\n", "\n", 0),
+        (BAN, "# rubocop:enable Migration/Nonexistent\n", "\n", 0),
     ] {
         fs::write(&path, before).unwrap();
         for cfg in [
@@ -114,7 +116,7 @@ fn explicit_ban_ignores_self_disable_but_scope_honors_it() {
     for prefix in ["rubocop", "rustocop"] {
         for target in [SCOPE, "Style", "all"] {
             let source = format!(
-                "# {prefix}:disable {target}\n# {prefix}:disable Metrics/AbcSize\nwork\n# {prefix}:enable Metrics/AbcSize\n"
+                "# {prefix}:disable {target}\n# {prefix}:disable Migration/Nonexistent\nwork\n# {prefix}:enable Migration/Nonexistent\n"
             );
             fs::write(&path, &source).unwrap();
             cli(dir.path(), &["--only", SCOPE, "--fix", "lib/a.rb"], 0);
@@ -122,7 +124,7 @@ fn explicit_ban_ignores_self_disable_but_scope_honors_it() {
         }
         for target in [BAN, "Style", "all"] {
             let source = format!(
-                "# {prefix}:disable {target}\n# {prefix}:disable Metrics/AbcSize\nwork\n# {prefix}:enable Metrics/AbcSize\n"
+                "# {prefix}:disable {target}\n# {prefix}:disable Migration/Nonexistent\nwork\n# {prefix}:enable Migration/Nonexistent\n"
             );
             fs::write(&path, &source).unwrap();
             let out = cli(dir.path(), &["--only", BAN, "lib/a.rb"], 1);
@@ -141,7 +143,8 @@ fn explicit_ban_ignores_self_disable_but_scope_honors_it() {
 fn excludes_are_additive_config_relative_and_not_bypassed() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let source = "# rubocop:disable Metrics/AbcSize\nwork\n# rubocop:enable Metrics/AbcSize\n";
+    let source =
+        "# rubocop:disable Migration/Nonexistent\nwork\n# rubocop:enable Migration/Nonexistent\n";
     fs::write(&path, source).unwrap();
     for cop in [SCOPE, BAN] {
         for (global, local) in [("lib/a.rb", "other.rb"), ("other.rb", "lib/a.rb")] {
@@ -163,13 +166,13 @@ fn excludes_are_additive_config_relative_and_not_bypassed() {
 fn removal_never_unsuppresses_other_selected_fixes() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let source = "# rubocop:disable Style, Layout\ndef foo\n\treturn ('value');\nend\n# rubocop:enable Style, Layout\n# rubocop:disable Lint/Debugger\nbinding.pry\n# rubocop:enable Lint/Debugger\n# rustocop:disable Metrics/AbcSize\nwork\n";
+    let source = "# rubocop:disable Style, Layout\ndef foo\n\treturn ('value');\nend\n# rubocop:enable Style, Layout\n# rubocop:disable Lint/Debugger\nbinding.pry\n# rubocop:enable Lint/Debugger\n# rustocop:disable Migration/Nonexistent\nwork\n";
     fs::write(&path, source).unwrap();
     let only = format!(
         "{BAN},Style/StringLiterals,Style/HashSyntax,Style/RedundantReturn,Style/Semicolon,Style/RedundantParentheses,Style/SignalException,Layout,Lint/Debugger"
     );
     cli(dir.path(), &["--only", &only, "--fix", "lib/a.rb"], 1);
-    let after = source.replace("# rustocop:disable Metrics/AbcSize", "");
+    let after = source.replace("# rustocop:disable Migration/Nonexistent", "");
     assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
     let out = cli(
         dir.path(),
@@ -192,16 +195,16 @@ fn stacked_next_attachments_survive_standalone_and_paired_pop_removals() {
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!(
-                "\u{feff}# {prefix}:disable-next Lint/Debugger\n# {prefix}:disable Metrics/AbcSize\nbinding.pry\n"
+                "\u{feff}# {prefix}:disable-next Lint/Debugger\n# {prefix}:disable Migration/Nonexistent\nbinding.pry\n"
             ),
             format!(
-                "# {prefix}:disable-next Lint/Debugger\r\n# {prefix}:disable Metrics/AbcSize\r\nbinding.pry\r\n"
+                "# {prefix}:disable-next Lint/Debugger\r\n# {prefix}:disable Migration/Nonexistent\r\nbinding.pry\r\n"
             ),
             format!(
-                "# {prefix}:push -Metrics/AbcSize\nwork\n# {prefix}:disable-next Lint/Debugger\n# ordinary comment\n# {prefix}:pop\nbinding.pry\n"
+                "# {prefix}:push -Migration/Nonexistent\nwork\n# {prefix}:disable-next Lint/Debugger\n# ordinary comment\n# {prefix}:pop\nbinding.pry\n"
             ),
             format!(
-                "# {prefix}:disable-next Lint/Debugger\n# {prefix}:enable-next Metrics/AbcSize\n# {prefix}:next -Metrics/AbcSize\nbinding.pry\n"
+                "# {prefix}:disable-next Lint/Debugger\n# {prefix}:enable-next Migration/Nonexistent\n# {prefix}:next -Migration/Nonexistent\nbinding.pry\n"
             ),
             format!("# {prefix}:disable-next Lint/Debugger\n# {prefix}:next +all\nbinding.pry\n"),
             format!("# {prefix}:disable-next Lint/Debugger\n# {prefix}:next -all\nbinding.pry\n"),
@@ -319,15 +322,15 @@ fn bom_crlf_encoding_line_literals_and_data_bytes_survive() {
     for encoding in ["UTF-8", "ASCII-8BIT", "Windows-1252"] {
         let bom = if encoding == "UTF-8" { "\u{feff}" } else { "" };
         let source = format!(
-            "{bom}# coding: {encoding}\r\n# rubocop:disable Metrics/AbcSize\r\np __LINE__\r\nx = \"# rubocop:disable all\"\r\nx = <<~H\r\n# rustocop:disable all\r\nH\r\n# rubocop:enable Metrics/AbcSize\r\n__END__\r\n# rubocop:disable all\r\n"
+            "{bom}# coding: {encoding}\r\n# rubocop:disable Migration/Nonexistent\r\np __LINE__\r\nx = \"# rubocop:disable all\"\r\nx = <<~H\r\n# rustocop:disable all\r\nH\r\n# rubocop:enable Migration/Nonexistent\r\n__END__\r\n# rubocop:disable all\r\n"
         );
         let mut before = source.as_bytes().to_vec();
         before.extend_from_slice(b"\xff\x82\xa0\r\n");
         fs::write(&path, &before).unwrap();
         cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 0);
         let after = source
-            .replace("# rubocop:disable Metrics/AbcSize", "")
-            .replace("# rubocop:enable Metrics/AbcSize", "");
+            .replace("# rubocop:disable Migration/Nonexistent", "")
+            .replace("# rubocop:enable Migration/Nonexistent", "");
         let mut expected = after.into_bytes();
         expected.extend_from_slice(b"\xff\x82\xa0\r\n");
         assert_eq!(fs::read(&path).unwrap(), expected);
@@ -340,7 +343,13 @@ fn controlled_ruby_binding_evaluation_and_line_observations_are_identical() {
     }
     let dir = project();
     let path = dir.path().join("lib/a.rb");
-    let before = "# coding: UTF-8\n# rubocop:push -Metrics/AbcSize\nvalues = []\n3.times do |n|\n  values << [n, __LINE__, \"é\".encoding.name]\nend\n# rubocop:pop\n# rustocop:disable Metrics/AbcSize\np [values, __LINE__, \"# rubocop:disable all\", DATA.read]\n# rustocop:enable Metrics/AbcSize\n__END__\npayload\n";
+    let listed = "# coding: UTF-8\n# rubocop:push -Migration/Nonexistent\nvalues = []\n3.times do |n|\n  values << [n, __LINE__, \"é\".encoding.name]\nend\n# rubocop:pop\n# rustocop:disable Migration/Nonexistent\np [values, __LINE__, \"# rubocop:disable all\", DATA.read]\n# rustocop:enable Migration/Nonexistent\n__END__\npayload\n";
+    // Reading `DATA` is a listed observer: that file keeps its
+    // findings and bytes. The unread data section survives below.
+    fs::write(&path, listed).unwrap();
+    cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 1);
+    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
+    let before = &listed.replace(", DATA.read]", "]");
     fs::write(&path, before).unwrap();
     let run = || {
         let out = Command::new("ruby").arg(&path).output().unwrap();
@@ -350,10 +359,10 @@ fn controlled_ruby_binding_evaluation_and_line_observations_are_identical() {
     let original = run();
     cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 0);
     let expected = before
-        .replace("# rubocop:push -Metrics/AbcSize", "")
+        .replace("# rubocop:push -Migration/Nonexistent", "")
         .replace("# rubocop:pop", "")
-        .replace("# rustocop:disable Metrics/AbcSize", "")
-        .replace("# rustocop:enable Metrics/AbcSize", "");
+        .replace("# rustocop:disable Migration/Nonexistent", "")
+        .replace("# rustocop:enable Migration/Nonexistent", "");
     assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
     assert_eq!(run(), original);
 }
@@ -363,7 +372,8 @@ fn stdin_uses_display_path_excludes_and_never_writes() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "original bytes\n").unwrap();
-    let source = "# rustocop:disable Metrics/AbcSize\nwork\n# rustocop:enable Metrics/AbcSize\n";
+    let source =
+        "# rustocop:disable Migration/Nonexistent\nwork\n# rustocop:enable Migration/Nonexistent\n";
     let only = format!("{SCOPE},{BAN}");
     for (config, code) in [("", 1), ("exclude = [\"lib/a.rb\"]\n", 0)] {
         fs::write(dir.path().join("rustocop.toml"), config).unwrap();
@@ -403,10 +413,10 @@ fn withheld_shebang_headers_active_ranges_and_errors_are_no_write() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     for source in [
-        "#!/usr/bin/env ruby # rubocop:disable Metrics/AbcSize\np __LINE__\n",
-        "# rubocop:disable Metrics/AbcSize -- frozen_string_literal: true\np \"a\".frozen?\n",
+        "#!/usr/bin/env ruby # rubocop:disable Migration/Nonexistent\np __LINE__\n",
+        "# rubocop:disable Migration/Nonexistent -- frozen_string_literal: true\np \"a\".frozen?\n",
         "# rubocop:disable Lint/Debugger\nbinding.pry\n# rubocop:enable Lint/Debugger\n",
-        "=begin\n# rubocop:disable Metrics/AbcSize\n=end\np __LINE__\n",
+        "=begin\n# rubocop:disable Migration/Nonexistent\n=end\np __LINE__\n",
     ] {
         fs::write(&path, source).unwrap();
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -416,14 +426,42 @@ fn withheld_shebang_headers_active_ranges_and_errors_are_no_write() {
     }
     // A paired edit would have to copy non-UTF-8 interior bytes through the
     // UTF-8 correction representation. Withhold the entire pair, not half.
-    let raw = b"# coding: ASCII-8BIT\r\n# rubocop:push -Metrics/AbcSize\r\np \"\xff\"\r\n# rubocop:pop\r\n";
+    let raw = b"# coding: ASCII-8BIT\r\n# rubocop:push -Migration/Nonexistent\r\np \"\xff\"\r\n# rubocop:pop\r\n";
     fs::write(&path, raw).unwrap();
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
     cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 1);
     assert_eq!(fs::read(&path).unwrap(), raw);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    let source = "# rubocop:disable Metrics/AbcSize\ndef broken(\n";
+    let source = "# rubocop:disable Migration/Nonexistent\ndef broken(\n";
     fs::write(&path, source).unwrap();
     cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 2);
     assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
+}
+
+/// Once Migration/DepartmentName landed its name is an active
+/// selector for both Style directive policies: reported, never removed.
+#[test]
+fn landed_department_name_is_an_active_selector_and_never_removed() {
+    let dir = project();
+    let path = dir.path().join("lib/a.rb");
+    for prefix in ["rubocop", "rustocop"] {
+        for source in [
+            format!("# {prefix}:enable Migration/DepartmentName\n"),
+            format!("work # {prefix}:todo Migration/DepartmentName\n"),
+            format!("# {prefix}:push -Migration/DepartmentName\nwork\n# {prefix}:pop\n"),
+            format!(
+                "# {prefix}:disable Migration/DepartmentName\nwork\n# {prefix}:enable Migration/DepartmentName\n"
+            ),
+        ] {
+            fs::write(&path, &source).unwrap();
+            let modified = fs::metadata(&path).unwrap().modified().unwrap();
+            let out = cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 1);
+            assert!(
+                String::from_utf8_lossy(&out.stdout).contains("directives are not permitted"),
+                "{out:?}"
+            );
+            assert_eq!(fs::read(&path).unwrap(), source.as_bytes(), "{source}");
+            assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
+        }
+    }
 }

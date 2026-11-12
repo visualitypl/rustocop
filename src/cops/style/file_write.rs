@@ -303,6 +303,11 @@ mod tests {
                 let before = format!(
                     "content = 'hello'\n::File.open({path}, 'wb') {{ |f| f.write({content}) }}\n"
                 );
+                if path == "__FILE__" {
+                    // The listed `__FILE__` holds the edit.
+                    crate::cops::testing::assert_listed_hold(&FileWrite, &before);
+                    continue;
+                }
                 assert_correction(
                     &FileWrite,
                     &before,

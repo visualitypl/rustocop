@@ -248,7 +248,7 @@ fn operator_recovery_source_projection_pipeline_cli_and_native_syntax_only() {
 #[test]
 fn exact_live_metadata_default_opt_in_and_no_new_capabilities() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let lint: Vec<_> = registry
         .cops()
         .iter()

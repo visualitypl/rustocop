@@ -159,6 +159,14 @@ fn stdin_is_read_only() {
         stdin::write_stdin(child.stdin.take().unwrap(), SOURCE.as_bytes(), fix).unwrap();
         let o = child.wait_with_output().unwrap();
         assert_eq!(o.status.code(), Some(if fix { 2 } else { 1 }));
+        if fix {
+            assert!(o.stdout.is_empty(), "{o:?}");
+            assert!(
+                String::from_utf8_lossy(&o.stderr)
+                    .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                "{o:?}"
+            );
+        }
         assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), b"disk bytes\n");
     }
 }

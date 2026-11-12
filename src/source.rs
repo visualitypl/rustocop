@@ -1001,6 +1001,15 @@ impl SourceFile {
         self.directive_disabled.get_or_init(Vec::new)
     }
 
+    /// Whether no directive disables `cop` on any line of `first..=last`
+    /// (RuboCop's `enabled_lines?`). Cops that, like upstream, only ignore
+    /// the subtree of an offense whose block ran ask this during dispatch.
+    pub(crate) fn cop_enabled_for_lines(&self, cop: &str, first: u32, last: u32) -> bool {
+        self.directives
+            .get()
+            .is_none_or(|d| d.is_enabled_for_lines(cop, first, last))
+    }
+
     pub(crate) fn line_length_enabled(&self, line: u32) -> bool {
         self.directives
             .get()
@@ -2882,12 +2891,15 @@ mod tests {
         };
         let cops: &[&dyn Cop] = &[&TrailingWhitespace, &StringLiterals];
         for (observer, safe) in [
-            ("p DATA.pos\n__END__\npayload\n", 4000),
-            ("p DATA.lineno\n__END__\npayload\n", 8000),
-            ("p File.size(__FILE__)\n", 4000),
+            // A listed observer (`DATA`
+            // with a data section, `__FILE__`, `__dir__`, `caller_locations`)
+            // holds every edit of both cops; the findings stay.
+            ("p DATA.pos\n__END__\npayload\n", 0),
+            ("p DATA.lineno\n__END__\npayload\n", 0),
+            ("p File.size(__FILE__)\n", 0),
             ("p File.mtime(__FILE__)\n", 0),
-            ("p File.size(File.join(__dir__, \"x.rb\"))\n", 4000),
-            ("p File.stat(__FILE__).size\n", 4000),
+            ("p File.size(File.join(__dir__, \"x.rb\"))\n", 0),
+            ("p File.stat(__FILE__).size\n", 0),
             ("p File.stat(\"x\" + \".rb\").size\n", 4000),
             ("p File.stat(\"x\" + \".rb\")\n", 0),
             ("p File.stat(__FILE__)\n", 0),
@@ -2896,15 +2908,15 @@ mod tests {
             ("p test(?A, __FILE__)\n", 0),
             (
                 "File.symlink(__FILE__, \"alias\"); p File.size(\"alias\")\n",
-                4000,
+                0,
             ),
             (
                 "FileUtils.mv(__FILE__, \"alias\"); p File.size(\"alias\")\n",
-                4000,
+                0,
             ),
             (
                 "FileUtils.move(__FILE__, \"alias\"); p File.size(\"alias\")\n",
-                4000,
+                0,
             ),
             (
                 "FileUtils.mv(__FILE__, \"alias\"); p File.mtime(\"alias\")\n",
@@ -2914,7 +2926,7 @@ mod tests {
                 "FileUtils.move(__FILE__, \"alias\"); p File.mtime(\"alias\")\n",
                 0,
             ),
-            ("p caller_locations(0)\n", 8000),
+            ("p caller_locations(0)\n", 0),
             ("p __LINE__\n", 8000),
         ] {
             let source = "x = 'hi'  \n".repeat(4000) + observer;
@@ -3032,7 +3044,8 @@ mod tests {
 
         // A path used only as metadata must not bypass the optional forwarding
         // proof and turn proven Proc-or-nil parameters into snippet selectors.
-        let f = file(b"x = 'hi'\ndef forward(&block); [1].map(&block); end\np $0\n");
+        // (`Process.argv0`: the listed `$0` would hold every edit.)
+        let f = file(b"x = 'hi'\ndef forward(&block); [1].map(&block); end\np Process.argv0\n");
         let parsed = crate::parser::parse(&f.bytes);
         for _ in 0..3 {
             let mut out = Vec::new();
@@ -4548,7 +4561,10 @@ mod tests {
         assert!(f.token_ranges.get().is_none());
         found.clear();
         assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
-        assert!(found.iter().all(|o| o.correction.is_some()));
+        // The cops still build their guarded edits from the shared proof; the
+        // listed `__FILE__` then withholds all of them.
+        assert_eq!(found.len(), 7);
+        assert!(found.iter().all(|o| o.correction.is_none()));
         let pointer = f.file_api_bindings.get().unwrap() as *const _;
         assert_eq!(pointer, f.file_api_bindings(&result.node()) as *const _);
     }
@@ -4970,7 +4986,9 @@ mod tests {
         found.clear();
         assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
         assert_eq!(found.len(), 1000);
-        assert!(found.iter().all(|o| o.correction.is_some()));
+        // Not a source reader, but every Style/Dir target names the listed
+        // `__FILE__`: the edits are withheld.
+        assert!(found.iter().all(|o| o.correction.is_none()));
         assert!(!proof.observes_source_bytes());
         let mut count = Count(0);
         walk(&mut count, &result.node());
@@ -5508,8 +5526,10 @@ mod tests {
                 MethodCallWithArgsParentheses, NestedParenthesizedCalls, SuperWithArgsParentheses,
             },
         };
+        // A size read of the linted file (`DATA` with a data section would be
+        // a listed observer that holds every edit).
         let source = format!(
-            "{}{}{}p DATA.pos\n__END__\nraw\n",
+            "{}{}{}p File.size('test.rb')\n",
             "def f; x = identity  1; end\n".repeat(500),
             "x = identity(identity  1)\n".repeat(500),
             "def g(a); super  a; end\n".repeat(500),

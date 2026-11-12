@@ -23,10 +23,12 @@ mod heap_safety;
 pub mod layout;
 pub mod lint;
 pub mod metrics;
+pub mod migration;
 pub mod name_similarity;
 pub mod naming;
 pub mod policy;
 mod position_safety;
+pub(crate) mod reparse;
 pub mod security;
 pub mod style;
 #[cfg(test)]
@@ -56,6 +58,18 @@ pub trait Cop: Send + Sync {
     /// Keep detection and capability metadata intact, but withhold this cop's
     /// edits whenever a named companion is active (independent of input order).
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {
+        &[]
+    }
+
+    /// Companions whose edits take precedence over this cop's within one
+    /// pass, as upstream's Team skips a cop's corrector once an
+    /// autocorrect-incompatible cop's corrections were applied. This cop's
+    /// edits in a file are withheld for the pass only when a named companion
+    /// still has an edit there after every safety and directive filter; a
+    /// merely active companion withholds nothing (unlike
+    /// [`Cop::autocorrect_incompatible_with`]), so runs with default-on
+    /// companions converge over explicit passes.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
         &[]
     }
 
@@ -160,6 +174,20 @@ pub trait Cop: Send + Sync {
     /// RedundantConstantBase delegates to configured ConstantResolution,
     /// independent of CLI selection. No index or public option is introduced.
     fn with_constant_resolution(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
+        None
+    }
+
+    /// RedundantLineBreak defers chains on single-line blocks to configured
+    /// SingleLineBlockChain enablement, independent of CLI selection. Called
+    /// on the cop as already configured by the earlier seams.
+    fn with_single_line_block_chain(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
+        None
+    }
+
+    /// SpaceAroundBlockParameters leaves the inside of a lambda's parameter
+    /// parentheses to configured SpaceInsideParens enablement, independent of
+    /// CLI selection (upstream's `config.cop_enabled?`). No public setting.
+    fn with_space_inside_parens(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
         None
     }
 
@@ -375,6 +403,16 @@ impl Registry {
                 Box::new(gemspec::RequiredRubyVersion),
                 Box::new(gemspec::RubyVersionGlobalsUsage),
                 Box::new(metrics::ParameterLists),
+                Box::new(metrics::BlockLength),
+                Box::new(metrics::ClassLength),
+                Box::new(metrics::MethodLength),
+                Box::new(metrics::ModuleLength),
+                Box::new(metrics::BlockNesting),
+                Box::new(metrics::CollectionLiteralLength),
+                Box::new(metrics::CyclomaticComplexity),
+                Box::new(metrics::PerceivedComplexity),
+                Box::new(metrics::AbcSize),
+                Box::new(migration::DepartmentName),
                 Box::new(lint::ParenthesesAsGroupedExpression),
                 Box::new(lint::PercentStringArray),
                 Box::new(lint::PercentSymbolArray),
@@ -938,6 +976,27 @@ impl Registry {
                 Box::new(layout::MultilineHashBraceLayout),
                 Box::new(layout::MultilineMethodCallBraceLayout),
                 Box::new(layout::MultilineMethodDefinitionBraceLayout),
+                Box::new(layout::MultilineBlockLayout::default()),
+                Box::new(layout::BlockEndNewline),
+                Box::new(layout::SingleLineBlockChain),
+                Box::new(layout::RedundantLineBreak::default()),
+                Box::new(layout::LineContinuationLeadingSpace),
+                Box::new(layout::LineContinuationSpacing),
+                Box::new(layout::LineEndStringConcatenationIndentation),
+                Box::new(layout::SpaceAfterColon),
+                Box::new(layout::SpaceAfterMethodName),
+                Box::new(layout::SpaceAfterNot),
+                Box::new(layout::SpaceAroundKeyword),
+                Box::new(layout::SpaceAroundMethodCallOperator),
+                Box::new(layout::SpaceAroundBlockParameters::default()),
+                Box::new(layout::SpaceInLambdaLiteral),
+                Box::new(layout::SpaceBeforeBlockBraces),
+                Box::new(layout::SpaceBeforeBrackets),
+                Box::new(layout::SpaceInsideArrayPercentLiteral),
+                Box::new(layout::SpaceInsidePercentLiteralDelimiters),
+                Box::new(layout::SpaceInsideRangeLiteral),
+                Box::new(layout::SpaceInsideStringInterpolation),
+                Box::new(layout::ClassStructure),
             ],
         }
     }
@@ -1342,9 +1401,15 @@ fn guard_corrections(
         let inert = data_start.is_none()
             && statically_inert(&result.node())
             && !proof.has_listed_source_observer(false);
+        // A listed source observer anywhere in the
+        // file withholds every cop's correction, whatever the
+        // observation can reach. Findings are kept.
+        let listed =
+            proof.has_listed_source_observer(data_start.is_some()) || proof.observes_script_lines();
         for offense in emitted {
             if offense.correction.as_ref().is_some_and(|correction| {
-                (!inert && (raw || code_objects || heap))
+                listed
+                    || (!inert && (raw || code_objects || heap))
                     || !proof.preserves_positions(correction, file, data_start)
             }) {
                 offense.correction = None;
@@ -1919,7 +1984,7 @@ mod tests {
         );
         // Opt-in MultilineAssignmentLayout and
         // EmptyLineAfterMultilineCondition need their exact names.
-        assert_eq!(active.len(), 69);
+        assert_eq!(active.len(), 87);
         for name in [
             "Layout/TrailingEmptyLines",
             "Layout/EmptyLines",

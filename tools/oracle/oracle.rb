@@ -17,6 +17,7 @@ require "optparse"
 require "tmpdir"
 require_relative "../fixed_policy"
 require_relative "gem_filename_lifecycle"
+require_relative "code_length_lifecycle"
 
 module Oracle
   ROOT = File.expand_path("../..", __dir__)
@@ -290,6 +291,9 @@ module Oracle
         return ScriptPermissionLifecycle.check(result, recorder, binary, tmp)
       end
       result[:skipped].concat(recorder.skipped)
+      if CodeLengthLifecycle::COPS.include?(cop)
+        result[:skipped].concat(CodeLengthLifecycle.account(cop, recorder, defaults))
+      end
       recorder.errors.each do |error|
         # A source-less helper under a demonstrably different fixed config is
         # inapplicable. With no source, never assume a Relevant option is inert.

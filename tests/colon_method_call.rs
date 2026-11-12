@@ -257,6 +257,14 @@ p $events
 __END__
 raw::payload
 "#;
+    // Reading `DATA` is a listed observer: that file keeps its
+    // findings and bytes. The unread data section survives below.
+    fs::write(&path, source).unwrap();
+    let modified = fs::metadata(&path).unwrap().modified().unwrap();
+    cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 1);
+    assert_eq!(fs::read_to_string(&path).unwrap(), source);
+    assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
+    let source = &source.replace("p [__LINE__, DATA.read]", "p [__LINE__]");
     fs::write(&path, source).unwrap();
     let before = ruby(dir.path());
     assert!(before.status.success(), "{before:?}");

@@ -7,6 +7,8 @@ use std::{
 };
 #[path = "support/deprecated_constructor_native.rs"]
 mod native_guard;
+#[path = "support/stdin.rs"]
+mod stdin_support;
 const BIG: &str = "Lint/BigDecimalNew";
 const ERB: &str = "Lint/ErbNewArguments";
 const BIG_SAFE: &str = "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n";
@@ -257,7 +259,6 @@ fn actual_candidate_atomic_readonly_symlink_validation_and_layout_composition() 
 }
 #[test]
 fn genuine_candidates_stdin_provenance_is_detection_only_and_fix_is_rejected() {
-    use std::io::Write;
     use std::process::Stdio;
     let dir = project();
     for (cop, safe) in [(BIG, BIG_SAFE), (ERB, ERB_SAFE)] {
@@ -280,13 +281,17 @@ fn genuine_candidates_stdin_provenance_is_detection_only_and_fix_is_rejected() {
                 .unwrap();
             // Rejection may happen before stdin is read: a broken pipe is allowed
             // only for that documented error path, never detection-only input.
-            let write = child.stdin.take().unwrap().write_all(safe.as_bytes());
-            if !fix {
-                write.unwrap();
-            }
+            stdin_support::write_stdin(child.stdin.take().unwrap(), safe.as_bytes(), fix).unwrap();
             let out = child.wait_with_output().unwrap();
             assert_eq!(out.status.code(), Some(if fix { 2 } else { 1 }), "{out:?}");
-            if !fix {
+            if fix {
+                assert!(out.stdout.is_empty(), "{out:?}");
+                assert!(
+                    String::from_utf8_lossy(&out.stderr)
+                        .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                    "{out:?}"
+                );
+            } else {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains("virtual/candidate.rb:"),
                     "{out:?}"

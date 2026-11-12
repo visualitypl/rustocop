@@ -216,20 +216,14 @@ fn individual_prefix_source_data_and_encoding_withholds_keep_offenses() {
         b"# encoding: ISO-8859-1\r\np %w(caf\xe9)\r\n",
         1,
     );
-    // Equal-length case/delimiter edits preserve observable DATA offsets.
-    fs::write(
-        dir.path().join("a.rb"),
-        "p %Q[hi]; p DATA.pos\n__END__\nraw\n",
-    )
-    .unwrap();
-    cli(
+    // Equal-length case/delimiter edits would preserve observable DATA
+    // offsets, but `DATA` with a data section is a listed
+    // observer: the findings stay and the file is not written.
+    unchanged(
         dir.path(),
-        &["--only", &format!("{Q},{DELIM}"), "--fix", "a.rb"],
-        0,
-    );
-    assert_eq!(
-        fs::read_to_string(dir.path().join("a.rb")).unwrap(),
-        "p %q(hi); p DATA.pos\n__END__\nraw\n"
+        &format!("{Q},{DELIM}"),
+        b"p %Q[hi]; p DATA.pos\n__END__\nraw\n",
+        1,
     );
 }
 
@@ -433,15 +427,17 @@ fn ruby_data_positions_source_reads_and_ambiguous_prefix_counterexamples() {
             "p %Q(hi); p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n",
             1,
         ),
+        // `DATA` with a data section is a listed observer that
+        // holds even equal-length edits.
         (
             Q,
             "p %Q(hi); p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n",
-            0,
+            1,
         ),
         (
             DELIM,
             "p %w(one two); p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n",
-            0,
+            1,
         ),
         (ALL, "p %Q[hi]; p File.binread($PROGRAM_NAME).bytes\n", 1),
         (BARE, "def foo(x); p x; end\nfoo %Q=hi=\n", 1),

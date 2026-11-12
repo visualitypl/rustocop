@@ -337,10 +337,13 @@ fn fatal_ruby_encoding_syntax_depth_and_io_cannot_be_bypassed() {
         2,
         0,
     );
-    check(
-        &cli(d.path(), &["--stdin", "gems.locked", "--fix"], Some(b"")),
-        2,
-        0,
+    let out = cli(d.path(), &["--stdin", "gems.locked", "--fix"], Some(b""));
+    check(&out, 2, 0);
+    assert!(out.stdout.is_empty(), "{out:?}");
+    assert!(
+        String::from_utf8_lossy(&out.stderr)
+            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+        "{out:?}"
     );
 }
 

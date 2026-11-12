@@ -15,7 +15,15 @@ fn rejecting_stdin(root: &std::path::Path, args: &[&str], source: &str) -> Outpu
     let output = run_cli(root, "", args, Some(source), true);
     assert_eq!(output.status.code(), Some(2), "{output:?}");
     assert!(output.stdout.is_empty(), "{output:?}");
-    assert!(!output.stderr.is_empty(), "{output:?}");
+    // Usage, selector and config rejections all print one `error:` diagnostic.
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.starts_with("error: "), "{output:?}");
+    if args.contains(&"--fix") {
+        assert!(
+            stderr.contains("cannot be used with") && stderr.contains("'--fix'"),
+            "{output:?}"
+        );
+    }
     output
 }
 
@@ -1263,7 +1271,9 @@ fn ns04_native_runtime_values_captures_defaults_shadowing_ensure_retry_and_contr
         "class Parent; def +(value); value+1; end; end; class Example < Parent; def +(arg); arg+=2; super; end; end; p Example.new + 4\n",
         "class Example; def +(arg); {arg:}; end; end; p Example.new + 4\n",
         "class Example; def +(arg); <<~TXT\n#{arg} #{__LINE__} arg literal\nTXT\nend; end; p Example.new + 4\n",
-        "class Example; def +(arg); [arg, __LINE__]; end; end; p Example.new + 4; p DATA.read\n__END__\nraw arg data\n",
+        // An unread data section survives; reading `DATA` is a
+        // listed observer that withholds every edit.
+        "class Example; def +(arg); [arg, __LINE__]; end; end; p Example.new + 4; p :data\n__END__\nraw arg data\n",
         "begin; raise 'boom'; rescue => error; p [error.message, {error:}.keys]; ensure; p error.message; end; p error.message\n",
         "begin; raise 'boom'; rescue => error; f=->(v=error) { v.message }; p f.call; end; p f.call\n",
         "n=0; begin; n+=1; raise 'boom' if n<2; rescue => error; retry if n<2; ensure; p [n, error&.message]; end; p error.message\n",
@@ -4464,9 +4474,10 @@ fn ns06_exact_bom_crlf_comments_queued_nested_commands_and_style_layout_peers() 
             "p <<~`SQL`\nnever executed #{1}\nSQL\n",
         ),
         ("p <<-sql\nbody\n  sql", "p <<-SQL\nbody\n  SQL"),
+        // The listed `__FILE__` withholds the edit.
         (
             "p <<~sql\nbody\nsql\np __FILE__\n",
-            "p <<~SQL\nbody\nSQL\np __FILE__\n",
+            "p <<~sql\nbody\nsql\np __FILE__\n",
         ),
         (
             "p <<~OUT\n#{<<~inner}\nbody\ninner\nOUT\n",
@@ -4484,7 +4495,11 @@ fn ns06_exact_bom_crlf_comments_queued_nested_commands_and_style_layout_peers() 
             &["--only", NS06_CASE, "--fix", "lib/a.rb"],
             None,
         );
-        assert_eq!(run.status.code(), Some(0), "{before}: {run:?}");
+        assert_eq!(
+            run.status.code(),
+            Some(i32::from(before == after)),
+            "{before}: {run:?}"
+        );
         assert_eq!(fs::read_to_string(&path).unwrap(), after);
     }
     for (before, after, selectors, passes) in [
@@ -4627,6 +4642,19 @@ p [DATA.pos, DATA.read.bytes]
 __END__
 raw sql payload
 "#;
+    // `DATA` with a data section is a listed observer: the
+    // equal-length case edits are withheld. The sibling leaves
+    // its data section unread.
+    fs::write(&path, source).unwrap();
+    let run = cli(
+        dir.path(),
+        "",
+        &["--only", NS06_CASE, "--fix", "lib/a.rb"],
+        None,
+    );
+    assert_eq!(run.status.code(), Some(1), "{run:?}");
+    assert_eq!(fs::read_to_string(&path).unwrap(), source);
+    let source = &source.replace("p [DATA.pos, DATA.read.bytes]\n", "p :data\n");
     for crlf in [false, true] {
         let source = if crlf {
             format!("\u{feff}{}", source.replace('\n', "\r\n"))

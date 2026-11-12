@@ -899,9 +899,11 @@ mod tests {
         let dir = correction_offenses(&Dir, &source);
         assert_eq!(dir.len(), 2000);
         assert!(dir.iter().all(|o| o.correction.is_none()));
-        let empty = correction_offenses(&DirEmpty, &source);
+        // The listed `__FILE__` and the `:__dir__` / `'__dir__'` selectors
+        // withhold every edit in the file, the peer's too; the findings stay.
+        let empty = correction_offenses(&DirEmpty, &unlisted(&source));
         assert_eq!(empty.len(), 2000);
-        assert!(empty.iter().all(|o| o.correction.is_some()));
+        assert!(empty.iter().all(|o| o.correction.is_none()));
     }
 
     #[test]
@@ -929,15 +931,18 @@ mod tests {
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
             assert!(
-                correction_offenses(&DirEmpty, &source)[0]
+                correction_offenses(&DirEmpty, &unlisted(&source))[0]
                     .correction
                     .is_some(),
                 "{source}"
             );
         }
-        // A local in a disjoint method is not visible to this occurrence.
+        // A local in a disjoint method is not visible to this occurrence;
+        // the listed `__FILE__` still holds the edit.
         let source = "def other(__dir__); __dir__; end\nFile.dirname(File.realpath(__FILE__))\n";
-        assert!(correction_offenses(&Dir, source)[0].correction.is_some());
+        let found = correction_offenses(&Dir, source);
+        assert_eq!(found.len(), 1);
+        assert!(found[0].correction.is_none());
     }
 
     #[test]
@@ -970,14 +975,15 @@ mod tests {
                         let source = format!(
                             "{binding}\n  File.dirname(File.realpath(__FILE__))\n  Dir.children('.').empty?\n"
                         );
-                        for (cop, affected, line) in [
-                            (&Dir as &dyn Cop, api == "File", 2),
-                            (&DirEmpty, api == "Dir", 3),
+                        // Style/Dir is always held by the listed `__FILE__`.
+                        for (cop, held, source, line) in [
+                            (&Dir as &dyn Cop, true, source.clone(), 2),
+                            (&DirEmpty, api == "Dir", unlisted(&source), 3),
                         ] {
                             let found = correction_offenses(cop, &source);
                             assert_eq!(found.len(), 1, "{source}");
                             assert_eq!((found[0].line, found[0].col), (line, 3), "{source}");
-                            assert_eq!(found[0].correction.is_none(), affected, "{source}");
+                            assert_eq!(found[0].correction.is_none(), held, "{source}");
                         }
                         assert!(
                             correction_offenses(
@@ -1032,25 +1038,30 @@ mod tests {
                     let source = format!(
                         "{outer}.instance_eval {{ {inner}.{eval}({receiver}define_singleton_method(:{method}) {{ 123 }}) {{}} }}\nFile.dirname(File.realpath(__FILE__))\nDir.children('.').empty?\n"
                     );
-                    for (cop, affected) in [
-                        (&Dir as &dyn Cop, outer == "File"),
-                        (&DirEmpty, outer == "Dir"),
+                    // Style/Dir is always held by the listed `__FILE__`.
+                    for (cop, held, source) in [
+                        (&Dir as &dyn Cop, true, source.clone()),
+                        (&DirEmpty, outer == "Dir", unlisted(&source)),
                     ] {
                         let found = correction_offenses(cop, &source);
                         assert_eq!(found.len(), 1, "{source}");
-                        assert_eq!(found[0].correction.is_none(), affected, "{source}");
+                        assert_eq!(found[0].correction.is_none(), held, "{source}");
                     }
                 }
                 // The inner block's self must not be mistaken for the outer API.
                 let source = format!(
                     "{outer}.instance_eval {{ {inner}.{eval} {{ define_singleton_method(:{method}) {{ 123 }} }} }}\nFile.dirname(File.realpath(__FILE__))\nDir.children('.').empty?\n"
                 );
-                for cop in [&Dir as &dyn Cop, &DirEmpty] {
-                    assert!(
-                        correction_offenses(cop, &source)[0].correction.is_some(),
-                        "{source}"
-                    );
-                }
+                assert!(
+                    correction_offenses(&Dir, &source)[0].correction.is_none(),
+                    "{source}"
+                );
+                assert!(
+                    correction_offenses(&DirEmpty, &unlisted(&source))[0]
+                        .correction
+                        .is_some(),
+                    "{source}"
+                );
             }
         }
     }
@@ -1084,12 +1095,22 @@ mod tests {
             let source = format!(
                 "{binding}\nFile.dirname(File.realpath(__FILE__))\nDir.children('.').empty?\n"
             );
-            for cop in [&Dir as &dyn Cop, &DirEmpty] {
+            // Style/Dir is always held by the listed `__FILE__`.
+            for (cop, held, source) in [
+                (&Dir as &dyn Cop, true, source.clone()),
+                (&DirEmpty, false, unlisted(&source)),
+            ] {
                 let found = correction_offenses(cop, &source);
                 assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_some(), "{source}");
+                assert_eq!(found[0].correction.is_none(), held, "{source}");
             }
         }
+    }
+
+    /// The same file without the listed `__FILE__`:
+    /// Style/Dir's target becomes a lookalike, peers' evidence is unchanged.
+    fn unlisted(source: &str) -> String {
+        source.replace("__FILE__", "'lib'")
     }
 
     #[test]

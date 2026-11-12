@@ -104,7 +104,7 @@ fn complete_fixtures_have_exact_cli_diagnostics_and_only_proven_canonical_fixes(
 #[test]
 fn metadata_selectors_toml_department_precedence_and_exclusions() {
     let registry = rustocop::cops::Registry::new();
-    assert_eq!(registry.cops().len(), 582);
+    assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());

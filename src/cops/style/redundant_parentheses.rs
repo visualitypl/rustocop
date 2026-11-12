@@ -18,8 +18,9 @@
 //!    reported. As in RuboCop, candidates are grouped by their innermost
 //!    `def`, `class`, `module` or `class << x` and only that fragment is
 //!    parsed again (the whole file outside any); each group is verified in
-//!    one batch, split in halves while a batch fails. `^(var)` pins need no
-//!    verification.
+//!    one batch, split in halves while a batch fails (the shared
+//!    `cops::reparse`, also used by `Layout/RedundantLineBreak`). `^(var)`
+//!    pins need no verification.
 //!
 //! The defaults that RuboCop takes from other cops are fixed to theirs:
 //! `Style/TernaryParentheses` (`require_no_parentheses`, so a parenthesized
@@ -38,6 +39,7 @@ use crate::{
     cops::{
         Cop, NodeContext,
         ast::{self, call_arguments, fingerprint_ignoring_grouping},
+        reparse,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -1567,134 +1569,41 @@ fn atomic_correction(file: &SourceFile, edits: &[Edit]) -> Option<Correction> {
 }
 
 /// The indices of the candidates whose removal leaves the parse unchanged,
-/// grouping aside (RuboCop's `verified_by_reparse`). Candidates are grouped
-/// by their reparse scope, the innermost `def`, `class`, `module` or
-/// `class << x` holding them (these neither capture outer locals nor
-/// continue an outer expression), and only that fragment is parsed again;
-/// candidates outside any such scope are verified against the whole file.
+/// grouping aside (RuboCop's `verified_by_reparse`), through the shared
+/// scope-grouped verification (`cops::reparse`).
 fn verified(file: &SourceFile, program: &Node<'_>, candidates: &[Candidate]) -> Vec<usize> {
-    if candidates.is_empty() {
-        return Vec::new();
-    }
-    let mut groups: BTreeMap<Option<(usize, usize)>, Vec<usize>> = BTreeMap::new();
-    let scopes = reparse_scopes(program);
-    for (index, candidate) in candidates.iter().enumerate() {
-        let start = candidate.edits.iter().map(|edit| edit.range.start).min();
-        let end = candidate.edits.iter().map(|edit| edit.range.end).max();
-        let scope = start.zip(end).and_then(|(start, end)| {
-            // Scopes nest or are disjoint: the innermost holding the edits
-            // is the last one starting at or before them that holds them.
-            let after = scopes.partition_point(|scope| scope.start <= start);
-            scopes[..after]
-                .iter()
-                .rev()
-                .find(|scope| scope.start <= start && end <= scope.end)
-                .map(|scope| (scope.start, scope.end))
-        });
-        groups.entry(scope).or_default().push(index);
-    }
-    let mut accepted = Vec::new();
-    for (scope, group) in groups {
-        match scope {
-            Some((start, end)) => {
-                let fragment = &file.bytes[start..end];
-                let original = crate::parser::parse(fragment);
-                if original.errors().next().is_some() || original.depth_error().is_some() {
-                    // RuboCop cannot verify a fragment that does not parse
-                    // alone either (a heredoc body past an endless def).
-                    continue;
-                }
-                let expected = fingerprint_ignoring_grouping(&original.node(), fragment);
-                let shifted: Vec<Candidate> = group
-                    .iter()
-                    .map(|&index| Candidate {
-                        open: candidates[index].open,
-                        end: candidates[index].end,
-                        message: candidates[index].message,
-                        edits: candidates[index]
-                            .edits
-                            .iter()
-                            .map(|edit| Edit {
-                                range: edit.range.start - start..edit.range.end - start,
-                                text: edit.text,
-                            })
-                            .collect(),
-                    })
-                    .collect();
-                let local: Vec<usize> = (0..shifted.len()).collect();
-                accepted.extend(
-                    verified_subset(fragment, &expected, &shifted, local)
-                        .into_iter()
-                        .map(|position| group[position]),
-                );
-            }
-            None => {
-                let expected = fingerprint_ignoring_grouping(program, &file.bytes);
-                accepted.extend(verified_subset(&file.bytes, &expected, candidates, group));
-            }
-        }
-    }
-    accepted.sort_unstable();
-    accepted
-}
-
-/// The indices in `group` whose edits, applied to `source`, parse to the
-/// `expected` fingerprint: all at once, or by halves while a batch fails,
-/// so a few failing candidates cost a logarithmic number of reparses.
-fn verified_subset(
-    source: &[u8],
-    expected: &ast::Fingerprint<'_>,
-    candidates: &[Candidate],
-    group: Vec<usize>,
-) -> Vec<usize> {
-    let mut accepted = Vec::new();
-    let mut pending = vec![group];
-    while let Some(group) = pending.pop() {
+    let spans: Vec<Range<usize>> = candidates
+        .iter()
+        .map(|candidate| {
+            let start = candidate.edits.iter().map(|edit| edit.range.start).min();
+            let end = candidate.edits.iter().map(|edit| edit.range.end).max();
+            // A candidate without edits is held by no scope.
+            start
+                .zip(end)
+                .map_or(usize::MAX..usize::MAX, |(start, end)| start..end)
+        })
+        .collect();
+    let apply_group = |source: &[u8], start: usize, group: &[usize]| {
         let edits: Vec<Edit> = group
             .iter()
-            .flat_map(|&index| candidates[index].edits.iter().cloned())
+            .flat_map(|&index| candidates[index].edits.iter())
+            .map(|edit| Edit {
+                range: edit.range.start - start..edit.range.end - start,
+                text: edit.text,
+            })
             .collect();
-        let same = apply(source, &edits).is_some_and(|corrected| {
-            let result = crate::parser::parse(&corrected);
-            result.errors().next().is_none()
-                && result.depth_error().is_none()
-                && fingerprint_ignoring_grouping(&result.node(), &corrected) == *expected
-        });
-        if same {
-            accepted.extend(group);
-        } else if group.len() > 1 {
-            let half = group.len() / 2;
-            pending.push(group[half..].to_vec());
-            pending.push(group[..half].to_vec());
-        }
-    }
-    accepted
-}
-
-/// The byte ranges of every `def`, `class`, `module` and `class << x`,
-/// sorted by start (RuboCop's reparse scopes).
-fn reparse_scopes(program: &Node<'_>) -> Vec<Range<usize>> {
-    struct Scopes(Vec<Range<usize>>);
-    impl<'pr> NodeVisitor<'pr> for Scopes {
-        fn enter(&mut self, node: Node<'pr>) {
-            if matches!(
-                node,
-                Node::DefNode { .. }
-                    | Node::ClassNode { .. }
-                    | Node::ModuleNode { .. }
-                    | Node::SingletonClassNode { .. }
-            ) {
-                let location = node.location();
-                self.0.push(location.start_offset()..location.end_offset());
-            }
-        }
-    }
-    let mut scopes = Scopes(Vec::new());
-    walk(&mut scopes, program);
-    scopes
-        .0
-        .sort_by_key(|scope| (scope.start, std::cmp::Reverse(scope.end)));
-    scopes.0
+        apply(source, &edits)
+    };
+    reparse::verified(
+        file,
+        program,
+        &spans,
+        &apply_group,
+        &reparse::Equivalence {
+            fingerprint: fingerprint_ignoring_grouping,
+            preprocess: reparse::unchanged,
+        },
+    )
 }
 
 #[cfg(test)]

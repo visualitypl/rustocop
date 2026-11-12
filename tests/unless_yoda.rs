@@ -218,6 +218,14 @@ fn stdin_never_writes_and_fix_is_rejected() {
                 .unwrap();
             let o = child.wait_with_output().unwrap();
             assert_eq!(o.status.code(), Some(if fix { 2 } else { 1 }), "{o:?}");
+            if fix {
+                assert!(o.stdout.is_empty(), "{o:?}");
+                assert!(
+                    String::from_utf8_lossy(&o.stderr)
+                        .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                    "{o:?}"
+                );
+            }
             assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), b"# sentinel\n");
         }
     }

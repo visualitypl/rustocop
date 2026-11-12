@@ -123,10 +123,11 @@ mod tests {
             "Add parentheses to nested method call `inner 1`."
         );
         assert!(found[0].correction.is_none());
-        assert_correction(
+        // `DATA` with a data section is a listed observer:
+        // even the equal-length edit is held.
+        crate::cops::testing::assert_listed_hold(
             &NestedParenthesizedCalls,
             "outer(inner  1)\np DATA.pos\n__END__\nraw\n",
-            "outer(inner(1))\np DATA.pos\n__END__\nraw\n",
         );
         assert!(offenses("outer(eq 1)\np DATA.pos\n__END__\nraw\n").is_empty());
     }

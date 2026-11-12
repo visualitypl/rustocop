@@ -42,6 +42,21 @@ fn fix(dir: &Path, cop: &str, status: i32) -> String {
     String::from_utf8(output.stdout).unwrap()
 }
 
+/// The closed list, as it appears in these fixtures.
+fn listed_observer(source: &str) -> bool {
+    [
+        "__FILE__",
+        "__dir__",
+        "__END__",
+        "caller",
+        "source_location",
+        "$0",
+        "$PROGRAM_NAME",
+    ]
+    .iter()
+    .any(|name| source.contains(name))
+}
+
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -130,20 +145,30 @@ fn independent_preserving_siblings_fix_within_the_same_guarded_file() {
     let path = dir.path().join("case.rb");
     let runtime = Command::new("ruby").arg("--version").output().is_ok();
     for (cop, source, expected) in [
+        // A listed observer (`DATA` with a data
+        // section, `caller_locations`, `__FILE__`) withholds every edit,
+        // the preserving sibling's too.
         (
             "Layout/TrailingWhitespace,Style/StringLiterals",
             "x = 'hi'  \np DATA.pos\n__END__\npayload\n",
-            "x = \"hi\"  \np DATA.pos\n__END__\npayload\n",
+            "x = 'hi'  \np DATA.pos\n__END__\npayload\n",
         ),
         (
             "Layout/EmptyLines,Layout/TrailingWhitespace,Style/StringLiterals",
             "x = 'hi'  \n\n\np caller_locations(0).first.lineno\n",
-            "x = \"hi\"\n\n\np caller_locations(0).first.lineno\n",
+            "x = 'hi'  \n\n\np caller_locations(0).first.lineno\n",
         ),
         (
             "Layout/TrailingWhitespace,Style/StringLiterals",
             "x = 'hi'  \nrequire \"fileutils\"; FileUtils.mv(__FILE__, \"alias.rb\"); p File.size(\"alias.rb\"); FileUtils.mv(\"alias.rb\", __FILE__)\n",
-            "x = \"hi\"  \nrequire \"fileutils\"; FileUtils.mv(__FILE__, \"alias.rb\"); p File.size(\"alias.rb\"); FileUtils.mv(\"alias.rb\", __FILE__)\n",
+            "x = 'hi'  \nrequire \"fileutils\"; FileUtils.mv(__FILE__, \"alias.rb\"); p File.size(\"alias.rb\"); FileUtils.mv(\"alias.rb\", __FILE__)\n",
+        ),
+        // An unlisted size read of the file: only the equal-length sibling
+        // is corrected.
+        (
+            "Layout/TrailingWhitespace,Style/StringLiterals",
+            "x = 'hi'  \np File.size(\"case.rb\")\n",
+            "x = \"hi\"  \np File.size(\"case.rb\")\n",
         ),
     ] {
         for crlf in [false, true] {
@@ -623,7 +648,16 @@ fn canonical_metadata_preserving_edits_still_fix_and_converge() {
     ] {
         let source = format!("{prefix}{observer}\n");
         let expected = format!("{canonical}{observer}\n");
-        fs::write(&path, source).unwrap();
+        fs::write(&path, &source).unwrap();
+        // A bare listed observer withholds every
+        // cop's edit; the finding stays.
+        if listed_observer(observer) {
+            let mtime = fs::metadata(&path).unwrap().modified().unwrap();
+            fix(dir.path(), cop, 1);
+            assert_eq!(fs::read_to_string(&path).unwrap(), source, "{observer}");
+            assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
+            continue;
+        }
         let before = runtime.then(|| ruby(&path));
         fix(dir.path(), cop, 0);
         assert_eq!(fs::read_to_string(&path).unwrap(), expected);

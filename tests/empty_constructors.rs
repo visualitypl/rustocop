@@ -2,10 +2,12 @@
 //! Pinned fixtures port RuboCop specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
 use std::{
     fs,
-    io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
+
+#[path = "support/stdin.rs"]
+mod stdin_support;
 const LITERAL: &str = "Style/EmptyLiteral";
 const CLASS: &str = "Style/EmptyClassDefinition";
 const COPS: [(&str, &str); 2] = [
@@ -264,10 +266,18 @@ fn stdin_is_diagnostic_only_and_rejects_fix() {
                 .stderr(Stdio::piped())
                 .spawn()
                 .unwrap();
-            child.stdin.take().unwrap().write_all(s.as_bytes()).unwrap();
+            // Only the expected `--stdin --fix` rejection may exit before reading.
+            stdin_support::write_stdin(child.stdin.take().unwrap(), s.as_bytes(), fix).unwrap();
             let o = child.wait_with_output().unwrap();
             assert_eq!(o.status.code(), Some(if fix { 2 } else { 1 }), "{o:?}");
-            if !fix {
+            if fix {
+                assert!(o.stdout.is_empty(), "{o:?}");
+                assert!(
+                    String::from_utf8_lossy(&o.stderr)
+                        .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
+                    "{o:?}"
+                );
+            } else {
                 assert!(String::from_utf8_lossy(&o.stdout).contains("a.rb:1:1:"));
             }
             assert!(!d.path().join("a.rb").exists());

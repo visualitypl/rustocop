@@ -64,6 +64,11 @@ const CASES: &[(&str, &str, &str)] = &[
         "File.size(\"path/to/file\") == 0\n",
     ),
 ];
+/// Every target of these cops names the
+/// listed `__FILE__`, so their edits are always withheld; findings stay.
+fn listed_subject(cop: &str) -> bool {
+    matches!(cop, "Style/Dir" | "Style/ExpandPathArguments")
+}
 fn offense_column(cop: &str) -> usize {
     match cop {
         "Style/YAMLFileRead" | "Style/NestedFileDirname" | "Style/ExpandPathArguments" => 6,
@@ -103,6 +108,7 @@ fn defaults_exact_names_selectors_config_and_safe_fix_policy() {
         assert!(rules[0].default_enabled());
         assert_eq!(rules[0].safe_fixes(), before != after);
         assert!(rules[0].path_policy().is_none());
+        let after = if listed_subject(cop) { before } else { after };
         fs::write(&path, before).unwrap();
         fs::write(dir.path().join("rustocop.toml"), "").unwrap();
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -329,7 +335,7 @@ fn mixed_style_and_layout_fixes_stabilize_in_bounded_explicit_passes() {
 
 #[cfg(unix)]
 #[test]
-fn symlink_loading_withholds_noncanonical_dir_expansion_but_allows_realpath() {
+fn symlink_loading_and_the_listed_file_observer_withhold_dir_edits() {
     use std::os::unix::fs::symlink;
     let dir = project();
     let real = dir.path().join("lib/a.rb");
@@ -339,9 +345,14 @@ fn symlink_loading_withholds_noncanonical_dir_expansion_but_allows_realpath() {
     fs::write(&real, before).unwrap();
     cli(dir.path(), &["--only", "Style/Dir", "--fix", "alias.rb"], 1);
     assert_eq!(fs::read_to_string(&real).unwrap(), before);
+    // The realpath form is canonical through the alias, but the listed
+    // `__FILE__` withholds it too.
     fs::write(&real, "p File.dirname(File.realpath(__FILE__))\n").unwrap();
-    cli(dir.path(), &["--only", "Style/Dir", "--fix", "alias.rb"], 0);
-    assert_eq!(fs::read_to_string(&real).unwrap(), "p __dir__\n");
+    cli(dir.path(), &["--only", "Style/Dir", "--fix", "alias.rb"], 1);
+    assert_eq!(
+        fs::read_to_string(&real).unwrap(),
+        "p File.dirname(File.realpath(__FILE__))\n"
+    );
     assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
     // A symlinked parent directory has the same noncanonical loading risk.
     symlink("lib", dir.path().join("aliasdir")).unwrap();
@@ -510,8 +521,15 @@ fn closed_local_default_constructors_recover_runtime_equivalent_canonical_fixes(
         ),
     ] {
         for crlf in [false, true] {
+            // `__FILE__` is a listed observer that withholds every
+            // edit; the StringLiterals sibling prints no path.
+            let trailer = if cop == "Style/StringLiterals" {
+                ":done"
+            } else {
+                "__FILE__"
+            };
             let source = format!(
-                "class Other; end\nclass C\n def run; {expression}; end\nend\nOther.new\np C.new.run\np __FILE__\n"
+                "class Other; end\nclass C\n def run; {expression}; end\nend\nOther.new\np C.new.run\np {trailer}\n"
             );
             let source = if crlf {
                 format!("\u{feff}{}", source.replace('\n', "\r\n"))
@@ -528,6 +546,15 @@ fn closed_local_default_constructors_recover_runtime_equivalent_canonical_fixes(
             };
             let before = run();
             assert!(before.status.success(), "{source}: {before:?}");
+            if source.contains("__FILE__") {
+                // The listed `__FILE__` withholds every
+                // cop's edit; the finding stays.
+                assert_ne!(expression, replacement);
+                cli(dir.path(), &["--only", cop, "--fix", "a.rb"], 1);
+                assert_eq!(fs::read_to_string(&script).unwrap(), source);
+                assert_eq!(before.stdout, run().stdout, "{source}");
+                continue;
+            }
             cli(dir.path(), &["--only", cop, "--fix", "a.rb"], 0);
             assert_eq!(
                 fs::read_to_string(&script).unwrap(),
@@ -567,7 +594,7 @@ fn uncertain_local_and_aliased_io_constructors_still_do_not_write() {
 }
 
 #[test]
-fn unrelated_literal_method_bindings_still_allow_runtime_equivalent_canonical_fixes() {
+fn unrelated_literal_method_bindings_keep_findings_under_the_listed_hold() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
@@ -596,17 +623,15 @@ fn unrelated_literal_method_bindings_still_allow_runtime_equivalent_canonical_fi
         };
         let before = run();
         assert!(before.status.success(), "{source}: {before:?}");
-        cli(dir.path(), &["--only", "Style/Dir", "--fix", "a.rb"], 0);
+        // Without a constructor the binding is harmless, but the listed
+        // `__FILE__` withholds the edit.
+        let modified = fs::metadata(&script).unwrap().modified().unwrap();
+        cli(dir.path(), &["--only", "Style/Dir", "--fix", "a.rb"], 1);
         let after = run();
         assert!(after.status.success(), "{source}: {after:?}");
         assert_eq!(before.stdout, after.stdout, "{source}");
         assert_eq!(before.stderr, after.stderr, "{source}");
-        assert_eq!(
-            fs::read_to_string(&script).unwrap(),
-            source.replace("File.dirname(File.realpath(__FILE__))", "__dir__")
-        );
-        let modified = fs::metadata(&script).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", "Style/Dir", "--fix", "a.rb"], 0);
+        assert_eq!(fs::read_to_string(&script).unwrap(), source);
         assert_eq!(fs::metadata(&script).unwrap().modified().unwrap(), modified);
     }
 }
@@ -847,7 +872,7 @@ fn literal_api_mutations_retain_offenses_and_preserve_ruby_behavior_without_writ
 }
 
 #[test]
-fn unrelated_literal_api_mutations_keep_canonical_runtime_equivalent_fixes() {
+fn unrelated_literal_api_mutations_keep_canonical_runtime_equivalent_dir_empty_fixes() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
@@ -867,9 +892,23 @@ fn unrelated_literal_api_mutations_keep_canonical_runtime_equivalent_fixes() {
         "File.singleton_class.class_exec(:other) { |name| define_method(:other) { name } }",
         "Other = Object.new; Other.define_singleton_method(:dirname) { 123 }",
     ] {
-        let source = format!(
+        // With Style/Dir's target the listed `__FILE__` withholds both edits
+        //; the findings stay and nothing is written.
+        let listed = format!(
             "{binding}\np File.dirname(File.realpath(__FILE__))\np Dir.children('.').empty?\n"
         );
+        fs::write(&script, &listed).unwrap();
+        let modified = fs::metadata(&script).unwrap().modified().unwrap();
+        let output = cli(
+            dir.path(),
+            &["--only", "Style/Dir,Style/DirEmpty", "--fix", "a.rb"],
+            1,
+        );
+        let report = String::from_utf8_lossy(&output.stdout);
+        assert!(report.contains("Style/Dir)") && report.contains("Style/DirEmpty)"));
+        assert_eq!(fs::read_to_string(&script).unwrap(), listed);
+        assert_eq!(fs::metadata(&script).unwrap().modified().unwrap(), modified);
+        let source = format!("{binding}\np Dir.children('.').empty?\n");
         fs::write(&script, &source).unwrap();
         let run = || {
             Command::new("ruby")
@@ -891,9 +930,7 @@ fn unrelated_literal_api_mutations_keep_canonical_runtime_equivalent_fixes() {
         assert_eq!(before.stderr, after.stderr, "{source}");
         assert_eq!(
             fs::read_to_string(&script).unwrap(),
-            source
-                .replace("File.dirname(File.realpath(__FILE__))", "__dir__")
-                .replace("Dir.children('.').empty?", "Dir.empty?('.')")
+            source.replace("Dir.children('.').empty?", "Dir.empty?('.')")
         );
         let modified = fs::metadata(&script).unwrap().modified().unwrap();
         cli(
@@ -919,10 +956,12 @@ fn struct_and_data_readers_preserve_runtime_bindings_and_unrelated_fixes() {
         "Data.define({member})",
         "::Data.define({member})",
     ] {
+        // Every member holds: the reader names `__dir__`, and the listed
+        // `__FILE__` withholds the `:other` edit too.
         for (member, withheld) in [
             (":__dir__", true),
             (":\"__di\\x72__\"", true),
-            (":other", false),
+            (":other", true),
         ] {
             let constructor = constructor.replace("{member}", member);
             let source = format!(
@@ -1010,13 +1049,17 @@ fn grouped_aliases_withhold_load_sensitive_edits_even_when_an_alias_is_excluded(
         }
     }
     fs::write(dir.path().join("rustocop.toml"), "").unwrap();
+    // The listed `__FILE__` withholds the realpath edit.
     fs::write(&real, "p File.dirname(File.realpath(__FILE__))\n").unwrap();
     cli(
         dir.path(),
         &["--only", "Style/Dir", "--fix", "alias.rb", "lib/a.rb"],
-        0,
+        1,
     );
-    assert_eq!(fs::read_to_string(&real).unwrap(), "p __dir__\n");
+    assert_eq!(
+        fs::read_to_string(&real).unwrap(),
+        "p File.dirname(File.realpath(__FILE__))\n"
+    );
 }
 
 #[test]
@@ -1086,7 +1129,12 @@ puts JSON.generate([values, $calls, __LINE__])
         &allocated,
         "Style/Dir,Style/DirEmpty,Style/FileEmpty",
     );
-    let source = source.replace("  values << Dir.children(PathValue.new(name)).empty?\n", "");
+    // The listed `__FILE__` lines would withhold every edit: the corrected sibling drops them and Style/Dir's targets.
+    let source = source
+        .replace("  values << Dir.children(PathValue.new(name)).empty?\n", "")
+        .replace("values << File.expand_path(File.dirname(__FILE__))\n", "")
+        .replace("values << File.dirname(File.realpath(__FILE__))\n", "");
+    assert!(!source.contains("__FILE__"));
     fs::write(&script, &source).unwrap();
     let run = || {
         let output = Command::new("ruby")
