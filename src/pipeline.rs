@@ -1,6 +1,7 @@
 //! The lint pipeline: discover files, parse, run cops, filter offenses.
 
 use std::{
+    collections::{HashMap, HashSet},
     fmt, fs,
     io::Read,
     path::{Path, PathBuf},
@@ -364,22 +365,69 @@ struct CopSelection<'a> {
     directive_disabled: Vec<String>,
     // Full registered universe, not just the CLI-selected or Ruby-active set.
     universe: Vec<&'a dyn crate::cops::Cop>,
+    universe_facts: Vec<UniverseFact>,
+    name_slots: HashMap<&'static str, usize>,
 }
+
+struct UniverseFact {
+    name: &'static str,
+    slot: usize,
+    configured_enabled: bool,
+    selected: bool,
+}
+
 impl<'a> CopSelection<'a> {
     fn explicit(active: &[&'a dyn crate::cops::Cop], config: &ResolvedConfig) -> Self {
         static REGISTRY: std::sync::LazyLock<Registry> = std::sync::LazyLock::new(Registry::new);
         let mut universe: Vec<&dyn crate::cops::Cop> =
             REGISTRY.cops().iter().map(|c| c.as_ref()).collect();
+        let mut known: HashSet<&'static str> = universe.iter().map(|c| c.name()).collect();
         for &cop in active {
-            if !universe.iter().any(|c| c.name() == cop.name()) {
+            if known.insert(cop.name()) {
                 universe.push(cop);
             }
         }
-        Self {
-            enabled: active.to_vec(),
-            disabled: Vec::new(),
-            directive_disabled: Self::configured_disabled(&REGISTRY, config),
+        Self::assemble(
+            active.to_vec(),
+            Vec::new(),
+            Self::configured_disabled(&REGISTRY, config),
             universe,
+            config,
+        )
+    }
+    fn assemble(
+        enabled: Vec<&'a dyn crate::cops::Cop>,
+        disabled: Vec<&'a dyn crate::cops::Cop>,
+        directive_disabled: Vec<String>,
+        universe: Vec<&'a dyn crate::cops::Cop>,
+        config: &ResolvedConfig,
+    ) -> Self {
+        let selected: HashSet<&'static str> = enabled
+            .iter()
+            .chain(&disabled)
+            .map(|cop| cop.name())
+            .collect();
+        let mut name_slots = HashMap::with_capacity(universe.len());
+        let universe_facts = universe
+            .iter()
+            .enumerate()
+            .map(|(index, cop)| {
+                let name = cop.name();
+                UniverseFact {
+                    name,
+                    slot: *name_slots.entry(name).or_insert(index),
+                    configured_enabled: crate::cops::configured_enabled(*cop, config),
+                    selected: selected.contains(name),
+                }
+            })
+            .collect();
+        Self {
+            enabled,
+            disabled,
+            directive_disabled,
+            universe,
+            universe_facts,
+            name_slots,
         }
     }
     fn configured_disabled(registry: &Registry, config: &ResolvedConfig) -> Vec<String> {
@@ -411,12 +459,13 @@ impl<'a> CopSelection<'a> {
             Vec::new()
         };
         let directive_disabled = Self::configured_disabled(registry, config);
-        Self {
+        Self::assemble(
             enabled,
             disabled,
             directive_disabled,
-            universe: registry.cops().iter().map(|c| c.as_ref()).collect(),
-        }
+            registry.cops().iter().map(|c| c.as_ref()).collect(),
+            config,
+        )
     }
 }
 
@@ -691,26 +740,28 @@ fn lint_file(
         }));
 
     if running.iter().any(|cop| cop.wants_post_investigation()) {
+        let mut investigated_slots = vec![false; active.universe.len()];
+        for cop in &running {
+            if let Some(&slot) = active.name_slots.get(cop.name()) {
+                investigated_slots[slot] = true;
+            }
+        }
         let cops: Vec<_> = active
             .universe
             .iter()
-            .map(|cop| {
-                let investigated = running.iter().any(|c| c.name() == cop.name());
+            .zip(&active.universe_facts)
+            .map(|(cop, fact)| {
+                let investigated = investigated_slots[fact.slot];
                 crate::cops::InvestigatedCop {
-                    name: cop.name(),
-                    configured_enabled: crate::cops::configured_enabled(*cop, config),
-                    available: active
-                        .enabled
-                        .iter()
-                        .chain(&active.disabled)
-                        .any(|c| c.name() == cop.name())
-                        && eligible(cop),
+                    name: fact.name,
+                    configured_enabled: fact.configured_enabled,
+                    available: fact.selected && eligible(cop),
                     investigated,
                     completed: investigated
                         && !report
                             .internal_errors
                             .iter()
-                            .any(|e| e.cop == Some(cop.name())),
+                            .any(|e| e.cop == Some(fact.name)),
                 }
             })
             .collect();
