@@ -232,9 +232,8 @@ All three of fmt, clippy and test must be clean before a commit.
 system Ruby 3.2 at `/usr/bin/ruby`, Ruby 3.4.1 built against the system
 OpenSSL, and the RuboCop checkout at the pinned revision.
 `tools/docker-test.sh` builds an image with exactly that and runs fmt, clippy
-and the tests in it. It gives the same result on every machine, the oracle
-always runs there, and it is what CI runs. Pass a command to run something
-else:
+and the tests in it. It gives the same result on every machine, and the
+oracle always runs there. Pass a command to run something else:
 
 ```sh
 tools/docker-test.sh                      # fmt, clippy and all tests
