@@ -35,14 +35,14 @@ fn unchanged(dir: &Path, s: &[u8], args: &[&str], code: i32) -> Output {
 }
 #[test]
 fn registry_default_on_minimum_ruby_and_detection_only_pipeline() {
-    use rustocop::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
+    use rustocop::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
     let r = rustocop::cops::Registry::new();
     let c = r.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(c.default_enabled());
     assert!(!c.safe_fixes());
     assert_eq!(c.ruby_versions().minimum, Some(RubyVersion(3, 0)));
     assert_eq!(c.ruby_versions().maximum, None);
-    assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+    assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
     assert!(c.path_policy().is_none());
     let report = rustocop::pipeline::lint_one(
         Path::new("a.rb"),

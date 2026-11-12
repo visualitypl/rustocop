@@ -700,12 +700,20 @@ pub fn parse(source: &[u8]) -> ParseResult<'_> {
 /// grammar. No eval scopes, encoding override, or command-line flags are supplied.
 #[must_use]
 pub fn parse_ruby_3_4(source: &[u8]) -> ParseResult<'_> {
+    parse_with_version(source, ruby_prism_sys::PM_OPTIONS_VERSION_CRUBY_3_4)
+}
+
+/// Parses with the given CRuby grammar version and otherwise normal parser defaults.
+///
+/// `parse_ruby_3_4` is this function with the CRuby 3.4 grammar.
+#[must_use]
+pub fn parse_with_version(source: &[u8], version: ruby_prism_sys::pm_options_version_t) -> ParseResult<'_> {
     // SAFETY: Prism's pm_options_t supports C zero-initialization (including its
     // empty strings, null pointers/callback and UNSET version/frozen mode).
     // Unlike C's zero defaults, the normal null-options parse starts on line 1.
     let mut options = unsafe { std::mem::zeroed::<ruby_prism_sys::pm_options_t>() };
     options.line = 1;
-    options.version = ruby_prism_sys::PM_OPTIONS_VERSION_CRUBY_3_4;
+    options.version = version;
 
     // Non-null options otherwise suppress the null-options CRLF shebang warning.
     // Enable main_script only when pm_parser_init recognizes a Ruby shebang;

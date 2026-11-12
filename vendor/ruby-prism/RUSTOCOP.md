@@ -8,13 +8,16 @@ build script, generated-node input and other upstream files are unchanged.
 
 Upstream exposes only `parse(source)`, which passes null options and selects
 Prism's evolving latest grammar (4.1 in the pinned C source). The local patch
-adds **`parse_ruby_3_4(source)`** and shares the existing allocation/initialization
-body through a private helper. The original `parse` keeps its null-options
-behavior. There is no general options builder or public rustocop target setting.
+adds **`parse_with_version(source, version)`** and **`parse_ruby_3_4(source)`**,
+which is the same call with the CRuby 3.4 grammar. Both share the existing
+allocation/initialization body through a private helper. The original `parse`
+keeps its null-options behavior. There is no general options builder or public
+rustocop target setting.
 
-The fixed entrypoint passes a zero-initialized `pm_options_t`, with only:
+The entrypoint passes a zero-initialized `pm_options_t`, with only:
 
-- `version = PM_OPTIONS_VERSION_CRUBY_3_4`;
+- `version` set to the requested grammar (`PM_OPTIONS_VERSION_CRUBY_3_4` for
+  `parse_ruby_3_4`);
 - `line = 1`, matching the null-options default (a zero options line would
   otherwise change source-line nodes and diagnostics);
 - `main_script = true` **only** when Prism recognizes a Ruby shebang on the first
@@ -34,7 +37,8 @@ is needed.
 
 `src/parser.rs` uses this entrypoint **inside** the existing same-thread stack
 segment and scoped continuation observer. All production lint, metadata fallback
-and correction-validation parses therefore use Ruby 3.4, with the same preflight
+and correction-validation parses therefore use the Ruby version of the run
+(3.4 by default), with the same preflight
 and stack-bounded cleanup for deep/recovered trees. Existing unit fixtures that
 call upstream `parse` directly still exercise upstream defaults.
 

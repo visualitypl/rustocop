@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn fixed_version_bounds_are_explicit() {
         use crate::cops::{
-            policy::{FIXED_RUBY_VERSION, RubyVersion},
+            policy::{DEFAULT_RUBY_VERSION, RubyVersion},
             style::{ItAssignment, ItBlockParameter},
         };
         assert_eq!(
@@ -78,7 +78,7 @@ mod tests {
         assert!(
             NumberedParameters
                 .ruby_versions()
-                .supports(FIXED_RUBY_VERSION)
+                .supports(DEFAULT_RUBY_VERSION)
         );
         assert_eq!(
             ItBlockParameter.ruby_versions().minimum,
@@ -88,7 +88,7 @@ mod tests {
         assert!(
             ItBlockParameter
                 .ruby_versions()
-                .supports(FIXED_RUBY_VERSION)
+                .supports(DEFAULT_RUBY_VERSION)
         );
         assert_eq!(ItAssignment.ruby_versions().minimum, None);
     }

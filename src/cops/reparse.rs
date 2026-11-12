@@ -98,7 +98,7 @@ impl<'e> Verifier<'e> {
                     // its tree.
                     return Some((equivalence.fingerprint)(program, &file.bytes).into_owned());
                 }
-                let parsed = crate::parser::parse(&original);
+                let parsed = crate::parser::parse_as(&original, file.ruby_version());
                 if parsed.errors().next().is_some() || parsed.depth_error().is_some() {
                     // RuboCop cannot verify a fragment that does not parse
                     // alone either (a heredoc body past an endless def).
@@ -110,6 +110,7 @@ impl<'e> Verifier<'e> {
                 continue;
             };
             accepted.extend(verified_subset(
+                file.ruby_version(),
                 fragment,
                 start,
                 expected,
@@ -141,6 +142,7 @@ fn innermost_scope<'a>(
 /// to the `expected` fingerprint: all at once, or by halves while a batch
 /// fails.
 fn verified_subset(
+    version: crate::cops::policy::RubyVersion,
     fragment: &[u8],
     start: usize,
     expected: &Fingerprint<'_>,
@@ -153,7 +155,7 @@ fn verified_subset(
     while let Some(group) = pending.pop() {
         let same = apply(fragment, start, &group).is_some_and(|corrected| {
             let corrected = (equivalence.preprocess)(&corrected);
-            let result = crate::parser::parse(&corrected);
+            let result = crate::parser::parse_as(&corrected, version);
             result.errors().next().is_none()
                 && result.depth_error().is_none()
                 && (equivalence.fingerprint)(&result.node(), &corrected) == *expected

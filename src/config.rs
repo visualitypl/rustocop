@@ -22,7 +22,10 @@ use globset::{Glob, GlobMatcher};
 use serde::Deserialize;
 
 use crate::{
-    cops::{Cop, Registry},
+    cops::{
+        Cop, Registry,
+        policy::{DEFAULT_RUBY_VERSION, RubyVersion},
+    },
     offense::Department,
 };
 
@@ -63,6 +66,8 @@ pub struct ResolvedConfig {
     /// The directory the config file lives in (or the cwd when there is no
     /// config file). Glob patterns are matched against paths relative to it.
     pub root: PathBuf,
+    /// The Ruby version the run targets: the parser grammar and the cops that apply.
+    pub ruby_version: RubyVersion,
     /// Combined builtin + user global excludes.
     pub global_excludes: Vec<GlobMatcher>,
     /// Settings keyed by full cop name or department name.
@@ -88,6 +93,7 @@ impl Default for ResolvedConfig {
     fn default() -> Self {
         ResolvedConfig {
             root: PathBuf::new(),
+            ruby_version: DEFAULT_RUBY_VERSION,
             global_excludes: Vec::new(),
             cop_settings: BTreeMap::new(),
             params: BTreeMap::new(),
@@ -107,6 +113,7 @@ impl ResolvedConfig {
                 let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
                 Ok(ResolvedConfig {
                     root,
+                    ruby_version: DEFAULT_RUBY_VERSION,
                     global_excludes: compile_globs(BUILTIN_EXCLUDES, "builtin excludes")?,
                     cop_settings: BTreeMap::new(),
                     params: BTreeMap::new(),
@@ -305,6 +312,7 @@ impl ResolvedConfig {
 
         Ok(ResolvedConfig {
             root,
+            ruby_version: DEFAULT_RUBY_VERSION,
             global_excludes,
             cop_settings,
             params,

@@ -56,7 +56,7 @@ unsafe extern "C" fn record(
 
 /// Every token Prism lexes from `source`, in Prism's emission order (a
 /// heredoc body directly after its opener, as in `Prism.lex`).
-pub(crate) fn lex(source: &[u8]) -> Vec<RawToken> {
+pub(crate) fn lex(source: &[u8], version: crate::cops::policy::RubyVersion) -> Vec<RawToken> {
     stacker::grow(super::PARSER_STACK_SIZE, || {
         let mut collector = Collector {
             base: source.as_ptr() as usize,
@@ -69,7 +69,7 @@ pub(crate) fn lex(source: &[u8]) -> Vec<RawToken> {
         unsafe {
             let mut options = std::mem::zeroed::<sys::pm_options_t>();
             options.line = 1;
-            options.version = sys::PM_OPTIONS_VERSION_CRUBY_3_4;
+            options.version = super::grammar(version);
             options.main_script = main_script(source);
             let mut callback = sys::pm_lex_callback_t {
                 data: (&raw mut collector).cast(),
@@ -105,9 +105,10 @@ fn main_script(source: &[u8]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::cops::policy::DEFAULT_RUBY_VERSION;
 
     fn kinds(source: &str) -> Vec<(sys::pm_token_type, &str)> {
-        lex(source.as_bytes())
+        lex(source.as_bytes(), DEFAULT_RUBY_VERSION)
             .into_iter()
             .filter(|t| t.kind != sys::PM_TOKEN_EOF)
             .map(|t| (t.kind, &source[t.start..t.end]))
@@ -152,8 +153,12 @@ mod tests {
     #[test]
     fn deep_and_invalid_sources_lex_without_panicking() {
         let deep = format!("{}1{}", "[".repeat(20_000), "]".repeat(20_000));
-        assert!(!lex(deep.as_bytes()).is_empty());
-        assert!(!lex(b"def (").is_empty());
-        assert!(lex(b"").iter().all(|t| t.kind == sys::PM_TOKEN_EOF));
+        assert!(!lex(deep.as_bytes(), DEFAULT_RUBY_VERSION).is_empty());
+        assert!(!lex(b"def (", DEFAULT_RUBY_VERSION).is_empty());
+        assert!(
+            lex(b"", DEFAULT_RUBY_VERSION)
+                .iter()
+                .all(|t| t.kind == sys::PM_TOKEN_EOF)
+        );
     }
 }

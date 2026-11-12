@@ -142,7 +142,7 @@ fn compose(result: &ParseResult<'_>, file: &SourceFile, offenses: &mut [Offense]
                 offset = removed.end;
             }
             edited.extend_from_slice(&file.bytes[offset..]);
-            let reparsed = crate::parser::parse(&edited);
+            let reparsed = crate::parser::parse_as(&edited, file.ruby_version());
             let after: Vec<_> = reparsed
                 .warnings()
                 .map(|w| w.message().into_owned())
@@ -255,7 +255,7 @@ fn removal(
     }
     let mut edited = file.bytes[..first].to_vec();
     edited.extend_from_slice(&file.bytes[last..]);
-    let reparsed = crate::parser::parse(&edited);
+    let reparsed = crate::parser::parse_as(&edited, file.ruby_version());
     let before: Vec<_> = result
         .warnings()
         .map(|w| w.message().into_owned())

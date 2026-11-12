@@ -143,6 +143,42 @@ fn correction_validation_rejects_ruby_4_logical_chains_without_writing() {
 }
 
 #[test]
+fn a_run_at_ruby_4_parses_and_validates_with_the_ruby_4_grammar() {
+    use crate::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
+    for replacement in ["foo\n  && bar", "foo\n  || bar"] {
+        let registry = Registry::from_cops(vec![Box::new(Fixer {
+            name: "Style/VersionFix",
+            method: b"before",
+            replacement: Some(replacement),
+            safe: true,
+        })]);
+        let (dir, mut config) = project("before\n");
+        config.ruby_version = RubyVersion(4, 0);
+        let path = dir.path().join("x.rb");
+        let report = run_project(dir.path(), &config, &registry, true);
+        assert!(report.errors.is_empty(), "{:?}", report.errors);
+        assert!(report.internal_errors.is_empty());
+        assert_eq!(report.corrections_applied, 1);
+        assert_eq!(
+            fs::read(&path).unwrap(),
+            format!("{replacement}\n").as_bytes()
+        );
+
+        let accepted = run_project(dir.path(), &config, &registry, false);
+        assert!(accepted.errors.is_empty(), "{:?}", accepted.errors);
+        config.ruby_version = DEFAULT_RUBY_VERSION;
+        let rejected = run_project(dir.path(), &config, &registry, false);
+        assert!(
+            rejected.errors[0]
+                .message
+                .starts_with("syntax error on line 2"),
+            "{:?}",
+            rejected.errors
+        );
+    }
+}
+
+#[test]
 fn corrections_that_exceed_the_ast_depth_budget_are_not_written() {
     let source = format!("{}before{}\n", "[".repeat(61), "]".repeat(61));
     let registry = Registry::from_cops(vec![Box::new(Fixer {

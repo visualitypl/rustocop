@@ -39,7 +39,7 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
 }
 #[test]
 fn default_opt_in_version_and_pipeline_no_corrections() {
-    use rustocop::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
+    use rustocop::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
     let registry = rustocop::cops::Registry::new();
     for (name, s, enabled) in examples() {
         let c = registry.cops().iter().find(|c| c.name() == name).unwrap();
@@ -55,7 +55,7 @@ fn default_opt_in_version_and_pipeline_no_corrections() {
             }
         );
         assert_eq!(c.ruby_versions().maximum, None);
-        assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+        assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
         let r = rustocop::pipeline::lint_one(
             Path::new("a.rb"),
             Path::new("a.rb"),

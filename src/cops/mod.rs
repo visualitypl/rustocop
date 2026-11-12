@@ -1064,7 +1064,7 @@ pub fn select_active<'r>(
     only: &[String],
     except: &[String],
 ) -> Vec<&'r dyn Cop> {
-    select_active_at_version(registry, config, only, except, policy::FIXED_RUBY_VERSION)
+    select_active_at_version(registry, config, only, except, config.ruby_version)
 }
 
 /// Feature tests can exercise a future-only real matcher without changing the

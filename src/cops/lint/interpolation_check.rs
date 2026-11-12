@@ -127,7 +127,7 @@ fn valid_converted_literal(raw: &[u8], file: &SourceFile) -> bool {
     // CRCRLF therefore loses one CR in each buffer. Only source bytes undergo
     // this substitution, never Prism's decoded/escape-produced payload.
     let converted = reference_buffer_source(&converted);
-    let parsed = crate::parser::parse(&converted);
+    let parsed = crate::parser::parse_as(&converted, file.ruby_version());
     // Prism::Translation::Parser uses partial_script:true. In pinned Prism1.9
     // that ONLY suppresses parse_yield and parse_block_exit (break/next/redo),
     // not retry or grammar errors. Match those four diagnostics locally rather

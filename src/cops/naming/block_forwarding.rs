@@ -458,11 +458,11 @@ mod tests {
     use crate::{cops::testing::assert_correction, pipeline::lint_str_with};
     #[test]
     fn fixed_version_gate_is_real_and_not_bypassed_by_selection() {
-        use crate::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
+        use crate::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
         let versions = BlockForwarding.ruby_versions();
         assert!(!versions.supports(RubyVersion(3, 0)));
         assert!(versions.supports(RubyVersion(3, 1)));
-        assert!(versions.supports(FIXED_RUBY_VERSION));
+        assert!(versions.supports(DEFAULT_RUBY_VERSION));
     }
 
     #[test]

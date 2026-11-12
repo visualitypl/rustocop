@@ -38,14 +38,14 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
 }
 #[test]
 fn registry_fixed_defaults_gates_and_no_safe_capabilities() {
-    use rustocop::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
+    use rustocop::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
     let registry = rustocop::cops::Registry::new();
     for (name, _, enabled) in COPS {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert_eq!(cop.default_enabled(), enabled);
         assert!(!cop.safe_fixes());
         assert!(cop.path_policy().is_none());
-        assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+        assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
         if name == "Style/ArrayIntersect" {
             assert_eq!(cop.ruby_versions().minimum, Some(RubyVersion(3, 1)));
             assert_eq!(cop.ruby_versions().maximum, None);

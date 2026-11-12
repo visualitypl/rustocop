@@ -411,12 +411,12 @@ mod tests {
     }
     #[test]
     fn ruby_23_minimum_is_explicit_and_active_at_fixed_34() {
-        use crate::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
+        use crate::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
         let versions = SafeNavigation.ruby_versions();
         assert_eq!(versions.minimum, Some(RubyVersion(2, 3)));
         assert!(!versions.supports(RubyVersion(2, 2)));
         assert!(versions.supports(RubyVersion(2, 3)));
-        assert!(versions.supports(FIXED_RUBY_VERSION));
+        assert!(versions.supports(DEFAULT_RUBY_VERSION));
         assert!(!SafeNavigation.safe_fixes());
         assert!(SafeNavigation.default_enabled());
     }

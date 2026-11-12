@@ -424,7 +424,7 @@ mod tests {
         let versions = AmbiguousEndlessMethodDefinition.ruby_versions();
         assert!(!versions.supports(crate::cops::policy::RubyVersion(2, 7)));
         assert!(versions.supports(crate::cops::policy::RubyVersion(3, 0)));
-        assert!(versions.supports(crate::cops::policy::FIXED_RUBY_VERSION));
+        assert!(versions.supports(crate::cops::policy::DEFAULT_RUBY_VERSION));
     }
     #[test]
     fn later_inline_definitions_do_not_copy_the_shared_indentation_prefix() {

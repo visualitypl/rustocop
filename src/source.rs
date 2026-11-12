@@ -27,6 +27,7 @@ pub struct SourceFile {
     pub path: PathBuf,
     /// The raw file bytes.
     pub bytes: Vec<u8>,
+    ruby_version: crate::cops::policy::RubyVersion,
     /// Actual disk input, distinct from its display/config path. Absent for stdin
     /// and in-memory fixtures; consulted lazily only by load-path-sensitive fixes.
     read_path: Option<PathBuf>,
@@ -246,6 +247,7 @@ impl SourceFile {
         SourceFile {
             path,
             bytes,
+            ruby_version: crate::cops::policy::DEFAULT_RUBY_VERSION,
             read_path: None,
             supplied_input_metadata: None,
             source_path: None,
@@ -688,6 +690,15 @@ impl SourceFile {
             .get_or_init(|| crate::cops::style::trailing_underscore_variable::Facts::build(root))
     }
 
+    pub(crate) fn with_ruby_version(mut self, version: crate::cops::policy::RubyVersion) -> Self {
+        self.ruby_version = version;
+        self
+    }
+
+    pub fn ruby_version(&self) -> crate::cops::policy::RubyVersion {
+        self.ruby_version
+    }
+
     pub(crate) fn with_source_path(mut self, path: &std::path::Path) -> Self {
         self.source_path = Some(path.to_path_buf());
         self
@@ -1026,7 +1037,10 @@ impl SourceFile {
 
     fn parsed_encoding(&self) -> &encoding::ParsedEncoding {
         self.encoding.get_or_init(|| {
-            encoding::ParsedEncoding::from_parse(&crate::parser::parse(&self.bytes))
+            encoding::ParsedEncoding::from_parse(&crate::parser::parse_as(
+                &self.bytes,
+                self.ruby_version,
+            ))
         })
     }
 
@@ -1481,8 +1495,9 @@ impl SourceFile {
     /// Byte ranges of every comment (`# …` and `=begin`/`=end`), in source
     /// order.
     pub fn comments(&self) -> &[Range<usize>] {
-        self.comments
-            .get_or_init(|| comment_ranges(&crate::parser::parse(&self.bytes)))
+        self.comments.get_or_init(|| {
+            comment_ranges(&crate::parser::parse_as(&self.bytes, self.ruby_version))
+        })
     }
 
     pub(crate) fn directive_records(&self) -> &[crate::directives::comments::DirectiveComment] {
@@ -1526,7 +1541,7 @@ impl SourceFile {
     pub fn data_start(&self) -> Option<usize> {
         *self
             .data_start
-            .get_or_init(|| data_start(&crate::parser::parse(&self.bytes)))
+            .get_or_init(|| data_start(&crate::parser::parse_as(&self.bytes, self.ruby_version)))
     }
 
     /// The number of lines before the data section (all of them when there

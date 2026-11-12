@@ -209,10 +209,10 @@ mod tests {
     }
     #[test]
     fn fixed_ruby27_gate_and_fixed_34_applicability() {
-        use crate::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
+        use crate::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
         let versions = NumberedParametersLimit.ruby_versions();
         assert_eq!(versions.minimum, Some(RubyVersion(2, 7)));
         assert!(!versions.supports(RubyVersion(2, 6)));
-        assert!(versions.supports(FIXED_RUBY_VERSION));
+        assert!(versions.supports(DEFAULT_RUBY_VERSION));
     }
 }

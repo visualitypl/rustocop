@@ -51,10 +51,10 @@ fn fixed(s: &str, only: &str) -> String {
 fn defaults_capabilities_and_fixed_ruby_api_gate() {
     use rustocop::cops::{
         Registry,
-        policy::{FIXED_RUBY_VERSION, RubyVersion},
+        policy::{DEFAULT_RUBY_VERSION, RubyVersion},
     };
     let r = Registry::new();
-    assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+    assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
     for name in [SYMBOL, SAMPLE] {
         let c = r.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(c.default_enabled());

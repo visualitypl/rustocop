@@ -67,11 +67,12 @@ pub(crate) fn default_enabled(name: &str) -> bool {
     !OPT_IN.contains(&name)
 }
 
-/// Ruby applicability is fixed, not a parser setting or public target knob.
+/// A Ruby minor version. A run targets one: it selects the parser grammar and
+/// the cops that apply. No CLI or TOML setting changes the target yet.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct RubyVersion(pub u8, pub u8);
 
-pub const FIXED_RUBY_VERSION: RubyVersion = RubyVersion(3, 4);
+pub const DEFAULT_RUBY_VERSION: RubyVersion = RubyVersion(3, 4);
 
 /// Inclusive upstream min/max bounds. An absent bound is unbounded.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -329,7 +330,7 @@ mod tests {
         let raw = toml::from_str("[cops.\"Style/ReverseFind\"]\nenabled = true\n").unwrap();
         let config = ResolvedConfig::resolve(raw, None, &registry).unwrap();
         let only = vec!["Style/ReverseFind".into()];
-        assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+        assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
         assert!(select_active(&registry, &config, &only, &[]).is_empty());
         let defaults = select_active(&registry, &config, &[], &[]);
         assert_eq!(
@@ -354,6 +355,32 @@ mod tests {
         assert!(
             select_active_for_version(&registry, &config, &only, &only, RubyVersion(4, 0))
                 .is_empty()
+        );
+    }
+
+    #[test]
+    fn the_ruby_version_of_the_config_selects_the_cops_that_apply() {
+        let registry = Registry::from_cops(vec![
+            Box::new(PolicyDebugger("Style/ReverseFind")),
+            Box::new(PolicyDebugger("Style/ItBlockParameter")),
+            Box::new(PolicyDebugger("Lint/LegacyProbe")),
+        ]);
+        let only: Vec<String> = registry.cops().iter().map(|c| c.name().into()).collect();
+        let selected = |ruby_version| {
+            let config = ResolvedConfig {
+                ruby_version,
+                ..ResolvedConfig::default()
+            };
+            select_active(&registry, &config, &only, &[])
+                .iter()
+                .map(|c| c.name())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(selected(RubyVersion(3, 3)), ["Lint/LegacyProbe"]);
+        assert_eq!(selected(DEFAULT_RUBY_VERSION), ["Style/ItBlockParameter"]);
+        assert_eq!(
+            selected(RubyVersion(4, 0)),
+            ["Style/ReverseFind", "Style/ItBlockParameter"]
         );
     }
 

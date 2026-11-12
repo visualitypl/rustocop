@@ -1,4 +1,4 @@
-//! Fixed Ruby 3.4 Prism parsing on a dedicated stack segment, on the calling thread.
+//! Prism parsing at the run's Ruby version, on a dedicated stack segment, on the calling thread.
 //!
 //! Our pinned Prism 1.9 limits recursion to 10,000 (`PRISM_DEPTH_MAXIMUM`),
 //! but can exhaust a default 2 MiB Rust worker stack before reaching that
@@ -22,7 +22,10 @@ use std::ops::Deref;
 
 use ruby_prism::ParseResult;
 
-use crate::cops::depth::{self, DepthError};
+use crate::cops::{
+    depth::{self, DepthError},
+    policy::RubyVersion,
+};
 
 const PARSER_STACK_SIZE: usize = 64 * 1024 * 1024;
 
@@ -59,13 +62,25 @@ impl Drop for Parsed<'_> {
     }
 }
 
+pub(crate) fn grammar(version: RubyVersion) -> ruby_prism_sys::pm_options_version_t {
+    match version {
+        RubyVersion(..=2, _) | RubyVersion(3, ..=3) => ruby_prism_sys::PM_OPTIONS_VERSION_CRUBY_3_3,
+        RubyVersion(3, 4) => ruby_prism_sys::PM_OPTIONS_VERSION_CRUBY_3_4,
+        RubyVersion(3, _) | RubyVersion(4, 0) => ruby_prism_sys::PM_OPTIONS_VERSION_CRUBY_4_0,
+        RubyVersion(..) => ruby_prism_sys::PM_OPTIONS_VERSION_CRUBY_4_1,
+    }
+}
+
 /// All production parses, including metadata fallbacks and correction probes,
-/// go through this fixed Ruby 3.4 entrypoint, not Prism's evolving latest grammar.
-/// stacker switches stacks on this same thread, so ParseResult's !Send contract
-/// and the caller's panic isolation hold.
-pub(crate) fn parse(source: &[u8]) -> Parsed<'_> {
+/// go through this entrypoint with the run's Ruby version, not Prism's evolving
+/// latest grammar. stacker switches stacks on this same thread, so
+/// ParseResult's !Send contract and the caller's panic isolation hold.
+pub(crate) fn parse_as(source: &[u8], version: RubyVersion) -> Parsed<'_> {
+    let grammar = grammar(version);
     let (result, continuations) = continuations::collect(|| {
-        stacker::grow(PARSER_STACK_SIZE, || ruby_prism::parse_ruby_3_4(source))
+        stacker::grow(PARSER_STACK_SIZE, || {
+            ruby_prism::parse_with_version(source, grammar)
+        })
     });
     let depth_error = depth::check(&result.node().as_program_node().unwrap()).err();
     Parsed {
@@ -73,6 +88,11 @@ pub(crate) fn parse(source: &[u8]) -> Parsed<'_> {
         depth_error,
         continuations,
     }
+}
+
+#[cfg(test)]
+pub(crate) fn parse(source: &[u8]) -> Parsed<'_> {
+    parse_as(source, crate::cops::policy::DEFAULT_RUBY_VERSION)
 }
 
 #[cfg(test)]
@@ -216,6 +236,28 @@ mod tests {
                 assert_eq!(parsed.depth_error(), None);
             }
         }
+    }
+
+    #[test]
+    fn the_requested_ruby_version_selects_the_grammar() {
+        use crate::{cops::policy::RubyVersion, source::SourceFile};
+        let source = b"foo\n  && bar\n";
+        let errors = |version| parse_as(source, version).errors().count();
+        assert!(errors(RubyVersion(3, 3)) > 0);
+        assert!(errors(RubyVersion(3, 4)) > 0);
+        assert_eq!(errors(RubyVersion(4, 0)), 0);
+        assert_eq!(errors(RubyVersion(4, 1)), 0);
+        assert_eq!(grammar(RubyVersion(3, 5)), grammar(RubyVersion(4, 0)));
+        assert_eq!(grammar(RubyVersion(2, 7)), grammar(RubyVersion(3, 3)));
+
+        let file =
+            |version| SourceFile::new("x.rb".into(), source.to_vec()).with_ruby_version(version);
+        assert!(!file(RubyVersion(3, 4)).diagnostics().errors.is_empty());
+        assert!(file(RubyVersion(4, 0)).diagnostics().errors.is_empty());
+        assert_eq!(
+            SourceFile::new("x.rb".into(), Vec::new()).ruby_version(),
+            crate::cops::policy::DEFAULT_RUBY_VERSION
+        );
     }
 
     #[test]

@@ -52,9 +52,9 @@ fn fixed(dir: &Path, cop: &str, source: &str, after: &str) {
 fn registry_defaults_safe_capabilities_and_fixed_ruby34() {
     use rustocop::cops::{
         Registry,
-        policy::{FIXED_RUBY_VERSION, RubyVersion},
+        policy::{DEFAULT_RUBY_VERSION, RubyVersion},
     };
-    assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+    assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
     let registry = Registry::new();
     for (name, _) in COPS {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();

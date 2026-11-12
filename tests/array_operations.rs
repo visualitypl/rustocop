@@ -43,10 +43,10 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
 fn registry_defaults_safe_capability_and_fixed_34_no_extra_gates() {
     use rustocop::cops::{
         Registry,
-        policy::{FIXED_RUBY_VERSION, RubyVersion},
+        policy::{DEFAULT_RUBY_VERSION, RubyVersion},
     };
     let registry = Registry::new();
-    assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+    assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
     for (name, _, safe) in COPS {
         let c = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(c.default_enabled());

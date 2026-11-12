@@ -48,10 +48,10 @@ fn fixed(s: &str, only: &str) -> String {
 fn exact_defaults_safe_capability_and_version_gates() {
     use rustocop::cops::{
         Registry,
-        policy::{FIXED_RUBY_VERSION, RubyVersion},
+        policy::{DEFAULT_RUBY_VERSION, RubyVersion},
     };
     let registry = Registry::new();
-    assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+    assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
     for name in [WORD, SLICE] {
         let c = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(c.default_enabled());

@@ -638,6 +638,7 @@ fn lint_file(
         return report;
     }
     let file = SourceFile::new(display_path.to_path_buf(), bytes)
+        .with_ruby_version(config.ruby_version)
         .with_source_path(read_path)
         .with_supplied_input_metadata(metadata);
     let file = if from_disk {
@@ -645,7 +646,7 @@ fn lint_file(
     } else {
         file
     };
-    let result = crate::parser::parse(&file.bytes);
+    let result = crate::parser::parse_as(&file.bytes, file.ruby_version());
     // Retain actual errors AND warnings, with encoding, even on rejected
     // input. Fatal delivery and later warning consumers share this main parse.
     file.record_diagnostics(&result);

@@ -77,7 +77,7 @@ impl SourceFile {
     /// encoding is recorded at the same time for `line_col`/`line_cols` mapping.
     pub fn diagnostics(&self) -> &ParseDiagnostics {
         self.diagnostics.get_or_init(|| {
-            let result = crate::parser::parse(&self.bytes);
+            let result = crate::parser::parse_as(&self.bytes, self.ruby_version());
             self.record_encoding(&result);
             ParseDiagnostics::from_parse(&result)
         })

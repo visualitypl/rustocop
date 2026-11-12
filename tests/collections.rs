@@ -96,8 +96,8 @@ fn exact_defaults_versions_and_no_safe_fix_capabilities() {
         assert_eq!(c.default_enabled(), i != 1);
         assert!(!c.safe_fixes());
         assert!(c.path_policy().is_none());
-        use rustocop::cops::policy::{FIXED_RUBY_VERSION, RubyVersion};
-        assert_eq!(FIXED_RUBY_VERSION, RubyVersion(3, 4));
+        use rustocop::cops::policy::{DEFAULT_RUBY_VERSION, RubyVersion};
+        assert_eq!(DEFAULT_RUBY_VERSION, RubyVersion(3, 4));
         assert_eq!(
             c.ruby_versions().minimum,
             if i == 0 {

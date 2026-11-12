@@ -178,7 +178,7 @@ fn verify_corrections(file: &SourceFile, program: &Node<'_>, offenses: &mut [Off
         let same = corrected.is_some_and(|bytes| {
             #[cfg(test)]
             CORRECTION_REPARSES.set(CORRECTION_REPARSES.get() + 1);
-            let parsed = crate::parser::parse(&bytes);
+            let parsed = crate::parser::parse_as(&bytes, file.ruby_version());
             parsed.errors().next().is_none()
                 && parsed.depth_error().is_none()
                 && fingerprint_ignoring_grouping(&parsed.node(), &bytes) == expected
