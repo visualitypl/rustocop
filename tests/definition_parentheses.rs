@@ -453,7 +453,7 @@ fn style_layout_and_forwarding_peer_stabilize_within_four_explicit_passes() {
     for _ in 0..4 {
         let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
             .current_dir(dir.path())
-            .args(["--only", &only, "--fix", "lib/a.rb"])
+            .args(["--only", &only, "--fix", "--fix-passes", "1", "lib/a.rb"])
             .output()
             .unwrap();
         assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
@@ -461,7 +461,11 @@ fn style_layout_and_forwarding_peer_stabilize_within_four_explicit_passes() {
     let expected = "def self.f(a = \"x\")\n  a\nend\ndef g\n  \"y\"\nend if condition\n";
     assert_eq!(fs::read_to_string(&path).unwrap(), expected);
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
-    cli(dir.path(), &["--only", &only, "--fix", "lib/a.rb"], 0);
+    cli(
+        dir.path(),
+        &["--only", &only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        0,
+    );
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
     // The smaller parentheses replacement wins the overlap on pass one.
     // Forwarding's atomic signature+uses replacement follows on pass two;
@@ -475,6 +479,8 @@ fn style_layout_and_forwarding_peer_stabilize_within_four_explicit_passes() {
         "--only",
         "Style/MethodDefParentheses,Style/ArgumentsForwarding",
         "--fix",
+        "--fix-passes",
+        "1",
         "lib/a.rb",
     ];
     let out = cli(dir.path(), &args, 1);

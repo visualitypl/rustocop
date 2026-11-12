@@ -519,7 +519,7 @@ p __LINE__
             // the public CLI intentionally performs just one pass.
             cli(
                 d.path(),
-                &["--only", name, "--fix", "a.rb"],
+                &["--only", name, "--fix", "--fix-passes", "1", "a.rb"],
                 i32::from(name == ALL),
             );
             assert_ne!(fs::read_to_string(d.path().join("a.rb")).unwrap(), src);
@@ -652,7 +652,7 @@ xs.map {{ "#@x#{{_1}}" }}
             fs::write(d.path().join("a.rb"), &src).unwrap();
             cli(
                 d.path(),
-                &["--only", selected, "--fix", "a.rb"],
+                &["--only", selected, "--fix", "--fix-passes", "1", "a.rb"],
                 i32::from(selected == ALL),
             );
             let after = fs::read(d.path().join("a.rb")).unwrap();

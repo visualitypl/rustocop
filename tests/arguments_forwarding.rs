@@ -23,7 +23,7 @@ fn cli(dir: &Path, args: &[&str]) -> Output {
     output
 }
 fn fix(dir: &Path, only: &str) -> Output {
-    let out = cli(dir, &["--only", only, "--fix", "a.rb"]);
+    let out = cli(dir, &["--only", only, "--fix", "--fix-passes", "1", "a.rb"]);
     assert_ne!(out.status.code(), Some(2), "{out:?}");
     out
 }

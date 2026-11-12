@@ -533,7 +533,11 @@ fn insecure_source_edits_only_the_inert_envelope_and_composes_with_peers() {
     for only in [cop, "Bundler/InsecureProtocolSource,Style/StringLiterals"] {
         let live = "source :rubygems\ngem \"a\"\n";
         fs::write(&path, live).unwrap();
-        let out = cli(d.path(), &["--only", only, "--fix", "Gemfile"], None);
+        let out = cli(
+            d.path(),
+            &["--only", only, "--fix", "--fix-passes", "1", "Gemfile"],
+            None,
+        );
         assert_eq!(out.status.code(), Some(1), "{out:?}");
         assert_eq!(count(&out, cop), 1, "{out:?}");
         assert_eq!(fs::read_to_string(&path).unwrap(), live);
@@ -545,6 +549,8 @@ fn insecure_source_edits_only_the_inert_envelope_and_composes_with_peers() {
         "--only",
         "Bundler/InsecureProtocolSource,Style/StringLiterals",
         "--fix",
+        "--fix-passes",
+        "1",
         "Gemfile",
     ];
     let out = cli(d.path(), &flags, None);
@@ -569,7 +575,11 @@ fn insecure_source_edits_only_the_inert_envelope_and_composes_with_peers() {
     for prefix in ["rubocop", "rustocop"] {
         let disabled = format!("if false\n  source :rubygems # {prefix}:disable {cop}\nend\n");
         fs::write(&path, &disabled).unwrap();
-        let out = cli(d.path(), &["--only", cop, "--fix", "Gemfile"], None);
+        let out = cli(
+            d.path(),
+            &["--only", cop, "--fix", "--fix-passes", "1", "Gemfile"],
+            None,
+        );
         assert_eq!(out.status.code(), Some(0), "{out:?}");
         assert_eq!(fs::read_to_string(&path).unwrap(), disabled);
     }
@@ -577,7 +587,15 @@ fn insecure_source_edits_only_the_inert_envelope_and_composes_with_peers() {
     fs::write(&path, b"sentinel").unwrap();
     let out = cli(
         d.path(),
-        &["--only", cop, "--stdin", "Gemfile", "--fix"],
+        &[
+            "--only",
+            cop,
+            "--stdin",
+            "Gemfile",
+            "--fix",
+            "--fix-passes",
+            "1",
+        ],
         Some(ENVELOPE.as_bytes()),
     );
     assert_eq!(out.status.code(), Some(2), "{out:?}");
@@ -594,7 +612,11 @@ fn insecure_source_edits_only_the_inert_envelope_and_composes_with_peers() {
         fs::write(&path, ENVELOPE).unwrap();
         fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
         let old = fs::metadata(&path).unwrap();
-        let out = cli(d.path(), &["--only", cop, "--fix", "Gemfile"], None);
+        let out = cli(
+            d.path(),
+            &["--only", cop, "--fix", "--fix-passes", "1", "Gemfile"],
+            None,
+        );
         assert_eq!(out.status.code(), Some(2), "{out:?}");
         assert_eq!(fs::read_to_string(&path).unwrap(), ENVELOPE);
         let new = fs::metadata(&path).unwrap();

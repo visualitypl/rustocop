@@ -124,7 +124,10 @@ fn warning_neutral_shifts_stay_corrected_with_identical_native_warnings() {
     for &(before, after) in CORRECTED {
         fs::write(&path, before).unwrap();
         let native = warnings(dir.path());
-        let out = run(dir.path(), &["--only", COP, "--fix", "example.rb"]);
+        let out = run(
+            dir.path(),
+            &["--only", COP, "--fix", "--fix-passes", "1", "example.rb"],
+        );
         assert!(
             String::from_utf8_lossy(&out.stdout).contains(" applied, "),
             "{before:?} {out:?}"

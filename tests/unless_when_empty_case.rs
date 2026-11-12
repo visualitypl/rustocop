@@ -154,14 +154,17 @@ fn canonical_and_every_pinned_correction_use_the_real_single_pass_pipeline() {
     let d = project();
     for (cop, source, after) in CASES {
         fs::write(d.path().join("a.rb"), source).unwrap();
-        let output = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
+        let output = cli(
+            d.path(),
+            &["--only", cop, "--fix", "--fix-passes", "1", "a.rb"],
+        );
         assert_eq!(output.status.code(), Some(0), "{output:?}");
         assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
         unchanged(
             d.path(),
             cop,
             after.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
+            &["--only", cop, "--fix", "--fix-passes", "1", "a.rb"],
             0,
         );
     }
@@ -169,7 +172,14 @@ fn canonical_and_every_pinned_correction_use_the_real_single_pass_pipeline() {
     fs::write(d.path().join("a.rb"), legacy).unwrap();
     let output = cli(
         d.path(),
-        &["--only", "Style/EmptyCaseCondition", "--fix", "a.rb"],
+        &[
+            "--only",
+            "Style/EmptyCaseCondition",
+            "--fix",
+            "--fix-passes",
+            "1",
+            "a.rb",
+        ],
     );
     assert_eq!(output.status.code(), Some(0), "{output:?}");
     assert_eq!(
@@ -194,7 +204,10 @@ fn canonical_and_every_pinned_correction_use_the_real_single_pass_pipeline() {
         for c in cases {
             if let Some(after) = c["correction"].as_str() {
                 fs::write(d.path().join("a.rb"), c["source"].as_str().unwrap()).unwrap();
-                let output = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
+                let output = cli(
+                    d.path(),
+                    &["--only", cop, "--fix", "--fix-passes", "1", "a.rb"],
+                );
                 assert_ne!(output.status.code(), Some(2), "{output:?}");
                 assert_eq!(
                     fs::read_to_string(d.path().join("a.rb")).unwrap(),

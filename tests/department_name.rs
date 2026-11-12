@@ -379,7 +379,7 @@ fn composes_with_directive_lifecycle_cops() {
     // Default selection: the qualification lands with the other safe fixes
     // and the directive peers report the corrected names.
     fs::write(&path, SOURCE).unwrap();
-    let out = run(d.path(), &["--fix", "lib/a.rb"]);
+    let out = run(d.path(), &["--fix", "--fix-passes", "1", "lib/a.rb"]);
     assert!(out.stderr.is_empty(), "{out:?}");
     assert_eq!(fs::read(&path).unwrap(), FIXED.as_bytes());
     let text = String::from_utf8_lossy(&out.stdout);
@@ -398,14 +398,20 @@ fn composes_with_directive_lifecycle_cops() {
         b"# rubocop:disable Style/Alias\n",
         b"# rubocop:disable Style/Alias\n",
     ] {
-        let out = run(d.path(), &["--only", &peers, "--fix", "lib/a.rb"]);
+        let out = run(
+            d.path(),
+            &["--only", &peers, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        );
         assert_eq!(fs::read(&path).unwrap(), after, "{out:?}");
     }
     // CopDirectiveSyntax still sees a legacy name as unknown after
     // qualification; neither cop's edit is lost and nothing loops.
     let syntax = format!("{COP},Lint/CopDirectiveSyntax");
     fs::write(&path, "x = 1 # rubocop:disable Tab\n").unwrap();
-    let out = run(d.path(), &["--only", &syntax, "--fix", "lib/a.rb"]);
+    let out = run(
+        d.path(),
+        &["--only", &syntax, "--fix", "--fix-passes", "1", "lib/a.rb"],
+    );
     assert_eq!(
         fs::read(&path).unwrap(),
         b"x = 1 # rubocop:disable Layout/Tab\n"
@@ -417,7 +423,10 @@ fn composes_with_directive_lifecycle_cops() {
     // The opt-in ban removes no active selector and keeps the qualification.
     let ban = format!("{COP},Style/DisableCopsWithinSourceCodeDirective");
     fs::write(&path, "x = 1 # rustocop:disable Alias\n").unwrap();
-    let out = run(d.path(), &["--only", &ban, "--fix", "lib/a.rb"]);
+    let out = run(
+        d.path(),
+        &["--only", &ban, "--fix", "--fix-passes", "1", "lib/a.rb"],
+    );
     assert_eq!(
         fs::read(&path).unwrap(),
         b"x = 1 # rustocop:disable Style/Alias\n",
@@ -436,7 +445,7 @@ fn composes_with_directive_lifecycle_cops() {
         let out = unchanged(
             d.path(),
             source.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
+            &["--only", COP, "--fix", "--fix-passes", "1", "lib/a.rb"],
             0,
         );
         assert!(found(&out).is_empty(), "{source}");

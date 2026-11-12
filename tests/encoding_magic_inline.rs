@@ -200,11 +200,23 @@ fn bom_crlf_headers_literals_line_and_data_bytes_are_preserved() {
     fs::write(&path, source).unwrap();
     // Overlapping Encoding/Format edits resolve deterministically, one pass.
     let only = "Style/Encoding,Style/MagicCommentFormat";
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 1);
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 0);
+    cli(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        1,
+    );
+    cli(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        0,
+    );
     assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 0);
+    cli(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        0,
+    );
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
 }
 

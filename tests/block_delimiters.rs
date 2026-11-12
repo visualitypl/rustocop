@@ -28,7 +28,7 @@ fn cli(dir: &Path, args: &[&str]) -> Output {
     out
 }
 fn only_fix(dir: &Path) -> Output {
-    cli(dir, &["--only", COP, "--fix", "x.rb"])
+    cli(dir, &["--only", COP, "--fix", "--fix-passes", "1", "x.rb"])
 }
 fn unchanged(dir: &Path, source: &[u8], args: &[&str], status: i32) {
     let path = dir.join("x.rb");
@@ -405,7 +405,10 @@ fn current_incompatible_and_style_layout_peers_remain_atomic_single_pass() {
     let only = names.join(",");
     let source = "def f; each{ |x|\n return x+'a'\n}; send 1 do |x| x end; end\n";
     fs::write(&path, source).unwrap();
-    cli(dir.path(), &["--only", &only, "--fix", "x.rb"]);
+    cli(
+        dir.path(),
+        &["--only", &only, "--fix", "--fix-passes", "1", "x.rb"],
+    );
     let first = fs::read_to_string(&path).unwrap();
     assert_eq!(
         first,
@@ -413,7 +416,10 @@ fn current_incompatible_and_style_layout_peers_remain_atomic_single_pass() {
     );
     // Inner overlapping fixes and the formerly command-argument block defer to
     // the next explicit invocation; the CLI does not run an automatic fix loop.
-    cli(dir.path(), &["--only", &only, "--fix", "x.rb"]);
+    cli(
+        dir.path(),
+        &["--only", &only, "--fix", "--fix-passes", "1", "x.rb"],
+    );
     let second = fs::read_to_string(&path).unwrap();
     assert_eq!(
         second,
@@ -422,7 +428,7 @@ fn current_incompatible_and_style_layout_peers_remain_atomic_single_pass() {
     unchanged(
         dir.path(),
         second.as_bytes(),
-        &["--only", &only, "--fix", "x.rb"],
+        &["--only", &only, "--fix", "--fix-passes", "1", "x.rb"],
         0,
     );
 }
@@ -436,18 +442,24 @@ fn hash_signal_and_semicolon_overlaps_defer_whole_inner_edits() {
     );
     let source = "each {\n fail({:a => 'x'}); side_effect\n}\n";
     fs::write(&path, source).unwrap();
-    cli(dir.path(), &["--only", &only, "--fix", "x.rb"]);
+    cli(
+        dir.path(),
+        &["--only", &only, "--fix", "--fix-passes", "1", "x.rb"],
+    );
     assert_eq!(
         fs::read_to_string(&path).unwrap(),
         "each do\n fail({:a => 'x'}); side_effect\nend\n"
     );
-    cli(dir.path(), &["--only", &only, "--fix", "x.rb"]);
+    cli(
+        dir.path(),
+        &["--only", &only, "--fix", "--fix-passes", "1", "x.rb"],
+    );
     let second = "each do\n raise({a: \"x\"})\n side_effect\nend\n";
     assert_eq!(fs::read_to_string(&path).unwrap(), second);
     unchanged(
         dir.path(),
         second.as_bytes(),
-        &["--only", &only, "--fix", "x.rb"],
+        &["--only", &only, "--fix", "--fix-passes", "1", "x.rb"],
         0,
     );
 }
@@ -468,7 +480,7 @@ fn nested_suppression_is_unchanged_and_exposes_the_next_explicit_pass() {
     unchanged(
         dir.path(),
         second.as_bytes(),
-        &["--only", COP, "--fix", "x.rb"],
+        &["--only", COP, "--fix", "--fix-passes", "1", "x.rb"],
         0,
     );
 }

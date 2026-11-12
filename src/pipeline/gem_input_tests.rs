@@ -220,7 +220,7 @@ fn selected(
         Some(bytes),
         &active,
         config,
-        false,
+        None,
     )
 }
 

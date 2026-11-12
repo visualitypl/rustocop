@@ -184,7 +184,7 @@ fn default_fix_is_a_single_atomic_pass_not_an_implicit_formatter_loop() {
     let after = b"def f(c)\n  return unless c\n    value = { :foo => 'bar' }; side_effect(value)\n    return (value)\n  \nend\n";
     unchanged(d.path(), before, &["a.rb"], 1);
     fs::write(d.path().join("a.rb"), before).unwrap();
-    cli(d.path(), &["--fix", "a.rb"], 1);
+    cli(d.path(), &["--fix", "--fix-passes", "1", "a.rb"], 1);
     assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), after);
 }
 

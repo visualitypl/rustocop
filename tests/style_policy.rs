@@ -1392,6 +1392,8 @@ fn ns04_existing_canonical_fixes_and_style_layout_composition_remain_single_pass
             "--only",
             "Naming/BinaryOperatorParameterName,Naming/RescuedExceptionsVariableName,Style/SignalException",
             "--fix",
+            "--fix-passes",
+            "1",
             "lib/a.rb",
         ],
         None,
@@ -1410,6 +1412,8 @@ fn ns04_existing_canonical_fixes_and_style_layout_composition_remain_single_pass
             "--only",
             "Naming/BinaryOperatorParameterName,Naming/RescuedExceptionsVariableName,Style/SignalException,Layout",
             "--fix",
+            "--fix-passes",
+            "1",
             "lib/a.rb",
         ],
         None,
@@ -3407,7 +3411,14 @@ fn ns11_complete_departments_and_style_layout_stabilize_in_three_explicit_invoca
             let held = cli(
                 dir.path(),
                 "",
-                &["--only", selection, "--fix", "lib/a.rb"],
+                &[
+                    "--only",
+                    selection,
+                    "--fix",
+                    "--fix-passes",
+                    "1",
+                    "lib/a.rb",
+                ],
                 None,
             );
             assert_eq!(held.status.code(), Some(1), "{held:?}");
@@ -3443,7 +3454,14 @@ fn ns11_complete_departments_and_style_layout_stabilize_in_three_explicit_invoca
             let run = cli(
                 dir.path(),
                 "",
-                &["--only", selection, "--fix", "lib/a.rb"],
+                &[
+                    "--only",
+                    selection,
+                    "--fix",
+                    "--fix-passes",
+                    "1",
+                    "lib/a.rb",
+                ],
                 None,
             );
             assert_eq!(run.status.code(), Some(1), "{run:?}");
@@ -4580,7 +4598,12 @@ fn ns06_live_default_renaming_does_not_weaken_prior_body_to_terminator_guards() 
         let ruby = std::env::var_os("RUSTOCOP_RUBY34");
         let before = ruby.as_ref().map(|r| ns04_ruby(r, &path).unwrap());
         for _ in 0..3 {
-            let run = cli(dir.path(), "", &["--fix", "lib/a.rb"], None);
+            let run = cli(
+                dir.path(),
+                "",
+                &["--fix", "--fix-passes", "1", "lib/a.rb"],
+                None,
+            );
             assert_ne!(run.status.code(), Some(2), "{run:?}");
         }
         assert_eq!(fs::read_to_string(&path).unwrap(), expected);

@@ -169,7 +169,7 @@ fn every_pinned_example_runs_with_real_config_and_canonical_or_held_fix() {
             ) {
                 unchanged(
                     dir.path(),
-                    &["--only", COP, "--fix", "a.rb"],
+                    &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
                     before.as_bytes(),
                     1,
                     n,
@@ -178,7 +178,12 @@ fn every_pinned_example_runs_with_real_config_and_canonical_or_held_fix() {
             } else {
                 fs::write(dir.path().join("a.rb"), before).unwrap();
                 if matches!(line, 886 | 923 | 961) {
-                    run(dir.path(), &["--only", COP, "--fix", "a.rb"], 1, 1);
+                    run(
+                        dir.path(),
+                        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+                        1,
+                        1,
+                    );
                     let first = before.replacen("  begin\n", "  \n", 1).replacen(
                         "  end\nend\n",
                         "  \nend\n",
@@ -189,7 +194,12 @@ fn every_pinned_example_runs_with_real_config_and_canonical_or_held_fix() {
                 } else {
                     totals[2] += 1;
                 }
-                run(dir.path(), &["--only", COP, "--fix", "a.rb"], 0, 0);
+                run(
+                    dir.path(),
+                    &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+                    0,
+                    0,
+                );
                 assert_eq!(
                     fs::read_to_string(dir.path().join("a.rb")).unwrap(),
                     after,
@@ -197,7 +207,7 @@ fn every_pinned_example_runs_with_real_config_and_canonical_or_held_fix() {
                 );
                 unchanged(
                     dir.path(),
-                    &["--only", COP, "--fix", "a.rb"],
+                    &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
                     after.as_bytes(),
                     0,
                     0,

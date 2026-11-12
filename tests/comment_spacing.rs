@@ -82,7 +82,7 @@ fn fix(root: &Path, source: &str, args: &[&str]) -> (Output, String) {
     let path = root.join("example.rb");
     fs::write(&path, source).unwrap();
     let mut args = args.to_vec();
-    args.extend(["--fix", "example.rb"]);
+    args.extend(["--fix", "--fix-passes", "1", "example.rb"]);
     let out = run(root, &args);
     (out, fs::read_to_string(&path).unwrap())
 }
@@ -245,11 +245,21 @@ fn default_selection_converges() {
     let (out, after) = fix(dir.path(), &after, &[]);
     assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(after, "def foo\n  1\nend\n");
-    unchanged(dir.path(), after.as_bytes(), &["--fix"], Some(0));
+    unchanged(
+        dir.path(),
+        after.as_bytes(),
+        &["--fix", "--fix-passes", "1"],
+        Some(0),
+    );
     let (out, after) = fix(dir.path(), "p 1#note\n#\n#text\np 2\n", &[]);
     assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(after, "p 1 # note\n#\n# text\np 2\n");
-    unchanged(dir.path(), after.as_bytes(), &["--fix"], Some(0));
+    unchanged(
+        dir.path(),
+        after.as_bytes(),
+        &["--fix", "--fix-passes", "1"],
+        Some(0),
+    );
 }
 
 #[test]

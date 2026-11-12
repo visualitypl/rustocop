@@ -465,7 +465,10 @@ fn mixed_style_layout_overlaps_are_deterministic_and_stabilize() {
     let mut first = None;
     for _ in 0..2 {
         fs::write(&path, source).unwrap();
-        let o = cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"]);
+        let o = cli(
+            dir.path(),
+            &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        );
         assert_ne!(o.status.code(), Some(2), "{o:?}");
         let bytes = fs::read(&path).unwrap();
         assert_eq!(bytes, b"def example\n  @b || (return 'fallback')\nend\n");
@@ -477,7 +480,10 @@ fn mixed_style_layout_overlaps_are_deterministic_and_stabilize() {
     let mut stable = false;
     for _ in 0..3 {
         let before = fs::read(&path).unwrap();
-        let o = cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"]);
+        let o = cli(
+            dir.path(),
+            &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        );
         assert_ne!(o.status.code(), Some(2), "{o:?}");
         if fs::read(&path).unwrap() == before {
             stable = true;

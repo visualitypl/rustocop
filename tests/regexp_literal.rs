@@ -447,7 +447,7 @@ fn nested_fragments_are_bounded_and_composed_fixes_stabilize() {
     for _ in 0..9 {
         cli(
             d.path(),
-            &["--only", COP, "--fix", "a.rb"],
+            &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
             i32::from(s.matches("%r{").count() > 1),
         );
         s = fs::read_to_string(d.path().join("a.rb")).unwrap();
@@ -469,7 +469,7 @@ fn nested_fragments_are_bounded_and_composed_fixes_stabilize() {
         let mut stable = false;
         for _ in 0..6 {
             let old = fs::read(d.path().join("a.rb")).unwrap();
-            let mut args = vec!["--fix", "a.rb"];
+            let mut args = vec!["--fix", "--fix-passes", "1", "a.rb"];
             if let Some(only) = only {
                 args.extend(["--only", only]);
             }

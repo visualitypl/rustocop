@@ -42,7 +42,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str]) -> std::process::Output 
 }
 fn correct(root: &Path, cop: &str, before: &str) -> String {
     fs::write(root.join("a.rb"), before).unwrap();
-    cli(root, &["--only", cop, "--fix", "a.rb"]);
+    cli(root, &["--only", cop, "--fix", "--fix-passes", "1", "a.rb"]);
     fs::read_to_string(root.join("a.rb")).unwrap()
 }
 fn fixtures() -> Vec<(&'static str, Vec<serde_json::Value>)> {

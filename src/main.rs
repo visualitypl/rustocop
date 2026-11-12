@@ -33,6 +33,10 @@ struct Cli {
     #[arg(long, conflicts_with = "stdin")]
     fix: bool,
 
+    /// Stop after N correction passes over each file (default: until nothing changes).
+    #[arg(long, value_name = "N", requires = "fix")]
+    fix_passes: Option<usize>,
+
     /// Read source from stdin, using PATH as the display name.
     #[arg(long, value_name = "PATH")]
     stdin: Option<PathBuf>,
@@ -53,6 +57,7 @@ fn real_main() -> i32 {
             except: cli.except.clone(),
             stdin: cli.stdin.clone(),
             fix: cli.fix,
+            fix_passes: cli.fix_passes,
         };
         let report = pipeline::run(&cli.paths, &options, &config, &registry)?;
         let rendered = match cli.format {

@@ -317,6 +317,8 @@ fn safe_peers_can_correct_without_unsafe_string_rewrites() {
             "--only",
             "Style/RedundantFormat,Style/StringConcatenation,Style/StringLiterals,Style/FormatString,Style/Semicolon,Layout",
             "--fix",
+            "--fix-passes",
+            "1",
             "a.rb",
         ],
         1,
@@ -332,6 +334,8 @@ fn safe_peers_can_correct_without_unsafe_string_rewrites() {
                 "--only",
                 "Style/RedundantFormat,Style/StringConcatenation,Style/StringLiterals,Style/FormatString,Style/Semicolon,Layout",
                 "--fix",
+                "--fix-passes",
+                "1",
                 "a.rb",
             ],
             1,
@@ -345,7 +349,7 @@ fn safe_peers_can_correct_without_unsafe_string_rewrites() {
     unchanged(
         d.path(),
         b"format(\"hello\")\nx + \"y\"\n",
-        &["--only", BOTH, "--fix", "a.rb"],
+        &["--only", BOTH, "--fix", "--fix-passes", "1", "a.rb"],
         1,
     );
 }

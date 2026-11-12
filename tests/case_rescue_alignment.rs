@@ -197,7 +197,17 @@ fn the_family_composes_with_end_and_body_alignment_across_fix_runs() {
             "no fixed point: {}",
             fs::read_to_string(&path).unwrap()
         );
-        let out = run(dir.path(), &["--only", "Layout", "--fix", "example.rb"]);
+        let out = run(
+            dir.path(),
+            &[
+                "--only",
+                "Layout",
+                "--fix",
+                "--fix-passes",
+                "1",
+                "example.rb",
+            ],
+        );
         if out.status.code() == Some(0) {
             break;
         }
@@ -207,16 +217,22 @@ fn the_family_composes_with_end_and_body_alignment_across_fix_runs() {
     unchanged(
         dir.path(),
         after.as_bytes(),
-        &["--only", "Layout", "--fix"],
+        &["--only", "Layout", "--fix", "--fix-passes", "1"],
         Some(0),
     );
     // The family alone with the end cops: one pass, then `else` follows the
     // moved `when` in the next.
     fs::write(&path, before).unwrap();
     let only = "Layout/CaseIndentation,Layout/ElseAlignment,Layout/RescueEnsureAlignment,Layout/BeginEndAlignment,Layout/EndAlignment";
-    let out = run(dir.path(), &["--only", only, "--fix", "example.rb"]);
+    let out = run(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "example.rb"],
+    );
     assert_eq!(out.status.code(), Some(1), "{out:?}");
-    let out = run(dir.path(), &["--only", only, "--fix", "example.rb"]);
+    let out = run(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "example.rb"],
+    );
     assert_eq!(out.status.code(), Some(0), "{out:?}");
     unchanged(
         dir.path(),

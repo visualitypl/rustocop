@@ -52,7 +52,7 @@ fn unused_legacy_conditional_identifiers_lint_and_fix_without_writing() {
             let modified = fs::metadata(&path).unwrap().modified().unwrap();
             for args in [
                 vec!["--only", CONDITIONAL, "a.rb"],
-                vec!["--only", CONDITIONAL, "--fix", "a.rb"],
+                vec!["--only", CONDITIONAL, "--fix", "--fix-passes", "1", "a.rb"],
                 vec!["--only", CONDITIONAL, "--stdin", "a.rb"],
                 vec!["a.rb"],
             ] {

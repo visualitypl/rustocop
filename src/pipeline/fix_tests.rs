@@ -87,6 +87,20 @@ fn project(source: &str) -> (tempfile::TempDir, ResolvedConfig) {
     (dir, config)
 }
 
+fn run_single_pass(dir: &Path, config: &ResolvedConfig, registry: &Registry) -> RunReport {
+    run(
+        &[dir.to_path_buf()],
+        &RunOptions {
+            fix: true,
+            fix_passes: Some(1),
+            ..RunOptions::default()
+        },
+        config,
+        registry,
+    )
+    .unwrap()
+}
+
 fn run_project(dir: &Path, config: &ResolvedConfig, registry: &Registry, fix: bool) -> RunReport {
     run(
         &[dir.to_path_buf()],
@@ -687,6 +701,7 @@ fn production_style_fixture_pairs() {
                 &[dir.path().to_path_buf()],
                 &RunOptions {
                     fix,
+                    fix_passes: fix.then_some(1),
                     only: vec![cop.into()],
                     ..RunOptions::default()
                 },
@@ -748,7 +763,7 @@ fn production_atomic_corrections_respect_disabled_interior_lines() {
 fn production_overlaps_defer_whole_corrections_and_converge() {
     let (dir, config) = project("def func\n  return ({ :a => 'x' });\nend\n");
     let registry = Registry::new();
-    let first = run_project(dir.path(), &config, &registry, true);
+    let first = run_single_pass(dir.path(), &config, &registry);
     assert!(!first.has_errors(), "{first:?}");
     assert_eq!(
         fs::read_to_string(dir.path().join("x.rb")).unwrap(),
@@ -756,14 +771,14 @@ fn production_overlaps_defer_whole_corrections_and_converge() {
     );
     assert_eq!(first.offense_count(), 2);
     for _ in 0..2 {
-        let report = run_project(dir.path(), &config, &registry, true);
+        let report = run_single_pass(dir.path(), &config, &registry);
         assert!(!report.has_errors(), "{report:?}");
     }
     assert_eq!(
         fs::read_to_string(dir.path().join("x.rb")).unwrap(),
         "def func\n  { a: \"x\" }\nend\n"
     );
-    let final_report = run_project(dir.path(), &config, &registry, true);
+    let final_report = run_single_pass(dir.path(), &config, &registry);
     assert_eq!(final_report.corrections_applied, 0);
     assert_eq!(final_report.offense_count(), 0);
 }
@@ -947,6 +962,101 @@ fn remaining_positions_are_recomputed_after_length_changing_fixes() {
     );
 }
 
+fn rewriting(steps: &[(&'static str, &'static [u8], &'static str)]) -> Registry {
+    Registry::from_cops(
+        steps
+            .iter()
+            .map(|&(name, method, replacement)| {
+                Box::new(Fixer {
+                    name,
+                    method,
+                    replacement: Some(replacement),
+                    safe: true,
+                }) as Box<dyn Cop>
+            })
+            .collect(),
+    )
+}
+
+#[test]
+fn a_fix_run_repeats_passes_until_nothing_changes() {
+    let registry = rewriting(&[
+        ("Style/First", b"first", "second"),
+        ("Style/Second", b"second", "third"),
+        ("Style/Third", b"third", "done"),
+    ]);
+    let (dir, config) = project("first\nsecond\n");
+    let report = run_project(dir.path(), &config, &registry, true);
+    assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), b"done\ndone\n");
+    assert_eq!(report.corrections_applied, 5);
+    assert_eq!(report.offense_count(), 0);
+    assert!(report.errors.is_empty(), "{:?}", report.errors);
+}
+
+#[test]
+fn corrections_that_undo_each_other_stop_with_an_error() {
+    let registry = rewriting(&[
+        ("Style/Ping", b"ping", "pong"),
+        ("Style/Pong", b"pong", "ping"),
+    ]);
+    let (dir, config) = project("ping\n");
+    let report = run_project(dir.path(), &config, &registry, true);
+    assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), b"pong\n");
+    assert_eq!(report.corrections_applied, 1);
+    assert_eq!(report.offense_count(), 1);
+    assert_eq!(report.errors.len(), 1);
+    assert!(
+        report.errors[0].message.contains("earlier version"),
+        "{:?}",
+        report.errors
+    );
+    assert_eq!(report.exit_code(), EXIT_ERRORS);
+}
+
+#[test]
+fn corrections_that_never_settle_stop_at_the_pass_limit() {
+    let registry = rewriting(&[("Style/Grow", b"grow", "grow; 1")]);
+    let (dir, config) = project("grow\n");
+    let report = run_project(dir.path(), &config, &registry, true);
+    let expected = format!("grow{}\n", "; 1".repeat(MAX_CORRECTION_PASSES));
+    assert_eq!(
+        fs::read(dir.path().join("x.rb")).unwrap(),
+        expected.as_bytes()
+    );
+    assert_eq!(report.corrections_applied, MAX_CORRECTION_PASSES);
+    assert_eq!(report.errors.len(), 1);
+    assert!(
+        report.errors[0].message.contains("did not settle"),
+        "{:?}",
+        report.errors
+    );
+}
+
+#[test]
+fn a_later_pass_that_fails_validation_keeps_the_earlier_passes() {
+    let registry = rewriting(&[("Style/Deep", b"deep", "deep.more")]);
+    let (dir, config) = project("deep\n");
+    let report = run_project(dir.path(), &config, &registry, true);
+    let applied = report.corrections_applied;
+    assert!(applied > 1 && applied < MAX_CORRECTION_PASSES, "{applied}");
+    let expected = format!("deep{}\n", ".more".repeat(applied));
+    assert_eq!(
+        fs::read(dir.path().join("x.rb")).unwrap(),
+        expected.as_bytes()
+    );
+    assert!(
+        crate::parser::parse(expected.as_bytes())
+            .depth_error()
+            .is_none()
+    );
+    assert_eq!(report.errors.len(), 1);
+    assert!(
+        report.errors[0].message.contains("failed validation after"),
+        "{:?}",
+        report.errors
+    );
+}
+
 #[test]
 fn overlapping_cops_have_a_deterministic_winner_and_are_relinted() {
     for reverse in [false, true] {
@@ -1097,7 +1207,7 @@ fn several_files_and_deferred_fixes_use_a_single_pass() {
             safe: true,
         }),
     ]);
-    let report = run_project(dir.path(), &config, &registry, true);
+    let report = run_single_pass(dir.path(), &config, &registry);
     assert_eq!(report.files_inspected, 2);
     assert_eq!(report.corrections_applied, 2);
     assert_eq!(report.offense_count(), 2);
@@ -1118,7 +1228,10 @@ fn write_failure_reports_an_error_and_leaves_original_offenses() {
         Some(b"before\n"),
         &CopSelection::new(&registry(), &config, &[], &[]),
         &config,
-        true,
+        Some(Passes {
+            max: MAX_CORRECTION_PASSES,
+            explicit: false,
+        }),
     );
     assert_eq!(report.corrections_applied, 0);
     assert_eq!(report.result.offenses.len(), 1);
@@ -1249,6 +1362,7 @@ fn alias_fixes_merge_path_eligibility_in_one_pass_and_relint_every_path() {
             &paths,
             &RunOptions {
                 fix: true,
+                fix_passes: Some(1),
                 ..Default::default()
             },
             &config,

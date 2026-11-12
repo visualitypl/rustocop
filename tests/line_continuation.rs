@@ -84,7 +84,7 @@ fn fix(root: &Path, source: &[u8], args: &[&str]) -> (Output, Vec<u8>) {
     let path = root.join("example.rb");
     fs::write(&path, source).unwrap();
     let mut args = args.to_vec();
-    args.extend(["--fix", "example.rb"]);
+    args.extend(["--fix", "--fix-passes", "1", "example.rb"]);
     let out = run(root, &args);
     (out, fs::read(&path).unwrap())
 }
@@ -521,7 +521,7 @@ fn string_literals_ordering_edge_composes_by_overlap_selection() {
     unchanged(
         dir.path(),
         &second,
-        &["--only", &selection, "--fix"],
+        &["--only", &selection, "--fix", "--fix-passes", "1"],
         Some(0),
     );
     if let Some(before) = before {

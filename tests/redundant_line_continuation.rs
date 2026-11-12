@@ -75,7 +75,16 @@ fn selectors_config_enabling_excludes_and_strict_fixed_options() {
     unchanged(
         d.path(),
         source,
-        &["--only", COP, "--except", COP, "--fix", "a.rb"],
+        &[
+            "--only",
+            COP,
+            "--except",
+            COP,
+            "--fix",
+            "--fix-passes",
+            "1",
+            "a.rb",
+        ],
         0,
     );
     for config in [
@@ -83,7 +92,7 @@ fn selectors_config_enabling_excludes_and_strict_fixed_options() {
         format!("[cops.\"{COP}\"]\nenabled = false\n"),
     ] {
         fs::write(d.path().join("rustocop.toml"), config).unwrap();
-        unchanged(d.path(), source, &["--fix", "a.rb"], 0);
+        unchanged(d.path(), source, &["--fix", "--fix-passes", "1", "a.rb"], 0);
         assert_ne!(fix(d.path(), source, 0), source);
     }
     fs::write(
@@ -93,14 +102,19 @@ fn selectors_config_enabling_excludes_and_strict_fixed_options() {
     .unwrap();
     fs::write(d.path().join("a.rb"), source).unwrap();
     // Layout sees newly exposed trailing whitespace only on a later pass.
-    cli(d.path(), &["--fix", "a.rb"], 1);
+    cli(d.path(), &["--fix", "--fix-passes", "1", "a.rb"], 1);
     assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), b"[1, \n 2]\n");
     for config in [
         "exclude = [\"a.rb\"]\n".to_string(),
         format!("[cops.\"{COP}\"]\nexclude = [\"a.rb\"]\n"),
     ] {
         fs::write(d.path().join("rustocop.toml"), config).unwrap();
-        unchanged(d.path(), source, &["--only", COP, "--fix", "a.rb"], 0);
+        unchanged(
+            d.path(),
+            source,
+            &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+            0,
+        );
     }
     fs::write(
         d.path().join("rustocop.toml"),
@@ -112,7 +126,7 @@ fn selectors_config_enabling_excludes_and_strict_fixed_options() {
     let mtime = fs::metadata(&path).unwrap().modified().unwrap();
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(d.path())
-        .args(["--only", COP, "--fix", "a.rb"])
+        .args(["--only", COP, "--fix", "--fix-passes", "1", "a.rb"])
         .output()
         .unwrap();
     assert_eq!(out.status.code(), Some(2));

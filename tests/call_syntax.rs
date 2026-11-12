@@ -238,7 +238,11 @@ fn runtime_equivalent(cop: &str, source: &str, status: i32) {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
-    cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], status);
+    cli(
+        dir.path(),
+        &["--only", cop, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        status,
+    );
     let corrected = fs::read_to_string(&path).unwrap();
     assert_ne!(corrected, source);
     let after = ruby(&corrected).unwrap();

@@ -59,23 +59,32 @@ fn default_opt_in_only_except_and_config_precedence() {
         unchanged(
             dir.path(),
             before.as_bytes(),
-            &["--only", cop, "--except", cop, "--fix", "x.rb"],
+            &[
+                "--only",
+                cop,
+                "--except",
+                cop,
+                "--fix",
+                "--fix-passes",
+                "1",
+                "x.rb",
+            ],
             0,
         );
         for (config, args, expected) in [
             (
                 "[cops.Style]\nenabled=false\n".into(),
-                vec!["--fix", "x.rb"],
+                vec!["--fix", "--fix-passes", "1", "x.rb"],
                 before,
             ),
             (
                 format!("[cops.\"{cop}\"]\nenabled=false\n"),
-                vec!["--only", cop, "--fix", "x.rb"],
+                vec!["--only", cop, "--fix", "--fix-passes", "1", "x.rb"],
                 after,
             ),
             (
                 format!("[cops.Style]\nenabled=false\n[cops.\"{cop}\"]\nenabled=true\n"),
-                vec!["--fix", "x.rb"],
+                vec!["--fix", "--fix-passes", "1", "x.rb"],
                 after,
             ),
         ] {

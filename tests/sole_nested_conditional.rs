@@ -256,7 +256,7 @@ fn fix(root: &Path, before: &str, after: &str, selected: &str) {
     fs::write(&path, before).unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
-        .args(["--only", selected, "--fix", "lib/a.rb"])
+        .args(["--only", selected, "--fix", "--fix-passes", "1", "lib/a.rb"])
         .output()
         .unwrap();
     assert_ne!(output.status.code(), Some(2), "{output:?}");
@@ -279,11 +279,20 @@ fn safe_fixes_obey_enablement_and_reenabled_directive_spans() {
     for (config, args) in [
         (
             format!("[cops.\"{COP}\"]\nenabled = false\n"),
-            vec!["--fix", "lib/a.rb"],
+            vec!["--fix", "--fix-passes", "1", "lib/a.rb"],
         ),
         (
             String::new(),
-            vec!["--only", COP, "--except", COP, "--fix", "lib/a.rb"],
+            vec![
+                "--only",
+                COP,
+                "--except",
+                COP,
+                "--fix",
+                "--fix-passes",
+                "1",
+                "lib/a.rb",
+            ],
         ),
     ] {
         fs::write(dir.path().join("rustocop.toml"), &config).unwrap();
@@ -306,7 +315,12 @@ fn safe_fixes_obey_enablement_and_reenabled_directive_spans() {
     )
     .unwrap();
     fs::write(dir.path().join("lib/a.rb"), BAD).unwrap();
-    run(dir.path(), &["--fix", "lib/a.rb"], None, 0);
+    run(
+        dir.path(),
+        &["--fix", "--fix-passes", "1", "lib/a.rb"],
+        None,
+        0,
+    );
     assert_eq!(
         fs::read_to_string(dir.path().join("lib/a.rb")).unwrap(),
         good
@@ -463,7 +477,14 @@ fn mixed_style_layout_overlap_is_atomic_deterministic_and_stabilizes() {
         let old = fs::read(&path).unwrap();
         run(
             dir.path(),
-            &["--only", &selected, "--fix", "lib/a.rb"],
+            &[
+                "--only",
+                &selected,
+                "--fix",
+                "--fix-passes",
+                "1",
+                "lib/a.rb",
+            ],
             None,
             0,
         );

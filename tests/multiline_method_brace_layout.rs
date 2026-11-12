@@ -89,7 +89,7 @@ fn fix(root: &Path, source: &[u8], args: &[&str]) -> (Output, Vec<u8>) {
     let path = root.join("example.rb");
     fs::write(&path, source).unwrap();
     let mut args = args.to_vec();
-    args.extend(["--fix", "example.rb"]);
+    args.extend(["--fix", "--fix-passes", "1", "example.rb"]);
     let out = run(root, &args);
     (out, fs::read(&path).unwrap())
 }

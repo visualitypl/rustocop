@@ -198,7 +198,10 @@ fn adversarial_cli_corrections_are_canonical_or_guarded_no_write() {
         let cop = row["cop"].as_str().unwrap();
         fs::write(&path, &before).unwrap();
         let old = fs::metadata(&path).unwrap();
-        let out = run(d.path(), &["--fix", "--only", cop, "example.rb"]);
+        let out = run(
+            d.path(),
+            &["--fix", "--fix-passes", "1", "--only", cop, "example.rb"],
+        );
         let actual = fs::read(&path).unwrap();
         assert_ne!(out.status.code(), Some(2), "{row}: {out:?}");
         if actual == before {

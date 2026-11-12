@@ -26,13 +26,21 @@ fn unchanged(dir: &Path, source: &[u8], status: i32) {
     let path = dir.join("a.rb");
     fs::write(&path, source).unwrap();
     let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-    cli(dir, &["--only", COP, "--fix", "a.rb"], status);
+    cli(
+        dir,
+        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+        status,
+    );
     assert_eq!(fs::read(&path).unwrap(), source);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
 }
 fn fix(dir: &Path, source: &[u8], status: i32) -> Vec<u8> {
     fs::write(dir.join("a.rb"), source).unwrap();
-    cli(dir, &["--only", COP, "--fix", "a.rb"], status);
+    cli(
+        dir,
+        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+        status,
+    );
     fs::read(dir.join("a.rb")).unwrap()
 }
 

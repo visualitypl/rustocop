@@ -599,9 +599,12 @@ fn atomic_validation_symlinks_readonly_permissions_and_composition() {
     let old = fs::metadata(&path).unwrap();
     for alias in ["lib/a.rb", "lib/link.rb"] {
         assert_eq!(
-            run(dir.path(), &["--only", COP, "--fix", alias])
-                .status
-                .code(),
+            run(
+                dir.path(),
+                &["--only", COP, "--fix", "--fix-passes", "1", alias]
+            )
+            .status
+            .code(),
             Some(1)
         );
     }
@@ -616,9 +619,12 @@ fn atomic_validation_symlinks_readonly_permissions_and_composition() {
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
     let old = fs::metadata(&path).unwrap();
     assert_eq!(
-        run(dir.path(), &["--only", COP, "--fix", "lib/link.rb"])
-            .status
-            .code(),
+        run(
+            dir.path(),
+            &["--only", COP, "--fix", "--fix-passes", "1", "lib/link.rb"]
+        )
+        .status
+        .code(),
         Some(2)
     );
     let new = fs::metadata(&path).unwrap();
@@ -631,15 +637,18 @@ fn atomic_validation_symlinks_readonly_permissions_and_composition() {
     unchanged(
         dir.path(),
         b"[defined?(/(?:a+)+/)]\n(\n",
-        &["--only", COP, "--fix", "lib/a.rb"],
+        &["--only", COP, "--fix", "--fix-passes", "1", "lib/a.rb"],
         Some(2),
     );
     fs::write(&path, SAFE).unwrap();
     let inode = fs::metadata(&path).unwrap().ino();
     assert_eq!(
-        run(dir.path(), &["--only", COP, "--fix", "lib/link.rb"])
-            .status
-            .code(),
+        run(
+            dir.path(),
+            &["--only", COP, "--fix", "--fix-passes", "1", "lib/link.rb"]
+        )
+        .status
+        .code(),
         Some(0)
     );
     assert_eq!(fs::read(&path).unwrap(), AFTER);
@@ -677,14 +686,20 @@ fn atomic_validation_symlinks_readonly_permissions_and_composition() {
     ] {
         fs::write(&path, source).unwrap();
         let only = format!("{COP},{peers}");
-        run(dir.path(), &["--only", &only, "--fix", "lib/a.rb"]);
+        run(
+            dir.path(),
+            &["--only", &only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        );
         assert_eq!(fs::read_to_string(&path).unwrap(), after);
         if peers == "Style/RegexpLiteral" {
             // The shared atomic overlap planner defers the nested envelope.
             assert_eq!(
-                run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"])
-                    .status
-                    .code(),
+                run(
+                    dir.path(),
+                    &["--only", COP, "--fix", "--fix-passes", "1", "lib/a.rb"]
+                )
+                .status
+                .code(),
                 Some(0)
             );
             assert_eq!(fs::read(&path).unwrap(), AFTER);
@@ -692,9 +707,19 @@ fn atomic_validation_symlinks_readonly_permissions_and_composition() {
     }
     symlink("missing.rb", dir.path().join("lib/dangling.rb")).unwrap();
     assert_eq!(
-        run(dir.path(), &["--only", COP, "--fix", "lib/dangling.rb"])
-            .status
-            .code(),
+        run(
+            dir.path(),
+            &[
+                "--only",
+                COP,
+                "--fix",
+                "--fix-passes",
+                "1",
+                "lib/dangling.rb"
+            ]
+        )
+        .status
+        .code(),
         Some(2)
     );
     assert!(!dir.path().join("lib/missing.rb").exists());

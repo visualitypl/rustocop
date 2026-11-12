@@ -95,7 +95,7 @@ fn fix(dir: &Path, cop: &str, file: &str, source: &str, held: bool) -> (Output, 
     let path = dir.join(file);
     fs::write(&path, source).unwrap();
     let before = identity(&path);
-    let out = cli(dir, &["--fix", "--only", cop, file]);
+    let out = cli(dir, &["--fix", "--fix-passes", "1", "--only", cop, file]);
     let after = identity(&path);
     if held {
         assert_eq!(out.status.code(), Some(1), "{cop}: {out:?}");

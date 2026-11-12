@@ -271,6 +271,8 @@ fn explicit_passes_stabilize_and_incompatible_companion_defers_atomically() {
             "--only",
             "Style/RescueModifier,Style/MethodCallWithArgsParentheses",
             "--fix",
+            "--fix-passes",
+            "1",
             "a.rb",
         ],
         b"1 rescue nil\n",
@@ -278,15 +280,25 @@ fn explicit_passes_stabilize_and_incompatible_companion_defers_atomically() {
         [1, 0],
     );
     fs::write(dir.path().join("a.rb"), "1 rescue nil\n").unwrap();
-    run(dir.path(), &["--only", BOTH, "--fix", "a.rb"], 1, [0, 1]);
+    run(
+        dir.path(),
+        &["--only", BOTH, "--fix", "--fix-passes", "1", "a.rb"],
+        1,
+        [0, 1],
+    );
     assert_eq!(
         fs::read_to_string(dir.path().join("a.rb")).unwrap(),
         "begin\n  1\nrescue\n  nil\nend\n"
     );
-    run(dir.path(), &["--only", BOTH, "--fix", "a.rb"], 0, [0, 0]);
+    run(
+        dir.path(),
+        &["--only", BOTH, "--fix", "--fix-passes", "1", "a.rb"],
+        0,
+        [0, 0],
+    );
     unchanged(
         dir.path(),
-        &["--only", BOTH, "--fix", "a.rb"],
+        &["--only", BOTH, "--fix", "--fix-passes", "1", "a.rb"],
         b"begin\n  1\nrescue StandardError\n  nil\nend\n",
         0,
         [0, 0],
@@ -302,6 +314,8 @@ fn explicit_passes_stabilize_and_incompatible_companion_defers_atomically() {
             "--only",
             "Style/RescueStandardError,Style/StringLiterals,Layout/TrailingWhitespace",
             "--fix",
+            "--fix-passes",
+            "1",
             "a.rb",
         ],
         0,

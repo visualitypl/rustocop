@@ -170,7 +170,7 @@ fn fixture_cli_lint_and_fix_match_the_reference_and_held_edits_never_write() {
             let mut held = fs::File::open(&path).unwrap();
             let mut args = vec!["--only", cop];
             if fix {
-                args.push("--fix");
+                args.extend(["--fix", "--fix-passes", "1"]);
             }
             args.push(name);
             let out = cli(d.path(), &args, None);

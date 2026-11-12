@@ -39,7 +39,14 @@ fn fix(source: &str, only: &[&str]) -> Vec<u8> {
     fs::write(&path, source).unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir.path())
-        .args(["--only", &only.join(","), "--fix", "lib/a.rb"])
+        .args([
+            "--only",
+            &only.join(","),
+            "--fix",
+            "--fix-passes",
+            "1",
+            "lib/a.rb",
+        ])
         .output()
         .unwrap();
     assert!(matches!(output.status.code(), Some(0 | 1)), "{output:?}");
@@ -240,7 +247,18 @@ fn incompatible_peers_and_layout_use_deterministic_atomic_single_pass_edits() {
     ] {
         assert!(report.contains(name), "{name}: {report}");
     }
-    cli(dir.path(), &["--only", &selector, "--fix", "lib/a.rb"], 1);
+    cli(
+        dir.path(),
+        &[
+            "--only",
+            &selector,
+            "--fix",
+            "--fix-passes",
+            "1",
+            "lib/a.rb",
+        ],
+        1,
+    );
     assert_eq!(fs::read_to_string(&path).unwrap(), first);
     // GuardClause deliberately exempts endless definitions; it becomes active
     // on the expanded ordinary definition and corrects on the next explicit pass.

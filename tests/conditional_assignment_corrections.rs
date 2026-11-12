@@ -39,7 +39,10 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], count: usize) {
 }
 fn correct(root: &Path, before: &[u8], after: &[u8], selectors: &str) {
     fs::write(root.join("a.rb"), before).unwrap();
-    let o = cli(root, &["--only", selectors, "--fix", "a.rb"]);
+    let o = cli(
+        root,
+        &["--only", selectors, "--fix", "--fix-passes", "1", "a.rb"],
+    );
     assert_eq!(fs::read(root.join("a.rb")).unwrap(), after, "{o:?}");
 }
 #[derive(Deserialize)]
@@ -109,7 +112,7 @@ fn every_applicable_pinned_call_and_correction() {
                 unchanged(
                     d.path(),
                     c.source.as_bytes(),
-                    &["--only", COP, "--fix", "a.rb"],
+                    &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
                     c.positions.len(),
                 );
                 withheld += 1;
@@ -139,7 +142,7 @@ fn every_applicable_pinned_call_and_correction() {
             unchanged(
                 d.path(),
                 c.source.as_bytes(),
-                &["--only", COP, "--fix", "a.rb"],
+                &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
                 c.positions.len(),
             );
         }
@@ -157,7 +160,16 @@ fn actual_fix_selectors_config_and_no_write_contract() {
     unchanged(
         d.path(),
         BAD.as_bytes(),
-        &["--only", COP, "--except", COP, "--fix", "a.rb"],
+        &[
+            "--only",
+            COP,
+            "--except",
+            COP,
+            "--fix",
+            "--fix-passes",
+            "1",
+            "a.rb",
+        ],
         0,
     );
     for config in [
@@ -174,7 +186,7 @@ fn actual_fix_selectors_config_and_no_write_contract() {
     )
     .unwrap();
     fs::write(d.path().join("a.rb"), BAD).unwrap();
-    cli(d.path(), &["--fix", "a.rb"]);
+    cli(d.path(), &["--fix", "--fix-passes", "1", "a.rb"]);
     assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), GOOD);
 }
 #[test]
@@ -450,7 +462,7 @@ fn atomic_overlap_uses_original_snapshot_and_settles_on_the_next_explicit_pass()
         unchanged(
             d.path(),
             second.as_bytes(),
-            &["--only", &selectors, "--fix", "a.rb"],
+            &["--only", &selectors, "--fix", "--fix-passes", "1", "a.rb"],
             0,
         );
     }
@@ -499,7 +511,7 @@ fn nested_and_style_layout_overlaps_are_deterministic_and_finitely_stable() {
     unchanged(
         d.path(),
         second.as_bytes(),
-        &["--only", COP, "--fix", "a.rb"],
+        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
         0,
     );
     let before = "def f(condition)\n if condition\n  value = { :key => 'one' }  \n else\n  value = { :key => 'two' }\n end\n return (value)\nend\np [f(false), f(true)]\n";
@@ -513,7 +525,10 @@ fn nested_and_style_layout_overlaps_are_deterministic_and_finitely_stable() {
     // pass after the assignment moves it, and IndentationWidth re-indents its
     // body in the next one: five changing passes instead of four.
     for _ in 0..6 {
-        cli(d.path(), &["--only", &selectors, "--fix", "a.rb"]);
+        cli(
+            d.path(),
+            &["--only", &selectors, "--fix", "--fix-passes", "1", "a.rb"],
+        );
         let after = fs::read(d.path().join("a.rb")).unwrap();
         if after == *snapshots.last().unwrap() {
             settled = true;
@@ -532,7 +547,12 @@ fn nested_and_style_layout_overlaps_are_deterministic_and_finitely_stable() {
     let last = snapshots.last().unwrap();
     assert!(String::from_utf8_lossy(last).contains("value = if condition"));
     assert!(String::from_utf8_lossy(last).contains("\n          else\n"));
-    unchanged(d.path(), last, &["--only", &selectors, "--fix", "a.rb"], 0);
+    unchanged(
+        d.path(),
+        last,
+        &["--only", &selectors, "--fix", "--fix-passes", "1", "a.rb"],
+        0,
+    );
 }
 #[test]
 fn directives_and_exclusions_protect_whole_corrections() {

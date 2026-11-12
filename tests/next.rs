@@ -412,18 +412,24 @@ fn nested_overlap_is_deterministic_and_stabilizes_in_two_explicit_passes() {
     let d = project();
     let before = "log=[]\n[false,true].each do |x|\n if x\n  [false,true].each do |y|\n   if y\n    log << :first\n    log << :second\n    log << :third\n   end\n  end\n end\nend\np log\n";
     fs::write(d.path().join("a.rb"), before).unwrap();
-    let first = cli(d.path(), &["--only", COP, "--fix", "a.rb"]);
+    let first = cli(
+        d.path(),
+        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+    );
     assert_eq!(first.status.code(), Some(1), "{first:?}");
     let after_first = fs::read(d.path().join("a.rb")).unwrap();
     assert_ne!(after_first, before.as_bytes());
-    let second = cli(d.path(), &["--only", COP, "--fix", "a.rb"]);
+    let second = cli(
+        d.path(),
+        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+    );
     assert_eq!(second.status.code(), Some(0), "{second:?}");
     let after_second = fs::read(d.path().join("a.rb")).unwrap();
     assert_ne!(after_second, after_first);
     unchanged(
         d.path(),
         &after_second,
-        &["--only", COP, "--fix", "a.rb"],
+        &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
         0,
     );
     if Command::new("ruby").arg("--version").output().is_ok() {

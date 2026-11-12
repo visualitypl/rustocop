@@ -333,11 +333,15 @@ p [literal.equal?(literal), literal.frozen?, $events, __LINE__]
         assert!(before.status.success(), "{before:?}");
         let first = cli(
             dir.path(),
-            &["--only", selected, "--fix", "a.rb"],
+            &["--only", selected, "--fix", "--fix-passes", "1", "a.rb"],
             i32::from(selected == ALL), // Escaped-delimiter edit defers behind bare Q removal.
         );
         assert!(String::from_utf8_lossy(&first.stdout).contains("corrections applied"));
-        cli(dir.path(), &["--only", selected, "--fix", "a.rb"], 0);
+        cli(
+            dir.path(),
+            &["--only", selected, "--fix", "--fix-passes", "1", "a.rb"],
+            0,
+        );
         let after = ruby(dir.path());
         assert_eq!(before.stdout, after.stdout, "{source}");
         assert_eq!(before.stderr, after.stderr);
@@ -508,7 +512,7 @@ fn fixed_ruby_34_bindings_decoded_payloads_and_literal_flags_are_preserved() {
             fs::write(dir.path().join("a.rb"), &source).unwrap();
             cli(
                 dir.path(),
-                &["--only", selected, "--fix", "a.rb"],
+                &["--only", selected, "--fix", "--fix-passes", "1", "a.rb"],
                 // Ambiguous %= prefix or an escaped-delimiter overlap stays reported.
                 i32::from(matches!(selected, BARE | ALL)),
             );

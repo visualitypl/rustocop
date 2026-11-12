@@ -30,12 +30,9 @@ fn rustocop(dir: &Path, args: &[&str], stdin: &str) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(stdin.as_bytes())
-        .unwrap();
+    if let Err(error) = child.stdin.take().unwrap().write_all(stdin.as_bytes()) {
+        assert_eq!(error.kind(), std::io::ErrorKind::BrokenPipe, "{error}");
+    }
     child.wait_with_output().unwrap()
 }
 
@@ -2117,7 +2114,11 @@ fn brace_spacing_and_style_edits_resolve_whole_conflicts_deterministically() {
         let path = dir.path().join("x.rb");
         let mut snapshots = vec![before.to_owned()];
         for _ in 0..5 {
-            let fixed = rustocop(dir.path(), &["--fix", "--only", selected, "x.rb"], "");
+            let fixed = rustocop(
+                dir.path(),
+                &["--fix", "--fix-passes", "1", "--only", selected, "x.rb"],
+                "",
+            );
             assert!(matches!(fixed.status.code(), Some(0 | 1)), "{fixed:?}");
             let current = std::fs::read_to_string(&path).unwrap();
             if fixed.status.code() == Some(0) {
@@ -2132,7 +2133,11 @@ fn brace_spacing_and_style_edits_resolve_whole_conflicts_deterministically() {
         // The insertion immediately before :x conflicts with HashSyntax's
         // contiguous symbol/rocket edit; defer the whole Style correction.
         assert!(snapshots[1].contains("{ :x => 1 }"), "{snapshots:?}");
-        let stable = rustocop(dir.path(), &["--fix", "--only", selected, "x.rb"], "");
+        let stable = rustocop(
+            dir.path(),
+            &["--fix", "--fix-passes", "1", "--only", selected, "x.rb"],
+            "",
+        );
         assert_eq!(stable.status.code(), Some(0), "{stable:?}");
         assert_eq!(
             stdout_lines(&stable).last().unwrap(),
@@ -3130,6 +3135,8 @@ fn trailing_empty_lines_and_trailing_whitespace_compose_in_explicit_passes() {
     let dir = project(&[("x.rb", before)]);
     let args = [
         "--fix",
+        "--fix-passes",
+        "1",
         "--only",
         "Layout/TrailingEmptyLines,Layout/TrailingWhitespace",
         "x.rb",
@@ -3630,6 +3637,56 @@ fn fix_rejects_stdin_without_touching_the_display_path() {
         std::fs::read_to_string(dir.path().join("x.rb")).unwrap(),
         "original\n"
     );
+}
+
+#[test]
+fn fix_repeats_passes_until_nothing_changes_and_fix_passes_limits_them() {
+    let source = "def func\n  return ({ :a => 'x' });\nend\n";
+    let dir = project(&[("x.rb", source)]);
+    let path = dir.path().join("x.rb");
+
+    let output = rustocop(dir.path(), &["--fix", "--fix-passes", "1", "x.rb"], "");
+    assert_eq!(output.status.code(), Some(1), "{output:?}");
+    assert!(output.stderr.is_empty(), "{output:?}");
+    assert_eq!(
+        std::fs::read_to_string(&path).unwrap(),
+        "def func\n  { :a => 'x' }\nend\n"
+    );
+
+    std::fs::write(&path, source).unwrap();
+    let output = rustocop(dir.path(), &["--fix", "x.rb"], "");
+    assert_eq!(output.status.code(), Some(0), "{output:?}");
+    assert!(output.stderr.is_empty(), "{output:?}");
+    assert_eq!(
+        std::fs::read_to_string(&path).unwrap(),
+        "def func\n  { a: \"x\" }\nend\n"
+    );
+
+    let output = rustocop(dir.path(), &["--fix", "x.rb"], "");
+    assert_eq!(output.status.code(), Some(0), "{output:?}");
+    assert!(
+        String::from_utf8_lossy(&output.stdout).contains("0 corrections applied"),
+        "{output:?}"
+    );
+}
+
+#[test]
+fn fix_passes_needs_fix_and_a_positive_number() {
+    let dir = project(&[("x.rb", "original\n")]);
+    for args in [
+        vec!["--fix-passes", "2", "x.rb"],
+        vec!["--fix", "--fix-passes", "0", "x.rb"],
+        vec!["--fix", "--fix-passes", "many", "x.rb"],
+    ] {
+        let output = rustocop(dir.path(), &args, "");
+        assert_eq!(output.status.code(), Some(2), "{args:?}: {output:?}");
+        assert!(output.stdout.is_empty(), "{args:?}: {output:?}");
+        assert_eq!(
+            std::fs::read_to_string(dir.path().join("x.rb")).unwrap(),
+            "original\n",
+            "{args:?}"
+        );
+    }
 }
 
 #[test]

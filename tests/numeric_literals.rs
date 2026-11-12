@@ -459,9 +459,9 @@ fn selected_and_default_peer_corrections_stabilize_without_cycles() {
         for pass in 0..4 {
             let before = fs::read(d.path().join("a.rb")).unwrap();
             let args = if let Some(c) = only {
-                vec!["--only", c, "--fix", "a.rb"]
+                vec!["--only", c, "--fix", "--fix-passes", "1", "a.rb"]
             } else {
-                vec!["--fix", "a.rb"]
+                vec!["--fix", "--fix-passes", "1", "a.rb"]
             };
             cli(d.path(), &args, if pass == 0 { 1 } else { 0 });
             stable |= before == fs::read(d.path().join("a.rb")).unwrap();

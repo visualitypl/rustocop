@@ -99,6 +99,7 @@ rustocop --only Style/IpAddresses  # force-enable an opt-in cop
 rustocop --except Lint/Debugger
 rustocop --format github           # GitHub Actions annotations
 rustocop --fix app lib             # apply safe corrections in place
+rustocop --fix --fix-passes 1 app  # apply a single correction pass
 cat file.rb | rustocop --stdin file.rb
 ```
 
@@ -147,12 +148,23 @@ $ rustocop --fix app
 1 file inspected, 1 correction applied, 4 offenses remaining
 ```
 
-Corrections are applied in one pass over the original source, then the file
-is re-linted so remaining offenses have accurate positions. Overlapping edits
-are resolved deterministically; the losing edit is reported again for the
-next run. Corrected source is validated before an atomic replacement that
-preserves permissions and symlinks, and a failed validation leaves the
-original unchanged. Disabled lines, path exclusions and files with syntax
+Corrections are applied in passes. Each pass applies its edits to the
+source, then lints the result again, so the next pass sees accurate positions
+and any corrections the last one made possible. Overlapping edits are
+resolved deterministically; the losing edit waits for the next pass. The
+passes repeat in memory until one changes nothing, and the file is written
+once.
+
+Two guards stop a file whose corrections do not settle: a pass that restores
+an earlier version of the file, and a limit of 200 passes. Either one is
+reported as an error for that file, which keeps the last validated version.
+`--fix-passes N` stops after N passes without an error; `--fix-passes 1`
+applies exactly one pass.
+
+Corrected source is validated before an atomic replacement that preserves
+permissions and symlinks. If the first pass fails validation, the original
+is left unchanged; if a later pass does, the earlier passes are kept and the
+failure is reported. Disabled lines, path exclusions and files with syntax
 errors are never rewritten. `--fix` cannot be combined with `--stdin`.
 
 ## Configuration

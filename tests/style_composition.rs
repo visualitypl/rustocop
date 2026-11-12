@@ -31,7 +31,7 @@ fn cli(dir: &Path, selection: &str, fix: bool) -> Output {
         c.args(["--only", "Style,Layout"]);
     }
     if fix {
-        c.arg("--fix");
+        c.args(["--fix", "--fix-passes", "1"]);
     }
     let o = c.arg("x.rb").output().unwrap();
     assert!(matches!(o.status.code(), Some(0 | 1)), "{o:?}");

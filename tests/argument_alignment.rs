@@ -142,7 +142,7 @@ fn actual_cli_lint_never_writes_and_all_corrections_are_canonical_or_explicit_ho
             }
         }
         unchanged(&path, &source, &old);
-        let out = run(d.path(), &["--fix", "--only", COP, "example.rb"]);
+        let out = run(d.path(), &["--fix", "--fix-passes", "1", "--only", COP, "example.rb"]);
         if rejected {
             assert_eq!(out.status.code(), Some(2), "{row}: {out:?}");
             unchanged(&path, &source, &old);
@@ -230,7 +230,7 @@ fn actual_cli_lint_never_writes_and_all_corrections_are_canonical_or_explicit_ho
                 break;
             }
             snapshots.push(current.clone());
-            let out = run(d.path(), &["--fix", "--only", COP, "example.rb"]);
+            let out = run(d.path(), &["--fix", "--fix-passes", "1", "--only", COP, "example.rb"]);
             assert_ne!(out.status.code(), Some(2), "{row}: {out:?}");
             let next = fs::read(&path).unwrap();
             if current == next {
@@ -239,7 +239,7 @@ fn actual_cli_lint_never_writes_and_all_corrections_are_canonical_or_explicit_ho
             current = next;
         }
         let old = fs::metadata(&path).unwrap();
-        run(d.path(), &["--fix", "--only", COP, "example.rb"]);
+        run(d.path(), &["--fix", "--fix-passes", "1", "--only", COP, "example.rb"]);
         unchanged(&path, &current, &old);
     });
     let edited = edited.load(Ordering::Relaxed);

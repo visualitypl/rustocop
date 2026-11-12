@@ -28,9 +28,16 @@ pub struct RunOptions {
     pub except: Vec<String>,
     /// `--stdin PATH`: read source from stdin, display it as PATH.
     pub stdin: Option<PathBuf>,
-    /// `--fix`: apply safe corrections to files in a single pass.
+    /// `--fix`: apply safe corrections to files, repeating passes until
+    /// nothing changes.
     pub fix: bool,
+    /// `--fix-passes N`: stop after N passes without an error. `None` runs
+    /// up to [`MAX_CORRECTION_PASSES`] and reports files that do not settle.
+    pub fix_passes: Option<usize>,
 }
+
+/// The most correction passes one `--fix` run makes over a file.
+pub const MAX_CORRECTION_PASSES: usize = 200;
 
 /// Exit code: clean run.
 pub const EXIT_CLEAN: i32 = 0;
@@ -208,6 +215,21 @@ pub fn run(
     if options.fix && options.stdin.is_some() {
         bail!("--fix cannot be used with --stdin; pass file paths to rewrite files");
     }
+    if options.fix_passes == Some(0) {
+        bail!("--fix-passes must be at least 1");
+    }
+    let passes = options.fix.then(|| {
+        options.fix_passes.map_or(
+            Passes {
+                max: MAX_CORRECTION_PASSES,
+                explicit: false,
+            },
+            |max| Passes {
+                max,
+                explicit: true,
+            },
+        )
+    });
     validate_selections(options, registry)?;
     let active = CopSelection::new(registry, config, &options.only, &options.except);
 
@@ -260,7 +282,7 @@ pub fn run(
                     bytes.as_deref(),
                     &active,
                     config,
-                    options.fix,
+                    passes,
                 )];
             }
             // Lint all aliases against the same snapshot, retaining path-specific
@@ -294,9 +316,15 @@ pub fn run(
                 })
                 .collect();
             match original {
-                Ok((bytes, metadata)) => {
-                    correct_files(read_path, &bytes, metadata, reports, &active, config)
-                }
+                Ok((bytes, metadata)) => correct_files(
+                    read_path,
+                    &bytes,
+                    metadata,
+                    reports,
+                    &active,
+                    config,
+                    passes.expect("alias groups exist only in fix mode"),
+                ),
                 Err(_) => reports,
             }
         })
@@ -359,7 +387,7 @@ pub fn lint_one(
         bytes,
         &CopSelection::explicit(active, config),
         config,
-        false,
+        None,
     )
 }
 
@@ -481,7 +509,13 @@ enum CorrectionMode {
     None,
     /// Generate corrections without writing; used to merge alias eligibility.
     Collect,
-    Apply,
+    Apply(Passes),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct Passes {
+    max: usize,
+    explicit: bool,
 }
 
 /// Byte ownership and disk/load-path provenance are independent: alias groups
@@ -504,7 +538,7 @@ fn lint_one_with_fix(
     bytes: Option<&[u8]>,
     active: &CopSelection<'_>,
     config: &ResolvedConfig,
-    fix: bool,
+    passes: Option<Passes>,
 ) -> FileReport {
     lint_one_in_mode(
         read_path,
@@ -512,11 +546,7 @@ fn lint_one_with_fix(
         bytes.into(),
         active,
         config,
-        if fix {
-            CorrectionMode::Apply
-        } else {
-            CorrectionMode::None
-        },
+        passes.map_or(CorrectionMode::None, CorrectionMode::Apply),
     )
 }
 
@@ -843,9 +873,9 @@ fn lint_file(
         report.heredoc_boundaries = file.cached_heredoc_boundaries().cloned();
     }
     report.result.offenses = offenses;
-    if mode != CorrectionMode::Apply {
+    let CorrectionMode::Apply(passes) = mode else {
         return report;
-    }
+    };
     correct_files(
         read_path,
         &file.bytes,
@@ -853,6 +883,7 @@ fn lint_file(
         vec![report],
         active,
         config,
+        passes,
     )
     .pop()
     .unwrap()
@@ -862,8 +893,12 @@ fn sort_global_offenses(offenses: &mut [GlobalOffense]) {
     offenses.sort_by(|a, b| (a.cop, a.message.as_str()).cmp(&(b.cop, b.message.as_str())));
 }
 
-/// Merge eligible corrections across aliases, write once, and retain a separate
-/// post-fix report for each display path. Any failing alias prevents the write.
+/// Merge eligible corrections across aliases, repeat passes in memory until a
+/// pass changes nothing, write once, and retain a separate post-fix report for
+/// each display path. A first pass that fails validation prevents the write;
+/// a later one keeps the passes already validated. Passes stop with an error
+/// when one restores an earlier version of the file or the built-in limit is
+/// reached; an explicit `--fix-passes` limit stops without an error.
 fn correct_files(
     read_path: &Path,
     original: &[u8],
@@ -871,6 +906,7 @@ fn correct_files(
     mut reports: Vec<FileReport>,
     active: &CopSelection<'_>,
     config: &ResolvedConfig,
+    passes: Passes,
 ) -> Vec<FileReport> {
     // A known opaque loading alias or disk destination vetoes source writes.
     // Input eligibility still follows supplied names, not canonical targets;
@@ -886,73 +922,127 @@ fn correct_files(
     {
         return reports;
     }
-    let mut safe: Vec<_> = reports
-        .iter()
-        .flat_map(|report| &report.result.offenses)
-        .filter(|offense| {
-            active
-                .enabled
-                .iter()
-                .chain(&active.disabled)
-                .any(|cop| cop.name() == offense.cop && cop.safe_fixes())
-        })
-        .cloned()
-        .collect();
-    // Aliases can contribute disjoint candidates which were never considered
-    // together by a cop run. Reuse their original main-parse evidence, not a
-    // second parse, and prove the union before conflict selection.
-    if let Some(boundaries) = reports.iter().find_map(|r| r.heredoc_boundaries.as_ref()) {
-        boundaries.filter(original, &mut safe);
-    }
     let display_path = reports[0].result.path.clone();
-    let applied = match crate::corrections::apply(original, &safe) {
-        Ok(applied) => applied,
-        Err(error) => {
-            reports[0].errors.push(LintError {
-                path: display_path.clone(),
-                position: None,
-                message: format!("could not apply corrections: {error}"),
+    let max_passes = passes.max;
+    let mut seen = HashSet::from([content_key(original)]);
+    let mut accepted: Option<(Vec<u8>, Vec<FileReport>)> = None;
+    let mut total = 0;
+    let mut done = 0;
+    let mut stopped = None;
+    loop {
+        let (source, pending) = accepted
+            .as_ref()
+            .map_or((original, &reports), |(bytes, pending)| {
+                (bytes.as_slice(), pending)
             });
-            return reports;
+        let mut safe: Vec<_> = pending
+            .iter()
+            .flat_map(|report| &report.result.offenses)
+            .filter(|offense| {
+                active
+                    .enabled
+                    .iter()
+                    .chain(&active.disabled)
+                    .any(|cop| cop.name() == offense.cop && cop.safe_fixes())
+            })
+            .cloned()
+            .collect();
+        // Aliases can contribute disjoint candidates which were never considered
+        // together by a cop run. Reuse their original main-parse evidence, not a
+        // second parse, and prove the union before conflict selection.
+        if let Some(boundaries) = pending.iter().find_map(|r| r.heredoc_boundaries.as_ref()) {
+            boundaries.filter(source, &mut safe);
         }
-    };
-    if applied.count == 0 {
-        return reports;
-    }
-    // Re-lint each display path exactly once to validate the new Ruby and
-    // report current positions (including unsafe, unfixable and deferred edits).
-    let mut corrected: Vec<_> = reports
-        .iter()
-        .map(|report| {
-            lint_one_in_mode(
-                read_path,
-                &report.result.path,
-                SourceInput::DiskSnapshot(&applied.bytes, metadata),
-                active,
-                config,
-                CorrectionMode::None,
-            )
-        })
-        .collect();
-    if corrected
-        .iter()
-        .any(|report| !report.errors.is_empty() || !report.internal_errors.is_empty())
-    {
-        for (report, corrected) in reports.iter_mut().zip(&mut corrected) {
-            if !corrected.errors.is_empty() || !corrected.internal_errors.is_empty() {
-                report.errors.push(LintError {
-                    path: report.result.path.clone(),
-                    position: None,
-                    message: "corrections failed validation; file left unchanged".into(),
-                });
+        let applied = match crate::corrections::apply(source, &safe) {
+            Ok(applied) => applied,
+            Err(error) => {
+                stopped = Some(format!("could not apply corrections: {error}"));
+                break;
+            }
+        };
+        if applied.count == 0 {
+            break;
+        }
+        if done == max_passes {
+            if !passes.explicit {
+                stopped = Some(format!(
+                    "corrections did not settle after {max_passes} passes"
+                ));
+            }
+            break;
+        }
+        let relint_mode = if passes.explicit && done + 1 == max_passes {
+            CorrectionMode::None
+        } else {
+            CorrectionMode::Collect
+        };
+        if max_passes > 1 && !seen.insert(content_key(&applied.bytes)) {
+            stopped = Some(
+                "corrections restored an earlier version of the file; later passes were skipped"
+                    .into(),
+            );
+            break;
+        }
+        // Re-lint each display path once per pass to validate the new Ruby and
+        // report current positions (including unsafe, unfixable and deferred edits).
+        let mut next: Vec<_> = pending
+            .iter()
+            .map(|report| {
+                lint_one_in_mode(
+                    read_path,
+                    &report.result.path,
+                    SourceInput::DiskSnapshot(&applied.bytes, metadata),
+                    active,
+                    config,
+                    relint_mode,
+                )
+            })
+            .collect();
+        if next
+            .iter()
+            .any(|report| !report.errors.is_empty() || !report.internal_errors.is_empty())
+        {
+            let Some((_, kept)) = accepted.as_mut() else {
+                for (report, corrected) in reports.iter_mut().zip(&mut next) {
+                    if !corrected.errors.is_empty() || !corrected.internal_errors.is_empty() {
+                        report.errors.push(LintError {
+                            path: report.result.path.clone(),
+                            position: None,
+                            message: "corrections failed validation; file left unchanged".into(),
+                        });
+                        report
+                            .internal_errors
+                            .append(&mut corrected.internal_errors);
+                    }
+                }
+                return reports;
+            };
+            for (report, corrected) in kept.iter_mut().zip(&mut next) {
                 report
                     .internal_errors
                     .append(&mut corrected.internal_errors);
             }
+            stopped = Some(format!(
+                "corrections failed validation after {done} applied passes; \
+                 later corrections were not applied"
+            ));
+            break;
+        }
+        total += applied.count;
+        done += 1;
+        accepted = Some((applied.bytes, next));
+    }
+    let Some((bytes, mut corrected)) = accepted else {
+        if let Some(message) = stopped {
+            reports[0].errors.push(LintError {
+                path: display_path,
+                position: None,
+                message,
+            });
         }
         return reports;
-    }
-    if let Err(error) = write_corrected(read_path, original, &applied.bytes) {
+    };
+    if let Err(error) = write_corrected(read_path, original, &bytes) {
         reports[0].errors.push(LintError {
             path: display_path,
             position: None,
@@ -960,8 +1050,23 @@ fn correct_files(
         });
         return reports;
     }
-    corrected[0].corrections_applied = applied.count;
+    corrected[0].corrections_applied = total;
+    if let Some(message) = stopped {
+        corrected[0].errors.push(LintError {
+            path: display_path,
+            position: None,
+            message,
+        });
+    }
     corrected
+}
+
+fn content_key(bytes: &[u8]) -> (usize, u64) {
+    use std::hash::{Hash, Hasher};
+
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    bytes.hash(&mut hasher);
+    (bytes.len(), hasher.finish())
 }
 
 /// Capture bytes and optional facts from one opened input. A failed metadata

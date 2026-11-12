@@ -28,7 +28,7 @@ fn correct(root: &Path, before: &[u8], after: &[u8], selectors: &str) {
     fs::write(root.join("a.rb"), before).unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
-        .args(["--only", selectors, "--fix", "a.rb"])
+        .args(["--only", selectors, "--fix", "--fix-passes", "1", "a.rb"])
         .output()
         .unwrap();
     assert_ne!(output.status.code(), Some(2), "{output:?}");
@@ -311,7 +311,11 @@ fn operand_boundaries_preserve_native_ruby34_values_captures_and_effects() {
                 let after =
                     format!("{header}{prefix}(value {keyword} condition){suffix}p $events\n");
                 correct(d.path(), before.as_bytes(), after.as_bytes(), COP);
-                cli(d.path(), &["--only", COP, "--fix", "a.rb"], 0);
+                cli(
+                    d.path(),
+                    &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+                    0,
+                );
                 let events = if prefix.contains("defined?") {
                     "[]\n"
                 } else if enabled {
@@ -344,7 +348,11 @@ fn operand_boundaries_preserve_native_ruby34_values_captures_and_effects() {
         ),
     ] {
         correct(d.path(), before.as_bytes(), after.as_bytes(), COP);
-        cli(d.path(), &["--only", COP, "--fix", "a.rb"], 0);
+        cli(
+            d.path(),
+            &["--only", COP, "--fix", "--fix-passes", "1", "a.rb"],
+            0,
+        );
         for source in [before, after] {
             let result = ruby(source.as_bytes(), &program);
             assert!(result.status.success(), "{source}: {result:?}");
@@ -398,7 +406,7 @@ fn mixed_style_layout_edits_are_atomic_deterministic_single_passes() {
     for _ in 0..6 {
         let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
             .current_dir(d.path())
-            .args(["--only", selected, "--fix", "a.rb"])
+            .args(["--only", selected, "--fix", "--fix-passes", "1", "a.rb"])
             .output()
             .unwrap();
         assert_ne!(output.status.code(), Some(2), "{output:?}");
@@ -431,7 +439,7 @@ fn mixed_style_layout_edits_are_atomic_deterministic_single_passes() {
         for _ in 0..6 {
             let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
                 .current_dir(d.path())
-                .args(["--only", selected, "--fix", "a.rb"])
+                .args(["--only", selected, "--fix", "--fix-passes", "1", "a.rb"])
                 .output()
                 .unwrap();
             assert_ne!(output.status.code(), Some(2), "{output:?}");

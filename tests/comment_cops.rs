@@ -293,17 +293,29 @@ fn mixed_style_layout_and_newly_exposed_annotations_stabilize_in_two_passes() {
     let before = "=begin\nTODO improve this\n=end\nx = 'text';  \nx\n";
     fs::write(&path, before).unwrap();
     let only = "Style/BlockComments,Style/CommentAnnotation,Style/StringLiterals,Style/Semicolon,Layout/TrailingWhitespace";
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 1);
+    cli(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        1,
+    );
     assert_eq!(
         fs::read(&path).unwrap(),
         b"# TODO improve this\nx = \"text\"\nx\n"
     );
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 0);
+    cli(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        0,
+    );
     assert_eq!(
         fs::read(&path).unwrap(),
         b"# TODO: improve this\nx = \"text\"\nx\n"
     );
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 0);
+    cli(
+        dir.path(),
+        &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
+        0,
+    );
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
 }

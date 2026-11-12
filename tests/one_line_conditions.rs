@@ -139,7 +139,10 @@ fn all_pinned_correction_calls_run_through_cli() {
                 (source.to_owned(), after.to_owned())
             };
             fs::write(d.path().join("a.rb"), &source).unwrap();
-            let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
+            let o = cli(
+                d.path(),
+                &["--only", cop, "--fix", "--fix-passes", "1", "a.rb"],
+            );
             assert_ne!(o.status.code(), Some(2), "{c}: {o:?}");
             assert_eq!(
                 fs::read_to_string(d.path().join("a.rb")).unwrap(),
@@ -155,7 +158,7 @@ fn all_pinned_correction_calls_run_through_cli() {
                     d.path(),
                     cop,
                     after.as_bytes(),
-                    &["--only", cop, "--fix", "a.rb"],
+                    &["--only", cop, "--fix", "--fix-passes", "1", "a.rb"],
                     0,
                 );
             }
