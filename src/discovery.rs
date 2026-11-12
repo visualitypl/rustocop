@@ -77,6 +77,8 @@ fn push_candidate(
 /// without a leading `./`. Only the display name changes, not the disk path;
 /// interior parent components are preserved rather than resolving through symlinks.
 /// Leading `..` in a relative input walks the actual cwd before rebasing it.
+/// An absolute input that reaches the root through a symlinked directory is
+/// rebased at the outermost prefix naming the root; the rest stays as supplied.
 pub fn display_path(path: &Path, config_root: &Path) -> PathBuf {
     let absolute;
     let relative = if path.is_relative() && config_root.is_absolute() {
@@ -98,7 +100,10 @@ pub fn display_path(path: &Path, config_root: &Path) -> PathBuf {
         absolute = base.join(components.as_path());
         absolute.strip_prefix(config_root).unwrap_or(path)
     } else {
-        path.strip_prefix(config_root).unwrap_or(path)
+        path.strip_prefix(config_root)
+            .ok()
+            .or_else(|| strip_root_alias(path, config_root))
+            .unwrap_or(path)
     };
     // Components remove interior `.` too, without resolving `..` or symlinks.
     relative
@@ -106,6 +111,36 @@ pub fn display_path(path: &Path, config_root: &Path) -> PathBuf {
         .unwrap_or(relative)
         .components()
         .collect()
+}
+
+fn strip_root_alias<'a>(path: &'a Path, config_root: &Path) -> Option<&'a Path> {
+    if !path.is_absolute() || !config_root.is_absolute() {
+        return None;
+    }
+    let root = directory_identity(config_root)?;
+    let mut prefixes: Vec<&Path> = path.ancestors().skip(1).collect();
+    prefixes.reverse();
+    prefixes
+        .into_iter()
+        .find(|prefix| directory_identity(prefix).as_ref() == Some(&root))
+        .and_then(|prefix| path.strip_prefix(prefix).ok())
+}
+
+#[cfg(unix)]
+fn directory_identity(path: &Path) -> Option<(u64, u64)> {
+    use std::os::unix::fs::MetadataExt;
+
+    let metadata = std::fs::metadata(path).ok()?;
+    metadata.is_dir().then(|| (metadata.dev(), metadata.ino()))
+}
+
+#[cfg(not(unix))]
+fn directory_identity(path: &Path) -> Option<PathBuf> {
+    let metadata = std::fs::metadata(path).ok()?;
+    if !metadata.is_dir() {
+        return None;
+    }
+    std::fs::canonicalize(path).ok()
 }
 
 #[cfg(test)]
@@ -177,6 +212,66 @@ mod tests {
                 expected,
                 "{path}"
             );
+        }
+    }
+
+    #[cfg(unix)]
+    fn symlinked_project() -> (tempfile::TempDir, PathBuf, PathBuf) {
+        use std::os::unix::fs::symlink;
+
+        let tmp = tempfile::tempdir().unwrap();
+        let base = std::fs::canonicalize(tmp.path()).unwrap();
+        let root = base.join("real/project");
+        std::fs::create_dir_all(root.join("lib")).unwrap();
+        std::fs::create_dir_all(base.join("outside")).unwrap();
+        std::fs::write(root.join("lib/a.rb"), "1").unwrap();
+        symlink(&root, base.join("alias")).unwrap();
+        symlink(base.join("real"), base.join("parent_alias")).unwrap();
+        symlink(root.join("lib"), root.join("linked")).unwrap();
+        symlink(root.join("lib/a.rb"), base.join("outside/link.rb")).unwrap();
+        (tmp, base, root)
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn display_paths_rebase_absolute_paths_through_symlinks_to_the_root() {
+        let (_tmp, base, root) = symlinked_project();
+        for (path, expected) in [
+            ("alias/lib/a.rb", "lib/a.rb"),
+            ("parent_alias/project/lib/a.rb", "lib/a.rb"),
+            ("alias/linked/a.rb", "linked/a.rb"),
+            ("alias/lib/../lib/a.rb", "lib/../lib/a.rb"),
+            ("alias/lib/missing.rb", "lib/missing.rb"),
+        ] {
+            assert_eq!(
+                display_path(&base.join(path), &root),
+                Path::new(expected),
+                "{path}"
+            );
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn display_paths_keep_file_symlinks_and_unrelated_paths_outside_the_root() {
+        let (_tmp, base, root) = symlinked_project();
+        for path in ["outside/link.rb", "outside/other.rb", "real/sibling.rb"] {
+            let path = base.join(path);
+            assert_eq!(display_path(&path, &root), path);
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn excludes_apply_to_absolute_paths_through_symlinks_to_the_root() {
+        let (_tmp, base, root) = symlinked_project();
+        let excludes = compile_globs(&["lib/a.rb".to_string()], "test").unwrap();
+        for path in ["alias/lib/a.rb", "alias", "parent_alias/project/lib"] {
+            let supplied = base.join(path);
+            let files = collect_files(std::slice::from_ref(&supplied), &root, &[]).unwrap();
+            assert_eq!(files.len(), 1, "{path}: {files:?}");
+            let files = collect_files(&[supplied], &root, &excludes).unwrap();
+            assert!(files.is_empty(), "{path}: {files:?}");
         }
     }
 

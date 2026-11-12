@@ -887,6 +887,54 @@ fn config_excludes_and_selectors_also_prevent_fixes() {
     assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), b"before\n");
 }
 
+#[cfg(unix)]
+#[test]
+fn excludes_hold_for_absolute_paths_through_a_symlink_to_the_root() {
+    let tmp = tempfile::tempdir().unwrap();
+    let base = fs::canonicalize(tmp.path()).unwrap();
+    let root = base.join("project");
+    fs::create_dir(&root).unwrap();
+    fs::write(root.join("x.rb"), "before\n").unwrap();
+    std::os::unix::fs::symlink(&root, base.join("alias")).unwrap();
+    let supplied = [base.join("alias/x.rb")];
+    let fix = RunOptions {
+        fix: true,
+        ..RunOptions::default()
+    };
+    let mut config = ResolvedConfig {
+        root: root.clone(),
+        ..ResolvedConfig::default()
+    };
+
+    let report = run(&supplied, &RunOptions::default(), &config, &registry()).unwrap();
+    assert_eq!(report.offense_count(), 1);
+    assert_eq!(report.results[0].path, Path::new("x.rb"));
+
+    config.cop_settings.insert(
+        "Style/SafeFix".into(),
+        crate::config::CopSettings {
+            excludes: crate::config::compile_globs(&["x.rb"], "test").unwrap(),
+            ..Default::default()
+        },
+    );
+    let report = run(&supplied, &fix, &config, &registry()).unwrap();
+    assert_eq!(report.files_inspected, 1);
+    assert_eq!(report.offense_count(), 0);
+    assert_eq!(report.corrections_applied, 0);
+    assert_eq!(fs::read(root.join("x.rb")).unwrap(), b"before\n");
+
+    config.cop_settings.clear();
+    config.global_excludes = crate::config::compile_globs(&["x.rb"], "test").unwrap();
+    let report = run(&supplied, &fix, &config, &registry()).unwrap();
+    assert_eq!(report.files_inspected, 0);
+    assert_eq!(fs::read(root.join("x.rb")).unwrap(), b"before\n");
+
+    config.global_excludes.clear();
+    let report = run(&supplied, &fix, &config, &registry()).unwrap();
+    assert_eq!(report.corrections_applied, 1);
+    assert_eq!(fs::read(root.join("x.rb")).unwrap(), b"after\n");
+}
+
 #[test]
 fn remaining_positions_are_recomputed_after_length_changing_fixes() {
     let (dir, config) = project("before; risky\n");
