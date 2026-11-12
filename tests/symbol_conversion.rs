@@ -148,6 +148,7 @@ fn all_original_bytes_match_pipeline_cli_and_guarded_canonical_outputs() {
             .map(|(l, c, _, m)| format!("lib/a.rb:{l}:{c}: E: {m} ({COP})"))
             .collect();
         want.sort();
+        want.dedup();
         if row.get("reference_error").is_none() {
             assert_eq!(got, want, "{row}");
         }

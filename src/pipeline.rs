@@ -313,6 +313,13 @@ pub fn run(
             }
             errors.append(&mut file.errors);
             internal_errors.append(&mut file.internal_errors);
+            file.result.offenses.dedup_by(|later, kept| {
+                (later.line, later.col, later.cop, &later.message)
+                    == (kept.line, kept.col, kept.cop, &kept.message)
+            });
+            file.result
+                .global_offenses
+                .dedup_by(|later, kept| (later.cop, &later.message) == (kept.cop, &kept.message));
             results.push(file.result);
         });
 
@@ -1439,6 +1446,68 @@ mod tests {
         let found = lint_str_with(&[&MessageCop("Lint/Messages")], "work\n");
         let messages: Vec<_> = found.iter().map(|o| o.message.as_str()).collect();
         assert_eq!(messages, ["Alpha", "Zulu"]);
+    }
+
+    struct RepeatCop;
+
+    impl crate::cops::Cop for RepeatCop {
+        fn name(&self) -> &'static str {
+            "Lint/Repeat"
+        }
+
+        fn check_source(&self, _file: &SourceFile, out: &mut Vec<Offense>) {
+            for (end_line, message) in [(1, "Same"), (2, "Same"), (1, "Other")] {
+                out.push(Offense {
+                    correction: None,
+                    cop: self.name(),
+                    severity: self.severity(),
+                    message: message.to_string(),
+                    line: 1,
+                    end_line,
+                    col: 1,
+                });
+            }
+        }
+
+        fn check_filename(&self, _path: &Path, out: &mut Vec<GlobalOffense>) {
+            for _ in 0..2 {
+                out.push(GlobalOffense {
+                    cop: self.name(),
+                    severity: self.severity(),
+                    message: "Whole file".to_string(),
+                });
+            }
+        }
+    }
+
+    #[test]
+    fn a_run_reports_identical_offenses_once() {
+        let registry = Registry::from_cops(vec![Box::new(RepeatCop)]);
+        let report = run_files(&registry, &[("x.rb", "work\nmore\n")]);
+        let messages: Vec<_> = report.results[0]
+            .offenses
+            .iter()
+            .map(|o| o.message.as_str())
+            .collect();
+        assert_eq!(messages, ["Other", "Same"]);
+        assert_eq!(report.results[0].global_offenses.len(), 1);
+        assert_eq!(report.offense_count(), 3);
+        assert_eq!(lint_str_with(&[&RepeatCop], "work\nmore\n").len(), 3);
+    }
+
+    #[test]
+    fn nested_empty_blocks_at_one_position_are_reported_once() {
+        let report = run_files(
+            &Registry::new(),
+            &[("x.rb", "TracePoint.new(:line) {}.enable {}\n")],
+        );
+        let found: Vec<_> = report.results[0]
+            .offenses
+            .iter()
+            .filter(|o| o.cop == "Lint/EmptyBlock")
+            .map(|o| (o.line, o.col))
+            .collect();
+        assert_eq!(found, [(1, 1)]);
     }
 
     #[test]

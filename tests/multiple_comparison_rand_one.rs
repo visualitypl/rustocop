@@ -144,7 +144,10 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
                 assert_eq!(count(&out, cop), 0);
                 continue;
             }
-            let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+            let mut expected: Vec<Finding> =
+                serde_json::from_value(row["findings"].clone()).unwrap();
+            expected
+                .dedup_by(|later, kept| (later.0, later.1, &later.3) == (kept.0, kept.1, &kept.3));
             let out = unchanged(
                 dir.path(),
                 &bytes,

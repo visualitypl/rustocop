@@ -378,6 +378,57 @@ fn last_child(node: Node<'_>) -> Option<(Node<'_>, TailKind)> {
         Node::GlobalVariableWriteNode { .. } => {
             Some(node.as_global_variable_write_node().unwrap().value())
         }
+        Node::LocalVariableAndWriteNode { .. } => {
+            Some(node.as_local_variable_and_write_node().unwrap().value())
+        }
+        Node::LocalVariableOrWriteNode { .. } => {
+            Some(node.as_local_variable_or_write_node().unwrap().value())
+        }
+        Node::LocalVariableOperatorWriteNode { .. } => Some(
+            node.as_local_variable_operator_write_node()
+                .unwrap()
+                .value(),
+        ),
+        Node::InstanceVariableAndWriteNode { .. } => {
+            Some(node.as_instance_variable_and_write_node().unwrap().value())
+        }
+        Node::InstanceVariableOrWriteNode { .. } => {
+            Some(node.as_instance_variable_or_write_node().unwrap().value())
+        }
+        Node::InstanceVariableOperatorWriteNode { .. } => Some(
+            node.as_instance_variable_operator_write_node()
+                .unwrap()
+                .value(),
+        ),
+        Node::ClassVariableAndWriteNode { .. } => {
+            Some(node.as_class_variable_and_write_node().unwrap().value())
+        }
+        Node::ClassVariableOrWriteNode { .. } => {
+            Some(node.as_class_variable_or_write_node().unwrap().value())
+        }
+        Node::ClassVariableOperatorWriteNode { .. } => Some(
+            node.as_class_variable_operator_write_node()
+                .unwrap()
+                .value(),
+        ),
+        Node::GlobalVariableAndWriteNode { .. } => {
+            Some(node.as_global_variable_and_write_node().unwrap().value())
+        }
+        Node::GlobalVariableOrWriteNode { .. } => {
+            Some(node.as_global_variable_or_write_node().unwrap().value())
+        }
+        Node::GlobalVariableOperatorWriteNode { .. } => Some(
+            node.as_global_variable_operator_write_node()
+                .unwrap()
+                .value(),
+        ),
+        Node::ConstantAndWriteNode { .. } => {
+            Some(node.as_constant_and_write_node().unwrap().value())
+        }
+        Node::ConstantOrWriteNode { .. } => Some(node.as_constant_or_write_node().unwrap().value()),
+        Node::ConstantOperatorWriteNode { .. } => {
+            Some(node.as_constant_operator_write_node().unwrap().value())
+        }
         Node::ConstantWriteNode { .. } => Some(node.as_constant_write_node().unwrap().value()),
         Node::ConstantPathWriteNode { .. } => {
             Some(node.as_constant_path_write_node().unwrap().value())
@@ -426,6 +477,28 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == "Style/DoubleNegation")
             .collect()
+    }
+    #[test]
+    fn compound_variable_assignments_end_a_method_with_their_value() {
+        for (source, col) in [
+            ("def a\n  @a ||= { x: !!b }\nend\n", 15),
+            ("def a\n  @a &&= { x: !!b }\nend\n", 15),
+            ("def a\n  @@a ||= { x: !!b }\nend\n", 16),
+            ("def a\n  $a ||= { x: !!b }\nend\n", 15),
+            ("def a\n  a ||= { x: !!b }\nend\n", 14),
+            ("def a\n  a += { x: !!b }\nend\n", 13),
+        ] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col), (2, col), "{source}");
+        }
+        for source in [
+            "def a\n  @a ||= !!b\nend\n",
+            "def a\n  @a ||= [!!b]\nend\n",
+            "def a\n  @a += !!b\nend\n",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
     }
     #[test]
     fn reports_exact_outer_selector_and_never_corrects() {

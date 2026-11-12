@@ -41,7 +41,7 @@ module Oracle
     end
 
     def expected_positions
-      expectation.offenses.map { |o| [o.line, o.col] }
+      expectation.offenses.uniq { |o| [o.line, o.col, o.message] }.map { |o| [o.line, o.col] }
     end
 
     def actual_positions

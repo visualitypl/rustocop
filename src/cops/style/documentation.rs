@@ -550,6 +550,11 @@ fn mixins_only(node: &Node<'_>) -> bool {
                 && range.right().is_some_and(|right| mixins_only(&right))
         }
         Node::DefinedNode { .. } => mixins_only(&node.as_defined_node().unwrap().value()),
+        Node::SingletonClassNode { .. } => {
+            let singleton = node.as_singleton_class_node().unwrap();
+            mixins_only(&singleton.expression())
+                && singleton.body().is_some_and(|body| mixins_only(&body))
+        }
         Node::WhileNode { .. } => {
             let expr = node.as_while_node().unwrap();
             mixins_only(&expr.predicate())
@@ -618,6 +623,8 @@ mod tests {
             "module Foo; extend ::Bar; end",
             "module Foo; prepend A::B; end",
             "module Foo; include A; include B; extend C; prepend D; end",
+            "module ::Foo; class << self; prepend A; prepend B; end; end",
+            "class Foo; class << self; include A; end; end",
             "A = Class.new { def method; end }; B = Module.new { def method; end }",
             "class << self; def method; end; end",
             "def method; end",
@@ -638,6 +645,9 @@ mod tests {
             "belongs_to :bar",
             "if //; end",
             "class << self; def foo; end; end",
+            "class << self; end",
+            "class << Bar; include A; end",
+            "class << self; include A; def foo; end; end",
         ] {
             assert_offense(&format!("class C\n  {body}\nend"), 1, 1, "class C");
         }

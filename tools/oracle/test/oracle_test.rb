@@ -3256,7 +3256,9 @@ end
 
 class CaseTest < Minitest::Test
   def kase(expected, actual, errors = [])
-    offenses = expected.map { |line, col| Oracle::ExpectedOffense.new(line, col, 1, "m") }
+    offenses = expected.map do |line, col, message = "m"|
+      Oracle::ExpectedOffense.new(line, col, 1, message)
+    end
     expectation = Oracle::Expectation.new(offenses: offenses, source: "x\n")
     Oracle::Case.new(id: "abc", expectation: expectation, toml: {},
                      actual: actual.map { |line, col| { line: line, col: col } },
@@ -3268,10 +3270,15 @@ class CaseTest < Minitest::Test
   end
 
   def test_misses_and_false_positives_are_multiset_differences
-    found = kase([[1, 1], [1, 1], [2, 3]], [[1, 1], [2, 4]])
+    found = kase([[1, 1, "a"], [1, 1, "b"], [2, 3]], [[1, 1], [2, 4]])
     assert_equal [[1, 1], [2, 3]], found.misses
     assert_equal [[2, 4]], found.false_positives
     assert_equal "miss 1:1 2:3; fp 2:4", found.signature
+  end
+
+  def test_identical_expected_offenses_count_once_like_the_rubocop_runner
+    assert_nil kase([[1, 1], [1, 1]], [[1, 1]]).signature
+    assert_equal "fp 1:1", kase([[1, 1], [1, 1]], [[1, 1], [1, 1]]).signature
   end
 
   def test_parse_errors_are_part_of_the_signature

@@ -81,7 +81,7 @@ impl Cop for IfUnlessModifier {
             && !c.other
             && !index.shared.contains(&node.location().start_offset())
             && !conditions.assignment
-            && !c.condition.as_match_write_node().is_some()
+            && !regexp_match_statement(&c.condition)
             && !semantic_parent(cx).is_some_and(|p| {
                 p.as_call_node()
                     .is_some_and(|call| call.receiver().is_some_and(|r| same(&r, node)))
@@ -950,6 +950,17 @@ thread_local! { static CORRECTION_INDEX_VISITS: std::cell::Cell<usize> = const {
 thread_local! { static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
 #[cfg(test)]
 thread_local! { static INDEX_VISITS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+fn regexp_match_statement(condition: &Node<'_>) -> bool {
+    condition.as_match_write_node().is_some()
+        || condition.as_call_node().is_some_and(|call| {
+            call.name().as_slice() == b"=~"
+                && call.call_operator_loc().is_none()
+                && call
+                    .receiver()
+                    .is_some_and(|receiver| receiver.as_regular_expression_node().is_some())
+        })
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's if_unless_modifier_spec.rb and
@@ -968,6 +979,25 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == "Style/IfUnlessModifier")
             .collect()
+    }
+    #[test]
+    fn static_regexp_match_conditions_keep_the_block_form() {
+        for source in [
+            "if /\\Aevent_/ =~ name\n  work\nend\n",
+            "unless /\\Aevent_/ =~ name\n  work\nend\n",
+            "if /(?<head>\\w+)/ =~ name\n  work\nend\n",
+        ] {
+            assert!(found(source).is_empty(), "{source}");
+        }
+        for source in [
+            "if name =~ /\\Aevent_/\n  work\nend\n",
+            "if /#{prefix}_/ =~ name\n  work\nend\n",
+            "if /\\Aevent_/.=~(name)\n  work\nend\n",
+            "if /\\Aevent_/.match?(name)\n  work\nend\n",
+            "if (/\\Aevent_/ =~ name)\n  work\nend\n",
+        ] {
+            assert_eq!(found(source).len(), 1, "{source}");
+        }
     }
     #[test]
     fn canonical_safe_corrections() {

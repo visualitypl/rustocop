@@ -213,7 +213,13 @@ fn every_pinned_example_and_correction_runs_through_real_cli() {
         let cases: Vec<serde_json::Value> = serde_json::from_str(fixture).unwrap();
         for case in cases {
             let before = case["source"].as_str().unwrap();
-            let n = case["positions"].as_array().unwrap().len();
+            let positions: std::collections::BTreeSet<String> = case["positions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(ToString::to_string)
+                .collect();
+            let n = positions.len();
             let mut counts = [0, 0];
             counts[index] = n;
             let config = if index == 0 && case["spec_line"] == 404 {

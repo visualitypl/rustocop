@@ -35,7 +35,7 @@ impl Cop for RegexpLiteral {
             if !has_slash || !balanced_braces(body()) {
                 return;
             }
-        } else if has_slash || allowed_argument(node, cx, &regexp, file) {
+        } else if has_slash || allowed_argument(node, cx, &regexp) {
             return;
         }
         let (line, col) = file.line_col(regexp.opening.start_offset());
@@ -210,24 +210,32 @@ fn balanced_braces(bytes: impl Iterator<Item = u8>) -> bool {
     }
     depth == 0
 }
-fn allowed_argument(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    regexp: &Regexp<'_>,
-    file: &SourceFile,
-) -> bool {
+fn allowed_argument(node: &Node<'_>, cx: &NodeContext<'_, '_>, regexp: &Regexp<'_>) -> bool {
     let mut ancestors = cx.ancestors();
     let Some(parent) = ancestors.next() else {
         return false;
     };
+    let first = regexp
+        .fragments
+        .first()
+        .and_then(|fragment| fragment.as_slice().first().copied());
+    if let Some(call) = parent.as_call_node() {
+        let start = node.location().start_offset();
+        return call
+            .receiver()
+            .is_some_and(|receiver| receiver.location().start_offset() == start)
+            && !(call.name().as_slice() == b"=~"
+                && call.call_operator_loc().is_none()
+                && node.as_regular_expression_node().is_some())
+            && matches!(first, Some(b' ' | b'='));
+    }
     let Some(arguments) = parent.as_arguments_node() else {
         return false;
     };
     let Some(call) = ancestors.next().and_then(|n| n.as_call_node()) else {
         return false;
     };
-    let content = &file.bytes[regexp.opening.end_offset()..regexp.closing.start_offset()];
-    if matches!(content.first(), Some(b' ' | b'=')) {
+    if matches!(first, Some(b' ' | b'=')) {
         return true;
     }
     // Only the first argument matters. Collecting all siblings here would be
@@ -240,7 +248,7 @@ fn allowed_argument(
         && call.opening_loc().is_none()
         && !ast::is_operator_method(call.name().as_slice())
         && !call.name().as_slice().ends_with(b"=")
-        && content.first().is_some_and(u8::is_ascii_whitespace)
+        && first.is_some_and(|byte| byte.is_ascii_whitespace())
 }
 
 #[cfg(test)]
@@ -267,6 +275,29 @@ mod tests {
             "argument visits: {}",
             ast::CALL_ARGUMENT_VISITS.get()
         );
+    }
+    #[test]
+    fn percent_r_receivers_follow_the_static_content_and_the_call_shape() {
+        for source in [
+            "%r/#{name} (?<expression>.+?)/ =~ info\n",
+            "%r/#{name}=value/ =~ info\n",
+            "%r/ value/.match(info)\n",
+            "%r/=value/.match?(info)\n",
+            "%r/ value/ !~ info\n",
+        ] {
+            assert!(offenses(source).is_empty(), "{source}");
+        }
+        for (source, col) in [
+            ("%r/ value/ =~ info\n", 1),
+            ("%r/#{name}value/ =~ info\n", 1),
+            ("%r/value/.match(info)\n", 1),
+            ("%r/#{name}/ =~ info\n", 1),
+            ("x = %r/ value/\n", 5),
+        ] {
+            let found = offenses(source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!((found[0].line, found[0].col), (1, col), "{source}");
+        }
     }
     #[test]
     fn unicode_scalar_columns_and_regexp_options() {
