@@ -1,0 +1,52 @@
+FROM ubuntu:24.04
+ARG RUST_VERSION=1.99
+ARG RUBY34_VERSION=3.4.1
+ARG RUBOCOP_REVISION
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    RUSTOCOP_RUBY34=/opt/ruby-${RUBY34_VERSION}/bin/ruby \
+    RUBOCOP_SRC=/opt/rubocop \
+    CARGO_TARGET_DIR=/target \
+    CARGO_INCREMENTAL=0 \
+    CARGO_PROFILE_DEV_DEBUG=0
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        libclang-dev \
+        libffi-dev \
+        libgmp-dev \
+        libssl-dev \
+        libyaml-dev \
+        ruby \
+        ruby-dev \
+        zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://sh.rustup.rs \
+    | sh -s -- -y --profile minimal --default-toolchain "$RUST_VERSION" --component clippy,rustfmt
+
+RUN curl -fsSL "https://cache.ruby-lang.org/pub/ruby/${RUBY34_VERSION%.*}/ruby-${RUBY34_VERSION}.tar.gz" \
+    | tar -xz -C /tmp \
+    && cd "/tmp/ruby-${RUBY34_VERSION}" \
+    && ./configure --prefix="/opt/ruby-${RUBY34_VERSION}" --disable-install-doc \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf "/tmp/ruby-${RUBY34_VERSION}"
+
+RUN gem install --no-document prism:1.9.0 \
+    && gem install --no-document rubocop:1.92.0
+
+RUN git init -q "$RUBOCOP_SRC" \
+    && git -C "$RUBOCOP_SRC" fetch -q --depth 1 https://github.com/rubocop/rubocop.git "$RUBOCOP_REVISION" \
+    && git -C "$RUBOCOP_SRC" checkout -q FETCH_HEAD
+
+WORKDIR /work
+CMD ["sh", "-c", "cargo fmt --check && cargo clippy --all-targets --locked -- -D warnings && cargo build --locked && cargo test --locked"]

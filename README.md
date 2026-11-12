@@ -228,6 +228,40 @@ cargo run --example list_cops             # every registered cop name
 
 All three of fmt, clippy and test must be clean before a commit.
 
+**Tests in Docker.** The tests assume one environment: Ubuntu 24.04, its
+system Ruby 3.2 at `/usr/bin/ruby`, Ruby 3.4.1 built against the system
+OpenSSL, and the RuboCop checkout at the pinned revision.
+`tools/docker-test.sh` builds an image with exactly that and runs fmt, clippy
+and the tests in it. It gives the same result on every machine, the oracle
+always runs there, and it is what CI runs. Pass a command to run something
+else:
+
+```sh
+tools/docker-test.sh                      # fmt, clippy and all tests
+tools/docker-test.sh cargo test --lib     # any other command
+```
+
+A full run needs Docker with 8 GB of memory and about 15 GB of disk, and
+takes about 25 minutes. The source is mounted read-only. Build output stays
+in the Docker volume `rustocop-test-target`; remove it with
+`docker volume rm rustocop-test-target`.
+
+**Native runs.** Many tests run `ruby` from `PATH` and compare its output, so
+they need Ruby 3.2 or 3.3. `mise.toml` selects Ruby 3.2.6. With
+[mise](https://mise.jdx.dev) installed, set it up once and run cargo through
+it, in a shell with a UTF-8 locale:
+
+```sh
+mise install
+mise exec -- cargo test
+```
+
+A native run covers less than the Docker run. The checks against Ruby 3.4.1
+run only when `RUSTOCOP_RUBY34` names its executable, and they need the Linux
+tools `timeout` and `prlimit`. On macOS some tests fail, because
+`/usr/bin/ruby` is Ruby 2.6 there and the temporary directory sits behind a
+symlink.
+
 Every cop lives in its own file under `src/cops/<department>/`, implements the
 `Cop` trait and is registered in `Registry::new()` in `src/cops/mod.rs`.
 `src/cops/lint/debugger.rs` is the reference implementation. Tests sit next
