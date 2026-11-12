@@ -1,6 +1,7 @@
 FROM ubuntu:24.04
 ARG RUST_VERSION=1.99
 ARG RUBY34_VERSION=3.4.1
+ARG NEXTEST_VERSION=0.9.151
 ARG RUBOCOP_REVISION
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -33,6 +34,10 @@ RUN apt-get update \
 RUN curl -fsSL https://sh.rustup.rs \
     | sh -s -- -y --profile minimal --default-toolchain "$RUST_VERSION" --component clippy,rustfmt
 
+RUN case "$(uname -m)" in aarch64) platform=linux-arm ;; *) platform=linux ;; esac \
+    && curl -fsSL "https://get.nexte.st/${NEXTEST_VERSION}/${platform}" \
+    | tar -xz -C "$CARGO_HOME/bin"
+
 RUN curl -fsSL "https://cache.ruby-lang.org/pub/ruby/${RUBY34_VERSION%.*}/ruby-${RUBY34_VERSION}.tar.gz" \
     | tar -xz -C /tmp \
     && cd "/tmp/ruby-${RUBY34_VERSION}" \
@@ -49,4 +54,4 @@ RUN git init -q "$RUBOCOP_SRC" \
     && git -C "$RUBOCOP_SRC" checkout -q FETCH_HEAD
 
 WORKDIR /work
-CMD ["sh", "-c", "cargo fmt --check && cargo clippy --all-targets --locked -- -D warnings && cargo build --locked && cargo test --locked"]
+CMD ["sh", "-c", "cargo fmt --check && cargo clippy --all-targets --locked -- -D warnings && cargo build --locked && cargo nextest run --locked --no-fail-fast && cargo test --doc --locked"]

@@ -241,8 +241,10 @@ tools/docker-test.sh                      # fmt, clippy and all tests
 tools/docker-test.sh cargo test --lib     # any other command
 ```
 
-A full run needs Docker with 8 GB of memory and about 15 GB of disk, and
-takes about 25 minutes. The source is mounted read-only. Build output stays
+The tests run in parallel through
+[cargo-nextest](https://nexte.st). A full run needs Docker with 8 GB of
+memory and about 15 GB of disk. It takes about 6 minutes once the build
+output exists, and longer the first time. The source is mounted read-only. Build output stays
 in the Docker volume `rustocop-test-target`; remove it with
 `docker volume rm rustocop-test-target`.
 
