@@ -36,8 +36,6 @@ class OrdinaryLintPolicyTest < Minitest::Test
     FixedPolicy.stub(:implemented_cops, names + ['Lint/Syntax']) do
       assert_equal({ 'Lint/Syntax' => { 'Enabled' => true } }, FixedPolicy.reference_config(['Lint/Syntax']))
     end
-    refute_includes Oracle.implemented_cops, 'Lint/Syntax'
-    # No Syntax lifecycle examples are executed or declared covered here.
   end
 end
 

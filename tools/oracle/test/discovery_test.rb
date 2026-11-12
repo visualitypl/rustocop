@@ -72,9 +72,9 @@ class DiscoveryTest < Minitest::Test
 
   def test_unimplemented_lint_is_rejected_before_reference_lookup_or_baseline_writes
     _out, err = capture_io do
-      assert_equal 2, Oracle.main(['--rubocop', '/nonexistent', '--write-baseline', 'Lint/Syntax'])
+      assert_equal 2, Oracle.main(['--rubocop', '/nonexistent', '--write-baseline', 'Lint/NotImplemented'])
     end
-    assert_includes err, 'unknown or unimplemented cops: Lint/Syntax'
+    assert_includes err, 'unknown or unimplemented cops: Lint/NotImplemented'
   end
 
   def test_no_match_is_an_error_without_running_a_binary
