@@ -1,6 +1,5 @@
 //! pinned Ruby numeric idioms, CLI contracts and controlled observations.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

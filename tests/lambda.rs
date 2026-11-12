@@ -1,12 +1,11 @@
 //! real CLI, bytes, binding and controlled-runtime evidence.
+use crate::support::source_getter;
 use std::{
     fs,
     io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
-#[path = "support/source_getter.rs"]
-mod source_getter;
 const COP: &str = "Style/Lambda";
 const BEFORE: &str = "f = lambda { |x| x }\n";
 const AFTER: &str = "f = ->(x) { x }\n";

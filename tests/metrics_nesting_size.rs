@@ -9,8 +9,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 
 const COPS: [&str; 2] = ["Metrics/BlockNesting", "Metrics/CollectionLiteralLength"];
 const NESTING: &str = "Avoid more than 3 levels of block nesting.";

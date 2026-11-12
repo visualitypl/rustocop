@@ -1,6 +1,5 @@
 //! pinned examples, real CLI controls and unsafe-rewrite witnesses.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use serde::Deserialize;
 use std::{
     fs,

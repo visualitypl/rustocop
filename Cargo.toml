@@ -7,6 +7,7 @@ license = "MIT"
 description = "A blazing-fast, opinionated Ruby linter — zero-config by default, no Ruby runtime required"
 keywords = ["ruby", "linter", "rubocop", "static-analysis"]
 categories = ["command-line-utilities", "development-tools"]
+autotests = false
 
 [dependencies]
 anyhow = "1"
@@ -28,6 +29,10 @@ stacker = "0.1.25"
 [target.'cfg(unix)'.dependencies]
 # Safe effective-ID/group queries for Ruby File::Stat permission semantics.
 rustix = { version = "1", features = ["process"] }
+
+[[test]]
+name = "integration"
+path = "tests/main.rs"
 
 [dev-dependencies]
 serde_json = "1"

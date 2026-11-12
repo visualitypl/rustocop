@@ -1111,8 +1111,7 @@ fn native_ruby34_parses_all_reference_bytes_without_executing_them() {
         }
     }
 }
-#[path = "support/deprecated_constructor_native.rs"]
-mod native;
+use crate::support::deprecated_constructor_native as native;
 #[test]
 fn partial_negative_shift_cannot_erase_native_warnings_or_write_source() {
     let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {

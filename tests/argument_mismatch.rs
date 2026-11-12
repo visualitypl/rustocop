@@ -8,8 +8,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/ArgumentMismatch";
 const SOURCE: &str = "# Report.\nclass Report\n  def self.generate(source, format); end\nend\nReport.generate(source)\n";
 fn project() -> tempfile::TempDir {

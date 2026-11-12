@@ -1,12 +1,8 @@
 //! Bundler declaration family: source-only fixtures from the
 //! pinned RuboCop (MIT, (c) 2012-26 Bozhidar Batsov), replayed through the
 //! pipeline and the actual CLI. Gemfiles are linted, never evaluated.
+use crate::support::stdin;
 use rustocop::{config::ResolvedConfig, cops::Registry, offense::Severity, pipeline};
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
-#[path = "support/stdin.rs"]
-mod stdin;
 use std::{fs, path::Path, process::Command};
 
 /// The landed family members (registry order) and whether they are on by

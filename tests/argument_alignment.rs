@@ -5,9 +5,6 @@ use rustocop::{
     cops::{Registry, select_active},
     offense::Severity,
 };
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     path::Path,
@@ -722,8 +719,7 @@ fn native_ruby34_syntax_only_all_reference_sides_never_execute() {
         }
     }
 }
-#[path = "support/deprecated_constructor_native.rs"]
-mod native;
+use crate::support::deprecated_constructor_native as native;
 #[test]
 fn bounded_authored_source_and_code_object_observers_hold_real_files() {
     let Ok(ruby) = std::env::var("RUSTOCOP_RUBY34") else {

@@ -27,8 +27,7 @@ fn unchanged(dir: &Path, s: &[u8], args: &[&str], code: i32) -> std::process::Ou
     assert_eq!(fs::metadata(&p).unwrap().modified().unwrap(), time);
     o
 }
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 #[test]
 fn stdin_never_writes_and_fix_is_explicitly_rejected() {
     let d = project();

@@ -1,13 +1,12 @@
 //! source-only reference parity, real CLI and authored native controls.
 //! Ported RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::deprecated_constructor_native as native_guard;
 use std::{
     fs,
     io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
-#[path = "support/deprecated_constructor_native.rs"]
-mod native_guard;
 const BIG: &str = "Lint/BigDecimalNew";
 const ERB: &str = "Lint/ErbNewArguments";
 const BOTH: &str = "Lint/BigDecimalNew,Lint/ErbNewArguments";

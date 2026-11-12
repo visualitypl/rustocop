@@ -1,6 +1,5 @@
 //! fixed-policy detection-only array mapping cops.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use serde::Deserialize;
 use std::{
     fs,

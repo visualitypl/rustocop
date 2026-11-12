@@ -2,9 +2,8 @@
 //! CLI: supplied paths, selectors, opt-in, directives, encodings, fatal
 //! inputs, and the guarded corrections' no-write and atomic guarantees.
 //! Gemspecs and Gemfiles are linted, never evaluated.
+use crate::support::stdin;
 use rustocop::cops::Registry;
-#[path = "support/stdin.rs"]
-mod stdin;
 use std::{fs, path::Path, process::Command};
 
 const RUNTIME: &str = "Gemspec/AddRuntimeDependency";

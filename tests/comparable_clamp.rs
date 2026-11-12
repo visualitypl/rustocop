@@ -1,6 +1,5 @@
 //! pinned examples and controlled runtime witnesses (never corpus code).
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

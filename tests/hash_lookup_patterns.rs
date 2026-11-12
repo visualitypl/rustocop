@@ -1,6 +1,5 @@
 //! all three fixed hash suggestions are detection-only.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

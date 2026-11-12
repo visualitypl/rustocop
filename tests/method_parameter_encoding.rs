@@ -1,7 +1,4 @@
 //! Encoded parameter diagnostics remain detection-only.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::Write,

@@ -1,6 +1,5 @@
 //! keyword/hash identity and safe atomic brace removal through the CLI.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

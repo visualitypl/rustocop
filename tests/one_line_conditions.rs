@@ -1,7 +1,6 @@
 //! CLI policy, safe fixes and controlled Ruby semantic observations.
+use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
-#[path = "support/source_getter.rs"]
-mod source_getter;
 const ONE: &str = "Style/OneLineConditional";
 const PARENS: &str = "Style/ParenthesesAroundCondition";
 const BOTH: &str = "Style/OneLineConditional,Style/ParenthesesAroundCondition";

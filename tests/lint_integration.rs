@@ -15,10 +15,8 @@ use std::{
     process::{Command, Output},
 };
 
-#[path = "support/deprecated_constructor_native.rs"]
-mod native;
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::deprecated_constructor_native as native;
+use crate::support::stdin;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

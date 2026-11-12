@@ -1,7 +1,4 @@
 //! RuboCop MIT examples are SOURCE ONLY; authored native controls separate.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},

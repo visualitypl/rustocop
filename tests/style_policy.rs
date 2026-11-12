@@ -1,6 +1,5 @@
 //! Fixed-policy contract through the real CLI, using only implemented cops.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 
 use std::{
     fs,

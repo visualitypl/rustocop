@@ -411,9 +411,8 @@ fn source_based_nondecimal_and_already_canonical_findings_keep_bytes_and_mtime()
 }
 #[test]
 fn stdin_never_writes_to_the_named_disk_file() {
+    use crate::support::stdin;
     use std::process::Stdio;
-    #[path = "support/stdin.rs"]
-    mod stdin;
     let d = project();
     for (cop, source, _) in CASES {
         for fix in [false, true] {

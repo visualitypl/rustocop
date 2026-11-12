@@ -1,7 +1,6 @@
 //! real CLI controls, canonical corrections and controlled Ruby observations.
+use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
-#[path = "support/source_getter.rs"]
-mod source_getter;
 const MODIFIER: &str = "Style/NestedModifier";
 const TERNARY: &str = "Style/NestedTernaryOperator";
 const ALL: &str = "Style/NestedModifier,Style/NestedTernaryOperator";

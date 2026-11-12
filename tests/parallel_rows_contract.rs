@@ -1,7 +1,5 @@
 //! Contract for the std-only matrix runner used by slow fixture tests.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
+use crate::support::parallel_rows;
 
 use std::sync::{
     Arc, Barrier, Mutex,

@@ -1,6 +1,5 @@
 //! controlled programs only; no corpus Ruby is executed.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use serde::Deserialize;
 use std::{
     fs,

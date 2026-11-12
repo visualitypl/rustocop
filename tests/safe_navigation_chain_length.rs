@@ -5,8 +5,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 
 const COP: &str = "Style/SafeNavigationChainLength";
 const SOURCE: &str = "x&.a&.b&.c\n";

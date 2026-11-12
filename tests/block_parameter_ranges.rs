@@ -1,8 +1,5 @@
 //! exact fixed-pin ranges, native syntax and detection-only CLI.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{fs, process::Command};
 
 const COP: &str = "Naming/BlockParameterName";

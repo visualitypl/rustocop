@@ -1,6 +1,5 @@
 //! unsafe enumeration suggestions never change program behavior.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use serde::Deserialize;
 use std::{
     fs,

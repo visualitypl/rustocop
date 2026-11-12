@@ -281,8 +281,7 @@ fn command_literals_are_source_only_and_keep_command_ast_kinds() {
     }
 }
 
-#[path = "support/source_getter.rs"]
-mod source_getter;
+use crate::support::source_getter;
 
 fn ruby(dir: &Path) -> Output {
     Command::new("ruby")

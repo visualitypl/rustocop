@@ -1,12 +1,11 @@
 //! real CLI controls and independent, controlled Ruby observations.
+use crate::support::source_getter;
 use std::{
     fs,
     io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
-#[path = "support/source_getter.rs"]
-mod source_getter;
 const Q: &str = "Style/QuotedSymbols";
 const S: &str = "Style/SymbolLiteral";
 const V: &str = "Style/VariableInterpolation";

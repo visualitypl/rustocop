@@ -7,8 +7,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/UnusedPrivateMethod";
 const SOURCE: &str = "class Service\n  private\n\n  def helper\n  end\nend\n";
 fn project() -> tempfile::TempDir {

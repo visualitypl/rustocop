@@ -1,5 +1,7 @@
 //! Real filename lifecycle; RuboCop gem_filename_spec.rb examples
 //! ported under MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::deprecated_constructor_native as native;
+use crate::support::stdin as stdin_support;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, select_active},
@@ -10,10 +12,6 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
-#[path = "support/deprecated_constructor_native.rs"]
-mod native;
-#[path = "support/stdin.rs"]
-mod stdin_support;
 const COP: &str = "Bundler/GemFilename";
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();

@@ -1,6 +1,5 @@
 //! fixed zero-length policy and unsafe detection-only CLI contracts.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

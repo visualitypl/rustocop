@@ -8,8 +8,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/SuperArgumentMismatch";
 const SOURCE: &str = "class Base\n  def run(first, second); end\nend\nclass Child < Base\n  def run(first)\n    super(first)\n  end\nend\n";
 fn project() -> tempfile::TempDir {

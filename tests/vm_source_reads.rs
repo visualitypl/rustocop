@@ -1,9 +1,6 @@
 //! Execute only these controlled fixtures.
 //! Host compile_file retains lines; native 3.4.1 compile_file returns nil, while
 //! compile_file_prism and AST.parse_file retain lines. Do not conflate evidence.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{fs, path::Path, process::Command};
 
 const CASES: &[(&str, &str, &str)] = &[

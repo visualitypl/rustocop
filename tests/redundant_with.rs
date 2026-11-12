@@ -1,7 +1,4 @@
 //! RuboCop MIT spec replay is source-only; native runtime controls authored separately.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::Write,

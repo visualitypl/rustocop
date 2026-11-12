@@ -3,9 +3,8 @@
 //! the location-free missing finding, and RequireMFA's guarded corrections
 //! with their no-write and atomic guarantees. Gemspecs are linted, never
 //! evaluated.
+use crate::support::stdin;
 use rustocop::cops::Registry;
-#[path = "support/stdin.rs"]
-mod stdin;
 use std::{fs, path::Path, process::Command};
 
 const MFA: &str = "Gemspec/RequireMFA";

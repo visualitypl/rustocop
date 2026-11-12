@@ -1,6 +1,5 @@
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Cop, Registry, lint::MissingCopEnableDirective},

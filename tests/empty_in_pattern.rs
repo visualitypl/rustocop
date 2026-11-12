@@ -6,8 +6,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 
 const COP: &str = "Lint/EmptyInPattern";
 const SOURCE: &str = "case value\nin [a]\nend\n";

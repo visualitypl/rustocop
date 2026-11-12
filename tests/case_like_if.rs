@@ -317,8 +317,7 @@ fn source_envelopes_control_flow_and_error_files_never_change() {
         );
     }
 }
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 #[test]
 fn stdin_positions_and_no_write_contract() {
     let dir = project();

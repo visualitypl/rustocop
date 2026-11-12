@@ -7,9 +7,6 @@ use rustocop::{
         lint::{UselessMethodDefinition, UselessRuby2Keywords},
     },
 };
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},

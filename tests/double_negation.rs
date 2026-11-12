@@ -1,6 +1,5 @@
 //! pinned detection and unsafe/no-write CLI contracts.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

@@ -1,8 +1,5 @@
 //! Source-only pinned RescueType checks. Reference inputs never execute.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},

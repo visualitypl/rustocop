@@ -10,8 +10,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 
 const COPS: [&str; 3] = [
     "Metrics/CyclomaticComplexity",

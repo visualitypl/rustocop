@@ -1,7 +1,6 @@
 //! CLI controls and controlled Ruby semantic witnesses.
+use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
-#[path = "support/source_getter.rs"]
-mod source_getter;
 const IF: &str = "Style/MultilineIfThen";
 const TERNARY: &str = "Style/MultilineTernaryOperator";
 const WHEN: &str = "Style/MultilineWhenThen";

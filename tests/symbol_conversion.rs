@@ -1,7 +1,4 @@
 //! Source-only RuboCop MIT spec replay; authored native controls separate.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::Write,

@@ -1,7 +1,6 @@
 //! Pinned RuboCop specs (MIT, (c) 2012-26 Bozhidar Batsov).
 //! Runtime witnesses execute only controlled fixtures, never corpus code.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use std::{
     fs,
     path::Path,

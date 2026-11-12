@@ -294,8 +294,7 @@ fn bom_crlf_options_line_and_end_data_are_preserved() {
         }
     }
 }
-#[path = "support/source_getter.rs"]
-mod source_getter;
+use crate::support::source_getter;
 
 fn ruby(dir: &Path) -> Output {
     Command::new(std::env::var_os("RUSTOCOP_RUBY34").unwrap_or_else(|| "ruby".into()))

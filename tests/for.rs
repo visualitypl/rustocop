@@ -220,8 +220,7 @@ fn encoding_bom_crlf_literals_data_and_line_values_are_never_rewritten() {
     );
 }
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 #[test]
 fn stdin_reports_without_writing_and_rejects_fix() {
     let d = project();

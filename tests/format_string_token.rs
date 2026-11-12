@@ -1,8 +1,5 @@
 //! controlled ordinary Ruby only. Commands/command heredocs are
 //! tested as source and are NEVER executed by any runtime helper.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::Write,

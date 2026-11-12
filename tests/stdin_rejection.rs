@@ -1,6 +1,5 @@
 //! Test-only stdin protocol controls; no sleeps or scheduler-dependent pipe races.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 
 use std::{
     fs,

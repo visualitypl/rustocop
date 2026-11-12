@@ -8,8 +8,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/DeprecatedReference";
 const SOURCE: &str = "class Base\n  # @deprecated Use modern instead.\n  def old(first); end\nend\nclass Child < Base\n  def run(first)\n    self.old(first)\n  end\nend\n";
 fn project() -> tempfile::TempDir {

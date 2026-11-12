@@ -240,6 +240,15 @@ cargo run --example list_cops             # every registered cop name
 
 All three of fmt, clippy and test must be clean before a commit.
 
+**Test layout.** Every file in `tests/` is a module of one test program,
+`integration`. `tests/main.rs` lists the modules, so add a line there for a
+new test file; a test fails when a file is missing from the list. Shared
+helpers are in `tests/support/`. Run the tests of one file by its module name:
+
+```sh
+cargo test --test integration cli::
+```
+
 **Tests in Docker.** The tests assume one environment: Ubuntu 24.04, its
 system Ruby 3.2 at `/usr/bin/ruby`, Ruby 3.4.1 built against the system
 OpenSSL, and the RuboCop checkout at the pinned revision.
@@ -254,9 +263,10 @@ tools/docker-test.sh cargo test --lib     # any other command
 
 The tests run in parallel through
 [cargo-nextest](https://nexte.st). A full run needs Docker with 8 GB of
-memory and about 15 GB of disk. It takes about 6 minutes once the build
-output exists, and longer the first time. The source is mounted read-only. Build output stays
-in the Docker volume `rustocop-test-target`; remove it with
+memory and about 4 GB of disk. It takes about 8 minutes the first time and
+about 5 minutes once the build output exists. The source is mounted
+read-only. Build output stays in the Docker volume `rustocop-test-target`
+(about 1.4 GB); remove it with
 `docker volume rm rustocop-test-target`.
 
 **Native runs.** Many tests run `ruby` from `PATH` and compare its output, so

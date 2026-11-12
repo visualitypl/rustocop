@@ -1,7 +1,6 @@
 //! Pinned RuboCop examples (MIT, (c) 2012-26 Bozhidar Batsov),
 //! selectors and detection-only guarantees through the real pipeline and CLI.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use serde::Deserialize;
 use std::{
     fs,

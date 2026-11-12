@@ -1,6 +1,5 @@
 //! unsafe hash suggestions never modify Ruby.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 use serde::Deserialize;
 use std::{
     fs,

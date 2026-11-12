@@ -1,7 +1,6 @@
 //! real selectors/config/directives/no-write and controlled Ruby witnesses.
+use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
-#[path = "support/source_getter.rs"]
-mod source_getter;
 const MISSING: &str = "Style/MissingElse";
 const MULTI: &str = "Style/MultilineIfModifier";
 const BAD: &str = "[\n  work\n] if ready\n";

@@ -18,7 +18,7 @@ tools/oracle/oracle.rb Lint/Debugger            # one cop (or several)
 tools/oracle/oracle.rb                          # every registered cop
 tools/oracle/oracle.rb -v Style/Semicolon       # also known deviations, skips, errors
 tools/oracle/oracle.rb --write-baseline Lint/Void   # accept the current deviations
-cargo test --test rubocop_oracle                # what `cargo test` runs
+cargo test --test integration rubocop_oracle::  # what `cargo test` runs
 ruby tools/oracle/test/discovery_test.rb        # offline, no checkout/gems needed
 ruby tools/oracle/test/oracle_test.rb           # shim regression tests (checkout/gems)
 ```

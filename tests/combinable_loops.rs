@@ -190,8 +190,7 @@ fn source_envelopes_data_line_literals_clean_and_errors_are_never_written() {
     );
 }
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 #[test]
 fn stdin_reports_without_writing_and_rejects_fix() {
     let d = project();

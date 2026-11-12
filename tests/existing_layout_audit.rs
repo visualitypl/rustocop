@@ -12,8 +12,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 
 use rustocop::{cops::Registry, offense::Severity};
 

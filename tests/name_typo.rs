@@ -7,8 +7,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/NameTypo";
 const SOURCE: &str = "module Services\n  class UserCreator; VALUE = 1; end\nend\nclass Report\n  def self.generate_summary; end\nend\n::Services::UserCraetor.new\n::Report.generate_sumary\n";
 fn project() -> tempfile::TempDir {

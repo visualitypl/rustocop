@@ -1,8 +1,5 @@
 //! Source-only fixtures from RuboCop (MIT, (c) 2012-26 Bozhidar Batsov).
 use rustocop::{config::ResolvedConfig, cops::Registry, pipeline};
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{fs, path::Path, process::Command};
 const NAMES: [&str; 2] = [
     "Gemspec/AttributeAssignment",
@@ -192,10 +189,8 @@ fn cli(root: &Path, args: &[&str], input: Option<&[u8]>) -> std::process::Output
     drop(child.stdin.take());
     child.wait_with_output().unwrap()
 }
-#[path = "support/deprecated_constructor_native.rs"]
-mod native;
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::deprecated_constructor_native as native;
+use crate::support::stdin;
 fn count(out: &std::process::Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()

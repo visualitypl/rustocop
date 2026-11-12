@@ -204,8 +204,7 @@ fn defaults_selectors_config_excludes_directives_and_no_write() {
         unchanged(d.path(), b"a=1\n", &["--only", cop, "--fix", "a.rb"], 0);
     }
 }
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 #[test]
 fn stdin_reports_and_rejects_fix_without_writes() {
     let d = project();

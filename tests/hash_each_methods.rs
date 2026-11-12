@@ -1,6 +1,5 @@
 //! unsafe suggestions never rewrite Ruby. Controlled fixtures only.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 
 use std::{
     fs,

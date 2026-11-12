@@ -1,14 +1,12 @@
 //! Actual supplied-input CLI/native/atomic/no-write controls.
 //! No new cops are registered by this prerequisite.
+use crate::support::deprecated_constructor_native as native;
+use crate::support::stdin as stdin_support;
 use std::{
     fs,
     path::Path,
     process::{Command, Output, Stdio},
 };
-#[path = "support/deprecated_constructor_native.rs"]
-mod native;
-#[path = "support/stdin.rs"]
-mod stdin_support;
 
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();

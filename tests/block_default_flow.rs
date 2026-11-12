@@ -1,6 +1,5 @@
 //! Authored source-only parser, lifecycle and real CLI witnesses.
-#[path = "support/flow_defaults.rs"]
-mod witnesses;
+use crate::support::flow_defaults as witnesses;
 
 use rustocop::{
     config::ResolvedConfig,

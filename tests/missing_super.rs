@@ -1,9 +1,6 @@
 //! Source-only reference, pipeline and rebuilt CLI checks.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
 //! Never execute constructors, callbacks or other fixture input.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::{Read, Write},

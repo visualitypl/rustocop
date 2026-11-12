@@ -6,8 +6,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const LITERAL: &str = "Style/EmptyLiteral";
 const CLASS: &str = "Style/EmptyClassDefinition";
 const COPS: [(&str, &str); 2] = [

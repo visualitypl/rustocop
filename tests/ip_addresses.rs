@@ -5,8 +5,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 
 const COP: &str = "Style/IpAddresses";
 const SOURCE: &str = "puts \"127.0.0.1\"\n";

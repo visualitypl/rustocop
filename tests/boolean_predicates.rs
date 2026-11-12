@@ -26,8 +26,7 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> std::proces
     assert_eq!(fs::metadata(&p).unwrap().modified().unwrap(), time);
     o
 }
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COPS: [&str; 3] = [
     "Style/AndOr",
     "Style/CaseEquality",

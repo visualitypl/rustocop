@@ -1,14 +1,12 @@
 //! authored native proofs and real guarded CLI.
 //! RuboCop canonical reference: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::deprecated_constructor_native as native_guard;
+use crate::support::stdin as stdin_support;
 use std::{
     fs,
     path::Path,
     process::{Command, Output},
 };
-#[path = "support/deprecated_constructor_native.rs"]
-mod native_guard;
-#[path = "support/stdin.rs"]
-mod stdin_support;
 const BIG: &str = "Lint/BigDecimalNew";
 const ERB: &str = "Lint/ErbNewArguments";
 const BIG_SAFE: &str = "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal.new('1.25')]\n";

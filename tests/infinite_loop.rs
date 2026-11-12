@@ -210,8 +210,7 @@ fn source_envelopes_clean_and_error_files_retain_bytes_and_mtime() {
     );
 }
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 #[test]
 fn stdin_reports_without_writing_and_rejects_fix() {
     let d = project();

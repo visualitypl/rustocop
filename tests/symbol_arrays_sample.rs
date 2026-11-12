@@ -1,7 +1,4 @@
 //! Controlled Ruby programs only; no application/corpus execution.
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     path::Path,

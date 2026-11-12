@@ -13,9 +13,6 @@ fn lint_str(source: &str) -> Vec<rustocop::offense::Offense> {
     .result
     .offenses
 }
-#[macro_use]
-#[path = "support/parallel_rows.rs"]
-mod parallel_rows;
 use std::{
     fs,
     io::Write,

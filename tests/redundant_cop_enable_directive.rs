@@ -11,8 +11,7 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-#[path = "support/stdin.rs"]
-mod stdin_support;
+use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/RedundantCopEnableDirective";
 const BEFORE: &str = "foo\n# rubocop:enable Layout/LineLength\n";
 const STDIN_FIX_ERROR: &str = concat!(

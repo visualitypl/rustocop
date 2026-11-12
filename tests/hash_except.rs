@@ -1,6 +1,5 @@
 //! fixed unsafe detector; no Ruby rewrite is authorized.
-#[path = "support/stdin.rs"]
-mod stdin;
+use crate::support::stdin;
 
 use std::{
     fs,

@@ -1,13 +1,12 @@
 //! Source-only reference parity, real CLI and authored native safety proofs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::deprecated_constructor_native as native_guard;
 use std::{
     fs,
     io::Write,
     path::Path,
     process::{Command, Output, Stdio},
 };
-#[path = "support/deprecated_constructor_native.rs"]
-mod native_guard;
 const COP: &str = "Lint/DuplicateRegexpCharacterClassElement";
 const SAFE: &[u8] = b"[defined?(/[xyx]/)]\n";
 const AFTER: &[u8] = b"[defined?(/[xy]/)]\n";
