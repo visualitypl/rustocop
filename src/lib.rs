@@ -9,6 +9,7 @@
 #[path = "../tests/support/parallel_rows.rs"]
 mod parallel_rows;
 
+pub mod baseline;
 pub mod config;
 pub mod cops;
 pub mod corrections;

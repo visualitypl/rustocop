@@ -1,6 +1,7 @@
-//! Output rendering: human text and GitHub Actions annotations.
+//! Output rendering: human text, GitHub Actions annotations and a per-cop
+//! offense count.
 
-use std::fmt::Write as _;
+use std::{collections::BTreeMap, fmt::Write as _};
 
 use crate::pipeline::RunReport;
 
@@ -11,6 +12,8 @@ pub enum Format {
     Text,
     /// GitHub Actions workflow commands (`::error ...`).
     Github,
+    /// The number of offenses per cop, most first.
+    Offenses,
 }
 
 /// Render the report in RuboCop-inspired text format:
@@ -46,13 +49,51 @@ pub fn render_text(report: &RunReport) -> String {
             );
         }
     }
+    push_errors_and_summary(&mut out, report);
+    out
+}
+
+/// Render the number of offenses per cop, most first and by name within one
+/// count, then the file errors and the summary line of [`render_text`]:
+///
+/// ```text
+/// 53363  Style/StringLiterals
+///   933  Style/FormatStringToken
+///
+/// 1793 files inspected, 54296 offenses detected
+/// ```
+pub fn render_offenses(report: &RunReport) -> String {
+    let mut counts: BTreeMap<&str, usize> = BTreeMap::new();
+    for result in &report.results {
+        let located = result.offenses.iter().map(|offense| offense.cop);
+        let global = result.global_offenses.iter().map(|offense| offense.cop);
+        for cop in located.chain(global) {
+            *counts.entry(cop).or_default() += 1;
+        }
+    }
+    // The map is in name order and the sort is stable.
+    let mut counts: Vec<_> = counts.into_iter().collect();
+    counts.sort_by_key(|&(_, count)| std::cmp::Reverse(count));
+    let width = counts
+        .first()
+        .map_or(0, |(_, count)| count.to_string().len());
+    let mut out = String::new();
+    for (cop, count) in counts {
+        let _ = writeln!(out, "{count:>width$}  {cop}");
+    }
+    push_errors_and_summary(&mut out, report);
+    out
+}
+
+/// The end of the text formats: one line per file error, a blank line and
+/// the summary line.
+fn push_errors_and_summary(out: &mut String, report: &RunReport) {
     for error in &report.errors {
         let _ = writeln!(out, "{}: error: {}", error.path.display(), error.message);
     }
     out.push('\n');
     out.push_str(&summary_line(report));
     out.push('\n');
-    out
 }
 
 /// Render the report as GitHub Actions error annotations, plus a summary line.
@@ -213,7 +254,7 @@ fn plural(n: usize) -> &'static str {
 mod tests {
     use super::*;
     use crate::isolation::CaughtPanic;
-    use crate::offense::{Offense, Severity};
+    use crate::offense::{GlobalOffense, Offense, Severity};
     use crate::pipeline::{FileResult, InternalError, LintError};
     use std::path::PathBuf;
 
@@ -269,6 +310,44 @@ mod tests {
         ));
         assert!(text.contains("lib/broken.rb: error: syntax error on line 3: expected ')'"));
         assert!(text.contains("2 files inspected, 1 offense detected, 1 error"));
+    }
+
+    #[test]
+    fn offenses_format_counts_per_cop_most_first_then_by_name() {
+        let mut report = sample_report();
+        let debugger = report.results[0].offenses[0].clone();
+        let offense = |cop| Offense {
+            cop,
+            ..debugger.clone()
+        };
+        report.results[0].offenses = [
+            "Style/Not",
+            "Lint/Void",
+            "Lint/Debugger",
+            "Lint/Void",
+            "Lint/Debugger",
+        ]
+        .map(offense)
+        .to_vec();
+        report.results[0]
+            .offenses
+            .extend(vec![offense("Style/Semicolon"); 10]);
+        report.results[0].global_offenses.push(GlobalOffense {
+            cop: "Naming/FileName",
+            severity: Severity::Convention,
+            message: String::new(),
+        });
+        assert_eq!(
+            render_offenses(&report),
+            "10  Style/Semicolon\n \
+              2  Lint/Debugger\n \
+              2  Lint/Void\n \
+              1  Naming/FileName\n \
+              1  Style/Not\n\
+             lib/broken.rb: error: syntax error on line 3: expected ')'\n\
+             \n\
+             2 files inspected, 16 offenses detected, 1 error\n"
+        );
     }
 
     #[test]

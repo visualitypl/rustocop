@@ -17,6 +17,7 @@ mod array_operations;
 mod arrays;
 mod assignment_access_indentation;
 mod assignment_memoization;
+mod baseline;
 mod begin_end_blocks;
 mod binding_exposure;
 mod block_bracket_spacing;

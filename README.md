@@ -105,6 +105,8 @@ rustocop --only Lint               # one department or cop (comma-separated)
 rustocop --only Style/IpAddresses  # force-enable an opt-in cop
 rustocop --except Lint/Debugger
 rustocop --format github           # GitHub Actions annotations
+rustocop --format offenses         # the number of offenses per cop
+rustocop --write-baseline          # write a rustocop.toml that silences today's offenses
 rustocop --fix app lib             # apply safe corrections in place
 rustocop --fix --fix-passes 1 app  # apply a single correction pass
 cat file.rb | rustocop --stdin file.rb
@@ -128,6 +130,52 @@ annotation:
 ```yaml
 - run: rustocop --format github
 ```
+
+## Adopting rustocop in an existing codebase
+
+A first run on code that was written to another style reports a lot. Three
+steps make it manageable. The output below is from RuboCop's own source.
+
+1. See which cops report the most:
+
+   ```
+   $ rustocop --format offenses
+   53363  Style/StringLiterals
+     933  Style/FormatStringToken
+     483  Layout/LineLength
+   ...
+
+   1793 files inspected, 56152 offenses detected
+   ```
+
+2. Let `rustocop --fix` correct what is safe to correct:
+
+   ```
+   $ rustocop --fix
+   ...
+   1793 files inspected, 39333 corrections applied, 16796 offenses remaining
+   ```
+
+3. Write a baseline for the rest:
+
+   ```
+   $ rustocop --write-baseline
+   Wrote /home/me/app/rustocop.toml: 16798 offenses silenced, 11 cops switched off, 30 cops with skipped files.
+   ```
+
+   The baseline is a `rustocop.toml` with one entry per cop that has
+   offenses. A cop with offenses in at most 15 files gets an `exclude` list
+   of those files, so it still checks every other file and every new one. A
+   cop with offenses in more files is switched off with `enabled = false`.
+   A run with the baseline reports nothing, and each entry that you delete
+   brings its offenses back for you to fix.
+
+`--write-baseline` lints the given paths, or the current directory, with all
+default cops. It never changes an existing config: when a `rustocop.toml`
+already exists, it stops with an error. File errors, such
+as syntax errors, are listed and stay errors, because no config silences
+them. The option cannot be combined with `--fix`, `--stdin`, `--only` or
+`--except`.
 
 ## Fixed defaults
 
