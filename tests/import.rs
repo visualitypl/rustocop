@@ -113,3 +113,40 @@ fn import_writes_nothing_without_settings_to_carry_over_and_needs_a_rubocop_conf
     assert_eq!(code, 2);
     assert!(stderr.contains("cannot be used with"), "{stderr}");
 }
+
+#[test]
+fn a_reader_that_closes_the_pipe_ends_the_output_without_a_panic() {
+    use std::process::{Command, Stdio};
+
+    // Each output is more than a pipe holds, so the write waits for the
+    // reader and then fails.
+    let cops: String = (0..8000)
+        .map(|n| format!("Nope/Cop{n}:\n  Enabled: false\n"))
+        .collect();
+    let dir = project(&[
+        (".rubocop.yml", &cops),
+        ("a.rb", &"binding.pry\n".repeat(2000)),
+    ]);
+    for (args, code) in [
+        (&["--import-rubocop-config"][..], 0),
+        (&["--only", "Lint/Debugger"], 1),
+    ] {
+        let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
+            .args(args)
+            .current_dir(dir.path())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        drop(child.stdout.take());
+        let output = child.wait_with_output().unwrap();
+        assert_eq!(
+            (
+                output.status.code(),
+                String::from_utf8(output.stderr).unwrap().as_str()
+            ),
+            (Some(code), ""),
+            "{args:?}"
+        );
+    }
+}

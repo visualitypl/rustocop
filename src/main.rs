@@ -69,7 +69,7 @@ fn real_main() -> i32 {
         }
         let config = config::ResolvedConfig::load(&registry)?;
         if cli.show_ruby_version {
-            println!("{}", config.ruby_version_report());
+            print(&format!("{}\n", config.ruby_version_report()));
             return Ok(pipeline::EXIT_CLEAN);
         }
         let options = pipeline::RunOptions {
@@ -89,7 +89,7 @@ fn real_main() -> i32 {
             output::Format::Github => output::render_github(&report),
             output::Format::Offenses => output::render_offenses(&report),
         };
-        print!("{rendered}");
+        print(&rendered);
         Ok(report.exit_code())
     };
 
@@ -99,6 +99,20 @@ fn real_main() -> i32 {
             eprintln!("error: {err:#}");
             pipeline::EXIT_ERRORS
         }
+    }
+}
+
+/// Write `text` to stdout. When the reader has closed the pipe, as `head`
+/// does, the text is dropped; `print!` panics there.
+fn print(text: &str) {
+    let mut stdout = std::io::stdout().lock();
+    let written = stdout
+        .write_all(text.as_bytes())
+        .and_then(|()| stdout.flush());
+    if let Err(err) = written
+        && err.kind() != std::io::ErrorKind::BrokenPipe
+    {
+        panic!("failed printing to stdout: {err}");
     }
 }
 
@@ -143,10 +157,14 @@ fn write_baseline(
         report = pipeline::run(paths, options, &next, registry)?;
     }
     for error in &report.errors {
-        println!("{}: error: {}", error.path.display(), error.message);
+        print(&format!(
+            "{}: error: {}\n",
+            error.path.display(),
+            error.message
+        ));
     }
     if baseline.offenses() == 0 {
-        println!("No offenses; no baseline is needed.");
+        print("No offenses; no baseline is needed.\n");
     } else {
         let text = with_baseline(&baseline)?;
         match &existing {
@@ -158,10 +176,14 @@ fn write_baseline(
         } else {
             "Wrote"
         };
-        println!("{verb} {}: {}.", path.display(), baseline.summary());
+        print(&format!(
+            "{verb} {}: {}.\n",
+            path.display(),
+            baseline.summary()
+        ));
         let left = report.offense_count();
         if left > 0 {
-            println!("Still reported: {left}.");
+            print(&format!("Still reported: {left}.\n"));
         }
     }
     Ok(if report.has_errors() {
@@ -214,26 +236,26 @@ fn import_rubocop_config(registry: &Registry) -> anyhow::Result<i32> {
     let source = std::path::Path::new(import::RUBOCOP_FILE_NAME);
     let import = import::import(source, registry)?;
     if import.toml.is_empty() {
-        println!(
-            "No setting of {} has a rustocop counterpart; no {} is written.",
+        print(&format!(
+            "No setting of {} has a rustocop counterpart; no {} is written.\n",
             import.files.join(" and "),
             path.display()
-        );
+        ));
     } else {
         // The config must be one that rustocop loads.
         let raw = toml::from_str(&import.toml).context("invalid imported config")?;
         config::ResolvedConfig::resolve(raw, Some(path), registry)?;
         write_new(path, &import.toml)?;
-        println!(
-            "Wrote {} from {}.",
+        print(&format!(
+            "Wrote {} from {}.\n",
             path.display(),
             import.files.join(" and ")
-        );
+        ));
     }
     if !import.dropped.is_empty() {
-        println!("Not carried over; rustocop has no setting for these:");
+        print("Not carried over; rustocop has no setting for these:\n");
         for line in &import.dropped {
-            println!("  {line}");
+            print(&format!("  {line}\n"));
         }
     }
     Ok(pipeline::EXIT_CLEAN)
