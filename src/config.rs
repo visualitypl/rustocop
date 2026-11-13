@@ -8,7 +8,8 @@
 //!   the run instead of being silently ignored.
 //! - Minimal surface: per-cop and per-department `enabled`, per-cop and
 //!   global `exclude` globs, and `max` for `Layout/LineLength` and the
-//!   Metrics cops, and `enforced_style` for the quotes of string literals.
+//!   Metrics cops, `enforced_style` for the quotes of string literals, and
+//!   `allowed_patterns` for `Layout/LineLength`.
 //!   There are no other per-cop style parameters — defaults are the product; disagreeing teams
 //!   disable a cop rather than reconfigure it.
 
@@ -68,6 +69,10 @@ pub struct RawCopSettings {
     /// cops that declare styles (`Style/StringLiterals`,
     /// `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`).
     pub enforced_style: Option<String>,
+    /// Regular expressions for what a cop accepts, RuboCop's
+    /// `AllowedPatterns`. Only valid for cops that declare the setting
+    /// (`Layout/LineLength`, which accepts the long lines that match one).
+    pub allowed_patterns: Option<Vec<String>>,
 }
 
 /// The validated, run-ready config.
@@ -262,6 +267,21 @@ impl ResolvedConfig {
                 };
                 configured.insert(key.clone(), cop);
                 styles.insert(key.clone(), style);
+            }
+            if let Some(patterns) = settings.allowed_patterns {
+                let compile = |pattern: &String| {
+                    regex::bytes::Regex::new(pattern).with_context(|| {
+                        format!("invalid `allowed_patterns` entry `{pattern}` for `{key}`")
+                    })
+                };
+                let patterns = patterns.iter().map(compile).collect::<Result<Vec<_>>>()?;
+                // On top of the cop's other settings, such as `max`.
+                let registered = registry.cops().iter().find(|cop| cop.name() == key);
+                let base = configured.get(&key).or(registered);
+                let Some(cop) = base.and_then(|cop| cop.with_allowed_patterns(&patterns)) else {
+                    bail!("`allowed_patterns` is not a valid setting for `{key}`");
+                };
+                configured.insert(key.clone(), cop);
             }
             let excludes = compile_globs(settings.exclude.as_deref().unwrap_or_default(), &key)?;
             // A limit for a cop that is off by default asks for the cop.

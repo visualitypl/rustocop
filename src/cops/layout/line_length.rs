@@ -44,6 +44,8 @@ use crate::{
 pub struct LineLength {
     /// The longest line accepted, in columns.
     max: usize,
+    /// A longer line is accepted when one of these matches it.
+    allowed: Vec<regex::bytes::Regex>,
 }
 
 impl LineLength {
@@ -52,7 +54,10 @@ impl LineLength {
 
     /// The cop with a limit of `max` columns.
     pub fn new(max: usize) -> Self {
-        LineLength { max }
+        LineLength {
+            max,
+            allowed: Vec::new(),
+        }
     }
 }
 
@@ -76,7 +81,15 @@ impl Cop for LineLength {
     }
 
     fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
-        Some(Box::new(LineLength::new(max)))
+        let allowed = self.allowed.clone();
+        Some(Box::new(LineLength { max, allowed }))
+    }
+
+    fn with_allowed_patterns(&self, patterns: &[regex::bytes::Regex]) -> Option<Box<dyn Cop>> {
+        Some(Box::new(LineLength {
+            max: self.max,
+            allowed: patterns.to_vec(),
+        }))
     }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
@@ -106,6 +119,9 @@ impl Cop for LineLength {
             let measured = Measured::new(text);
             let length = measured.width();
             if length <= self.max || (line == 1 && text.starts_with(b"#!")) {
+                continue;
+            }
+            if self.allowed.iter().any(|pattern| pattern.is_match(text)) {
                 continue;
             }
             let bodies = heredoc_bodies.get_or_insert_with(|| heredoc_body_lines(node, file));

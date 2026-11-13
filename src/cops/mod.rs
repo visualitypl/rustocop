@@ -123,6 +123,13 @@ pub trait Cop: Send + Sync {
         None
     }
 
+    /// A copy of this cop that accepts what matches one of `patterns`, for
+    /// cops with an `allowed_patterns` setting, RuboCop's `AllowedPatterns`;
+    /// `None` for the others. The copy keeps the other settings of this cop.
+    fn with_allowed_patterns(&self, _patterns: &[regex::bytes::Regex]) -> Option<Box<dyn Cop>> {
+        None
+    }
+
     /// The values of the cop's `enforced_style` setting, RuboCop's
     /// `EnforcedStyle`; empty for a cop that has one style.
     fn styles(&self) -> &'static [&'static str] {
@@ -1068,6 +1075,12 @@ impl Registry {
             .iter()
             .find(|cop| cop.name() == name)
             .and_then(|cop| cop.with_max(max))
+    }
+
+    /// Whether the named cop has an `allowed_patterns` setting.
+    pub fn cop_allows_patterns(&self, name: &str) -> bool {
+        let cop = self.cops.iter().find(|cop| cop.name() == name);
+        cop.is_some_and(|cop| cop.with_allowed_patterns(&[]).is_some())
     }
 
     /// The values that the named cop accepts for `enforced_style`; empty

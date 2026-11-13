@@ -3,8 +3,9 @@
 //!
 //! A `rustocop.toml` says much less than a `.rubocop.yml`: the paths to skip,
 //! the Ruby version, whether a cop or department is on, the paths a cop
-//! skips, the `max` of `Layout/LineLength` and the Metrics cops, and the
-//! `enforced_style` of the cops for the quotes of literals. The import carries those over
+//! skips, the `max` of `Layout/LineLength` and the Metrics cops, the
+//! `enforced_style` of the cops for the quotes of literals, and the
+//! `allowed_patterns` of `Layout/LineLength`. The import carries those over
 //! and lists every other setting, so that none is dropped silently.
 
 use std::{collections::BTreeMap, fmt::Write as _, path::Path};
@@ -108,6 +109,23 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
                 {
                     let _ = writeln!(lines, "max = {max}");
                 }
+                ("AllowedPatterns", Yaml::Array(patterns))
+                    if registry.cop_allows_patterns(&name) =>
+                {
+                    let mut kept = String::new();
+                    for pattern in patterns {
+                        let pattern = pattern.into_string().unwrap_or_default();
+                        match rust_regex(&pattern) {
+                            Some(regex) => {
+                                let _ = writeln!(kept, "  {},", toml::Value::String(regex));
+                            }
+                            None => dropped.push(format!("AllowedPatterns `{pattern}`")),
+                        }
+                    }
+                    if !kept.is_empty() {
+                        let _ = write!(lines, "allowed_patterns = [\n{kept}]\n");
+                    }
+                }
                 ("EnforcedStyle", Yaml::String(style))
                     if registry.cop_styles(&name).contains(&style.as_str()) =>
                 {
@@ -149,6 +167,35 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
         );
     }
     Ok(import)
+}
+
+/// `pattern`, an entry of `AllowedPatterns`, as a regular expression of the
+/// `regex` crate; `None` when it is not one. An entry is the source of a
+/// Ruby regexp, or a regexp literal.
+// The YAML parser drops the `!ruby/regexp` tag, so a literal is
+// known by its slashes. The two syntaxes share what most patterns use; the
+// classes `\d`, `\w` and `\s` are ASCII in Ruby and Unicode here.
+fn rust_regex(pattern: &str) -> Option<String> {
+    let literal = pattern
+        .strip_prefix('/')
+        .and_then(|rest| rest.rsplit_once('/'));
+    let regex = match literal {
+        Some((source, flags)) => {
+            let mut prefix = String::new();
+            for flag in flags.chars() {
+                // Ruby's `m` lets `.` match a newline, which is `s` here.
+                prefix.push_str(match flag {
+                    'i' => "(?i)",
+                    'x' => "(?x)",
+                    'm' => "(?s)",
+                    _ => return None,
+                });
+            }
+            prefix + source
+        }
+        None => pattern.to_owned(),
+    };
+    regex::bytes::Regex::new(&regex).is_ok().then_some(regex)
 }
 
 /// The sections of the config at `path`, laid over those of the files it
@@ -268,7 +315,7 @@ mod tests {
              Style:\n  Enabled: false\n  Exclude: ['a.rb']\n\
              Style/StringLiterals:\n  Enabled: true\n  EnforcedStyle: single_quotes\n\
              Style/HashSyntax:\n  EnforcedStyle: ruby19\n\
-             Layout/LineLength:\n  Max: 100\n  Exclude:\n    - \"spec/**/*\"\n\
+             Layout/LineLength:\n  Max: 100\n  Exclude:\n    - \"spec/**/*\"\n  AllowedPatterns:\n    - !ruby/regexp /\\A +(it|describe) [\"']/i\n    - '^\\s*#'\n    - '(?<=a)b'\n\
              Metrics/MethodLength:\n  Max: 20\n  Enabled: pending\n\
              Rails/Output:\n  Enabled: false\n\
              Lint/Debugger:\n  Exclude: []\n",
@@ -281,6 +328,7 @@ mod tests {
              ruby_version = \"4.0\"\n\
              \n\
              [cops.\"Layout/LineLength\"]\n\
+             allowed_patterns = [\n  '''(?i)\\A +(it|describe) [\"']''',\n  '^\\s*#',\n]\n\
              exclude = [\n  \"spec/**/*\",\n]\n\
              max = 100\n\
              \n\
@@ -302,6 +350,7 @@ mod tests {
             [
                 "require",
                 "AllCops: Exclude `/_pb\\.rb$/`, NewCops",
+                "Layout/LineLength: AllowedPatterns `(?<=a)b`",
                 "Metrics/MethodLength: Enabled",
                 "Style: Exclude",
                 "Style/HashSyntax: EnforcedStyle",

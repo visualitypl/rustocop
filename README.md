@@ -248,14 +248,17 @@ The import carries over:
 - `Max` of `Layout/LineLength` and of a Metrics cop, when it is a whole
   number;
 - `EnforcedStyle` of `Style/StringLiterals`,
-  `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`.
+  `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`;
+- `AllowedPatterns` of `Layout/LineLength`. A pattern is a Ruby regexp, and
+  the import keeps the ones that the `regex` crate reads too. It lists the
+  others, such as a pattern with a lookbehind.
 
 RuboCop's default for string literals is single quotes and rustocop's is
 double quotes. A config that names no quote style means RuboCop's default,
 so the import writes `enforced_style = "single_quotes"` for the two string
 cops. It does not when the config inherits from a gem or a URL, because it
 cannot read what those say. On RuboCop's own source, a first run reports
-56,152 offenses without a config and 3,167 with the imported one.
+56,152 offenses without a config and 1,053 with the imported one.
 
 It lists everything else: other style parameters, cops that rustocop does not
 have, `require`, `plugins`, `inherit_gem`, an `inherit_from` URL, and
@@ -332,6 +335,7 @@ exclude = ["spec/support/**"]
 
 [cops."Layout/LineLength"]
 max = 100
+allowed_patterns = ['^\s*#', '\A +(it|describe) ']
 
 [cops."Metrics/MethodLength"]
 max = 25
@@ -360,6 +364,14 @@ accept it, with `"double_quotes"` as the default:
 - `Style/QuotedSymbols`: the same two values, or
   `"same_as_string_literals"`. Without a setting it has the style of
   `Style/StringLiterals`.
+
+`allowed_patterns` is the `AllowedPatterns` of `Layout/LineLength` in RuboCop:
+a list of regular expressions, and a line longer than `max` is accepted when
+one of them matches it. The syntax is that of Rust's
+[`regex`](https://docs.rs/regex/latest/regex/#syntax) crate, which has no
+lookaround and no backreferences; a pattern that it cannot read is an error.
+`\d`, `\w` and `\s` also match non-ASCII characters, which they do not in
+Ruby.
 
 Selection precedence, highest first: `--except`, `--only` (which also
 force-enables opt-in cops), per-cop `enabled`, department `enabled`, the

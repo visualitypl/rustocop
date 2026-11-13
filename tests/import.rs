@@ -213,3 +213,61 @@ fn an_imported_config_has_the_quotes_of_rubocop() {
         "error: `enforced_style` is not a valid setting for `Lint/Debugger`\n"
     );
 }
+
+#[test]
+fn allowed_patterns_accept_the_long_lines_that_match_one() {
+    let source = format!("# {}\nx = {}1\n", "c".repeat(130), "1 + ".repeat(40));
+    let dir = project(&[("a.rb", &source)]);
+    let long_lines = |config: &str| {
+        std::fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+        let (code, stdout, stderr) = rustocop(dir.path(), &["--only", "Layout/LineLength"]);
+        assert_eq!(stderr, "", "{config}");
+        let found = stdout
+            .lines()
+            .filter(|line| line.contains("Layout/LineLength"));
+        (code, found.map(str::to_owned).collect::<Vec<_>>())
+    };
+    let table = "[cops.\"Layout/LineLength\"]\n";
+    assert_eq!(long_lines("").1.len(), 2);
+    // The comment line matches the pattern; the other long line is reported.
+    let (code, found) = long_lines(&format!("{table}allowed_patterns = ['^\\s*#']\n"));
+    assert_eq!(code, 1);
+    assert_eq!(
+        found,
+        ["a.rb:2:121: C: Line is too long. [165/120] (Layout/LineLength)"]
+    );
+    // The patterns and `max` hold together, in either order.
+    for config in [
+        format!("{table}max = 100\nallowed_patterns = ['^\\s*#']\n"),
+        format!("{table}allowed_patterns = ['^\\s*#']\nmax = 100\n"),
+    ] {
+        let found = long_lines(&config).1;
+        assert_eq!(
+            found,
+            ["a.rb:2:101: C: Line is too long. [165/100] (Layout/LineLength)"]
+        );
+    }
+    assert_eq!(
+        long_lines(&format!("{table}allowed_patterns = ['^#', '1 \\+ 1$']\n")),
+        (0, vec![])
+    );
+
+    // A pattern that the regex syntax does not have, and a cop without the
+    // setting, are errors before any linting.
+    let config = format!("{table}allowed_patterns = ['(?<=a)b']\n");
+    std::fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+    let (code, _, stderr) = rustocop(dir.path(), &[]);
+    assert_eq!(code, 2);
+    let expected = "error: invalid `allowed_patterns` entry `(?<=a)b` for `Layout/LineLength`";
+    assert!(stderr.starts_with(expected), "{stderr}");
+    let config = "[cops.\"Lint/Debugger\"]\nallowed_patterns = ['x']\n";
+    std::fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+    assert_eq!(
+        rustocop(dir.path(), &[]),
+        (
+            2,
+            String::new(),
+            "error: `allowed_patterns` is not a valid setting for `Lint/Debugger`\n".into()
+        )
+    );
+}
