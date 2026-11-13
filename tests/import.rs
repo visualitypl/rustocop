@@ -62,6 +62,25 @@ fn import_writes_the_config_of_the_next_run_and_lists_what_it_drops() {
         )
     );
     assert_eq!(std::fs::read_to_string(&config).unwrap(), written);
+
+    // A baseline silences what the imported config still reports.
+    let (code, stdout, stderr) = rustocop(dir.path(), &["--write-baseline"]);
+    assert_eq!((code, stderr.as_str()), (0, ""), "{stdout}");
+    assert_eq!(
+        stdout,
+        format!(
+            "Updated {}: 1 offense silenced, 0 cops switched off, 1 cop with skipped files.\n",
+            config.display()
+        )
+    );
+    assert_eq!(
+        std::fs::read_to_string(&config).unwrap(),
+        written.replace(
+            "  \"lib/old.rb\",\n",
+            "  \"lib/old.rb\",\n  \"lib/new.rb\",\n"
+        )
+    );
+    assert_eq!(rustocop(dir.path(), &[]).0, 0);
 }
 
 #[test]

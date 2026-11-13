@@ -1,5 +1,6 @@
 //! `--write-baseline`: a `rustocop.toml` that silences the offenses a
 //! codebase has today, so a first run is quiet and new code is still checked.
+//! The baseline is added to the `rustocop.toml` that is there, if any.
 //!
 //! As RuboCop's `--auto-gen-config` does, a cop with offenses in few files
 //! skips those files, and a cop with offenses in many files is switched off.
@@ -9,6 +10,8 @@ use std::{
     fmt::Write as _,
     path::Path,
 };
+
+use toml_edit::{Array, DocumentMut, Item, Value};
 
 use crate::pipeline::RunReport;
 
@@ -37,6 +40,40 @@ struct Silenced {
 impl Silenced {
     fn switched_off(&self) -> bool {
         self.files.len() > FILE_LIMIT
+    }
+
+    /// The files that the cop's `exclude` names.
+    fn skipped(&self) -> &BTreeSet<String> {
+        if self.switched_off() {
+            &self.switched_on
+        } else {
+            &self.files
+        }
+    }
+
+    /// The table of `cop` in a `rustocop.toml` that has none for it.
+    fn entry(&self, cop: &str) -> String {
+        let files = self.files.len();
+        let mut toml = format!(
+            "\n# {} offense{} in {files} file{}\n[cops.\"{cop}\"]\n",
+            self.offenses,
+            plural(self.offenses),
+            plural(files)
+        );
+        if self.switched_off() {
+            toml.push_str("enabled = false\n");
+            if !self.switched_on.is_empty() {
+                toml.push_str("# A `rubocop:enable` comment switches the cop on in these files.\n");
+            }
+        }
+        if !self.skipped().is_empty() {
+            toml.push_str("exclude = [\n");
+            for file in self.skipped() {
+                let _ = writeln!(toml, "  {},", toml::Value::String(file.clone()));
+            }
+            toml.push_str("]\n");
+        }
+        toml
     }
 }
 
@@ -100,45 +137,80 @@ impl Baseline {
         )
     }
 
-    /// The text of the `rustocop.toml`.
+    /// The text of a new `rustocop.toml`.
     pub fn toml(&self) -> String {
-        let offenses = self.offenses();
-        let mut toml = format!(
-            "# Written by `rustocop --write-baseline`. It silences the {offenses} offense{} that\n\
-             # the code had then: a cop with offenses in more than {FILE_LIMIT} files is switched\n\
-             # off, and any other cop skips the files that had offenses. Delete an entry\n\
-             # to see its offenses again.\n",
-            plural(offenses)
-        );
+        self.added_to("").expect("an empty config is valid")
+    }
+
+    /// `config`, the text of a `rustocop.toml`, with the baseline added. A
+    /// cop that `config` has a table for is switched off or skips more files
+    /// in that table; any other cop gets a table at the end. Everything else
+    /// in `config` stays as it is, comments included.
+    pub fn added_to(&self, config: &str) -> anyhow::Result<String> {
+        let mut document: DocumentMut = config.parse()?;
+        let mut entries = String::new();
         for (cop, silenced) in &self.cops {
-            let files = silenced.files.len();
-            let _ = write!(
-                toml,
-                "\n# {} offense{} in {files} file{}\n[cops.\"{cop}\"]\n",
-                silenced.offenses,
-                plural(silenced.offenses),
-                plural(files)
-            );
-            let skipped = if silenced.switched_off() {
-                toml.push_str("enabled = false\n");
-                if !silenced.switched_on.is_empty() {
-                    toml.push_str(
-                        "# A `rubocop:enable` comment switches the cop on in these files.\n",
-                    );
-                }
-                &silenced.switched_on
-            } else {
-                &silenced.files
+            let table = document
+                .get_mut("cops")
+                .and_then(|cops| cops.get_mut(*cop))
+                .and_then(Item::as_table_like_mut);
+            let Some(table) = table else {
+                entries.push_str(&silenced.entry(cop));
+                continue;
             };
-            if !skipped.is_empty() {
-                toml.push_str("exclude = [\n");
-                for file in skipped {
-                    let _ = writeln!(toml, "  {},", toml::Value::String(file.clone()));
+            if silenced.switched_off() {
+                table.insert("enabled", toml_edit::value(false));
+            }
+            let skipped = silenced.skipped();
+            if skipped.is_empty() {
+                continue;
+            }
+            let exclude = table
+                .entry("exclude")
+                .or_insert_with(|| toml_edit::value(Array::new()));
+            let Some(list) = exclude.as_array_mut() else {
+                anyhow::bail!("`exclude` of `{cop}` is not a list");
+            };
+            // A path goes on a line of its own in a new list, and in a list
+            // that is written that way; else after a space.
+            let last = list.iter().last().and_then(|path| path.decor().prefix());
+            let prefix = match last.and_then(|prefix| prefix.as_str()) {
+                None if list.is_empty() => {
+                    list.set_trailing_comma(true);
+                    list.set_trailing("\n");
+                    "\n  ".to_owned()
                 }
-                toml.push_str("]\n");
+                Some(prefix) if prefix.contains('\n') && prefix.trim().is_empty() => {
+                    prefix.to_owned()
+                }
+                _ => " ".to_owned(),
+            };
+            for file in skipped {
+                let mut path = Value::from(file.as_str());
+                path.decor_mut().set_prefix(prefix.as_str());
+                list.push_formatted(path);
             }
         }
-        toml
+
+        let mut toml = document.to_string();
+        let new = toml.trim().is_empty();
+        if new || !entries.is_empty() {
+            if !new {
+                toml.truncate(toml.trim_end().len());
+                toml.push_str("\n\n");
+            }
+            let offenses = self.offenses();
+            let _ = write!(
+                toml,
+                "# {} by `rustocop --write-baseline`. It silences the {offenses} offense{} that\n\
+                 # the code had then: a cop with offenses in more than {FILE_LIMIT} files is switched\n\
+                 # off, and any other cop skips the files that had offenses. Delete an entry\n\
+                 # to see its offenses again.\n{entries}",
+                if new { "Written" } else { "Added" },
+                plural(offenses)
+            );
+        }
+        Ok(toml)
     }
 }
 
@@ -281,6 +353,77 @@ mod tests {
             baseline.summary(),
             "17 offenses silenced, 1 cop switched off, 0 cops with skipped files"
         );
+    }
+
+    #[test]
+    fn a_baseline_is_added_to_a_config_and_the_rest_of_it_stays() {
+        let config = "# Ours.\n\
+                      exclude = [\"gen/**\"]\n\
+                      \n\
+                      [cops.\"Lint/Debugger\"] # why\n\
+                      exclude = [\n  \"a.rb\",\n]\n\
+                      \n\
+                      [cops.\"Lint/Void\"]\n\
+                      enabled = true\n\
+                      exclude = [\"x.rb\"]\n\
+                      \n\
+                      [cops.\"Style\"]\n\
+                      enabled = true\n";
+        let mut results: Vec<_> = (0..=FILE_LIMIT)
+            .map(|n| result(&format!("f{n:02}.rb"), &["Lint/Void"]))
+            .collect();
+        results.push(result("b.rb", &["Lint/Debugger", "Lint/EmptyBlock"]));
+        let report = |results| RunReport {
+            results,
+            ..RunReport::default()
+        };
+        let mut baseline = Baseline::default();
+        assert_eq!(baseline.added_to(config).unwrap(), config);
+        baseline.add(&report(results), Path::new(""));
+        // Void reports again where a comment switches it on.
+        baseline.add(
+            &report(vec![result("f03.rb", &["Lint/Void"])]),
+            Path::new(""),
+        );
+        let added = baseline.added_to(config).unwrap();
+        assert_eq!(
+            added,
+            "# Ours.\n\
+             exclude = [\"gen/**\"]\n\
+             \n\
+             [cops.\"Lint/Debugger\"] # why\n\
+             exclude = [\n  \"a.rb\",\n  \"b.rb\",\n]\n\
+             \n\
+             [cops.\"Lint/Void\"]\n\
+             enabled = false\n\
+             exclude = [\"x.rb\", \"f03.rb\"]\n\
+             \n\
+             [cops.\"Style\"]\n\
+             enabled = true\n\
+             \n\
+             # Added by `rustocop --write-baseline`. It silences the 19 offenses that\n\
+             # the code had then: a cop with offenses in more than 15 files is switched\n\
+             # off, and any other cop skips the files that had offenses. Delete an entry\n\
+             # to see its offenses again.\n\
+             \n\
+             # 1 offense in 1 file\n\
+             [cops.\"Lint/EmptyBlock\"]\n\
+             exclude = [\n  \"b.rb\",\n]\n"
+        );
+        let raw: RawConfig = toml::from_str(&added).unwrap();
+        ResolvedConfig::resolve(raw, None, &Registry::new()).unwrap();
+
+        // A cop with a table and no `exclude` gets one.
+        let mut baseline = Baseline::default();
+        baseline.add(&report(vec![result("b.rb", &["Lint/Void"])]), Path::new(""));
+        assert_eq!(
+            baseline
+                .added_to("[cops.\"Lint/Void\"]\nenabled = true")
+                .unwrap(),
+            "[cops.\"Lint/Void\"]\nenabled = true\nexclude = [\n  \"b.rb\",\n]\n"
+        );
+        assert!(baseline.added_to("cops = 1").unwrap().contains("cops = 1"));
+        assert!(baseline.added_to("[cops").is_err());
     }
 
     #[test]

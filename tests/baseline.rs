@@ -118,17 +118,23 @@ fn a_baseline_silences_the_offenses_of_today_and_new_code_is_still_checked() {
          \n19 files inspected, 1 offense detected\n"
     );
 
-    // A config is never changed.
+    // A baseline is added to the config that is there.
     let (code, stdout, stderr) = rustocop(dir.path(), &["--write-baseline"]);
-    assert_eq!((code, stdout.as_str()), (2, ""));
+    assert_eq!((code, stderr.as_str()), (0, ""), "{stdout}");
     assert_eq!(
-        stderr,
+        stdout,
         format!(
-            "error: {} already exists; --write-baseline does not change an existing config\n",
+            "Updated {}: 1 offense silenced, 0 cops switched off, 1 cop with skipped files.\n",
             config.display()
         )
     );
-    assert_eq!(std::fs::read_to_string(&config).unwrap(), written);
+    let debugger = "exclude = [\n  \"lib/debug.rb\",\n  \"lib/we[[]i[]]rd [*].rb\",\n]\n";
+    let updated = debugger.replace("]\n", "  \"lib/weird.rb\",\n]\n");
+    assert_eq!(
+        std::fs::read_to_string(&config).unwrap(),
+        written.replacen(debugger, &updated, 1)
+    );
+    assert_eq!(rustocop(dir.path(), &[]).0, 0);
 }
 
 #[test]

@@ -585,6 +585,7 @@ dependencies = [
  "stacker",
  "tempfile",
  "toml",
+ "toml_edit",
  "unicode-width",
  "yaml-rust2",
 ]

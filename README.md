@@ -112,7 +112,7 @@ rustocop --only Style/IpAddresses  # force-enable an opt-in cop
 rustocop --except Lint/Debugger
 rustocop --format github           # GitHub Actions annotations
 rustocop --format offenses         # the number of offenses per cop
-rustocop --write-baseline          # write a rustocop.toml that silences today's offenses
+rustocop --write-baseline          # silence today's offenses in rustocop.toml
 rustocop --import-rubocop-config   # write a rustocop.toml from .rubocop.yml
 rustocop --fix app lib             # apply safe corrections in place
 rustocop --fix --fix-passes 1 app  # apply a single correction pass
@@ -177,9 +177,12 @@ steps make it manageable. The output below is from RuboCop's own source.
    A run with the baseline reports nothing, and each entry that you delete
    brings its offenses back for you to fix.
 
-`--write-baseline` lints the given paths, or the current directory, with all
-default cops. It never changes an existing config: when a `rustocop.toml`
-already exists, it stops with an error. File errors, such
+`--write-baseline` lints the given paths, or the current directory. When a
+`rustocop.toml` already exists, the run uses it and the baseline is added to
+it: a cop that has a table there is switched off or gets more `exclude`
+paths in that table, and any other cop gets a new table at the end of the
+file. Everything else in the file stays as it is, comments included. File
+errors, such
 as syntax errors, are listed and stay errors, because no config silences
 them. The option cannot be combined with `--fix`, `--stdin`, `--only` or
 `--except`.
@@ -219,8 +222,8 @@ have, `require`, `plugins`, `inherit_gem`, an `inherit_from` URL, and
 `Exclude` lists.
 
 The import never changes an existing config: when a `rustocop.toml` already
-exists, it stops with an error. `--write-baseline` does the same, so a
-project starts from one of the two, not both.
+exists, it stops with an error. Run it first, and then `--write-baseline` to
+silence what rustocop still reports with the imported config.
 
 ## Fixed defaults
 

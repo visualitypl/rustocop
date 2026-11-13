@@ -46,7 +46,7 @@ struct Cli {
     #[arg(long, conflicts_with_all = ["fix", "stdin"])]
     show_ruby_version: bool,
 
-    /// Write a rustocop.toml that silences the offenses the code has now.
+    /// Write a rustocop.toml, or add to the one there is, to silence the offenses the code has now.
     #[arg(long, conflicts_with_all = ["fix", "stdin", "only", "except", "show_ruby_version"])]
     write_baseline: bool,
 
@@ -72,13 +72,6 @@ fn real_main() -> i32 {
             println!("{}", config.ruby_version_report());
             return Ok(pipeline::EXIT_CLEAN);
         }
-        let baseline_path = config.root.join(config::CONFIG_FILE_NAME);
-        if cli.write_baseline && baseline_path.exists() {
-            anyhow::bail!(
-                "{} already exists; --write-baseline does not change an existing config",
-                baseline_path.display()
-            );
-        }
         let options = pipeline::RunOptions {
             only: cli.only.clone(),
             except: cli.except.clone(),
@@ -89,14 +82,7 @@ fn real_main() -> i32 {
         let report = pipeline::run(&cli.paths, &options, &config, &registry)?;
         eprint!("{}", output::render_internal_errors(&report));
         if cli.write_baseline {
-            return write_baseline(
-                report,
-                &cli.paths,
-                &options,
-                &config,
-                &registry,
-                &baseline_path,
-            );
+            return write_baseline(report, &cli.paths, &options, &config, &registry);
         }
         let rendered = match cli.format {
             output::Format::Text => output::render_text(&report),
@@ -120,17 +106,27 @@ fn real_main() -> i32 {
 /// the baseline is checked by linting with it, this many times at most.
 const BASELINE_PASSES: usize = 10;
 
-/// Write to `path` the baseline config for `report`, the run of `paths` with
-/// `config`, and say what it covers. File errors are listed: no config can
-/// silence them.
+/// Write the baseline config for `report`, the run of `paths` with `config`,
+/// and say what it covers. The baseline is added to the config file of the
+/// run when there is one. File errors are listed: no config can silence them.
 fn write_baseline(
     mut report: pipeline::RunReport,
     paths: &[PathBuf],
     options: &pipeline::RunOptions,
     config: &config::ResolvedConfig,
     registry: &Registry,
-    path: &std::path::Path,
 ) -> anyhow::Result<i32> {
+    let path = &config.root.join(config::CONFIG_FILE_NAME);
+    let existing = match std::fs::read_to_string(path) {
+        Ok(text) => Some(text),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+        Err(err) => anyhow::bail!("could not read {}: {err}", path.display()),
+    };
+    let with_baseline = |baseline: &baseline::Baseline| {
+        baseline
+            .added_to(existing.as_deref().unwrap_or_default())
+            .with_context(|| format!("could not add a baseline to {}", path.display()))
+    };
     let mut baseline = baseline::Baseline::default();
     for _ in 0..BASELINE_PASSES {
         if report.offense_count() == 0 {
@@ -140,7 +136,7 @@ fn write_baseline(
         // Silencing a cop can make another one report, for example a
         // `rubocop:disable` comment that is now redundant: lint with the
         // baseline and add what is left, until a run is clean.
-        let raw = toml::from_str(&baseline.toml()).context("invalid baseline config")?;
+        let raw = toml::from_str(&with_baseline(&baseline)?).context("invalid baseline config")?;
         let mut next = config::ResolvedConfig::resolve(raw, Some(path), registry)?;
         next.ruby_version = config.ruby_version;
         next.ruby_version_source = config.ruby_version_source.clone();
@@ -152,8 +148,17 @@ fn write_baseline(
     if baseline.offenses() == 0 {
         println!("No offenses; no baseline is needed.");
     } else {
-        write_new(path, &baseline.toml())?;
-        println!("Wrote {}: {}.", path.display(), baseline.summary());
+        let text = with_baseline(&baseline)?;
+        match &existing {
+            None => write_new(path, &text)?,
+            Some(existing) => replace(path, existing, &text)?,
+        }
+        let verb = if existing.is_some() {
+            "Updated"
+        } else {
+            "Wrote"
+        };
+        println!("{verb} {}: {}.", path.display(), baseline.summary());
         let left = report.offense_count();
         if left > 0 {
             println!("Still reported: {left}.");
@@ -175,6 +180,25 @@ fn write_new(path: &std::path::Path, text: &str) -> anyhow::Result<()> {
         .open(path)
         .and_then(|mut file| file.write_all(text.as_bytes()))
         .with_context(|| format!("could not write {}", path.display()))
+}
+
+/// Put `text` in place of `existing`, the text of the file `path`, through a
+/// sibling temporary file, so that a failed write cannot truncate the file.
+fn replace(path: &std::path::Path, existing: &str, text: &str) -> anyhow::Result<()> {
+    let write = || -> anyhow::Result<()> {
+        anyhow::ensure!(
+            std::fs::read_to_string(path)? == existing,
+            "the file changed during the run"
+        );
+        let directory = path.parent().context("the file has no directory")?;
+        let mut temporary = tempfile::NamedTempFile::new_in(directory)?;
+        temporary.write_all(text.as_bytes())?;
+        let permissions = std::fs::metadata(path)?.permissions();
+        temporary.as_file().set_permissions(permissions)?;
+        temporary.persist(path)?;
+        Ok(())
+    };
+    write().with_context(|| format!("could not update {}", path.display()))
 }
 
 /// Write a `rustocop.toml` in the current directory from its `.rubocop.yml`,
