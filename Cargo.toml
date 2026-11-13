@@ -23,6 +23,8 @@ ruby-prism-sys = "=1.9.0"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 unicode-width = "0.2"
+# Reads `.rubocop.yml` for `--import-rubocop-config`.
+yaml-rust2 = { version = "0.13", default-features = false }
 tempfile = "3"
 stacker = "0.1.25"
 

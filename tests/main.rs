@@ -146,6 +146,7 @@ mod if_unless_modifier;
 mod if_unless_modifier_corrections;
 mod implicit_parameter_binding;
 mod implicit_parameters;
+mod import;
 mod in_pattern_then;
 mod indentation_width_partial_shifts;
 mod indentation_width_tab_shifts;

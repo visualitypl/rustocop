@@ -7,7 +7,7 @@ use std::{
 
 /// A scratch project holding `files`, with a `.git` entry so that config
 /// discovery stops there.
-fn project(files: &[(&str, &str)]) -> tempfile::TempDir {
+pub(super) fn project(files: &[(&str, &str)]) -> tempfile::TempDir {
     let tmp = tempfile::tempdir().unwrap();
     std::fs::create_dir(tmp.path().join(".git")).unwrap();
     for (name, source) in files {
@@ -18,7 +18,7 @@ fn project(files: &[(&str, &str)]) -> tempfile::TempDir {
     tmp
 }
 
-fn rustocop(dir: &Path, args: &[&str]) -> (i32, String, String) {
+pub(super) fn rustocop(dir: &Path, args: &[&str]) -> (i32, String, String) {
     let Output {
         status,
         stdout,

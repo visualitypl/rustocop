@@ -4,7 +4,7 @@ use std::{io::Write as _, path::PathBuf};
 
 use anyhow::Context as _;
 use clap::Parser;
-use rustocop::{baseline, config, cops::Registry, output, pipeline};
+use rustocop::{baseline, config, cops::Registry, import, output, pipeline};
 
 #[derive(Parser)]
 #[command(
@@ -49,6 +49,10 @@ struct Cli {
     /// Write a rustocop.toml that silences the offenses the code has now.
     #[arg(long, conflicts_with_all = ["fix", "stdin", "only", "except", "show_ruby_version"])]
     write_baseline: bool,
+
+    /// Write a rustocop.toml with the settings of .rubocop.yml that it can hold.
+    #[arg(long, conflicts_with_all = ["fix", "stdin", "only", "except", "show_ruby_version", "write_baseline"])]
+    import_rubocop_config: bool,
 }
 
 fn main() {
@@ -60,6 +64,9 @@ fn real_main() -> i32 {
     let registry = Registry::new();
 
     let run = || -> anyhow::Result<i32> {
+        if cli.import_rubocop_config {
+            return import_rubocop_config(&registry);
+        }
         let config = config::ResolvedConfig::load(&registry)?;
         if cli.show_ruby_version {
             println!("{}", config.ruby_version_report());
@@ -145,13 +152,7 @@ fn write_baseline(
     if baseline.offenses() == 0 {
         println!("No offenses; no baseline is needed.");
     } else {
-        // `create_new`: never replace a config, also one written meanwhile.
-        std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(path)
-            .and_then(|mut file| file.write_all(baseline.toml().as_bytes()))
-            .with_context(|| format!("could not write {}", path.display()))?;
+        write_new(path, &baseline.toml())?;
         println!("Wrote {}: {}.", path.display(), baseline.summary());
         let left = report.offense_count();
         if left > 0 {
@@ -163,4 +164,53 @@ fn write_baseline(
     } else {
         pipeline::EXIT_CLEAN
     })
+}
+
+/// Write `text` to the new file `path`; never replace a config, also one
+/// written meanwhile.
+fn write_new(path: &std::path::Path, text: &str) -> anyhow::Result<()> {
+    std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .and_then(|mut file| file.write_all(text.as_bytes()))
+        .with_context(|| format!("could not write {}", path.display()))
+}
+
+/// Write a `rustocop.toml` in the current directory from its `.rubocop.yml`,
+/// and list the settings that are not carried over.
+fn import_rubocop_config(registry: &Registry) -> anyhow::Result<i32> {
+    let path = std::path::Path::new(config::CONFIG_FILE_NAME);
+    if path.exists() {
+        anyhow::bail!(
+            "{} already exists; --import-rubocop-config does not change an existing config",
+            path.display()
+        );
+    }
+    let source = std::path::Path::new(import::RUBOCOP_FILE_NAME);
+    let import = import::import(source, registry)?;
+    if import.toml.is_empty() {
+        println!(
+            "No setting of {} has a rustocop counterpart; no {} is written.",
+            import.files.join(" and "),
+            path.display()
+        );
+    } else {
+        // The config must be one that rustocop loads.
+        let raw = toml::from_str(&import.toml).context("invalid imported config")?;
+        config::ResolvedConfig::resolve(raw, Some(path), registry)?;
+        write_new(path, &import.toml)?;
+        println!(
+            "Wrote {} from {}.",
+            path.display(),
+            import.files.join(" and ")
+        );
+    }
+    if !import.dropped.is_empty() {
+        println!("Not carried over; rustocop has no setting for these:");
+        for line in &import.dropped {
+            println!("  {line}");
+        }
+    }
+    Ok(pipeline::EXIT_CLEAN)
 }

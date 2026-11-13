@@ -15,6 +15,7 @@ pub mod cops;
 pub mod corrections;
 pub mod directives;
 pub mod discovery;
+pub mod import;
 pub mod isolation;
 pub mod offense;
 pub mod output;

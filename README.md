@@ -24,8 +24,9 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 - **Safe autocorrection.** `--fix` applies only edits that provably keep the
   program's behaviour. Everything else stays a report.
 - **Not a RuboCop drop-in.** Cop names and `# rubocop:disable` comments are
-  familiar, but there is no `.rubocop.yml` import and no style parameters.
-  The defaults are the product.
+  familiar, but rustocop does not read `.rubocop.yml` and has no style
+  parameters. `--import-rubocop-config` carries over the few settings that
+  have a counterpart. The defaults are the product.
 
 ## Status
 
@@ -112,6 +113,7 @@ rustocop --except Lint/Debugger
 rustocop --format github           # GitHub Actions annotations
 rustocop --format offenses         # the number of offenses per cop
 rustocop --write-baseline          # write a rustocop.toml that silences today's offenses
+rustocop --import-rubocop-config   # write a rustocop.toml from .rubocop.yml
 rustocop --fix app lib             # apply safe corrections in place
 rustocop --fix --fix-passes 1 app  # apply a single correction pass
 cat file.rb | rustocop --stdin file.rb
@@ -181,6 +183,44 @@ already exists, it stops with an error. File errors, such
 as syntax errors, are listed and stay errors, because no config silences
 them. The option cannot be combined with `--fix`, `--stdin`, `--only` or
 `--except`.
+
+### Coming from RuboCop
+
+`rustocop --import-rubocop-config` reads the `.rubocop.yml` in the current
+directory, and the local files that it names in `inherit_from`, such as
+`.rubocop_todo.yml`. It writes a `rustocop.toml` next to it and lists the
+settings that it does not carry over. This is the output for RuboCop's own
+config, shortened:
+
+```
+$ rustocop --import-rubocop-config
+Wrote rustocop.toml from .rubocop_todo.yml and .rubocop.yml.
+Not carried over; rustocop has no setting for these:
+  plugins
+  AllCops: NewCops, SuggestExtensions, TargetRubyVersion, UseProjectIndex
+  Layout/HashAlignment: EnforcedColonStyle, EnforcedHashRocketStyle
+  Metrics/MethodLength: Max
+  not rustocop cops or departments: RSpec, RSpec/AnyInstance, Rake/MethodDefinitionInTask
+```
+
+The import carries over:
+
+- `AllCops: Exclude`, as the top-level `exclude`;
+- `AllCops: TargetRubyVersion` when it is 3.4 or 4.0, as `ruby_version`;
+- `Enabled: true` and `Enabled: false` of a cop or a department;
+- `Exclude` of a cop;
+- `Max` of `Layout/LineLength`.
+
+It lists everything else: style parameters, cops that rustocop does not
+have, `require`, `plugins`, `inherit_gem`, an `inherit_from` URL, and
+`Exclude` entries that are absolute paths or regexps. A setting in
+`.rubocop.yml` replaces the same setting of an inherited file, as in RuboCop;
+`inherit_mode` with `merge: [Exclude]` at the top of a file joins the
+`Exclude` lists.
+
+The import never changes an existing config: when a `rustocop.toml` already
+exists, it stops with an error. `--write-baseline` does the same, so a
+project starts from one of the two, not both.
 
 ## Fixed defaults
 
