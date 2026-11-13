@@ -1,4 +1,5 @@
-//! End-to-end tests of `--format offenses` and `--write-baseline`.
+//! End-to-end tests of `--format offenses`, `--format json` and
+//! `--write-baseline`.
 
 use std::{
     path::Path,
@@ -59,6 +60,68 @@ fn offenses_format_counts_offenses_per_cop_most_first() {
             String::new()
         )
     );
+}
+
+#[test]
+fn json_format_is_what_an_editor_plugin_for_rubocop_reads() {
+    let dir = project(&[
+        ("lib/a.rb", "x = 1\nbinding.pry\n"),
+        ("lib/b.rb", "def (\n"),
+    ]);
+    // The arguments of nvim-lint, with a file in place of `--stdin`.
+    let args = ["--format", "json", "--force-exclusion", "--server", "lib"];
+    let (code, stdout, stderr) = rustocop(dir.path(), &args);
+    assert_eq!((code, stderr.as_str()), (2, ""), "{stdout}");
+    let json: serde_json::Value = serde_json::from_str(&stdout).unwrap();
+    assert_eq!(
+        json["metadata"]["rustocop_version"],
+        env!("CARGO_PKG_VERSION")
+    );
+    assert_eq!(json["files"][0]["path"], "lib/a.rb");
+    let debugger = json["files"][0]["offenses"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|offense| offense["cop_name"] == "Lint/Debugger")
+        .unwrap();
+    assert_eq!(
+        *debugger,
+        serde_json::json!({
+            "severity": "error",
+            "message": "Remove debugger entry point `binding.pry`.",
+            "cop_name": "Lint/Debugger",
+            "corrected": false,
+            "correctable": false,
+            "location": {
+                "start_line": 2, "start_column": 1, "last_line": 2, "last_column": 1,
+                "length": 1, "line": 2, "column": 1,
+            },
+        })
+    );
+    // A syntax error is an offense of Lint/Syntax, as in RuboCop.
+    let syntax = &json["files"][1]["offenses"][0];
+    assert_eq!(json["files"][1]["path"], "lib/b.rb");
+    assert_eq!(
+        (
+            &syntax["cop_name"],
+            &syntax["severity"],
+            &syntax["location"]["line"]
+        ),
+        (&"Lint/Syntax".into(), &"fatal".into(), &1.into())
+    );
+    assert!(
+        !syntax["message"]
+            .as_str()
+            .unwrap()
+            .contains("(Lint/Syntax)")
+    );
+    let offenses: usize = json["files"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|file| file["offenses"].as_array().unwrap().len())
+        .sum();
+    assert_eq!(json["summary"]["offense_count"], offenses);
 }
 
 #[test]

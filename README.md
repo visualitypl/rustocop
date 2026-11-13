@@ -112,6 +112,7 @@ rustocop --only Style/IpAddresses  # force-enable an opt-in cop
 rustocop --except Lint/Debugger
 rustocop --format github           # GitHub Actions annotations
 rustocop --format offenses         # the number of offenses per cop
+rustocop --format json             # RuboCop's JSON, for editor plugins
 rustocop --write-baseline          # silence today's offenses in rustocop.toml
 rustocop --import-rubocop-config   # write a rustocop.toml from .rubocop.yml
 rustocop --fix app lib             # apply safe corrections in place
@@ -137,6 +138,36 @@ annotation:
 ```yaml
 - run: rustocop --format github
 ```
+
+### Editors
+
+`--format json` prints the report in the schema of RuboCop's `--format json`,
+so an editor plugin written for RuboCop can run rustocop when you name it as
+the executable. rustocop also accepts the `--force-exclusion` and `--server`
+options that those plugins pass, and ignores them: the excludes of the config
+always apply, and there is no server.
+
+```lua
+-- Neovim, nvim-lint
+require("lint").linters.rubocop.cmd = "rustocop"
+```
+
+```vim
+" Vim, ALE
+let g:ale_ruby_rubocop_executable = 'rustocop'
+```
+
+The output differs from RuboCop's in these ways:
+
+- An offense records where it starts and not where it ends. Each `location`
+  is the one character at the start, so an editor marks that character and
+  not the whole expression.
+- `correctable` says that the cop has safe corrections, not that this
+  offense has one. `corrected` is always `false`.
+- `metadata` holds `rustocop_version` only.
+- A syntax error is an offense of `Lint/Syntax` with the severity `fatal`, as
+  in RuboCop. A file that cannot be read, and an internal error, is a string
+  in the `errors` of its file.
 
 ## Adopting rustocop in an existing codebase
 

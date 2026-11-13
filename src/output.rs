@@ -1,9 +1,15 @@
-//! Output rendering: human text, GitHub Actions annotations and a per-cop
-//! offense count.
+//! Output rendering: human text, GitHub Actions annotations, a per-cop
+//! offense count and RuboCop's JSON.
 
-use std::{collections::BTreeMap, fmt::Write as _};
+use std::{
+    collections::{BTreeMap, HashSet},
+    fmt::Write as _,
+    path::Path,
+};
 
-use crate::pipeline::RunReport;
+use serde_json::{Value, json};
+
+use crate::{cops::Registry, pipeline::RunReport};
 
 /// The supported output formats.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
@@ -14,6 +20,8 @@ pub enum Format {
     Github,
     /// The number of offenses per cop, most first.
     Offenses,
+    /// JSON in the schema of RuboCop's `--format json`.
+    Json,
 }
 
 /// Render the report in RuboCop-inspired text format:
@@ -82,6 +90,112 @@ pub fn render_offenses(report: &RunReport) -> String {
         let _ = writeln!(out, "{count:>width$}  {cop}");
     }
     push_errors_and_summary(&mut out, report);
+    out
+}
+
+/// Render the report as one line of JSON in the schema of RuboCop's
+/// `--format json`, for the editor plugins and tools that read that:
+///
+/// ```json
+/// {"files":[{"offenses":[{"cop_name":"Lint/Debugger","correctable":false,
+///   "corrected":false,"location":{"column":5,"last_column":5,"last_line":8,
+///   "length":1,"line":8,"start_column":5,"start_line":8},
+///   "message":"Remove …","severity":"error"}],"path":"app/a.rb"}],
+///  "metadata":{"rustocop_version":"1.1.0"},
+///  "summary":{"inspected_file_count":1,"offense_count":1,"target_file_count":1}}
+/// ```
+///
+/// Where the schema asks for more than a report holds:
+///
+/// - An offense records where it starts and not where it ends, so each
+///   location is the one character at the start.
+/// - A whole-file finding is at line 1, column 1, where RuboCop reports the
+///   same cops.
+/// - `correctable` says that the cop has safe corrections, not that this
+///   offense has one.
+/// - A syntax error is an offense of `Lint/Syntax` with the severity
+///   `fatal`, as in RuboCop. Any other file error, and each internal error,
+///   is a string in the `errors` of its file and counts in `error_count` of
+///   the summary. Both keys are absent when there are no such errors.
+pub fn render_json(report: &RunReport, registry: &Registry) -> String {
+    let cops = registry.cops().iter();
+    let correctable: HashSet<&str> = cops
+        .filter(|cop| cop.safe_fixes())
+        .map(|cop| cop.name())
+        .collect();
+    let offense = |severity: &str, message: &str, cop: &str, (line, column): (u32, u32)| {
+        json!({
+            "severity": severity,
+            "message": message,
+            "cop_name": cop,
+            "corrected": false,
+            "correctable": correctable.contains(cop),
+            "location": {
+                "start_line": line,
+                "start_column": column,
+                "last_line": line,
+                "last_column": column,
+                "length": 1,
+                "line": line,
+                "column": column,
+            },
+        })
+    };
+
+    // The offenses and the errors of each file, in path order.
+    let mut files: BTreeMap<&Path, (Vec<Value>, Vec<String>)> = BTreeMap::new();
+    for result in &report.results {
+        let (offenses, _) = files.entry(&result.path).or_default();
+        for found in &result.global_offenses {
+            let severity = found.severity.as_str();
+            offenses.push(offense(severity, &found.message, found.cop, (1, 1)));
+        }
+        for found in &result.offenses {
+            let (severity, start) = (found.severity.as_str(), (found.line, found.col));
+            offenses.push(offense(severity, &found.message, found.cop, start));
+        }
+    }
+    for error in &report.errors {
+        let (offenses, errors) = files.entry(&error.path).or_default();
+        match error.position {
+            Some(start) => {
+                // The text formats name the cop in the message.
+                let message = error.message.strip_suffix(" (Lint/Syntax)");
+                let message = message.unwrap_or(&error.message);
+                offenses.push(offense("fatal", message, "Lint/Syntax", start));
+            }
+            None => errors.push(error.message.clone()),
+        }
+    }
+    for error in &report.internal_errors {
+        let (_, errors) = files.entry(&error.path).or_default();
+        errors.push(error.to_string());
+    }
+
+    let (mut offense_count, mut error_count) = (0, 0);
+    let files: Vec<Value> = files
+        .into_iter()
+        .map(|(path, (offenses, errors))| {
+            offense_count += offenses.len();
+            error_count += errors.len();
+            let mut file = json!({ "path": path.display().to_string(), "offenses": offenses });
+            if !errors.is_empty() {
+                file["errors"] = json!(errors);
+            }
+            file
+        })
+        .collect();
+    let mut summary = json!({
+        "offense_count": offense_count,
+        "target_file_count": report.files_inspected,
+        "inspected_file_count": report.files_inspected,
+    });
+    if error_count > 0 {
+        summary["error_count"] = json!(error_count);
+    }
+    let metadata = json!({ "rustocop_version": env!("CARGO_PKG_VERSION") });
+    let mut out = json!({ "metadata": metadata, "files": files, "summary": summary }).to_string();
+    out.push('\n');
     out
 }
 
@@ -347,6 +461,108 @@ mod tests {
              lib/broken.rb: error: syntax error on line 3: expected ')'\n\
              \n\
              2 files inspected, 16 offenses detected, 1 error\n"
+        );
+    }
+
+    #[test]
+    fn json_format_has_the_schema_of_rubocop() {
+        let mut report = sample_report();
+        report.results[0].global_offenses.push(GlobalOffense {
+            cop: "Naming/FileName",
+            severity: Severity::Convention,
+            message: "Bad \"name\".".to_string(),
+        });
+        report.results[0].offenses[0].end_line = 9;
+        let second = Offense {
+            cop: "Style/StringLiterals",
+            severity: Severity::Convention,
+            message: "Prefer double quotes.".to_string(),
+            col: 1,
+            ..report.results[0].offenses[0].clone()
+        };
+        report.results[0].offenses.push(second);
+        report.errors.push(LintError {
+            path: PathBuf::from("lib/gone.rb"),
+            position: None,
+            message: "could not read file".to_string(),
+        });
+        report
+            .internal_errors
+            .push(internal_error("lib/gone.rb", Some("Lint/Void"), None, None));
+
+        let location = |line: u32, column: u32| {
+            json!({
+                "start_line": line, "start_column": column, "last_line": line,
+                "last_column": column, "length": 1, "line": line, "column": column,
+            })
+        };
+        let offense = |severity: &str, message: &str, cop: &str, correctable, location| {
+            json!({
+                "severity": severity, "message": message, "cop_name": cop,
+                "corrected": false, "correctable": correctable, "location": location,
+            })
+        };
+        let rendered = render_json(&report, &Registry::new());
+        assert!(rendered.ends_with("}\n") && rendered.lines().count() == 1);
+        let internal = report.internal_errors[0].to_string();
+        assert_eq!(
+            serde_json::from_str::<Value>(&rendered).unwrap(),
+            json!({
+                "metadata": { "rustocop_version": env!("CARGO_PKG_VERSION") },
+                "files": [
+                    {
+                        "path": "app/models/user.rb",
+                        "offenses": [
+                            offense("convention", "Bad \"name\".", "Naming/FileName", false, location(1, 1)),
+                            offense(
+                                "error",
+                                "Remove debugger entry point `binding.pry`.",
+                                "Lint/Debugger",
+                                false,
+                                location(8, 5),
+                            ),
+                            offense(
+                                "convention",
+                                "Prefer double quotes.",
+                                "Style/StringLiterals",
+                                true,
+                                location(8, 1),
+                            ),
+                        ],
+                    },
+                    {
+                        "path": "lib/broken.rb",
+                        "offenses": [offense(
+                            "fatal",
+                            "syntax error on line 3: expected ')'",
+                            "Lint/Syntax",
+                            false,
+                            location(3, 7),
+                        )],
+                    },
+                    {
+                        "path": "lib/gone.rb",
+                        "offenses": [],
+                        "errors": ["could not read file", internal],
+                    },
+                ],
+                "summary": {
+                    "offense_count": 4,
+                    "target_file_count": 2,
+                    "inspected_file_count": 2,
+                    "error_count": 2,
+                },
+            })
+        );
+
+        let clean = render_json(&RunReport::default(), &Registry::new());
+        assert_eq!(
+            serde_json::from_str::<Value>(&clean).unwrap(),
+            json!({
+                "metadata": { "rustocop_version": env!("CARGO_PKG_VERSION") },
+                "files": [],
+                "summary": { "offense_count": 0, "target_file_count": 0, "inspected_file_count": 0 },
+            })
         );
     }
 

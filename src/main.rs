@@ -42,6 +42,14 @@ struct Cli {
     #[arg(long, value_name = "PATH")]
     stdin: Option<PathBuf>,
 
+    /// Ignored: the excludes of the config always apply. Editor plugins pass it to RuboCop.
+    #[arg(long)]
+    force_exclusion: bool,
+
+    /// Ignored. Editor plugins pass it to RuboCop.
+    #[arg(long, hide = true)]
+    server: bool,
+
     /// Print the Ruby version that code is checked for, and where it comes from.
     #[arg(long, conflicts_with_all = ["fix", "stdin"])]
     show_ruby_version: bool,
@@ -88,6 +96,7 @@ fn real_main() -> i32 {
             output::Format::Text => output::render_text(&report),
             output::Format::Github => output::render_github(&report),
             output::Format::Offenses => output::render_offenses(&report),
+            output::Format::Json => output::render_json(&report, &registry),
         };
         print(&rendered);
         Ok(report.exit_code())
