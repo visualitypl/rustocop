@@ -36,6 +36,10 @@ impl Cop for FirstHashElementLineBreak {
         false
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_hash_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

@@ -15,6 +15,10 @@ impl Cop for MapIntoArray {
     fn name(&self) -> &'static str {
         "Style/MapIntoArray"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_call_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

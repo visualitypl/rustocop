@@ -36,6 +36,10 @@ impl Cop for MultilineArrayLineBreaks {
         false
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_array_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

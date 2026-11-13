@@ -17,6 +17,10 @@ impl Cop for ShadowingOuterLocalVariable {
     fn name(&self) -> &'static str {
         "Lint/ShadowingOuterLocalVariable"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_program_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

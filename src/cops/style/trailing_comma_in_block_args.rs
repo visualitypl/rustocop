@@ -12,6 +12,10 @@ impl Cop for TrailingCommaInBlockArgs {
     fn name(&self) -> &'static str {
         "Style/TrailingCommaInBlockArgs"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_block_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

@@ -16,6 +16,10 @@ impl Cop for DuplicateMatchPattern {
         "Lint/DuplicateMatchPattern"
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_case_match_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

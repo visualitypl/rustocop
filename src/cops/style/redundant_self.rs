@@ -30,6 +30,10 @@ impl Cop for RedundantSelf {
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {
         &["Style/ColonMethodCall", "Layout/DotPosition"]
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_call_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

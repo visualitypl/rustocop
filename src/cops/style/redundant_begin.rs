@@ -36,6 +36,10 @@ impl Cop for RedundantBegin {
     fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self { max }))
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_begin_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

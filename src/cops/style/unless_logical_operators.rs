@@ -11,6 +11,10 @@ impl Cop for UnlessLogicalOperators {
     fn name(&self) -> &'static str {
         "Style/UnlessLogicalOperators"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_unless_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

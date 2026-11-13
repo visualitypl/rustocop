@@ -16,6 +16,10 @@ impl Cop for RescueModifier {
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {
         &["Style/MethodCallWithArgsParentheses"]
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_rescue_modifier_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

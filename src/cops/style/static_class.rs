@@ -14,6 +14,10 @@ impl Cop for StaticClass {
         "Style/StaticClass"
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_class_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

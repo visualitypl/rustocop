@@ -56,6 +56,10 @@ impl Cop for UselessElseWithoutRescue {
         }
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_begin_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

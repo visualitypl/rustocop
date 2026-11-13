@@ -12,6 +12,10 @@ impl Cop for UnreachablePatternBranch {
     fn name(&self) -> &'static str {
         "Lint/UnreachablePatternBranch"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_case_match_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

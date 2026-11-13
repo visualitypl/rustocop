@@ -51,6 +51,10 @@ impl Cop for EmptyLineAfterGuardClause {
         true
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_statements_node().is_some()
+    }
+
     /// Upstream's sibling rules need the next statement: each statement list
     /// is visited once and its consecutive pairs are checked, so the work
     /// stays linear in long lists. A sole statement has no pair.

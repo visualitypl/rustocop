@@ -10,6 +10,10 @@ impl Cop for ArrayFirstLast {
     fn name(&self) -> &'static str {
         "Style/ArrayFirstLast"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_call_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

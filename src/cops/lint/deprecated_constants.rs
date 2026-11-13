@@ -14,6 +14,13 @@ impl Cop for DeprecatedConstants {
     fn safe_fixes(&self) -> bool {
         true
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(
+            node,
+            Node::ConstantReadNode { .. } | Node::ConstantPathNode { .. }
+        )
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

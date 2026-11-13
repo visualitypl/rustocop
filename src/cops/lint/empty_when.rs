@@ -32,6 +32,10 @@ impl Cop for EmptyWhen {
         file.directives_with_disabled(result, &[]);
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_case_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

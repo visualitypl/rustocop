@@ -24,6 +24,10 @@ impl Cop for RedundantCondition {
         true
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(node, Node::IfNode { .. } | Node::UnlessNode { .. })
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

@@ -53,6 +53,10 @@ impl Cop for EmptyLinesAroundAccessModifier {
         true
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_statements_node().is_some()
+    }
+
     /// Each statement list is visited once, with every statement's parser
     /// right sibling, keeping long lists linear.
     fn check_node<'pr>(

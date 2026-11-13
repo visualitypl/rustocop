@@ -11,6 +11,10 @@ impl Cop for ArrayLiteralInRegexp {
     fn name(&self) -> &'static str {
         "Lint/ArrayLiteralInRegexp"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_embedded_statements_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

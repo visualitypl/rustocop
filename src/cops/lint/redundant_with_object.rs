@@ -11,6 +11,10 @@ impl Cop for RedundantWithObject {
     fn name(&self) -> &'static str {
         "Lint/RedundantWithObject"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_call_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

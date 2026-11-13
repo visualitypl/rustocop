@@ -31,6 +31,10 @@ impl Cop for BlockForwarding {
             "Style/MethodDefParentheses",
         ]
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_program_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

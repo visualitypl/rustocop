@@ -79,6 +79,10 @@ impl Cop for LineLength {
         Some(Box::new(LineLength::new(max)))
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_program_node().is_some()
+    }
+
     /// A line-oriented check that runs once, at the root, rather than in
     /// `check_source`: the tree is at hand there, so heredoc bodies are only
     /// collected for files that have a line too long.

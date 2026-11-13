@@ -10,6 +10,10 @@ impl Cop for StringHashKeys {
     fn name(&self) -> &'static str {
         "Style/StringHashKeys"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_assoc_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

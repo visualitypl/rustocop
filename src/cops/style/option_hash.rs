@@ -15,6 +15,10 @@ impl Cop for OptionHash {
     fn name(&self) -> &'static str {
         "Style/OptionHash"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_parameters_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

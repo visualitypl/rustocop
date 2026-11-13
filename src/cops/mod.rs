@@ -1,7 +1,11 @@
 //! The cop registry, the `Cop` contract, and the AST walker that dispatches
 //! nodes to cops.
 
-use std::{cell::RefCell, collections::HashSet};
+use std::{
+    cell::RefCell,
+    collections::HashSet,
+    mem::{Discriminant, discriminant},
+};
 
 use ruby_prism::Node;
 
@@ -264,6 +268,15 @@ pub trait Cop: Send + Sync {
         _file: &SourceFile,
         _out: &mut Vec<Offense>,
     ) {
+    }
+
+    /// Whether [`Cop::check_node`] looks at nodes of `node`'s kind. The answer
+    /// must depend on the kind alone: the walker asks once per kind per file
+    /// and skips `check_node` for every node of a kind the cop declines.
+    /// Declare it when `check_node` starts by returning for other kinds; a
+    /// cop that does not is called for every node.
+    fn wants_node(&self, _node: &Node<'_>) -> bool {
+        true
     }
 
     /// Whether the walker calls [`Cop::leave_node`] for this cop. Off by
@@ -1157,6 +1170,9 @@ struct CopWalker<'a, 'b, 'pr> {
     cops: Vec<Running<'b>>,
     /// The ones among them that want `leave_node`, in the same order.
     leaving: Vec<Running<'b>>,
+    /// Per node kind met so far, the cops whose [`Cop::wants_node`] takes it,
+    /// in the same order. A file has few kinds, so a scan finds one.
+    by_kind: Vec<(Discriminant<Node<'pr>>, Vec<Running<'b>>)>,
     /// The ancestors of the next node, outermost first: every branch node
     /// entered and not yet left.
     ancestors: Vec<Node<'pr>>,
@@ -1186,15 +1202,37 @@ impl<'pr> CopWalker<'_, '_, 'pr> {
             };
             self.has_heredoc = opening.is_some_and(|loc| loc.as_slice().starts_with(b"<<"));
         }
+        let kind = if LEAVE { 0 } else { self.kind(node) };
         let cx = NodeContext {
             ancestors: &self.ancestors,
             corrections_requested: self.corrections_requested,
             require_order_reports: &self.require_order_reports,
         };
         let file = self.file;
+        // Tests hold every cop to its `wants_node`: a cop that declines a
+        // kind must report nothing for a node of it.
+        #[cfg(test)]
+        if !LEAVE {
+            for running in &self.cops {
+                if !running.cop.wants_node(node) {
+                    let before = self.out.len();
+                    running.cop.check_node(node, &cx, file, self.out);
+                    assert_eq!(
+                        before,
+                        self.out.len(),
+                        "{} reports a node kind its wants_node declines",
+                        running.cop.name()
+                    );
+                }
+            }
+        }
         let mut index = 0;
         loop {
-            let cops = if LEAVE { &self.leaving } else { &self.cops };
+            let cops = if LEAVE {
+                &self.leaving
+            } else {
+                &self.by_kind[kind].1
+            };
             let Some(&Running { id, cop }) = cops.get(index) else {
                 return;
             };
@@ -1210,19 +1248,37 @@ impl<'pr> CopWalker<'_, '_, 'pr> {
                 Ok(()) => index += 1,
                 Err(panic) => {
                     let position = file.line_col(node.location().start_offset());
-                    let cops = [&mut self.cops, &mut self.leaving];
+                    let cops = [&mut self.cops, &mut self.leaving]
+                        .into_iter()
+                        .chain(self.by_kind.iter_mut().map(|(_, cops)| cops));
                     self.panics.push(drop_cop(cops, id, position, panic));
                 }
             }
         }
+    }
+
+    /// The index in `by_kind` of `node`'s kind, added on its first node.
+    fn kind(&mut self, node: &Node<'pr>) -> usize {
+        let kind = discriminant(node);
+        if let Some(index) = self.by_kind.iter().position(|(known, _)| *known == kind) {
+            return index;
+        }
+        let wanting = self
+            .cops
+            .iter()
+            .copied()
+            .filter(|running| running.cop.wants_node(node))
+            .collect();
+        self.by_kind.push((kind, wanting));
+        self.by_kind.len() - 1
     }
 }
 
 /// Remove the cop numbered `id` from each of `lists`, and report its panic
 /// at `position`.
 #[cold]
-fn drop_cop(
-    lists: [&mut Vec<Running<'_>>; 2],
+fn drop_cop<'l, 'b: 'l>(
+    lists: impl Iterator<Item = &'l mut Vec<Running<'b>>>,
     id: usize,
     position: (u32, u32),
     panic: CaughtPanic,
@@ -1328,6 +1384,7 @@ pub(crate) fn run_cops_with_corrections(
     let mut walker = CopWalker {
         cops: live,
         leaving,
+        by_kind: Vec::new(),
         ancestors: Vec::new(),
         file,
         out,

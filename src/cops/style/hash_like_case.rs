@@ -10,6 +10,10 @@ impl Cop for HashLikeCase {
     fn name(&self) -> &'static str {
         "Style/HashLikeCase"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_case_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

@@ -15,6 +15,10 @@ impl Cop for TopLevelReturnWithArgument {
     fn name(&self) -> &'static str {
         "Lint/TopLevelReturnWithArgument"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_return_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

@@ -23,6 +23,10 @@ impl Cop for UnusedMethodArgument {
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {
         &["Style/ExplicitBlockArgument"]
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_program_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

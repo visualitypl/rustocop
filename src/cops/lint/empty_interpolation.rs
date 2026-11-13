@@ -25,6 +25,10 @@ impl Cop for EmptyInterpolation {
         "Lint/EmptyInterpolation"
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_embedded_statements_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

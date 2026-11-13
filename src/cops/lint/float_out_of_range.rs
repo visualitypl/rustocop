@@ -15,6 +15,10 @@ impl Cop for FloatOutOfRange {
         "Lint/FloatOutOfRange"
     }
 
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_float_node().is_some()
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
