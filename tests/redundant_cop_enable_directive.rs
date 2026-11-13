@@ -63,18 +63,27 @@ fn all_28_pinned_calls_and_24_correction_dispositions_including_real_config() {
     for row in rows.as_array().unwrap() {
         let source = row["source"].as_str().unwrap();
         let disabled = row["disabled"] == true;
+        // RuboCop's examples name Metrics cops, which are on there and
+        // opt-in here: switch the department on, as the examples assume.
         fs::write(
             d.path().join("rustocop.toml"),
             if disabled {
-                "[cops.\"Layout/LineLength\"]\nenabled = false\n"
+                "[cops.Metrics]\nenabled = true\n[cops.\"Layout/LineLength\"]\nenabled = false\n"
             } else {
-                ""
+                "[cops.Metrics]\nenabled = true\n"
             },
         )
         .unwrap();
         // Ordinary pipeline diagnostics, with configured-off lifecycle cases
         // additionally checked through the real CLI's full configured universe.
         let mut config = ResolvedConfig::default();
+        config.cop_settings.insert(
+            "Metrics".into(),
+            rustocop::config::CopSettings {
+                enabled: Some(true),
+                ..Default::default()
+            },
+        );
         if disabled {
             config.cop_settings.insert(
                 "Layout/LineLength".into(),

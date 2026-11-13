@@ -159,12 +159,9 @@ fn struct_or_data_initializer(cx: &NodeContext<'_, '_>) -> bool {
 mod tests {
     //! Ported/adapted from RuboCop metrics/parameter_lists_spec.rb (MIT License,
     //! Copyright (c) 2012-26 Bozhidar Batsov). Spec Max=4 is adapted to fixed Max=5.
-    use crate::{offense::Offense, pipeline::lint_str};
+    use crate::{offense::Offense, pipeline::lint_str_with};
     fn offenses(source: &str) -> Vec<Offense> {
-        lint_str(source)
-            .into_iter()
-            .filter(|o| o.cop == "Metrics/ParameterLists")
-            .collect()
+        lint_str_with(&[&super::ParameterLists], source)
     }
     #[test]
     fn total_parameters_and_exact_location_message() {

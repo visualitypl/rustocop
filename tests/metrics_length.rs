@@ -83,12 +83,12 @@ fn expected(file: &str) -> Vec<String> {
 }
 
 #[test]
-fn registry_metadata_is_fixed_default_on_and_detection_only() {
+fn registry_metadata_is_fixed_opt_in_and_detection_only() {
     let registry = Registry::new();
     assert_eq!(registry.cops().len(), 613);
     for name in COPS {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
-        assert!(cop.default_enabled(), "{name}");
+        assert!(!cop.default_enabled(), "{name}");
         assert!(!cop.safe_fixes(), "{name}");
         assert_eq!(cop.severity(), Severity::Convention);
         assert_eq!(cop.ruby_versions(), Default::default());
@@ -100,9 +100,17 @@ fn registry_metadata_is_fixed_default_on_and_detection_only() {
 }
 
 #[test]
-fn default_run_reports_each_cop_at_its_node_and_fix_never_writes() {
+fn enabled_runs_report_each_cop_at_its_node_and_fix_never_writes() {
     let d = project();
     let bytes = source();
+    // The cops are opt-in: a run without a selector or config reports none.
+    let out = unchanged(d.path(), bytes.as_bytes(), &["lib/a.rb"], 1);
+    assert_eq!(found(&out), Vec::<String>::new(), "{out:?}");
+    fs::write(
+        d.path().join("rustocop.toml"),
+        "[cops.Metrics]\nenabled=true\n",
+    )
+    .unwrap();
     for args in [
         vec!["lib/a.rb"],
         vec!["--only", "Metrics", "lib/a.rb"],
@@ -136,13 +144,20 @@ fn selectors_department_and_strict_config() {
             vec![],
             1,
         ),
+        ("[cops.Metrics]\nenabled=true\n".into(), vec![], 4),
         (
-            "[cops.\"Metrics/BlockLength\"]\nenabled=false\n".into(),
+            "[cops.\"Metrics/BlockLength\"]\nenabled=true\n".into(),
+            vec![],
+            1,
+        ),
+        (
+            "[cops.Metrics]\nenabled=true\n[cops.\"Metrics/BlockLength\"]\nenabled=false\n".into(),
             vec![],
             3,
         ),
         (
-            "[cops.\"Metrics/MethodLength\"]\nexclude=['lib/a.rb']\n".into(),
+            "[cops.Metrics]\nenabled=true\n[cops.\"Metrics/MethodLength\"]\nexclude=['lib/a.rb']\n"
+                .into(),
             vec![],
             3,
         ),
@@ -238,7 +253,10 @@ fn the_pinned_gemspec_exclusion_holds_even_when_forced() {
     let block = format!("Gem::Specification.new do |s|\n{}end\n", lines(30, "  "));
     fs::write(d.path().join("foo.gemspec"), &block).unwrap();
     fs::write(d.path().join("lib/foo.rb"), &block).unwrap();
-    for config in ["", "[cops.\"Metrics/BlockLength\"]\nenabled=true\n"] {
+    for config in [
+        "[cops.Metrics]\nenabled=true\n",
+        "[cops.\"Metrics/BlockLength\"]\nenabled=true\n",
+    ] {
         fs::write(d.path().join("rustocop.toml"), config).unwrap();
         for flags in [
             vec![],

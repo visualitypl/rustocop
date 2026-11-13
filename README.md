@@ -8,13 +8,12 @@ lints RuboCop's own 1,800 source files in about half a second.
 
 ```
 $ rustocop app
-app/order.rb:1:1: C: Missing top-level documentation comment for `class Order`. (Style/Documentation)
 app/order.rb:3:5: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)
 app/order.rb:4:15: C: Pass `&:price` as an argument to `map` instead of a block. (Style/SymbolProc)
 app/order.rb:8:5: C: Prefer double-quoted strings unless you need single quotes to avoid extra backslashes for escaping. (Style/StringLiterals)
 app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 
-1 file inspected, 5 offenses detected
+1 file inspected, 4 offenses detected
 ```
 
 - **Zero config.** Sensible defaults out of the box. Add `rustocop.toml` only
@@ -46,8 +45,8 @@ Version 1.0.0, built from source; there is no published release yet.
 
 Each cop matches the behaviour of its RuboCop 1.92.0 counterpart at
 rustocop's fixed settings and is verified against RuboCop's own spec examples
-(see [Development](#development)). Most cops are on by default; 34 Style
-cops, 14 Layout cops (the line-break cops, `Layout/ClassStructure`,
+(see [Development](#development)). Most cops are on by default; 35 Style
+cops, the ten Metrics cops, 14 Layout cops (the line-break cops, `Layout/ClassStructure`,
 `Layout/SingleLineBlockChain`, `Layout/MultilineAssignmentLayout`,
 `Layout/EmptyLineAfterMultilineCondition` and
 `Layout/HeredocArgumentClosingParenthesis`), five Lint cops
@@ -55,7 +54,13 @@ cops, 14 Layout cops (the line-break cops, `Layout/ClassStructure`,
 `Lint/NumberConversion`, `Lint/ShadowingOuterLocalVariable`,
 `Lint/UnusedPrivateMethod`), `Bundler/GemComment`, `Bundler/GemVersion`,
 `Gemspec/DependencyVersion`, `Naming/InclusiveLanguage` and
-`Style/FrozenStringLiteralComment` are opt-in. A few cops apply only to some
+`Style/FrozenStringLiteralComment` are opt-in. Three of these choices are
+rustocop's own, where RuboCop has the cop on: the Metrics cops, because their
+thresholds are fixed and cannot be tuned, `Style/Documentation` and
+`Style/FrozenStringLiteralComment`. `[cops.Metrics]` with `enabled = true`
+switches the department on. While one of these cops is off, a
+`# rubocop:disable` comment for it is not reported as unnecessary, because
+RuboCop may still need the comment. A few cops apply only to some
 Ruby versions. `Style/ReverseFind` runs only when `ruby_version` is `"4.0"`.
 `Security/YAMLLoad`, `Lint/ItWithoutArgumentsInBlock`,
 `Lint/UselessElseWithoutRescue` and `Lint/NonDeterministicRequireOrder` apply
@@ -74,8 +79,8 @@ only to Ruby versions older than 3.4; they stay registered but report nothing.
 - **File-local analysis.** Every file is linted independently and in
   parallel. Cops that need cross-file state in RuboCop (for example
   `Lint/DuplicateMethods` across files) work within one file here.
-- **Standard cops only.** All nine RuboCop departments are covered, with
-  Metrics thresholds fixed at RuboCop's defaults. There is no support for
+- **Standard cops only.** All nine RuboCop departments are covered. Metrics
+  cops are opt-in, with thresholds fixed at RuboCop's defaults. There is no support for
   extension gems such as rubocop-rails or rubocop-rspec.
 - **No unsafe autocorrect, formatter or server mode.**
 
@@ -133,6 +138,8 @@ annotation:
 | Raising exceptions | `raise`, never `fail` |
 | Line length | 120 columns (the only numeric setting, see [Configuration](#configuration)) |
 | `# frozen_string_literal: true` | not required unless the cop is enabled |
+| Documentation comments | not required unless `Style/Documentation` is enabled |
+| Metrics (method length, complexity, ...) | not checked unless the cop is enabled; thresholds as in RuboCop |
 
 The remaining defaults follow RuboCop 1.92.0. Pin the binary version if new
 default-on cops are unwanted.
@@ -362,12 +369,12 @@ CI, and never executes the corpus.
 ## Performance
 
 Linting RuboCop's own source (revision `97f30c4`: 1,793 Ruby files, about
-390,000 lines) with all 613 cops:
+390,000 lines) with the default cops:
 
 | Command                               | Mean ± σ        |
 | ------------------------------------- | --------------- |
-| `rustocop .`                          | 374 ms ± 44 ms  |
-| `RAYON_NUM_THREADS=1 rustocop .`      | 2.50 s ± 0.03 s |
+| `rustocop .`                          | 371 ms ± 43 ms  |
+| `RAYON_NUM_THREADS=1 rustocop .`      | 2.39 s ± 0.02 s |
 | `rubocop --parallel`, empty cache     | 6.57 s ± 0.16 s |
 | `rubocop --parallel`, warm cache      | 775 ms ± 10 ms  |
 
@@ -379,7 +386,7 @@ files already in the page cache) on an Apple M5 Pro with 15 cores, under
 Linux aarch64 in the `Dockerfile.test` image: a `--release` build of rustocop
 1.0.0 with Rust 1.99.1, and RuboCop 1.92.0 on Ruby 3.2.3 with
 `NewCops: enable` and no extensions. The RuboCop rows are for scale, not a
-like-for-like race: the defaults differ, and rustocop reports 60,009 offenses
+like-for-like race: the defaults differ, and rustocop reports 56,152 offenses
 on this code where RuboCop reports 5,970.
 
 ## License

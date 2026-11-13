@@ -585,13 +585,10 @@ mod tests {
     //! Examples ported from RuboCop's style/documentation_spec.rb
     //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::pipeline::lint_str;
+    use crate::pipeline::lint_str_with;
 
     fn offenses(source: &str) -> Vec<Offense> {
-        lint_str(source)
-            .into_iter()
-            .filter(|o| o.cop == "Style/Documentation")
-            .collect()
+        lint_str_with(&[&Documentation], source)
     }
 
     fn assert_offense(source: &str, line: u32, col: u32, identifier: &str) {

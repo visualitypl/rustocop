@@ -45,14 +45,24 @@ impl Cop for RedundantCopDisableDirective {
                     let all = n == "all";
                     let department = known.iter().any(|c| c.split('/').next() == Some(n));
                     let registered = known.iter().any(|c| hits(n, c));
-                    let complete = cx
-                        .cops
-                        .iter()
-                        .filter(|c| {
+                    let targets = || {
+                        cx.cops.iter().filter(|c| {
                             hits(n, c.name)
                                 && (!(all || department) || !matches!(c.name, NAME | "Lint/Syntax"))
                         })
-                        .all(|c| {
+                    };
+                    // RuboCop has these cops on and rustocop has them opt-in.
+                    // While none of them runs, the comment is no evidence of
+                    // anything: the code may be linted by RuboCop too. The pin
+                    // treats its pending cops that do not run in the same way.
+                    let dormant = registered
+                        && targets().all(|c| {
+                            crate::cops::policy::opt_in_here(c.name)
+                                && !c.configured_enabled
+                                && !c.investigated
+                        });
+                    let complete = !dormant
+                        && targets().all(|c| {
                             c.available
                                 && ((!c.configured_enabled && !c.investigated) || c.completed)
                         });
@@ -509,6 +519,23 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == "Lint/RedundantCopDisableDirective")
             .collect()
+    }
+
+    #[test]
+    fn a_disable_for_a_cop_that_only_rustocop_has_opt_in_is_kept_while_the_cop_is_off() {
+        for target in [
+            "Metrics/AbcSize",
+            "Metrics/AbcSize, Metrics/MethodLength",
+            "Metrics",
+            "Style/Documentation",
+            "Style/FrozenStringLiteralComment",
+        ] {
+            let source = format!("def x # rubocop:disable {target}\nend\n");
+            assert!(offenses(&source).is_empty(), "{target}");
+        }
+        // A cop that RuboCop has off as well is judged as before.
+        let found = offenses("x = 1 # rubocop:disable Style/Copyright\n");
+        assert_eq!(found.len(), 1, "{found:?}");
     }
     #[test]
     fn incomplete_universe_retains_directives_and_configured_final_disable() {

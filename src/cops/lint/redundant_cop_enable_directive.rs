@@ -421,8 +421,8 @@ mod tests {
                     vec![],
                 ),
                 (
-                    "# P:disable Layout/LineLength\n# P:enable Metrics/AbcSize, Layout/LineLength\n",
-                    vec!["Metrics/AbcSize"],
+                    "# P:disable Layout/LineLength\n# P:enable Lint/EmptyBlock, Layout/LineLength\n",
+                    vec!["Lint/EmptyBlock"],
                 ),
                 (
                     "# P:disable Layout\n# P:enable Layout, Layout/LineLength\n",
@@ -542,15 +542,15 @@ mod tests {
             ),
             ("foo = 1\n# rubocop:pop\n", "foo = 1\n"),
             (
-                "# rubocop:disable Layout/LineLength\n# rubocop:enable Metrics/AbcSize,Layout/LineLength\n",
+                "# rubocop:disable Layout/LineLength\n# rubocop:enable Lint/EmptyBlock,Layout/LineLength\n",
                 "# rubocop:disable Layout/LineLength\n# rubocop:enable Layout/LineLength\n",
             ),
             (
-                "# rubocop:disable Layout/LineLength, Lint/Debugger\n# rubocop:enable Layout/LineLength,  Metrics/AbcSize,  Lint/Debugger\n",
+                "# rubocop:disable Layout/LineLength, Lint/Debugger\n# rubocop:enable Layout/LineLength,  Lint/EmptyBlock,  Lint/Debugger\n",
                 "# rubocop:disable Layout/LineLength, Lint/Debugger\n# rubocop:enable Layout/LineLength,  Lint/Debugger\n",
             ),
             (
-                "# rubocop:disable Layout/LineLength\n# rubocop:enable Layout/LineLength, Metrics/AbcSize\n",
+                "# rubocop:disable Layout/LineLength\n# rubocop:enable Layout/LineLength, Lint/EmptyBlock\n",
                 "# rubocop:disable Layout/LineLength\n# rubocop:enable Layout/LineLength\n",
             ),
         ] {
@@ -580,23 +580,23 @@ mod tests {
         use crate::cops::testing::assert_correction;
         for (list, expected) in [
             (
-                "Metrics/AbcSize, Metrics/ClassLength, Layout/LineLength",
+                "Lint/EmptyBlock, Style/RedundantSelf, Layout/LineLength",
                 "Layout/LineLength",
             ),
             (
-                "Layout/LineLength, Metrics/AbcSize, Metrics/ClassLength",
+                "Layout/LineLength, Lint/EmptyBlock, Style/RedundantSelf",
                 "Layout/LineLength",
             ),
             (
-                "Metrics/AbcSize, Layout/LineLength, Metrics/ClassLength",
+                "Lint/EmptyBlock, Layout/LineLength, Style/RedundantSelf",
                 "Layout/LineLength",
             ),
             (
-                "Metrics/AbcSize,Metrics/ClassLength,Layout/LineLength",
+                "Lint/EmptyBlock,Style/RedundantSelf,Layout/LineLength",
                 "Layout/LineLength",
             ),
             (
-                "Layout/LineLength,Metrics/AbcSize,Metrics/ClassLength",
+                "Layout/LineLength,Lint/EmptyBlock,Style/RedundantSelf",
                 "Layout/LineLength",
             ),
         ] {

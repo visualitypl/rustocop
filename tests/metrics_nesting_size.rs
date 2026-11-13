@@ -100,12 +100,12 @@ fn expected(file: &str, shift: u32) -> Vec<String> {
 }
 
 #[test]
-fn registry_metadata_is_fixed_default_on_and_detection_only() {
+fn registry_metadata_is_fixed_opt_in_and_detection_only() {
     let registry = Registry::new();
     assert_eq!(registry.cops().len(), 613);
     for name in COPS {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
-        assert!(cop.default_enabled(), "{name}");
+        assert!(!cop.default_enabled(), "{name}");
         assert!(!cop.safe_fixes(), "{name}");
         assert_eq!(cop.severity(), Severity::Convention);
         assert_eq!(cop.ruby_versions(), Default::default());
@@ -118,9 +118,17 @@ fn registry_metadata_is_fixed_default_on_and_detection_only() {
 }
 
 #[test]
-fn default_run_reports_each_cop_and_fix_never_writes() {
+fn enabled_runs_report_each_cop_and_fix_never_writes() {
     let d = project();
     let bytes = source();
+    // The cops are opt-in: a run without a selector or config reports none.
+    let out = unchanged(d.path(), bytes.as_bytes(), &["lib/a.rb"], 1);
+    assert_eq!(found(&out), Vec::<String>::new(), "{out:?}");
+    fs::write(
+        d.path().join("rustocop.toml"),
+        "[cops.Metrics]\nenabled=true\n",
+    )
+    .unwrap();
     for args in [
         vec!["lib/a.rb"],
         vec!["--only", "Metrics", "lib/a.rb"],
@@ -212,8 +220,14 @@ fn selectors_department_and_strict_config() {
             vec![],
             1,
         ),
+        ("[cops.Metrics]\nenabled=true\n".into(), vec![], 2),
         (
-            "[cops.\"Metrics/BlockNesting\"]\nenabled=false\n".into(),
+            "[cops.\"Metrics/BlockNesting\"]\nenabled=true\n".into(),
+            vec![],
+            1,
+        ),
+        (
+            "[cops.Metrics]\nenabled=true\n[cops.\"Metrics/BlockNesting\"]\nenabled=false\n".into(),
             vec![],
             1,
         ),

@@ -292,7 +292,7 @@ const DEPARTMENTS: [(&str, &str, &str, u32, bool); 10] = [
         "x.rb",
         "def m(a, b, c, d, e, f)\nend\n",
         1,
-        true,
+        false,
     ),
     (
         "Migration/DepartmentName",
@@ -405,7 +405,11 @@ fn parse_errors_never_write_and_valid_peers_continue_across_departments() {
             .any(|l| l.starts_with("broken.rb:") && l.contains("Style/StringLiterals")),
         "{text}"
     );
-    for cop in ["Security/Eval", "Metrics/ParameterLists", "Lint/Debugger"] {
+    for cop in [
+        "Security/Eval",
+        "Naming/MethodParameterName",
+        "Lint/Debugger",
+    ] {
         assert!(cops(&out).iter().any(|c| c == cop), "{cop}: {text}");
     }
 }

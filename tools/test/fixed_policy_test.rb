@@ -10,10 +10,12 @@ class FixedPolicyTest < Minitest::Test
     assert_equal 299, records.size
     records.each do |record|
       name = record.fetch("name")
-      expected = record.fetch("upstream_enabled") != false && name != "Style/FrozenStringLiteralComment"
+      expected = record.fetch("upstream_enabled") != false &&
+                 !%w[Style/Documentation Style/FrozenStringLiteralComment].include?(name)
       assert_equal expected, FixedPolicy.default_enabled(name), name
     end
-    assert_equal 265, records.count { |r| FixedPolicy.default_enabled(r.fetch("name")) }
+    assert_equal 264, records.count { |r| FixedPolicy.default_enabled(r.fetch("name")) }
+    refute FixedPolicy.default_enabled('Metrics/AbcSize')
     refute FixedPolicy.default_enabled('Naming/InclusiveLanguage')
     assert FixedPolicy.default_enabled('Naming/PredicateMethod')
   end

@@ -59,7 +59,7 @@ fn real_pipeline_has_exact_default_policy_and_additive_path_exclusions() {
     let matches: Vec<_> = registry.cops().iter().filter(|c| c.name() == COP).collect();
     assert_eq!(matches.len(), 1);
     let cop = matches[0];
-    assert!(cop.default_enabled());
+    assert!(!cop.default_enabled());
     assert!(!cop.safe_fixes());
     assert!(cop.path_policy().is_some());
     assert_eq!(cop.ruby_versions(), Default::default());
@@ -100,10 +100,17 @@ fn real_pipeline_has_exact_default_policy_and_additive_path_exclusions() {
 }
 
 #[test]
-fn defaults_selectors_and_explicit_config_enablement_work_without_writes() {
+fn opt_in_selectors_and_explicit_config_enablement_work_without_writes() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
+    // The cop is opt-in: a run without a selector or config does not report.
+    cli(dir.path(), &["lib/a.rb"], 0);
+    fs::write(
+        dir.path().join("rustocop.toml"),
+        "[cops.\"Style/Documentation\"]\nenabled = true\n",
+    )
+    .unwrap();
     let output = cli(dir.path(), &["lib/a.rb"], 1);
     assert!(String::from_utf8_lossy(&output.stdout).contains("lib/a.rb:1:1: C: Missing top-level documentation comment for `class Person`. (Style/Documentation)"));
     for config in [

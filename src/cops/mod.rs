@@ -2122,7 +2122,7 @@ mod tests {
                 .collect()
         };
         let defaults = names(&ResolvedConfig::default());
-        assert_eq!(defaults.len(), 264, "{defaults:?}");
+        assert_eq!(defaults.len(), 263, "{defaults:?}");
         assert!(defaults.contains(&"Style/SafeNavigation"));
         assert!(defaults.contains(&"Style/SafeNavigationChainLength"));
         assert!(defaults.contains(&"Style/SingleArgumentDig"));

@@ -1,7 +1,9 @@
 //! Fixed Style policy and landed Naming policy.
 //! Metadata is not registration: only real cops in `Registry` are selectable.
 
-/// Explicit upstream `Enabled: false`, plus the existing frozen-comment exception.
+/// Explicit upstream `Enabled: false`, plus rustocop's own exceptions: the
+/// frozen-comment cop, `Style/Documentation`, and the Metrics department,
+/// whose thresholds are fixed, so a team that disagrees with one cannot tune it.
 /// Pending is enabled; absence from this list does not imply implementation.
 const OPT_IN: &[&str] = &[
     "Bundler/GemComment",
@@ -26,6 +28,16 @@ const OPT_IN: &[&str] = &[
     "Lint/NumberConversion",
     "Lint/ShadowingOuterLocalVariable",
     "Lint/UnusedPrivateMethod",
+    "Metrics/AbcSize",
+    "Metrics/BlockLength",
+    "Metrics/BlockNesting",
+    "Metrics/ClassLength",
+    "Metrics/CollectionLiteralLength",
+    "Metrics/CyclomaticComplexity",
+    "Metrics/MethodLength",
+    "Metrics/ModuleLength",
+    "Metrics/ParameterLists",
+    "Metrics/PerceivedComplexity",
     "Naming/InclusiveLanguage",
     "Style/ArrayCoercion",
     "Style/ArrayFirstLast",
@@ -37,6 +49,7 @@ const OPT_IN: &[&str] = &[
     "Style/Copyright",
     "Style/DateTime",
     "Style/DisableCopsWithinSourceCodeDirective",
+    "Style/Documentation",
     "Style/DocumentationMethod",
     "Style/FrozenStringLiteralComment",
     "Style/HashLookupMethod",
@@ -65,6 +78,17 @@ const OPT_IN: &[&str] = &[
 
 pub(crate) fn default_enabled(name: &str) -> bool {
     !OPT_IN.contains(&name)
+}
+
+/// Whether `name` is opt-in by rustocop's own choice while RuboCop has it on.
+/// A `rubocop:disable` comment for such a cop may serve RuboCop, so it is not
+/// redundant while the cop does not run.
+pub(crate) fn opt_in_here(name: &str) -> bool {
+    name.starts_with("Metrics/")
+        || matches!(
+            name,
+            "Style/Documentation" | "Style/FrozenStringLiteralComment"
+        )
 }
 
 /// A Ruby minor version. A run targets one: it selects the parser grammar and
@@ -269,13 +293,13 @@ mod tests {
         let mut pending = 0;
         for record in records {
             let name = record["name"].as_str().unwrap();
-            let expected =
-                record["upstream_enabled"] != false && name != "Style/FrozenStringLiteralComment";
+            let expected = record["upstream_enabled"] != false
+                && !["Style/Documentation", "Style/FrozenStringLiteralComment"].contains(&name);
             assert_eq!(default_enabled(name), expected, "{name}");
             enabled += usize::from(expected);
             pending += usize::from(record["upstream_enabled"] == "pending");
         }
-        assert_eq!((enabled, records.len() - enabled), (265, 34));
+        assert_eq!((enabled, records.len() - enabled), (264, 35));
         assert!(pending > 0);
         for cop in Registry::new().cops() {
             assert_eq!(
@@ -521,7 +545,7 @@ mod tests {
     fn pinned_paths_and_include_fixture_apply_before_dispatch_in_the_pipeline() {
         use std::path::Path;
         let registry = Registry::from_cops(vec![
-            Box::new(PolicyDebugger("Style/Documentation")),
+            Box::new(PolicyDebugger("Style/OneClassPerFile")),
             Box::new(PolicyDebugger("Lint/IncludedProbe")),
         ]);
         let config = ResolvedConfig::resolve(
@@ -534,22 +558,22 @@ mod tests {
         for (path, expected) in [
             (
                 "lib/a.rb",
-                vec!["Lint/IncludedProbe", "Style/Documentation"],
+                vec!["Lint/IncludedProbe", "Style/OneClassPerFile"],
             ),
             (
                 "lib/deep/a.rb",
-                vec!["Lint/IncludedProbe", "Style/Documentation"],
+                vec!["Lint/IncludedProbe", "Style/OneClassPerFile"],
             ),
-            ("lib/skipped.rb", vec!["Style/Documentation"]),
+            ("lib/skipped.rb", vec!["Style/OneClassPerFile"]),
             ("spec/a.rb", vec![]),
             ("test/deep/a.rb", vec![]),
             ("./spec/a.rb", vec![]),
             ("/project/spec/a.rb", vec![]),
             (
                 "/project/lib/a.rb",
-                vec!["Lint/IncludedProbe", "Style/Documentation"],
+                vec!["Lint/IncludedProbe", "Style/OneClassPerFile"],
             ),
-            ("specification/a.rb", vec!["Style/Documentation"]),
+            ("specification/a.rb", vec!["Style/OneClassPerFile"]),
         ] {
             let report = crate::pipeline::lint_one(
                 Path::new(path),

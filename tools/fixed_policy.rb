@@ -39,6 +39,8 @@ module FixedPolicy
 
     def default_enabled(name)
       return false if name == "Naming/InclusiveLanguage"
+      # rustocop's own opt-ins; keep aligned with OPT_IN in src/cops/policy.rs.
+      return false if name == "Style/Documentation" || name.start_with?("Metrics/")
 
       defaults = live_lint_defaults(name)
       return defaults.fetch("Enabled") != false if defaults

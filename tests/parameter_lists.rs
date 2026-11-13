@@ -120,7 +120,7 @@ fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
     let registry = Registry::new();
     assert_eq!(registry.cops().len(), 613);
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
-    assert!(cop.default_enabled());
+    assert!(!cop.default_enabled());
     assert!(!cop.safe_fixes());
     assert_eq!(cop.severity(), Severity::Convention);
     assert_eq!(cop.ruby_versions(), Default::default());
@@ -154,7 +154,9 @@ fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
 fn defaults_config_department_only_except_exclusions_and_strict_errors() {
     let d = project();
     for (config, flags, expected) in [
-        (String::new(), vec![], 1),
+        (String::new(), vec![], 0),
+        ("[cops.Metrics]\nenabled=true\n".into(), vec![], 1),
+        (format!("[cops.\"{COP}\"]\nenabled=true\n"), vec![], 1),
         (String::new(), vec!["--only", "Metrics"], 1),
         (String::new(), vec!["--only", COP, "--except", "Metrics"], 0),
         (String::new(), vec!["--only", "Metrics", "--except", COP], 0),

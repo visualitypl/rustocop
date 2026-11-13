@@ -1114,6 +1114,9 @@ module Oracle
         mismatches << 'Ruby behavior: implicit it binding differs before fixed Ruby 3.4'
       end
       toml = {}
+      # RuboCop's examples for this cop name Metrics cops, which are on there
+      # and opt-in here: switch the department on, as the examples assume.
+      toml["Metrics"] = { "enabled" => true } if cop == "Lint/RedundantCopEnableDirective"
       run = FixedPolicy.run_ruby(target)
       toml["ruby_version"] = run.to_s unless run == FixedPolicy::TARGET_RUBY
       sections = { cop => {} }.merge(config)
