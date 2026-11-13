@@ -29,7 +29,7 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 
 ## Status
 
-Version 1.0.0, built from source; there is no published release yet.
+Version 1.0.0.
 
 | Department | Cops |
 | --- | ---: |
@@ -86,8 +86,13 @@ only to Ruby versions older than 3.4; they stay registered but report nothing.
 
 ## Installation
 
-Building needs Rust 1.99 or newer and a C compiler for the vendored Prism
-parser.
+The [releases page](https://github.com/visualitypl/rustocop/releases) has
+binaries for Linux (x86_64 and aarch64, glibc 2.35 or newer) and macOS (Intel
+and Apple silicon). Each archive holds the `rustocop` executable; put it in a
+directory on your `PATH`.
+
+Building from source needs Rust 1.99 or newer, a C compiler for the vendored
+Prism parser, and libclang.
 
 ```sh
 git clone git@github.com:visualitypl/rustocop.git

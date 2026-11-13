@@ -1,0 +1,56 @@
+name: Release
+
+# Builds the binaries of a tag and puts them on the tag's release page.
+on:
+  push:
+    tags: ["v*"]
+  # Builds an existing tag again, with the workflow of the default branch.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to build
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes
+
+  build:
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # glibc builds on the oldest runner image (glibc 2.35);
+          # add musl targets when someone needs Alpine.
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu }
+          - { os: ubuntu-22.04-arm, target: aarch64-unknown-linux-gnu }
+          - { os: macos-15-intel, target: x86_64-apple-darwin }
+          - { os: macos-latest, target: aarch64-apple-darwin }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+      # bindgen, which the vendored Prism parser builds with, loads libclang.
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libclang-dev
+      - run: rustup toolchain install 1.99 --profile minimal && rustup default 1.99
+      - run: cargo build --release --locked
+      - name: Check that the binary runs and has the version of the tag
+        run: test "$(target/release/rustocop --version)" = "rustocop ${TAG#v}"
+      - name: Upload
+        run: |
+          archive="rustocop-$TAG-${{ matrix.target }}.tar.gz"
+          tar -czf "$archive" LICENSE -C target/release rustocop
+          gh release upload "$TAG" "$archive" --clobber
