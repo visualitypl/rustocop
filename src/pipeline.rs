@@ -396,6 +396,10 @@ pub fn lint_one(
 struct CopSelection<'a> {
     enabled: Vec<&'a dyn crate::cops::Cop>,
     disabled: Vec<&'a dyn crate::cops::Cop>,
+    // Per cop of `enabled` and `disabled`, whether a path can bar it
+    // (`path_gated`). Files skip the path checks of every other cop.
+    enabled_gated: Vec<bool>,
+    disabled_gated: Vec<bool>,
     // Full configured universe, independent of --only/--except mobilization.
     directive_disabled: Vec<String>,
     // Full registered universe, not just the CLI-selected or Ruby-active set.
@@ -409,6 +413,17 @@ struct UniverseFact {
     slot: usize,
     configured_enabled: bool,
     selected: bool,
+    gated: bool,
+}
+
+/// Whether some path makes `cop` ineligible: it has a pinned path policy or
+/// the config excludes paths for it.
+fn path_gated(cop: &dyn crate::cops::Cop, config: &ResolvedConfig) -> bool {
+    cop.path_policy().is_some()
+        || config
+            .cop_settings
+            .get(cop.name())
+            .is_some_and(|settings| !settings.excludes.is_empty())
 }
 
 impl<'a> CopSelection<'a> {
@@ -453,10 +468,16 @@ impl<'a> CopSelection<'a> {
                     slot: *name_slots.entry(name).or_insert(index),
                     configured_enabled: crate::cops::configured_enabled(*cop, config),
                     selected: selected.contains(name),
+                    gated: path_gated(*cop, config),
                 }
             })
             .collect();
+        let gated = |cops: &[&dyn crate::cops::Cop]| {
+            cops.iter().map(|cop| path_gated(*cop, config)).collect()
+        };
         Self {
+            enabled_gated: gated(&enabled),
+            disabled_gated: gated(&disabled),
             enabled,
             disabled,
             directive_disabled,
@@ -603,6 +624,10 @@ fn lint_file(
             .is_none_or(|policy| policy.allows(relative))
             && !cop_excluded(config, relative, cop.name())
     };
+    // The same answer for a cop paired with its `path_gated` flag, without
+    // the lookups for the many cops that no path can bar.
+    let allowed = |(cop, gated): &(&&dyn crate::cops::Cop, &bool)| !**gated || eligible(cop);
+    let enabled = || active.enabled.iter().zip(&active.enabled_gated);
     let from_disk = !matches!(input, SourceInput::Memory(_));
     let (bytes, metadata) = match input {
         SourceInput::Memory(bytes) => (bytes.to_vec(), None),
@@ -622,7 +647,7 @@ fn lint_file(
     if crate::discovery::is_filename_only(display_path) {
         // Locks are opaque: no encoding validation, Prism, comments, directives,
         // ordinary source/AST hooks or correction pass may inspect their bytes.
-        for cop in active.enabled.iter().copied().filter(eligible) {
+        for (&cop, _) in enabled().filter(allowed) {
             if let Err(panic) =
                 catch(|| cop.check_filename(relative, &mut report.result.global_offenses))
             {
@@ -671,12 +696,9 @@ fn lint_file(
         // Only the bounded fatal lifecycle may inspect this snapshot. No
         // directives/recovered AST, ordinary cop hook or correction is reached.
         // Selection filters the named presentation, NEVER mandatory rejection.
-        for cop in active
-            .enabled
-            .iter()
-            .copied()
-            .filter(eligible)
-            .filter(|c| c.wants_fatal_diagnostics())
+        for (&cop, _) in enabled()
+            .filter(allowed)
+            .filter(|(c, _)| c.wants_fatal_diagnostics())
         {
             let mut findings = Vec::new();
             match catch(|| cop.check_fatal(&file, &mut findings)) {
@@ -730,18 +752,16 @@ fn lint_file(
     file.record_directive_disabled(&active.directive_disabled);
     let disabled: Vec<_> = active.disabled.iter().map(|c| c.name()).collect();
     let directives = file.directives_with_disabled(&result, &disabled);
-    let running: Vec<_> = active
-        .enabled
-        .iter()
-        .copied()
+    let running: Vec<_> = enabled()
         .chain(
             active
                 .disabled
                 .iter()
-                .copied()
-                .filter(|c| directives.opts_in(c.name())),
+                .zip(&active.disabled_gated)
+                .filter(|(c, _)| directives.opts_in(c.name())),
         )
-        .filter(eligible)
+        .filter(allowed)
+        .map(|(&cop, _)| cop)
         .collect();
 
     let mut globals = Vec::new();
@@ -793,7 +813,7 @@ fn lint_file(
                 crate::cops::InvestigatedCop {
                     name: fact.name,
                     configured_enabled: fact.configured_enabled,
-                    available: fact.selected && eligible(cop),
+                    available: fact.selected && (!fact.gated || eligible(cop)),
                     investigated,
                     completed: investigated
                         && !report

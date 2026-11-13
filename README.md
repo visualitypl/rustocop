@@ -366,12 +366,12 @@ Linting RuboCop's own source (revision `97f30c4`: 1,793 Ruby files, about
 
 | Command                               | Mean ± σ        |
 | ------------------------------------- | --------------- |
-| `rustocop .`                          | 429 ms ± 50 ms  |
-| `RAYON_NUM_THREADS=1 rustocop .`      | 3.04 s ± 0.03 s |
+| `rustocop .`                          | 374 ms ± 44 ms  |
+| `RAYON_NUM_THREADS=1 rustocop .`      | 2.50 s ± 0.03 s |
 | `rubocop --parallel`, empty cache     | 6.57 s ± 0.16 s |
 | `rubocop --parallel`, warm cache      | 775 ms ± 10 ms  |
 
-That is roughly 4,200 files or 900,000 lines per second. rustocop keeps no
+That is roughly 4,800 files or 1,000,000 lines per second. rustocop keeps no
 result cache, so every run is a full lint.
 
 Measured with hyperfine 1.18 (50 runs for rustocop, 5 and 10 for RuboCop,
