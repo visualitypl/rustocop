@@ -72,6 +72,8 @@ pub struct ResolvedConfig {
     pub root: PathBuf,
     /// The Ruby version the run targets: the parser grammar and the cops that apply.
     pub ruby_version: RubyVersion,
+    /// Where `ruby_version` comes from.
+    pub ruby_version_source: RubyVersionSource,
     /// Combined builtin + user global excludes.
     pub global_excludes: Vec<GlobMatcher>,
     /// Settings keyed by full cop name or department name.
@@ -82,6 +84,18 @@ pub struct ResolvedConfig {
     /// cop name. `cops::select_active` runs these instead of the
     /// registry's.
     pub configured: BTreeMap<String, Box<dyn Cop>>,
+}
+
+/// Where the Ruby version of a run comes from.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub enum RubyVersionSource {
+    /// No file declares a version.
+    #[default]
+    Default,
+    /// `ruby_version` in this config file.
+    Config(PathBuf),
+    /// A project file that declares `declared`.
+    File { path: PathBuf, declared: String },
 }
 
 /// Validated settings for a cop or department.
@@ -98,6 +112,7 @@ impl Default for ResolvedConfig {
         ResolvedConfig {
             root: PathBuf::new(),
             ruby_version: DEFAULT_RUBY_VERSION,
+            ruby_version_source: RubyVersionSource::Default,
             global_excludes: Vec::new(),
             cop_settings: BTreeMap::new(),
             params: BTreeMap::new(),
@@ -123,6 +138,7 @@ impl ResolvedConfig {
                 ResolvedConfig {
                     root: std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
                     ruby_version: DEFAULT_RUBY_VERSION,
+                    ruby_version_source: RubyVersionSource::Default,
                     global_excludes: compile_globs(BUILTIN_EXCLUDES, "builtin excludes")?,
                     cop_settings: BTreeMap::new(),
                     params: BTreeMap::new(),
@@ -131,10 +147,26 @@ impl ResolvedConfig {
                 false,
             ),
         };
-        if !version_is_set && let Some(version) = ruby_version::detect(&config.root) {
-            config.ruby_version = version;
+        if !version_is_set && let Some(detected) = ruby_version::detect(&config.root) {
+            config.ruby_version = detected.version;
+            config.ruby_version_source = RubyVersionSource::File {
+                path: detected.path,
+                declared: detected.declared,
+            };
         }
         Ok(config)
+    }
+
+    /// One line that names the Ruby version of the run and where it comes from.
+    pub fn ruby_version_report(&self) -> String {
+        let source = match &self.ruby_version_source {
+            RubyVersionSource::Default => "default; no file declares a version".into(),
+            RubyVersionSource::Config(path) => format!("ruby_version in {}", path.display()),
+            RubyVersionSource::File { path, declared } => {
+                format!("{} declares {declared}", path.display())
+            }
+        };
+        format!("Ruby {} ({source})", self.ruby_version)
     }
 
     /// Validate the raw config against the cop registry and compile globs.
@@ -148,6 +180,12 @@ impl ResolvedConfig {
             _ => std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
         };
 
+        let ruby_version_source = match &raw.ruby_version {
+            None => RubyVersionSource::Default,
+            Some(_) => RubyVersionSource::Config(
+                config_path.map_or_else(|| CONFIG_FILE_NAME.into(), Path::to_path_buf),
+            ),
+        };
         let ruby_version = match raw.ruby_version {
             None => DEFAULT_RUBY_VERSION,
             Some(text) => SUPPORTED_RUBY_VERSIONS
@@ -346,6 +384,7 @@ impl ResolvedConfig {
         Ok(ResolvedConfig {
             root,
             ruby_version,
+            ruby_version_source,
             global_excludes,
             cop_settings,
             params,

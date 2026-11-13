@@ -474,8 +474,9 @@ fn native_shareable_literal_exception_is_not_replaced_by_successful_deep_freeze(
 }
 #[test]
 fn shareable_runtime_modes_constant_forms_errors_state_and_unprotected_controls() {
-    if crate::support::runtime::skips("Ruby 4.0.9 stops with a segmentation fault on this program")
-    {
+    if crate::support::runtime::skips(
+        "Ruby 4.0 stops with a segmentation fault on this program (Ruby Bug #22543)",
+    ) {
         return;
     }
     let rubies = rubies();

@@ -183,6 +183,55 @@ fn the_ruby_version_comes_from_project_files_unless_the_config_sets_it() {
 }
 
 #[test]
+fn show_ruby_version_prints_the_version_and_its_source_without_linting() {
+    let show = |files: &[(&str, &str)], cwd: &str| {
+        let mut all = vec![("app/a.rb", "def (\n")];
+        all.extend_from_slice(files);
+        let dir = project(&all);
+        let root = dir.path().canonicalize().unwrap();
+        let output = rustocop(&root.join(cwd), &["--show-ruby-version"], "");
+        assert_eq!(output.status.code(), Some(0), "{output:?}");
+        assert!(output.stderr.is_empty(), "{output:?}");
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .replace(root.to_str().unwrap(), "ROOT")
+    };
+
+    assert_eq!(
+        show(&[], ""),
+        "Ruby 3.4 (default; no file declares a version)\n"
+    );
+    assert_eq!(
+        show(&[(".ruby-version", "4.0.9\n")], "app"),
+        "Ruby 4.0 (ROOT/.ruby-version declares 4.0.9)\n"
+    );
+    assert_eq!(
+        show(&[(".tool-versions", "ruby 3.2.2\n")], ""),
+        "Ruby 3.4 (ROOT/.tool-versions declares 3.2.2)\n"
+    );
+    assert_eq!(
+        show(
+            &[
+                (".ruby-version", "3.4.1\n"),
+                ("rustocop.toml", "ruby_version = \"4.0\"\n")
+            ],
+            "app"
+        ),
+        "Ruby 4.0 (ruby_version in ROOT/rustocop.toml)\n"
+    );
+
+    let dir = project(&[("a.rb", "x\n")]);
+    for args in [
+        vec!["--show-ruby-version", "--fix"],
+        vec!["--show-ruby-version", "--stdin", "a.rb"],
+    ] {
+        let output = rustocop(dir.path(), &args, "");
+        assert_eq!(output.status.code(), Some(2), "{args:?}: {output:?}");
+        assert!(output.stdout.is_empty(), "{args:?}: {output:?}");
+    }
+}
+
+#[test]
 fn ruby_4_logical_chains_are_syntax_errors_for_files_stdin_and_fix() {
     for operator in ["&&", "||"] {
         let source = format!("foo\n  {operator} bar\nfail\n");

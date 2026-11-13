@@ -1,11 +1,22 @@
 //! The Ruby version of a project, read from the files that version managers
 //! and Bundler write.
 
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::cops::policy::{RubyVersion, SUPPORTED_RUBY_VERSIONS};
 
-type Reader = fn(&str) -> Option<RubyVersion>;
+type Reader = fn(&str) -> Option<String>;
+
+/// A version that a project file declares, and the supported version it maps to.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct Detected {
+    pub(super) version: RubyVersion,
+    pub(super) path: PathBuf,
+    pub(super) declared: String,
+}
 
 const SOURCES: [(&str, Reader); 6] = [
     (".ruby-version", ruby_version_file),
@@ -19,14 +30,20 @@ const SOURCES: [(&str, Reader); 6] = [
 /// The supported Ruby version nearest to the one the project declares, or
 /// `None` when no file declares one. The search starts in `start` and goes up
 /// to the git root. Outside a git repository it reads `start` only.
-pub(super) fn detect(start: &Path) -> Option<RubyVersion> {
+pub(super) fn detect(start: &Path) -> Option<Detected> {
     let git_root = super::find_git_root(start);
     for dir in start.ancestors() {
-        let declared = SOURCES
-            .iter()
-            .find_map(|(name, read)| read(&fs::read_to_string(dir.join(name)).ok()?));
-        if declared.is_some() {
-            return declared;
+        let detected = SOURCES.iter().find_map(|(name, read)| {
+            let path = dir.join(name);
+            let declared = read(&fs::read_to_string(&path).ok()?)?;
+            Some(Detected {
+                version: supported(&declared)?,
+                path,
+                declared,
+            })
+        });
+        if detected.is_some() {
+            return detected;
         }
         if git_root.is_none() || git_root == Some(dir) {
             break;
@@ -51,46 +68,48 @@ fn supported(text: &str) -> Option<RubyVersion> {
         .or(Some(SUPPORTED_RUBY_VERSIONS[0]))
 }
 
-fn ruby_version_file(text: &str) -> Option<RubyVersion> {
+fn ruby_version_file(text: &str) -> Option<String> {
     let line = text
         .lines()
         .map(str::trim)
         .find(|line| !line.is_empty() && !line.starts_with('#'))?;
-    supported(line.split_whitespace().next()?)
+    Some(line.split_whitespace().next()?.into())
 }
 
-fn tool_versions(text: &str) -> Option<RubyVersion> {
+fn tool_versions(text: &str) -> Option<String> {
     text.lines().find_map(|line| {
         let mut words = line.split('#').next()?.split_whitespace();
         (words.next()? == "ruby")
             .then(|| words.next())
             .flatten()
-            .and_then(supported)
+            .map(Into::into)
     })
 }
 
-fn mise_toml(text: &str) -> Option<RubyVersion> {
+fn mise_toml(text: &str) -> Option<String> {
     let document: toml::Value = toml::from_str(text).ok()?;
     let tool = document.get("tools")?.get("ruby")?;
     let tool = tool
         .as_array()
         .map_or(Some(tool), |versions| versions.first())?;
-    supported(tool.get("version").unwrap_or(tool).as_str()?)
+    Some(tool.get("version").unwrap_or(tool).as_str()?.into())
 }
 
-fn lockfile(text: &str) -> Option<RubyVersion> {
+fn lockfile(text: &str) -> Option<String> {
     let mut lines = text.lines().skip_while(|line| *line != "RUBY VERSION");
     lines.next()?;
     let mut words = lines.next()?.split_whitespace();
     (words.next()? == "ruby")
         .then(|| words.next())
         .flatten()
-        .and_then(supported)
+        .map(Into::into)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{Detected, supported};
+    use crate::cops::policy::RubyVersion;
+    use std::{fs, path::Path};
 
     const RUBY_3_4: Option<RubyVersion> = Some(RubyVersion(3, 4));
     const RUBY_4_0: Option<RubyVersion> = Some(RubyVersion(4, 0));
@@ -123,6 +142,43 @@ mod tests {
         ] {
             assert_eq!(supported(text), expected, "{text:?}");
         }
+    }
+
+    fn ruby_version_file(text: &str) -> Option<RubyVersion> {
+        super::ruby_version_file(text).and_then(|declared| supported(&declared))
+    }
+
+    fn tool_versions(text: &str) -> Option<RubyVersion> {
+        super::tool_versions(text).and_then(|declared| supported(&declared))
+    }
+
+    fn mise_toml(text: &str) -> Option<RubyVersion> {
+        super::mise_toml(text).and_then(|declared| supported(&declared))
+    }
+
+    fn lockfile(text: &str) -> Option<RubyVersion> {
+        super::lockfile(text).and_then(|declared| supported(&declared))
+    }
+
+    fn detect(start: &Path) -> Option<RubyVersion> {
+        super::detect(start).map(|detected| detected.version)
+    }
+
+    #[test]
+    fn a_detected_version_names_its_file_and_the_declared_text() {
+        let dir = tree(&[
+            (".git/HEAD", ""),
+            ("Gemfile.lock", "RUBY VERSION\n   ruby 3.2.2p53\n"),
+            ("app/a.rb", ""),
+        ]);
+        assert_eq!(
+            super::detect(&dir.path().join("app")),
+            Some(Detected {
+                version: RubyVersion(3, 4),
+                path: dir.path().join("Gemfile.lock"),
+                declared: "3.2.2p53".into(),
+            })
+        );
     }
 
     #[test]

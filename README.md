@@ -103,6 +103,7 @@ rustocop --format github           # GitHub Actions annotations
 rustocop --fix app lib             # apply safe corrections in place
 rustocop --fix --fix-passes 1 app  # apply a single correction pass
 cat file.rb | rustocop --stdin file.rb
+rustocop --show-ruby-version       # the Ruby version of the run and its source
 ```
 
 Directories are searched for `.rb` files, `Gemfile`, `*.gemfile` and
@@ -218,6 +219,14 @@ Outside a git repository, rustocop reads the first directory only. A file
 that names no version, or another Ruby implementation such as JRuby, is
 skipped. A version older than 3.4 counts as 3.4, and a version newer than 4.0
 counts as 4.0. When no file names a version, the version is 3.4.
+
+`rustocop --show-ruby-version` prints the version of the run and where it
+comes from, and lints nothing:
+
+```console
+$ rustocop --show-ruby-version
+Ruby 4.0 (/home/me/app/.ruby-version declares 4.0.9)
+```
 
 The version selects three things:
 

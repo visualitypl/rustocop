@@ -40,6 +40,10 @@ struct Cli {
     /// Read source from stdin, using PATH as the display name.
     #[arg(long, value_name = "PATH")]
     stdin: Option<PathBuf>,
+
+    /// Print the Ruby version that code is checked for, and where it comes from.
+    #[arg(long, conflicts_with_all = ["fix", "stdin"])]
+    show_ruby_version: bool,
 }
 
 fn main() {
@@ -52,6 +56,10 @@ fn real_main() -> i32 {
 
     let run = || -> anyhow::Result<i32> {
         let config = config::ResolvedConfig::load(&registry)?;
+        if cli.show_ruby_version {
+            println!("{}", config.ruby_version_report());
+            return Ok(pipeline::EXIT_CLEAN);
+        }
         let options = pipeline::RunOptions {
             only: cli.only.clone(),
             except: cli.except.clone(),
