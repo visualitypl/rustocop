@@ -30,7 +30,7 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 
 ## Status
 
-Version 1.0.0.
+Version 1.1.0.
 
 | Department | Cops |
 | --- | ---: |

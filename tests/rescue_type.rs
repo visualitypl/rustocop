@@ -105,7 +105,7 @@ fn defaults_selectors_strict_config_paths_and_supplied_provenance() {
     );
     assert_eq!(
         String::from_utf8_lossy(&run(dir.path(), &["--version"]).stdout).trim(),
-        "rustocop 1.0.0"
+        "rustocop 1.1.0"
     );
 }
 #[test]
