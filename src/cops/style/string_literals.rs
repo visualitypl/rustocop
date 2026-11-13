@@ -1,19 +1,23 @@
 //! `Style/StringLiterals` — flags single-quoted strings that could be
-//! double-quoted. rustocop's fixed style is double quotes.
+//! double-quoted. Double quotes are rustocop's style; with
+//! `enforced_style = "single_quotes"` the cop flags the double-quoted
+//! strings that could be single-quoted.
 //!
-//! Matches RuboCop's semantics for `EnforcedStyle: double_quotes` with the
-//! default `ConsistentQuotesInMultiline: false`. A `'…'` literal is reported
-//! unless its source contains a `"`, a backslash escape other than `\'` or
-//! `\\`, or text that would interpolate in double quotes (`#{`, `#@`, `#$`).
-//! Accepted as RuboCop does:
+//! Matches RuboCop's semantics for `EnforcedStyle` with the default
+//! `ConsistentQuotesInMultiline: false`. For double quotes, a `'…'` literal
+//! is reported unless its source contains a `"`, a backslash escape other
+//! than `\'` or `\\`, or text that would interpolate in double quotes (`#{`,
+//! `#@`, `#$`). For single quotes, a `"…"` literal without interpolation is
+//! reported unless its source contains a `'` or a backslash escape other
+//! than `\"` or `\\`. Accepted as RuboCop does:
 //!
 //! - `%q()`, `%Q()`, `%()`, `?x` character literals, heredocs, and `%w`/`%i`
 //!   elements;
 //! - strings inside the interpolation of a string, symbol or regexp
 //!   (`Style/StringLiteralsInInterpolation` checks those), but not inside a
 //!   backtick command's interpolation;
-//! - a single-quoted literal spanning several lines (`'a⏎b'`): the parser
-//!   gem splits it into one string per line, which RuboCop never checks.
+//! - a literal spanning several lines (`'a⏎b'`): the parser gem splits it
+//!   into one string per line, which RuboCop never checks.
 //!
 //! Each part of an adjacent-literal concatenation (`'a' 'b'`, `'a' \⏎ 'b'`)
 //! is checked on its own. Offenses are reported at the opening quote.
@@ -29,10 +33,59 @@ use crate::{
     source::SourceFile,
 };
 
-/// The `Style/StringLiterals` cop.
+/// The values of `enforced_style` for the cops that check the quotes of
+/// string literals.
+pub(super) const STYLES: &[&str] = &["double_quotes", "single_quotes"];
+
+/// The cop of `style`, one of [`STYLES`]: `single` for single quotes and
+/// `double` for double quotes.
+pub(super) fn styled<S: Cop + 'static, D: Cop + 'static>(
+    style: &str,
+    single: S,
+    double: D,
+) -> Option<Box<dyn Cop>> {
+    match style {
+        "single_quotes" => Some(Box::new(single)),
+        "double_quotes" => Some(Box::new(double)),
+        _ => None,
+    }
+}
+
+/// The `Style/StringLiterals` cop, for double quotes.
 pub struct StringLiterals;
 
+/// The cop for `enforced_style = "single_quotes"`.
+struct SingleQuotes;
+
 impl Cop for StringLiterals {
+    fn name(&self) -> &'static str {
+        "Style/StringLiterals"
+    }
+
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
+    fn styles(&self) -> &'static [&'static str] {
+        STYLES
+    }
+
+    fn with_style(&self, style: &str) -> Option<Box<dyn Cop>> {
+        styled(style, SingleQuotes, StringLiterals)
+    }
+
+    fn check_node<'pr>(
+        &self,
+        node: &Node<'pr>,
+        _cx: &NodeContext<'_, 'pr>,
+        file: &SourceFile,
+        out: &mut Vec<Offense>,
+    ) {
+        check(self, false, node, file, out);
+    }
+}
+
+impl Cop for SingleQuotes {
     fn name(&self) -> &'static str {
         "Style/StringLiterals"
     }
@@ -48,51 +101,68 @@ impl Cop for StringLiterals {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        // Strings inside an interpolation are the other cop's business, so
-        // one walk from the root skips those.
-        if node.as_program_node().is_none() || !file.contains(b"'") {
-            return;
-        }
-        for (offset, correction) in needless_single_quotes(node, file) {
-            let (line, col) = file.line_col(offset);
-            out.push(Offense {
-                correction,
-                cop: self.name(),
-                severity: self.severity(),
-                message: "Prefer double-quoted strings unless you need single quotes to avoid \
-                          extra backslashes for escaping."
-                    .to_string(),
-                line,
-                end_line: line,
-                col,
-            });
-        }
+        check(self, true, node, file, out);
     }
 }
 
-/// Corrections for the single-quoted literals at or below `node` that
-/// could be double-quoted, not counting those inside the interpolation of a
-/// string, symbol or regexp (`"#{…}"`, `:"#{…}"`, `/#{…}/`) at or below it.
-pub(super) fn needless_single_quotes(
+/// Report the literals below the root `node` that have the other quotes
+/// than the style asks for: single quotes when `single`, else double.
+fn check(cop: &dyn Cop, single: bool, node: &Node<'_>, file: &SourceFile, out: &mut Vec<Offense>) {
+    // Strings inside an interpolation are the other cop's business, so
+    // one walk from the root skips those.
+    let other: &[u8] = if single { b"\"" } else { b"'" };
+    if node.as_program_node().is_none() || !file.contains(other) {
+        return;
+    }
+    let message = if single {
+        "Prefer single-quoted strings when you don't need string interpolation or special \
+         symbols."
+    } else {
+        "Prefer double-quoted strings unless you need single quotes to avoid extra backslashes \
+         for escaping."
+    };
+    for (offset, correction) in wrong_quotes(node, file, single) {
+        let (line, col) = file.line_col(offset);
+        out.push(Offense {
+            correction,
+            cop: cop.name(),
+            severity: cop.severity(),
+            message: message.to_string(),
+            line,
+            end_line: line,
+            col,
+        });
+    }
+}
+
+/// Corrections for the literals at or below `node` that could have the
+/// quotes of the style (single quotes when `single`, else double), not
+/// counting those inside the interpolation of a string, symbol or regexp
+/// (`"#{…}"`, `:"#{…}"`, `/#{…}/`) at or below it.
+pub(super) fn wrong_quotes(
     node: &Node<'_>,
     file: &SourceFile,
+    single: bool,
 ) -> Vec<(usize, Option<Correction>)> {
-    let mut search = SingleQuoteSearch {
+    let mut search = QuoteSearch {
         file,
+        single,
         offsets: Vec::new(),
     };
     search.visit(node);
     search.offsets
 }
 
-/// Collects needlessly single-quoted strings, skipping the interpolations
-/// that RuboCop's `inside_interpolation?` covers.
-struct SingleQuoteSearch<'a> {
+/// Collects the strings with needless quotes of the other kind, skipping
+/// the interpolations that RuboCop's `inside_interpolation?` covers.
+struct QuoteSearch<'a> {
     file: &'a SourceFile,
+    /// Whether the style is single quotes.
+    single: bool,
     offsets: Vec<(usize, Option<Correction>)>,
 }
 
-impl SingleQuoteSearch<'_> {
+impl QuoteSearch<'_> {
     /// Visit an interpolated literal's parts, except its interpolations.
     fn visit_literal_parts(&mut self, parts: NodeList<'_>) {
         for part in parts.iter() {
@@ -103,24 +173,38 @@ impl SingleQuoteSearch<'_> {
     }
 }
 
-impl<'pr> Visit<'pr> for SingleQuoteSearch<'_> {
+impl<'pr> Visit<'pr> for QuoteSearch<'_> {
     fn visit_string_node(&mut self, node: &StringNode<'pr>) {
-        let single_quoted = node
-            .opening_loc()
-            .is_some_and(|opening| opening.as_slice() == b"'");
-        if !single_quoted {
+        // The quote of the style, and the one that is reported.
+        let (quote, other) = if self.single {
+            (b'\'', b'"')
+        } else {
+            (b'"', b'\'')
+        };
+        let opening = node.opening_loc();
+        if !opening.is_some_and(|opening| opening.as_slice() == [other]) {
             return;
         }
         let location = node.location();
+        let source = location.as_slice();
         let single_line =
             self.file.line_of(location.start_offset()) == self.file.line_of(location.end_offset());
-        if single_line && !double_quotes_need_escaping(location.as_slice()) {
-            let source = location.as_slice();
-            let mut replacement = vec![b'"'];
+        let needs_its_quotes = if self.single {
+            super::literal_spelling::double_quotes_required(source.iter().copied())
+        } else {
+            double_quotes_need_escaping(source)
+        };
+        if single_line && !needs_its_quotes {
+            // The escapes left are `\\` and the escaped quote, which needs
+            // no backslash between the other quotes.
+            // For single quotes RuboCop writes a character that
+            // `String#inspect` escapes, such as a raw tab, as its escape in
+            // double quotes. The quotes change here and the value is the same.
+            let mut replacement = vec![quote];
             let mut index = 1;
             while index < source.len() - 1 {
                 if source[index] == b'\\' && index + 1 < source.len() - 1 {
-                    if source[index + 1] != b'\'' {
+                    if source[index + 1] != other {
                         replacement.push(b'\\');
                     }
                     index += 1;
@@ -128,7 +212,7 @@ impl<'pr> Visit<'pr> for SingleQuoteSearch<'_> {
                 replacement.push(source[index]);
                 index += 1;
             }
-            replacement.push(b'"');
+            replacement.push(quote);
             // Correction stores UTF-8; never replace non-UTF-8 source lossily.
             let correction = String::from_utf8(replacement)
                 .ok()
@@ -317,6 +401,48 @@ mod tests {
         ] {
             assert!(offenses(source).is_empty(), "should accept {source:?}");
         }
+    }
+
+    #[test]
+    fn single_quotes_style_flags_and_corrects_needless_double_quotes() {
+        // RuboCop's examples for `EnforcedStyle: single_quotes` (MIT).
+        let cop = StringLiterals.with_style("single_quotes").unwrap();
+        for (before, after) in [
+            ("s = \"abc\"\n", "s = 'abc'\n"),
+            (r#"x = "a\\b""#, r"x = 'a\\b'"),
+            (r#"x = "say \"hi\"""#, r#"x = 'say "hi"'"#),
+            (r#"x = "\\\"""#, r#"x = '\\"'"#),
+            ("\"a\" \"b\"\n", "'a' 'b'\n"),
+            ("foo(\"España\", 'b')\n", "foo('España', 'b')\n"),
+        ] {
+            crate::cops::testing::assert_correction(cop.as_ref(), before, after);
+        }
+        let found = crate::cops::testing::correction_offenses(cop.as_ref(), "s = \"abc\"\n");
+        assert_eq!((found[0].line, found[0].col), (1, 5));
+        assert_eq!(
+            found[0].message,
+            "Prefer single-quoted strings when you don't need string interpolation or special \
+             symbols."
+        );
+        for source in [
+            "a = 'x'\n",
+            "a = \"it's\"\n",
+            "a = \"\\n\"\nb = \"\\e[0m\"\nc = \"\\#{x}\"\n",
+            "a = \"#{x}\"\nb = \"#@x\"\n",
+            "a = %Q(x) + %(y)\n",
+            "a = \"a\nb\"\n",
+            // The other cop checks strings inside an interpolation.
+            "\"#{\"A\"}\"\n",
+            ":\"a\"\n",
+            "{ \"a\": 1 }\n",
+            "<<~\"EOS\"\n  text\nEOS\n",
+            "?\"\n",
+        ] {
+            let found = crate::cops::testing::correction_offenses(cop.as_ref(), source);
+            assert!(found.is_empty(), "should accept {source:?}");
+        }
+        assert!(StringLiterals.with_style("double_quotes").is_some());
+        assert!(StringLiterals.with_style("backticks").is_none());
     }
 
     #[test]

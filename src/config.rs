@@ -8,7 +8,8 @@
 //!   the run instead of being silently ignored.
 //! - Minimal surface: per-cop and per-department `enabled`, per-cop and
 //!   global `exclude` globs, and `max` for `Layout/LineLength` and the
-//!   Metrics cops. There are no per-cop style parameters — defaults are the product; disagreeing teams
+//!   Metrics cops, and `enforced_style` for the quotes of string literals.
+//!   There are no other per-cop style parameters — defaults are the product; disagreeing teams
 //!   disable a cop rather than reconfigure it.
 
 use std::{
@@ -63,6 +64,10 @@ pub struct RawCopSettings {
     /// (`Layout/LineLength` and the Metrics cops with a `Max` in RuboCop).
     /// On a cop that is off by default, it also switches the cop on.
     pub max: Option<usize>,
+    /// The style a cop enforces, RuboCop's `EnforcedStyle`. Only valid for
+    /// cops that declare styles (`Style/StringLiterals`,
+    /// `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`).
+    pub enforced_style: Option<String>,
 }
 
 /// The validated, run-ready config.
@@ -209,6 +214,7 @@ impl ResolvedConfig {
         let mut cop_settings = BTreeMap::new();
         let mut params = BTreeMap::new();
         let mut configured = BTreeMap::new();
+        let mut styles = BTreeMap::new();
         for (key, settings) in raw.cops {
             let is_cop = registry.has_cop(&key);
             let is_department = Department::parse(&key).is_some();
@@ -242,6 +248,21 @@ impl ResolvedConfig {
                 params.insert(key.clone(), max);
                 configured.insert(key.clone(), cop);
             }
+            if let Some(style) = settings.enforced_style {
+                let known = registry.cop_styles(&key);
+                if known.is_empty() {
+                    bail!("`enforced_style` is not a valid setting for `{key}`");
+                }
+                let Some(cop) = registry.cop_with_style(&key, &style) else {
+                    let known: Vec<_> = known.iter().map(|s| format!("\"{s}\"")).collect();
+                    bail!(
+                        "unknown `enforced_style = \"{style}\"` for `{key}`; use {}",
+                        known.join(" or ")
+                    );
+                };
+                configured.insert(key.clone(), cop);
+                styles.insert(key.clone(), style);
+            }
             let excludes = compile_globs(settings.exclude.as_deref().unwrap_or_default(), &key)?;
             // A limit for a cop that is off by default asks for the cop.
             let wanted = settings.max.is_some() && !crate::cops::policy::default_enabled(&key);
@@ -252,6 +273,19 @@ impl ResolvedConfig {
                     excludes,
                 },
             );
+        }
+
+        // As in RuboCop, quoted symbols have the quotes of string literals
+        // unless Style/QuotedSymbols names a style of its own.
+        let own = styles.get("Style/QuotedSymbols").map(String::as_str);
+        let quotes = match own {
+            None | Some("same_as_string_literals") => styles.get("Style/StringLiterals"),
+            _ => None,
+        };
+        if let Some(style) = quotes
+            && let Some(cop) = registry.cop_with_style("Style/QuotedSymbols", style)
+        {
+            configured.insert("Style/QuotedSymbols".to_owned(), cop);
         }
 
         // Style rules that construct guard/modifier examples use the configured

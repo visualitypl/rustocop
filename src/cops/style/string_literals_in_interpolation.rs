@@ -1,8 +1,9 @@
 //! `Style/StringLiteralsInInterpolation` — flags single-quoted strings
-//! inside an interpolation that could be double-quoted. rustocop's fixed
-//! style is double quotes.
+//! inside an interpolation that could be double-quoted. Double quotes are
+//! rustocop's style; with `enforced_style = "single_quotes"` the cop flags
+//! the double-quoted strings that could be single-quoted.
 //!
-//! Matches RuboCop's semantics for `EnforcedStyle: double_quotes`: the
+//! Matches RuboCop's semantics for `EnforcedStyle`: the
 //! strings checked are those inside the interpolation (`#{…}`) of a string,
 //! heredoc, symbol or regexp, at any depth, including inside a backtick
 //! command nested in one; a backtick command's own interpolation is not
@@ -12,17 +13,48 @@
 
 use ruby_prism::Node;
 
-use super::string_literals::needless_single_quotes;
+use super::string_literals::{STYLES, styled, wrong_quotes};
 use crate::{
     cops::{Cop, NodeContext},
     offense::Offense,
     source::SourceFile,
 };
 
-/// The `Style/StringLiteralsInInterpolation` cop.
+/// The `Style/StringLiteralsInInterpolation` cop, for double quotes.
 pub struct StringLiteralsInInterpolation;
 
+/// The cop for `enforced_style = "single_quotes"`.
+struct SingleQuotes;
+
 impl Cop for StringLiteralsInInterpolation {
+    fn name(&self) -> &'static str {
+        "Style/StringLiteralsInInterpolation"
+    }
+
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
+    fn styles(&self) -> &'static [&'static str] {
+        STYLES
+    }
+
+    fn with_style(&self, style: &str) -> Option<Box<dyn Cop>> {
+        styled(style, SingleQuotes, StringLiteralsInInterpolation)
+    }
+
+    fn check_node<'pr>(
+        &self,
+        node: &Node<'pr>,
+        _cx: &NodeContext<'_, 'pr>,
+        file: &SourceFile,
+        out: &mut Vec<Offense>,
+    ) {
+        check(self, false, node, file, out);
+    }
+}
+
+impl Cop for SingleQuotes {
     fn name(&self) -> &'static str {
         "Style/StringLiteralsInInterpolation"
     }
@@ -38,44 +70,47 @@ impl Cop for StringLiteralsInInterpolation {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let parts = match node {
-            Node::InterpolatedStringNode { .. } => {
-                node.as_interpolated_string_node().unwrap().parts()
-            }
-            Node::InterpolatedSymbolNode { .. } => {
-                node.as_interpolated_symbol_node().unwrap().parts()
-            }
-            Node::InterpolatedRegularExpressionNode { .. } => node
-                .as_interpolated_regular_expression_node()
-                .unwrap()
-                .parts(),
-            Node::InterpolatedMatchLastLineNode { .. } => {
-                node.as_interpolated_match_last_line_node().unwrap().parts()
-            }
-            _ => return,
+        check(self, true, node, file, out);
+    }
+}
+
+/// Report the strings inside the interpolations of `node` that have the
+/// other quotes than the style asks for: single quotes when `single`.
+fn check(cop: &dyn Cop, single: bool, node: &Node<'_>, file: &SourceFile, out: &mut Vec<Offense>) {
+    let parts = match node {
+        Node::InterpolatedStringNode { .. } => node.as_interpolated_string_node().unwrap().parts(),
+        Node::InterpolatedSymbolNode { .. } => node.as_interpolated_symbol_node().unwrap().parts(),
+        Node::InterpolatedRegularExpressionNode { .. } => node
+            .as_interpolated_regular_expression_node()
+            .unwrap()
+            .parts(),
+        Node::InterpolatedMatchLastLineNode { .. } => {
+            node.as_interpolated_match_last_line_node().unwrap().parts()
+        }
+        _ => return,
+    };
+    // Each interpolation is searched down to (not into) the
+    // interpolations of the literals nested in it, which get their own
+    // call: every string is reported once.
+    for part in parts.iter() {
+        let Some(embedded) = part.as_embedded_statements_node() else {
+            continue;
         };
-        // Each interpolation is searched down to (not into) the
-        // interpolations of the literals nested in it, which get their own
-        // call: every string is reported once.
-        for part in parts.iter() {
-            let Some(embedded) = part.as_embedded_statements_node() else {
-                continue;
-            };
-            let Some(statements) = embedded.statements() else {
-                continue;
-            };
-            for (offset, correction) in needless_single_quotes(&statements.as_node(), file) {
-                let (line, col) = file.line_col(offset);
-                out.push(Offense {
-                    correction,
-                    cop: self.name(),
-                    severity: self.severity(),
-                    message: "Prefer double-quoted strings inside interpolations.".to_string(),
-                    line,
-                    end_line: line,
-                    col,
-                });
-            }
+        let Some(statements) = embedded.statements() else {
+            continue;
+        };
+        for (offset, correction) in wrong_quotes(&statements.as_node(), file, single) {
+            let (line, col) = file.line_col(offset);
+            let kind = if single { "single" } else { "double" };
+            out.push(Offense {
+                correction,
+                cop: cop.name(),
+                severity: cop.severity(),
+                message: format!("Prefer {kind}-quoted strings inside interpolations."),
+                line,
+                end_line: line,
+                col,
+            });
         }
     }
 }
@@ -99,6 +134,30 @@ mod tests {
 
     fn positions(source: &str) -> Vec<(u32, u32)> {
         offenses(source).iter().map(|o| (o.line, o.col)).collect()
+    }
+
+    #[test]
+    fn single_quotes_style_flags_double_quotes_inside_interpolations() {
+        let cop = StringLiteralsInInterpolation
+            .with_style("single_quotes")
+            .unwrap();
+        for (before, after) in [
+            (r##""#{"A"}""##, r##""#{'A'}""##),
+            (
+                r##"/foo#{"sar".sub("s", 'b')}/"##,
+                r##"/foo#{'sar'.sub('s', 'b')}/"##,
+            ),
+        ] {
+            crate::cops::testing::assert_correction(cop.as_ref(), before, after);
+        }
+        let found = crate::cops::testing::correction_offenses(cop.as_ref(), "\"#{\"A\"}\"\n");
+        assert_eq!(
+            found[0].message,
+            "Prefer single-quoted strings inside interpolations."
+        );
+        // Strings outside an interpolation are the other cop's.
+        let found = crate::cops::testing::correction_offenses(cop.as_ref(), "x = \"a\"\n");
+        assert!(found.is_empty());
     }
 
     #[test]

@@ -24,9 +24,10 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 - **Safe autocorrection.** `--fix` applies only edits that provably keep the
   program's behaviour. Everything else stays a report.
 - **Not a RuboCop drop-in.** Cop names and `# rubocop:disable` comments are
-  familiar, but rustocop does not read `.rubocop.yml` and has no style
-  parameters. `--import-rubocop-config` carries over the few settings that
-  have a counterpart. The defaults are the product.
+  familiar, but rustocop does not read `.rubocop.yml` and has few
+  settings: limits, and single or double quotes. `--import-rubocop-config`
+  carries over the settings that have a counterpart. The defaults are the
+  product.
 
 ## Status
 
@@ -245,9 +246,18 @@ The import carries over:
 - `Enabled: true` and `Enabled: false` of a cop or a department;
 - `Exclude` of a cop;
 - `Max` of `Layout/LineLength` and of a Metrics cop, when it is a whole
-  number.
+  number;
+- `EnforcedStyle` of `Style/StringLiterals`,
+  `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`.
 
-It lists everything else: style parameters, cops that rustocop does not
+RuboCop's default for string literals is single quotes and rustocop's is
+double quotes. A config that names no quote style means RuboCop's default,
+so the import writes `enforced_style = "single_quotes"` for the two string
+cops. It does not when the config inherits from a gem or a URL, because it
+cannot read what those say. On RuboCop's own source, a first run reports
+56,152 offenses without a config and 3,167 with the imported one.
+
+It lists everything else: other style parameters, cops that rustocop does not
 have, `require`, `plugins`, `inherit_gem`, an `inherit_from` URL, and
 `Exclude` entries that are absolute paths or regexps. A setting in
 `.rubocop.yml` replaces the same setting of an inherited file, as in RuboCop;
@@ -262,7 +272,7 @@ silence what rustocop still reports with the imported config.
 
 | Setting | rustocop |
 | --- | --- |
-| String literals | double quotes |
+| String literals | double quotes unless `enforced_style` says `"single_quotes"` (see [Configuration](#configuration)) |
 | Hash syntax | `a: 1`; shorthand `{x:}` and `{x: x}` both accepted |
 | Raising exceptions | `raise`, never `fail` |
 | Line length | 120 columns unless `max` sets another (see [Configuration](#configuration)) |
@@ -325,6 +335,9 @@ max = 100
 
 [cops."Metrics/MethodLength"]
 max = 25
+
+[cops."Style/StringLiterals"]
+enforced_style = "single_quotes"
 ```
 
 Validation is strict: unknown keys, unknown cops or departments, invalid
@@ -337,6 +350,16 @@ globs and unsupported Ruby versions are errors before any linting. Department ta
 The Metrics cops are off by default, so a `max` for one of them also switches
 it on, unless its table says `enabled = false`. Every other parameter of these
 cops is fixed at RuboCop's default.
+
+`enforced_style` is the `EnforcedStyle` of the same cop in RuboCop. Three cops
+accept it, with `"double_quotes"` as the default:
+
+- `Style/StringLiterals`: `"double_quotes"` or `"single_quotes"`.
+- `Style/StringLiteralsInInterpolation`: the same two values, for the strings
+  inside `#{}`. It does not follow `Style/StringLiterals`.
+- `Style/QuotedSymbols`: the same two values, or
+  `"same_as_string_literals"`. Without a setting it has the style of
+  `Style/StringLiterals`.
 
 Selection precedence, highest first: `--except`, `--only` (which also
 force-enables opt-in cops), per-cop `enabled`, department `enabled`, the

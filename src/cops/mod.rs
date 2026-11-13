@@ -123,6 +123,19 @@ pub trait Cop: Send + Sync {
         None
     }
 
+    /// The values of the cop's `enforced_style` setting, RuboCop's
+    /// `EnforcedStyle`; empty for a cop that has one style.
+    fn styles(&self) -> &'static [&'static str] {
+        &[]
+    }
+
+    /// A copy of this cop with the style `style`, one of [`Cop::styles`];
+    /// `None` for any other value. Config resolution builds these, as it
+    /// does for [`Cop::with_max`].
+    fn with_style(&self, _style: &str) -> Option<Box<dyn Cop>> {
+        None
+    }
+
     /// Internal dependency on Layout/LineLength's configured enable/max, not
     /// its selection by --only/--except. `None` means the length cop is disabled.
     /// This does not expose a new per-cop numeric setting.
@@ -1055,6 +1068,20 @@ impl Registry {
             .iter()
             .find(|cop| cop.name() == name)
             .and_then(|cop| cop.with_max(max))
+    }
+
+    /// The values that the named cop accepts for `enforced_style`; empty
+    /// when there is no such cop or it has one style.
+    pub fn cop_styles(&self, name: &str) -> &'static [&'static str] {
+        let cop = self.cops.iter().find(|cop| cop.name() == name);
+        cop.map_or(&[], |cop| cop.styles())
+    }
+
+    /// The named cop with the style `style`; `None` when there is no such
+    /// cop or it has no such style.
+    pub fn cop_with_style(&self, name: &str, style: &str) -> Option<Box<dyn Cop>> {
+        let cop = self.cops.iter().find(|cop| cop.name() == name)?;
+        cop.with_style(style)
     }
 }
 

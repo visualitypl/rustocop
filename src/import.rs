@@ -3,7 +3,8 @@
 //!
 //! A `rustocop.toml` says much less than a `.rubocop.yml`: the paths to skip,
 //! the Ruby version, whether a cop or department is on, the paths a cop
-//! skips, and the `max` of `Layout/LineLength` and the Metrics cops. The import carries those over
+//! skips, the `max` of `Layout/LineLength` and the Metrics cops, and the
+//! `enforced_style` of the cops for the quotes of literals. The import carries those over
 //! and lists every other setting, so that none is dropped silently.
 
 use std::{collections::BTreeMap, fmt::Write as _, path::Path};
@@ -20,6 +21,17 @@ use crate::{
 // The current directory only; RuboCop also looks in parent
 // directories and in `.config/`.
 pub const RUBOCOP_FILE_NAME: &str = ".rubocop.yml";
+
+/// The settings of a `rustocop.toml` whose default in RuboCop is another
+/// one: a RuboCop config that does not name the setting means this value.
+const RUBOCOP_DEFAULTS: &[(&str, &str, &str)] = &[
+    ("Style/StringLiterals", "EnforcedStyle", "single_quotes"),
+    (
+        "Style/StringLiteralsInInterpolation",
+        "EnforcedStyle",
+        "single_quotes",
+    ),
+];
 
 /// How deep `inherit_from` can nest. A file that inherits from itself ends
 /// here.
@@ -38,12 +50,22 @@ pub struct Import {
     pub files: Vec<String>,
     /// The settings that a `rustocop.toml` cannot say, one line each.
     pub dropped: Vec<String>,
+    /// Whether the config inherits from a gem or a URL. Those are not read,
+    /// so what the config leaves unsaid is not known to be RuboCop's default.
+    base_unread: bool,
 }
 
 /// Import the RuboCop config at `path` and the files it inherits from.
 pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
     let mut import = Import::default();
     let mut sections = load(path, 0, &mut import)?;
+    if !import.base_unread {
+        for (cop, key, value) in RUBOCOP_DEFAULTS {
+            let section = sections.entry((*cop).to_owned()).or_default();
+            let default = || Yaml::String((*value).to_owned());
+            section.entry((*key).to_owned()).or_insert_with(default);
+        }
+    }
     let mut settings = String::new();
     let mut unknown = Vec::new();
     // `AllCops` first: its keys are top-level ones, which TOML wants before
@@ -85,6 +107,11 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
                     if max > 0 && registry.cop_declares_max(&name).is_some() =>
                 {
                     let _ = writeln!(lines, "max = {max}");
+                }
+                ("EnforcedStyle", Yaml::String(style))
+                    if registry.cop_styles(&name).contains(&style.as_str()) =>
+                {
+                    let _ = writeln!(lines, "enforced_style = \"{style}\"");
                 }
                 ("TargetRubyVersion", Yaml::Real(version) | Yaml::String(version))
                     if top
@@ -159,6 +186,7 @@ fn load(path: &Path, depth: usize, import: &mut Import) -> Result<Sections> {
     for file in inherited.iter().filter_map(Yaml::as_str) {
         if file.contains("://") {
             import.dropped.push(format!("inherit_from: {file}"));
+            import.base_unread = true;
             continue;
         }
         // The `Exclude` paths of an inherited file are read as
@@ -181,8 +209,12 @@ fn load(path: &Path, depth: usize, import: &mut Import) -> Result<Sections> {
                 let pair = |(key, value): (Yaml, Yaml)| Some((key.into_string()?, value));
                 own.insert(name, section.into_iter().filter_map(pair).collect());
             }
-            _ if import.dropped.contains(&name) => {}
-            _ => import.dropped.push(name),
+            _ => {
+                import.base_unread |= name == "inherit_gem";
+                if !import.dropped.contains(&name) {
+                    import.dropped.push(name);
+                }
+            }
         }
     }
     merge(&mut sections, own, join_excludes);
@@ -235,6 +267,7 @@ mod tests {
              AllCops:\n  NewCops: enable\n  TargetRubyVersion: 4.0\n  Exclude:\n    - 'bin/**/*'\n    - ./tmp/*\n    - !ruby/regexp /_pb\\.rb$/\n\
              Style:\n  Enabled: false\n  Exclude: ['a.rb']\n\
              Style/StringLiterals:\n  Enabled: true\n  EnforcedStyle: single_quotes\n\
+             Style/HashSyntax:\n  EnforcedStyle: ruby19\n\
              Layout/LineLength:\n  Max: 100\n  Exclude:\n    - \"spec/**/*\"\n\
              Metrics/MethodLength:\n  Max: 20\n  Enabled: pending\n\
              Rails/Output:\n  Enabled: false\n\
@@ -258,7 +291,11 @@ mod tests {
              enabled = false\n\
              \n\
              [cops.\"Style/StringLiterals\"]\n\
-             enabled = true\n"
+             enabled = true\n\
+             enforced_style = \"single_quotes\"\n\
+             \n\
+             [cops.\"Style/StringLiteralsInInterpolation\"]\n\
+             enforced_style = \"single_quotes\"\n"
         );
         assert_eq!(
             import.dropped,
@@ -267,7 +304,7 @@ mod tests {
                 "AllCops: Exclude `/_pb\\.rb$/`, NewCops",
                 "Metrics/MethodLength: Enabled",
                 "Style: Exclude",
-                "Style/StringLiterals: EnforcedStyle",
+                "Style/HashSyntax: EnforcedStyle",
                 "not rustocop cops or departments: Rails/Output",
             ]
         );
@@ -316,14 +353,29 @@ mod tests {
 
     #[test]
     fn nothing_to_carry_over_gives_no_config_and_bad_files_are_errors() {
+        // A gem's config is not read, so no default of RuboCop is assumed.
         let import = import_files(&[(
             ".rubocop.yml",
-            "Style/StringLiterals:\n  EnforcedStyle: single_quotes\n",
+            "inherit_gem:\n  standard: config/base.yml\n\
+             Style/HashSyntax:\n  EnforcedStyle: ruby19\n",
         )])
         .unwrap();
         assert_eq!(import.toml, "");
-        assert_eq!(import.dropped, ["Style/StringLiterals: EnforcedStyle"]);
-        assert_eq!(import_files(&[(".rubocop.yml", "")]).unwrap().toml, "");
+        assert_eq!(
+            import.dropped,
+            ["inherit_gem", "Style/HashSyntax: EnforcedStyle"]
+        );
+        // RuboCop's own defaults are single quotes; rustocop's are double.
+        assert_eq!(
+            import_files(&[(".rubocop.yml", "")]).unwrap().toml,
+            "# Written by `rustocop --import-rubocop-config` from .rubocop.yml.\n\
+             \n\
+             [cops.\"Style/StringLiterals\"]\n\
+             enforced_style = \"single_quotes\"\n\
+             \n\
+             [cops.\"Style/StringLiteralsInInterpolation\"]\n\
+             enforced_style = \"single_quotes\"\n"
+        );
 
         let error = |files| format!("{:#}", import_files(files).err().unwrap());
         assert!(

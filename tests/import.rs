@@ -26,8 +26,7 @@ fn import_writes_the_config_of_the_next_run_and_lists_what_it_drops() {
             0,
             "Wrote rustocop.toml from .rubocop_todo.yml and .rubocop.yml.\n\
              Not carried over; rustocop has no setting for these:\n  \
-             AllCops: NewCops\n  \
-             Style/StringLiterals: EnforcedStyle\n"
+             AllCops: NewCops\n"
                 .into(),
             String::new()
         )
@@ -40,7 +39,13 @@ fn import_writes_the_config_of_the_next_run_and_lists_what_it_drops() {
          exclude = [\n  \"gen/**/*\",\n]\n\
          \n\
          [cops.\"Lint/Debugger\"]\n\
-         exclude = [\n  \"lib/old.rb\",\n]\n"
+         exclude = [\n  \"lib/old.rb\",\n]\n\
+         \n\
+         [cops.\"Style/StringLiterals\"]\n\
+         enforced_style = \"single_quotes\"\n\
+         \n\
+         [cops.\"Style/StringLiteralsInInterpolation\"]\n\
+         enforced_style = \"single_quotes\"\n"
     );
 
     // The next run skips what RuboCop skipped.
@@ -87,7 +92,8 @@ fn import_writes_the_config_of_the_next_run_and_lists_what_it_drops() {
 fn import_writes_nothing_without_settings_to_carry_over_and_needs_a_rubocop_config() {
     let dir = project(&[(
         ".rubocop.yml",
-        "Style/StringLiterals:\n  EnforcedStyle: single_quotes\n",
+        "inherit_gem:\n  standard: config/base.yml\n\
+         Style/HashSyntax:\n  EnforcedStyle: ruby19\n",
     )]);
     assert_eq!(
         rustocop(dir.path(), &["--import-rubocop-config"]),
@@ -95,7 +101,8 @@ fn import_writes_nothing_without_settings_to_carry_over_and_needs_a_rubocop_conf
             0,
             "No setting of .rubocop.yml has a rustocop counterpart; no rustocop.toml is written.\n\
              Not carried over; rustocop has no setting for these:\n  \
-             Style/StringLiterals: EnforcedStyle\n"
+             inherit_gem\n  \
+             Style/HashSyntax: EnforcedStyle\n"
                 .into(),
             String::new()
         )
@@ -149,4 +156,60 @@ fn a_reader_that_closes_the_pipe_ends_the_output_without_a_panic() {
             "{args:?}"
         );
     }
+}
+
+#[test]
+fn an_imported_config_has_the_quotes_of_rubocop() {
+    // A config that names no quote style means RuboCop's default, single
+    // quotes, for strings and for the symbols that follow them.
+    let source = "x = \"a\"\ny = 'b'\nz = :\"c d\"\n";
+    let dir = project(&[
+        (".rubocop.yml", "AllCops:\n  NewCops: enable\n"),
+        ("a.rb", source),
+    ]);
+    let only = "Style/StringLiterals,Style/QuotedSymbols";
+    let before = rustocop(dir.path(), &["--only", only]).1;
+    assert!(
+        before.starts_with("a.rb:2:5: C: Prefer double-quoted strings"),
+        "{before}"
+    );
+
+    assert_eq!(rustocop(dir.path(), &["--import-rubocop-config"]).0, 0);
+    assert_eq!(
+        rustocop(dir.path(), &["--only", only]),
+        (
+            1,
+            "a.rb:1:5: C: Prefer single-quoted strings when you don't need string interpolation \
+             or special symbols. (Style/StringLiterals)\n\
+             a.rb:3:5: C: Prefer single-quoted symbols when you don't need string interpolation \
+             or special symbols. (Style/QuotedSymbols)\n\
+             \n1 file inspected, 2 offenses detected\n"
+                .into(),
+            String::new()
+        )
+    );
+    assert_eq!(rustocop(dir.path(), &["--fix", "--only", only]).0, 0);
+    assert_eq!(
+        std::fs::read_to_string(dir.path().join("a.rb")).unwrap(),
+        "x = 'a'\ny = 'b'\nz = :'c d'\n"
+    );
+
+    // A style that the cop does not have is an error before any linting.
+    let config = "[cops.\"Style/StringLiterals\"]\nenforced_style = \"backticks\"\n";
+    std::fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+    let (code, _, stderr) = rustocop(dir.path(), &[]);
+    assert_eq!(code, 2);
+    assert_eq!(
+        stderr,
+        "error: unknown `enforced_style = \"backticks\"` for `Style/StringLiterals`; use \
+         \"double_quotes\" or \"single_quotes\"\n"
+    );
+    let config = "[cops.\"Lint/Debugger\"]\nenforced_style = \"single_quotes\"\n";
+    std::fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+    let (code, _, stderr) = rustocop(dir.path(), &[]);
+    assert_eq!(code, 2);
+    assert_eq!(
+        stderr,
+        "error: `enforced_style` is not a valid setting for `Lint/Debugger`\n"
+    );
 }
