@@ -24,7 +24,7 @@ fn findings(source: &str) -> Vec<(u32, u32, u32, String)> {
         0,
         "{source:?}"
     );
-    let mut found: Vec<_> = lint_str_with(&[&ModuleLength], source)
+    let mut found: Vec<_> = lint_str_with(&[&ModuleLength::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {

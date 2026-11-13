@@ -21,7 +21,7 @@ const COP: &str = "Metrics/CyclomaticComplexity";
 
 /// `(line, col, end line, message)` of every finding, sorted.
 fn findings(source: &str) -> Vec<(u32, u32, u32, String)> {
-    let mut found: Vec<_> = lint_str_with(&[&CyclomaticComplexity], source)
+    let mut found: Vec<_> = lint_str_with(&[&CyclomaticComplexity::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {

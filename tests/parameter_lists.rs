@@ -125,7 +125,7 @@ fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
     assert_eq!(cop.severity(), Severity::Convention);
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none());
-    assert!(cop.max_setting().is_none());
+    assert_eq!(cop.max_setting(), Some("max"));
     assert_eq!(
         registry
             .cops()
@@ -199,7 +199,6 @@ fn defaults_config_department_only_except_exclusions_and_strict_errors() {
         assert_eq!(count(&out), expected as usize, "{out:?}");
     }
     for body in [
-        "max=6",
         "Max=6",
         "MaxOptionalParameters=4",
         "CountKeywordArgs=false",

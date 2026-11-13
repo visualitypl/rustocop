@@ -22,7 +22,7 @@ const COP: &str = "Metrics/PerceivedComplexity";
 
 /// `(line, col, end line, message)` of every finding, sorted.
 fn findings(source: &str) -> Vec<(u32, u32, u32, String)> {
-    let mut found: Vec<_> = lint_str_with(&[&PerceivedComplexity], source)
+    let mut found: Vec<_> = lint_str_with(&[&PerceivedComplexity::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {

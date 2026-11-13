@@ -24,15 +24,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 8;
 
 /// The `Metrics/PerceivedComplexity` cop.
-pub struct PerceivedComplexity;
+pub struct PerceivedComplexity {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for PerceivedComplexity {
+    fn default() -> Self {
+        PerceivedComplexity { max: MAX }
+    }
+}
 
 impl Cop for PerceivedComplexity {
     fn name(&self) -> &'static str {
         "Metrics/PerceivedComplexity"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(PerceivedComplexity { max }))
     }
 
     fn check_node<'pr>(
@@ -42,13 +59,14 @@ impl Cop for PerceivedComplexity {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         let Some(method) = Method::of(node) else {
             return;
         };
         let complexity = complexity(&method.body, perceived_score);
-        if complexity > MAX {
+        if complexity > max {
             let message = format!(
-                "Perceived complexity for `{}` is too high. [{complexity}/{MAX}]",
+                "Perceived complexity for `{}` is too high. [{complexity}/{max}]",
                 method.name
             );
             method.report(self, message, file, out);

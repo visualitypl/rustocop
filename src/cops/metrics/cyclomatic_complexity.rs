@@ -19,15 +19,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 7;
 
 /// The `Metrics/CyclomaticComplexity` cop.
-pub struct CyclomaticComplexity;
+pub struct CyclomaticComplexity {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for CyclomaticComplexity {
+    fn default() -> Self {
+        CyclomaticComplexity { max: MAX }
+    }
+}
 
 impl Cop for CyclomaticComplexity {
     fn name(&self) -> &'static str {
         "Metrics/CyclomaticComplexity"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(CyclomaticComplexity { max }))
     }
 
     fn check_node<'pr>(
@@ -37,13 +54,14 @@ impl Cop for CyclomaticComplexity {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         let Some(method) = Method::of(node) else {
             return;
         };
         let complexity = complexity(&method.body, cyclomatic_score);
-        if complexity > MAX {
+        if complexity > max {
             let message = format!(
-                "Cyclomatic complexity for `{}` is too high. [{complexity}/{MAX}]",
+                "Cyclomatic complexity for `{}` is too high. [{complexity}/{max}]",
                 method.name
             );
             method.report(self, message, file, out);

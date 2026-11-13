@@ -1,4 +1,5 @@
-//! `Metrics/ParameterLists` — fixed limits of five total and three optional parameters.
+//! `Metrics/ParameterLists` — at most `max` parameters, five by default, and
+//! a fixed limit of three optional ones.
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::Offense,
@@ -6,10 +7,30 @@ use crate::{
 };
 use ruby_prism::{Node, ParametersNode};
 
-pub struct ParameterLists;
+/// The default `Max`.
+const MAX: usize = 5;
+
+pub struct ParameterLists {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for ParameterLists {
+    fn default() -> Self {
+        ParameterLists { max: MAX }
+    }
+}
 impl Cop for ParameterLists {
     fn name(&self) -> &'static str {
         "Metrics/ParameterLists"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(ParameterLists { max }))
     }
 
     fn check_node<'pr>(
@@ -19,6 +40,7 @@ impl Cop for ParameterLists {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         if let Some(def) = node.as_def_node() {
             let Some(params) = def.parameters() else {
                 return;
@@ -36,14 +58,14 @@ impl Cop for ParameterLists {
                 return;
             }
             let count = parameter_count(&params);
-            if count > 5 {
+            if count > max {
                 let loc = match (def.lparen_loc(), def.rparen_loc()) {
                     (Some(open), Some(close)) => open.join(&close).unwrap(),
                     _ => params.location(),
                 };
                 self.report(
                     loc,
-                    format!("Avoid parameter lists longer than 5 parameters. [{count}/5]"),
+                    format!("Avoid parameter lists longer than {max} parameters. [{count}/{max}]"),
                     file,
                     out,
                 );
@@ -75,10 +97,10 @@ impl Cop for ParameterLists {
             }
             let count =
                 params.parameters().map_or(0, |p| parameter_count(&p)) + params.locals().len();
-            if count > 5 {
+            if count > max {
                 self.report(
                     params.location(),
-                    format!("Avoid parameter lists longer than 5 parameters. [{count}/5]"),
+                    format!("Avoid parameter lists longer than {max} parameters. [{count}/{max}]"),
                     file,
                     out,
                 );
@@ -161,7 +183,7 @@ mod tests {
     //! Copyright (c) 2012-26 Bozhidar Batsov). Spec Max=4 is adapted to fixed Max=5.
     use crate::{offense::Offense, pipeline::lint_str_with};
     fn offenses(source: &str) -> Vec<Offense> {
-        lint_str_with(&[&super::ParameterLists], source)
+        lint_str_with(&[&super::ParameterLists::default()], source)
     }
     #[test]
     fn total_parameters_and_exact_location_message() {

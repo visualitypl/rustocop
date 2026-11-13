@@ -56,10 +56,11 @@ cops, the ten Metrics cops, 14 Layout cops (the line-break cops, `Layout/ClassSt
 `Lint/UnusedPrivateMethod`), `Bundler/GemComment`, `Bundler/GemVersion`,
 `Gemspec/DependencyVersion`, `Naming/InclusiveLanguage` and
 `Style/FrozenStringLiteralComment` are opt-in. Three of these choices are
-rustocop's own, where RuboCop has the cop on: the Metrics cops, because their
-thresholds are fixed and cannot be tuned, `Style/Documentation` and
+rustocop's own, where RuboCop has the cop on: the Metrics cops, because the
+right limits differ from one codebase to the next, `Style/Documentation` and
 `Style/FrozenStringLiteralComment`. `[cops.Metrics]` with `enabled = true`
-switches the department on. While one of these cops is off, a
+switches the department on, and a `max` for a Metrics cop switches that cop
+on. While one of these cops is off, a
 `# rubocop:disable` comment for it is not reported as unnecessary, because
 RuboCop may still need the comment. A few cops apply only to some
 Ruby versions. `Style/ReverseFind` runs only when `ruby_version` is `"4.0"`.
@@ -81,7 +82,7 @@ only to Ruby versions older than 3.4; they stay registered but report nothing.
   parallel. Cops that need cross-file state in RuboCop (for example
   `Lint/DuplicateMethods` across files) work within one file here.
 - **Standard cops only.** All nine RuboCop departments are covered. Metrics
-  cops are opt-in, with thresholds fixed at RuboCop's defaults. There is no support for
+  cops are opt-in, and `max` is their only setting. There is no support for
   extension gems such as rubocop-rails or rubocop-rspec.
 - **No unsafe autocorrect, formatter or server mode.**
 
@@ -233,7 +234,7 @@ Not carried over; rustocop has no setting for these:
   plugins
   AllCops: NewCops, SuggestExtensions, TargetRubyVersion, UseProjectIndex
   Layout/HashAlignment: EnforcedColonStyle, EnforcedHashRocketStyle
-  Metrics/MethodLength: Max
+  Layout/LineLength: AllowedPatterns
   not rustocop cops or departments: RSpec, RSpec/AnyInstance, Rake/MethodDefinitionInTask
 ```
 
@@ -243,7 +244,8 @@ The import carries over:
 - `AllCops: TargetRubyVersion` when it is 3.4 or 4.0, as `ruby_version`;
 - `Enabled: true` and `Enabled: false` of a cop or a department;
 - `Exclude` of a cop;
-- `Max` of `Layout/LineLength`.
+- `Max` of `Layout/LineLength` and of a Metrics cop, when it is a whole
+  number.
 
 It lists everything else: style parameters, cops that rustocop does not
 have, `require`, `plugins`, `inherit_gem`, an `inherit_from` URL, and
@@ -263,10 +265,10 @@ silence what rustocop still reports with the imported config.
 | String literals | double quotes |
 | Hash syntax | `a: 1`; shorthand `{x:}` and `{x: x}` both accepted |
 | Raising exceptions | `raise`, never `fail` |
-| Line length | 120 columns (the only numeric setting, see [Configuration](#configuration)) |
+| Line length | 120 columns unless `max` sets another (see [Configuration](#configuration)) |
 | `# frozen_string_literal: true` | not required unless the cop is enabled |
 | Documentation comments | not required unless `Style/Documentation` is enabled |
-| Metrics (method length, complexity, ...) | not checked unless the cop is enabled; thresholds as in RuboCop |
+| Metrics (method length, complexity, ...) | not checked unless the cop is enabled; RuboCop's limits unless `max` sets another |
 
 The remaining defaults follow RuboCop 1.92.0. Pin the binary version if new
 default-on cops are unwanted.
@@ -320,11 +322,21 @@ exclude = ["spec/support/**"]
 
 [cops."Layout/LineLength"]
 max = 100
+
+[cops."Metrics/MethodLength"]
+max = 25
 ```
 
 Validation is strict: unknown keys, unknown cops or departments, invalid
 globs and unsupported Ruby versions are errors before any linting. Department tables accept only `enabled`.
-`max` is accepted only by `Layout/LineLength`.
+
+`max` is a whole number of at least 1, the `Max` of the same cop in RuboCop.
+`Layout/LineLength` accepts it, and so do nine Metrics cops: `AbcSize`,
+`BlockLength`, `BlockNesting`, `ClassLength`, `CyclomaticComplexity`,
+`MethodLength`, `ModuleLength`, `ParameterLists` and `PerceivedComplexity`.
+The Metrics cops are off by default, so a `max` for one of them also switches
+it on, unless its table says `enabled = false`. Every other parameter of these
+cops is fixed at RuboCop's default.
 
 Selection precedence, highest first: `--except`, `--only` (which also
 force-enables opt-in cops), per-cop `enabled`, department `enabled`, the

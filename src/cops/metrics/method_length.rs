@@ -15,15 +15,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 10;
 
 /// The `Metrics/MethodLength` cop.
-pub struct MethodLength;
+pub struct MethodLength {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for MethodLength {
+    fn default() -> Self {
+        MethodLength { max: MAX }
+    }
+}
 
 impl Cop for MethodLength {
     fn name(&self) -> &'static str {
         "Metrics/MethodLength"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(MethodLength { max }))
     }
 
     fn check_node<'pr>(
@@ -33,6 +50,7 @@ impl Cop for MethodLength {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         let body = if let Some(def) = node.as_def_node() {
             def.body()
         } else if let Some(call) = node.as_call_node()
@@ -48,7 +66,7 @@ impl Cop for MethodLength {
         check(
             self,
             "Method",
-            MAX,
+            max,
             &location,
             &location,
             || body_length(body, file),

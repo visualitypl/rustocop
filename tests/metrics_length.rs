@@ -92,8 +92,8 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         assert!(!cop.safe_fixes(), "{name}");
         assert_eq!(cop.severity(), Severity::Convention);
         assert_eq!(cop.ruby_versions(), Default::default());
-        assert!(cop.max_setting().is_none(), "{name}");
-        assert!(cop.with_max(1).is_none(), "{name}");
+        assert_eq!(cop.max_setting(), Some("max"), "{name}");
+        assert!(cop.with_max(1).is_some(), "{name}");
         assert_eq!(cop.path_policy().is_some(), name == "Metrics/BlockLength");
     }
     assert!(!registry.has_cop("Metrics/Future"));
@@ -178,10 +178,9 @@ fn selectors_department_and_strict_config() {
         let out = unchanged(d.path(), bytes.as_bytes(), &args, status);
         assert_eq!(found(&out).len(), count, "{config:?} {flags:?} {out:?}");
     }
-    // No threshold, style or allow-list knob is admitted.
+    // No style or allow-list knob is admitted; `max` is the one setting.
     for name in COPS {
         for body in [
-            "max=200",
             "Max=200",
             "CountComments=true",
             "CountAsOne=['array']",
@@ -406,4 +405,27 @@ fn correcting_peers_compose_and_the_family_keeps_its_findings() {
     assert_eq!(out.status.code(), Some(1));
     assert_eq!(found(&out), expected("lib/a.rb"));
     assert_eq!(fs::read(&path).unwrap(), after);
+}
+
+#[test]
+fn max_sets_the_limit_of_a_cop_and_switches_the_cop_on() {
+    use super::baseline::{project, rustocop};
+
+    let dir = project(&[("a.rb", "def m\n  foo\n  bar\n  baz\nend\n")]);
+    let metrics = |config: &str| {
+        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
+        let (_, stdout, stderr) = rustocop(dir.path(), &[]);
+        assert_eq!(stderr, "");
+        let found = stdout.lines().filter(|line| line.contains("Metrics/"));
+        found.map(str::to_owned).collect::<Vec<_>>()
+    };
+    // The Metrics cops are off until the config asks for one.
+    assert!(metrics("").is_empty());
+    let method_length = "[cops.\"Metrics/MethodLength\"]\n";
+    assert_eq!(
+        metrics(&format!("{method_length}max = 2\n")),
+        ["a.rb:1:1: C: Method has too many lines. [3/2] (Metrics/MethodLength)"]
+    );
+    assert!(metrics(&format!("{method_length}max = 3\n")).is_empty());
+    assert!(metrics(&format!("{method_length}max = 2\nenabled = false\n")).is_empty());
 }

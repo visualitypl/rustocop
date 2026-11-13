@@ -132,8 +132,8 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         assert_eq!(cop.severity(), Severity::Convention);
         assert_eq!(cop.ruby_versions(), Default::default());
         assert!(cop.path_policy().is_none(), "{name}");
-        assert!(cop.max_setting().is_none(), "{name}");
-        assert!(cop.with_max(1).is_none(), "{name}");
+        assert_eq!(cop.max_setting(), Some("max"), "{name}");
+        assert!(cop.with_max(1).is_some(), "{name}");
         assert!(cop.autocorrect_incompatible_with().is_empty());
     }
     assert!(!registry.has_cop("Metrics/Future"));
@@ -324,10 +324,9 @@ fn selectors_department_and_strict_config() {
         let out = unchanged(d.path(), COMPLEX.as_bytes(), &args, status);
         assert_eq!(found(&out).len(), count, "{config:?} {flags:?} {out:?}");
     }
-    // No threshold, allowance or counting knob is admitted.
+    // No allowance or counting knob is admitted; `max` is the one setting.
     for name in COPS {
         for body in [
-            "max=20",
             "Max=20",
             "AllowedMethods=['complex']",
             "AllowedPatterns=['complex']",

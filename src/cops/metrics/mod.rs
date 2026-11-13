@@ -1,5 +1,6 @@
-//! Fixed-default method, block, class, module, nesting, collection and
-//! complexity metrics.
+//! Method, block, class, module, nesting, collection and complexity metrics.
+//! Each limit is RuboCop's default `Max`, and `max` in the config sets
+//! another; the other parameters are fixed.
 mod abc_size;
 mod block_length;
 mod block_nesting;

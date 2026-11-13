@@ -3,7 +3,7 @@
 //!
 //! A `rustocop.toml` says much less than a `.rubocop.yml`: the paths to skip,
 //! the Ruby version, whether a cop or department is on, the paths a cop
-//! skips, and the `max` of `Layout/LineLength`. The import carries those over
+//! skips, and the `max` of `Layout/LineLength` and the Metrics cops. The import carries those over
 //! and lists every other setting, so that none is dropped silently.
 
 use std::{collections::BTreeMap, fmt::Write as _, path::Path};
@@ -251,6 +251,9 @@ mod tests {
              exclude = [\n  \"spec/**/*\",\n]\n\
              max = 100\n\
              \n\
+             [cops.\"Metrics/MethodLength\"]\n\
+             max = 20\n\
+             \n\
              [cops.\"Style\"]\n\
              enabled = false\n\
              \n\
@@ -262,7 +265,7 @@ mod tests {
             [
                 "require",
                 "AllCops: Exclude `/_pb\\.rb$/`, NewCops",
-                "Metrics/MethodLength: Enabled, Max",
+                "Metrics/MethodLength: Enabled",
                 "Style: Exclude",
                 "Style/StringLiterals: EnforcedStyle",
                 "not rustocop cops or departments: Rails/Output",

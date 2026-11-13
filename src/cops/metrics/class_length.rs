@@ -20,15 +20,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 100;
 
 /// The `Metrics/ClassLength` cop.
-pub struct ClassLength;
+pub struct ClassLength {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for ClassLength {
+    fn default() -> Self {
+        ClassLength { max: MAX }
+    }
+}
 
 impl Cop for ClassLength {
     fn name(&self) -> &'static str {
         "Metrics/ClassLength"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(ClassLength { max }))
     }
 
     fn check_node<'pr>(
@@ -38,22 +55,23 @@ impl Cop for ClassLength {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         let location = node.location();
         if let Some(class) = node.as_class_node() {
             let length = || classlike_length(node, class.body(), file);
-            check(self, "Class", MAX, &location, &location, length, file, out);
+            check(self, "Class", max, &location, &location, length, file, out);
         } else if let Some(sclass) = node.as_singleton_class_node() {
             if cx.ancestors().any(|a| a.as_class_node().is_some()) {
                 return;
             }
             let length = || body_length(sclass.body(), file);
-            check(self, "Class", MAX, &location, &location, length, file, out);
+            check(self, "Class", max, &location, &location, length, file, out);
         } else if let Some(value) = constant_assignment_value(node)
             && let Some(block) = class_definition(&value)
         {
             let location = value.location();
             let length = || body_length(block.body(), file);
-            check(self, "Class", MAX, &location, &location, length, file, out);
+            check(self, "Class", max, &location, &location, length, file, out);
         }
     }
 }

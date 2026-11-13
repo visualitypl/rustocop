@@ -28,7 +28,7 @@ const COP: &str = "Metrics/AbcSize";
 
 /// `(line, col, end line, message)` of every finding, sorted.
 fn findings(source: &str) -> Vec<(u32, u32, u32, String)> {
-    let mut found: Vec<_> = lint_str_with(&[&AbcSize], source)
+    let mut found: Vec<_> = lint_str_with(&[&AbcSize::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {
@@ -917,5 +917,5 @@ fn sizes_round_and_print_like_ruby() {
         assert_eq!(size, rounded, "{n}");
         assert_eq!(format_g4(size), printed, "{n}");
     }
-    assert_eq!(format_g4(MAX), "17");
+    assert_eq!(format_g4(MAX as f64), "17");
 }

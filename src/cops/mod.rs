@@ -110,8 +110,8 @@ pub trait Cop: Send + Sync {
         Severity::for_department(department_of(self.name()))
     }
 
-    /// The name of the numeric setting this cop accepts, if any
-    /// (`max` for `Layout/LineLength`).
+    /// The name of the numeric setting this cop accepts, if any (`max` for
+    /// `Layout/LineLength` and the Metrics cops).
     fn max_setting(&self) -> Option<&'static str> {
         None
     }
@@ -415,16 +415,16 @@ impl Registry {
                 Box::new(gemspec::RequireMFA),
                 Box::new(gemspec::RequiredRubyVersion),
                 Box::new(gemspec::RubyVersionGlobalsUsage),
-                Box::new(metrics::ParameterLists),
-                Box::new(metrics::BlockLength),
-                Box::new(metrics::ClassLength),
-                Box::new(metrics::MethodLength),
-                Box::new(metrics::ModuleLength),
-                Box::new(metrics::BlockNesting),
+                Box::new(metrics::ParameterLists::default()),
+                Box::new(metrics::BlockLength::default()),
+                Box::new(metrics::ClassLength::default()),
+                Box::new(metrics::MethodLength::default()),
+                Box::new(metrics::ModuleLength::default()),
+                Box::new(metrics::BlockNesting::default()),
                 Box::new(metrics::CollectionLiteralLength),
-                Box::new(metrics::CyclomaticComplexity),
-                Box::new(metrics::PerceivedComplexity),
-                Box::new(metrics::AbcSize),
+                Box::new(metrics::CyclomaticComplexity::default()),
+                Box::new(metrics::PerceivedComplexity::default()),
+                Box::new(metrics::AbcSize::default()),
                 Box::new(migration::DepartmentName),
                 Box::new(lint::ParenthesesAsGroupedExpression),
                 Box::new(lint::PercentStringArray),
@@ -2015,13 +2015,16 @@ mod tests {
     }
 
     #[test]
-    fn registry_contains_layout_line_length_the_only_cop_with_max() {
+    fn registry_contains_the_ten_cops_with_max() {
         let registry = Registry::new();
         assert!(registry.has_cop("Layout/LineLength"));
         assert!(registry.has_cop("Layout/TrailingWhitespace"));
         for cop in registry.cops() {
             let name = cop.name();
-            let expected = (name == "Layout/LineLength").then_some("max");
+            // Metrics/CollectionLiteralLength has a `LengthThreshold`, no `Max`.
+            let limited = name == "Layout/LineLength"
+                || (name.starts_with("Metrics/") && name != "Metrics/CollectionLiteralLength");
+            let expected = limited.then_some("max");
             assert_eq!(registry.cop_declares_max(name), expected, "{name}");
             // A cop declares `max` exactly when it can be built with one.
             let configured = registry.cop_with_max(name, 100);

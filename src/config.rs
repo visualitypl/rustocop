@@ -7,8 +7,8 @@
 //! - Strict: unknown keys, unknown cops/departments, or invalid settings fail
 //!   the run instead of being silently ignored.
 //! - Minimal surface: per-cop and per-department `enabled`, per-cop and
-//!   global `exclude` globs, and `max` for `Layout/LineLength`. There are no
-//!   per-cop style parameters — defaults are the product; disagreeing teams
+//!   global `exclude` globs, and `max` for `Layout/LineLength` and the
+//!   Metrics cops. There are no per-cop style parameters — defaults are the product; disagreeing teams
 //!   disable a cop rather than reconfigure it.
 
 use std::{
@@ -60,7 +60,8 @@ pub struct RawCopSettings {
     /// Preserve presence so even an explicitly empty department setting is rejected.
     pub exclude: Option<Vec<String>>,
     /// A numeric parameter. Only valid for cops that declare one
-    /// (`Layout/LineLength` today).
+    /// (`Layout/LineLength` and the Metrics cops with a `Max` in RuboCop).
+    /// On a cop that is off by default, it also switches the cop on.
     pub max: Option<usize>,
 }
 
@@ -242,10 +243,12 @@ impl ResolvedConfig {
                 configured.insert(key.clone(), cop);
             }
             let excludes = compile_globs(settings.exclude.as_deref().unwrap_or_default(), &key)?;
+            // A limit for a cop that is off by default asks for the cop.
+            let wanted = settings.max.is_some() && !crate::cops::policy::default_enabled(&key);
             cop_settings.insert(
                 key.clone(),
                 CopSettings {
-                    enabled: settings.enabled,
+                    enabled: settings.enabled.or(wanted.then_some(true)),
                     excludes,
                 },
             );

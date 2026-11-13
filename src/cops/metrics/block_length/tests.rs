@@ -29,7 +29,7 @@ fn findings(source: &str) -> Vec<(u32, u32, u32, String)> {
         0,
         "{source:?}"
     );
-    let mut found: Vec<_> = lint_str_with(&[&BlockLength], source)
+    let mut found: Vec<_> = lint_str_with(&[&BlockLength::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {
@@ -583,7 +583,8 @@ fn rescue_and_ensure_bodies() {
 
 #[test]
 fn the_pinned_gemspec_exclusion_is_a_path_policy() {
-    let policy = BlockLength.path_policy().expect("pinned Exclude");
+    let cop = BlockLength::default();
+    let policy = cop.path_policy().expect("pinned Exclude");
     assert!(!policy.allows(std::path::Path::new("foo.gemspec")));
     assert!(!policy.allows(std::path::Path::new("a/b/foo.gemspec")));
     assert!(policy.allows(std::path::Path::new("foo.rb")));

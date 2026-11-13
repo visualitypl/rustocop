@@ -31,15 +31,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
-const MAX: f64 = 17.0;
+/// The default `Max`.
+const MAX: usize = 17;
 
 /// The `Metrics/AbcSize` cop.
-pub struct AbcSize;
+pub struct AbcSize {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for AbcSize {
+    fn default() -> Self {
+        AbcSize { max: MAX }
+    }
+}
 
 impl Cop for AbcSize {
     fn name(&self) -> &'static str {
         "Metrics/AbcSize"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(AbcSize { max }))
     }
 
     fn check_node<'pr>(
@@ -49,18 +66,19 @@ impl Cop for AbcSize {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max as f64;
         let Some(method) = Method::of(node) else {
             return;
         };
         let abc = Abc::of(&method.body);
         let size = abc.size();
-        if size > MAX {
+        if size > max {
             let message = format!(
                 "Assignment Branch Condition size for `{}` is too high. [{} {}/{}]",
                 method.name,
                 abc.vector(),
                 format_g4(size),
-                format_g4(MAX)
+                format_g4(max)
             );
             method.report(self, message, file, out);
         }

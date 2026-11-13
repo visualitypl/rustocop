@@ -26,7 +26,7 @@ fn findings(source: &str) -> Vec<(u32, u32, u32)> {
         0,
         "{source:?}"
     );
-    let mut found: Vec<_> = lint_str_with(&[&BlockNesting], source)
+    let mut found: Vec<_> = lint_str_with(&[&BlockNesting::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {

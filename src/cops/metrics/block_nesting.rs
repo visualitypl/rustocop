@@ -32,15 +32,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 3;
 
 /// The `Metrics/BlockNesting` cop.
-pub struct BlockNesting;
+pub struct BlockNesting {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for BlockNesting {
+    fn default() -> Self {
+        BlockNesting { max: MAX }
+    }
+}
 
 impl Cop for BlockNesting {
     fn name(&self) -> &'static str {
         "Metrics/BlockNesting"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(BlockNesting { max }))
     }
 
     fn check_node<'pr>(
@@ -50,6 +67,7 @@ impl Cop for BlockNesting {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         if !counts(node) {
             return;
         }
@@ -64,18 +82,18 @@ impl Cop for BlockNesting {
         for ancestor in cx.ancestors() {
             if counts(ancestor) && encloses(ancestor, child) {
                 enclosing += 1;
-                if enclosing == MAX + 1 && file.cop_enabled_for_lines(name, 1, u32::MAX) {
+                if enclosing == max + 1 && file.cop_enabled_for_lines(name, 1, u32::MAX) {
                     return;
                 }
             }
             child = ancestor;
         }
-        if enclosing < MAX {
+        if enclosing < max {
             return;
         }
         // Every enclosing node over the limit must have been reported on a
         // disabled range for this one to be reached.
-        let mut over = enclosing - MAX;
+        let mut over = enclosing - max;
         let mut child = node;
         for ancestor in cx.ancestors() {
             if over == 0 {
@@ -98,7 +116,7 @@ impl Cop for BlockNesting {
             correction: None,
             cop: self.name(),
             severity: self.severity(),
-            message: format!("Avoid more than {MAX} levels of block nesting."),
+            message: format!("Avoid more than {max} levels of block nesting."),
             line,
             end_line: file.line_of(end.saturating_sub(1).max(start)),
             col,

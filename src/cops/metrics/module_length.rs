@@ -17,15 +17,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 100;
 
 /// The `Metrics/ModuleLength` cop.
-pub struct ModuleLength;
+pub struct ModuleLength {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for ModuleLength {
+    fn default() -> Self {
+        ModuleLength { max: MAX }
+    }
+}
 
 impl Cop for ModuleLength {
     fn name(&self) -> &'static str {
         "Metrics/ModuleLength"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(ModuleLength { max }))
     }
 
     fn check_node<'pr>(
@@ -35,10 +52,11 @@ impl Cop for ModuleLength {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         let location = node.location();
         if let Some(module) = node.as_module_node() {
             let length = || classlike_length(node, module.body(), file);
-            check(self, "Module", MAX, &location, &location, length, file, out);
+            check(self, "Module", max, &location, &location, length, file, out);
         } else if let Some(write) = node.as_constant_write_node()
             && let Some(call) = write.value().as_call_node()
             && call.name().as_slice() == b"new"
@@ -53,7 +71,7 @@ impl Cop for ModuleLength {
             check(
                 self,
                 "Module",
-                MAX,
+                max,
                 &location,
                 &write.name_loc(),
                 length,

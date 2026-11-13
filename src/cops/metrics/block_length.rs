@@ -20,15 +20,32 @@ use crate::{
     source::SourceFile,
 };
 
-/// Pinned `Max`.
+/// The default `Max`.
 const MAX: usize = 25;
 
 /// The `Metrics/BlockLength` cop.
-pub struct BlockLength;
+pub struct BlockLength {
+    /// The value of `Max`.
+    max: usize,
+}
+
+impl Default for BlockLength {
+    fn default() -> Self {
+        BlockLength { max: MAX }
+    }
+}
 
 impl Cop for BlockLength {
     fn name(&self) -> &'static str {
         "Metrics/BlockLength"
+    }
+
+    fn max_setting(&self) -> Option<&'static str> {
+        Some("max")
+    }
+
+    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+        Some(Box::new(BlockLength { max }))
     }
 
     fn check_node<'pr>(
@@ -38,6 +55,7 @@ impl Cop for BlockLength {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let max = self.max;
         let body = match node {
             Node::CallNode { .. } => {
                 let call = node.as_call_node().unwrap();
@@ -74,7 +92,7 @@ impl Cop for BlockLength {
         check(
             self,
             "Block",
-            MAX,
+            max,
             &location,
             &location,
             || body_length(body, file),

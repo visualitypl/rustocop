@@ -110,8 +110,10 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         assert_eq!(cop.severity(), Severity::Convention);
         assert_eq!(cop.ruby_versions(), Default::default());
         assert!(cop.path_policy().is_none(), "{name}");
-        assert!(cop.max_setting().is_none(), "{name}");
-        assert!(cop.with_max(1).is_none(), "{name}");
+        // CollectionLiteralLength has a `LengthThreshold` upstream, no `Max`.
+        let limited = name == "Metrics/BlockNesting";
+        assert_eq!(cop.max_setting(), limited.then_some("max"), "{name}");
+        assert_eq!(cop.with_max(1).is_some(), limited, "{name}");
         assert!(cop.autocorrect_incompatible_with().is_empty());
     }
     assert!(!registry.has_cop("Metrics/Future"));
@@ -253,10 +255,14 @@ fn selectors_department_and_strict_config() {
         let out = unchanged(d.path(), bytes.as_bytes(), &args, status);
         assert_eq!(found(&out).len(), count, "{config:?} {flags:?} {out:?}");
     }
-    // No threshold or counting knob is admitted.
+    // No counting knob is admitted; `max` is the one setting of BlockNesting.
     for name in COPS {
         for body in [
-            "max=2",
+            if name == "Metrics/BlockNesting" {
+                "Max=3"
+            } else {
+                "max=2"
+            },
             "Max=2",
             "CountBlocks=true",
             "CountModifierForms=true",
