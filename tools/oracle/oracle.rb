@@ -355,7 +355,8 @@ module Oracle
       version = toml["ruby_version"]
       head = version ? "ruby_version = #{version.inspect}\n" : ""
       head + toml.reject { |section, _| section == "ruby_version" }.sort.map do |section, values|
-        lines = values.sort.map { |key, value| "#{key} = #{value.inspect}" }
+        # JSON for a number, a boolean, a string or a list of strings is TOML.
+        lines = values.sort.map { |key, value| "#{key} = #{value.to_json}" }
         "[cops.#{section.inspect}]\n#{lines.join("\n")}\n"
       end.join
     end
@@ -531,6 +532,7 @@ module Oracle
     # Print the report; returns the exit status.
     def report(results, baseline, options)
       totals = Hash.new(0)
+      skips = Hash.new(0)
       results.each do |result|
         verdict = classify(result, baseline[:entries])
         broken = result[:fatal] || result[:no_spec] || !result[:errors].empty?
@@ -543,6 +545,7 @@ module Oracle
         totals[:cops] += 1
         totals[:run] += result[:cases].size
         totals[:skipped] += result[:skipped].size
+        result[:skipped].each { |_, reason| skips[reason[/\A[^:]+/]] += 1 }
         totals[:errors] += result[:errors].size
         verdict[:counts].each { |key, n| totals[key] += n }
         verdict[:problems].each { |kind, _, _| totals[kind] += 1 }
@@ -550,7 +553,8 @@ module Oracle
 
       puts
       puts "#{totals[:cops]} cops: #{summary_counts(totals[:run], totals)}; " \
-           "#{totals[:skipped]} skipped, #{totals[:errors]} not evaluated"
+           "#{totals[:skipped]} skipped (#{skips.sort.map { |reason, n| "#{reason} #{n}" }.join(", ")}), " \
+           "#{totals[:errors]} not evaluated"
       failures = totals[:new] + totals[:changed] + totals[:stale]
       return 0 if failures.zero? && totals[:fatal].zero? && totals[:errors].zero?
 

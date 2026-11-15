@@ -2,17 +2,18 @@
 
 # Which RuboCop spec examples apply to rustocop.
 #
-# An example applies when the configuration it runs under matches rustocop's
-# fixed settings: RuboCop's config/default.yml, except where SETTINGS says
-# otherwise. Anything else (a style rustocop does not offer, a disabled
-# option) is skipped and counted by reason.
+# An example applies when rustocop can run under its configuration. A
+# setting that the cop declares (`Cop::settings` in Rust) takes any value
+# that is valid for it, and the value is written to the rustocop.toml the
+# example runs under. So is a declared setting of another cop that the cop
+# reads here too (READ_BY_OTHER_COPS). Every other setting has to match
+# rustocop's fixed one: RuboCop's config/default.yml, except where SETTINGS
+# says otherwise.
+# Anything else (a style rustocop does not offer, a disabled option) is
+# skipped and counted by reason.
 require_relative "../fixed_policy"
 
 module Oracle
-  # A setting rustocop takes from rustocop.toml: any spec value is accepted
-  # and written to the rustocop.toml the example runs under.
-  TomlKey = Struct.new(:key)
-
   # A setting where several spec values mean the same as rustocop's.
   AnyOf = Struct.new(:choices)
 
@@ -964,17 +965,14 @@ module Oracle
   end
 
   SETTINGS = FixedPolicy::OPTIONS.reject { |_, options| options.empty? }.merge({
-    # Both spec spellings implement our inherited fixed double-quote policy.
-    # The other-cop comparison below still rejects inherited single/disabled
-    # StringLiterals contexts; no applicable explicit-double group is skipped.
-    "Style/QuotedSymbols" => { "EnforcedStyle" => AnyOf.new(%w[same_as_string_literals double_quotes]) },
     "Style/EmptyClassDefinition" => { "EnforcedStyle" => AnyOf.new(%w[class_keyword class_definition]) },
+    # rustocop's default, which a cop that is not in READ_BY_OTHER_COPS has
+    # whatever the rustocop.toml says.
     "Style/StringLiterals" => { "EnforcedStyle" => "double_quotes" },
     "Style/StringLiteralsInInterpolation" => { "EnforcedStyle" => "double_quotes" },
     # RuboCop's spec for Layout/LineLength leaves the exemptions unset (off)
     # outside the examples about them.
     "Layout/LineLength" => {
-      "Max" => TomlKey.new("max"),
       "AllowHeredoc" => Relevant.new(true, /<<[~-]?["'`]?[A-Za-z_]/),
       "AllowURI" => Relevant.new(true, /https?:/i),
       "URISchemes" => Relevant.new(%w[http https], /[A-Za-z][A-Za-z0-9+.-]*:[^\s:]/),
@@ -1089,6 +1087,15 @@ module Oracle
   }.freeze
 
   # Keys that never change which offenses a cop reports.
+  # The declared settings of a cop that other cops read here as they do in
+  # RuboCop, by rustocop.toml key: `:all`, or the names of the cops that do.
+  # A cop that reads the setting in RuboCop and is not named here runs only
+  # the examples that leave the setting at rustocop's default.
+  READ_BY_OTHER_COPS = {
+    "Layout/LineLength" => { "max" => :all },
+    "Style/StringLiterals" => { "enforced_style" => %w[Style/QuotedSymbols] }
+  }.freeze
+
   INERT_KEYS = %w[
     Description StyleGuide Reference References Details VersionAdded VersionChanged
     VersionRemoved Safe SafeAutoCorrect AutoCorrect Enabled Severity SupportedStyles
@@ -1388,7 +1395,7 @@ module Oracle
           # Another cop's settings that the cop under test reads.
           compare_section(section, values, defaults.fetch(section, {}), source,
                           strict: false, mismatches: mismatches, toml: toml,
-                          check_enabled: true)
+                          check_enabled: true, reader: cop)
         end
       end
       [mismatches.empty? ? nil : mismatches, toml]
@@ -1399,9 +1406,10 @@ module Oracle
     # Compare one config section with rustocop's. `strict`: every key
     # counts, and those the spec's config leaves out read as the cop would
     # read them (a custom `let(:config)` has no defaults); otherwise only the
-    # keys given count.
+    # keys given count. `reader`: the cop under test, when the section is
+    # that of another cop.
     def compare_section(section, values, defaults, source, strict:, mismatches:, toml:,
-                        check_enabled: false)
+                        check_enabled: false, reader: nil)
       ours = SETTINGS.fetch(section, {})
       fallbacks = FALLBACKS.fetch(section, {})
       keys = values.keys
@@ -1410,7 +1418,11 @@ module Oracle
         next if INERT_KEYS.include?(key) && !(check_enabled && key == "Enabled")
 
         spec_value = values.fetch(key) { fallbacks[key] }
-        rustocop_value = if key == "Enabled" && FixedPolicy::STYLE.key?(section)
+        declared = FixedPolicy.declared_setting(section, key)
+        readers = READ_BY_OTHER_COPS.dig(section, declared&.key)
+        rustocop_value = if declared && (reader.nil? || readers == :all || Array(readers).include?(reader))
+                           declared
+                         elsif key == "Enabled" && FixedPolicy::STYLE.key?(section)
                            FixedPolicy.default_enabled(section)
                          else
                            ours.fetch(key) { defaults[key] }
@@ -1425,10 +1437,12 @@ module Oracle
       case rustocop_value
       when INERT
         true
-      when TomlKey
-        return false unless spec_value.is_a?(Integer) && spec_value.positive?
+      when FixedPolicy::Declared
+        value = rustocop_value.toml_value(spec_value)
+        return false if value.nil?
 
-        toml[section] = (toml[section] || {}).merge(rustocop_value.key => spec_value)
+        # No patterns is what a rustocop.toml without the key says.
+        toml[section] = (toml[section] || {}).merge(rustocop_value.key => value) unless value == []
         true
       when AnyOf
         rustocop_value.choices.any? { |value| same_setting?(spec_value, value) }

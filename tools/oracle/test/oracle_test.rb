@@ -1775,16 +1775,16 @@ class QuotedSymbolSettingsTest < Minitest::Test
                                  'Style/StringLiterals' => strings }, defaults, ":'a'").first
   end
 
-  def test_explicit_double_and_inherited_double_are_equivalent_fixed_policies
+  def test_every_style_runs_and_a_disabled_string_literals_cop_does_not
     assert_nil mismatch('double_quotes')
+    assert_nil mismatch('single_quotes')
     assert_nil mismatch('same_as_string_literals', 'EnforcedStyle' => 'double_quotes')
-    refute_nil mismatch('single_quotes')
-    refute_nil mismatch('same_as_string_literals', 'EnforcedStyle' => 'single_quotes')
+    assert_nil mismatch('same_as_string_literals', 'EnforcedStyle' => 'single_quotes')
     refute_nil mismatch('same_as_string_literals', 'Enabled' => false)
   end
 
   def test_all_applicable_assigned_examples_are_evaluated
-    { 'Style/QuotedSymbols' => 16, 'Style/SymbolLiteral' => 4, 'Style/VariableInterpolation' => 9 }.each do |cop, count|
+    { 'Style/QuotedSymbols' => 28, 'Style/SymbolLiteral' => 4, 'Style/VariableInterpolation' => 9 }.each do |cop, count|
       recorder = Oracle::Recorder.new
       Oracle.evaluate_spec(Oracle.spec_path(Oracle.locate_rubocop(nil), cop), cop, recorder)
       assert_empty recorder.errors
@@ -3059,12 +3059,32 @@ class ConfigMismatchTest < Minitest::Test
     assert_equal [nil, {}], mismatch("Lint/Debugger", config)
   end
 
-  def test_rustocop_settings_override_rubocop_defaults
+  def test_a_declared_setting_goes_to_the_toml_of_the_example
     defaults = Oracle.deep_dup(DEFAULTS["Style/StringLiterals"])
+    assert_equal [nil, { "Style/StringLiterals" => { "enforced_style" => "single_quotes" } }],
+                 mismatch("Style/StringLiterals", { "Style/StringLiterals" => defaults })
+    # A value that the setting does not take is a mismatch.
+    backticks = defaults.merge("EnforcedStyle" => "backticks")
+    assert_equal ['Style/StringLiterals EnforcedStyle="backticks"'],
+                 mismatch("Style/StringLiterals", { "Style/StringLiterals" => backticks }).first
+    line_length = ->(patterns) { { "Layout/LineLength" => DEFAULTS["Layout/LineLength"].merge("Max" => 80, "AllowedPatterns" => patterns) } }
+    toml = { "Layout/LineLength" => { "max" => 80, "allowed_patterns" => ['^\s*test\s', '(?i)^def\s+test_'] } }
+    assert_equal [nil, toml], mismatch("Layout/LineLength", line_length.call(['^\s*test\s', /^def\s+test_/i]))
+    # No patterns need no key, and a pattern that Rust's regex crate cannot
+    # read is a mismatch.
+    assert_equal [nil, { "Layout/LineLength" => { "max" => 80 } }], mismatch("Layout/LineLength", line_length.call(nil))
+    assert_equal ['Layout/LineLength AllowedPatterns=[/(?<=a)b/]'],
+                 mismatch("Layout/LineLength", line_length.call([/(?<=a)b/])).first
+    # A setting of another cop goes to the toml only for a cop that reads it here.
+    single = { "Style/StringLiterals" => { "EnforcedStyle" => "single_quotes" } }
+    symbols = single.merge("Style/QuotedSymbols" => DEFAULTS["Style/QuotedSymbols"])
+    assert_equal [nil, { "Style/QuotedSymbols" => { "enforced_style" => "same_as_string_literals" },
+                         "Style/StringLiterals" => { "enforced_style" => "single_quotes" } }],
+                 mismatch("Style/QuotedSymbols", symbols)
     assert_equal ['Style/StringLiterals EnforcedStyle="single_quotes"'],
-                 mismatch("Style/StringLiterals", { "Style/StringLiterals" => defaults }).first
-    doubles = defaults.merge("EnforcedStyle" => "double_quotes")
-    assert_nil mismatch("Style/StringLiterals", { "Style/StringLiterals" => doubles }).first
+                 mismatch("Style/RedundantRegexpArgument", single).first
+    assert_equal '[cops."Layout/LineLength"]' "\n" 'allowed_patterns = ["^\\\\s*#"]' "\n",
+                 Oracle.toml_text("Layout/LineLength" => { "allowed_patterns" => ['^\s*#'] })
   end
 
   def test_method_call_parentheses_accepts_pinned_truthy_macro_setting_only

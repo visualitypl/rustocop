@@ -50,7 +50,12 @@ data into the RuboCop configuration the oracle lints with.
 
 ## Which examples run
 
-Every example whose configuration rustocop can represent runs. Examples that
+Every example whose configuration rustocop can represent runs. A setting
+that a cop declares (`Cop::settings`, which `cargo run --example list_cops --
+--settings` prints) is written to the `rustocop.toml` of the example, so its
+examples run as soon as the cop declares it. The last line of a run counts
+the skipped examples by reason; `config` is the number that falls as cops
+gain settings. Examples that
 need a setting rustocop fixes differently, a Ruby version outside the fixed
 3.4 target, or RuboCop features rustocop does not model (project indexes,
 mocks, Prism-excluded specs) are skipped and counted by reason. `-v` lists

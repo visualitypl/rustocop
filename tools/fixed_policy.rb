@@ -25,7 +25,59 @@ module FixedPolicy
     [name, defaults.merge(record.fetch("fixed_option_overrides"))]
   end.freeze
 
+  # A setting that a cop declares in the Rust registry (`Cop::settings`):
+  # its key in rustocop.toml and its kind, which is `count`, `choice` (one
+  # of `choices`) or `patterns`.
+  Declared = Struct.new(:key, :kind, :choices) do
+    # `value`, from a RuboCop config, as the value of this setting in a
+    # rustocop.toml; nil when the setting cannot say it.
+    def toml_value(value)
+      case kind
+      when "count" then value if value.is_a?(Integer) && value.positive?
+      when "choice" then value if choices.include?(value)
+      when "patterns"
+        patterns = Array(value).map { |pattern| rust_regex(pattern) }
+        patterns unless patterns.include?(nil)
+      end
+    end
+
+    private
+
+    # A Ruby regexp, or the source of one, in the syntax of Rust's `regex`
+    # crate, as `rust_regex` in src/import.rs gives it.
+    # Rejects only lookaround, atomic groups and backreferences;
+    # add to the list when a spec has another construct the crate cannot read.
+    def rust_regex(pattern)
+      source, flags = pattern.is_a?(Regexp) ? [pattern.source, pattern.options] : [pattern.to_s, 0]
+      return if source.match?(/\(\?<?[=!]|\(\?>|\\[1-9]|\\k</)
+
+      prefix = { Regexp::IGNORECASE => "(?i)", Regexp::EXTENDED => "(?x)", Regexp::MULTILINE => "(?s)" }
+      prefix.select { |flag, _| flags.anybits?(flag) }.values.join + source
+    end
+  end
+
   class << self
+    # The settings the cops of the live Rust registry declare, by cop name,
+    # from the `list_cops` example.
+    def declared_settings
+      @declared_settings ||= begin
+        output, status = Open3.capture2e("cargo", "run", "--quiet", "--offline", "--example", "list_cops",
+                                         "--", "--settings", chdir: ROOT)
+        raise "fixed_policy: cargo run --example list_cops -- --settings failed:\n#{output}" unless status.success?
+
+        rows = output.lines(chomp: true).reject(&:empty?).map { |line| line.split("\t") }
+        rows.group_by(&:first).transform_values do |settings|
+          settings.map { |_, key, kind, choices| Declared.new(key, kind, choices.to_s.split(",")) }
+        end.freeze
+      end
+    end
+
+    # The setting that `cop` declares for `key`, a parameter in RuboCop's
+    # spelling (`EnforcedStyle` for `enforced_style`).
+    def declared_setting(cop, key)
+      declared_settings.fetch(cop, []).find { |setting| setting.key.delete("_") == key.downcase }
+    end
+
     # The cops the live Rust registry implements, one name per line from the
     # `list_cops` example.
     def implemented_cops
