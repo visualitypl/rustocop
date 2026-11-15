@@ -697,6 +697,21 @@
   },
   {
     "cop": "Style/RedundantRegexpArgument",
+    "spec_line": 277,
+    "source": "'foo'.split(/\\n/)\n",
+    "positions": [
+      [
+        1,
+        13
+      ]
+    ],
+    "messages": [
+      "Use string `\"\\n\"` as argument instead of regexp `/\\n/`."
+    ],
+    "correction": "'foo'.split(\"\\n\")\n"
+  },
+  {
+    "cop": "Style/RedundantRegexpArgument",
     "spec_line": 303,
     "source": "'foo'.split(/\\#\\{/)\n",
     "positions": [

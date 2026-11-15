@@ -111,7 +111,9 @@ fn selectors_config_and_single_pass_canonicals() {
     let path = dir.path().join("a.rb");
     for (name, before, after) in CASES {
         for config in [
-            "[cops.Style]\nenabled = false\n".to_string(),
+            // Style/StringLiterals stays on: disabled, it means single quotes.
+            "[cops.Style]\nenabled = false\n[cops.\"Style/StringLiterals\"]\nenabled = true\n"
+                .to_string(),
             CASES
                 .iter()
                 .map(|(c, _, _)| format!("[cops.\"{c}\"]\nenabled = false\n"))
@@ -135,7 +137,7 @@ fn selectors_config_and_single_pass_canonicals() {
             dir.path().join("rustocop.toml"),
             // This test isolates per-Style enabling, not the heredoc delimiter cops' new default
             // meaningful-label finding for its historical EOS fixture.
-            format!("[cops.Style]\nenabled = false\n[cops.Naming]\nenabled = false\n[cops.\"{name}\"]\nenabled = true\n"),
+            format!("[cops.Style]\nenabled = false\n[cops.\"Style/StringLiterals\"]\nenabled = true\n[cops.Naming]\nenabled = false\n[cops.\"{name}\"]\nenabled = true\n"),
         )
         .unwrap();
         fs::write(&path, before).unwrap();
@@ -183,7 +185,7 @@ fn atomic_envelopes_keep_header_tails_comments_queued_and_nested_owners() {
         ),
     ] {
         assert_eq!(
-            String::from_utf8(fixed(&EmptyHeredoc, source)).unwrap(),
+            String::from_utf8(fixed(&EmptyHeredoc::default(), source)).unwrap(),
             expected,
             "{source}"
         );
@@ -1051,7 +1053,7 @@ fn fixed_34_main_ast_payload_encoding_frozen_mutable_and_bindings_match() {
     ] {
         for (cop, source) in [
             (
-                &EmptyHeredoc as &dyn Cop,
+                &EmptyHeredoc::default() as &dyn Cop,
                 "x = 1\nxs.map { [<<~EOS, x, it] }\nEOS\n",
             ),
             (

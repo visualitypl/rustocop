@@ -19,6 +19,8 @@ use crate::offense::{Correction, Offense};
 /// lines or labels retain diagnostics without edits. Main-AST indexing costs
 /// O(nodes * depth); batch work is bounded local bytes plus O(edits log edits).
 const PROOF_BYTES: usize = 4096;
+/// The empty string literal that replaces an empty heredoc, in either quotes.
+const EMPTY_STRINGS: [&[u8]; 2] = [b"\"\"", b"''"];
 
 #[derive(Clone, Debug)]
 pub(crate) struct Heredoc {
@@ -379,7 +381,9 @@ impl Boundaries {
             let empty_edit = h.body.is_empty()
                 && raw.get(prefix) != Some(&b'`')
                 && edit.range.end == h.closing.end
-                && replacement.strip_prefix(b"\"\"")
+                && EMPTY_STRINGS
+                    .iter()
+                    .find_map(|empty| replacement.strip_prefix(*empty))
                     == Some(&source[h.opening.end..h.closing.start])
                 && (h.closing.end == source.len()
                     || self.line_starts.binary_search(&h.closing.end).is_ok());
@@ -631,7 +635,7 @@ impl Boundaries {
                     }
                     // Quote removal exposes a suffix: require its separator to
                     // remain immutable in the union of all proposed writes.
-                    if change.replacement != b"\"\""
+                    if !EMPTY_STRINGS.contains(&change.replacement)
                         && source.get(r.end).is_some_and(|b| could_continue_name(*b))
                         || source.get(r.end).is_some() && !untouched(r.end..r.end + 1)
                     {
@@ -1259,7 +1263,7 @@ mod tests {
         let source = "p <<~'A', <<~B\ntext\nA\nB\n".repeat(1000);
         let file = SourceFile::new("test.rb".into(), source.as_bytes().to_vec());
         let parsed = ruby_prism::parse(&file.bytes);
-        let cops: &[&dyn Cop] = &[&EmptyHeredoc, &RedundantHeredocDelimiterQuotes];
+        let cops: &[&dyn Cop] = &[&EmptyHeredoc::default(), &RedundantHeredocDelimiterQuotes];
         let mut out = Vec::new();
         run_cops_with_corrections(cops, &parsed, &file, &mut out, false);
         assert_eq!(out.len(), 2000);
@@ -1276,7 +1280,7 @@ mod tests {
         let file = SourceFile::new("test.rb".into(), source.as_bytes().to_vec());
         let parsed = ruby_prism::parse(&file.bytes);
         out.clear();
-        run_cops(&[&EmptyHeredoc], &parsed, &file, &mut out);
+        run_cops(&[&EmptyHeredoc::default()], &parsed, &file, &mut out);
         assert_eq!(out.len(), 1);
         assert!(
             out[0].correction.is_none(),

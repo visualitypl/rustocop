@@ -358,11 +358,14 @@ cops is fixed at RuboCop's default.
 accept it, with `"double_quotes"` as the default:
 
 - `Style/StringLiterals`: `"double_quotes"` or `"single_quotes"`.
+  `Style/EmptyLiteral`, `Style/EmptyHeredoc` and
+  `Style/RedundantRegexpArgument` write a string in the quotes of this
+  style, and in single quotes when this cop is disabled, as in RuboCop.
 - `Style/StringLiteralsInInterpolation`: the same two values, for the strings
   inside `#{}`. It does not follow `Style/StringLiterals`.
 - `Style/QuotedSymbols`: the same two values, or
   `"same_as_string_literals"`. Without a setting it has the style of
-  `Style/StringLiterals`.
+  `Style/StringLiterals`, and single quotes when that cop is disabled.
 
 `allowed_patterns` is the `AllowedPatterns` of `Layout/LineLength` in RuboCop:
 a list of regular expressions, and a line longer than `max` is accepted when

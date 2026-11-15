@@ -5,10 +5,19 @@ use crate::{
     source::SourceFile,
 };
 use ruby_prism::Node;
-pub struct EmptyHeredoc;
+#[derive(Default)]
+pub struct EmptyHeredoc {
+    /// The style of Style/StringLiterals is `single_quotes`.
+    single_quotes: bool,
+}
 impl Cop for EmptyHeredoc {
     fn name(&self) -> &'static str {
         "Style/EmptyHeredoc"
+    }
+    fn with_single_quoted_strings(&self, single: bool) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            single_quotes: single,
+        }))
     }
     fn safe_fixes(&self) -> bool {
         true
@@ -63,7 +72,7 @@ impl Cop for EmptyHeredoc {
                     cx,
                     Correction {
                         range: start..end,
-                        replacement: format!("\"\"{tail}"),
+                        replacement: format!("{}{tail}", empty_string(self.single_quotes)),
                     },
                 )
             })
@@ -79,6 +88,10 @@ impl Cop for EmptyHeredoc {
             correction,
         });
     }
+}
+/// The empty string literal in the quotes of Style/StringLiterals.
+pub(super) fn empty_string(single_quotes: bool) -> &'static str {
+    if single_quotes { "''" } else { "\"\"" }
 }
 #[cfg(test)]
 mod tests {
@@ -100,7 +113,7 @@ mod tests {
                 let before = format!("{prefix}{op}EOS{suffix}\nEOS\n");
                 let found: Vec<_> = lint_str(&before)
                     .into_iter()
-                    .filter(|o| o.cop == EmptyHeredoc.name())
+                    .filter(|o| o.cop == EmptyHeredoc::default().name())
                     .collect();
                 assert_eq!(found.len(), 1, "{before}");
                 assert_eq!(
@@ -111,7 +124,16 @@ mod tests {
                     found[0].message,
                     "Use an empty string literal instead of heredoc."
                 );
-                assert_correction(&EmptyHeredoc, &before, &format!("{prefix}\"\"{suffix}\n"));
+                assert_correction(
+                    &EmptyHeredoc::default(),
+                    &before,
+                    &format!("{prefix}\"\"{suffix}\n"),
+                );
+                // With the single quotes of Style/StringLiterals.
+                let single = EmptyHeredoc {
+                    single_quotes: true,
+                };
+                assert_correction(&single, &before, &format!("{prefix}''{suffix}\n"));
             }
         }
     }
@@ -126,7 +148,7 @@ mod tests {
             "<<~EOS\n#{''}\nEOS\n",
         ] {
             assert!(
-                correction_offenses(&EmptyHeredoc, source).is_empty(),
+                correction_offenses(&EmptyHeredoc::default(), source).is_empty(),
                 "{source}"
             );
         }

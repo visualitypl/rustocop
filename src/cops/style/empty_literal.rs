@@ -9,6 +9,8 @@ use ruby_prism::{CallNode, Node};
 #[derive(Default)]
 pub struct EmptyLiteral {
     frozen_comment_enabled: bool,
+    /// The style of Style/StringLiterals is `single_quotes`.
+    single_quotes: bool,
 }
 impl Cop for EmptyLiteral {
     fn name(&self) -> &'static str {
@@ -20,6 +22,13 @@ impl Cop for EmptyLiteral {
     fn with_frozen_string_comment(&self, enabled: bool) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
             frozen_comment_enabled: enabled,
+            single_quotes: self.single_quotes,
+        }))
+    }
+    fn with_single_quoted_strings(&self, single: bool) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            frozen_comment_enabled: self.frozen_comment_enabled,
+            single_quotes: single,
         }))
     }
     fn check_node<'pr>(
@@ -47,12 +56,12 @@ impl Cop for EmptyLiteral {
             return;
         }
         let current = single_line(&file.bytes[start..end]);
+        let literal = kind.literal(self.single_quotes);
         let message = match kind {
-            Kind::String => "Use string literal `\"\"` instead of `String.new`.".into(),
+            Kind::String => format!("Use string literal `{literal}` instead of `String.new`."),
             _ => format!(
-                "Use {} literal `{}` instead of `{current}`.",
-                kind.name(),
-                kind.literal()
+                "Use {} literal `{literal}` instead of `{current}`.",
+                kind.name()
             ),
         };
         let (line, col) = file.line_col(start);
@@ -66,7 +75,7 @@ impl Cop for EmptyLiteral {
             correction: call
                 .as_ref()
                 .filter(|_| cx.corrections_requested())
-                .and_then(|call| correction(call, kind, cx, file)),
+                .and_then(|call| correction(call, literal, kind, cx, file)),
         });
     }
 }
@@ -84,11 +93,11 @@ impl Kind {
             Self::String => "string",
         }
     }
-    fn literal(self) -> &'static str {
+    fn literal(self, single_quotes: bool) -> &'static str {
         match self {
             Self::Array => "[]",
             Self::Hash => "{}",
-            Self::String => "\"\"",
+            Self::String => super::empty_heredoc::empty_string(single_quotes),
         }
     }
 }
@@ -186,6 +195,7 @@ pub(super) fn primitive_api(call: &CallNode<'_>) -> bool {
 }
 fn correction(
     call: &CallNode<'_>,
+    literal: &str,
     kind: Kind,
     cx: &NodeContext<'_, '_>,
     file: &SourceFile,
@@ -205,7 +215,7 @@ fn correction(
     }
     let mut edit = Correction {
         range: loc.start_offset()..loc.end_offset(),
-        replacement: kind.literal().into(),
+        replacement: literal.into(),
     };
     if matches!(kind, Kind::Hash) {
         let parent = cx.ancestors().find(|p| p.as_arguments_node().is_none());
@@ -274,6 +284,7 @@ mod tests {
             let s = e["source"].as_str().unwrap();
             let cop = EmptyLiteral {
                 frozen_comment_enabled: e["frozen_comment"].as_bool().unwrap(),
+                single_quotes: false,
             };
             let found = correction_offenses(&cop, s);
             let positions: Vec<_> = found.iter().map(|o| vec![o.line, o.col]).collect();
@@ -435,6 +446,19 @@ mod tests {
         ] {
             assert_correction(&EmptyLiteral::default(), s, after);
         }
+    }
+    #[test]
+    fn single_quotes_of_string_literals_are_written_in_the_correction() {
+        let cop = EmptyLiteral {
+            frozen_comment_enabled: false,
+            single_quotes: true,
+        };
+        let header = "# encoding: binary\n# frozen_string_literal: false\n";
+        crate::cops::testing::assert_correction(
+            &cop,
+            &format!("{header}s = String.new\n"),
+            &format!("{header}s = \'\'\n"),
+        );
     }
     #[test]
     fn repeated_frozen_directives_use_the_last_applicable_parser_setting() {

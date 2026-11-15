@@ -254,16 +254,27 @@ impl ResolvedConfig {
             }
         }
 
-        // As in RuboCop, quoted symbols have the quotes of string literals
-        // unless Style/QuotedSymbols names a style of its own.
+        // The quotes that other cops take from Style/StringLiterals: those of
+        // its style, and single quotes when the cop is disabled, as in
+        // RuboCop.
         let style = |cop: &str| settings.get(cop)?.choice("enforced_style");
+        let string_literals = cop_settings
+            .get("Style/StringLiterals")
+            .and_then(|s| s.enabled)
+            .or_else(|| cop_settings.get("Style").and_then(|s| s.enabled))
+            .unwrap_or(true);
+        let single_quotes =
+            !string_literals || style("Style/StringLiterals") == Some("single_quotes");
+        // Quoted symbols have them unless Style/QuotedSymbols names a style
+        // of its own.
         if let None | Some("same_as_string_literals") = style("Style/QuotedSymbols")
-            && let Some(quotes) = style("Style/StringLiterals")
+            && single_quotes
+            && registry.has_cop("Style/QuotedSymbols")
         {
             let own: &mut Values = settings
                 .entry("Style/QuotedSymbols".to_owned())
                 .or_default();
-            *own = std::mem::take(own).with("enforced_style", Value::Choice(quotes));
+            *own = std::mem::take(own).with("enforced_style", Value::Choice("single_quotes"));
         }
 
         for (name, values) in &settings {
@@ -399,6 +410,17 @@ impl ResolvedConfig {
             .unwrap_or(true);
         for cop in registry.cops() {
             if let Some(configured_cop) = cop.with_space_inside_parens(space_inside_parens) {
+                configured.insert(cop.name().to_owned(), configured_cop);
+            }
+        }
+
+        // The cops that write a string literal take its quotes from
+        // Style/StringLiterals, on top of what else configures them.
+        for cop in registry.cops() {
+            let base = configured
+                .get(cop.name())
+                .map_or(cop.as_ref(), |configured| configured.as_ref());
+            if let Some(configured_cop) = base.with_single_quoted_strings(single_quotes) {
                 configured.insert(cop.name().to_owned(), configured_cop);
             }
         }
@@ -639,6 +661,53 @@ enabled = false
         let config = ResolvedConfig::default();
         let active = crate::cops::select_active(&registry, &config, &["Layout".into()], &[]);
         assert!(crate::pipeline::lint_str_with(&active, &source).is_empty());
+    }
+
+    #[test]
+    fn cops_that_write_a_string_have_the_quotes_of_string_literals() {
+        let registry = Registry::new();
+        let lint = |toml: &str, cop: &str, source: &str| {
+            let raw: RawConfig = toml::from_str(toml).unwrap();
+            let config = ResolvedConfig::resolve(raw, None, &registry).unwrap();
+            let active = crate::cops::select_active(&registry, &config, &[cop.into()], &[]);
+            let found = crate::pipeline::lint_str_with(&active, source);
+            found.into_iter().map(|o| o.message).collect::<Vec<_>>()
+        };
+        let single = "[cops.\"Style/StringLiterals\"]\nenforced_style = \"single_quotes\"\n";
+        for (toml, q) in [("", '"'), (single, '\'')] {
+            let regexp = lint(toml, "Style/RedundantRegexpArgument", "'foo'.split(/f/)\n");
+            let message = format!("Use string `{q}f{q}` as argument instead of regexp `/f/`.");
+            assert_eq!(regexp, [message], "{toml}");
+            let literal = lint(toml, "Style/EmptyLiteral", "x = String.new\n");
+            let message = format!("Use string literal `{q}{q}` instead of `String.new`.");
+            assert_eq!(literal, [message], "{toml}");
+        }
+        // A disabled Style/StringLiterals means single quotes, for the
+        // quoted symbols too.
+        let disabled = "[cops.\"Style/StringLiterals\"]\nenabled = false\n";
+        assert_eq!(
+            lint(disabled, "Style/EmptyLiteral", "x = String.new\n"),
+            ["Use string literal `''` instead of `String.new`."]
+        );
+        for (toml, flagged) in [
+            ("", ":'a b'\n"),
+            (single, ":\"a b\"\n"),
+            (disabled, ":\"a b\"\n"),
+        ] {
+            assert_eq!(
+                lint(toml, "Style/QuotedSymbols", flagged).len(),
+                1,
+                "{toml}"
+            );
+        }
+        let double = format!(
+            "{disabled}[cops.\"Style/QuotedSymbols\"]\nenforced_style = \"double_quotes\"\n"
+        );
+        assert_eq!(lint(&double, "Style/QuotedSymbols", ":'a b'\n").len(), 1);
+        // The quotes come on top of the frozen-string policy of EmptyLiteral.
+        let frozen =
+            format!("{single}[cops.\"Style/FrozenStringLiteralComment\"]\nenabled = true\n");
+        assert!(lint(&frozen, "Style/EmptyLiteral", "x = String.new\n").is_empty());
     }
 
     #[test]

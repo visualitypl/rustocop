@@ -92,7 +92,9 @@ fn selectors_enablement_and_canonical_single_pass_fixes() {
     let p = d.path().join("a.rb");
     for (name, before, after) in CASES {
         for config in [
-            "[cops.Style]\nenabled = false\n".to_owned(),
+            // Style/StringLiterals stays on: disabled, it means single quotes.
+            "[cops.Style]\nenabled = false\n[cops.\"Style/StringLiterals\"]\nenabled = true\n"
+                .to_owned(),
             CASES
                 .iter()
                 .map(|(n, _, _)| format!("[cops.\"{n}\"]\nenabled = false\n"))
@@ -114,7 +116,7 @@ fn selectors_enablement_and_canonical_single_pass_fixes() {
         }
         fs::write(
             d.path().join("rustocop.toml"),
-            format!("[cops.Style]\nenabled = false\n[cops.\"{name}\"]\nenabled = true\n"),
+            format!("[cops.Style]\nenabled = false\n[cops.\"Style/StringLiterals\"]\nenabled = true\n[cops.\"{name}\"]\nenabled = true\n"),
         )
         .unwrap();
         fs::write(&p, before).unwrap();
@@ -123,16 +125,27 @@ fn selectors_enablement_and_canonical_single_pass_fixes() {
     }
 }
 #[test]
-fn fixed_quote_policy_does_not_depend_on_selection_or_string_cop_enablement() {
+fn quotes_follow_the_configured_string_cop_and_not_the_selection() {
+    // As in RuboCop: the quotes of Style/StringLiterals, and single quotes
+    // when that cop is disabled. `--only` leaves the config as it is.
     let d = project();
-    for config in ["", "[cops.\"Style/StringLiterals\"]\nenabled = false\n"] {
+    for (config, before, after) in [
+        ("", "p :'a-b'\n", "p :\"a-b\"\n"),
+        (
+            "[cops.\"Style/StringLiterals\"]\nenabled = false\n",
+            "p :\"a-b\"\n",
+            "p :'a-b'\n",
+        ),
+        (
+            "[cops.Style]\nenabled = false\n",
+            "p :\"a-b\"\n",
+            "p :'a-b'\n",
+        ),
+    ] {
         fs::write(d.path().join("rustocop.toml"), config).unwrap();
-        fs::write(d.path().join("a.rb"), "p :'a-b'\n").unwrap();
+        fs::write(d.path().join("a.rb"), before).unwrap();
         cli(d.path(), &["--only", Q, "--fix", "a.rb"], 0);
-        assert_eq!(
-            fs::read_to_string(d.path().join("a.rb")).unwrap(),
-            "p :\"a-b\"\n"
-        );
+        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
     }
 }
 #[test]

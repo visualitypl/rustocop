@@ -1558,7 +1558,7 @@ class RedundantRegexpFixtureTest < Minitest::Test
     end
     defaults = RuboCop::ConfigLoader.default_configuration.to_h
     expected = []
-    {'Style/RedundantRegexpArgument' => [50, 2, 42],
+    {'Style/RedundantRegexpArgument' => [51, 0, 43],
      'Style/RedundantRegexpCharacterClass' => [49, 0, 26],
      'Style/RedundantRegexpConstructor' => [17, 0, 9]}.each do |cop, (count, skip_count, correction_count)|
       recorder = Oracle::Recorder.new
@@ -1775,12 +1775,12 @@ class QuotedSymbolSettingsTest < Minitest::Test
                                  'Style/StringLiterals' => strings }, defaults, ":'a'").first
   end
 
-  def test_every_style_runs_and_a_disabled_string_literals_cop_does_not
+  def test_every_style_runs_and_so_does_a_disabled_string_literals_cop
     assert_nil mismatch('double_quotes')
     assert_nil mismatch('single_quotes')
     assert_nil mismatch('same_as_string_literals', 'EnforcedStyle' => 'double_quotes')
     assert_nil mismatch('same_as_string_literals', 'EnforcedStyle' => 'single_quotes')
-    refute_nil mismatch('same_as_string_literals', 'Enabled' => false)
+    assert_nil mismatch('same_as_string_literals', 'Enabled' => false)
   end
 
   def test_all_applicable_assigned_examples_are_evaluated
@@ -3082,7 +3082,7 @@ class ConfigMismatchTest < Minitest::Test
                          "Style/StringLiterals" => { "enforced_style" => "single_quotes" } }],
                  mismatch("Style/QuotedSymbols", symbols)
     assert_equal ['Style/StringLiterals EnforcedStyle="single_quotes"'],
-                 mismatch("Style/RedundantRegexpArgument", single).first
+                 mismatch("Lint/Debugger", single.merge("Lint/Debugger" => DEFAULTS["Lint/Debugger"])).first
     assert_equal '[cops."Layout/LineLength"]' "\n" 'allowed_patterns = ["^\\\\s*#"]' "\n",
                  Oracle.toml_text("Layout/LineLength" => { "allowed_patterns" => ['^\s*#'] })
   end

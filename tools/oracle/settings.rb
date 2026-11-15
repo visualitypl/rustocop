@@ -1093,7 +1093,9 @@ module Oracle
   # the examples that leave the setting at rustocop's default.
   READ_BY_OTHER_COPS = {
     "Layout/LineLength" => { "max" => :all },
-    "Style/StringLiterals" => { "enforced_style" => %w[Style/QuotedSymbols] }
+    "Style/StringLiterals" => {
+      "enforced_style" => %w[Style/QuotedSymbols Style/EmptyHeredoc Style/EmptyLiteral Style/RedundantRegexpArgument]
+    }
   }.freeze
 
   INERT_KEYS = %w[
@@ -1391,6 +1393,13 @@ module Oracle
              values['PreferredMethods'].is_a?(Hash) &&
              values['PreferredMethods'].fetch('map', 'map') == 'map'
             values = values.reject { |key, _| key == 'PreferredMethods' }
+          end
+          # A cop that takes its quotes from Style/StringLiterals writes
+          # single quotes when that cop is disabled.
+          if section == 'Style/StringLiterals' && [true, false].include?(values['Enabled']) &&
+             READ_BY_OTHER_COPS.dig(section, 'enforced_style').include?(cop)
+            toml[section] = (toml[section] || {}).merge('enabled' => values['Enabled'])
+            values = values.reject { |key, _| key == 'Enabled' }
           end
           # Another cop's settings that the cop under test reads.
           compare_section(section, values, defaults.fetch(section, {}), source,

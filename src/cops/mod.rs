@@ -207,6 +207,15 @@ pub trait Cop: Send + Sync {
         None
     }
 
+    /// A copy of this cop that writes single-quoted strings, for the cops
+    /// that write a string literal in a message or a correction. `single`
+    /// is whether the config gives Style/StringLiterals the style
+    /// `single_quotes` or disables that cop, as RuboCop's
+    /// `StringLiteralsHelp` reads it.
+    fn with_single_quoted_strings(&self, _single: bool) -> Option<Box<dyn Cop>> {
+        None
+    }
+
     /// Location-free filename checks (first consumer: Bundler/GemFilename).
     /// Receives only the supplied config-relative name, never file contents or
     /// a resolved target. Runs on opaque gem locks and on valid Ruby inputs;
@@ -790,7 +799,7 @@ impl Registry {
                 Box::new(style::SelectByRegexp),
                 Box::new(style::ExactRegexpMatch),
                 Box::new(style::RegexpLiteral),
-                Box::new(style::RedundantRegexpArgument),
+                Box::new(style::RedundantRegexpArgument::default()),
                 Box::new(style::RedundantRegexpCharacterClass),
                 Box::new(style::RedundantRegexpConstructor),
                 Box::new(style::RedundantRegexpEscape),
@@ -889,7 +898,7 @@ impl Registry {
                 Box::new(style::RedundantCapitalW),
                 Box::new(style::RedundantStringEscape),
                 Box::new(style::RedundantHeredocDelimiterQuotes),
-                Box::new(style::EmptyHeredoc),
+                Box::new(style::EmptyHeredoc::default()),
                 Box::new(style::QuotedSymbols),
                 Box::new(style::SymbolLiteral),
                 Box::new(style::VariableInterpolation),

@@ -3590,7 +3590,10 @@ mod tests {
             let mut found = vec![];
             assert!(
                 run_cops_with_corrections(
-                    &[&RedundantRegexpArgument, &RedundantRegexpConstructor],
+                    &[
+                        &RedundantRegexpArgument::default(),
+                        &RedundantRegexpConstructor
+                    ],
                     &result,
                     &file,
                     &mut found,

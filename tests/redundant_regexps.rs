@@ -69,7 +69,7 @@ fn fixed(s: &str) -> String {
 fn every_pinned_call_message_and_correction_is_accounted_for() {
     let cases: Vec<Case> =
         serde_json::from_str(include_str!("fixtures/redundant_regexps_pinned.json")).unwrap();
-    assert_eq!(cases.len(), 116);
+    assert_eq!(cases.len(), 117);
     let d = project();
     let mut canonical = [0; 3];
     let mut withheld = [0; 3];
@@ -148,9 +148,9 @@ fn every_pinned_call_message_and_correction_is_accounted_for() {
             }
         }
     }
-    assert_eq!(calls, [50, 49, 17]);
+    assert_eq!(calls, [51, 49, 17]);
     assert_eq!(canonical, [2, 0, 5]);
-    assert_eq!(withheld, [40, 26, 4]);
+    assert_eq!(withheld, [41, 26, 4]);
     assert_eq!(discarded_classes, 24);
 }
 #[test]
@@ -173,7 +173,8 @@ fn default_selectors_config_excludes_directives_and_no_write() {
             0,
         );
         for config in [
-            "[cops.Style]\nenabled=false\n".into(),
+            // Style/StringLiterals stays on: disabled, it means single quotes.
+            "[cops.Style]\nenabled=false\n[cops.\"Style/StringLiterals\"]\nenabled = true\n".into(),
             format!("[cops.\"{cop}\"]\nenabled=false\n"),
         ] {
             fs::write(d.path().join("rustocop.toml"), config).unwrap();
@@ -183,7 +184,7 @@ fn default_selectors_config_excludes_directives_and_no_write() {
         }
         fs::write(
             d.path().join("rustocop.toml"),
-            format!("[cops.Style]\nenabled=false\n[cops.\"{cop}\"]\nenabled=true\n"),
+            format!("[cops.Style]\nenabled=false\n[cops.\"Style/StringLiterals\"]\nenabled = true\n[cops.\"{cop}\"]\nenabled=true\n"),
         )
         .unwrap();
         fs::write(d.path().join("a.rb"), source).unwrap();

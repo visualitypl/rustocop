@@ -5,10 +5,19 @@ use crate::{
     source::SourceFile,
 };
 use ruby_prism::Node;
-pub struct RedundantRegexpArgument;
+#[derive(Default)]
+pub struct RedundantRegexpArgument {
+    /// The style of Style/StringLiterals is `single_quotes`.
+    single_quotes: bool,
+}
 impl Cop for RedundantRegexpArgument {
     fn name(&self) -> &'static str {
         "Style/RedundantRegexpArgument"
+    }
+    fn with_single_quoted_strings(&self, single: bool) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            single_quotes: single,
+        }))
     }
     fn safe_fixes(&self) -> bool {
         true
@@ -43,7 +52,7 @@ impl Cop for RedundantRegexpArgument {
         {
             return;
         }
-        let Some(prefer) = preferred(regexp.content_loc().as_slice()) else {
+        let Some(prefer) = preferred(regexp.content_loc().as_slice(), self.single_quotes) else {
             return;
         };
         let loc = regexp.location();
@@ -116,7 +125,10 @@ fn deterministic(bytes: &[u8]) -> bool {
     }
     true
 }
-fn preferred(raw: &[u8]) -> Option<String> {
+/// The string for the regexp content `raw`. As in RuboCop, a string with a
+/// quote in it is single-quoted and one with a backslash is double-quoted;
+/// any other has the quotes of Style/StringLiterals.
+fn preferred(raw: &[u8], single_quotes: bool) -> Option<String> {
     let text = std::str::from_utf8(raw).ok()?;
     let mut chars = text.chars();
     let mut value = String::new();
@@ -131,7 +143,7 @@ fn preferred(raw: &[u8]) -> Option<String> {
         }
         value.push(next);
     }
-    let quote = if value.contains(['\"', '\'']) {
+    let quote = if value.contains(['\"', '\'']) || (single_quotes && !value.contains('\\')) {
         '\''
     } else {
         '\"'
@@ -265,8 +277,29 @@ mod tests {
             let tail = if method == "scan" { "" } else { ", \"x\"" };
             let s = format!("\"foo\".{method}(/f/{tail})");
             let after = format!("\"foo\".{method}(\"f\"{tail})");
-            assert_correction(&RedundantRegexpArgument, &s, &after);
+            assert_correction(&RedundantRegexpArgument::default(), &s, &after);
         }
+    }
+    #[test]
+    fn single_quotes_of_string_literals_are_followed_where_the_string_allows_both() {
+        // RuboCop's examples for `Style/StringLiterals` with `single_quotes`.
+        let cop = RedundantRegexpArgument {
+            single_quotes: true,
+        };
+        for (source, prefer) in [
+            ("'foo'.split(/f/)", "'f'"),
+            // A backslash escape needs double quotes, and a quote single ones.
+            ("'foo'.split(/\\n/)", "\"\\n\""),
+            ("'foo'.split(/\"/)", "'\"'"),
+        ] {
+            let found = correction_offenses(&cop, source);
+            let message = format!(
+                "Use string `{prefer}` as argument instead of regexp `{}`.",
+                &source[12..source.len() - 1]
+            );
+            assert_eq!(found[0].message, message, "{source}");
+        }
+        assert_correction(&cop, "\"foo\".scan(/f/)", "\"foo\".scan('f')");
     }
     #[test]
     fn unknown_dispatch_match_state_and_blocks_stay_reported_without_edits() {
@@ -281,7 +314,7 @@ mod tests {
             "class String; def sub(*); end; end; 'foo'.sub(/f/, 'x')",
             "'foo'.scan(/\\n/)",
         ] {
-            let found = correction_offenses(&RedundantRegexpArgument, s);
+            let found = correction_offenses(&RedundantRegexpArgument::default(), s);
             assert_eq!(found.len(), 1, "{s}");
             assert!(found[0].correction.is_none(), "{s}");
         }
