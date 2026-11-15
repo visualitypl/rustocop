@@ -109,7 +109,7 @@ fn fixed_settings_are_not_public_style_or_ruby_parameters() {
             .unwrap();
         assert_eq!(out.status.code(), Some(2), "{out:?}");
         assert!(
-            String::from_utf8_lossy(&out.stderr).contains("unknown"),
+            String::from_utf8_lossy(&out.stderr).contains("is not a valid setting"),
             "{out:?}"
         );
         assert_eq!(fs::read_to_string(&path).unwrap(), source);

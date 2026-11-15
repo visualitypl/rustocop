@@ -15,6 +15,7 @@ use crate::{
     offense::{Department, GlobalOffense, Offense, Severity, department_of},
     source::SourceFile,
 };
+use settings::{Setting, Values};
 
 pub mod ast;
 pub mod bundler;
@@ -34,6 +35,7 @@ pub mod policy;
 mod position_safety;
 pub(crate) mod reparse;
 pub mod security;
+pub mod settings;
 pub mod style;
 #[cfg(test)]
 pub(crate) mod testing;
@@ -44,10 +46,10 @@ pub mod walk;
 ///
 /// Cops are stateless and shared across worker threads: configuration is
 /// resolved by the pipeline (which decides whether a cop runs, and filters
-/// its offenses), never read ad hoc inside the cop. Numeric settings (`max`)
-/// and internal dependencies on LineLength's enable/max policy are resolved
-/// into configured copies ([`Cop::with_max`], [`Cop::with_line_length_limit`])
-/// before selection; those copies run instead.
+/// its offenses), never read ad hoc inside the cop. The settings a cop
+/// declares and internal dependencies on LineLength's enable/max policy are
+/// resolved into configured copies ([`Cop::configure`],
+/// [`Cop::with_line_length_limit`]) before selection; those copies run instead.
 pub trait Cop: Send + Sync {
     /// The full cop name, e.g. `Lint/Debugger`. A department prefix is required.
     fn name(&self) -> &'static str;
@@ -110,37 +112,27 @@ pub trait Cop: Send + Sync {
         Severity::for_department(department_of(self.name()))
     }
 
-    /// The name of the numeric setting this cop accepts, if any (`max` for
-    /// `Layout/LineLength` and the Metrics cops).
-    fn max_setting(&self) -> Option<&'static str> {
-        None
-    }
-
-    /// A copy of this cop with its `max` setting set to `max`, for cops that
-    /// declare one ([`Cop::max_setting`]); `None` for the others. Config
-    /// resolution builds these (see `ResolvedConfig::configured`).
-    fn with_max(&self, _max: usize) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// A copy of this cop that accepts what matches one of `patterns`, for
-    /// cops with an `allowed_patterns` setting, RuboCop's `AllowedPatterns`;
-    /// `None` for the others. The copy keeps the other settings of this cop.
-    fn with_allowed_patterns(&self, _patterns: &[regex::bytes::Regex]) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// The values of the cop's `enforced_style` setting, RuboCop's
-    /// `EnforcedStyle`; empty for a cop that has one style.
-    fn styles(&self) -> &'static [&'static str] {
+    /// The settings this cop takes in `rustocop.toml`, beyond `enabled` and
+    /// `exclude`. Config validation and the `.rubocop.yml` import read this
+    /// list; a cop that declares a setting also implements
+    /// [`Cop::configure`].
+    fn settings(&self) -> &'static [Setting] {
         &[]
     }
 
-    /// A copy of this cop with the style `style`, one of [`Cop::styles`];
-    /// `None` for any other value. Config resolution builds these, as it
-    /// does for [`Cop::with_max`].
-    fn with_style(&self, _style: &str) -> Option<Box<dyn Cop>> {
+    /// A copy of this cop with `values` for its settings. Each value is
+    /// valid for the [`Setting`] it belongs to, and a setting without a
+    /// value keeps what this cop has. `None` for a cop without settings.
+    /// Config resolution builds these (see `ResolvedConfig::configured`).
+    fn configure(&self, _values: &Values) -> Option<Box<dyn Cop>> {
         None
+    }
+
+    /// `"max"` when the cop declares that setting. Read from
+    /// [`Cop::settings`]; a cop does not implement this.
+    fn max_setting(&self) -> Option<&'static str> {
+        let max = self.settings().iter().find(|setting| setting.name == "max");
+        max.map(|setting| setting.name)
     }
 
     /// Internal dependency on Layout/LineLength's configured enable/max, not
@@ -1060,41 +1052,10 @@ impl Registry {
         name_similarity::find_similar_name(name, &names)
     }
 
-    /// Whether the named cop accepts a `max` setting; returns its name.
-    pub fn cop_declares_max(&self, name: &str) -> Option<&'static str> {
-        self.cops
-            .iter()
-            .find(|cop| cop.name() == name)
-            .and_then(|cop| cop.max_setting())
-    }
-
-    /// The named cop with its `max` setting set to `max`; `None` when there
-    /// is no such cop or it declares no `max`.
-    pub fn cop_with_max(&self, name: &str, max: usize) -> Option<Box<dyn Cop>> {
-        self.cops
-            .iter()
-            .find(|cop| cop.name() == name)
-            .and_then(|cop| cop.with_max(max))
-    }
-
-    /// Whether the named cop has an `allowed_patterns` setting.
-    pub fn cop_allows_patterns(&self, name: &str) -> bool {
+    /// The cop with this exact name.
+    pub fn cop(&self, name: &str) -> Option<&dyn Cop> {
         let cop = self.cops.iter().find(|cop| cop.name() == name);
-        cop.is_some_and(|cop| cop.with_allowed_patterns(&[]).is_some())
-    }
-
-    /// The values that the named cop accepts for `enforced_style`; empty
-    /// when there is no such cop or it has one style.
-    pub fn cop_styles(&self, name: &str) -> &'static [&'static str] {
-        let cop = self.cops.iter().find(|cop| cop.name() == name);
-        cop.map_or(&[], |cop| cop.styles())
-    }
-
-    /// The named cop with the style `style`; `None` when there is no such
-    /// cop or it has no such style.
-    pub fn cop_with_style(&self, name: &str, style: &str) -> Option<Box<dyn Cop>> {
-        let cop = self.cops.iter().find(|cop| cop.name() == name)?;
-        cop.with_style(style)
+        cop.map(|cop| &**cop)
     }
 }
 
@@ -1110,7 +1071,7 @@ impl Default for Registry {
 /// an exclusive whitelist that also force-enables listed cops; then per-cop
 /// config; then department config; then the cop's default.
 ///
-/// A cop the config gives a `max` runs as the config's copy of it.
+/// A cop the config gives a setting runs as the config's copy of it.
 pub fn select_active<'r>(
     registry: &'r Registry,
     config: &'r ResolvedConfig,
@@ -1998,7 +1959,11 @@ mod tests {
         }
         // No style parameters: only `Layout/LineLength` takes a setting.
         for name in style {
-            assert_eq!(registry.cop_declares_max(name), None, "{name}");
+            assert_eq!(
+                registry.cop(name).and_then(Cop::max_setting),
+                None,
+                "{name}"
+            );
         }
         let config = ResolvedConfig::default();
         let active = select_active(&registry, &config, &["Style".into()], &[]);
@@ -2036,7 +2001,11 @@ mod tests {
         ];
         for name in naming {
             assert!(registry.has_cop(name), "{name} is registered");
-            assert_eq!(registry.cop_declares_max(name), None, "{name}");
+            assert_eq!(
+                registry.cop(name).and_then(Cop::max_setting),
+                None,
+                "{name}"
+            );
         }
         let config = ResolvedConfig::default();
         let defaults = select_active(&registry, &config, &[], &[]);
@@ -2065,10 +2034,11 @@ mod tests {
             let limited = name == "Layout/LineLength"
                 || (name.starts_with("Metrics/") && name != "Metrics/CollectionLiteralLength");
             let expected = limited.then_some("max");
-            assert_eq!(registry.cop_declares_max(name), expected, "{name}");
-            // A cop declares `max` exactly when it can be built with one.
-            let configured = registry.cop_with_max(name, 100);
-            assert_eq!(configured.is_some(), expected.is_some(), "{name}");
+            assert_eq!(cop.max_setting(), expected, "{name}");
+            // A cop declares settings exactly when it can be built with them.
+            let values = Values::default().with("max", settings::Value::Count(100));
+            let configured = cop.configure(&values);
+            assert_eq!(configured.is_some(), !cop.settings().is_empty(), "{name}");
             if let Some(configured) = configured {
                 assert_eq!(configured.name(), name);
             }

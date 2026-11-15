@@ -13,9 +13,12 @@
 
 use ruby_prism::Node;
 
-use super::string_literals::{STYLES, styled, wrong_quotes};
+use super::string_literals::{ENFORCED_STYLE, styled, wrong_quotes};
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{Setting, Values},
+    },
     offense::Offense,
     source::SourceFile,
 };
@@ -35,12 +38,12 @@ impl Cop for StringLiteralsInInterpolation {
         true
     }
 
-    fn styles(&self) -> &'static [&'static str] {
-        STYLES
+    fn settings(&self) -> &'static [Setting] {
+        &[ENFORCED_STYLE]
     }
 
-    fn with_style(&self, style: &str) -> Option<Box<dyn Cop>> {
-        styled(style, SingleQuotes, StringLiteralsInInterpolation)
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        styled(values, SingleQuotes, StringLiteralsInInterpolation)
     }
 
     fn check_node<'pr>(
@@ -138,9 +141,11 @@ mod tests {
 
     #[test]
     fn single_quotes_style_flags_double_quotes_inside_interpolations() {
-        let cop = StringLiteralsInInterpolation
-            .with_style("single_quotes")
-            .unwrap();
+        let single = Values::default().with(
+            "enforced_style",
+            crate::cops::settings::Value::Choice("single_quotes"),
+        );
+        let cop = StringLiteralsInInterpolation.configure(&single).unwrap();
         for (before, after) in [
             (r##""#{"A"}""##, r##""#{'A'}""##),
             (

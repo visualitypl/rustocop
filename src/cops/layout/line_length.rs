@@ -33,6 +33,7 @@ use unicode_width::UnicodeWidthStr;
 use crate::{
     cops::{
         Cop, NodeContext,
+        settings::{self, Kind, Setting, Values},
         walk::{NodeVisitor, walk},
     },
     directives,
@@ -76,19 +77,19 @@ impl Cop for LineLength {
         "Layout/LineLength"
     }
 
-    fn max_setting(&self) -> Option<&'static str> {
-        Some("max")
+    fn settings(&self) -> &'static [Setting] {
+        const ALLOWED_PATTERNS: Setting = Setting {
+            name: "allowed_patterns",
+            kind: Kind::Patterns,
+        };
+        &[settings::MAX, ALLOWED_PATTERNS]
     }
 
-    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
-        let allowed = self.allowed.clone();
-        Some(Box::new(LineLength { max, allowed }))
-    }
-
-    fn with_allowed_patterns(&self, patterns: &[regex::bytes::Regex]) -> Option<Box<dyn Cop>> {
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let allowed = values.patterns("allowed_patterns");
         Some(Box::new(LineLength {
-            max: self.max,
-            allowed: patterns.to_vec(),
+            max: values.count("max").unwrap_or(self.max),
+            allowed: allowed.unwrap_or(&self.allowed).to_vec(),
         }))
     }
 

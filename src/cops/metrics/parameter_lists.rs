@@ -1,7 +1,10 @@
 //! `Metrics/ParameterLists` — at most `max` parameters, five by default, and
 //! a fixed limit of three optional ones.
 use crate::{
-    cops::{Cop, NodeContext, ast},
+    cops::{
+        Cop, NodeContext, ast,
+        settings::{self, Setting, Values},
+    },
     offense::Offense,
     source::SourceFile,
 };
@@ -25,11 +28,12 @@ impl Cop for ParameterLists {
         "Metrics/ParameterLists"
     }
 
-    fn max_setting(&self) -> Option<&'static str> {
-        Some("max")
+    fn settings(&self) -> &'static [Setting] {
+        &[settings::MAX]
     }
 
-    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let max = values.count("max").unwrap_or(self.max);
         Some(Box::new(ParameterLists { max }))
     }
 

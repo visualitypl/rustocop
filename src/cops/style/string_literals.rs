@@ -28,27 +28,31 @@ use ruby_prism::{
 };
 
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{Kind, Setting, Values},
+    },
     offense::{Correction, Offense},
     source::SourceFile,
 };
 
-/// The values of `enforced_style` for the cops that check the quotes of
-/// string literals.
-pub(super) const STYLES: &[&str] = &["double_quotes", "single_quotes"];
+/// `enforced_style` for the cops that check the quotes of string literals.
+pub(super) const ENFORCED_STYLE: Setting = Setting {
+    name: "enforced_style",
+    kind: Kind::Choice(&["double_quotes", "single_quotes"]),
+};
 
-/// The cop of `style`, one of [`STYLES`]: `single` for single quotes and
-/// `double` for double quotes.
+/// The cop for the `enforced_style` in `values`: `single` for single quotes,
+/// and `double` for any other style and when `values` name none.
 pub(super) fn styled<S: Cop + 'static, D: Cop + 'static>(
-    style: &str,
+    values: &Values,
     single: S,
     double: D,
 ) -> Option<Box<dyn Cop>> {
-    match style {
-        "single_quotes" => Some(Box::new(single)),
-        "double_quotes" => Some(Box::new(double)),
-        _ => None,
-    }
+    Some(match values.choice("enforced_style") {
+        Some("single_quotes") => Box::new(single),
+        _ => Box::new(double),
+    })
 }
 
 /// The `Style/StringLiterals` cop, for double quotes.
@@ -66,12 +70,12 @@ impl Cop for StringLiterals {
         true
     }
 
-    fn styles(&self) -> &'static [&'static str] {
-        STYLES
+    fn settings(&self) -> &'static [Setting] {
+        &[ENFORCED_STYLE]
     }
 
-    fn with_style(&self, style: &str) -> Option<Box<dyn Cop>> {
-        styled(style, SingleQuotes, StringLiterals)
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        styled(values, SingleQuotes, StringLiterals)
     }
 
     fn check_node<'pr>(
@@ -406,7 +410,11 @@ mod tests {
     #[test]
     fn single_quotes_style_flags_and_corrects_needless_double_quotes() {
         // RuboCop's examples for `EnforcedStyle: single_quotes` (MIT).
-        let cop = StringLiterals.with_style("single_quotes").unwrap();
+        let single = Values::default().with(
+            "enforced_style",
+            crate::cops::settings::Value::Choice("single_quotes"),
+        );
+        let cop = StringLiterals.configure(&single).unwrap();
         for (before, after) in [
             ("s = \"abc\"\n", "s = 'abc'\n"),
             (r#"x = "a\\b""#, r"x = 'a\\b'"),
@@ -441,8 +449,6 @@ mod tests {
             let found = crate::cops::testing::correction_offenses(cop.as_ref(), source);
             assert!(found.is_empty(), "should accept {source:?}");
         }
-        assert!(StringLiterals.with_style("double_quotes").is_some());
-        assert!(StringLiterals.with_style("backticks").is_none());
     }
 
     #[test]

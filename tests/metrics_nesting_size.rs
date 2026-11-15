@@ -113,7 +113,9 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         // CollectionLiteralLength has a `LengthThreshold` upstream, no `Max`.
         let limited = name == "Metrics/BlockNesting";
         assert_eq!(cop.max_setting(), limited.then_some("max"), "{name}");
-        assert_eq!(cop.with_max(1).is_some(), limited, "{name}");
+        let one = &rustocop::cops::settings::Values::default()
+            .with("max", rustocop::cops::settings::Value::Count(1));
+        assert_eq!(cop.configure(one).is_some(), limited, "{name}");
         assert!(cop.autocorrect_incompatible_with().is_empty());
     }
     assert!(!registry.has_cop("Metrics/Future"));

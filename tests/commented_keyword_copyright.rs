@@ -307,7 +307,7 @@ fn notice_and_annotation_configuration_cannot_expand_the_fixed_policy() {
         .unwrap();
         let out = cli(dir.path(), &["--only", cop, "lib/a.rb"], 2);
         assert!(
-            String::from_utf8_lossy(&out.stderr).contains("unknown field"),
+            String::from_utf8_lossy(&out.stderr).contains("is not a valid setting"),
             "{out:?}"
         );
     }

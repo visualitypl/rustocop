@@ -2,7 +2,10 @@
 //! `enforced_style` names. Without a style of its own the cop has the style
 //! of `Style/StringLiterals`, as in RuboCop.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{Kind, Setting, Values},
+    },
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -23,16 +26,17 @@ impl Cop for QuotedSymbols {
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_symbol_node().is_some()
     }
-    fn styles(&self) -> &'static [&'static str] {
-        &["same_as_string_literals", "double_quotes", "single_quotes"]
+    fn settings(&self) -> &'static [Setting] {
+        const ENFORCED_STYLE: Setting = Setting {
+            name: "enforced_style",
+            kind: Kind::Choice(&["same_as_string_literals", "double_quotes", "single_quotes"]),
+        };
+        &[ENFORCED_STYLE]
     }
     /// Config resolution turns `same_as_string_literals` into the style of
     /// `Style/StringLiterals`; here it is the default.
-    fn with_style(&self, style: &str) -> Option<Box<dyn Cop>> {
-        if style == "same_as_string_literals" {
-            return Some(Box::new(QuotedSymbols));
-        }
-        super::string_literals::styled(style, SingleQuotes, QuotedSymbols)
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        super::string_literals::styled(values, SingleQuotes, QuotedSymbols)
     }
 
     fn check_node<'pr>(
@@ -282,7 +286,11 @@ mod tests {
     #[test]
     fn single_quotes_style_flags_and_corrects_needless_double_quotes() {
         // RuboCop's examples for `EnforcedStyle: single_quotes` (MIT).
-        let cop = QuotedSymbols.with_style("single_quotes").unwrap();
+        let single = Values::default().with(
+            "enforced_style",
+            crate::cops::settings::Value::Choice("single_quotes"),
+        );
+        let cop = QuotedSymbols.configure(&single).unwrap();
         for (before, after) in [
             (":\"a\"", ":'a'"),
             (":\"a b\"", ":'a b'"),
@@ -303,7 +311,11 @@ mod tests {
         }
         // Without a style of its own the cop keeps its double quotes here;
         // config resolution gives it the style of Style/StringLiterals.
-        let same = QuotedSymbols.with_style("same_as_string_literals").unwrap();
+        let same = Values::default().with(
+            "enforced_style",
+            crate::cops::settings::Value::Choice("same_as_string_literals"),
+        );
+        let same = QuotedSymbols.configure(&same).unwrap();
         assert_eq!(
             crate::cops::testing::correction_offenses(same.as_ref(), ":'a'").len(),
             1

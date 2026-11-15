@@ -93,7 +93,9 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         assert_eq!(cop.severity(), Severity::Convention);
         assert_eq!(cop.ruby_versions(), Default::default());
         assert_eq!(cop.max_setting(), Some("max"), "{name}");
-        assert!(cop.with_max(1).is_some(), "{name}");
+        let one = &rustocop::cops::settings::Values::default()
+            .with("max", rustocop::cops::settings::Value::Count(1));
+        assert!(cop.configure(one).is_some(), "{name}");
         assert_eq!(cop.path_policy().is_some(), name == "Metrics/BlockLength");
     }
     assert!(!registry.has_cop("Metrics/Future"));

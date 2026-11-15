@@ -1,12 +1,11 @@
 //! `--import-rubocop-config`: a `rustocop.toml` from a project's
 //! `.rubocop.yml`.
 //!
-//! A `rustocop.toml` says much less than a `.rubocop.yml`: the paths to skip,
+//! A `rustocop.toml` says less than a `.rubocop.yml`: the paths to skip,
 //! the Ruby version, whether a cop or department is on, the paths a cop
-//! skips, the `max` of `Layout/LineLength` and the Metrics cops, the
-//! `enforced_style` of the cops for the quotes of literals, and the
-//! `allowed_patterns` of `Layout/LineLength`. The import carries those over
-//! and lists every other setting, so that none is dropped silently.
+//! skips, and the settings that a cop declares (`Cop::settings`), such as
+//! the `max` of `Layout/LineLength`. The import carries those over and lists
+//! every other setting, so that none is dropped silently.
 
 use std::{collections::BTreeMap, fmt::Write as _, path::Path};
 
@@ -14,7 +13,11 @@ use anyhow::{Context, Result, anyhow, bail};
 use yaml_rust2::{Yaml, YamlLoader};
 
 use crate::{
-    cops::{Registry, policy::SUPPORTED_RUBY_VERSIONS},
+    cops::{
+        Registry,
+        policy::SUPPORTED_RUBY_VERSIONS,
+        settings::{Kind, Setting},
+    },
     offense::Department,
 };
 
@@ -80,7 +83,12 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
             continue;
         }
         let (mut lines, mut dropped) = (String::new(), Vec::new());
+        let declared = registry.cop(&name).map_or(&[][..], |cop| cop.settings());
         for (key, value) in section {
+            if let Some(setting) = declared.iter().find(|s| s.is_rubocop_key(&key)) {
+                carry_over(setting, key, value, &mut lines, &mut dropped);
+                continue;
+            }
             match (key.as_str(), value) {
                 ("Enabled", Yaml::Boolean(on)) if !top => {
                     let _ = writeln!(lines, "enabled = {on}");
@@ -103,33 +111,6 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
                     if !kept.is_empty() {
                         let _ = write!(lines, "exclude = [\n{kept}]\n");
                     }
-                }
-                ("Max", Yaml::Integer(max))
-                    if max > 0 && registry.cop_declares_max(&name).is_some() =>
-                {
-                    let _ = writeln!(lines, "max = {max}");
-                }
-                ("AllowedPatterns", Yaml::Array(patterns))
-                    if registry.cop_allows_patterns(&name) =>
-                {
-                    let mut kept = String::new();
-                    for pattern in patterns {
-                        let pattern = pattern.into_string().unwrap_or_default();
-                        match rust_regex(&pattern) {
-                            Some(regex) => {
-                                let _ = writeln!(kept, "  {},", toml::Value::String(regex));
-                            }
-                            None => dropped.push(format!("AllowedPatterns `{pattern}`")),
-                        }
-                    }
-                    if !kept.is_empty() {
-                        let _ = write!(lines, "allowed_patterns = [\n{kept}]\n");
-                    }
-                }
-                ("EnforcedStyle", Yaml::String(style))
-                    if registry.cop_styles(&name).contains(&style.as_str()) =>
-                {
-                    let _ = writeln!(lines, "enforced_style = \"{style}\"");
                 }
                 ("TargetRubyVersion", Yaml::Real(version) | Yaml::String(version))
                     if top
@@ -167,6 +148,43 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
         );
     }
     Ok(import)
+}
+
+/// Write `value`, which a `.rubocop.yml` gives the parameter `key` of a cop,
+/// as the cop's `setting` in a `rustocop.toml`. What the setting cannot say
+/// goes to `dropped`.
+fn carry_over(
+    setting: &Setting,
+    key: String,
+    value: Yaml,
+    lines: &mut String,
+    dropped: &mut Vec<String>,
+) {
+    let name = setting.name;
+    match (setting.kind, value) {
+        (Kind::Count, Yaml::Integer(count)) if count > 0 => {
+            let _ = writeln!(lines, "{name} = {count}");
+        }
+        (Kind::Choice(choices), Yaml::String(choice)) if choices.contains(&choice.as_str()) => {
+            let _ = writeln!(lines, "{name} = \"{choice}\"");
+        }
+        (Kind::Patterns, Yaml::Array(patterns)) => {
+            let mut kept = String::new();
+            for pattern in patterns {
+                let pattern = pattern.into_string().unwrap_or_default();
+                match rust_regex(&pattern) {
+                    Some(regex) => {
+                        let _ = writeln!(kept, "  {},", toml::Value::String(regex));
+                    }
+                    None => dropped.push(format!("{key} `{pattern}`")),
+                }
+            }
+            if !kept.is_empty() {
+                let _ = write!(lines, "{name} = [\n{kept}]\n");
+            }
+        }
+        _ => dropped.push(key),
+    }
 }
 
 /// `pattern`, an entry of `AllowedPatterns`, as a regular expression of the
@@ -361,7 +379,7 @@ mod tests {
         let raw: RawConfig = toml::from_str(&import.toml).unwrap();
         let config = ResolvedConfig::resolve(raw, None, &Registry::new()).unwrap();
         assert!(matches_any(&config.global_excludes, Path::new("tmp/x.rb")));
-        assert_eq!(config.params["Layout/LineLength"], 100);
+        assert_eq!(config.settings["Layout/LineLength"].count("max"), Some(100));
     }
 
     #[test]

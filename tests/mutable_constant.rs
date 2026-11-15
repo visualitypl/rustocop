@@ -124,7 +124,7 @@ fn fixed_settings_are_not_public_configuration() {
             .output()
             .unwrap();
         assert_eq!(output.status.code(), Some(2), "{output:?}");
-        assert!(String::from_utf8_lossy(&output.stderr).contains("unknown"));
+        assert!(String::from_utf8_lossy(&output.stderr).contains("is not a valid setting"));
         assert_eq!(fs::read(&path).unwrap(), b"A = []\n");
     }
 }

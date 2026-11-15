@@ -6,12 +6,9 @@
 //!   first hit wins.
 //! - Strict: unknown keys, unknown cops/departments, or invalid settings fail
 //!   the run instead of being silently ignored.
-//! - Minimal surface: per-cop and per-department `enabled`, per-cop and
-//!   global `exclude` globs, and `max` for `Layout/LineLength` and the
-//!   Metrics cops, `enforced_style` for the quotes of string literals, and
-//!   `allowed_patterns` for `Layout/LineLength`.
-//!   There are no other per-cop style parameters — defaults are the product; disagreeing teams
-//!   disable a cop rather than reconfigure it.
+//! - Per-cop and per-department `enabled`, per-cop and global `exclude`
+//!   globs, and for each cop the settings that it declares
+//!   (`Cop::settings`), such as `max` for `Layout/LineLength`.
 
 use std::{
     collections::BTreeMap,
@@ -29,6 +26,7 @@ use crate::{
     cops::{
         Cop, Registry,
         policy::{DEFAULT_RUBY_VERSION, RubyVersion, SUPPORTED_RUBY_VERSIONS},
+        settings::{Value, Values},
     },
     offense::Department,
 };
@@ -54,25 +52,19 @@ pub struct RawConfig {
 
 /// Settings for a single cop or a whole department.
 #[derive(Deserialize, Debug, Default)]
-#[serde(deny_unknown_fields, default)]
+#[serde(default)]
 pub struct RawCopSettings {
     /// Whether the cop(s) run at all.
     pub enabled: Option<bool>,
     /// Glob patterns for paths this cop should skip (not valid for departments).
     /// Preserve presence so even an explicitly empty department setting is rejected.
     pub exclude: Option<Vec<String>>,
-    /// A numeric parameter. Only valid for cops that declare one
-    /// (`Layout/LineLength` and the Metrics cops with a `Max` in RuboCop).
-    /// On a cop that is off by default, it also switches the cop on.
-    pub max: Option<usize>,
-    /// The style a cop enforces, RuboCop's `EnforcedStyle`. Only valid for
-    /// cops that declare styles (`Style/StringLiterals`,
-    /// `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`).
-    pub enforced_style: Option<String>,
-    /// Regular expressions for what a cop accepts, RuboCop's
-    /// `AllowedPatterns`. Only valid for cops that declare the setting
-    /// (`Layout/LineLength`, which accepts the long lines that match one).
-    pub allowed_patterns: Option<Vec<String>>,
+    /// Every other key: the cop's own settings, such as `max`. A key is
+    /// valid when the cop declares it (`Cop::settings`), which `resolve`
+    /// checks. A `max` on a cop that is off by default also switches the
+    /// cop on.
+    #[serde(flatten)]
+    pub settings: BTreeMap<String, toml::Value>,
 }
 
 /// The validated, run-ready config.
@@ -89,9 +81,9 @@ pub struct ResolvedConfig {
     pub global_excludes: Vec<GlobMatcher>,
     /// Settings keyed by full cop name or department name.
     pub cop_settings: BTreeMap<String, CopSettings>,
-    /// Numeric parameters, keyed by cop name.
-    pub params: BTreeMap<String, usize>,
-    /// The cops `params` configure, built with their settings, keyed by
+    /// The values of the settings that cops declare, keyed by cop name.
+    pub settings: BTreeMap<String, Values>,
+    /// The cops `settings` configure, built with their values, keyed by
     /// cop name. `cops::select_active` runs these instead of the
     /// registry's.
     pub configured: BTreeMap<String, Box<dyn Cop>>,
@@ -126,7 +118,7 @@ impl Default for ResolvedConfig {
             ruby_version_source: RubyVersionSource::Default,
             global_excludes: Vec::new(),
             cop_settings: BTreeMap::new(),
-            params: BTreeMap::new(),
+            settings: BTreeMap::new(),
             configured: BTreeMap::new(),
         }
     }
@@ -152,7 +144,7 @@ impl ResolvedConfig {
                     ruby_version_source: RubyVersionSource::Default,
                     global_excludes: compile_globs(BUILTIN_EXCLUDES, "builtin excludes")?,
                     cop_settings: BTreeMap::new(),
-                    params: BTreeMap::new(),
+                    settings: BTreeMap::new(),
                     configured: BTreeMap::new(),
                 },
                 false,
@@ -217,10 +209,9 @@ impl ResolvedConfig {
         };
 
         let mut cop_settings = BTreeMap::new();
-        let mut params = BTreeMap::new();
+        let mut settings = BTreeMap::new();
         let mut configured = BTreeMap::new();
-        let mut styles = BTreeMap::new();
-        for (key, settings) in raw.cops {
+        for (key, raw) in raw.cops {
             let is_cop = registry.has_cop(&key);
             let is_department = Department::parse(&key).is_some();
             if !is_cop && !is_department {
@@ -234,78 +225,53 @@ impl ResolvedConfig {
                         .map_or_else(|| CONFIG_FILE_NAME.into(), |p| p.display().to_string())
                 );
             }
-            if is_department && settings.exclude.is_some() {
+            if is_department && raw.exclude.is_some() {
                 bail!(
                     "`exclude` is not a valid setting for department `{key}`; use global or per-cop exclusions"
                 );
             }
-            if let Some(max) = settings.max {
-                let cop = match registry.cop_declares_max(&key) {
-                    Some(_) => registry.cop_with_max(&key, max),
-                    None => None,
+            let declared = registry.cop(&key).map_or(&[][..], |cop| cop.settings());
+            let mut values = Values::default();
+            for (name, value) in &raw.settings {
+                let Some(setting) = declared.iter().find(|setting| setting.name == name) else {
+                    bail!("`{name}` is not a valid setting for `{key}`");
                 };
-                let Some(cop) = cop else {
-                    bail!("`max` is not a valid setting for `{key}`");
-                };
-                if max == 0 {
-                    bail!("`max` for `{key}` must be at least 1");
-                }
-                params.insert(key.clone(), max);
-                configured.insert(key.clone(), cop);
+                values = values.with(setting.name, setting.parse(&key, value)?);
             }
-            if let Some(style) = settings.enforced_style {
-                let known = registry.cop_styles(&key);
-                if known.is_empty() {
-                    bail!("`enforced_style` is not a valid setting for `{key}`");
-                }
-                let Some(cop) = registry.cop_with_style(&key, &style) else {
-                    let known: Vec<_> = known.iter().map(|s| format!("\"{s}\"")).collect();
-                    bail!(
-                        "unknown `enforced_style = \"{style}\"` for `{key}`; use {}",
-                        known.join(" or ")
-                    );
-                };
-                configured.insert(key.clone(), cop);
-                styles.insert(key.clone(), style);
-            }
-            if let Some(patterns) = settings.allowed_patterns {
-                let compile = |pattern: &String| {
-                    regex::bytes::Regex::new(pattern).with_context(|| {
-                        format!("invalid `allowed_patterns` entry `{pattern}` for `{key}`")
-                    })
-                };
-                let patterns = patterns.iter().map(compile).collect::<Result<Vec<_>>>()?;
-                // On top of the cop's other settings, such as `max`.
-                let registered = registry.cops().iter().find(|cop| cop.name() == key);
-                let base = configured.get(&key).or(registered);
-                let Some(cop) = base.and_then(|cop| cop.with_allowed_patterns(&patterns)) else {
-                    bail!("`allowed_patterns` is not a valid setting for `{key}`");
-                };
-                configured.insert(key.clone(), cop);
-            }
-            let excludes = compile_globs(settings.exclude.as_deref().unwrap_or_default(), &key)?;
+            let excludes = compile_globs(raw.exclude.as_deref().unwrap_or_default(), &key)?;
             // A limit for a cop that is off by default asks for the cop.
-            let wanted = settings.max.is_some() && !crate::cops::policy::default_enabled(&key);
+            let wanted =
+                values.count("max").is_some() && !crate::cops::policy::default_enabled(&key);
             cop_settings.insert(
                 key.clone(),
                 CopSettings {
-                    enabled: settings.enabled.or(wanted.then_some(true)),
+                    enabled: raw.enabled.or(wanted.then_some(true)),
                     excludes,
                 },
             );
+            if !values.is_empty() {
+                settings.insert(key, values);
+            }
         }
 
         // As in RuboCop, quoted symbols have the quotes of string literals
         // unless Style/QuotedSymbols names a style of its own.
-        let own = styles.get("Style/QuotedSymbols").map(String::as_str);
-        let quotes = match own {
-            None | Some("same_as_string_literals") => styles.get("Style/StringLiterals"),
-            _ => None,
-        };
-        if let Some(style) = quotes
-            && let Some(cop) = registry.cop_with_style("Style/QuotedSymbols", style)
+        let style = |cop: &str| settings.get(cop)?.choice("enforced_style");
+        if let None | Some("same_as_string_literals") = style("Style/QuotedSymbols")
+            && let Some(quotes) = style("Style/StringLiterals")
         {
-            configured.insert("Style/QuotedSymbols".to_owned(), cop);
+            let own: &mut Values = settings
+                .entry("Style/QuotedSymbols".to_owned())
+                .or_default();
+            *own = std::mem::take(own).with("enforced_style", Value::Choice(quotes));
+        }
+
+        for (name, values) in &settings {
+            let cop = registry.cop(name).and_then(|cop| cop.configure(values));
+            let Some(cop) = cop else {
+                bail!("`{name}` declares settings that it cannot be built with");
+            };
+            configured.insert(name.clone(), cop);
         }
 
         // Style rules that construct guard/modifier examples use the configured
@@ -315,8 +281,10 @@ impl ResolvedConfig {
             .and_then(|s| s.enabled)
             .or_else(|| cop_settings.get("Layout").and_then(|s| s.enabled))
             .unwrap_or(true);
-        let line_length_limit =
-            line_length_enabled.then(|| params.get("Layout/LineLength").copied().unwrap_or(120));
+        let line_length_max = settings
+            .get("Layout/LineLength")
+            .and_then(|v| v.count("max"));
+        let line_length_limit = line_length_enabled.then(|| line_length_max.unwrap_or(120));
         for cop in registry.cops() {
             if let Some(configured_cop) = cop.with_line_length_limit(line_length_limit) {
                 configured.insert(cop.name().to_owned(), configured_cop);
@@ -444,7 +412,7 @@ impl ResolvedConfig {
             ruby_version_source,
             global_excludes,
             cop_settings,
-            params,
+            settings,
             configured,
         })
     }
@@ -655,7 +623,7 @@ enabled = false
         let registry = Registry::new();
         let raw: RawConfig = toml::from_str("[cops.\"Layout/LineLength\"]\nmax = 100").unwrap();
         let config = ResolvedConfig::resolve(raw, None, &registry).unwrap();
-        assert_eq!(config.params.get("Layout/LineLength"), Some(&100));
+        assert_eq!(config.settings["Layout/LineLength"].count("max"), Some(100));
         let active = crate::cops::select_active(&registry, &config, &[], &[]);
         let line_length: Vec<_> = active
             .iter()
@@ -679,8 +647,9 @@ enabled = false
         let raw: RawConfig = toml::from_str("[cops.\"Layout/LineLength\"]\nmax = 0").unwrap();
         let err = ResolvedConfig::resolve(raw, None, &registry).unwrap_err();
         assert!(err.to_string().contains("at least 1"), "{err}");
-        let raw: Result<RawConfig, _> = toml::from_str("[cops.\"Layout/LineLength\"]\nmax = -1");
-        assert!(raw.is_err());
+        let raw: RawConfig = toml::from_str("[cops.\"Layout/LineLength\"]\nmax = -1").unwrap();
+        let err = ResolvedConfig::resolve(raw, None, &registry).unwrap_err();
+        assert!(err.to_string().contains("at least 1"), "{err}");
     }
 
     #[test]

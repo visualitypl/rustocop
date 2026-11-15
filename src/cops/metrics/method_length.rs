@@ -10,7 +10,10 @@ use ruby_prism::Node;
 
 use super::code_length::{body_length, check};
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{self, Setting, Values},
+    },
     offense::Offense,
     source::SourceFile,
 };
@@ -35,11 +38,12 @@ impl Cop for MethodLength {
         "Metrics/MethodLength"
     }
 
-    fn max_setting(&self) -> Option<&'static str> {
-        Some("max")
+    fn settings(&self) -> &'static [Setting] {
+        &[settings::MAX]
     }
 
-    fn with_max(&self, max: usize) -> Option<Box<dyn Cop>> {
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let max = values.count("max").unwrap_or(self.max);
         Some(Box::new(MethodLength { max }))
     }
 
