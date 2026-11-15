@@ -235,7 +235,6 @@ Not carried over; rustocop has no setting for these:
   plugins
   AllCops: NewCops, SuggestExtensions, TargetRubyVersion, UseProjectIndex
   Layout/HashAlignment: EnforcedColonStyle, EnforcedHashRocketStyle
-  Layout/LineLength: AllowedPatterns
   not rustocop cops or departments: RSpec, RSpec/AnyInstance, Rake/MethodDefinitionInTask
 ```
 
