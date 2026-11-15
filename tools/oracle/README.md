@@ -37,6 +37,15 @@ revision out to run it:
 git -C "$RUBOCOP_SRC" fetch --depth 1 origin <revision> && git -C "$RUBOCOP_SRC" checkout <revision>
 ```
 
+## Corrections
+
+An example that calls `expect_correction` or `expect_no_corrections` is also
+corrected: its source is copied, `rustocop --only COP --fix` runs on the copy
+(`--fix-passes 1` for `loop: false`), and the result is compared with the
+source the spec expects. Each cop's line and the last line count the
+corrections that match and differ; `-v` shows each difference. The count
+does not make the run fail, and the baseline does not list it.
+
 ## Reference data
 
 `style_reference.json` and `lint_reference.json` record, for the pinned

@@ -27,10 +27,12 @@ module Oracle
   # The lowest target Ruby RuboCop's Prism engine parses.
   PRISM_MINIMUM_RUBY = 3.3
 
-  # One `expect_offense` or `expect_no_offenses` call.
+  # One `expect_offense` or `expect_no_offenses` call. `correction` is the
+  # source that a following `expect_correction` expects, `:none` after
+  # `expect_no_corrections`; `correction_loop` is its `loop:`.
   Expectation = Struct.new(
     :cop, :spec, :spec_line, :description, :source, :file, :offenses,
-    :config, :ruby_version, :skip, :lifecycle, keyword_init: true
+    :config, :ruby_version, :skip, :lifecycle, :correction, :correction_loop, keyword_init: true
   )
 
   # An expected offense: 1-based line, 1-based column, caret count, message.
@@ -442,7 +444,8 @@ module Oracle
       Blackhole.new
     end
 
-    def expect_correction(*, source: nil, **)
+    def expect_correction(correction = nil, *, source: nil, loop: true, **)
+      @__example.correct(correction, loop) if correction.is_a?(String)
       # SingleLineMethods' shared examples provide their input only here. Run
       # the pinned detector for expected positions, not the correction text;
       # independent Rust tests assert the canonical before/after bytes.
@@ -472,7 +475,9 @@ module Oracle
       Blackhole.new
     end
 
-    def expect_no_corrections; end
+    def expect_no_corrections
+      @__example.correct(:none, true)
+    end
 
     # The empty-call spec includes a batched performance fixture without caret
     # annotations. Obtain its expected positions from the pinned reference cop;
@@ -613,12 +618,21 @@ module Oracle
       reason = skip_reason
       reason ||= "mocks: uses `#{mocked}`" if mocked
       config = reason ? nil : instance.oracle_config.to_h
-      Oracle.recorder.expectations << Expectation.new(
+      @last = Expectation.new(
         cop: Oracle.current_cop, spec: Oracle.current_spec, spec_line: call_line || line,
         description: full_description, source: source, file: file, offenses: offenses,
         config: config && Oracle.deep_dup(config), ruby_version: instance.ruby_version,
         skip: reason
       )
+      Oracle.recorder.expectations << @last
+    end
+
+    # What the last expectation of this example corrects to.
+    def correct(correction, loop)
+      return unless @last
+
+      @last.correction = correction
+      @last.correction_loop = loop
     end
   end
 end

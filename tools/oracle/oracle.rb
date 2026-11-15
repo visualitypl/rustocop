@@ -31,7 +31,16 @@ module Oracle
                        :cops, keyword_init: true)
 
   # A runnable example and what came of it.
-  Case = Struct.new(:id, :expectation, :toml, :path, :actual, :errors, keyword_init: true) do
+  Case = Struct.new(:id, :expectation, :toml, :path, :actual, :errors, :fixed, keyword_init: true) do
+    # Whether `--fix` gives what the example's `expect_correction` expects;
+    # nil for an example without one.
+    def correction_matches?
+      wanted = expectation.correction
+      return if wanted.nil? || fixed.nil?
+
+      fixed == (wanted == :none ? expectation.source : wanted)
+    end
+
     def misses
       subtract(expected_positions, actual_positions)
     end
@@ -373,6 +382,26 @@ module Oracle
           File.binwrite(File.join(root, kase.path), kase.expectation.source)
         end
         lint(cop, group, binary, root)
+        fix(cop, group, binary, root)
+      end
+    end
+
+    # `--fix` each case that expects a correction, in a copy of its file, and
+    # keep what it gives. A spec's `loop: false` is one pass.
+    def fix(cop, cases, binary, root)
+      return if cop == 'Lint/Syntax'
+
+      cases.select { |kase| kase.expectation.correction }.group_by { |kase| kase.expectation.correction_loop }
+           .each do |loop, group|
+        paths = group.to_h do |kase|
+          copy = File.join("fixed", kase.path)
+          FileUtils.mkdir_p(File.join(root, File.dirname(copy)))
+          File.binwrite(File.join(root, copy), kase.expectation.source)
+          [copy, kase]
+        end
+        passes = loop ? [] : ["--fix-passes", "1"]
+        Open3.capture3(binary, "--only", cop, "--fix", *passes, *paths.keys, chdir: root)
+        paths.each { |copy, kase| kase.fixed = File.binread(File.join(root, copy)) }
       end
     end
 
@@ -545,6 +574,10 @@ module Oracle
         totals[:cops] += 1
         totals[:run] += result[:cases].size
         totals[:skipped] += result[:skipped].size
+        result[:cases].each do |kase|
+          fixed = kase.correction_matches?
+          totals[fixed ? :corrections_match : :corrections_differ] += 1 unless fixed.nil?
+        end
         result[:skipped].each { |_, reason| skips[reason[/\A[^:]+/]] += 1 }
         totals[:errors] += result[:errors].size
         verdict[:counts].each { |key, n| totals[key] += n }
@@ -555,6 +588,8 @@ module Oracle
       puts "#{totals[:cops]} cops: #{summary_counts(totals[:run], totals)}; " \
            "#{totals[:skipped]} skipped (#{skips.sort.map { |reason, n| "#{reason} #{n}" }.join(", ")}), " \
            "#{totals[:errors]} not evaluated"
+      puts "corrections: #{totals[:corrections_match]} match RuboCop's, " \
+           "#{totals[:corrections_differ]} differ"
       failures = totals[:new] + totals[:changed] + totals[:stale]
       return 0 if failures.zero? && totals[:fatal].zero? && totals[:errors].zero?
 
@@ -587,9 +622,11 @@ module Oracle
       end
       skips = result[:skipped].map { |_, reason| reason[/\A[^:]+/] }.tally
       skip_text = skips.sort.map { |reason, n| "#{reason} #{n}" }.join(", ")
+      verdicts = result[:cases].map(&:correction_matches?).compact
+      fixes = verdicts.empty? ? "" : "; corrections #{verdicts.count(true)} match, #{verdicts.count(false)} differ"
       puts "#{result[:cop]}: #{summary_counts(result[:cases].size, counts)}; " \
            "#{result[:skipped].size} skipped#{skip_text.empty? ? "" : " (#{skip_text})"}, " \
-           "#{result[:errors].size} not evaluated"
+           "#{result[:errors].size} not evaluated#{fixes}"
     end
 
     def print_problem(result, kind, kase, entry)
@@ -629,6 +666,13 @@ module Oracle
     end
 
     def print_details(result, known_lines)
+      result[:cases].select { |kase| kase.correction_matches? == false }.each do |kase|
+        expectation = kase.expectation
+        wanted = expectation.correction == :none ? expectation.source : expectation.correction
+        puts "  correction differs #{relative_spec(expectation.spec || result[:spec])}:#{expectation.spec_line}"
+        puts "    rubocop:  #{wanted.inspect[0, 300]}"
+        puts "    rustocop: #{kase.fixed.inspect[0, 300]}"
+      end
       known_lines.each do |kase, entry|
         print_case(result, kase, "known deviation")
         puts "    reason: #{entry.reason}"
