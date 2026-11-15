@@ -315,63 +315,6 @@ fn stdin_path_provenance_exclusions_and_fix_rejection() {
         old.modified().unwrap()
     );
 }
-#[test]
-fn encoding_and_observer_holds_preserve_bytes_mtime_and_permissions() {
-    let dir = project();
-    for peers in [
-        "Lint/ConstantOverwrittenInRescue,Naming/RescuedExceptionsVariableName",
-        "Naming/RescuedExceptionsVariableName,Lint/ConstantOverwrittenInRescue",
-        "Lint/ConstantOverwrittenInRescue,Style/RescueStandardError",
-        "Style/RescueStandardError,Lint/ConstantOverwrittenInRescue",
-    ] {
-        let out = unchanged(
-            dir.path(),
-            SAFE,
-            &["--only", peers, "--fix", "lib/a.rb"],
-            Some(1),
-        );
-        assert_eq!(count(&out), 1, "{out:?}");
-    }
-    for source in [
-        REACHABLE.to_vec(),
-        b"begin; nil; rescue \\\n => Error; end\n".to_vec(),
-        b"begin; nil; rescue => Error; end\nFile.read(__FILE__)\n".to_vec(),
-        b"begin; nil; rescue => Error; end\nRubyVM::InstructionSequence.compile('nil')\n".to_vec(),
-        b"begin; nil; rescue => Error; end\nGC.stat\n".to_vec(),
-        b"begin; nil; rescue => Error; end\nTracePoint.new(:line) {}\n".to_vec(),
-        b"begin; nil; rescue => Error; end\np DATA.pos\n__END__\npayload\n".to_vec(),
-    ] {
-        let out = unchanged(
-            dir.path(),
-            &source,
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(1),
-        );
-        assert_eq!(count(&out), 1);
-    }
-    for prefix in [
-        b"\xef\xbb\xbf".as_slice(),
-        b"# coding: ISO-8859-1\n# \xe9\n",
-        b"# coding: Shift_JIS\n# \x82\xa0\n",
-    ] {
-        let mut before = prefix.to_vec();
-        before.extend_from_slice(
-            &String::from_utf8_lossy(SAFE)
-                .replace('\n', "\r\n")
-                .into_bytes(),
-        );
-        let mut after = prefix.to_vec();
-        after.extend_from_slice(
-            &String::from_utf8_lossy(AFTER)
-                .replace('\n', "\r\n")
-                .into_bytes(),
-        );
-        unchanged(dir.path(), &before, &["--only", COP, "lib/a.rb"], Some(1));
-        let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
-        assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fs::read(dir.path().join("lib/a.rb")).unwrap(), after);
-    }
-}
 #[cfg(unix)]
 #[test]
 fn atomic_symlink_readonly_validation_and_composition_share_existing_controls() {
@@ -506,58 +449,6 @@ fn authored_native_trace_hook_counterexample_is_withheld() {
         assert!(a.status.success() && b.status.success(), "{a:?}\n{b:?}");
         assert_eq!(a.stdout, b"false\n");
         assert_eq!(b.stdout, b"true\n");
-    }
-}
-
-#[test]
-fn authored_native_line_data_and_own_source_guards() {
-    let Ok(ruby) = crate::support::runtime::ruby() else {
-        return;
-    };
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    // __LINE__ and an unread data section are stable; byte-offset and
-    // own-source observations are not, and reading `DATA` is a
-    // listed observer. Run only these authored scripts.
-    for (observer, safe) in [
-        ("p [__LINE__]", true),
-        ("p [__LINE__, DATA.read]", false),
-        ("p DATA.pos", false),
-        ("print File.binread(__FILE__)", false),
-        (
-            "p RubyVM::InstructionSequence.compile_file(__FILE__).to_a",
-            false,
-        ),
-    ] {
-        let before = format!(
-            "# coding: UTF-8\r\nbegin\r\n nil\r\nrescue => Error # keep\r\nend\r\n{observer}\r\n__END__\r\npayload\r\n"
-        );
-        fs::write(&path, &before).unwrap();
-        let a = Command::new(&ruby)
-            .args(["--parser=prism", "-W0"])
-            .arg(&path)
-            .output()
-            .unwrap();
-        assert!(a.status.success(), "{a:?}");
-        let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
-        assert_eq!(out.status.code(), Some(i32::from(!safe)), "{out:?}");
-        let actual = fs::read_to_string(&path).unwrap();
-        assert_eq!(
-            actual,
-            if safe {
-                before.replace("rescue =>", "rescue")
-            } else {
-                before.clone()
-            }
-        );
-        let b = Command::new(&ruby)
-            .args(["--parser=prism", "-W0"])
-            .arg(&path)
-            .output()
-            .unwrap();
-        assert!(b.status.success(), "{b:?}");
-        assert_eq!(a.stdout, b.stdout);
-        assert_eq!(a.stderr, b.stderr);
     }
 }
 

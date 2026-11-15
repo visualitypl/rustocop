@@ -21,8 +21,8 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 - **No Ruby runtime.** The binary needs neither Ruby, Bundler nor gems.
 - **Fast.** Parses with [Prism](https://github.com/ruby/prism) and lints files
   in parallel across all cores.
-- **Safe autocorrection.** `--fix` applies only edits that provably keep the
-  program's behaviour. Everything else stays a report.
+- **Safe autocorrection.** `--fix` applies the corrections of `rubocop -a`,
+  the ones RuboCop marks safe. Everything else stays a report.
 - **Not a RuboCop drop-in.** Cop names and `# rubocop:disable` comments are
   familiar, but rustocop does not read `.rubocop.yml` and has few
   settings: limits, quotes and the hash syntax. `--import-rubocop-config`
@@ -288,11 +288,11 @@ default-on cops are unwanted.
 
 ## Safe corrections
 
-`--fix` applies only corrections that are safe by construction: the edit
-preserves bindings, evaluation order, control flow, literal values, encoding
-and comments. Offenses whose fix is unsafe, and individual edits the
-implementation cannot prove safe, stay reported but untouched. Without
-`--fix`, files are never written.
+`--fix` applies the corrections that `rubocop -a` applies, the ones RuboCop
+marks safe. As in RuboCop, an edit is applied even where the program could
+observe it, for example a correction that moves a line before a
+`__LINE__`, or that changes the bytes a program reads from its own source or
+its `DATA` section. Without `--fix`, files are never written.
 
 ```
 $ rustocop --fix app

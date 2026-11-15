@@ -368,12 +368,3 @@ fn unsafe_or_inexact_moves_are_withheld() {
         held(source);
     }
 }
-
-#[test]
-fn line_values_are_held_by_the_shared_guard() {
-    held("test {\n  foo }\np __LINE__\n");
-    assert_eq!(
-        fixed("p __LINE__\ntest {\n  foo }\n"),
-        "p __LINE__\ntest {\n  foo\n}\n"
-    );
-}

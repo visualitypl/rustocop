@@ -5,10 +5,7 @@
 //! bytes equal the fixed replay recorded in
 //! the pinned RuboCop reference run.
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    pipeline::lint_str_with,
-};
+use crate::{cops::testing::assert_correction, pipeline::lint_str_with};
 
 const COP: &str = "Layout/EmptyLineAfterMultilineCondition";
 const MESSAGE: &str = "Use empty line after multiline condition.";
@@ -37,12 +34,6 @@ fn check(source: &str, finding: &[(u32, u32)], after: &str) {
     if !finding.is_empty() {
         assert_correction(&EmptyLineAfterMultilineCondition, source, after);
     }
-}
-
-fn held(source: &str) {
-    let found = correction_offenses(&EmptyLineAfterMultilineCondition, source);
-    assert_eq!(found.len(), 1, "{source:?}");
-    assert!(found[0].correction.is_none(), "{source:?}");
 }
 
 /// `(spec line, source, fixed-default finding, single-pass correction)`.
@@ -291,21 +282,6 @@ fn condition_shapes() {
         ("if a &&\n   b\n  \t\n  c\nend\n", &[], ""),
     ] {
         check(source, finding, after);
-    }
-}
-
-#[test]
-fn held_insertions() {
-    for source in [
-        "if a &&\n  b\n  c\nend\np __FILE__\n",
-        "if a &&\n  b\n  c\nend\np $PROGRAM_NAME\n",
-        "if a &&\n  b\n  c\nend\np __LINE__\n",
-        // The condition's last line opens a heredoc whose body follows.
-        "if a &&\n  b(<<~X)\n  body\nX\n  c\nend\n",
-        // After a backslash the inserted break would join the next line.
-        "if a &&\n  b \\\n  then c\nend\n",
-    ] {
-        held(source);
     }
 }
 

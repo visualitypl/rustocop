@@ -208,51 +208,6 @@ fn send_shapes_and_ranges() {
 }
 
 #[test]
-fn guarded_removals() {
-    let before = "\u{feff}# é\r\nfoo(\r\n\r\n  bar, # 日本\r\n\r\n  baz\r\n)\r\n";
-    let found = correction_offenses(&EmptyLinesAroundArguments, before);
-    assert_eq!(found.len(), 2);
-    for o in &found {
-        assert_eq!(
-            &before.as_bytes()[o.correction.as_ref().unwrap().range.clone()],
-            b"\r\n"
-        );
-    }
-    assert_correction(
-        &EmptyLinesAroundArguments,
-        before,
-        "\u{feff}# é\r\nfoo(\r\n  bar, # 日本\r\n  baz\r\n)\r\n",
-    );
-    for held in [
-        "foo(\n\n  bar)\np __LINE__\n",
-        "foo(\n\n  __LINE__)\n",
-        // A backslash continuation before the blank line.
-        "foo 1, \\\n\n  2\n",
-        // Directive comments next to the blank line.
-        "foo( # rubocop:disable Lint/Debugger\n\n  bar)\n",
-        "foo(\n\n  bar) # rustocop:enable Lint/Debugger\n",
-        // The shared observer seam treats a dynamic block-pass as a possible
-        // `caller`/`source_location` acquisition.
-        "foo(a,\n\n  &b)\n",
-        // Percent-array interpolation is protected.
-        "%W(#{foo(\n\n  1)})\n",
-    ] {
-        assert!(!findings(held).is_empty(), "{held:?}");
-        assert_correction(&EmptyLinesAroundArguments, held, held);
-    }
-    // Code in string interpolation is corrected; string text and
-    // `__END__` data are not argument whitespace.
-    assert_correction(
-        &EmptyLinesAroundArguments,
-        "x = \"#{foo(\n\n  1)}\"\n",
-        "x = \"#{foo(\n  1)}\"\n",
-    );
-    for source in ["foo(\"a\n\n\", 1)\n", "foo(1)\n__END__\nfoo(\n\n  1)\n"] {
-        assert!(findings(source).is_empty(), "{source:?}");
-    }
-}
-
-#[test]
 fn listed_source_observers_hold_every_correction() {
     for observer in [
         "p __FILE__",

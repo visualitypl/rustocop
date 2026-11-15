@@ -6,10 +6,7 @@
 //! fixed replay recorded in the pinned RuboCop reference run. The
 //! `:ruby27` numbered-block example applies (Ruby 3.4 accepts `_1`).
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    pipeline::lint_str_with,
-};
+use crate::{cops::testing::assert_correction, pipeline::lint_str_with};
 
 const COP: &str = "Layout/EmptyLinesAfterModuleInclusion";
 
@@ -37,12 +34,6 @@ fn check(source: &str, finding: &[(u32, u32)], after: &str) {
     if !finding.is_empty() {
         assert_correction(&EmptyLinesAfterModuleInclusion, source, after);
     }
-}
-
-fn held(source: &str) {
-    let found = correction_offenses(&EmptyLinesAfterModuleInclusion, source);
-    assert_eq!(found.len(), 1, "{source:?}");
-    assert!(found[0].correction.is_none(), "{source:?}");
 }
 
 /// `(spec line, source, fixed-default finding, single-pass correction)` with
@@ -278,22 +269,6 @@ fn followers_and_lookalikes() {
     }
     // The block-pass conversion is held by the shared code-object barrier.
     assert_eq!(positions("include &b\ny\n"), [(1, 1)]);
-}
-
-#[test]
-fn held_insertions() {
-    for source in [
-        "include A\nx\np __FILE__\n",
-        "include A\nx\np __dir__\n",
-        "include A\nx\np $0\n",
-        "include A\nx\np caller\n",
-        "include A\nx\np __LINE__\n",
-        "include A\np DATA.read\n__END__\nx\n",
-        // The inclusion's line opens a heredoc whose body follows.
-        "include Module.new(<<~X)\n  body\nX\nx\n",
-    ] {
-        held(source);
-    }
 }
 
 #[test]

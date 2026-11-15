@@ -320,36 +320,6 @@ fn lint_never_writes_and_fix_writes_the_canonical_edit_once() {
 }
 
 #[test]
-fn line_joins_are_applied_unless_a_later_line_number_is_observed() {
-    let dir = project();
-    for (cop, before, after) in [
-        (RANGE, "x = 0 ..\n  10\np x\n", "x = 0..10\np x\n"),
-        (DELIMITERS, "x = %w(\n)\np x\n", "x = %w()\np x\n"),
-        (DELIMITERS, "x = %i(  \n  )\np x\n", "x = %i()\np x\n"),
-    ] {
-        fs::write(dir.path().join("example.rb"), before).unwrap();
-        let output = ruby(dir.path());
-        let (out, fixed) = fix(dir.path(), before.as_bytes(), &["--only", cop]);
-        assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(String::from_utf8_lossy(&fixed), after);
-        same_shape(before.as_bytes(), &fixed);
-        if let Some(output) = output {
-            assert_eq!(ruby(dir.path()), Some(output), "{after:?}");
-        }
-        // `__LINE__` after the join would change: the shared guard keeps
-        // the finding and the bytes.
-        let line = format!("{before}p __LINE__\n");
-        let out = unchanged(
-            dir.path(),
-            line.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(1),
-        );
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-    }
-}
-
-#[test]
 fn uncertain_edits_keep_the_finding_and_the_bytes() {
     let dir = project();
     for (cop, source, n) in [

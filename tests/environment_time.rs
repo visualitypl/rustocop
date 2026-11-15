@@ -296,37 +296,6 @@ fn visible_method_and_constant_bindings_and_fallbacks_are_never_substituted() {
     same(&before, &ruby(dir.path(), None));
 }
 #[test]
-fn bom_crlf_data_line_and_utf8_bytes_survive_the_canonical_fix() {
-    let dir = project();
-    let listed = "\u{feff}# encoding: UTF-8\r\nx = ENV[\"TASK70_\\x58\"] # keep\r\np [x, __LINE__, 'é'.encoding.name, DATA.read.bytes]\r\n__END__\r\nraw\0\r\n";
-    // Reading `DATA` is a listed observer: that file keeps its
-    // finding and bytes. The unread data section survives below.
-    fs::write(dir.path().join("a.rb"), listed).unwrap();
-    run(
-        dir.path(),
-        &["--only", FETCH, "--fix", "a.rb"],
-        1,
-        [0, 1, 0],
-    );
-    assert_eq!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), listed);
-    let source = &listed.replace(", DATA.read.bytes]", "]");
-    fs::write(dir.path().join("a.rb"), source).unwrap();
-    let before = has_ruby().then(|| ruby(dir.path(), Some("value")));
-    run(
-        dir.path(),
-        &["--only", FETCH, "--fix", "a.rb"],
-        0,
-        [0, 0, 0],
-    );
-    assert_eq!(
-        fs::read_to_string(dir.path().join("a.rb")).unwrap(),
-        source.replace("ENV[\"TASK70_\\x58\"]", "ENV.fetch(\"TASK70_\\x58\", nil)")
-    );
-    if let Some(before) = before {
-        same(&before, &ruby(dir.path(), Some("value")));
-    }
-}
-#[test]
 fn mixed_style_layout_and_home_detection_stabilize_without_unsafe_fixes() {
     let dir = project();
     let path = dir.path().join("a.rb");

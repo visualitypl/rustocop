@@ -168,66 +168,6 @@ fn delimiter_envelope_respects_disabled_body_lines_atomically() {
 }
 
 #[test]
-fn individual_prefix_source_data_and_encoding_withholds_keep_offenses() {
-    let dir = project();
-    for source in [
-        "foo %Q=hello=\n",
-        "p %Q(a); p DATA.pos\n__END__\nraw\n",
-        "p %Q(a); p Object.const_get(:DATA).pos\n__END__\nraw\n",
-    ] {
-        unchanged(dir.path(), BARE, source.as_bytes(), 1);
-    }
-    for (name, before, _) in CASES {
-        for observer in [
-            "p __FILE__",
-            "p errors.map(&:backtrace_locations)",
-            "p method(:p).source_location",
-            "p RubyVM::AbstractSyntaxTree",
-            "p File.binread($0)",
-        ] {
-            unchanged(
-                dir.path(),
-                name,
-                format!("{before}{observer}\n").as_bytes(),
-                1,
-            );
-        }
-    }
-    // Prefix-only ASCII corrections never transcode legacy literal bytes.
-    for (name, before, after) in [
-        (
-            BARE,
-            b"# encoding: ISO-8859-1\r\np %Q(caf\xe9)\r\n".as_slice(),
-            b"# encoding: ISO-8859-1\r\np %(caf\xe9)\r\n".as_slice(),
-        ),
-        (
-            Q,
-            b"# encoding: ISO-8859-1\r\np %Q(caf\xe9)\r\n".as_slice(),
-            b"# encoding: ISO-8859-1\r\np %q(caf\xe9)\r\n".as_slice(),
-        ),
-    ] {
-        fs::write(dir.path().join("a.rb"), before).unwrap();
-        cli(dir.path(), &["--only", name, "--fix", "a.rb"], 0);
-        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), after);
-    }
-    unchanged(
-        dir.path(),
-        DELIM,
-        b"# encoding: ISO-8859-1\r\np %w(caf\xe9)\r\n",
-        1,
-    );
-    // Equal-length case/delimiter edits would preserve observable DATA
-    // offsets, but `DATA` with a data section is a listed
-    // observer: the findings stay and the file is not written.
-    unchanged(
-        dir.path(),
-        &format!("{Q},{DELIM}"),
-        b"p %Q[hi]; p DATA.pos\n__END__\nraw\n",
-        1,
-    );
-}
-
-#[test]
 fn bom_crlf_heredoc_indentation_and_data_payloads_survive() {
     let dir = project();
     let source = "\u{feff}# encoding: UTF-8\r\np %Q[café]\r\np %w(one two)\r\np <<~X\r\n  %Q[not code]\r\n  #{%Q[#{1}]}\r\nX\r\np __LINE__\r\n__END__\r\n%Q[raw]\r\n";
@@ -281,76 +221,12 @@ fn command_literals_are_source_only_and_keep_command_ast_kinds() {
     }
 }
 
-use crate::support::source_getter;
-
 fn ruby(dir: &Path) -> Output {
     Command::new("ruby")
         .current_dir(dir)
         .arg("a.rb")
         .output()
         .unwrap()
-}
-
-#[test]
-fn controlled_ruby_observes_decoded_bytes_encoding_frozen_and_evaluation_order() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    for (frozen, selected) in ["true", "false"]
-        .into_iter()
-        .flat_map(|frozen| [BARE, DELIM, Q, ALL].map(|selected| (frozen, selected)))
-    {
-        let source = format!(
-            r#"# frozen_string_literal: {frozen}
-$events = []
-def mark(x)
-  $events << x
-  x
-end
-def literal
-  %Q[static]
-end
-values = [%Q[café], %Q!a\!b!, %Q(a\\), %Q[\t], %Q[\u{{41}}],
-          %Q[#{{mark(1)}}-#{{mark(2)}}], %W(#{{mark(3)}} a\)b), %I(#{{mark(4)}} a\)b),
-          %w(one two), %i(one two), %s[symbol], %r[a(b)c]im,
-          %q!a\!b!, %w(\(a\) b), %r!a\!b!]
-values.each do |value|
-  case value
-  when String then p [value.bytes, value.encoding.name, value.frozen?]
-  when Array then p value.map {{ |v| [v.to_s.bytes, v.to_s.encoding.name] }}
-  when Symbol then p [value.to_s.bytes, value.encoding.name]
-  when Regexp then p [value.source.bytes, value.options, value.encoding.name, !!(value =~ "a(b)c")]
-  end
-end
-p [literal.equal?(literal), literal.frozen?, $events, __LINE__]
-"#
-        );
-        let source = source_getter::pattern_sibling(dir.path(), "a.rb", &source, selected);
-        fs::write(dir.path().join("a.rb"), &source).unwrap();
-        let before = ruby(dir.path());
-        assert!(before.status.success(), "{before:?}");
-        let first = cli(
-            dir.path(),
-            &["--only", selected, "--fix", "--fix-passes", "1", "a.rb"],
-            i32::from(selected == ALL), // Escaped-delimiter edit defers behind bare Q removal.
-        );
-        assert!(String::from_utf8_lossy(&first.stdout).contains("corrections applied"));
-        cli(
-            dir.path(),
-            &["--only", selected, "--fix", "--fix-passes", "1", "a.rb"],
-            0,
-        );
-        let after = ruby(dir.path());
-        assert_eq!(before.stdout, after.stdout, "{source}");
-        assert_eq!(before.stderr, after.stderr);
-        assert_eq!(
-            fs::read_to_string(dir.path().join("a.rb"))
-                .unwrap()
-                .contains("%w[one two]"),
-            matches!(selected, DELIM | ALL)
-        );
-    }
 }
 
 #[test]
@@ -414,53 +290,6 @@ fn controlled_legacy_encoding_values_and_mutability_survive_prefix_corrections()
             assert_eq!(corrected, source);
         } else {
             assert_ne!(corrected, source);
-        }
-    }
-}
-
-#[test]
-fn ruby_data_positions_source_reads_and_ambiguous_prefix_counterexamples() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    for (selected, source, status) in [
-        (
-            BARE,
-            "p %Q(hi); p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n",
-            1,
-        ),
-        // `DATA` with a data section is a listed observer that
-        // holds even equal-length edits.
-        (
-            Q,
-            "p %Q(hi); p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n",
-            1,
-        ),
-        (
-            DELIM,
-            "p %w(one two); p DATA.pos; p DATA.read.bytes\n__END__\nraw\\payload\n",
-            1,
-        ),
-        (ALL, "p %Q[hi]; p File.binread($PROGRAM_NAME).bytes\n", 1),
-        (BARE, "def foo(x); p x; end\nfoo %Q=hi=\n", 1),
-        (BARE, "def foo(x); p x; end\nfoo %Q hi \n", 1),
-        (BARE, "def foo(x); p x; end\nfoo %Q\thi\t\n", 1),
-        (BARE, "def foo(x); p x; end\nfoo %Q\nhi\n;p __LINE__\n", 1),
-        (DELIM, "p(%Q\nhi\n)\np __LINE__\n", 1),
-        (Q, "p(%Q\nhi\n)\np __LINE__\n", 0),
-    ] {
-        fs::write(dir.path().join("a.rb"), source).unwrap();
-        let before = ruby(dir.path());
-        assert!(before.status.success(), "{before:?}");
-        cli(dir.path(), &["--only", selected, "--fix", "a.rb"], status);
-        let after = ruby(dir.path());
-        assert_eq!(before.stdout, after.stdout);
-        assert_eq!(before.stderr, after.stderr);
-        if selected == BARE {
-            fs::write(dir.path().join("a.rb"), source.replacen("%Q", "%", 1)).unwrap();
-            let naive = ruby(dir.path());
-            assert!(before.stdout != naive.stdout || before.status != naive.status);
         }
     }
 }

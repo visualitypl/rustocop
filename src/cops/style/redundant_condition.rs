@@ -735,35 +735,6 @@ mod tests {
     }
 
     #[test]
-    fn comments_source_observers_encoding_heredocs_and_line_values_withhold() {
-        use crate::cops::testing::assert_correction;
-        for source in [
-            "if @b\n # important\n @b\nelse\n c\nend\n",
-            "if @b\n @b # important\nelse\n c\nend\n",
-            "if @b\n @b\nelse\n # important\n c\nend\n",
-            "if @b then @b else c end # rubocop:disable Lint/Debugger\n",
-            "if @b then @b else <<~H end\ntext\nH\n",
-            "if @b\n @b\nelse\n __LINE__\nend\n",
-            "if @b\n @b\nelse\n c\nend\np __LINE__\n",
-            "if @b then @b else DATA.pos end\n__END__\npayload\n",
-            "unless @b then consume(__LINE__) else consume(\n@b) end\n",
-            "if @b then @b else c end\neval(source)\n",
-        ] {
-            assert_correction(&super::RedundantCondition, source, source);
-        }
-        assert_correction(
-            &super::RedundantCondition,
-            "\u{feff}# encoding: UTF-8\r\n@b ? @b : '\\x61'\r\n__END__\r\npayload\r\n",
-            "\u{feff}# encoding: UTF-8\r\n@b || '\\x61'\r\n__END__\r\npayload\r\n",
-        );
-        assert_correction(
-            &super::RedundantCondition,
-            "@b ? @b : __LINE__\n",
-            "@b || (__LINE__)\n",
-        );
-    }
-
-    #[test]
     fn correction_source_work_is_lazy_and_bounded() {
         use crate::cops::testing::correction_offenses;
         let source = "@b ? @b : c\n".repeat(256);

@@ -341,67 +341,6 @@ mod tests {
         );
     }
     #[test]
-    fn symbol_to_proc_observers_withhold_edits_not_offenses() {
-        for selector in [
-            "backtrace",
-            "backtrace_locations",
-            "full_message",
-            "source_location",
-            "const_source_location",
-            "method",
-            "public_method",
-            "singleton_method",
-            "instance_method",
-            "public_instance_method",
-            "binding",
-            "caller",
-            "caller_locations",
-            "eval",
-            "class_eval",
-            "module_eval",
-            "instance_eval",
-            "set_trace_func",
-            "send",
-            "__send__",
-            "public_send",
-            "load",
-            "require",
-            "require_relative",
-        ] {
-            for symbol in [format!(":{selector}"), format!(":\"{selector}\"")] {
-                for source in [
-                    format!("items.map(&{symbol})\ndef f = true if true\n"),
-                    format!("def f = true if true\nitems.map(&{symbol})\n"),
-                ] {
-                    let found = crate::cops::testing::correction_offenses(
-                        &AmbiguousEndlessMethodDefinition,
-                        &source,
-                    );
-                    assert_eq!(found.len(), 1, "{source}");
-                    assert!(found[0].correction.is_none(), "{source}");
-                }
-            }
-        }
-        // Decode quoted symbols, but do not treat inert symbol data or unrelated
-        // symbol-to-proc dispatch as a metadata observation.
-        let source = "def f = true if true\nitems.map(&:\"backtrace\\x5flocations\")\n";
-        let found =
-            crate::cops::testing::correction_offenses(&AmbiguousEndlessMethodDefinition, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-        assert_correction(
-            &AmbiguousEndlessMethodDefinition,
-            "def f = :backtrace if true\np [:full_message, :backtrace_locations].map(&:to_s)\n",
-            "def f\n  :backtrace\nend if true\np [:full_message, :backtrace_locations].map(&:to_s)\n",
-        );
-        // A `:source_location` selector is a listed observer
-        // (conservatively, also as data): every edit is held.
-        crate::cops::testing::assert_listed_hold(
-            &AmbiguousEndlessMethodDefinition,
-            "def f = :backtrace if true\np [:full_message, :source_location].map(&:to_s)\n",
-        );
-    }
-    #[test]
     fn multiple_findings_use_main_parse_and_local_edits() {
         let source = "def f = true and effect\n".repeat(2000);
         let found = offenses(&source);

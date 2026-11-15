@@ -39,13 +39,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&MultilineArrayLineBreaks, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source is accepted.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -226,46 +219,6 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
             "{after:?}"
         );
     }
-}
-
-#[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\nx = [1,\n  2, 3]\n"));
-    }
-    held("x = [1,\n  2, 3]\nDATA.read\n__END__\nz\n");
-    // The inserted line break moves later lines down.
-    held("x = [1,\n  2, 3]\np __LINE__\n");
-    // A line break after an earlier heredoc opener on the line (outside the
-    // array) would start the heredoc body there.
-    held("foo(<<~A, [1, 2,\n  body\nA\n  3])\n");
-    // A heredoc opener as the reported item: the shared heredoc boundary
-    // keeps a line break inserted right before an opener.
-    held("[1,\n  2, <<~A]\n  t\nA\n");
-    // Without an observer the same file is corrected.
-    assert_eq!(
-        fixed("y = 1\nx = [1,\n  2, 3]\n"),
-        "y = 1\nx = [1,\n  2, \n3]\n"
-    );
-    // `DATA` without a data section and `__LINE__` before the edit are no
-    // observers.
-    assert_eq!(
-        fixed("DATA\nx = [1,\n  2, 3]\n"),
-        "DATA\nx = [1,\n  2, \n3]\n"
-    );
-    assert_eq!(
-        fixed("p __LINE__\nx = [1,\n  2, 3]\n"),
-        "p __LINE__\nx = [1,\n  2, \n3]\n"
-    );
 }
 
 #[test]

@@ -147,24 +147,6 @@ fn clean_errors_inner_backticks_and_unsupported_options_never_write() {
     }
 }
 #[test]
-fn source_observers_and_data_offsets_withhold_individual_edits() {
-    let dir = project();
-    for observer in [
-        "p __FILE__",
-        "p method(:p).source_location",
-        "p errors.map(&:backtrace_locations)",
-        "p File.binread($0)",
-        "p RubyVM::AbstractSyntaxTree",
-        "p ObjectSpace.each_object(String).count",
-        "p DATA.pos; p DATA.read.bytes\n__END__\nraw",
-    ] {
-        unchanged(dir.path(), format!("%x(no)\n{observer}\n").as_bytes(), 1);
-    }
-    // Unobserved DATA bytes remain byte-identical although their offset changes.
-    let before = b"%x(no)\n__END__\n%x(raw)\r\n";
-    assert_eq!(fix(dir.path(), before, 0), b"`no`\n__END__\n%x(raw)\r\n");
-}
-#[test]
 fn bom_crlf_line_values_and_heredoc_body_boundaries_survive() {
     let dir = project();
     let source = b"\xef\xbb\xbf# encoding: UTF-8\r\np %x(no), <<~TXT\r\n  static\r\n  #{%x(#{value})}\r\nTXT\r\np __LINE__\r\n";

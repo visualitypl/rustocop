@@ -116,27 +116,6 @@ mod tests {
             .collect()
     }
     #[test]
-    fn data_byte_guard_keeps_nested_call_findings_and_allowlist() {
-        use crate::cops::testing::correction_offenses;
-        let source = "outer(inner 1)\np ::DATA.method(:tell).call\n__END__\nraw\n";
-        let found = correction_offenses(&NestedParenthesizedCalls, source);
-        assert_eq!(found.len(), 1);
-        assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 7, 1));
-        assert_eq!(
-            found[0].message,
-            "Add parentheses to nested method call `inner 1`."
-        );
-        assert!(found[0].correction.is_none());
-        // `DATA` with a data section is a listed observer:
-        // even the equal-length edit is held.
-        crate::cops::testing::assert_listed_hold(
-            &NestedParenthesizedCalls,
-            "outer(inner  1)\np DATA.pos\n__END__\nraw\n",
-        );
-        assert!(offenses("outer(eq 1)\np DATA.pos\n__END__\nraw\n").is_empty());
-    }
-
-    #[test]
     fn pinned_offense_and_canonical_correction() {
         let found = offenses("puts(compute something)\n");
         assert_eq!(found.len(), 1);

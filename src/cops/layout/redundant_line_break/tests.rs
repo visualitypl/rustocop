@@ -1168,10 +1168,6 @@ fn fixed_with(cop: &RedundantLineBreak, source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-fn fixed(source: &str) -> String {
-    fixed_with(&RedundantLineBreak::default(), source)
-}
-
 /// Every finding is kept and no edit is offered.
 fn held(source: &str) {
     let found = correction_offenses(&RedundantLineBreak::default(), source);
@@ -1344,25 +1340,6 @@ fn candidates_follow_upstreams_callbacks() {
     ] {
         assert_eq!(findings(source), expected, "{source:?}");
     }
-}
-
-#[test]
-fn line_values_are_neutralized_for_detection_and_held_for_correction() {
-    // Upstream compares `__LINE__` as an identifier: reported, but joining
-    // would change the value, so the edit is withheld.
-    for source in [
-        "foo(__LINE__,\n  __LINE__)\n",
-        "def f\n  foo(1,\n    __LINE__)\nend\n",
-    ] {
-        assert_eq!(findings(source).len(), 1, "{source}");
-        held(source);
-    }
-    // A `__LINE__` after the edit is held by the shared guard.
-    held("foo(1,\n  2)\np __LINE__\n");
-    assert_eq!(
-        fixed("p __LINE__\nfoo(1,\n  2)\n"),
-        "p __LINE__\nfoo(1, 2)\n"
-    );
 }
 
 #[test]

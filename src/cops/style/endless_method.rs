@@ -297,52 +297,6 @@ mod tests {
     }
 
     #[test]
-    fn source_observer_proof_covers_direct_indirect_alias_compound_and_forwarding() {
-        for observer in [
-            "error.backtrace",
-            "error.full_message",
-            "caller_locations",
-            "method(:f)",
-            "C.const_source_location(:X)",
-            "Object.const_get(:DATA).pos",
-            "Object.const_get(name)",
-            "class Object; alias hidden const_get; end",
-            "objects.map(&:const_get)",
-            "object.const_get ||= nil",
-            "eval(code)",
-            "binding",
-            "TracePoint.new {}",
-            "File.read(__FILE__)",
-            "__FILE__",
-            "errors.map(&:backtrace_locations)",
-            "errors.map(&selector)",
-            "alias hidden caller",
-            "error.backtrace ||= []",
-            "def forward(...) = target(...)",
-            "def forward(&) = target(&)",
-            "def forward(&block) = target(&block)",
-        ] {
-            for source in [
-                format!("{observer}\ndef f = [\n  1]\n"),
-                format!("def f = [\n  1]\n{observer}\n"),
-            ] {
-                assert_withheld(&source, 1);
-            }
-        }
-        crate::cops::testing::assert_correction(
-            &super::EndlessMethod,
-            "def f = [\n  :backtrace]\nitems.map(&:to_s)\n",
-            "def f\n  [\n  :backtrace]\nend\nitems.map(&:to_s)\n",
-        );
-        // A `:caller` selector is a listed observer
-        // (conservatively, also as data): the edit is held.
-        crate::cops::testing::assert_listed_hold(
-            &super::EndlessMethod,
-            "def f = [\n  :caller]\nitems.map(&:to_s)\n",
-        );
-    }
-
-    #[test]
     fn qualified_data_references_withhold_edits_without_changing_detection() {
         for reference in [
             "DATA",

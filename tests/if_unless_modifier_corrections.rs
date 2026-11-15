@@ -133,60 +133,6 @@ fn excludes_disabled_spans_and_reenabled_directives_apply_to_real_edits() {
     }
 }
 #[test]
-fn source_envelopes_line_values_and_withheld_edits_retain_exact_bytes() {
-    let d = project();
-    for nl in ["\n", "\r\n"] {
-        for header in ["\u{feff}# encoding: UTF-8\n", "# coding: ISO-8859-1\n"] {
-            let before =
-                format!("{header}if ready # ordinary\n  \"café\\nvalue\"\nend\n__END__\nraw\0\n")
-                    .replace('\n', nl);
-            let after = format!("{header}\"café\\nvalue\" if ready # ordinary\n__END__\nraw\0\n")
-                .replace('\n', nl);
-            correct(d.path(), before.as_bytes(), after.as_bytes(), COP);
-        }
-    }
-    correct(
-        d.path(),
-        b"# coding: ISO-8859-1\r\n# caf\xe9\r\nif ready\r\n work\r\nend\r\n__END__\r\nraw\xff\r\n",
-        b"# coding: ISO-8859-1\r\n# caf\xe9\r\nwork if ready\r\n__END__\r\nraw\xff\r\n",
-        COP,
-    );
-    correct(
-        d.path(),
-        b"p __LINE__\nif ready\n work\nend\n",
-        b"p __LINE__\nwork if ready\n",
-        COP,
-    );
-    correct(
-        d.path(),
-        b"if ready; __LINE__; end\np :done\n",
-        b"__LINE__ if ready\np :done\n",
-        COP,
-    );
-    for source in [
-        b"if ready\n work\nend\np __LINE__\n".as_slice(),
-        b"if ready\n __LINE__\nend\n",
-        b"# coding: ISO-8859-1\r\nif ready\r\n 'caf\xe9'\r\nend\r\n",
-        b"if ready\n work\nend\np DATA.pos\n__END__\nraw\n",
-        b"if ready\n work\nend\np File.binread(__FILE__)\n",
-        b"if value\n value = 1\nend\n",
-    ] {
-        unchanged(d.path(), source, &["--only", COP, "--fix", "a.rb"], 1);
-    }
-    unchanged(
-        d.path(),
-        b"if broken\n",
-        &["--only", COP, "--fix", "a.rb"],
-        2,
-    );
-    unchanged(
-        d.path(),
-        AFTER.as_bytes(),
-        &["--only", COP, "--fix", "a.rb"],
-        0,
-    );
-}
-#[test]
 fn terminal_endless_ranges_do_not_block_unrelated_safe_edits() {
     let d = project();
     for keyword in ["if", "unless"] {

@@ -276,31 +276,6 @@ fn ruby_main_scripts_preserve_data_positions_where_naive_edits_do_not() {
 }
 
 #[test]
-fn independent_equal_length_line_preserving_edits_are_held_by_listed_data() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (cop, before, _) in CASES {
-        // `DATA` with a data section is a listed observer: the
-        // independent string edit is withheld too.
-        let source = observed(&format!("{before}p 'x'\n"), "", "DATA");
-        let expected = source.clone();
-        fs::write(&path, &source).unwrap();
-        let original = ruby_available().then(|| execute(&path));
-        let selector = format!("{cop},Style/StringLiterals");
-        let out = cli(dir.path(), &["--only", &selector, "--fix", "lib/a.rb"], 1);
-        assert!(String::from_utf8_lossy(&out.stdout).contains(cop));
-        assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
-        if let Some(original) = original {
-            assert_eq!(execute(&path), original);
-        }
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", &selector, "--fix", "lib/a.rb"], 1);
-        assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
-
-#[test]
 fn ruby_main_scripts_with_unobserved_payload_still_correct() {
     if !ruby_available() {
         return;

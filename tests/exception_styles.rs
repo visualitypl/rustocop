@@ -259,46 +259,6 @@ fn clean_invalid_and_uncorrectable_inputs_never_write() {
         );
     }
 }
-#[test]
-fn bytes_encoding_bom_crlf_data_and_line_values_survive_or_withhold() {
-    let dir = project();
-    for (before, after) in [
-        (
-            "\u{feff}raise RuntimeError, 'x'\r\np __LINE__\r\n__END__\r\nraw\0\r\n",
-            "\u{feff}raise 'x'\r\np __LINE__\r\n__END__\r\nraw\0\r\n",
-        ),
-        (
-            "# coding: ASCII-8BIT\r\nraise RuntimeError.new(\"\\x82\\n\")\r\n",
-            "# coding: ASCII-8BIT\r\nraise \"\\x82\\n\"\r\n",
-        ),
-    ] {
-        fs::write(dir.path().join("lib/a.rb"), before).unwrap();
-        run(
-            dir.path(),
-            &["--only", REDUNDANT, "--fix", "lib/a.rb"],
-            0,
-            [0, 0, 0],
-        );
-        assert_eq!(
-            fs::read(dir.path().join("lib/a.rb")).unwrap(),
-            after.as_bytes()
-        );
-    }
-    for before in [
-        b"# coding: ASCII-8BIT\nraise RuntimeError, \"\x82\"\n".as_slice(),
-        b"raise RuntimeError.new(\n'x'\n)\np __LINE__\n",
-        b"raise RuntimeError, <<~MSG\n  hello\nMSG\n",
-        b"raise RuntimeError, 'x'\np DATA.pos\n__END__\nraw\n",
-    ] {
-        unchanged(
-            dir.path(),
-            &["--only", REDUNDANT, "--fix", "lib/a.rb"],
-            before,
-            1,
-            [0, 0, 1],
-        );
-    }
-}
 fn rubies() -> Vec<String> {
     let mut result = Vec::new();
     if Command::new("ruby").arg("--version").output().is_ok() {

@@ -272,37 +272,6 @@ mod tests {
         );
     }
     #[test]
-    fn preserves_literal_spelling_headers_crlf_data_line_and_outer_bindings() {
-        for path in ["'file'", "%q(fi\\x6ce)", "\"fi\\x6ce\"", "\"a\nb\""] {
-            assert_correction(
-                &FileRead,
-                &format!("::File.open({path}).read.bytes\n"),
-                &format!("::File.read({path}).bytes\n"),
-            );
-        }
-        // This previously canonical fixture observes the exact bytes that the
-        // rewrite changes. Keep the offense, not the edit.
-        let own_source = "::File.open(__FILE__).read.bytes\n";
-        let found = correction_offenses(&FileRead, own_source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-        assert_correction(
-            &FileRead,
-            "\u{feff}# encoding: UTF-8\r\nx = File.open(\"fi\\x6ce\", 'rb', &:read) # keep\r\np __LINE__\r\n__END__\r\nraw\r\n",
-            "\u{feff}# encoding: UTF-8\r\nx = File.binread(\"fi\\x6ce\") # keep\r\np __LINE__\r\n__END__\r\nraw\r\n",
-        );
-        assert_correction(
-            &FileRead,
-            "consume(File.open('file') do |f|\n f.read\nend)\n",
-            "consume(File.read('file'))\n",
-        );
-        assert_correction(
-            &FileRead,
-            "File.open('file', \"r\\x62\").read\n",
-            "File.binread('file')\n",
-        );
-    }
-    #[test]
     fn cached_binding_safeguards_cover_defs_aliases_attributes_struct_data_and_eval() {
         for binding in [
             "File = Custom",

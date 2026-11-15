@@ -38,13 +38,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&FirstMethodParameterLineBreak, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source is accepted.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -216,35 +209,6 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
             "{after:?}"
         );
     }
-}
-
-#[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\ndef f(a,\n  b); end\n"));
-    }
-    held("def f(a,\n  b); end\nDATA.read\n__END__\nz\n");
-    held("def f(a,\n  b); end\np __LINE__\n");
-    // An earlier heredoc opener on the line would take the inserted break.
-    held("x = <<~A; def f(a,\n  body\nA\n  b); end\n");
-    // An opener after the insertion point moves with its line.
-    assert_eq!(
-        fixed("def f(a = <<~A, b = 1,\n  body\nA\n  c); end\n"),
-        "def f(\na = <<~A, b = 1,\n  body\nA\n  c); end\n"
-    );
-    assert_eq!(
-        fixed("y = 1\ndef f(a,\n  b); end\n"),
-        "y = 1\ndef f(\na,\n  b); end\n"
-    );
 }
 
 #[test]

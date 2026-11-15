@@ -124,10 +124,7 @@ mod tests {
     //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
 
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::assert_correction, pipeline::lint_str};
 
     fn offenses(source: &str) -> Vec<Offense> {
         lint_str(source)
@@ -233,16 +230,6 @@ mod tests {
             let after = before.replacen("::", ".", 1);
             assert_correction(&ColonMethodCall, before, &after);
         }
-    }
-
-    #[test]
-    fn unknown_proc_acquisition_retains_the_offense_without_an_edit() {
-        let found = correction_offenses(
-            &ColonMethodCall,
-            "object::method_name *args, **keywords, &block\n",
-        );
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
     }
 
     #[test]

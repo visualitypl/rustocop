@@ -401,28 +401,4 @@ mod tests {
             "obj.method(:is_a?).call(Object); obj.is_a?(Object)",
         );
     }
-    #[test]
-    fn selector_only_edits_preserve_arguments_blocks_comments_and_lines() {
-        for suffix in [
-            "",
-            "()",
-            "(String)",
-            " String",
-            "(*args, &nil)",
-            "(\n String # comment\n)",
-            "(String) { break :value }",
-            "(<<~RUBY)\nbody\nRUBY\n",
-        ] {
-            let before = format!("x&.kind_of?{suffix}");
-            let after = format!("x&.is_a?{suffix}");
-            assert_correction(&ClassCheck, &before, &after);
-        }
-        // Unknown proc acquisition is not a heap-safety proof. A real &parameter
-        // still exercises selector-only edits with named forwarding.
-        let before = "def f(&block); x&.kind_of?(*args, &block); end";
-        assert_correction(&ClassCheck, before, &before.replace("kind_of?", "is_a?"));
-        let found = correction_offenses(&ClassCheck, "x&.kind_of?(*args, &block)");
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-    }
 }

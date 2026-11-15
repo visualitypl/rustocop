@@ -337,36 +337,6 @@ fn bom_crlf_encoding_line_literals_and_data_bytes_survive() {
     }
 }
 #[test]
-fn controlled_ruby_binding_evaluation_and_line_observations_are_identical() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    let listed = "# coding: UTF-8\n# rubocop:push -Migration/Nonexistent\nvalues = []\n3.times do |n|\n  values << [n, __LINE__, \"é\".encoding.name]\nend\n# rubocop:pop\n# rustocop:disable Migration/Nonexistent\np [values, __LINE__, \"# rubocop:disable all\", DATA.read]\n# rustocop:enable Migration/Nonexistent\n__END__\npayload\n";
-    // Reading `DATA` is a listed observer: that file keeps its
-    // findings and bytes. The unread data section survives below.
-    fs::write(&path, listed).unwrap();
-    cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 1);
-    assert_eq!(fs::read_to_string(&path).unwrap(), listed);
-    let before = &listed.replace(", DATA.read]", "]");
-    fs::write(&path, before).unwrap();
-    let run = || {
-        let out = Command::new("ruby").arg(&path).output().unwrap();
-        assert!(out.status.success(), "{out:?}");
-        out.stdout
-    };
-    let original = run();
-    cli(dir.path(), &["--only", BAN, "--fix", "lib/a.rb"], 0);
-    let expected = before
-        .replace("# rubocop:push -Migration/Nonexistent", "")
-        .replace("# rubocop:pop", "")
-        .replace("# rustocop:disable Migration/Nonexistent", "")
-        .replace("# rustocop:enable Migration/Nonexistent", "");
-    assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
-    assert_eq!(run(), original);
-}
-#[test]
 fn stdin_uses_display_path_excludes_and_never_writes() {
     use std::{io::Write, process::Stdio};
     let dir = project();

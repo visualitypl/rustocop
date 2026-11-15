@@ -326,42 +326,6 @@ fn explicit_passes_stabilize_and_incompatible_companion_defers_atomically() {
         "begin\n  \"x\"\nrescue StandardError\n  \"y\"\nend\n"
     );
 }
-#[test]
-fn encoding_bom_crlf_line_data_observers_and_parse_errors_keep_their_contract() {
-    let dir = project();
-    let before = b"# coding: ASCII-8BIT\r\nbegin; \"\x82\"; rescue; nil; end\r\np __LINE__\r\n__END__\r\n\xff";
-    fs::write(dir.path().join("a.rb"), before).unwrap();
-    run(
-        dir.path(),
-        &["--only", STANDARD, "--fix", "a.rb"],
-        0,
-        [0, 0],
-    );
-    let mut after = before.to_vec();
-    let pos = after.windows(6).position(|s| s == b"rescue").unwrap() + 6;
-    after.splice(pos..pos, b" StandardError".iter().copied());
-    assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), after);
-    for source in [
-        b"DATA.pos; begin; work; rescue; handler; end\n__END__\npayload".as_slice(),
-        b"File.read(__FILE__); begin; work; rescue; handler; end\n",
-        b"module Existing; begin; work; rescue; handler; end; end\n",
-    ] {
-        unchanged(
-            dir.path(),
-            &["--only", STANDARD, "--fix", "a.rb"],
-            source,
-            1,
-            [0, 1],
-        );
-    }
-    unchanged(
-        dir.path(),
-        &["--only", BOTH, "--fix", "a.rb"],
-        b"begin ( rescue\n",
-        2,
-        [0, 0],
-    );
-}
 fn runtimes() -> Vec<String> {
     let mut result = Vec::new();
     if Command::new("ruby")

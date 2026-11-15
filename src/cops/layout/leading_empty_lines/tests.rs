@@ -149,23 +149,6 @@ fn shebang_and_encoding_lines_never_move_into_the_header() {
 }
 
 #[test]
-fn listed_observers_and_line_values_hold_the_removal() {
-    for source in [
-        "\np __FILE__\n",
-        "\np __dir__\n",
-        "\np $0\n",
-        "\np caller\n",
-        "\np DATA.read\n__END__\nx\n",
-        // Shared position barrier: an executable `__LINE__` after the edit.
-        "\np __LINE__\n",
-    ] {
-        held(source);
-    }
-    // DATA without a data section is not an observer.
-    assert_correction(&LeadingEmptyLines, "\np DATA\n", "p DATA\n");
-}
-
-#[test]
 fn metadata_is_fixed() {
     let cop = LeadingEmptyLines;
     assert!(cop.default_enabled() && cop.safe_fixes());

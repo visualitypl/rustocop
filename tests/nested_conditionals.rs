@@ -1,5 +1,4 @@
 //! real CLI controls, canonical corrections and controlled Ruby observations.
-use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
 const MODIFIER: &str = "Style/NestedModifier";
 const TERNARY: &str = "Style/NestedTernaryOperator";
@@ -424,44 +423,6 @@ fn runtime_ternary_hash_keys_in_bare_commands_keep_grouping() {
         let o = cli(d.path(), &["--only", TERNARY, "--fix", "a.rb"]);
         assert_eq!(o.status.code(), Some(0), "{source}: {o:?}");
         assert_ne!(fs::read_to_string(d.path().join("a.rb")).unwrap(), source);
-        observations_equal(d.path());
-    }
-}
-#[test]
-fn runtime_literals_encoding_bom_crlf_frozen_state_and_line_values() {
-    let body = r#"def f(a,b)
-  first=a ? (b ? "é\nline
-  b" : %q(c
- d)) : /e
- f/x
-  second=("value" if a if b)
-  [first,second].map { |v| [v.class.to_s,v.is_a?(Regexp) ? v.source.bytes : v.to_s.bytes,v.to_s.encoding.name,v.frozen?] }
-end
-p [true,false].product([true,false]).map { |a,b| f(a,b) }
-"#;
-    let d = project();
-    for frozen in ["true", "false"] {
-        for nl in ["\n", "\r\n"] {
-            let source =
-                format!("\u{feff}# coding: utf-8\n# frozen_string_literal: {frozen}\n{body}")
-                    .replace('\n', nl);
-            let source = source_getter::pattern_sibling(d.path(), "a.rb", &source, ALL);
-            fs::write(d.path().join("before.rb"), &source).unwrap();
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let o = cli(d.path(), &["--only", ALL, "--fix", "a.rb"]);
-            assert_eq!(o.status.code(), Some(0), "{o:?}");
-            assert_ne!(fs::read(d.path().join("a.rb")).unwrap(), source.as_bytes());
-            observations_equal(d.path());
-        }
-    }
-    for source in [
-        "p((__LINE__ if true if true))\np(true ? (false ? __LINE__ : 2) : 3)\np __LINE__\n",
-        "p((:body if (__LINE__ == 1 &&\n true) if (__LINE__ == 2 &&\n true)))\n",
-    ] {
-        fs::write(d.path().join("before.rb"), source).unwrap();
-        fs::write(d.path().join("a.rb"), source).unwrap();
-        let o = cli(d.path(), &["--only", ALL, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(1), "{o:?}");
         observations_equal(d.path());
     }
 }

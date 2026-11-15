@@ -181,22 +181,6 @@ mod tests {
         }
     }
     #[test]
-    fn retained_findings_at_global_observation_barriers() {
-        for source in [
-            "a + b * c; File.binread(__FILE__)",
-            "a + b * c; DATA.pos\n__END__\nraw\n",
-            "a + b * c; RubyVM::InstructionSequence.of(method(:f))",
-            "a + b * c; ObjectSpace.each_object { |o| p o }",
-        ] {
-            let found = crate::cops::testing::correction_offenses(
-                &super::AmbiguousOperatorPrecedence,
-                source,
-            );
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn pinned_no_offense_examples() {
         for source in [
             "a + b",

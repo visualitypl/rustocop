@@ -20,11 +20,8 @@ use settings::{Setting, Values};
 pub mod ast;
 pub mod bundler;
 pub(crate) mod code_object_safety;
-#[cfg(test)]
-mod correction_safety;
 pub mod depth;
 pub mod gemspec;
-mod heap_safety;
 pub mod layout;
 pub mod lint;
 pub mod metrics;
@@ -32,7 +29,6 @@ pub mod migration;
 pub mod name_similarity;
 pub mod naming;
 pub mod policy;
-mod position_safety;
 pub(crate) mod reparse;
 pub mod security;
 pub mod settings;
@@ -1417,7 +1413,9 @@ pub(crate) fn run_cops_with_corrections(
     panics
 }
 
-/// Apply the same safety barriers to ordinary and post-investigation batches.
+/// What ordinary and post-investigation batches share: the corrections that
+/// incompatible cops withhold, and whole heredocs. As `rubocop -a` does, an
+/// edit is applied whatever the program could observe of it.
 fn guard_corrections(
     cops: &[&dyn Cop],
     result: &ruby_prism::ParseResult<'_>,
@@ -1442,46 +1440,13 @@ fn guard_corrections(
             }
         }
     }
-    // One lazy main-parse proof covers source-, AST- and leave-oriented cops,
-    // including direct run_cops callers. Keep every diagnostic, but never emit
-    // text-changing edits when own-source/code/heap observations may escape.
     if !corrections_requested {
         for offense in emitted {
             offense.correction = None;
         }
-    } else if emitted.iter().any(|o| o.correction.is_some()) {
-        let proof = file.class_method_bindings(&result.node());
-        let raw = proof.observes_source_bytes();
-        let observers = file.code_object_facts(&result.node());
-        let code_objects = observers.acquired_or_uncertain;
-        let heap = observers.heap.observed();
-        let data_start = result.data_loc().map(|loc| loc.start_offset());
-        if has_heredoc {
-            file.heredoc_boundaries(&result.node())
-                .filter(&file.bytes, emitted);
-        }
-        // A program that executes nothing cannot observe anything at run
-        // time: its only statement is a closed top-level `if false ... end`
-        // and it has no data section. The runtime source/code-object/heap
-        // barriers are vacuous there; the listed observers still
-        // hold every edit, and position preservation is still required.
-        let inert = data_start.is_none()
-            && statically_inert(&result.node())
-            && !proof.has_listed_source_observer(false);
-        // A listed source observer anywhere in the
-        // file withholds every cop's correction, whatever the
-        // observation can reach. Findings are kept.
-        let listed =
-            proof.has_listed_source_observer(data_start.is_some()) || proof.observes_script_lines();
-        for offense in emitted {
-            if offense.correction.as_ref().is_some_and(|correction| {
-                listed
-                    || (!inert && (raw || code_objects || heap))
-                    || !proof.preserves_positions(correction, file, data_start)
-            }) {
-                offense.correction = None;
-            }
-        }
+    } else if has_heredoc && emitted.iter().any(|o| o.correction.is_some()) {
+        file.heredoc_boundaries(&result.node())
+            .filter(&file.bytes, emitted);
     }
 }
 

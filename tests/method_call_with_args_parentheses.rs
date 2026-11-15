@@ -164,44 +164,6 @@ fn clean_macro_operator_setter_forwarding_and_error_files_are_not_written() {
 }
 
 #[test]
-fn exact_bytes_bom_crlf_legacy_literals_data_and_individual_withholding() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (before, after, status) in [
-        (
-            "\u{feff}# encoding: UTF-8\r\nobject.consume \"café\",\r\n  __LINE__ # tail\r\n__END__\r\nraw\r\n".as_bytes(),
-            "\u{feff}# encoding: UTF-8\r\nobject.consume(\"café\",\r\n  __LINE__) # tail\r\n__END__\r\nraw\r\n".as_bytes(), 0,
-        ),
-        // Unresolved test flag/path tuples are metadata evidence, not a
-        // proven custom DSL. Keep the diagnostic and exact bytes instead.
-        (
-            "\u{feff}# encoding: UTF-8\r\nobject.test \"café\",\r\n  __LINE__ # tail\r\n__END__\r\nraw\r\n".as_bytes(),
-            "\u{feff}# encoding: UTF-8\r\nobject.test \"café\",\r\n  __LINE__ # tail\r\n__END__\r\nraw\r\n".as_bytes(), 1,
-        ),
-        (
-            b"# encoding: ISO-8859-1\r\n# caf\xe9\r\nobject.test __LINE__\r\n__END__\r\nraw\xff\r\n",
-            b"# encoding: ISO-8859-1\r\n# caf\xe9\r\nobject.test(__LINE__)\r\n__END__\r\nraw\xff\r\n", 0,
-        ),
-        // This span cannot be represented by Correction's UTF-8 String.
-        // Do not lossy-decode it, but still correct the independent next call.
-        (
-            b"# encoding: ISO-8859-1\r\nobject.test \"caf\xe9\"\r\nobject.test 1\r\n",
-            b"# encoding: ISO-8859-1\r\nobject.test \"caf\xe9\"\r\nobject.test(1)\r\n", 1,
-        ),
-    ] {
-        fs::write(&path, before).unwrap();
-        let output = cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::read(&path).unwrap(), after);
-        if status == 1 {
-            assert!(String::from_utf8_lossy(&output.stdout).contains("lib/a.rb:2:1:"));
-        }
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
-
-#[test]
 fn statement_only_arguments_and_separators_do_not_abort_independent_fixes() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");

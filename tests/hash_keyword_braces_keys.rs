@@ -178,41 +178,6 @@ fn directives_disabled_spans_and_independent_siblings() {
     );
 }
 #[test]
-fn clean_error_unsafe_merge_and_source_observers_never_write() {
-    let d = project();
-    for (s, code) in [
-        ("f(a: 1)\n", 0),
-        ("(\n", 2),
-        ("f(**{a: effect()}.merge(options))\n", 1),
-        ("f(**{a: 1}.merge({b: 2}))\n", 1),
-        ("f(**{a: 1}.merge({a: 2}) { |k,l,r| l })\n", 0),
-        ("f(**{a: 1}, &block)\n", 1),
-        ("f(**{a: 1,\n}, b: 2)\n", 1),
-        ("f(**{a: <<~X})\n#{g(1,2)}\nX\n", 1),
-        ("f(**{a: 1}); p DATA.pos\n__END__\nraw\n", 1),
-        ("f(**{a: 1}); p File.binread(__FILE__)\n", 1),
-        ("f(**{a: 1}); p method(:f).source_location\n", 1),
-        ("f(**{a: 1}); p ObjectSpace.count_objects\n", 1),
-        ("# shareable_constant_value: literal\nC={**{a: 1}}\n", 1),
-    ] {
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", BRACES, "--fix", "a.rb"],
-            code,
-        );
-    }
-    for s in [
-        "f(**{a: 1}.merge(options))\nf(**{b: 2})\n",
-        "f(**{a: 1,\n})\nf(**{b: 2})\n",
-    ] {
-        assert_eq!(
-            fix(d.path(), s.as_bytes(), Some(BRACES)),
-            s.replace("f(**{b: 2})", "f(b: 2)").as_bytes()
-        );
-    }
-}
-#[test]
 fn stdin_lints_but_rejected_fix_never_writes_either_cop() {
     use std::process::Stdio;
     let d = project();

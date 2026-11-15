@@ -204,15 +204,6 @@ fn order_keeping_tab_shifts_stay_corrected_with_identical_native_warnings() {
 }
 
 #[test]
-fn listed_source_observers_hold_tab_shift_corrections() {
-    let dir = project();
-    for observer in ["p __FILE__\n", "p $PROGRAM_NAME\n", "p caller\n"] {
-        let source = format!("{observer}{}", CORRECTED[0].0);
-        assert_untouched(dir.path(), source.as_bytes(), 1, &["--only", COP]);
-    }
-}
-
-#[test]
 fn whole_layout_composes_tab_shifts_to_a_stable_canonical_layout() {
     let dir = project();
     let path = dir.path().join("example.rb");

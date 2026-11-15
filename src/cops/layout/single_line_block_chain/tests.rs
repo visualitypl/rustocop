@@ -227,12 +227,6 @@ fn unsafe_insertions_are_withheld() {
 }
 
 #[test]
-fn line_values_are_held_by_the_shared_guard() {
-    held("a { }.b\np __LINE__\n");
-    assert_eq!(fixed("p __LINE__\na { }.b\n"), "p __LINE__\na { }\n.b\n");
-}
-
-#[test]
 fn chains_insert_one_break_per_block() {
     assert_eq!(fixed("a { }.b { }.c\n"), "a { }\n.b { }\n.c\n");
 }

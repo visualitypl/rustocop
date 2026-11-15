@@ -514,15 +514,6 @@ fn inexact_or_unsafe_rewrites_are_withheld() {
 }
 
 #[test]
-fn line_values_are_held_by_the_shared_guard() {
-    held("test do foo\nend\np __LINE__\n");
-    assert_eq!(
-        fixed("p __LINE__\ntest do foo\nend\n"),
-        "p __LINE__\ntest do \n  foo\nend\n"
-    );
-}
-
-#[test]
 fn upstream_pass_ordering_peers_are_not_declared() {
     assert!(
         MultilineBlockLayout::default()

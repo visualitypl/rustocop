@@ -40,13 +40,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&MultilineMethodParameterLineBreaks, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source is accepted.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -239,27 +232,4 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
             "{after:?}"
         );
     }
-}
-
-#[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\ndef f(a,\n  b, c); end\n"));
-    }
-    held("def f(a,\n  b, c); end\nDATA.read\n__END__\nz\n");
-    held("def f(a,\n  b, c); end\np __LINE__\n");
-    held("x = <<~A; def f(a, b,\n  body\nA\n  c); end\n");
-    assert_eq!(
-        fixed("y = 1\ndef f(a,\n  b, c); end\n"),
-        "y = 1\ndef f(a,\n  b, \nc); end\n"
-    );
 }

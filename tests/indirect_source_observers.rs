@@ -178,47 +178,6 @@ fn compound_assignment_proc_getters_preserve_observed_runtime_locations() {
 }
 
 #[test]
-fn harmless_static_symbol_dispatch_keeps_canonical_runtime_fixes() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    let path = dir.path().join("case.rb");
-    for (cop, declaration, expected, _) in CASES {
-        // The `:source_location` selector is a listed observer
-        // (conservatively, also as data): that file keeps its finding and
-        // bytes; the inert sibling below still corrects.
-        let listed = format!(
-            "{declaration}p [:backtrace, :full_message, :source_location].map(&((:\"to_s\").to_proc))\n"
-        );
-        fs::write(&path, &listed).unwrap();
-        let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(dir.path())
-            .args(["--only", cop, "--fix", "case.rb"])
-            .output()
-            .unwrap();
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert_eq!(fs::read_to_string(&path).unwrap(), listed);
-        let suffix =
-            "p [:backtrace, :full_message, :backtrace_locations].map(&((:\"to_s\").to_proc))\n";
-        fs::write(&path, format!("{declaration}{suffix}")).unwrap();
-        let before = ruby(&path, "load ARGV[0]");
-        let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(dir.path())
-            .args(["--only", cop, "--fix", "case.rb"])
-            .output()
-            .unwrap();
-        assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(
-            fs::read_to_string(&path).unwrap(),
-            format!("{expected}{suffix}")
-        );
-        assert_eq!(ruby(&path, "load ARGV[0]"), before);
-    }
-}
-#[test]
 fn unsafe_newline_edits_do_not_block_independent_style_layout_corrections() {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();

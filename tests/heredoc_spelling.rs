@@ -232,49 +232,6 @@ fn source_only_commands_are_never_converted_or_executed() {
     }
 }
 #[test]
-fn stronger_safety_keeps_individual_offenses_clean_and_error_files_unwritten() {
-    let dir = project();
-    for (cop, source, status) in [
-        (Q, "p <<~'123'\ntext\n123\n", 1),
-        (Q, "p <<~' EOS '\ntext\n EOS \n", 1),
-        (H, "p <<~EOS\nEOS\np __LINE__\n", 1),
-        (
-            H,
-            "p <<~EOS\nEOS\n# frozen_string_literal: true\np 'x'\n",
-            1,
-        ),
-        (H, "p <<~EOS # rubocop:disable Layout\nEOS\n", 1),
-        (E, "p \"\\\\#\\{not_run}\"\n", 1),
-        (ALL, "p \"hi\"\n", 0),
-        (ALL, "p <<~EOS\n", 2),
-    ] {
-        unchanged(dir.path(), cop, source.as_bytes(), status);
-    }
-    for (cop, before, _) in CASES {
-        for observer in [
-            "p __FILE__",
-            "p method(:p).source_location",
-            "p errors.map(&:backtrace_locations)",
-            "p File.binread($0)",
-            "p RubyVM::AbstractSyntaxTree",
-            "p ObjectSpace.each_object(String).count",
-        ] {
-            unchanged(
-                dir.path(),
-                cop,
-                format!("{before}{observer}\n").as_bytes(),
-                1,
-            );
-        }
-        unchanged(
-            dir.path(),
-            cop,
-            format!("{before}p DATA.pos; p DATA.read.bytes\n__END__\nraw\n").as_bytes(),
-            1,
-        );
-    }
-}
-#[test]
 fn bom_crlf_data_and_line_sensitive_siblings_remain_exact() {
     let dir = project();
     let before = "\u{feff}# encoding: UTF-8\r\np <<~'EOS'\r\n  café\r\nEOS\r\np \"\\#\"\r\np <<~EMPTY\r\nEMPTY\r\np __LINE__\r\n__END__\r\nraw\\payload\r\n";

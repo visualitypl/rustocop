@@ -35,19 +35,6 @@ pub(crate) fn assert_correction(cop: &dyn Cop, before: &str, after: &str) {
     );
 }
 
-/// A listed source observer in `source`
-/// withholds every correction of the cop; its findings stay.
-pub(crate) fn assert_listed_hold(cop: &dyn Cop, source: &str) {
-    assert!(cop.safe_fixes(), "{} must opt in to safe fixes", cop.name());
-    let offenses = correction_offenses(cop, source);
-    assert!(!offenses.is_empty(), "{}: {source}", cop.name());
-    assert!(
-        offenses.iter().all(|o| o.correction.is_none()),
-        "{}: {source}",
-        cop.name()
-    );
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -624,40 +624,6 @@ fn both_prefixes_multiline_next_push_scopes_and_withheld_bytes() {
     }
 }
 #[test]
-fn source_envelopes_and_shared_source_code_heap_position_barriers() {
-    let d = project();
-    for (before,after) in [
-        (b"\xEF\xBB\xBF0\r\n# rustocop:enable Layout/LineLength\r\n".as_slice(), b"\xEF\xBB\xBF0\r\n".as_slice()),
-        (b"# coding: shift_jis\n'\x82\xA0'\n# rubocop:enable Layout/LineLength\n", b"# coding: shift_jis\n'\x82\xA0'\n"),
-        (b"x = <<~H\n# rubocop:enable Layout/LineLength\nH\n# rubocop:enable Layout/LineLength\n", b"x = <<~H\n# rubocop:enable Layout/LineLength\nH\n"),
-        (b"__END__\n# rubocop:enable Layout/LineLength\n", b"__END__\n# rubocop:enable Layout/LineLength\n"),
-        (b"# rubocop:enable Layout/LineLength\np __LINE__\n", b"\np __LINE__\n"),
-    ] { fix(d.path(), before, after); }
-    for observer in [
-        "p File.binread(__FILE__)",
-        "p DATA.pos\n__END__\nraw",
-        "p ObjectSpace.count_objects",
-        "p GC.stat",
-        "p RubyVM::InstructionSequence.of(-> {}).to_a",
-        "p RubyVM::AbstractSyntaxTree.of(-> {}).first_column",
-        "RubyVM.keep_script_lines = true; p retained.script_lines",
-    ] {
-        let s = format!("# rubocop:enable Layout/LineLength\n{observer}\n");
-        fix(d.path(), s.as_bytes(), s.as_bytes());
-        cli(d.path(), &["--only", COP, "lib/a.rb"], 1);
-    }
-    let broken = b"# rubocop:enable Layout/LineLength\ndef broken(\n";
-    let path = d.path().join("lib/a.rb");
-    fs::write(&path, broken).unwrap();
-    let old = fs::metadata(&path).unwrap();
-    cli(d.path(), &["--only", COP, "--fix", "lib/a.rb"], 2);
-    assert_eq!(fs::read(&path).unwrap(), broken);
-    assert_eq!(
-        fs::metadata(&path).unwrap().modified().unwrap(),
-        old.modified().unwrap()
-    );
-}
-#[test]
 fn controlled_native_ruby34_bindings_values_control_and_comments() {
     let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;

@@ -249,23 +249,6 @@ fn source_envelopes_literals_lines_data_payload_and_legacy_bytes_are_preserved()
     }
 }
 #[test]
-fn source_observation_and_multiline_holds_keep_findings_and_bytes() {
-    let dir = project();
-    for source in [
-        "def f\nreturn nil\nend\np DATA.pos\n__END__\npayload\n",
-        "def f\nreturn nil\nend\np File.read(__FILE__)\n",
-        "def f\nreturn \\\n nil\nend\np __LINE__\n",
-    ] {
-        unchanged(
-            dir.path(),
-            &["--only", RETURN, "--fix", "a.rb"],
-            source.as_bytes(),
-            1,
-            [1, 0],
-        );
-    }
-}
-#[test]
 fn clean_unsafe_and_syntax_error_inputs_are_not_rewritten() {
     let dir = project();
     unchanged(

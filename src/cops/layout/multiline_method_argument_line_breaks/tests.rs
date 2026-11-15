@@ -306,30 +306,3 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
         );
     }
 }
-
-#[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\nfoo(1,\n  2, 3)\n"));
-    }
-    held("foo(1,\n  2, 3)\nDATA.read\n__END__\nz\n");
-    held("foo(1,\n  2, 3)\np __LINE__\n");
-    held("x = <<~A; foo(1, 2,\n  body\nA\n  3)\n");
-    // A heredoc opener as the reported argument.
-    held("foo(1,\n  2, <<~A)\n  t\nA\n");
-    // The inherited code-object barrier: `&b` calls an unknown `to_proc`.
-    held("foo(1,\n  2, &b)\n");
-    assert_eq!(
-        fixed("y = 1\nfoo(1,\n  2, 3)\n"),
-        "y = 1\nfoo(1,\n  2, \n3)\n"
-    );
-}

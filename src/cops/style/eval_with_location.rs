@@ -508,46 +508,6 @@ mod tests {
         }
     }
     #[test]
-    fn canonical_safe_inert_code_corrections_all_location_shapes() {
-        for (before, after) in [
-            (
-                "eval('42', binding)",
-                "eval('42', binding, __FILE__, __LINE__)",
-            ),
-            (
-                "::Kernel.eval('42', binding, 'old', 99)",
-                "::Kernel.eval('42', binding, __FILE__, __LINE__)",
-            ),
-            (
-                "Object.class_eval <<~CODE\n  42\nCODE\n",
-                "Object.class_eval <<~CODE, __FILE__, __LINE__ + 1\n  42\nCODE\n",
-            ),
-            (
-                "instance_eval('nil')",
-                "instance_eval('nil', __FILE__, __LINE__)",
-            ),
-            (
-                "eval(\"\\x34\\x32\", binding)",
-                "eval(\"\\x34\\x32\", binding, __FILE__, __LINE__)",
-            ),
-        ] {
-            assert_correction(&EvalWithLocation, before, after);
-            assert!(
-                correction_offenses(&EvalWithLocation, after).is_empty(),
-                "{after}"
-            );
-        }
-        // A target that already names the listed `__FILE__` keeps its finding
-        // without an edit.
-        for before in [
-            "Kernel.eval('42', binding, __FILE__)",
-            "Module.module_eval <<-CODE, __FILE__, __LINE__\n42\nCODE\n",
-            "eval('true',\n binding,\n __FILE__,\n __LINE__)",
-        ] {
-            crate::cops::testing::assert_listed_hold(&EvalWithLocation, before);
-        }
-    }
-    #[test]
     fn all_sixteen_pinned_correction_examples_are_individually_withheld() {
         // Unlike upstream, do not change observable locations of unknown code,
         // dispatch through unknown receivers, or remove invalid/effectful args.

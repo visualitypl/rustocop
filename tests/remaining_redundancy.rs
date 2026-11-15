@@ -9,7 +9,6 @@ use std::{
 const EMPTY: &str = "Style/EmptyMethod";
 const BASE: &str = "Style/RedundantConstantBase";
 const FETCH: &str = "Style/RedundantFetchBlock";
-const ALL: &str = "Style/EmptyMethod,Style/RedundantConstantBase,Style/RedundantFetchBlock";
 const CASES: [(&str, &str); 3] = [
     (EMPTY, "def f\nend\n"),
     (BASE, "::A\n"),
@@ -279,48 +278,6 @@ fn line_length_dependency_uses_config_not_selection() {
         source.as_bytes(),
         b"def long_name(a, b, c); end\n",
     );
-}
-#[test]
-fn byte_exact_bom_crlf_encoding_payload_and_line_preservation() {
-    let d = project();
-    for (before, after) in [
-        (
-            "\u{feff}# encoding: UTF-8\r\ndef f(a = \"café  x\")\r\nend\r\n__END__\r\nraw\0ÿ\r\n"
-                .as_bytes(),
-            "\u{feff}# encoding: UTF-8\r\ndef f(a = \"café  x\"); end\r\n__END__\r\nraw\0ÿ\r\n"
-                .as_bytes(),
-        ),
-        (
-            b"# encoding: ISO-8859-1\r\n::A # caf\xe9\r\np __LINE__\r\n__END__\r\nraw\xff\r\n",
-            b"# encoding: ISO-8859-1\r\nA # caf\xe9\r\np __LINE__\r\n__END__\r\nraw\xff\r\n",
-        ),
-        (b"def f\r\nend\r\np 42\r\n", b"def f; end\r\n\r\np 42\r\n"),
-    ] {
-        fixed(d.path(), ALL, before, after);
-    }
-    unchanged(
-        d.path(),
-        b"# encoding: ISO-8859-1\ndef f(a = 'caf\xe9')\nend\n",
-        &["--only", EMPTY, "--fix", "a.rb"],
-        1,
-    );
-    for source in [
-        "def f\nend\np __LINE__\n",
-        "def f\nend # frozen_string_literal: true\n",
-        "def f(a = <<~TEXT)\n  text\nTEXT\nend\n",
-        "def f\nend\np DATA.pos\n__END__\nraw\n",
-        "::A\np DATA.pos\n__END__\nraw\n",
-        "::A\np File.binread(__FILE__)\n",
-        "def f\nend\np method(:f).source_location\n",
-        "class << self\n ::A\nend\n",
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", ALL, "--fix", "a.rb"],
-            1,
-        );
-    }
 }
 fn rubies() -> Vec<String> {
     ["ruby", "/opt/ruby34/bin/ruby"]

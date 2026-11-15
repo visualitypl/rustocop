@@ -274,45 +274,6 @@ fn controlled_frozen_mutable_encoding_and_identity_observations_survive_unfreeze
     }
 }
 #[test]
-fn allocation_observers_preserve_counts_and_files_for_both_allocating_wrappers() {
-    let d = project();
-    for expr in ["\"#{12}\".dup", "String.new(\"#{12}\")"] {
-        let observer = "p ObjectSpace.count_objects.fetch(\"T_STRING\".to_sym)\n";
-        let source = format!("a = {expr}\n{observer}");
-        unchanged(d.path(), U, source.as_bytes(), 1);
-        if !has_ruby() {
-            continue;
-        }
-        let run = || {
-            let o = Command::new("ruby")
-                .args(["--disable-gems", "a.rb"])
-                .current_dir(d.path())
-                .output()
-                .unwrap();
-            assert!(o.status.success(), "{o:?}");
-            String::from_utf8(o.stdout)
-                .unwrap()
-                .trim()
-                .parse::<usize>()
-                .unwrap()
-        };
-        // Controlled harmless programs only. Verify the rejected rewrite really
-        // changes observable allocation, not merely that both versions parse.
-        for _ in 0..3 {
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let original = run();
-            cli(d.path(), &["--only", U, "--fix", "a.rb"], 1);
-            assert_eq!(run(), original);
-            fs::write(
-                d.path().join("a.rb"),
-                format!("a = \"#{{12}}\"\n{observer}"),
-            )
-            .unwrap();
-            assert!(original > run(), "{expr}");
-        }
-    }
-}
-#[test]
 fn heredoc_indent_and_boundary_ownership_are_preserved_without_command_execution() {
     let d = project();
     for (source, after) in [

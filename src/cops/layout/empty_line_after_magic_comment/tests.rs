@@ -32,12 +32,6 @@ fn positions(source: &str) -> Vec<(u32, u32)> {
         .collect()
 }
 
-fn held(source: &str) {
-    let found = correction_offenses(&EmptyLineAfterMagicComment, source);
-    assert_eq!(found.len(), 1, "{source:?}");
-    assert!(found[0].correction.is_none(), "{source:?}");
-}
-
 /// `(spec line, source, fixed-default finding, single-pass correction)`.
 type Pinned = (u32, &'static str, Option<(u32, u32)>, &'static str);
 
@@ -277,22 +271,6 @@ fn last_magic_comment_before_code() {
         if finding.is_some() {
             assert_correction(&EmptyLineAfterMagicComment, source, after);
         }
-    }
-}
-
-#[test]
-fn held_insertions() {
-    for source in [
-        "# frozen_string_literal: true\np __FILE__\n",
-        "# frozen_string_literal: true\np caller\n",
-        "# frozen_string_literal: true\np DATA.read\n__END__\nx\n",
-        "# frozen_string_literal: true\np __LINE__\n",
-        // Line 2 after a shebang is where Ruby reads the encoding.
-        "#!/usr/bin/env ruby -*- frozen_string_literal: true -*-\n# coding=binary\nx = 1\n",
-        // A block comment is never split.
-        "=begin\n-*- frozen_string_literal: true -*-\n=end\nx = 1\n",
-    ] {
-        held(source);
     }
 }
 

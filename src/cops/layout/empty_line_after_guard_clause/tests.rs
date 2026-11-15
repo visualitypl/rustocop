@@ -527,17 +527,6 @@ fn heredoc_guards() {
 }
 
 #[test]
-fn held_insertions() {
-    for source in [
-        "def f\n  return if x\n  y\nend\np __FILE__\n",
-        "def f\n  return if x\n  y\nend\np caller_locations\n",
-        "def f\n  return if x\n  y\nend\np __LINE__\n",
-    ] {
-        held(source);
-    }
-}
-
-#[test]
 fn metadata_is_fixed() {
     let cop = EmptyLineAfterGuardClause;
     assert!(cop.default_enabled() && cop.safe_fixes());

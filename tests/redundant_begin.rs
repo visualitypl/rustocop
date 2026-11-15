@@ -267,39 +267,6 @@ fn line_length_dependency_is_configured_not_selected() {
     }
 }
 #[test]
-fn source_envelopes_and_observers_preserve_bytes_and_execution_lines() {
-    let dir = project();
-    for (before, after) in [
-        (
-            b"\xef\xbb\xbfbegin\r\n  1\r\nend\r\np __LINE__\r\n__END__\r\npayload\xff".as_slice(),
-            b"\xef\xbb\xbf\r\n  1\r\n\r\np __LINE__\r\n__END__\r\npayload\xff".as_slice(),
-        ),
-        (
-            b"# coding: ASCII-8BIT\r\nbegin; 1; end\r\n\"\x82\"\r\n",
-            b"# coding: ASCII-8BIT\r\n; 1; \r\n\"\x82\"\r\n",
-        ),
-    ] {
-        fs::write(dir.path().join("a.rb"), before).unwrap();
-        run(dir.path(), &["--only", COP, "--fix", "a.rb"], 0, 0);
-        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), after);
-    }
-    for source in [
-        b"DATA.pos; begin; work; end\n__END__\npayload".as_slice(),
-        b"File.read(__FILE__); begin; work; end\n",
-        b"# coding: ASCII-8BIT\nbegin; \"\x82\"; end\n",
-        b"begin # frozen_string_literal: true\n 'x'\nend\n",
-    ] {
-        unchanged(dir.path(), &["--only", COP, "--fix", "a.rb"], source, 1, 1);
-    }
-    unchanged(
-        dir.path(),
-        &["--only", COP, "--fix", "a.rb"],
-        b"begin (\n",
-        2,
-        0,
-    );
-}
-#[test]
 fn incompatible_peer_and_mixed_style_layout_passes_are_deterministic() {
     let dir = project();
     unchanged(

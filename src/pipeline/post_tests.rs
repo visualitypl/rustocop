@@ -685,29 +685,3 @@ fn post_corrections_use_atomic_validation_and_preserve_symlink_permissions() {
         }
     }
 }
-
-#[test]
-fn post_corrections_obey_intent_shared_source_code_heap_and_position_barriers() {
-    let post = PostFinding {
-        panic: false,
-        fix: true,
-    };
-    assert!(lint_str_with(&[&post], "before\n")[0].correction.is_none());
-    assert!(
-        lint_str_with_corrections(&[&post], "before\n")[0]
-            .correction
-            .is_some()
-    );
-    for observer in [
-        "p File.binread(__FILE__)",
-        "p RubyVM::InstructionSequence.of(-> {}).to_a",
-        "p ObjectSpace.count_objects",
-        "p GC.stat",
-        "DATA.rewind; p DATA.read\n__END__\npayload",
-    ] {
-        let source = format!("before\n{observer}\n");
-        let found = lint_str_with_corrections(&[&post], &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-}

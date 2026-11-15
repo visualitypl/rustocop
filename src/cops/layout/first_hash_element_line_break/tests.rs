@@ -231,29 +231,6 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
 }
 
 #[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\nx = {{ a: 1,\n  b: 2 }}\n"));
-    }
-    held("x = { a: 1,\n  b: 2 }\nDATA.read\n__END__\nz\n");
-    held("x = { a: 1,\n  b: 2 }\np __LINE__\n");
-    held("foo(<<~A, { a: 1,\n  body\nA\n  b: 2 })\n");
-    assert_eq!(
-        fixed("y = 1\nx = { a: 1,\n  b: 2 }\n"),
-        "y = 1\nx = { \na: 1,\n  b: 2 }\n"
-    );
-}
-
-#[test]
 fn findings_only_without_requested_corrections() {
     let offenses = lint_str_with(&[&FirstHashElementLineBreak], "x = { a: 1,\n  b: 2 }\n");
     assert_eq!(offenses.len(), 1);

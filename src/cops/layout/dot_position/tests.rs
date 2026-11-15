@@ -368,17 +368,6 @@ fn listed_source_observers_hold_the_edit() {
 }
 
 #[test]
-fn line_number_observers_hold_a_removed_dot_line() {
-    // Moving a lone dot removes a physical line; a later `__LINE__` keeps the
-    // finding without the edit, while an in-line move still corrects.
-    let source = "a\n  .b\n  .\n  c\np __LINE__\n";
-    let found = correction_offenses(&DotPosition, source);
-    assert_eq!(found.len(), 1);
-    assert!(found[0].correction.is_none());
-    assert_eq!(fixed("a.\n  c\np __LINE__\n"), "a\n  .c\np __LINE__\n");
-}
-
-#[test]
 fn findings_only_without_requested_corrections() {
     let offenses: Vec<_> = lint_str("a.\n  b\n")
         .into_iter()

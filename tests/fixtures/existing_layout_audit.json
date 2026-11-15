@@ -39,8 +39,7 @@
     "Layout/EmptyLines": {
       "expectations": 6,
       "applicable": 6,
-      "excluded": {
-      }
+      "excluded": {}
     },
     "Layout/EmptyLinesAroundClassBody": {
       "expectations": 46,
@@ -56,8 +55,7 @@
     "Layout/EmptyLinesAroundMethodBody": {
       "expectations": 15,
       "applicable": 15,
-      "excluded": {
-      }
+      "excluded": {}
     },
     "Layout/EmptyLinesAroundModuleBody": {
       "expectations": 37,
@@ -162,8 +160,7 @@
     "Layout/SpaceBeforeComma": {
       "expectations": 6,
       "applicable": 6,
-      "excluded": {
-      }
+      "excluded": {}
     },
     "Layout/SpaceInsideArrayLiteralBrackets": {
       "expectations": 102,
@@ -3121,16 +3118,20 @@
         97,
         99,
         104,
+        32,
         123,
+        32,
         124,
         120,
         124,
+        32,
         112,
         117,
         116,
         115,
         32,
         120,
+        32,
         125,
         10,
         105,
@@ -3146,11 +3147,9 @@
         32,
         123,
         32,
-        32,
         124,
         120,
         124,
-        32,
         32,
         112,
         117,
@@ -3158,7 +3157,6 @@
         115,
         32,
         120,
-        32,
         32,
         125,
         10,
@@ -3171,8 +3169,8 @@
         109,
         97,
         112,
-        123,
         32,
+        123,
         125,
         10,
         108,
@@ -3186,8 +3184,11 @@
         40,
         120,
         41,
+        32,
         123,
+        32,
         120,
+        32,
         125,
         10,
         104,
@@ -3195,15 +3196,19 @@
         61,
         32,
         123,
+        32,
         97,
         58,
         32,
         123,
+        32,
         98,
         58,
         32,
         49,
+        32,
         125,
+        32,
         125,
         10,
         101,
@@ -3211,7 +3216,6 @@
         61,
         32,
         123,
-        32,
         125,
         10,
         97,
@@ -3221,7 +3225,6 @@
         61,
         32,
         91,
-        32,
         91,
         49,
         44,
@@ -3231,25 +3234,19 @@
         44,
         32,
         91,
-        32,
         93,
-        32,
         93,
         10,
         102,
         111,
         111,
         40,
-        32,
         98,
         97,
         114,
         40,
-        32,
         49,
-        32,
         41,
-        32,
         41,
         10,
         109,
@@ -3263,14 +3260,10 @@
         105,
         120,
         91,
-        32,
         49,
-        32,
         93,
         91,
-        32,
         50,
-        32,
         93,
         10,
         99,
@@ -3284,6 +3277,7 @@
         103,
         115,
         44,
+        32,
         42,
         42,
         111,
@@ -3291,14 +3285,14 @@
         116,
         115,
         44,
+        32,
         38,
         98,
         108,
         107,
         41,
         10
-      ],
-      "reason": "the inherited code-object/heap barrier withholds every edit in a file with an unknown block pass (`&blk`); all findings are kept and the file is not written."
+      ]
     },
     {
       "name": "05_whitespace_heredoc",
@@ -10057,9 +10051,7 @@
         114,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         116,
         111,
@@ -10175,9 +10167,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         116,
         111,
@@ -11690,14 +11680,11 @@
         61,
         32,
         91,
-        32,
         49,
         44,
+        32,
         50,
-        32,
         93,
-        32,
-        32,
         10,
         112,
         117,
@@ -11754,8 +11741,7 @@
         98,
         10,
         10
-      ],
-      "reason": "`DATA` with an `__END__` data section is a listed source observer; every correction of the audited cops is withheld (findings kept, file not written)."
+      ]
     },
     {
       "name": "21_comments",
@@ -11894,9 +11880,7 @@
         100,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         99,
         108,
@@ -12031,9 +12015,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         99,
         108,
@@ -14980,9 +14962,7 @@
         125,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         114,
         101,
@@ -15050,9 +15030,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         114,
         101,
@@ -16805,9 +16783,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         35,
         32,
@@ -17590,9 +17566,7 @@
         96,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         97,
         32,
@@ -17671,9 +17645,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         97,
         32,
@@ -20483,9 +20455,7 @@
         49,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         120,
         32,
@@ -20495,9 +20465,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         120,
         32,
@@ -20670,11 +20638,10 @@
         61,
         32,
         91,
-        32,
         49,
         44,
-        50,
         32,
+        50,
         93,
         10,
         112,
@@ -20699,22 +20666,21 @@
         10,
         32,
         32,
-        32,
-        32,
         121,
         32,
         61,
         32,
         97,
+        32,
         43,
+        32,
         98,
         10,
         101,
         110,
         100,
         10
-      ],
-      "reason": "`__FILE__` is a listed source observer; every correction of the audited cops is withheld (findings kept, file not written)."
+      ]
     },
     {
       "name": "53_caller",
@@ -20856,8 +20822,6 @@
         10,
         32,
         32,
-        32,
-        32,
         99,
         97,
         108,
@@ -20890,13 +20854,10 @@
         61,
         32,
         91,
-        32,
         49,
-        32,
         93,
         10
-      ],
-      "reason": "`caller_locations` is a listed source observer; every correction of the audited cops is withheld (findings kept, file not written)."
+      ]
     },
     {
       "name": "60_ll_shortened",
@@ -22798,9 +22759,7 @@
         34,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         116,
         101,
@@ -23080,9 +23039,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         116,
         101,
@@ -25125,9 +25082,7 @@
         41,
         10
       ],
-      "findings": [
-
-      ],
+      "findings": [],
       "upstream_after": [
         116,
         111,
@@ -25228,9 +25183,7 @@
         10
       ],
       "upstream_ast_equal": true,
-      "project_findings": [
-
-      ],
+      "project_findings": [],
       "project_after": [
         116,
         111,

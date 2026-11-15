@@ -182,39 +182,6 @@ fn canonical_removals() {
 }
 
 #[test]
-fn removals_that_would_change_tokens_literals_or_headers_are_held() {
-    for source in [
-        // `foo -#\n1` is `foo(-1)`; `foo -\n1` is `foo - 1`.
-        "foo -#\n1\n",
-        "foo *#\nargs\n",
-        "foo &#\nblock\n",
-        // The blank before the comment closes the `%q` literal.
-        "x = %q x #\n",
-        "x = %q x\n #\n",
-        // Removing line 1 or 2 would make a shebang or move a coding comment
-        // into the lines Ruby reads it from.
-        "  #\n#!ruby -w\nx = 1\n",
-        "#!/usr/bin/env ruby\n  #\n# encoding: binary\nx = 'a'\n",
-        "  #\n\n# -*- coding: binary -*-\n",
-        // Removals that together move a coding comment or a shebang into
-        // lines 1-2 (each alone keeps it on line 3 or later).
-        "#\n #\n  #\n# coding: binary\np \"\u{e9}\".encoding\n",
-        "#!ruby\n #\n  #\n# coding: binary\n",
-        "#\n #\n#!ruby -w\n",
-        // Removing the line would join the backslash continuation with the
-        // next line: `x = 1 \` + `+ 2` is `x = 1 + 2`.
-        "x = 1 \\\n  #\n+ 2\np x\n",
-        "x = 1 \\\r\n#\r\n+ 2\r\n",
-        // A later __LINE__ would change (shared position barrier).
-        "#\np __LINE__\n",
-        // A whole line inside heredoc interpolation (shared heredoc proof).
-        "x = <<~A\n  #{\n  #\n  }\nA\n",
-    ] {
-        held(source);
-    }
-}
-
-#[test]
 fn listed_source_observers_hold_the_edit() {
     for observer in [
         "p __FILE__",

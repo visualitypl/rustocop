@@ -339,60 +339,6 @@ fn qualified_names_are_valid_but_do_not_change_literal_suppression() {
     }
 }
 #[test]
-fn source_envelopes_encoding_and_global_observers_use_existing_guards() {
-    let dir = project();
-    for (before, after) in [
-        (
-            format!("\u{feff}{BEFORE}p __LINE__\n"),
-            format!("\u{feff}{AFTER}p __LINE__\n"),
-        ),
-        (
-            format!("{}p __LINE__\r\n", BEFORE.replace('\n', "\r\n")),
-            format!("{}p __LINE__\r\n", AFTER.replace('\n', "\r\n")),
-        ),
-        (
-            format!("p <<~H\n{BEFORE}H\n{BEFORE}"),
-            format!("p <<~H\n{BEFORE}H\n{AFTER}"),
-        ),
-        (
-            "# rubocop:disable Style/For -- encoding: binary # rubocop:disable Style/For\n".into(),
-            "# rubocop:disable Style/For -- encoding: binary # rubocop:disable Style/For\n".into(),
-        ),
-    ] {
-        fix(dir.path(), before.as_bytes(), after.as_bytes());
-    }
-    let before = [
-        b"# coding: ISO-8859-1\n# legacy \xe9\n".as_slice(),
-        BEFORE.as_bytes(),
-        b"p __LINE__\n",
-    ]
-    .concat();
-    let after = [
-        b"# coding: ISO-8859-1\n# legacy \xe9\n".as_slice(),
-        AFTER.as_bytes(),
-        b"p __LINE__\n",
-    ]
-    .concat();
-    fix(dir.path(), &before, &after);
-    fix(
-        dir.path(),
-        format!("{BEFORE}p 1\n__END__\nraw\n").as_bytes(),
-        format!("{AFTER}p 1\n__END__\nraw\n").as_bytes(),
-    );
-    // Reading `DATA` is a listed observer.
-    for observer in [
-        "p DATA.read\n__END__\nraw\n",
-        "p File.binread(__FILE__)\n",
-        "p DATA.pos\n__END__\nraw\n",
-        "p RubyVM::InstructionSequence.of(method(:f))\ndef f; 1; end\n",
-        "p ObjectSpace.count_objects\n",
-        "p retained.source\n",
-    ] {
-        let source = format!("{BEFORE}{observer}");
-        fix(dir.path(), source.as_bytes(), source.as_bytes());
-    }
-}
-#[test]
 fn suppression_changing_merges_are_withheld_even_for_clean_unselected_or_disabled_targets() {
     let dir = project();
     for config in [

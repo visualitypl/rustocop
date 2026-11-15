@@ -206,26 +206,6 @@ fn bom_crlf_legacy_encoding_frozen_line_data_and_command_contents() {
         assert_eq!(fixed, expected);
     }
 }
-#[test]
-fn individual_offenses_remain_when_shared_source_metadata_heap_or_data_guards_withhold() {
-    let d = project();
-    for suffix in [
-        "p DATA.pos\n__END__\ndata\n",
-        "p File.binread(__FILE__)\n",
-        "p RubyVM::AbstractSyntaxTree\n",
-        "p ObjectSpace.count_objects\n",
-    ] {
-        let source = format!("[1, \\\n 2]\n{suffix}");
-        let out = unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-        assert!(String::from_utf8_lossy(&out.stdout).contains(COP));
-    }
-}
-
 // Parse-only independent Prism 3.4 comparison: all node fields/flags, scopes,
 // decoded bytes and encodings. No command literals are evaluated.
 const PRISM_SHAPE: &str = r#"

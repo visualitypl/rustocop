@@ -218,29 +218,6 @@ fn canonical_and_every_pinned_nested_correction_converge_explicitly() {
 }
 
 #[test]
-fn detection_only_and_uncertain_edits_preserve_bytes_mtime_and_permissions() {
-    let dir = project();
-    for source in [
-        "x =- y\nx =+ y\nx =* y\nx =! y\n",
-        "a + b * c; File.binread(__FILE__)\n",
-        "a + b * c; DATA.pos\n__END__\nraw\n",
-        "a + b * c; RubyVM::InstructionSequence.of(method(:f))\n",
-        "a + b * c; ObjectSpace.each_object { |o| p o }\n",
-    ] {
-        fix(dir.path(), source.as_bytes(), source.as_bytes(), 1);
-    }
-    let legacy = b"# encoding: Windows-1252\nx + \"\xe9\" * 2\n";
-    fix(dir.path(), legacy, legacy, 1);
-    // An unrelated UTF-8 expression in that same file still corrects.
-    fix(
-        dir.path(),
-        b"# encoding: Windows-1252\nx + \"\xe9\" * 2\na + b * c\n",
-        b"# encoding: Windows-1252\nx + \"\xe9\" * 2\na + (b * c)\n",
-        1,
-    );
-}
-
-#[test]
 fn comments_bom_crlf_line_data_and_heredoc_values() {
     let dir = project();
     fix(dir.path(), b"\xef\xbb\xbf# encoding: utf-8\r\na + b * # keep\r\n c # tail\r\np __LINE__\r\n__END__\r\nraw\x00\r\n", b"\xef\xbb\xbf# encoding: utf-8\r\na + (b * # keep\r\n c) # tail\r\np __LINE__\r\n__END__\r\nraw\x00\r\n", 0);

@@ -268,46 +268,6 @@ mod tests {
         }
     }
     #[test]
-    fn canonical_correction_and_uncertain_context_holds() {
-        use super::ParenthesesAsGroupedExpression;
-        use crate::cops::testing::{assert_correction, assert_listed_hold, correction_offenses};
-        for (before, after) in [
-            ("a.func (x)\n", "a.func(x)\n"),
-            ("is? \t (x)\n", "is?(x)\n"),
-            ("a&.func (x)\n", "a&.func(x)\n"),
-            ("foo (42)\n", "foo(42)\n"),
-            ("foo (1.5)\n", "foo(1.5)\n"),
-            ("foo (nil)\n", "foo(nil)\n"),
-            ("foo (true)\n", "foo(true)\n"),
-            ("foo (false)\n", "foo(false)\n"),
-            ("foo (self)\n", "foo(self)\n"),
-            ("foo (@x)\n", "foo(@x)\n"),
-            ("foo (@@x)\n", "foo(@@x)\n"),
-            ("foo ($x)\n", "foo($x)\n"),
-            ("foo (C)\n", "foo(C)\n"),
-            ("foo (__LINE__)\n", "foo(__LINE__)\n"),
-            ("foo (__ENCODING__)\n", "foo(__ENCODING__)\n"),
-        ] {
-            assert_correction(&ParenthesesAsGroupedExpression, before, after);
-        }
-        // The listed `__FILE__` withholds the edit.
-        assert_listed_hold(&ParenthesesAsGroupedExpression, "foo (__FILE__)\n");
-        for source in [
-            "foo (x; y)",
-            "foo (;x)",
-            "foo (x;)",
-            "foo ((x))",
-            "foo (x = 1)",
-            "foo (x) {}",
-            "foo \\\n (x)",
-            "foo (\n x\n)",
-        ] {
-            let found = correction_offenses(&ParenthesesAsGroupedExpression, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn pinned_grouped_block_arguments() {
         for body in ["|i| i * 10", "_1 * 10", "it * 10"] {
             let source = format!("a.concat ((1..1).map {{ {body} }})");

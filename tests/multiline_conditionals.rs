@@ -1,5 +1,4 @@
 //! CLI controls and controlled Ruby semantic witnesses.
-use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
 const IF: &str = "Style/MultilineIfThen";
 const TERNARY: &str = "Style/MultilineTernaryOperator";
@@ -517,51 +516,6 @@ p $trace
     assert_ne!(after, source);
     assert!(after.contains("if 1.. then"));
     assert!(after.contains("# ordinary separator comment\n"));
-    observations_equal(d.path());
-}
-#[test]
-fn runtime_literal_values_frozen_state_bom_crlf_encoding_and_line_values() {
-    let d = project();
-    for nl in ["\n", "\r\n"] {
-        for frozen in ["true", "false"] {
-            let body = r#"def literals(a)
-  first = a ?
-    "é\nline
-  b" : %q(c
-  d)
-  second = a ?
-    /e
- f/x : %s(g
- h)
-  if a then
-    [first,second].map { |v| [v.class.to_s,v.is_a?(Regexp) ? v.source.bytes : v.to_s.bytes,v.encoding.name,v.frozen?] }
-  else
-    case a
-    when false then
-      [first,second].map { |v| [v.class.to_s,v.to_s.bytes,v.encoding.name,v.frozen?] }
-    end
-  end
-end
-p [true,false].map { |a| literals(a) }
-"#;
-            let source =
-                format!("\u{feff}# coding: utf-8\n# frozen_string_literal: {frozen}\n{body}")
-                    .replace('\n', nl);
-            let source = source_getter::pattern_sibling(d.path(), "a.rb", &source, ALL);
-            fs::write(d.path().join("before.rb"), &source).unwrap();
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let o = cli(d.path(), &["--only", ALL, "--fix", "a.rb"]);
-            assert_eq!(o.status.code(), Some(0), "{o:?}");
-            assert_ne!(fs::read(d.path().join("a.rb")).unwrap(), source.as_bytes());
-            observations_equal(d.path());
-        }
-    }
-    let source =
-        "if true then\n p __LINE__\nend\ncase true\nwhen true then\n p __LINE__\nend\np __LINE__\n";
-    fs::write(d.path().join("before.rb"), source).unwrap();
-    fs::write(d.path().join("a.rb"), source).unwrap();
-    let o = cli(d.path(), &["--only", ALL, "--fix", "a.rb"]);
-    assert_eq!(o.status.code(), Some(0), "{o:?}");
     observations_equal(d.path());
 }
 #[test]

@@ -330,36 +330,6 @@ mod tests {
     }
 
     #[test]
-    fn data_byte_guard_keeps_call_yield_and_block_pass_findings() {
-        use crate::cops::testing::correction_offenses;
-        for call in ["self.f 1", "self&.f 1", "yield 1", "self.f &block"] {
-            let source =
-                format!("def example\n  {call}\nend\np DATA.method(:tell).call\n__END__\nraw\n");
-            let found = correction_offenses(&MethodCallWithArgsParentheses, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 3, 2));
-            assert_eq!(
-                found[0].message,
-                "Use parentheses for method calls with arguments."
-            );
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        // Merging a group removes a space, so it too changes DATA's position.
-        let source = "self.f (1)\np DATA.pos\n__END__\nraw\n";
-        assert!(
-            correction_offenses(&MethodCallWithArgsParentheses, source)[0]
-                .correction
-                .is_none()
-        );
-        // An equal-length edit keeps DATA's position, but `DATA` with a data
-        // section is a listed observer: held.
-        crate::cops::testing::assert_listed_hold(
-            &MethodCallWithArgsParentheses,
-            "self.f  1\np DATA.pos\n__END__\nraw\n",
-        );
-    }
-
-    #[test]
     fn corrects_pinned_require_parentheses_examples() {
         for (before, after) in [
             ("top.test (a and b)\n", "top.test((a and b))\n"),
@@ -398,36 +368,6 @@ mod tests {
         ] {
             assert_correction(&MethodCallWithArgsParentheses, before, after);
             assert!(offenses(after).is_empty(), "{after}");
-        }
-    }
-
-    #[test]
-    fn unknown_kernel_test_arguments_retain_the_pinned_finding_without_an_edit() {
-        // Pinned require_parentheses examples: unknown `a, b` can be Kernel's
-        // metadata flag/path tuple even with a receiver. No value-flow proof.
-        for (source, position) in [
-            ("def f\n  test a, b\nend\n", (2, 3)),
-            ("top.test a, b\n", (1, 1)),
-            ("top&.test a, b\n", (1, 1)),
-            (
-                "def f(*args, **kwargs, &block); object.test *args, **kwargs, &block; end\n",
-                (1, 33),
-            ),
-            ("object.test <<~TEXT, 1 # comment\n  value\nTEXT\n", (1, 1)),
-            (
-                "object.test <<~TEXT,\n  value\nTEXT\n  __LINE__ # tail\n",
-                (1, 1),
-            ),
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&MethodCallWithArgsParentheses, source);
-            assert_eq!(found.len(), 1);
-            assert_eq!((found[0].line, found[0].col), position);
-            assert_eq!(
-                found[0].message,
-                "Use parentheses for method calls with arguments."
-            );
-            assert!(found[0].correction.is_none());
         }
     }
 

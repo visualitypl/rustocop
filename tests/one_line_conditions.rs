@@ -1,5 +1,4 @@
 //! CLI policy, safe fixes and controlled Ruby semantic observations.
-use crate::support::source_getter;
 use std::{fs, path::Path, process::Command};
 const ONE: &str = "Style/OneLineConditional";
 const PARENS: &str = "Style/ParenthesesAroundCondition";
@@ -324,22 +323,6 @@ p $trace
     );
     assert_ne!(fs::read_to_string(d.path().join("a.rb")).unwrap(), source);
     observations_equal(d.path());
-}
-#[test]
-fn runtime_encoding_bom_crlf_literal_values_line_and_data_envelopes() {
-    let d = project();
-    for frozen in ["true", "false"] {
-        for nl in ["\n", "\r\n"] {
-            let source=format!("\u{feff}# coding: utf-8\n# frozen_string_literal: {frozen}\ndef f(c)\n v=if c then \"é\\nvalue\" else %q(other) end\n if (c); v; else /é/; end\nend\np [true,false].map {{ |c| v=f(c); [v.class.name,v.is_a?(Regexp) ? v.source.bytes : v.bytes,v.frozen?] }}\np __LINE__\n__END__\npayload\n").replace('\n',nl);
-            let source = source_getter::pattern_sibling(d.path(), "a.rb", &source, BOTH);
-            fs::write(d.path().join("before.rb"), &source).unwrap();
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let o = cli(d.path(), &["--only", BOTH, "--fix", "a.rb"]);
-            assert_eq!(o.status.code(), Some(0), "{o:?}");
-            assert_ne!(fs::read_to_string(d.path().join("a.rb")).unwrap(), source);
-            observations_equal(d.path());
-        }
-    }
 }
 #[test]
 fn selected_default_and_style_layout_composition_stabilizes_within_eight_passes() {

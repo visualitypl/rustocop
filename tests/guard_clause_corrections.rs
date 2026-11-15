@@ -220,50 +220,6 @@ fn bom_crlf_comments_literals_line_numbers_and_data_survive_exactly() {
     }
 }
 
-#[test]
-fn binding_comments_directive_spans_and_line_changing_edits_are_withheld() {
-    let d = project();
-    for source in [
-        "def f\n if ready?\n  value = 1\n else\n  return value\n end\nend\n",
-        "def f\n if (text in value)\n  return value\n else\n  effect\n end\nend\n",
-        "def f\n if /(?<value>.)/ =~ text\n  return value\n else\n  effect\n end\nend\n",
-        "def f\n if ready?\n  return (value = 1)\n else\n  effect\n end\nend\n",
-        "def f\n consume(\n  if ready?\n   return 1\n  else\n   value\n  end\n )\nend\n",
-        "def f\n [\n  if ready?\n   return 1\n  else\n   value\n  end\n ]\nend\n",
-        "def f\n defined?(\n  if ready?\n   return 1\n  else\n   value\n  end\n )\nend\n",
-        "def f\n defined?(begin\n  if ready?\n   return 1\n  else\n   value\n  end\n end)\nend\n",
-        "def f\n if ready?\n  return object.call(value:)\n else\n  effect\n end\nend\n",
-        "def f\n if ready?\n  return __LINE__\n else\n  effect\n end\nend\n",
-        "def f\n if ready?\n  return <<~TEXT\n    payload\n  TEXT\n else\n  effect\n end\nend\n",
-        "if ready?\n raise 'oops'\nelse\n effect\nend\n",
-        "if ready?\n work || raise('oops')\nelse\n effect\nend\n",
-        "def f\n if ready?\n  work # encoding: ISO-8859-1\n end\nend\n",
-        "def f\n if # keep predicate annotation\n  ready?\n  work\n end\nend\n",
-        "def f\n if ready?\n  work # rubocop:disable Style/GuardClause\n end\nend\n",
-        "def f\n if ready?\n  work\n end\nend\nputs File.read(__FILE__)\n",
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-    }
-    fs::write(
-        d.path().join("rustocop.toml"),
-        "[cops.\"Layout/LineLength\"]\nmax=30\n",
-    )
-    .unwrap();
-    let source =
-        "def f\n if long_condition_name && more_work\n  work\n  more_work\n end\nend\np __LINE__\n";
-    unchanged(
-        d.path(),
-        source.as_bytes(),
-        &["--only", COP, "--fix", "a.rb"],
-        1,
-    );
-}
-
 fn ruby_with(source: &[u8], program: &std::ffi::OsStr) -> std::process::Output {
     use std::io::Write;
     use std::process::Stdio;

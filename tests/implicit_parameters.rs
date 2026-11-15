@@ -175,36 +175,6 @@ fn directive_envelopes_forbid_partial_all_use_renames() {
     }
 }
 #[test]
-fn exact_bytes_encoding_bom_crlf_comments_heredocs_line_and_data_positions() {
-    let d = project();
-    // `DATA` with a data section is a listed observer that holds
-    // every edit.
-    unchanged(
-        d.path(),
-        b"foo { use(_1, _1) }; p DATA.pos\n__END__\nraw\xff\n",
-        &["--only", IT, "--fix", "x.rb"],
-        1,
-    );
-    for source in [
-        "\u{feff}# encoding: UTF-8\r\nfoo { [\"café\", _1, __LINE__, _1] } # _1 unchanged\r\np __LINE__\r\n__END__\r\n_1 rawÿ\r\n".as_bytes(),
-        b"# encoding: ISO-8859-1\r\nfoo { use(_1, \"caf\xe9\") }\r\n__END__\r\nraw\xff\r\n",
-        b"foo { [<<~TXT, _1] }\n#{_1} literal _1 #{__LINE__}\nTXT\np __LINE__\n",
-        b"foo { use(_1, _1) }; p :data\n__END__\nraw\xff\n",
-    ] {
-        fs::write(d.path().join("x.rb"),source).unwrap();
-        cli(d.path(),&["--only",IT,"--fix","x.rb"],0);
-        let mut expected=source.to_vec();
-        // Only structurally bound references change, never comment/literal/data.
-        for needle in [b"[_1".as_slice(),b", _1",b"(_1",b"#{_1"] {
-            let mut start=0;
-            while let Some(i)=expected[start..].windows(needle.len()).position(|w|w==needle) {
-                let i=start+i+needle.len()-2;expected[i..i+2].copy_from_slice(b"it");start=i+2;
-            }
-        }
-        assert_eq!(fs::read(d.path().join("x.rb")).unwrap(),expected);
-    }
-}
-#[test]
 fn unsafe_uncorrectable_clean_and_error_files_keep_bytes_and_mtime() {
     let d = project();
     for (s, status) in [

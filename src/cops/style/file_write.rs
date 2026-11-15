@@ -301,31 +301,6 @@ mod tests {
         }
     }
     #[test]
-    fn canonical_literals_locals_and_headers() {
-        for path in ["'file'", "%q(file)", "\"fi\\x6ce\"", "__FILE__"] {
-            for content in ["'hello'", "\"a\\r\\nb\\0\\xff\"", "content"] {
-                let before = format!(
-                    "content = 'hello'\n::File.open({path}, 'wb') {{ |f| f.write({content}) }}\n"
-                );
-                if path == "__FILE__" {
-                    // The listed `__FILE__` holds the edit.
-                    crate::cops::testing::assert_listed_hold(&FileWrite, &before);
-                    continue;
-                }
-                assert_correction(
-                    &FileWrite,
-                    &before,
-                    &format!("content = 'hello'\n::File.binwrite({path}, {content})\n"),
-                );
-            }
-        }
-        assert_correction(
-            &FileWrite,
-            "\u{feff}# encoding: UTF-8\r\nx = File.open('file', \"w\\x62\") { |f| f.write('data') } # keep\r\np __LINE__\r\n__END__\r\nraw\0\r\n",
-            "\u{feff}# encoding: UTF-8\r\nx = File.binwrite('file', 'data') # keep\r\np __LINE__\r\n__END__\r\nraw\0\r\n",
-        );
-    }
-    #[test]
     fn withholds_evaluation_binding_resource_and_source_sensitive_edits() {
         for source in [
             "File.open(fd, 'w').write(content)",

@@ -285,46 +285,6 @@ mod tests {
         }
     }
     #[test]
-    fn canonical_inert_rescue_edits_and_uncertain_holds() {
-        let data: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/redundant_splat_expansion.json"
-        ))
-        .unwrap();
-        for row in data["rows"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter(|r| r.get("project_after").is_some())
-        {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-            let expected: Vec<u8> = serde_json::from_value(row["project_after"].clone()).unwrap();
-            let file = SourceFile::new("example.rb".into(), bytes.clone());
-            let parsed = ruby_prism::parse(&file.bytes);
-            let mut found = Vec::new();
-            assert!(
-                crate::cops::run_cops(&[&RedundantSplatExpansion], &parsed, &file, &mut found)
-                    .is_empty()
-            );
-            assert_eq!(
-                crate::corrections::apply(&bytes, &found).unwrap().bytes,
-                expected,
-                "{row}"
-            );
-        }
-        for source in [
-            "begin; work; rescue *[First, Second]; end",
-            "begin; []; rescue *[First, Second]; end",
-            "begin; nil; rescue Error; work; rescue *[First, Second]; end",
-            "begin; nil; rescue *[First, # keep\nSecond]; end",
-            "begin; nil; rescue *[First, Second]; end\nTracePoint.new(:line) {}",
-            "begin; nil; rescue *[First, Second]; end\nGC.stat",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&RedundantSplatExpansion, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn flags_literals_at_exact_splat_locations() {
         for (source, line, col, message) in [
             (

@@ -219,24 +219,6 @@ fn unsafe_slicing_getters_array_like_and_mutation_remain_byte_exact() {
     }
 }
 #[test]
-fn bom_crlf_line_values_payload_and_individual_source_barriers() {
-    let source =
-        "\u{feff}x = [\r\n\"one\",\r\n\"two\",\r\n]\r\np __LINE__\r\n__END__\r\npayload\0\r\n";
-    assert_eq!(
-        fixed(source, WORD),
-        "\u{feff}x = %w[\r\none\r\ntwo\r\n]\r\np __LINE__\r\n__END__\r\npayload\0\r\n"
-    );
-    for s in [
-        "x = ['one','two']; p File.read(__FILE__)",
-        "x = ['one','two']; p DATA.pos\n__END__\nraw",
-        "x = ['one','two']; ObjectSpace.each_object(String) { |s| p s }",
-        "x = ['one','two']; RubyVM::InstructionSequence.of(method(:x))",
-        "x = ['one','two']; TracePoint.new(:line) {}",
-    ] {
-        assert_eq!(fixed(s, WORD), s, "{s}");
-    }
-}
-#[test]
 fn multiline_word_fixes_do_not_abort_independent_corrections() {
     for nl in ["\n", "\r\n"] {
         for kind in ["w", "W"] {

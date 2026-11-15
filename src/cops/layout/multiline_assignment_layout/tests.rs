@@ -43,13 +43,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// The finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&MultilineAssignmentLayout, source);
-    assert_eq!(found.len(), 1, "{source}");
-    assert!(found[0].correction.is_none(), "{source}");
-}
-
 /// Every pinned example without an offense at the fixed defaults.
 const ACCEPTED: &[(u32, &str)] = &[
     (54, "a, b = 4,\n5\n"),
@@ -360,28 +353,6 @@ fn corrections_insert_one_newline_and_keep_every_byte() {
     ] {
         assert_eq!(fixed(source), after, "{source:?}");
     }
-}
-
-#[test]
-fn listed_observers_heredoc_openers_and_line_observers_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\nx = if a\n  b\nend\n"));
-    }
-    held("x = if a\n  b\nend\nDATA.read\n__END__\nz\n");
-    // The inserted line break moves later lines down.
-    held("x = if a\n  b\nend\np __LINE__\n");
-    // A newline after an earlier heredoc opener on the line would start
-    // the heredoc body there.
-    held("foo(<<~A, x = if a\n  body\nA\n  b\nend)\n");
 }
 
 #[test]

@@ -266,41 +266,6 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
 }
 
 #[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\nx = [1,\n  2]\n"));
-    }
-    held("x = [1,\n  2]\nDATA.read\n__END__\nz\n");
-    // The inserted line break moves later lines down.
-    held("x = [1,\n  2]\np __LINE__\n");
-    // A line break after an earlier heredoc opener on the line would start
-    // the heredoc body there.
-    held("foo(<<~A, [1,\n  body\nA\n  2])\n");
-    // A heredoc opener as the first element: the shared heredoc boundary
-    // proof cannot show that the opener's line keeps its body.
-    held("x = [<<~A, 1,\n  body\nA\n  2]\n");
-    // The inherited code-object barrier: `&b` calls an unknown `to_proc`.
-    held("x = [1,\n  2]\nfoo(&b)\n");
-    assert_eq!(
-        fixed("x = [1,\n  2]\nfoo(&:b)\n"),
-        "x = [\n1,\n  2]\nfoo(&:b)\n"
-    );
-    // Without an observer the same file is corrected.
-    assert_eq!(fixed("y = 1\nx = [1,\n  2]\n"), "y = 1\nx = [\n1,\n  2]\n");
-    // `DATA` without a data section is no observer.
-    assert_eq!(fixed("DATA\nx = [1,\n  2]\n"), "DATA\nx = [\n1,\n  2]\n");
-}
-
-#[test]
 fn findings_only_without_requested_corrections() {
     let offenses = lint_str_with(&[&FirstArrayElementLineBreak], "x = [1,\n  2]\n");
     assert_eq!(offenses.len(), 1);

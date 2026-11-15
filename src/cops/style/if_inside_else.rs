@@ -343,21 +343,6 @@ mod tests {
         );
     }
     #[test]
-    fn withholds_reordered_modifier_bindings_and_line_literals() {
-        for source in [
-            "if a\nelse\n  x = 1 if x\nend\n",
-            "if a\nelse\n  consume(x) if x = fetch\nend\n",
-            "if a\nelse\n  /(?<x>.)/ =~ text if x\nend\n",
-            "if a\nelse\n  work if __LINE__ == 4\nend\n",
-            "if a\nelse\n  if b\n    __LINE__\n  end\nend\n",
-            "if a\nelse\n  if b\n    work\n  end\nend\np __LINE__\n",
-        ] {
-            let found = correction_offenses(&IfInsideElse, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn withholds_uncertain_comments_heredocs_and_shared_lines() {
         for source in [
             "if a\nelse\n  if b # condition\n    work\n  end\nend\n",

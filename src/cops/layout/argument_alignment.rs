@@ -215,42 +215,6 @@ mod tests {
         }
     }
     #[test]
-    fn implicit_pairs_are_flattened_only_when_the_first_argument_is_braceless() {
-        for (before, after, positions) in [
-            (
-                "func1(foo: 'foo',\n  bar: 'bar',\n  baz: 'baz')\n",
-                "func1(foo: 'foo',\n      bar: 'bar',\n      baz: 'baz')\n",
-                vec![(2, 3), (3, 3)],
-            ),
-            (
-                "func2(do_something,\n  foo: 'foo',\n  bar: 'bar',\n  baz: 'baz')\n",
-                "func2(do_something,\n      foo: 'foo',\n      bar: 'bar',\n      baz: 'baz')\n",
-                vec![(2, 3)],
-            ),
-            (
-                "f(a: 1,\n**kw,\nb: 2)\n",
-                "f(a: 1,\n**kw,\n  b: 2)\n",
-                vec![(3, 1)],
-            ),
-            // Unknown block forwarding retains findings under the shared
-            // source-observation proof; it is not permission to edit the file.
-            ("f(a,\n&b)\n", "f(a,\n&b)\n", vec![(2, 1)]),
-            (
-                "func2(a,\n     *b,\n      c)\n",
-                "func2(a,\n      *b,\n      c)\n",
-                vec![(2, 6)],
-            ),
-        ] {
-            let found = offenses(before);
-            assert_eq!(
-                found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-                positions,
-                "{before}"
-            );
-            assert_correction(&ArgumentAlignment, before, after);
-        }
-    }
-    #[test]
     fn literal_splat_and_keyword_containers_keep_real_canonical_corrections() {
         for (before, after) in [
             ("f(1,\n*[2, 3])\n", "f(1,\n  *[2, 3])\n"),

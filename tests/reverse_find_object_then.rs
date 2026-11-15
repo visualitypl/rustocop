@@ -185,24 +185,6 @@ fn selector_only_edits_preserve_envelopes_and_stabilize() {
         unchanged(d.path(), &expected, &["--only", THEN, "--fix", "a.rb"], 0);
     }
 }
-#[test]
-fn observable_source_and_data_positions_retain_diagnostics_without_edits() {
-    let d = project();
-    for source in [
-        "p DATA.pos\nobj.yield_self { it }\n__END__\npayload\n",
-        "p File.read(__FILE__)\nobj.yield_self { it }\n",
-        "def then; :different; end\nobj.yield_self { it }\n",
-        "obj.yield_self(&:test)\n",
-        "obj.yield_self(&block)\n",
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", THEN, "--fix", "a.rb"],
-            1,
-        );
-    }
-}
 fn observe(dir: &Path) -> Option<Vec<u8>> {
     let ruby = crate::support::runtime::ruby().unwrap_or_else(|_| "ruby".into());
     let output = match Command::new(&ruby).current_dir(dir).arg("a.rb").output() {

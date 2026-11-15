@@ -152,37 +152,6 @@ fn uncertain_rewrites_retain_runtime_observations_offenses_and_file_bytes() {
 }
 
 #[test]
-fn bom_crlf_data_and_line_values_survive_and_legacy_bytes_are_not_lossily_fixed() {
-    let dir = project();
-    let listed = "\u{feff}# encoding: UTF-8\r\np File.open(\"fi\\x6ce\", 'rb', &:read).bytes # keep\r\np __LINE__\r\np DATA.read.bytes\r\n__END__\r\npayload\0\r\n";
-    // Reading `DATA` is a listed observer: that file keeps its
-    // finding and bytes. The unread data section survives below.
-    fs::write(dir.path().join("a.rb"), listed).unwrap();
-    fix(dir.path(), "Style/FileRead", 1);
-    assert_eq!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), listed);
-    let source = &listed.replace("p DATA.read.bytes\r\n", "p :data\r\n");
-    fs::write(dir.path().join("a.rb"), source).unwrap();
-    let before = has_ruby().then(|| ruby(dir.path()));
-    fix(dir.path(), "Style/FileRead", 0);
-    assert_eq!(
-        fs::read_to_string(dir.path().join("a.rb")).unwrap(),
-        source.replace("open(\"fi\\x6ce\", 'rb', &:read)", "binread(\"fi\\x6ce\")")
-    );
-    if let Some(before) = before {
-        assert_eq!(before.stdout, ruby(dir.path()).stdout);
-    }
-    for source in [
-        b"# encoding: ISO-8859-1\r\nFile.open(\"caf\xe9\").read\r\n__END__\r\nraw\xff\r\n"
-            .as_slice(),
-        b"File.open('file') do |f|\r\n f.read\r\nend\r\np __LINE__\r\n__END__\r\nraw\r\n",
-    ] {
-        fs::write(dir.path().join("a.rb"), source).unwrap();
-        fix(dir.path(), "Style/FileRead", 1);
-        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), source);
-    }
-}
-
-#[test]
 fn disabled_multiline_spans_never_apply_a_partial_read_rewrite() {
     let dir = project();
     for prefix in ["rustocop", "rubocop"] {

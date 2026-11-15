@@ -260,30 +260,6 @@ fn columns_count_characters_and_skip_the_bom() {
 }
 
 #[test]
-fn listed_source_observers_and_line_observers_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("x = {observer}\nif\n  a\n  b\nend\n"));
-    }
-    held("if\n  a\n  b\nend\nDATA.read\n__END__\nx\n");
-    // Removing the condition's line moves later lines up.
-    held("if\n  a\n  b\nend\np __LINE__\n");
-    // A body on the condition's line keeps every line number.
-    assert_eq!(
-        fixed("if\n  a; b\nend\np __LINE__\n"),
-        "if a\n  b\nend\np __LINE__\n"
-    );
-}
-
-#[test]
 fn findings_only_without_requested_corrections() {
     let offenses: Vec<_> = lint_str("if\n  a\nend\n")
         .into_iter()

@@ -313,35 +313,6 @@ mod tests {
         }
     }
     #[test]
-    fn central_allocation_guard_withholds_unproved_edits_including_plus() {
-        for observer in [
-            "p ObjectSpace.count_objects",
-            "p ObjectSpace.count_objects.fetch(\"T_STRING\".to_sym)",
-            "p GC.stat",
-            "p GC.stat.fetch(\"total_allocated_objects\".to_sym)",
-            "p ObjectSpace",
-            "p GC",
-            "p space.count_objects",
-        ] {
-            for expr in [
-                r##""#{12}".dup"##,
-                r##"String.new("#{12}")"##,
-                r##"+"#{12}""##,
-            ] {
-                let src = format!("a = {expr}\n{observer}\n");
-                let o = correction_offenses(&RedundantInterpolationUnfreeze, &src);
-                assert_eq!(o.len(), 1, "{src}");
-                assert!(o[0].correction.is_none(), "{src}");
-            }
-        }
-        // Merely spelling an observer in a literal is not executable evidence.
-        assert_correction(
-            &RedundantInterpolationUnfreeze,
-            "a = \"#{12}\".dup\np \"ObjectSpace GC count_objects\"\n",
-            "a = \"#{12}\"\np \"ObjectSpace GC count_objects\"\n",
-        );
-    }
-    #[test]
     fn unknown_interpolation_effects_withhold_edits_not_offenses() {
         for s in [
             r##"+"#{foo} bar""##,

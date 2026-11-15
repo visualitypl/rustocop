@@ -131,48 +131,6 @@ mod tests {
     use super::*;
     use crate::cops::testing::{assert_correction, correction_offenses};
     #[test]
-    fn pinned_then_style_blocks_and_block_passes() {
-        for (before, after, col) in [
-            (
-                "obj.yield_self { |e| e.test }",
-                "obj.then { |e| e.test }",
-                5,
-            ),
-            (
-                "obj&.yield_self { |e| e.test }",
-                "obj&.then { |e| e.test }",
-                6,
-            ),
-            ("obj.yield_self { _1.test }", "obj.then { _1.test }", 5),
-            ("obj&.yield_self { _1.test }", "obj&.then { _1.test }", 6),
-            (
-                "yield_self { |obj| obj.test }",
-                "self.then { |obj| obj.test }",
-                1,
-            ),
-            ("obj.yield_self { it.test }", "obj.then { it.test }", 5),
-            ("obj&.yield_self { it.test }", "obj&.then { it.test }", 6),
-            ("obj.yield_self(&:test)", "obj.then(&:test)", 5),
-            ("obj&.yield_self(&:test)", "obj&.then(&:test)", 6),
-            ("yield_self(&block)", "self.then(&block)", 1),
-        ] {
-            let found = correction_offenses(&ObjectThen, before);
-            assert_eq!(found.len(), 1, "{before}");
-            assert_eq!(
-                (found[0].line, found[0].col, found[0].end_line),
-                (1, col, 1)
-            );
-            assert_eq!(found[0].message, "Prefer `then` over `yield_self`.");
-            // Shared code-object guard withholds Proc construction/acquisition
-            // through &expr: source/identity can escape. Keep the diagnostic.
-            if before.contains("(&") {
-                assert!(found[0].correction.is_none());
-            } else {
-                assert_correction(&ObjectThen, before, after);
-            }
-        }
-    }
-    #[test]
     fn minimum_ruby_and_multiline_selector_locations() {
         use crate::{
             config::ResolvedConfig,

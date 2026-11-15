@@ -264,37 +264,6 @@ fn bom_crlf_line_numbers_literals_comments_and_data_keep_their_values() {
         unchanged(d.path(), bytes, &["--only", COP, "--fix", "a.rb"], 1);
     }
 }
-#[test]
-fn ambiguous_source_envelopes_are_reported_but_not_edited() {
-    let d = project();
-    for source in [
-        "each do\n if\n ready?\n a\n b\n c\n end\nend\n",
-        "each do\n if ready? \\\n then first\n  a\n  b\n  c\n end\nend\n",
-        "each do\n\tif ready?\n\t\ta\n\t\tb\n\t\tc\n\tend\nend\n",
-        "each do\n if ready?\n  a\n  b\n  c\n end; after\nend\n",
-        "each do\n if ready?\n  a\n  b\n  c\n end\nend\np DATA.pos\n__END__\ndata\n",
-        "each do\n if ready?\n  a\n  b\n  c\n end\nend\np File.read(__FILE__)\n",
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            usize::from(!source.contains("end; after")),
-        );
-    }
-    // Invalid input is never written, even with --fix.
-    fs::write(d.path().join("a.rb"), "each do\n if c\n").unwrap();
-    let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(d.path())
-        .args(["--only", COP, "--fix", "a.rb"])
-        .output()
-        .unwrap();
-    assert_eq!(o.status.code(), Some(2));
-    assert_eq!(
-        fs::read_to_string(d.path().join("a.rb")).unwrap(),
-        "each do\n if c\n"
-    );
-}
 fn ruby(source: &[u8], program: &std::ffi::OsStr) -> std::process::Output {
     use std::{io::Write, process::Stdio};
     let mut child = Command::new(program)

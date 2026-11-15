@@ -47,13 +47,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&FirstMethodArgumentLineBreak, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source is accepted.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -253,31 +246,6 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
             "{after:?}"
         );
     }
-}
-
-#[test]
-fn listed_observers_line_numbers_and_heredoc_bodies_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        held(&format!("y = {observer}\nfoo(1,\n  2)\n"));
-    }
-    held("foo(1,\n  2)\nDATA.read\n__END__\nz\n");
-    held("foo(1,\n  2)\np __LINE__\n");
-    held("foo(<<~A, bar(1,\n  body\nA\n  2))\n");
-    held("foo(<<~A, 1,\n  body\nA\n  2)\n");
-    // The shared code-object barrier: a block pass of an unknown object can
-    // acquire a method object (`&b` calls `b.to_proc`).
-    held("foo(1,\n  &b)\n");
-    held("foo(1,\n  2)\nbar(&b)\n");
-    assert_eq!(fixed("y = 1\nfoo(1,\n  2)\n"), "y = 1\nfoo(\n1,\n  2)\n");
 }
 
 #[test]

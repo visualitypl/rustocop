@@ -129,7 +129,6 @@ pub(crate) struct Bindings {
     // possible current-source acquisition ends every text-changing proof.
     reads_source: bool,
     local_constructors: LocalConstructors,
-    positions: crate::cops::position_safety::Facts,
     acquires_source_path: bool,
     accesses_path: bool,
     repositions_data: bool,
@@ -170,7 +169,6 @@ impl Bindings {
     pub(crate) fn build(root: &Node<'_>) -> Self {
         let mut result = Self::default();
         crate::cops::walk::walk(&mut result, root);
-        result.positions.finish();
         result.observes_snippets |= result.literal_regexp_source && result.source_getter_overridden;
         result.observes_program_name |=
             result.selector_conversion_dispatch && result.selector_conversion_overridden;
@@ -304,39 +302,10 @@ impl Bindings {
         self.observes_sources
     }
 
-    /// Global correction barrier; metadata acquisition alone is not a raw read.
-    /// No value flow is inferred between acquisitions and readers: aliases and
-    /// deferred bodies can connect them after any candidate has executed.
-    pub(crate) fn observes_source_bytes(&self) -> bool {
-        self.observes_snippets || (self.acquires_source_path && self.reads_source)
-    }
-
-    /// Whether `SCRIPT_LINES__` is named (directly, rooted or through a
-    /// literal `const_get`): loaded sources, the linted file included, can
-    /// be collected line by line. Read by the original Layout cops' hold.
-    pub(crate) fn observes_script_lines(&self) -> bool {
-        self.script_lines_observer
-    }
-
     /// Unconditional listed-observer hold: no reader or value-flow proof needed.
     /// DATA is an observer only when the parser found an actual data section.
     pub(crate) fn has_listed_source_observer(&self, has_data: bool) -> bool {
         self.listed_source_observer || (self.listed_data_observer && has_data)
-    }
-
-    pub(crate) fn preserves_positions(
-        &self,
-        correction: &crate::offense::Correction,
-        file: &SourceFile,
-        data_start: Option<usize>,
-    ) -> bool {
-        self.positions.preserves(
-            correction,
-            file,
-            data_start,
-            self.observes_data,
-            self.acquires_source_path || self.observes_data,
-        )
     }
 
     pub(super) fn contains(&self, node: &Node<'_>) -> bool {
@@ -348,7 +317,6 @@ impl Bindings {
 // One complete main-AST pass protects all singleton extractions together.
 impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Bindings {
     fn enter(&mut self, node: Node<'pr>) {
-        self.positions.observe(&node);
         self.local_constructors.observe(&node);
         #[cfg(test)]
         {
@@ -725,31 +693,6 @@ fn selector_conversion_observes(
 
 fn program_name_call_observes(call: &ruby_prism::CallNode<'_>) -> bool {
     dispatch_call_observes(call, program_name_dispatch)
-}
-
-/// Metadata needs dispatch evidence, not inert selector data. The parent block
-/// argument or to_proc call accounts for symbols actually used as selectors.
-pub(crate) fn position_acquisition_observes(node: &Node<'_>, observer: fn(&[u8]) -> bool) -> bool {
-    (node.as_symbol_node().is_none() && selector_acquisition_observes(node, observer))
-        || node
-            .as_block_argument_node()
-            .and_then(|b| b.expression())
-            .is_some_and(|expression| {
-                let expression = dispatch_expression(expression);
-                // Unknown locals already use the shared forwarding proof and
-                // raw barrier. Do not relabel proven Proc-or-nil forwarding
-                // as timestamp/size/line selector acquisition.
-                if expression
-                    .as_call_node()
-                    .is_some_and(|c| matches!(c.name().as_slice(), b"to_sym" | b"intern"))
-                {
-                    selector_conversion_observes(&expression.as_call_node().unwrap(), observer)
-                } else {
-                    expression
-                        .as_symbol_node()
-                        .is_some_and(|s| observer(s.unescaped()))
-                }
-            })
 }
 
 fn selector_acquisition_observes(node: &Node<'_>, observer: fn(&[u8]) -> bool) -> bool {
@@ -1686,28 +1629,6 @@ mod tests {
         }
     }
     #[test]
-    fn script_lines_is_named_directly_rooted_assigned_or_reflected() {
-        for (source, named) in [
-            ("p SCRIPT_LINES__", true),
-            ("p ::SCRIPT_LINES__", true),
-            ("SCRIPT_LINES__ = {}", true),
-            ("SCRIPT_LINES__ ||= {}", true),
-            ("Object.const_get(:SCRIPT_LINES__)", true),
-            ("Object.const_get('Object::SCRIPT_LINES__')", true),
-            ("p SCRIPT_LINES", false),
-            ("p NOT_SCRIPT_LINES__", false),
-            ("Object.const_get('XSCRIPT_LINES__')", false),
-            ("'SCRIPT_LINES__'", false),
-            ("# SCRIPT_LINES__", false),
-            ("p __FILE__", false),
-        ] {
-            let parsed = ruby_prism::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0, "{source}");
-            let facts = Bindings::build(&parsed.node());
-            assert_eq!(facts.observes_script_lines(), named, "{source}");
-        }
-    }
-    #[test]
     fn out_of_scope_implicit_and_process_dispatch_is_not_a_listed_observer() {
         // Parsed only: selector/command subjects are never executed.
         for source in [
@@ -1741,8 +1662,6 @@ mod tests {
             assert_eq!(parsed.errors().count(), 0, "{source}");
             let facts = Bindings::build(&parsed.node());
             assert!(!facts.has_listed_source_observer(false), "{source}");
-            // Narrowing the seam does not change older families' barrier.
-            assert!(!facts.observes_source_bytes(), "{source}");
         }
     }
     #[test]
@@ -1770,8 +1689,6 @@ mod tests {
             assert_eq!(parsed.errors().count(), 0, "{source}");
             let facts = Bindings::build(&parsed.node());
             assert!(!facts.has_listed_source_observer(false), "{source}");
-            // No global source-barrier policy change for unrelated families.
-            assert!(!facts.observes_source_bytes(), "{source}");
         }
         for source in [
             "p 'seek sysseek rewind pos tell eof eof?'",
@@ -2046,48 +1963,6 @@ mod tests {
     }
 
     #[test]
-    fn harmless_static_dispatch_and_inert_selector_data_keep_newline_fixes() {
-        use crate::cops::style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions};
-        // `:source_location` is a listed selector: held.
-        crate::cops::testing::assert_listed_hold(
-            &AmbiguousEndlessMethodDefinition,
-            "def f = true if true\np [:backtrace, :full_message, :source_location]\n",
-        );
-        for suffix in [
-            "p [:backtrace, :full_message, :backtrace_locations]",
-            "items.map(&:to_s)",
-            "items.map(&((:to_s)))",
-            "items.map(&(:\"to_s\".to_proc))",
-            "callback = ((:to_s)).to_proc; callback.call(value)",
-            "items.each(&nil)",
-            "items.each(&((nil)))",
-            "alias text to_s",
-            "object.value ||= nil",
-            "object.value &&= nil",
-            "object.value += 1",
-        ] {
-            for (cop, before, after) in [
-                (
-                    &AmbiguousEndlessMethodDefinition as &dyn Cop,
-                    "def f = true if true\n",
-                    "def f\n  true\nend if true\n",
-                ),
-                (
-                    &ClassMethodsDefinitions as &dyn Cop,
-                    "class A\n  class << self\n    def one; :one; end\n  end\nend\n",
-                    "class A\n  def self.one; :one; end\nend\n",
-                ),
-            ] {
-                assert_correction(
-                    cop,
-                    &format!("{before}{suffix}\n"),
-                    &format!("{after}{suffix}\n"),
-                );
-            }
-        }
-    }
-
-    #[test]
     fn declaration_proof_is_lazy_cached_and_linear_in_disjoint_bodies() {
         for count in [10, 100, 1000] {
             let source = (0..count).map(|i| format!("class C{i}\ndef C{i}.foo; end\nclass << self\ndef bar; :bar; end\nend\nend\n")).collect::<String>();
@@ -2245,299 +2120,6 @@ mod tests {
                     assert!(actual.correction.is_none(), "{}: {source}", cop.name());
                 }
             }
-        }
-    }
-
-    #[test]
-    fn retained_vm_source_is_raw_evidence_independent_of_code_object_and_position_proofs() {
-        // The shared guard already withholds the
-        // final witness centrally. Assert the raw proof itself, so that
-        // independent code-object evidence cannot hide this missing reader.
-        for observer in [
-            "RubyVM.keep_script_lines = true; p RubyVM::InstructionSequence.compile_file(__FILE__).script_lines",
-            "RubyVM.keep_script_lines = true; p RubyVM::InstructionSequence.compile_file_prism(__FILE__).script_lines",
-            "p RubyVM::AbstractSyntaxTree.parse_file(__FILE__, keep_script_lines: true).script_lines",
-            "I = RubyVM::InstructionSequence; path = __FILE__; escape(I.compile_file(path))",
-            "make = RubyVM::InstructionSequence.method(:compile_file); escape(make.call(__FILE__))",
-            "p retained.script_lines", // No explicit path is needed by a retained getter.
-            "p retained.public_send(:public_send, 'script_lines')",
-            "reader = retained.method(:script_lines); escape(reader)",
-            "reader = :\"script\\x5flines\".to_proc; escape(reader)",
-            "p [retained].map(&:script_lines)",
-            "class << retained; alias lines script_lines; end; escape(retained)",
-            "class << retained; alias_method :lines, :script_lines; end; escape(retained)",
-            "def later(object); object.script_lines; end",
-            "p (retained.script_lines ||= nil)",
-            "p (retained.script_lines &&= nil)",
-            "p (retained.script_lines += [])",
-        ] {
-            let source = format!("x = 1  \n{observer}\n");
-            let parsed = crate::parser::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0, "{source}");
-            assert!(
-                Bindings::build(&parsed.node()).observes_source_bytes(),
-                "{source}"
-            );
-        }
-        // Retained ASTs can be supplied before entry; #source exposes the
-        // same bytes as #script_lines without any acquisition in this AST.
-        for getter in ["source", "script_lines"] {
-            for observer in [
-                format!("p $retained.{getter}"),
-                format!("p $retained.public_send(:public_send, '{getter}')"),
-                format!("reader = $retained.method(:{getter}); escape(reader)"),
-                format!("reader = :{getter}.to_proc; escape(reader)"),
-                format!("p [$retained].map(&:{getter})"),
-                format!("class << $retained; alias raw {getter}; end; escape($retained)"),
-                format!("class << $retained; alias_method :raw, :{getter}; end; escape($retained)"),
-                format!("def later(object); object.{getter}; end"),
-                format!("p ($retained.{getter} ||= nil)"),
-                format!("p ($retained.{getter} &&= nil)"),
-                format!("p ($retained.{getter} += other)"),
-            ] {
-                let parsed = crate::parser::parse(observer.as_bytes());
-                assert_eq!(parsed.errors().count(), 0, "{observer}");
-                assert!(
-                    Bindings::build(&parsed.node()).observes_source_bytes(),
-                    "{observer}"
-                );
-            }
-        }
-        for selector in ["compile_file", "compile_file_prism", "parse_file"] {
-            for acquisition in [
-                format!("factory.{selector}(__FILE__)"),
-                format!("factory.public_send(:public_send, '{selector}', __FILE__)"),
-                format!("factory.method(:{selector})"),
-                format!(":{selector}.to_proc"),
-                format!("class << factory; alias acquire {selector}; end"),
-                format!("def later(path); factory.{selector}(path); end; p __FILE__"),
-            ] {
-                let source = format!("p __FILE__; {acquisition}\n");
-                let parsed = crate::parser::parse(source.as_bytes());
-                assert_eq!(parsed.errors().count(), 0, "{source}");
-                assert!(
-                    Bindings::build(&parsed.node()).observes_source_bytes(),
-                    "{source}"
-                );
-            }
-        }
-    }
-
-    #[test]
-    fn retained_source_spellings_and_vm_metadata_are_not_raw_reads() {
-        for observer in [
-            "# RubyVM.keep_script_lines = true; object.script_lines",
-            "p 'object.script_lines'",
-            "p [:script_lines, :compile_file, :parse_file].map(&:to_s)",
-            "p object.script_lines_like",
-            "p object.source_like",
-            "p [:source, :script_lines].map(&:to_s)",
-            "p 'object.source'",
-            "# p object.source",
-            "p RubyVM.keep_script_lines",
-            "RubyVM.keep_script_lines = true",
-            "p RubyVM::InstructionSequence.name",
-            "p RubyVM::AbstractSyntaxTree.class",
-            "p __FILE__",
-            "p File.stat(__FILE__).size",
-        ] {
-            let source = format!("x = 'hi'\n{observer}\n");
-            let parsed = crate::parser::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0, "{source}");
-            assert!(
-                !Bindings::build(&parsed.node()).observes_source_bytes(),
-                "{source}"
-            );
-        }
-    }
-
-    #[test]
-    fn literal_regexp_source_requires_unchanged_core_getter() {
-        for mutation in [
-            "class Regexp; def source; $raw; end; end",
-            "class Regexp; alias source hidden; end",
-            "Regexp.define_method(:source) { $raw }",
-            "Regexp.public_send(:public_send, :define_method, :source) { $raw }",
-            "Regexp.method(:define_method)",
-            "Regexp.attr_reader(:source)",
-            "Regexp.prepend(extension)",
-            "Regexp.class_eval(code)",
-        ] {
-            for source in [
-                format!("{mutation}; p /x/.source"),
-                format!("def later; /x/.source; end; {mutation}"),
-            ] {
-                let parsed = crate::parser::parse(source.as_bytes());
-                assert_eq!(parsed.errors().count(), 0, "{source}");
-                assert!(
-                    Bindings::build(&parsed.node()).observes_source_bytes(),
-                    "{source}"
-                );
-            }
-        }
-        for observer in [
-            "p /x/.source",
-            "p ((/x/)).source",
-            "p %r(x).source",
-            "p /x#{1}/.source",
-        ] {
-            let source = format!("x = 'hi'\n{observer}\n");
-            let parsed = crate::parser::parse(source.as_bytes());
-            assert!(!Bindings::build(&parsed.node()).observes_source_bytes());
-            assert_correction(
-                &crate::cops::style::StringLiterals,
-                &source,
-                &source.replace("'hi'", "\"hi\""),
-            );
-        }
-    }
-
-    #[test]
-    fn closed_local_default_constructor_is_metadata_not_a_reader() {
-        let source =
-            "class C\n def run; File.dirname(File.realpath(__FILE__)); end\nend\np C.new.run\n";
-        let parsed = ruby_prism::parse(source.as_bytes());
-        assert!(!Bindings::build(&parsed.node()).observes_source_bytes());
-        // Not a reader; the listed `__FILE__` still holds the edit.
-        crate::cops::testing::assert_listed_hold(&crate::cops::style::Dir, source);
-    }
-
-    #[test]
-    fn local_constructor_proof_rejects_default_startup_namespaces() {
-        for name in ["SyntaxSuggest", "Monitor"] {
-            let source = format!(
-                "class {name}\n def run; File.dirname(File.realpath(__FILE__)); end\nend\np {name}.new.run\n"
-            );
-            let parsed = ruby_prism::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0);
-            assert!(
-                Bindings::build(&parsed.node()).observes_source_bytes(),
-                "{name} must not be proved to have fresh default construction"
-            );
-            let found = correction_offenses(&crate::cops::style::Dir, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
-        }
-    }
-
-    #[test]
-    fn local_constructor_proof_rejects_uncertain_bindings_and_dispatch() {
-        let expression = "File.dirname(File.realpath(__FILE__))";
-        let canonical = format!("class C\n def run; {expression}; end\nend\np C.new.run\n");
-        let expected = correction_offenses(&crate::cops::style::Dir, &canonical);
-        for source in [
-            canonical.replace("class C", "class C < File"),
-            canonical.replace("class C", "class C < Object"),
-            canonical
-                .replace("class C", "module Outer; class C")
-                .replace("p C.new.run", "p C.new.run; end"),
-            canonical.replace("class C", "class Outer::C"),
-            canonical
-                .replace("class C", "class File")
-                .replace("C.new", "File.new"),
-            canonical.replace("p C.new.run", "class C; end; p C.new.run"),
-            canonical.replace("p C.new.run", "C = File; C.new(__FILE__); p C.new.run"),
-            canonical.replace("p C.new.run", "C ||= File; p C.new.run"),
-            canonical.replace("p C.new.run", "Object::C = File; p C.new.run"),
-            canonical.replace("p C.new.run", "C, other = File, nil; p C.new.run"),
-            canonical.replace("p C.new.run", "consume(C); p C.new.run"),
-            canonical.replace("p C.new.run", "saved = C; p C.new.run"),
-            canonical.replace("p C.new.run", "Object.const_set(:C, File); p C.new.run"),
-            canonical.replace(
-                "p C.new.run",
-                "C.class_eval { def initialize; end }; p C.new.run",
-            ),
-            canonical.replace(
-                "p C.new.run",
-                "later { C.define_singleton_method(:new) { File.new(__FILE__) } }; p C.new.run",
-            ),
-            canonical.replace(
-                "p C.new.run",
-                "def later; C.send(:define_method, :initialize) {}; end; p C.new.run",
-            ),
-            canonical.replace("p C.new.run", "require 'extension'; p C.new.run"),
-            canonical.replace("p C.new.run", "eval('C = File'); p C.new.run"),
-            canonical.replace("p C.new.run", "BEGIN { nil }; p C.new.run"),
-            canonical.replace("p C.new.run", "p C.method(:new).call.run"),
-            canonical.replace("p C.new.run", "p C.send(:new).run"),
-            canonical.replace("p C.new.run", "p C.new(1).run"),
-            canonical.replace("p C.new.run", "p C.new {}.run"),
-            canonical.replace("p C.new.run", "p Unknown.new.run"),
-            canonical.replace("p C.new.run", "p C.new.unknown"),
-            canonical.replace("p C.new.run", "p File.binread(__FILE__); p C.new.run"),
-            canonical.replace("p C.new.run", "p IO.new(0); p C.new.run"),
-            canonical.replace("class C", "C.new; class C"),
-            canonical.replace(" def run;", " def initialize; end\n def run;"),
-            canonical.replace(
-                " def run;",
-                " def self.new; File.new(__FILE__); end\n def run;",
-            ),
-            canonical.replace(
-                " def run;",
-                " def self.allocate; File.allocate; end\n def run;",
-            ),
-            canonical.replace(" def run;", " alias initialize run\n def run;"),
-            canonical.replace(" def run;", " attr_accessor :initialize\n def run;"),
-            canonical.replace(" def run;", " include Something\n def run;"),
-            canonical.replace(" def run;", " def method_missing; end\n def run;"),
-            canonical.replace(" def run;", " def run(value = factory);"),
-        ] {
-            let parsed = ruby_prism::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0, "{source}");
-            assert!(
-                Bindings::build(&parsed.node()).observes_source_bytes(),
-                "{source}"
-            );
-            let found = correction_offenses(&crate::cops::style::Dir, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!(found[0].message, expected[0].message, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-
-    #[test]
-    fn main_script_guard_uses_ast_acquisition_not_textual_lookalikes() {
-        for suffix in [
-            "# $0 $PROGRAM_NAME Process.argv0",
-            "p \"$0 $PROGRAM_NAME Process.argv0\"",
-            "p :argv0_like",
-            "p $ordinary",
-            "p object.argv0_like",
-            "p [1].map(&:to_s)",
-            "p [1].map(&((:to_s)))",
-            "p [1].map(&(:to_s.to_proc))",
-            "p [1].each(&nil)",
-            "p [1].map(&(\"to_s\".to_sym))",
-            "p [1].map(&(\"to_s\".intern))",
-            "p [1].map(&((:to_s).to_sym))",
-            "def f(&block); g(&block); end",
-            "def f(&); g(&); end",
-            "p :\"ordinary#{value}\"",
-            "p %I(#{[1].first})",
-            "p :\"ordinary#{value}\"; p [1].map(&:to_s)",
-            "p :\"ordinary#{value}\"; p [1].each(&nil)",
-        ] {
-            let source = format!("class A\n  def A.f; end\nend\n{suffix}\n");
-            assert_correction(
-                &ClassMethods,
-                &source,
-                &source.replace("def A.f", "def self.f"),
-            );
-        }
-        // A listed `$PROGRAM_NAME` holds every edit.
-        crate::cops::testing::assert_listed_hold(
-            &ClassMethods,
-            "class A\n  def A.f; end\nend\n$PROGRAM_NAME = \"display title\"\n",
-        );
-        // No receiver/value-flow proof is attempted for the actual selector.
-        // Unknown receivers and inert selector data conservatively withhold.
-        for suffix in ["p object.argv0", "p :argv0", "def later\n $0\nend"] {
-            let found = correction_offenses(
-                &ClassMethods,
-                &format!("class A\n  def A.f; end\nend\n{suffix}\n"),
-            );
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
         }
     }
 

@@ -252,25 +252,6 @@ fn shareable_assignment_withholds_hold_bytes_mtime_and_never_abort_safe_siblings
         }
     }
 }
-#[test]
-fn source_metadata_heap_and_data_observers_retain_offenses_without_edits() {
-    let d = project();
-    for observer in [
-        "p File.read(__FILE__)",
-        "p DATA.pos\n__END__\nraw",
-        "ObjectSpace.each_object(Hash) { |x| p x }",
-        "RubyVM::InstructionSequence.of(method(:x))",
-        "TracePoint.new(:line) {}",
-    ] {
-        let s = format!("p [a: 1]\n{observer}\n");
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", BRACES, "--fix", "a.rb"],
-            1,
-        );
-    }
-}
 fn rubies() -> Vec<String> {
     let mut r = Vec::new();
     if Command::new("ruby")

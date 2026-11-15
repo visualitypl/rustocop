@@ -149,66 +149,6 @@ fn metadata_defaults_selectors_and_strict_toml() {
 }
 
 #[test]
-fn lint_never_writes_and_fix_writes_the_canonical_edit_once() {
-    let dir = project();
-    for (cop, before, after, _) in CASES {
-        let out = unchanged(dir.path(), before.as_bytes(), &["--only", cop], Some(1));
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-        let (out, fixed) = fix(dir.path(), before, &["--only", cop]);
-        assert_eq!(out.status.code(), Some(0), "{cop}: {out:?}");
-        assert_eq!(fixed, after, "{cop}");
-        unchanged(
-            dir.path(),
-            after.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(0),
-        );
-        // A UTF-8 BOM is preserved around the edit.
-        let (_, fixed) = fix(dir.path(), &format!("\u{feff}{before}"), &["--only", cop]);
-        assert_eq!(fixed, format!("\u{feff}{after}"), "{cop}");
-        // A listed source observer keeps the finding and the file.
-        let observed = format!("p __FILE__\n{before}");
-        let out = unchanged(
-            dir.path(),
-            observed.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(1),
-        );
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-        // A line-number observer after a line-count change keeps the file.
-        let lines = format!("{before}p __LINE__\n");
-        unchanged(
-            dir.path(),
-            lines.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(1),
-        );
-    }
-    // CRLF: the condition's line goes with its terminator; the assignment
-    // break is upstream's `\n`.
-    let (_, fixed) = fix(
-        dir.path(),
-        "if\r\n  a\r\n  b\r\nend\r\n",
-        &["--only", CONDITION],
-    );
-    assert_eq!(fixed, "if a\r\n  b\r\nend\r\n");
-    let (_, fixed) = fix(
-        dir.path(),
-        "x = if a\r\n  b\r\nend\r\n",
-        &["--only", ASSIGNMENT],
-    );
-    assert_eq!(fixed, "x =\n if a\r\n  b\r\nend\r\n");
-    // A comment after the condition would be lost: finding kept, no write.
-    let out = unchanged(
-        dir.path(),
-        b"if\n  a # note\n  b\nend\n",
-        &["--only", CONDITION, "--fix"],
-        Some(1),
-    );
-    assert_eq!(count(&out, CONDITION), 1, "{out:?}");
-}
-
-#[test]
 fn default_selection_converges_without_oscillation() {
     let dir = project();
     let (out, fixed) = fix(dir.path(), "while\n  a\n  b\n  c\nend\n", &[]);

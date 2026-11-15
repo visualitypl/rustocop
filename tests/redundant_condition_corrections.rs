@@ -187,42 +187,6 @@ fn every_valid_pinned_correction_is_exact_or_a_reasoned_no_write() {
     assert_eq!(counts, (1, 62, 4));
 }
 
-#[test]
-fn byte_envelopes_literals_and_source_sensitive_withholds() {
-    let dir = project();
-    for source in [
-        b"# coding: ISO-8859-1\n@b ? @b : '\xe9'\n".as_slice(),
-        b"if @b\n @b\nelse\n c\nend\np __LINE__\n",
-        b"unless @b then consume(__LINE__) else consume(\n@b) end\n",
-        b"if @b then @b else DATA.pos end\n__END__\npayload\n",
-        b"@b ? @b : c # rubocop:disable Lint/Debugger\n",
-        b"if @b then @b else <<~H end\nliteral # untouched\nH\n",
-        b"if @b\n @b\nelse\n c # note\nend\n",
-    ] {
-        unchanged(dir.path(), source, 1);
-    }
-    for (source, expected) in [
-        (
-            "\u{feff}# encoding: UTF-8\r\nif @b\r\n @b\r\nelse\r\n '\\x61'\r\nend\r\n__END__\r\ndata\r\n",
-            "\u{feff}# encoding: UTF-8\r\n@b || '\\x61'\r\n__END__\r\ndata\r\n",
-        ),
-        ("@b ? @b : __LINE__\n", "@b || (__LINE__)\n"),
-        ("p __LINE__\n@b ? @b : c\n", "p __LINE__\n@b || c\n"),
-    ] {
-        fs::write(dir.path().join("lib/a.rb"), source).unwrap();
-        run(
-            dir.path(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(0),
-            0,
-        );
-        assert_eq!(
-            fs::read_to_string(dir.path().join("lib/a.rb")).unwrap(),
-            expected
-        );
-    }
-}
-
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
     if let Ok(ruby) = crate::support::runtime::ruby() {

@@ -313,60 +313,6 @@ fn supplied_paths_stdin_provenance_excludes_and_fix_rejection() {
         Some(2),
     );
 }
-#[test]
-fn source_runtime_comment_heredoc_and_encoding_controls() {
-    let d = project();
-    for suffix in [
-        "File.read(__FILE__)",
-        "IO.read($0)",
-        "p DATA.pos\n__END__\ndata",
-        "RubyVM::InstructionSequence.compile('nil')",
-        "ObjectSpace.count_objects",
-        "GC.stat",
-        "TracePoint.new(:line) {}",
-        "eval('nil')",
-    ] {
-        let s = format!("{}{suffix}\n", String::from_utf8_lossy(SAFE));
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(1),
-        );
-    }
-    for s in [
-        "begin; nil; rescue *[First, # keep\nSecond]; end\n",
-        "begin; nil; rescue *[ First, Second ]; end\n",
-        "begin; nil; rescue *[<<~H]; end\ntext\nH\n",
-        "begin; nil; rescue *[k: v]; end\n",
-        "begin; nil; rescue *[First, Second]; end\n(\n",
-    ] {
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            if s.ends_with("(\n") { Some(2) } else { Some(1) },
-        );
-    }
-    for header in [
-        b"\xef\xbb\xbf".as_slice(),
-        b"# coding: ISO-8859-1\n# \xe9\n",
-        b"# coding: Shift_JIS\n# \x82\xa0\n",
-    ] {
-        let mut before = header.to_vec();
-        before.extend(String::from_utf8_lossy(SAFE).replace('\n', "\r\n").bytes());
-        let mut after = header.to_vec();
-        after.extend(String::from_utf8_lossy(AFTER).replace('\n', "\r\n").bytes());
-        unchanged(d.path(), &before, &["--only", COP, "lib/a.rb"], Some(1));
-        assert_eq!(
-            run(d.path(), &["--only", COP, "--fix", "lib/a.rb"])
-                .status
-                .code(),
-            Some(0)
-        );
-        assert_eq!(fs::read(d.path().join("lib/a.rb")).unwrap(), after);
-    }
-}
 #[cfg(unix)]
 #[test]
 fn atomic_validation_readonly_symlink_and_bounded_composition() {
@@ -538,65 +484,6 @@ fn authored_native_values_bindings_evaluation_filter_and_allocation_controls() {
         ) {
             assert!(a.status.success() && b.status.success(), "{a:?}\n{b:?}");
             assert_ne!(a.stdout, b.stdout);
-        }
-    }
-}
-#[test]
-fn authored_native_line_data_source_heap_and_code_object_observers() {
-    let Ok(ruby) = crate::support::runtime::ruby() else {
-        return;
-    };
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    // Reading `DATA` is a listed observer; an unread
-    // data section and `__LINE__` are stable.
-    for (observer, safe) in [
-        ("p [__LINE__]", true),
-        ("p [__LINE__, DATA.read]", false),
-        ("p DATA.pos", false),
-        ("print File.binread(__FILE__)", false),
-        (
-            "p RubyVM::InstructionSequence.compile_file(__FILE__).to_a",
-            false,
-        ),
-        ("p GC.stat(:total_allocated_objects)", false),
-        ("TracePoint.new(:line) {}.enable", false),
-    ] {
-        let before = format!(
-            "# coding: UTF-8\r\n{}\r\n{observer}\r\n__END__\r\npayload\r\n",
-            String::from_utf8_lossy(SAFE).replace('\n', "\r\n")
-        );
-        fs::write(&path, &before).unwrap();
-        let a = Command::new(&ruby)
-            .args(["--parser=prism", "-W0"])
-            .arg(&path)
-            .output()
-            .unwrap();
-        assert!(a.status.success(), "{a:?}");
-        assert_eq!(
-            run(d.path(), &["--only", COP, "--fix", "lib/a.rb"])
-                .status
-                .code(),
-            Some(i32::from(!safe))
-        );
-        assert_eq!(
-            fs::read_to_string(&path).unwrap(),
-            if safe {
-                before.replace("*[First, Second]", "First, Second")
-            } else {
-                before
-            }
-        );
-        let b = Command::new(&ruby)
-            .args(["--parser=prism", "-W0"])
-            .arg(&path)
-            .output()
-            .unwrap();
-        assert!(b.status.success(), "{b:?}");
-        // Heap counts vary between processes; holding exact bytes is the proof.
-        if !observer.starts_with("p GC") {
-            assert_eq!(a.stdout, b.stdout);
-            assert_eq!(a.stderr, b.stderr);
         }
     }
 }

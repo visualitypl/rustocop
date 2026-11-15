@@ -8,10 +8,7 @@
 //! single-pass corrected bytes equal the fixed replay recorded in
 //! the pinned RuboCop reference run.
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    pipeline::lint_str_with,
-};
+use crate::{cops::testing::assert_correction, pipeline::lint_str_with};
 
 const COP: &str = "Layout/EmptyLinesAroundAttributeAccessor";
 
@@ -39,12 +36,6 @@ fn check(source: &str, finding: &[(u32, u32)], after: &str) {
     if !finding.is_empty() {
         assert_correction(&EmptyLinesAroundAttributeAccessor, source, after);
     }
-}
-
-fn held(source: &str) {
-    let found = correction_offenses(&EmptyLinesAroundAttributeAccessor, source);
-    assert_eq!(found.len(), 1, "{source:?}");
-    assert!(found[0].correction.is_none(), "{source:?}");
 }
 
 /// `(spec line, source, fixed-default finding, single-pass correction)`.
@@ -271,21 +262,6 @@ fn followers_and_lookalikes() {
         ("attr_reader :a\n__END__\nx\n", &[], ""),
     ] {
         check(source, finding, after);
-    }
-}
-
-#[test]
-fn held_insertions() {
-    for source in [
-        "attr_reader :a\nx\np __FILE__\n",
-        "attr_reader :a\nx\np $PROGRAM_NAME\n",
-        "attr_reader :a\nx\np caller_locations\n",
-        "attr_reader :a\nx\np method(:x).source_location\n",
-        "attr_reader :a\nx\np SCRIPT_LINES__\n",
-        "attr_reader :a\nx\np __LINE__\n",
-        "attr_reader :a, <<~X.to_sym\n  body\nX\nx\n",
-    ] {
-        held(source);
     }
 }
 

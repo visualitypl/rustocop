@@ -230,21 +230,6 @@ fn source_envelopes_literals_crlf_bom_line_and_end_payload_stay_exact() {
         unchanged(d.path(), source, &["--only", COP, "--fix", "a.rb"], 1);
     }
 }
-#[test]
-fn data_and_own_source_observations_keep_the_offense_without_writes() {
-    let d = project();
-    for source in [
-        format!("{BAD}p DATA.pos\n__END__\ndata\n"),
-        format!("{BAD}p File.read(__FILE__)\n"),
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-    }
-}
 fn ruby(source: &[u8], program: &std::ffi::OsStr) -> std::process::Output {
     use std::{io::Write, process::Stdio};
     let mut c = Command::new(program)

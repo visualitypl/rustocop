@@ -290,39 +290,6 @@ fn same(before: &Output, after: &Output) {
     assert_eq!(before.stderr, after.stderr);
 }
 #[test]
-fn inert_corrections_preserve_values_binding_context_and_regexp_state_at_runtime() {
-    if !has_ruby() {
-        return;
-    }
-    let dir = project();
-    for source in [
-        "eval('42', binding)",
-        "Kernel.eval('true', binding, 'old.rb', 99)",
-        "::Kernel.eval(\"\\x34\\x32\", binding, __FILE__, __LINE__ + 1)",
-        "Object.class_eval <<~CODE\n42\nCODE\n",
-        "Module.module_eval('nil')",
-        "instance_eval('false')",
-        "eval('42',\n binding,\n __FILE__,\n __LINE__)",
-    ] {
-        fs::write(dir.path().join("a.rb"), source).unwrap();
-        let before = observe(dir.path());
-        assert!(
-            String::from_utf8_lossy(&before.stdout).contains(", \"a\", true]"),
-            "{before:?}"
-        );
-        // A target already naming the listed `__FILE__` keeps its finding
-        // without an edit.
-        if source.contains("__FILE__") {
-            run(dir.path(), &["--only", EVAL, "--fix", "a.rb"], 1, [1, 0, 0]);
-            assert_eq!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), source);
-        } else {
-            run(dir.path(), &["--only", EVAL, "--fix", "a.rb"], 0, [0, 0, 0]);
-            assert_ne!(fs::read_to_string(dir.path().join("a.rb")).unwrap(), source);
-        }
-        same(&before, &observe(dir.path()));
-    }
-}
-#[test]
 fn decoded_carriage_return_warnings_preserve_stderr_and_source_bytes() {
     if !has_ruby() {
         return;

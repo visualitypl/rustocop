@@ -561,23 +561,6 @@ fn scope_comments_and_lines() {
     }
 }
 
-#[test]
-fn held_corrections() {
-    for source in [
-        "class A\n  x\n  private\n  y\nend\np __FILE__\n",
-        "class A\n  x\n  private\n  y\nend\np __dir__\n",
-        "class A\n  x\n  private\n  y\nend\np $0\n",
-        "class A\n  x\n  private\n  y\nend\np caller(0)\n",
-        "class A\n  x\n  private\n  y\nend\np __LINE__\n",
-        "class A\n  x\n  private\n  y\nend\np DATA.read\n__END__\nz\n",
-        // The line start is inside a string literal.
-        "class A\n  X = \"a\nb\"; private\n  def y; end\nend\n",
-    ] {
-        assert_eq!(findings(source).len(), 1, "{source:?}");
-        assert_eq!(corrected(source), None, "{source:?}");
-    }
-}
-
 /// The state is per file: a class seen in one file never reaches the next,
 /// and a corrected file is re-read with its new lines.
 #[test]

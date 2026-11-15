@@ -409,29 +409,6 @@ fn bom_crlf_heredoc_indentation_line_and_data_bytes_survive() {
     }
 }
 #[test]
-fn observable_data_offset_withholds_length_and_equal_length_changes() {
-    let d = project();
-    for (name, source, _) in CASES {
-        // The equal-length quote edit would keep DATA's offsets, but `DATA`
-        // with a data section is a listed observer: every edit is
-        // withheld and the finding stays.
-        let src = format!("{source}p DATA.pos; p DATA.read.bytes\n__END__\npayload\\raw\n");
-        fs::write(d.path().join("a.rb"), &src).unwrap();
-        let before = has_ruby().then(|| ruby(d.path()));
-        cli(d.path(), &["--only", name, "--fix", "a.rb"], 1);
-        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), src);
-        if let Some(before) = before {
-            same_runtime(&before, &ruby(d.path()));
-        }
-    }
-    unchanged(
-        d.path(),
-        Q,
-        b"p :'o\\'clock'\np DATA.pos\n__END__\ndata\n",
-        1,
-    );
-}
-#[test]
 fn legacy_encodings_keep_non_utf8_envelopes_and_fix_ascii_spans() {
     let d = project();
     for (name, src) in [

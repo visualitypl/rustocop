@@ -185,29 +185,6 @@ mod tests {
     }
 
     #[test]
-    fn source_code_heap_and_runtime_observers_withhold_individual_edits() {
-        for observer in [
-            "File.binread(__FILE__)",
-            "IO.read(__FILE__)",
-            "RubyVM::InstructionSequence.compile_file(__FILE__)",
-            "RubyVM::AbstractSyntaxTree.parse_file(__FILE__)",
-            "ObjectSpace.each_object {}",
-            "GC.stat",
-            "TracePoint.new(:line) {}.enable",
-            "set_trace_func(proc {})",
-            "eval('nil')",
-            "DATA.pos",
-        ] {
-            let source =
-                format!("begin; nil; rescue => Error; end\n{observer}\n__END__\npayload\n");
-            let found =
-                crate::cops::testing::correction_offenses(&ConstantOverwrittenInRescue, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-
-    #[test]
     fn comments_line_values_bom_crlf_and_unobserved_data_are_preserved() {
         for before in [
             "\u{feff}begin\r\n  nil # protected\r\nrescue => Error # binding\r\n # empty\r\nend\r\np __LINE__\r\n__END__\r\npayload",
