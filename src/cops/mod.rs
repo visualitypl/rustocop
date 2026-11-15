@@ -759,7 +759,7 @@ impl Registry {
                 Box::new(style::ReturnNil),
                 Box::new(style::ReturnNilInPredicateMethodDefinition),
                 Box::new(style::SoleNestedConditional),
-                Box::new(style::HashSyntax),
+                Box::new(style::HashSyntax::default()),
                 Box::new(style::GuardClause::default()),
                 Box::new(style::Next),
                 Box::new(style::IfUnlessModifier::default()),

@@ -332,7 +332,7 @@ mod tests {
              AllCops:\n  NewCops: enable\n  TargetRubyVersion: 4.0\n  Exclude:\n    - 'bin/**/*'\n    - ./tmp/*\n    - !ruby/regexp /_pb\\.rb$/\n\
              Style:\n  Enabled: false\n  Exclude: ['a.rb']\n\
              Style/StringLiterals:\n  Enabled: true\n  EnforcedStyle: single_quotes\n\
-             Style/HashSyntax:\n  EnforcedStyle: ruby19\n\
+             Style/HashSyntax:\n  EnforcedStyle: hash_rockets\n  EnforcedShorthandSyntax: always\n\
              Layout/LineLength:\n  Max: 100\n  Exclude:\n    - \"spec/**/*\"\n  AllowedPatterns:\n    - !ruby/regexp /\\A +(it|describe) [\"']/i\n    - '^\\s*#'\n    - '(?<=a)b'\n\
              Metrics/MethodLength:\n  Max: 20\n  Enabled: pending\n\
              Rails/Output:\n  Enabled: false\n\
@@ -356,6 +356,9 @@ mod tests {
              [cops.\"Style\"]\n\
              enabled = false\n\
              \n\
+             [cops.\"Style/HashSyntax\"]\n\
+             enforced_style = \"hash_rockets\"\n\
+             \n\
              [cops.\"Style/StringLiterals\"]\n\
              enabled = true\n\
              enforced_style = \"single_quotes\"\n\
@@ -371,7 +374,7 @@ mod tests {
                 "Layout/LineLength: AllowedPatterns `(?<=a)b`",
                 "Metrics/MethodLength: Enabled",
                 "Style: Exclude",
-                "Style/HashSyntax: EnforcedStyle",
+                "Style/HashSyntax: EnforcedShorthandSyntax",
                 "not rustocop cops or departments: Rails/Output",
             ]
         );
@@ -424,13 +427,13 @@ mod tests {
         let import = import_files(&[(
             ".rubocop.yml",
             "inherit_gem:\n  standard: config/base.yml\n\
-             Style/HashSyntax:\n  EnforcedStyle: ruby19\n",
+             Style/HashSyntax:\n  EnforcedShorthandSyntax: always\n",
         )])
         .unwrap();
         assert_eq!(import.toml, "");
         assert_eq!(
             import.dropped,
-            ["inherit_gem", "Style/HashSyntax: EnforcedStyle"]
+            ["inherit_gem", "Style/HashSyntax: EnforcedShorthandSyntax"]
         );
         // RuboCop's own defaults are single quotes; rustocop's are double.
         assert_eq!(

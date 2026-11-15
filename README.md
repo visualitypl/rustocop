@@ -25,7 +25,7 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
   program's behaviour. Everything else stays a report.
 - **Not a RuboCop drop-in.** Cop names and `# rubocop:disable` comments are
   familiar, but rustocop does not read `.rubocop.yml` and has few
-  settings: limits, and single or double quotes. `--import-rubocop-config`
+  settings: limits, quotes and the hash syntax. `--import-rubocop-config`
   carries over the settings that have a counterpart. The defaults are the
   product.
 
@@ -247,7 +247,8 @@ The import carries over:
 - `Max` of `Layout/LineLength` and of a Metrics cop, when it is a whole
   number;
 - `EnforcedStyle` of `Style/StringLiterals`,
-  `Style/StringLiteralsInInterpolation` and `Style/QuotedSymbols`;
+  `Style/StringLiteralsInInterpolation`, `Style/QuotedSymbols` and
+  `Style/HashSyntax`;
 - `AllowedPatterns` of `Layout/LineLength`. A pattern is a Ruby regexp, and
   the import keeps the ones that the `regex` crate reads too. It lists the
   others, such as a pattern with a lookbehind.
@@ -275,7 +276,7 @@ silence what rustocop still reports with the imported config.
 | Setting | rustocop |
 | --- | --- |
 | String literals | double quotes unless `enforced_style` says `"single_quotes"` (see [Configuration](#configuration)) |
-| Hash syntax | `a: 1`; shorthand `{x:}` and `{x: x}` both accepted |
+| Hash syntax | `a: 1` unless `enforced_style` says otherwise (see [Configuration](#configuration)); shorthand `{x:}` and `{x: x}` both accepted |
 | Raising exceptions | `raise`, never `fail` |
 | Line length | 120 columns unless `max` sets another (see [Configuration](#configuration)) |
 | `# frozen_string_literal: true` | not required unless the cop is enabled |
@@ -354,8 +355,10 @@ The Metrics cops are off by default, so a `max` for one of them also switches
 it on, unless its table says `enabled = false`. Every other parameter of these
 cops is fixed at RuboCop's default.
 
-`enforced_style` is the `EnforcedStyle` of the same cop in RuboCop. Three cops
-accept it, with `"double_quotes"` as the default:
+`enforced_style` is the `EnforcedStyle` of the same cop in RuboCop.
+`Style/HashSyntax` accepts `"ruby19"` (the default), `"hash_rockets"`,
+`"no_mixed_keys"` and `"ruby19_no_mixed_keys"`. Three cops for quotes accept
+it, with `"double_quotes"` as the default:
 
 - `Style/StringLiterals`: `"double_quotes"` or `"single_quotes"`.
   `Style/EmptyLiteral`, `Style/EmptyHeredoc` and

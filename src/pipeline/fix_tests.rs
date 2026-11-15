@@ -263,7 +263,7 @@ fn corrections_that_exhaust_parser_budgets_are_not_written() {
 #[test]
 fn control_flow_hash_fixes_do_not_block_unrelated_corrections() {
     let registry = Registry::from_cops(vec![
-        Box::new(crate::cops::style::HashSyntax),
+        Box::new(crate::cops::style::HashSyntax::default()),
         Box::new(crate::cops::style::SignalException),
     ]);
     for (before, after) in [

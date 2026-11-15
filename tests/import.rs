@@ -93,7 +93,7 @@ fn import_writes_nothing_without_settings_to_carry_over_and_needs_a_rubocop_conf
     let dir = project(&[(
         ".rubocop.yml",
         "inherit_gem:\n  standard: config/base.yml\n\
-         Style/HashSyntax:\n  EnforcedStyle: ruby19\n",
+         Style/HashSyntax:\n  EnforcedShorthandSyntax: always\n",
     )]);
     assert_eq!(
         rustocop(dir.path(), &["--import-rubocop-config"]),
@@ -102,7 +102,7 @@ fn import_writes_nothing_without_settings_to_carry_over_and_needs_a_rubocop_conf
             "No setting of .rubocop.yml has a rustocop counterpart; no rustocop.toml is written.\n\
              Not carried over; rustocop has no setting for these:\n  \
              inherit_gem\n  \
-             Style/HashSyntax: EnforcedStyle\n"
+             Style/HashSyntax: EnforcedShorthandSyntax\n"
                 .into(),
             String::new()
         )
