@@ -6380,6 +6380,7 @@
     "Lint/IdentityComparison",
     "Lint/ImplicitStringConcatenation",
     "Lint/LambdaWithoutLiteralBlock",
+    "Lint/LiteralInInterpolation",
     "Lint/ParenthesesAsGroupedExpression",
     "Lint/RedundantCopDisableDirective",
     "Lint/RedundantCopEnableDirective",

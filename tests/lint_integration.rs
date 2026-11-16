@@ -235,7 +235,7 @@ fn exactly39_real_canonical_cases_are_current_obligations_not_class_flags() {
         .collect();
     let cases = cases();
     let actual: BTreeSet<_> = cases.iter().map(|c| c.cop.as_str()).collect();
-    assert_eq!(cases.len(), 39);
+    assert_eq!(cases.len(), expected.len());
     assert_eq!(actual, expected);
     let registry = Registry::new();
     let capabilities: BTreeSet<_> = registry

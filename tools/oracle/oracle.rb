@@ -337,6 +337,13 @@ module Oracle
         unless reason
           mismatch, toml = config_mismatch(cop, expectation.config, defaults, expectation.source)
           reason = "config: #{mismatch.join(", ")}" if mismatch
+          # A setting that does not matter for the source can matter for the
+          # corrected source (EndAlignment once `if` follows `=`): then the
+          # correction is not compared.
+          wanted = expectation.correction
+          if !reason && wanted.is_a?(String) && config_mismatch(cop, expectation.config, defaults, wanted).first
+            expectation.correction = nil
+          end
         end
         if reason
           result[:skipped] << [expectation, reason]
@@ -386,7 +393,7 @@ module Oracle
       end
     end
 
-    # `--fix` each case that expects a correction, in a copy of its file, and
+    # `-A` each case that expects a correction, in a copy of its file, and
     # keep what it gives. A spec's `loop: false` is one pass.
     def fix(cop, cases, binary, root)
       return if cop == 'Lint/Syntax'
@@ -400,7 +407,7 @@ module Oracle
           [copy, kase]
         end
         passes = loop ? [] : ["--fix-passes", "1"]
-        Open3.capture3(binary, "--only", cop, "--fix", *passes, *paths.keys, chdir: root)
+        Open3.capture3(binary, "--only", cop, "-A", *passes, *paths.keys, chdir: root)
         paths.each { |copy, kase| kase.fixed = File.binread(File.join(root, copy)) }
       end
     end

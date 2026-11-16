@@ -280,7 +280,7 @@ pub(super) fn assignment_method(name: &[u8]) -> bool {
 }
 
 /// RuboCop AST's `OPERATOR_METHODS`.
-pub(super) fn operator_method(name: &[u8]) -> bool {
+pub(crate) fn operator_method(name: &[u8]) -> bool {
     matches!(
         name,
         b"|" | b"^"

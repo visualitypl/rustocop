@@ -72,7 +72,7 @@ mod multiline_assignment_layout;
 mod multiline_block_layout;
 mod multiline_element_indentation;
 mod multiline_element_line_breaks;
-mod multiline_expression;
+pub(crate) mod multiline_expression;
 mod multiline_hash_brace_layout;
 mod multiline_hash_key_line_breaks;
 mod multiline_literal_brace_layout;

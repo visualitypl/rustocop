@@ -110,7 +110,9 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
     assert_eq!(rows.len(), 49);
     // These fixtures audit detection-only constant rules. Newly landed literal
     // removals are independently covered by adjacent_strings composition tests.
-    let except = format!("{RESOLUTION},Lint/ImplicitStringConcatenation,Lint/TripleQuotes");
+    let except = format!(
+        "{RESOLUTION},Lint/ImplicitStringConcatenation,Lint/TripleQuotes,Lint/LiteralInInterpolation,Lint/UselessAccessModifier"
+    );
     for row in rows {
         let source = row["source"].as_str().unwrap();
         let expected: Vec<(u32, u32, u32, String)> =
@@ -121,17 +123,9 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
             vec!["--only", "Lint", "--except", &except, "--fix", "lib/a.rb"],
         ] {
             let out = unchanged(dir.path(), source.as_bytes(), &args);
-            // All49 fixtures also have a private modifier without an instance
-            // method. Department selection must retain the newly landed peer.
-            let peer = usize::from(args.contains(&"Lint"));
-            assert_eq!(
-                count(&out, "Lint/UselessAccessModifier"),
-                peer,
-                "{row}\n{out:?}"
-            );
             assert_eq!(
                 out.status.code(),
-                Some(i32::from(!expected.is_empty() || peer != 0)),
+                Some(i32::from(!expected.is_empty())),
                 "{row}\n{out:?}"
             );
             assert_eq!(count(&out, SCOPING), expected.len(), "{row}\n{out:?}");

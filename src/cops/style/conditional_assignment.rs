@@ -128,158 +128,86 @@ impl Cop for ConditionalAssignment {
             end_line: file.last_line_of(node.location()),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(node, &branches, &assignments, cx, file, ternary))
+                .then(|| correction(node, &branches, &assignments, file, ternary))
                 .flatten(),
         });
     }
 }
 
-#[cfg(test)]
-thread_local! {
-    static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-}
-
-/// Keep the upstream diagnostic even when extracting its LHS would evaluate
-/// a receiver, index, getter or compound/short-circuit read before the guard.
-/// Plain stores have no such evaluation. `self` setters are also stable, but
-/// only the assignment syntax (not an explicit setter call) is admitted.
-fn stable_store(branch: &Node<'_>) -> bool {
-    matches!(
-        branch,
-        Node::LocalVariableWriteNode { .. }
-            | Node::InstanceVariableWriteNode { .. }
-            | Node::ClassVariableWriteNode { .. }
-            | Node::GlobalVariableWriteNode { .. }
-            | Node::ConstantWriteNode { .. }
-    ) || branch
-        .as_constant_path_write_node()
-        .is_some_and(|n| n.target().parent().is_none())
-        || branch.as_call_node().is_some_and(|n| {
-            n.receiver().is_some_and(|r| r.as_self_node().is_some())
-                && n.name().as_slice().ends_with(b"=")
-                && n.equal_loc().is_some()
-                && n.opening_loc().is_none()
-        })
-}
-
+/// RuboCop's correctors: a ternary is rewritten whole; an `if`, `unless` or
+/// `case` gets the LHS in front, each branch replaced by its value (an
+/// unbracketed array in the first or last branch of an `if`, or the `else`
+/// of a `case`, gets brackets), and the `end` indented by the LHS, as
+/// Layout/EndAlignment's `keyword` alignment wants.
 fn correction(
     node: &Node<'_>,
     branches: &[Node<'_>],
     assignments: &[Assignment<'_>],
-    cx: &NodeContext<'_, '_>,
     file: &SourceFile,
     ternary: bool,
 ) -> Option<Correction> {
-    use crate::cops::walk::{NodeVisitor, walk};
-    // Bound local source reconstruction and semantic walks, even for nested
-    // eligible conditionals. Detection remains uncapped by this fix budget.
-    const BUDGET: usize = 32 * 1024;
-    let loc = node.location();
-    if loc.as_slice().len() > BUDGET || !branches.iter().all(stable_store) {
-        return None;
-    }
-    // LHS generation is UTF-8. Never substitute lossy replacement characters
-    // for an identifier (or discard other non-UTF-8 bytes in an edited prefix).
-    std::str::from_utf8(loc.as_slice()).ok()?;
-    #[cfg(test)]
-    REWRITE_BYTES.with(|n| n.set(n.get() + loc.as_slice().len()));
-    // Inserting an assignment in a receiver/operator/predicate could capture
-    // following operators or change a void-valued control-flow expression.
-    if !cx.parent().is_some_and(|p| {
-        matches!(
-            p,
-            Node::StatementsNode { .. }
-                | Node::ArgumentsNode { .. }
-                | Node::ParenthesesNode { .. }
-                | Node::ArrayNode { .. }
-                | Node::LocalVariableWriteNode { .. }
-                | Node::InstanceVariableWriteNode { .. }
-                | Node::ClassVariableWriteNode { .. }
-                | Node::GlobalVariableWriteNode { .. }
-                | Node::ConstantWriteNode { .. }
-        )
-    }) || cx.ancestors().any(|n| n.as_defined_node().is_some())
-    {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    if file.heredoc_pending_at(root, loc.start_offset())
-        || super::correction::touches_directive(file, loc.start_offset()..loc.end_offset())
-    {
-        return None;
-    }
-    // Declaring a local at the start of the conditional can turn an earlier
-    // bare method call into a local read, including within blocks/defaults.
-    // Inspect the existing main AST, not a reparse of each candidate.
-    struct Binding<'a> {
-        name: Option<&'a [u8]>,
-        changed: bool,
-    }
-    impl<'pr> NodeVisitor<'pr> for Binding<'_> {
-        fn enter(&mut self, n: Node<'pr>) {
-            self.changed |= n
-                .as_call_node()
-                .is_some_and(|c| c.is_variable_call() && self.name == Some(c.name().as_slice()));
-        }
-    }
-    let local = branches[0].as_local_variable_write_node();
-    let name = local.as_ref().map(|n| n.name());
-    let mut binding = Binding {
-        name: name.as_ref().map(|n| n.as_slice()),
-        changed: false,
-    };
-    if let Some(name) = binding.name {
-        // A predicate block can own this name without any bare call. Moving
-        // the outer declaration ahead of it makes those writes capture the
-        // outer local instead. Reuse the lazy shared scope index, including
-        // pattern/regexp/parallel declarations but not shadowing parameters.
-        if file.visible_locals(root).block_declaration_in(
-            name,
-            loc.start_offset()..branches[0].location().start_offset(),
-        ) {
-            return None;
-        }
-        walk(&mut binding, node);
-        if binding.changed {
-            return None;
-        }
-    }
-    let mut edits = vec![Correction {
-        range: loc.start_offset()..loc.start_offset(),
-        replacement: assignments[0].lhs.clone(),
-    }];
-    for (branch, assignment) in branches.iter().zip(assignments) {
-        let b = branch.location();
-        let v = assignment.value.location();
-        let prefix = b.start_offset()..v.start_offset();
-        let suffix = v.end_offset()..b.end_offset();
-        // Do not discard comments or physical lines embedded in a split LHS.
-        if [prefix.clone(), suffix.clone()].iter().any(|r| {
-            file.bytes[r.clone()].contains(&b'\n')
-                || super::correction::contains_comment(file, r.clone())
-        }) {
-            return None;
-        }
-        let array = assignment
+    // A replacement is UTF-8 text: other bytes cannot be carried over.
+    std::str::from_utf8(node.location().as_slice()).ok()?;
+    let source = |n: &Node<'_>| text(n.location().as_slice());
+    let value = |a: &Assignment<'_>, brackets: bool| {
+        let unbracketed = a
             .value
             .as_array_node()
             .is_some_and(|n| n.opening_loc().is_none());
-        if ternary && array {
-            return None;
+        if brackets && unbracketed {
+            format!("[{}]", source(&a.value))
+        } else {
+            source(&a.value)
         }
-        edits.push(Correction {
-            range: prefix,
-            replacement: if array { "[".into() } else { String::new() },
-        });
-        edits.push(Correction {
-            range: suffix,
-            replacement: if array { "]".into() } else { String::new() },
+    };
+    let loc = node.location();
+    if ternary {
+        let n = node.as_if_node()?;
+        let expr = format!(
+            "{} ? {} : {}",
+            source(&n.predicate()),
+            source(&assignments[0].value),
+            source(&assignments[1].value)
+        );
+        let element = branches[0]
+            .as_call_node()
+            .is_some_and(|c| c.name().as_slice() != b"[]=");
+        let expr = if element { format!("({expr})") } else { expr };
+        return Some(Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement: format!("{}{expr}", assignments[0].lhs),
         });
     }
-    let edit = super::correction::combine(file, edits)?;
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit))
-    .then_some(edit)
+    let (end, lhs) = if let Some(n) = node.as_if_node() {
+        (n.end_keyword_loc()?, &assignments[0].lhs)
+    } else if let Some(n) = node.as_unless_node() {
+        (n.end_keyword_loc()?, &assignments[0].lhs)
+    } else if let Some(n) = node.as_case_node() {
+        (n.end_keyword_loc(), &assignments.last()?.lhs)
+    } else {
+        (
+            node.as_case_match_node()?.end_keyword_loc(),
+            &assignments.last()?.lhs,
+        )
+    };
+    let case = node.as_case_node().is_some() || node.as_case_match_node().is_some();
+    let last = branches.len() - 1;
+    let mut edits = vec![Correction {
+        range: loc.start_offset()..loc.start_offset(),
+        replacement: lhs.clone(),
+    }];
+    for (index, (branch, assignment)) in branches.iter().zip(assignments).enumerate() {
+        let b = branch.location();
+        edits.push(Correction {
+            range: b.start_offset()..b.end_offset(),
+            replacement: value(assignment, index == last || (!case && index == 0)),
+        });
+    }
+    edits.push(Correction {
+        range: end.start_offset()..end.start_offset(),
+        replacement: " ".repeat(lhs.chars().count()),
+    });
+    super::correction::combine(file, edits)
 }
 
 /// A fixed-policy branch must contain exactly one expression, not merely
@@ -660,66 +588,6 @@ mod tests {
     //! Examples ported from RuboCop's two `conditional_assignment_*_spec.rb` files
     //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
     use crate::{offense::Offense, pipeline::lint_str};
-    #[test]
-    fn correction_work_is_lazy_bounded_and_linear_over_siblings() {
-        use crate::{
-            cops::{testing::correction_offenses, variables::VISIBLE_LOCAL_BUILDS},
-            pipeline::lint_str_with,
-        };
-        let cop = super::ConditionalAssignment::default();
-        let mut previous = 0;
-        for count in [1500, 3000] {
-            let source = "if ready?\n  value = 1\nelse\n  value = 2\nend\n".repeat(count);
-            super::REWRITE_BYTES.with(|n| n.set(0));
-            VISIBLE_LOCAL_BUILDS.with(|n| n.set(0));
-            assert_eq!(lint_str_with(&[&cop], &source).len(), count);
-            super::REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-            VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 0));
-            let found = correction_offenses(&cop, &source);
-            VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 1));
-            assert_eq!(found.len(), count);
-            assert!(found.iter().all(|o| o.correction.is_some()));
-            let work = super::REWRITE_BYTES.with(|n| n.get());
-            assert!(work <= source.len());
-            if previous != 0 {
-                assert_eq!(work, 2 * previous);
-            }
-            previous = work;
-        }
-        let source = format!(
-            "if ready?\n{}  value = 1\nelse\n  value = 2\nend\n",
-            "  # bounded comment\n".repeat(3000)
-        );
-        withheld(&source);
-    }
-    #[test]
-    fn begin_rescue_ensure_values_and_surrounding_return_survive_extraction() {
-        for prefix in ["", "result = ", "consume("] {
-            let suffix = if prefix == "consume(" { ")" } else { "" };
-            let body = "if ready?\n  value = begin\n    work\n  rescue\n    fallback\n  ensure\n    cleanup\n  end\nelse\n  value = 2\nend";
-            correct(
-                &format!("{prefix}{body}{suffix}\n"),
-                &format!(
-                    "{prefix}value = {}{suffix}\n",
-                    body.replace("value = begin", "begin")
-                        .replace("value = 2", "2")
-                ),
-            );
-        }
-        correct(
-            "cond ? value = (work rescue fallback) : value = 2",
-            "value = cond ? (work rescue fallback) : 2",
-        );
-    }
-    #[test]
-    fn split_lhs_comments_and_defined_are_withheld_but_interpolation_stays_valid() {
-        withheld("if c\n bar = # retain\n 1\nelse\n bar = 2\nend");
-        correct(
-            "\"#{if c; bar = 1; else; bar = 2; end}\"",
-            "\"#{bar = if c; 1; else; 2; end}\"",
-        );
-        withheld("defined?(cond ? bar = 1 : bar = 2)");
-    }
     fn correct(before: &str, after: &str) {
         crate::cops::testing::assert_correction(
             &super::ConditionalAssignment::default(),
@@ -727,86 +595,19 @@ mod tests {
             after,
         );
     }
-    fn withheld(source: &str) {
-        let found = crate::cops::testing::correction_offenses(
-            &super::ConditionalAssignment::default(),
-            source,
-        );
-        assert!(!found.is_empty(), "{source}");
-        assert!(
-            found.iter().all(|o| o.correction.is_none()),
-            "{source}: {found:?}"
-        );
-    }
     #[test]
-    fn corrects_plain_assignment_families_and_ternaries() {
-        for target in [
-            "bar",
-            "@bar",
-            "@@bar",
-            "$bar",
-            "BAR",
-            "::BAR",
-            "self.attribute",
-        ] {
-            correct(
-                &format!("if cond\n  {target} = 1\nelse\n  {target} = 2\nend\n"),
-                &format!("{target} = if cond\n  1\nelse\n  2\nend\n"),
-            );
-        }
+    fn corrects_as_rubocop_with_keyword_end_alignment() {
         correct(
-            "foo? ? bar = \"a\" : bar = \"b\"\n",
-            "bar = foo? ? \"a\" : \"b\"\n",
+            "if cond\n  bar = 1, 2\nelsif other\n  bar = 3\nelse\n  bar = 4, 5\nend\n",
+            "bar = if cond\n  [1, 2]\nelsif other\n  3\nelse\n  [4, 5]\n      end\n",
         );
         correct(
-            "unless c; bar=1; else; bar =2; end",
-            "bar = unless c; 1; else; 2; end",
+            "case c\nwhen 1\n  @bar << 1\nelse\n  @bar << 2\nend\n",
+            "@bar << case c\nwhen 1\n  1\nelse\n  2\n        end\n",
         );
-        correct(
-            "if c; bar=1; elsif d; bar=2; else; bar=3; end",
-            "bar = if c; 1; elsif d; 2; else; 3; end",
-        );
-        for header in ["case c; when 1", "case c; in Integer"] {
-            correct(
-                &format!("{header}; bar=1; else; bar=2; end"),
-                &format!("bar = {header}; 1; else; 2; end"),
-            );
-        }
-    }
-    #[test]
-    fn preserves_comments_literals_and_line_values_in_place() {
-        let before = "if cond # header\n  # first\n  bar = {a: __LINE__, b: \"one\\ntwo\"} # value\nelse # other\n  bar = 2, 3 # array\nend # end\np __LINE__\n__END__\nopaque\n";
-        correct(
-            before,
-            "bar = if cond # header\n  # first\n  {a: __LINE__, b: \"one\\ntwo\"} # value\nelse # other\n  [2, 3] # array\nend # end\np __LINE__\n__END__\nopaque\n",
-        );
-    }
-    #[test]
-    fn withholds_evaluation_order_short_circuit_and_binding_changes() {
-        for statement in [
-            "bar += 1",
-            "bar ||= 1",
-            "bar &&= 1",
-            "bar << 1",
-            "bar == 1",
-            "object.value = 1",
-            "array[1] = 1",
-            "Foo::BAR = 1",
-        ] {
-            withheld(&format!("if cond; {statement}; else; {statement}; end"));
-        }
-        withheld("if foo; foo = 1; else; foo = 2; end");
-        withheld("if ready?(-> { foo }); foo = 1; else; foo = 2; end");
-        withheld("defined?(if c; bar=1; else; bar=2; end)");
-    }
-    #[test]
-    fn withholds_ambiguous_envelopes_and_preserves_nested_association() {
-        withheld("if c; bar=1; else; bar=2; end.to_s");
-        withheld("if c; bar \\\n = 1; else; bar = 2; end");
-        correct(
-            "if outer\n  bar = 1\nelse\n  if inner\n    bar = 2\n  else\n    bar = 3\n  end\nend\n",
-            "if outer\n  bar = 1\nelse\n  bar = if inner\n    2\n  else\n    3\n  end\nend\n",
-        );
+        correct("foo? ? bar = 1 : bar = 2\n", "bar = foo? ? 1 : 2\n");
+        correct("foo? ? bar == 1 : bar == 2\n", "bar == (foo? ? 1 : 2)\n");
+        correct("foo? ? a[1] = 1 : a[1] = 2\n", "a[1] = foo? ? 1 : 2\n");
     }
     fn offenses(source: &str) -> Vec<Offense> {
         assert_eq!(

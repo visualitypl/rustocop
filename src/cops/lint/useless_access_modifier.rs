@@ -68,83 +68,18 @@ impl Cop for UselessAccessModifier {
             ),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_modifier(node, cx, file))
-                .flatten(),
+                .then(|| whole_lines(file, node.location().start_offset(), end)),
         });
     }
 }
 
-// Bare visibility methods can be overridden; removing even a builtin tail
-// changes a class body's value, and deleting lines relocates methods/events.
-// Only a single never-evaluated modifier in a closed top-level false branch's
-// Class.new block is proved. No definitions, bindings, parameters, arguments,
-// comments or other runtime expressions are admitted. Existing main-parse
-// source/encoding/position/VM/heap guards remain authoritative for every edit.
-fn inactive_modifier(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    if call.receiver().is_some()
-        || call.arguments().is_some()
-        || call.block().is_some()
-        || !matches!(
-            call.name().as_slice(),
-            b"public" | b"private" | b"protected" | b"module_function"
-        )
-    {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let block = ancestors.next()?.as_block_node()?;
-    let constructor = ancestors.next()?.as_call_node()?;
-    let branch = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || branch.body().len() != 1
-        || top.body().len() != 1
-        || block.parameters().is_some()
-        || block.opening_loc().as_slice() != b"do"
-        || constructor.arguments().is_some()
-        || constructor.is_safe_navigation()
-        || constructor.name().as_slice() != b"new"
-        || constructor.receiver()?.location().as_slice() != b"Class"
-        || constructor.call_operator_loc()?.as_slice() != b"."
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-        || conditional.end_keyword_loc().is_none()
-    {
-        return None;
-    }
-    let conditional_start = conditional.location().start_offset();
-    let comments = file.comments();
-    if comments
-        .get(comments.partition_point(|r| r.end <= conditional_start))
-        .is_some_and(|r| r.start < conditional.location().end_offset())
-    {
-        return None;
-    }
-    let line = file.line_of(node.location().start_offset());
-    let start = file.line_start(line);
-    let end = file.line_start(line + 1);
-    let prefix = file.bytes.get(start..node.location().start_offset())?;
-    let suffix = file.bytes.get(node.location().end_offset()..end)?;
-    if !prefix.iter().all(|b| matches!(b, b' ' | b'\t')) || !matches!(suffix, b"\n" | b"\r\n") {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: start..end,
+/// RuboCop removes the whole lines of the modifier.
+fn whole_lines(file: &SourceFile, start: usize, end: usize) -> crate::offense::Correction {
+    crate::offense::Correction {
+        range: file.line_start(file.line_of(start))
+            ..file.line_start(file.line_of(end.saturating_sub(1).max(start)) + 1),
         replacement: String::new(),
-    })
+    }
 }
 
 /// File-local facts, initialized only if a modifier candidate exists. The
@@ -628,6 +563,15 @@ mod tests {
     //! Ported from RuboCop's lint/useless_access_modifier_spec.rb.
     //! MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
     use super::*;
+
+    #[test]
+    fn removes_the_modifier_lines() {
+        crate::cops::testing::assert_correction(
+            &UselessAccessModifier,
+            "class SomeClass\n  def some_method\n    puts 10\n  end\n  protected\nend\n",
+            "class SomeClass\n  def some_method\n    puts 10\n  end\nend\n",
+        );
+    }
     fn offenses(source: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(source)
             .into_iter()

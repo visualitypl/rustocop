@@ -64,82 +64,19 @@ impl Cop for RedundantTypeConversion {
                 "Redundant `{}` detected.",
                 std::str::from_utf8(method).unwrap()
             ),
+            // RuboCop removes from the dot to the closing parenthesis or the selector.
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_chain(node, cx, file))
+                .then(|| {
+                    let end = call.closing_loc().unwrap_or(selector);
+                    Some(crate::offense::Correction {
+                        range: call.call_operator_loc()?.start_offset()..end.end_offset(),
+                        replacement: String::new(),
+                    })
+                })
                 .flatten(),
         });
     }
-}
-// Ordinary removals change dispatch, exceptions, values, allocations and code
-// objects even on literals. Only one exact chain in a closed top-level false
-// branch is proved here. Bare receivers exclude bindings/compiler side effects;
-// exact spellings exclude comments, heredocs and line movement. The main-parse
-// encoding/source/runtime/position/heap/atomic guards remain authoritative.
-fn inactive_chain(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let outer = node.as_call_node()?;
-    if outer.block().is_some() {
-        return None;
-    }
-    let receiver = outer.receiver()?;
-    let inner = receiver.as_call_node()?;
-    if inner.name().as_slice() != outer.name().as_slice()
-        || inner.arguments().is_some()
-        || inner.block().is_some()
-    {
-        return None;
-    }
-    let base = inner.receiver()?;
-    let bare = base.as_call_node()?;
-    let name = bare.name().as_slice();
-    if bare.receiver().is_some()
-        || bare.arguments().is_some()
-        || bare.block().is_some()
-        || name.is_empty()
-        || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-        || base.location().as_slice() != name
-    {
-        return None;
-    }
-    let method = std::str::from_utf8(outer.name().as_slice()).ok()?;
-    let name = std::str::from_utf8(name).ok()?;
-    let dot = |c: &CallNode<'_>| if c.is_safe_navigation() { "&." } else { "." };
-    let inner_text = format!("{name}{}{method}", dot(&inner));
-    let inner_raw = std::str::from_utf8(receiver.location().as_slice()).ok()?;
-    if inner_raw != inner_text && inner_raw != format!("{inner_text}()") {
-        return None;
-    }
-    let text = format!("{inner_raw}{}{method}", dot(&outer));
-    let raw = node.location().as_slice();
-    if raw != text.as_bytes() && raw != format!("{text}()").as_bytes() {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: outer.call_operator_loc()?.start_offset()..node.location().end_offset(),
-        replacement: String::new(),
-    })
 }
 fn conversion(method: &[u8]) -> bool {
     matches!(
@@ -409,11 +346,11 @@ mod tests {
         assert_eq!(offenses("foo { 's'.to_s }").len(), 1);
     }
     #[test]
-    fn canonical_chain_only_in_closed_inactive_branch() {
+    fn removes_the_dot_through_the_parentheses() {
         crate::cops::testing::assert_correction(
             &super::RedundantTypeConversion,
-            "if false\n  alpha.to_s.to_s\nend\n",
-            "if false\n  alpha.to_s\nend\n",
+            "foo&.to_s(2)&.to_s()\n\"x\".to_s\n",
+            "foo&.to_s(2)\n\"x\"\n",
         );
     }
     #[test]

@@ -445,9 +445,9 @@ fn curated_percent_and_existing_default_style_layout_composition_converges() {
             // the default RedundantPercentQ competes for the original
             // envelope, before canonical StringLiterals on the next pass.
             assert!(after.contains("\"hello\""), "{after}");
-            assert!(after.contains("\"#{1}\""), "{after}");
+            assert!(after.contains("\"1\""), "{after}");
             assert!(after.contains("\"custom\""), "{after}");
-            assert!(after.contains("\"#{2}\""), "{after}");
+            assert!(after.contains("\"2\""), "{after}");
         }
         assert!(after.contains("%w[one two]"), "{after}");
     }

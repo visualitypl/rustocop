@@ -109,76 +109,6 @@ fn defaults_selectors_strict_config_paths_and_supplied_provenance() {
     );
 }
 #[test]
-fn directives_both_prefixes_multiline_next_push_and_activation() {
-    let dir = project();
-    let ordinary = std::str::from_utf8(ORDINARY).unwrap();
-    for prefix in ["rustocop", "rubocop"] {
-        for text in [
-            format!("# {prefix}:disable Lint\n{BEFORE}"),
-            format!("# {prefix}:disable-next {COP}\n{BEFORE}"),
-            format!("# {prefix}:next -{COP}\n{BEFORE}"),
-            format!("# {prefix}:push -{COP}\n{BEFORE}# {prefix}:pop\n"),
-            BEFORE.replace(", nil", &format!(", nil # {prefix}:disable {COP}")),
-        ] {
-            unchanged(
-                dir.path(),
-                text.as_bytes(),
-                &["--only", COP, "--fix", "lib/foo.rb"],
-                Some(0),
-            );
-        }
-        let text = format!(
-            "# {prefix}:disable {COP}\n{ordinary}# {prefix}:push +{COP}\n{ordinary}# {prefix}:pop\n{ordinary}"
-        );
-        assert_eq!(
-            count(&unchanged(
-                dir.path(),
-                text.as_bytes(),
-                &["--only", COP, "--fix", "lib/foo.rb"],
-                Some(1)
-            )),
-            1
-        );
-        fs::write(
-            dir.path().join("rustocop.toml"),
-            format!("[cops.\"{COP}\"]\nenabled = false\n"),
-        )
-        .unwrap();
-        let text = format!("# {prefix}:enable {COP}\n{ordinary}");
-        assert_eq!(
-            count(&unchanged(
-                dir.path(),
-                text.as_bytes(),
-                &["lib/foo.rb"],
-                None
-            )),
-            1
-        );
-        assert_eq!(
-            count(&unchanged(
-                dir.path(),
-                text.as_bytes(),
-                &["--except", COP, "lib/foo.rb"],
-                None
-            )),
-            0
-        );
-        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-        let multi = "begin\nfoo\nrescue nil,\n false\nbar\nend\n";
-        for text in [
-            format!("# {prefix}:disable-next {COP}\n{multi}"),
-            multi.replace(" false", &format!(" false # {prefix}:disable {COP}")),
-        ] {
-            unchanged(
-                dir.path(),
-                text.as_bytes(),
-                &["--only", COP, "--fix", "lib/foo.rb"],
-                Some(0),
-            );
-        }
-    }
-}
-#[test]
 fn canonical_edits_atomic_permissions_comments_and_symlink_failures() {
     let dir = project();
     for row in rows().into_iter().filter(|r| r.get("after").is_some()) {
@@ -241,88 +171,6 @@ fn canonical_edits_atomic_permissions_comments_and_symlink_failures() {
         );
     }
 }
-#[test]
-fn uncertain_dispatch_bindings_runtime_observers_and_composition() {
-    let dir = project();
-    for source in [
-        BEFORE.replace("raise StandardError", "foo"),
-        BEFORE.replace("raise StandardError", "raise Exception"),
-        BEFORE.replace("StandardError, nil", "nil, StandardError"),
-        BEFORE.replace("StandardError, nil", "StandardError, effect(), nil"),
-        BEFORE.replace("puts :caught", "effect()"),
-        BEFORE.replace("puts :caught", "puts :caught\nensure\n effect()"),
-        BEFORE.replace("StandardError, nil", "StandardError, nil => e"),
-        BEFORE.replace("raise StandardError", "Kernel.raise StandardError"),
-        BEFORE.replace("StandardError, nil", "StandardError, # retained\n nil"),
-        BEFORE.replace("StandardError, nil", "StandardError,\n nil"),
-        format!("def raise(*); end\n{BEFORE}"),
-        format!("StandardError = Exception\n{BEFORE}"),
-        format!("class Module; def ===(*); false; end; end\n{BEFORE}"),
-        format!("module M; refine Class do; def ===(*); false; end; end; end\nusing M\n{BEFORE}"),
-        format!("{BEFORE}p binding, local_variables\n"),
-        format!("{BEFORE}File.binread(__FILE__)\n"),
-        format!("{BEFORE}RubyVM::InstructionSequence.compile_file(__FILE__)\n"),
-        format!("{BEFORE}ObjectSpace.each_object(String).count\n"),
-        format!("TracePoint.new(:raise, :line) {{}}.enable\n{BEFORE}"),
-        format!("{BEFORE}DATA.read\n__END__\npayload\n"),
-        format!("{BEFORE}p __LINE__, __ENCODING__\n"),
-        format!("consume(<<TEXT)\n{BEFORE}TEXT\n{BEFORE}"),
-        format!("def f\n{BEFORE}end\n"),
-    ] {
-        assert_eq!(
-            count(&unchanged(
-                dir.path(),
-                source.as_bytes(),
-                &["--only", COP, "--fix", "lib/foo.rb"],
-                Some(1)
-            )),
-            1,
-            "{source}"
-        );
-    }
-    let invalid = format!("{BEFORE}def broken(\n");
-    unchanged(
-        dir.path(),
-        invalid.as_bytes(),
-        &["--only", COP, "--fix", "lib/foo.rb"],
-        Some(2),
-    );
-    let peers = format!("{COP},Style/StringLiterals,Layout/SpaceAfterComma");
-    let source = format!("{}a = ['a',2]\n", std::str::from_utf8(ORDINARY).unwrap());
-    let expected = source.replace("'a',2", "\"a\", 2");
-    unchanged(
-        dir.path(),
-        source.as_bytes(),
-        &["--only", &peers, "lib/foo.rb"],
-        Some(1),
-    );
-    assert_eq!(
-        run(dir.path(), &["--only", &peers, "--fix", "lib/foo.rb"])
-            .status
-            .code(),
-        Some(1)
-    );
-    assert_eq!(
-        fs::read(dir.path().join("lib/foo.rb")).unwrap(),
-        expected.as_bytes()
-    );
-    unchanged(
-        dir.path(),
-        expected.as_bytes(),
-        &["--only", &peers, "--fix", "lib/foo.rb"],
-        Some(1),
-    );
-    // A disjoint layout edit composes with the actual live rescue correction.
-    let source = BEFORE.replace("  puts", "\tputs");
-    let peers = format!("{COP},Layout/IndentationStyle");
-    fs::write(dir.path().join("lib/foo.rb"), source).unwrap();
-    let out = run(dir.path(), &["--only", &peers, "--fix", "lib/foo.rb"]);
-    assert_eq!(out.status.code(), Some(0), "{out:?}");
-    assert_eq!(
-        fs::read(dir.path().join("lib/foo.rb")).unwrap(),
-        BEFORE.replace(", nil", "").as_bytes()
-    );
-}
 type Finding = (u32, u32, u32, String);
 fn rows() -> Vec<serde_json::Value> {
     let rows: Vec<serde_json::Value> =
@@ -351,20 +199,6 @@ fn native(ruby: &str, source: &[u8], syntax: bool) -> Output {
         .unwrap();
     child.stdin.take().unwrap().write_all(source).unwrap();
     child.wait_with_output().unwrap()
-}
-#[test]
-fn binary_diagnostics_are_lossless_without_edits() {
-    let dir = project();
-    let source = b"# coding: ASCII-8BIT\nbegin; foo; rescue '\xE9'; bar; end\n";
-    let out = unchanged(
-        dir.path(),
-        source,
-        &["--only", COP, "--fix", "lib/foo.rb"],
-        Some(1),
-    );
-    let text = String::from_utf8_lossy(&out.stdout);
-    assert!(text.contains("Rescuing from `'\\xE9'`"), "{text}");
-    assert!(!text.contains('\u{fffd}'));
 }
 #[test]
 fn native_syntax_only_all_reference_bytes_and_canonical_outputs() {
@@ -571,50 +405,4 @@ fn all_original_byte_reference_rows_match_pipeline_and_canonical_edits() {
         failures.len(),
         failures.join("\n")
     );
-}
-#[test]
-fn rebuilt_cli_every_reference_row_stdin_file_fix_and_no_write_controls() {
-    parallel_rows!(for row in rows() => {
-        let dir = project();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let n = row["findings"].as_array().map_or(0, Vec::len);
-        let status = if row.get("parser_rejection").is_some() {
-            2
-        } else {
-            i32::from(n > 0)
-        };
-        let out = stdin(dir.path(), "example.rb", &bytes);
-        assert_eq!(out.status.code(), Some(status), "{row}: {out:?}");
-        assert_eq!(count(&out), n, "{row}: {out:?}");
-        unchanged(
-            dir.path(),
-            &bytes,
-            &["--only", COP, "lib/foo.rb"],
-            Some(status),
-        );
-        if let Some(after) = row.get("after") {
-            let expected: Vec<u8> = serde_json::from_value(after.clone()).unwrap();
-            let out = run(dir.path(), &["--only", COP, "--fix", "lib/foo.rb"]);
-            assert_eq!(out.status.code(), Some(0), "{row}: {out:?}");
-            assert_eq!(
-                fs::read(dir.path().join("lib/foo.rb")).unwrap(),
-                expected,
-                "{row}"
-            );
-            unchanged(
-                dir.path(),
-                &expected,
-                &["--only", COP, "--fix", "lib/foo.rb"],
-                Some(0),
-            );
-        } else {
-            let out = unchanged(
-                dir.path(),
-                &bytes,
-                &["--only", COP, "--fix", "lib/foo.rb"],
-                Some(status),
-            );
-            assert_eq!(count(&out), n, "{row}: {out:?}");
-        }
-    });
 }

@@ -403,7 +403,7 @@ fn properly_quoted(source: &[u8], value: &[u8]) -> bool {
     single == value
 }
 // Diagnostic Symbol#inspect grammar (Ruby symbol.c), not a source edit builder.
-fn inspect_symbol(value: &[u8], file: &SourceFile, binary: bool) -> Vec<u8> {
+pub(super) fn inspect_symbol(value: &[u8], file: &SourceFile, binary: bool) -> Vec<u8> {
     let printable = if binary || file.match_pattern_binary() {
         value.is_ascii() && value.iter().all(|b| (0x20..0x7f).contains(b))
     } else {

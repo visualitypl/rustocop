@@ -60,88 +60,30 @@ impl Cop for RescueType {
             cop: self.name(), severity: self.severity(), line, col,
             end_line: file.line_of(exceptions.last().unwrap().location().end_offset().saturating_sub(1)),
             message: format!("Rescuing from `{names}` will raise a `TypeError` instead of catching the actual exception."),
-            correction: cx.corrections_requested().then(|| live_correction(node, cx, file)).flatten(),
+            correction: cx.corrections_requested().then(|| correction(&rescue, &exceptions, file)).flatten(),
         });
     }
 }
-/// A closed, live version of the reviewed witness, not exception type flow.
-/// The sole top-level begin has one standard raise and a single standard puts
-/// handler. No other executable syntax can replace raise, StandardError or ===,
-/// install hooks/refinements, expose bindings, or observe changed source/objects.
-/// Never generalize this to arbitrary protected calls or effectful type lists.
-/// The pipeline's shared source/position/VM/heap guards still filter this edit.
-fn live_correction(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
+/// RuboCop replaces what follows `rescue`, up to the last exception, with
+/// the valid exceptions.
+fn correction(
+    rescue: &ruby_prism::RescueNode<'_>,
+    exceptions: &[Node<'_>],
     file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let rescue = node.as_rescue_node()?;
-    let exceptions: Vec<_> = rescue.exceptions().iter().collect();
-    let [valid, invalid] = exceptions.as_slice() else {
-        return None;
-    };
-    if valid.location().as_slice() != b"StandardError"
-        || valid.as_constant_read_node().is_none()
-        || invalid.as_nil_node().is_none()
-        || rescue.reference().is_some()
-        || rescue.subsequent().is_some()
-    {
-        return None;
-    }
-    let mut parents = cx.ancestors();
-    let begin = parents.next()?.as_begin_node()?;
-    let top = parents.next()?.as_statements_node()?;
-    parents.next()?.as_program_node()?;
-    if parents.next().is_some()
-        || top.body().len() != 1
-        || begin.begin_keyword_loc().is_none()
-        || begin.else_clause().is_some()
-        || begin.ensure_clause().is_some()
-    {
-        return None;
-    }
-    let protected = begin.statements()?;
-    let handler = rescue.statements()?;
-    if protected.body().len() != 1 || handler.body().len() != 1 {
-        return None;
-    }
-    let raise = protected.body().iter().next()?.as_call_node()?;
-    let puts = handler.body().iter().next()?.as_call_node()?;
-    for (call, name) in [(&raise, b"raise".as_slice()), (&puts, b"puts".as_slice())] {
-        if call.name().as_slice() != name
-            || call.receiver().is_some()
-            || call.block().is_some()
-            || call.arguments()?.arguments().len() != 1
-        {
-            return None;
-        }
-    }
-    let raised = raise.arguments()?.arguments().iter().next()?;
-    let printed = puts.arguments()?.arguments().iter().next()?;
-    if raised.as_constant_read_node().is_none()
-        || raised.location().as_slice() != b"StandardError"
-        || printed.as_symbol_node().is_none()
-        || printed.location().as_slice() != b":caught"
-    {
-        return None;
-    }
-    let start = rescue.keyword_loc().end_offset();
-    let end = invalid.location().end_offset();
-    // Canonical upstream replacement is keyword.end..exceptions.end, not just
-    // a comma token deletion. Refuse comments, continuations or physical lines.
-    let removed = file.bytes.get(start..end)?;
-    if removed
+    let valid = exceptions
         .iter()
-        .any(|b| !b.is_ascii_alphabetic() && !matches!(b, b' ' | b'\t' | b','))
-    {
-        return None;
-    }
+        .filter(|n| !invalid_type(n, file))
+        .map(|n| std::str::from_utf8(n.location().as_slice()).ok())
+        .collect::<Option<Vec<_>>>()?;
     Some(crate::offense::Correction {
-        range: start..end,
-        replacement: " StandardError".into(),
+        range: rescue.keyword_loc().end_offset()
+            ..exceptions.last().unwrap().location().end_offset(),
+        replacement: if valid.is_empty() {
+            String::new()
+        } else {
+            format!(" {}", valid.join(", "))
+        },
     })
 }
 fn invalid_type(node: &Node<'_>, file: &SourceFile) -> bool {
@@ -168,6 +110,22 @@ mod tests {
     //! Ported from RuboCop's lint/rescue_type_spec.rb.
     //! MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
     use super::*;
+
+    #[test]
+    fn keeps_the_valid_exceptions() {
+        for (before, after) in [
+            (
+                "begin\n  foo\nrescue nil\n  bar\nend\n",
+                "begin\n  foo\nrescue\n  bar\nend\n",
+            ),
+            (
+                "begin\n  foo\nrescue nil, StandardError\n  bar\nend\n",
+                "begin\n  foo\nrescue StandardError\n  bar\nend\n",
+            ),
+        ] {
+            crate::cops::testing::assert_correction(&RescueType, before, after);
+        }
+    }
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -220,35 +178,6 @@ mod tests {
                     );
                 }
             }
-        }
-    }
-    #[test]
-    fn reviewed_live_witness_canonical_edit_and_uncertain_holds() {
-        let before =
-            "begin\n  raise StandardError\nrescue StandardError, nil\n  puts :caught\nend\n";
-        let after = before.replace(", nil", "");
-        crate::cops::testing::assert_correction(&RescueType, before, &after);
-        for s in [
-            before.replace("raise StandardError", "foo"),
-            before.replace("raise StandardError", "raise Exception"),
-            before.replace("StandardError, nil", "nil, StandardError"),
-            before.replace("StandardError, nil", "StandardError, effect(), nil"),
-            before.replace("puts :caught", "effect()"),
-            format!("def raise(*); end\n{before}"),
-            format!("StandardError = Exception\n{before}"),
-            format!("class Module; def ===(*); false; end; end\n{before}"),
-            format!("TracePoint.new(:raise) {{}}.enable\n{before}"),
-            format!("{before}p binding\n"),
-            format!("{before}p RubyVM::InstructionSequence.of(method(:foo))\n"),
-            format!("{before}p ObjectSpace.count_objects\n"),
-            format!("{before}File.read(__FILE__)\n"),
-            format!("{before}__END__\npayload\n"),
-            before.replace(", nil", ", # retained\n nil"),
-            before.replace(", nil", ",\n nil"),
-        ] {
-            let found = crate::cops::testing::correction_offenses(&RescueType, &s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{s}");
         }
     }
     #[test]

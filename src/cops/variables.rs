@@ -271,7 +271,6 @@ type ScopeDeclarationPositions = std::collections::HashMap<Vec<u8>, Vec<usize>>;
 #[derive(Default)]
 pub(crate) struct VisibleLocals {
     multiple_targets: std::collections::HashMap<Vec<u8>, Vec<usize>>,
-    block_declarations: std::collections::HashMap<Vec<u8>, Vec<usize>>,
     scopes: std::collections::HashMap<(usize, usize, u8), ScopeDeclarationPositions>,
 }
 
@@ -287,20 +286,6 @@ impl VisibleLocals {
         for id in analysis.scopes_in_exit_order() {
             let scope = analysis.scope(id);
             let loc = scope.node.location();
-            if scope.kind.is_block() {
-                for id in scope.variables() {
-                    let var = analysis.variable(id);
-                    // Parameters and explicit `|; local|` declarations keep
-                    // shadowing an outer local introduced before the block.
-                    if !matches!(var.declaration, Declaration::Parameter(_)) {
-                        result
-                            .block_declarations
-                            .entry(var.name.to_vec())
-                            .or_default()
-                            .push(var.declaration_range.start);
-                    }
-                }
-            }
             let names = scope
                 .variables()
                 .map(|id| {
@@ -327,25 +312,10 @@ impl VisibleLocals {
                     .push(assignment.name_range.start);
             }
         }
-        for positions in result
-            .multiple_targets
-            .values_mut()
-            .chain(result.block_declarations.values_mut())
-        {
+        for positions in result.multiple_targets.values_mut() {
             positions.sort_unstable();
         }
         result
-    }
-
-    /// A block-owned declaration in source that an earlier outer declaration
-    /// could turn into a capture. Includes lambdas, patterns and regexp captures;
-    /// closed nested scopes may conservatively withhold an otherwise safe edit.
-    pub(crate) fn block_declaration_in(&self, name: &[u8], range: Range<usize>) -> bool {
-        let Some(positions) = self.block_declarations.get(name) else {
-            return false;
-        };
-        let first = positions.partition_point(|p| *p < range.start);
-        positions.get(first).is_some_and(|p| *p < range.end)
     }
 
     pub(crate) fn same_name_assignment(

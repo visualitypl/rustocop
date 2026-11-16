@@ -498,6 +498,7 @@ fn only_the_safe_style_layout_and_landed_naming_lint_cops_opt_in() {
             "Lint/IdentityComparison",
             "Lint/ImplicitStringConcatenation",
             "Lint/LambdaWithoutLiteralBlock",
+            "Lint/LiteralInInterpolation",
             "Lint/ParenthesesAsGroupedExpression",
             "Lint/RedundantCopDisableDirective",
             "Lint/RedundantCopEnableDirective",

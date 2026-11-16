@@ -35,10 +35,14 @@ impl Cop for LiteralInInterpolation {
         "Lint/LiteralInInterpolation"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -50,11 +54,11 @@ impl Cop for LiteralInInterpolation {
                 let parts = string.parts();
                 let context = Context {
                     heredoc: opening.is_some_and(|opening| opening.starts_with(b"<<")),
-                    in_regexp: false,
                     // `%W[]` elements have no delimiters of their own; the
                     // other delimiter-less strings are concatenations
                     // (`"a" "b"`), whose parts are strings.
                     word: opening.is_none() && has_interpolation(&parts),
+                    ..Context::default()
                 };
                 (parts, context)
             }
@@ -70,36 +74,61 @@ impl Cop for LiteralInInterpolation {
                 node.as_interpolated_x_string_node().unwrap().parts(),
                 Context::default(),
             ),
-            Node::InterpolatedRegularExpressionNode { .. } => (
-                node.as_interpolated_regular_expression_node()
-                    .unwrap()
-                    .parts(),
-                Context::regexp(),
-            ),
-            Node::InterpolatedMatchLastLineNode { .. } => (
-                node.as_interpolated_match_last_line_node().unwrap().parts(),
-                Context::regexp(),
-            ),
+            Node::InterpolatedRegularExpressionNode { .. } => {
+                let regexp = node.as_interpolated_regular_expression_node().unwrap();
+                (regexp.parts(), Context::regexp(&regexp.opening_loc()))
+            }
+            Node::InterpolatedMatchLastLineNode { .. } => {
+                let regexp = node.as_interpolated_match_last_line_node().unwrap();
+                (regexp.parts(), Context::regexp(&regexp.opening_loc()))
+            }
             _ => return,
         };
-        for part in parts.iter() {
-            if let Some(interpolation) = part.as_embedded_statements_node()
-                && let Some(literal) = offending_literal(&interpolation, &context, file)
-            {
-                let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                    literal.start_offset(),
-                    file,
-                );
-                out.push(Offense {
-                    correction: None,
-                    cop: self.name(),
-                    severity: self.severity(),
-                    message: "Literal interpolation detected.".to_string(),
-                    line,
-                    end_line: file.last_line_of(literal),
-                    col,
-                });
-            }
+        let parts: Vec<_> = parts.iter().collect();
+        for (index, part) in parts.iter().enumerate() {
+            let before = index.checked_sub(1).map(|i| &parts[i]);
+            let Some(interpolation) = part.as_embedded_statements_node() else {
+                continue;
+            };
+            let Some((literal, value)) = offending_literal(&interpolation, &context, file) else {
+                continue;
+            };
+            let location = literal.location();
+            let (line, col) =
+                super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
+            // RuboCop leaves a nested string, and an interpolation after one
+            // that inlines nothing or a `#`, to the next pass.
+            let follows = before
+                .and_then(|b| b.as_embedded_statements_node())
+                .and_then(|b| offending_literal(&b, &context, file))
+                .is_some_and(|(_, v)| v.is_empty() || v.ends_with(b"#"));
+            let nested = matches!(literal, Node::InterpolatedStringNode { .. })
+                || super::reference_basic_literal::is_dstr(&literal, file);
+            let correction = (cx.corrections_requested() && !nested && !follows)
+                .then(|| {
+                    let replacement = match literal.as_string_node() {
+                        Some(string) if std::str::from_utf8(string.unescaped()).is_err() => {
+                            unquoted(location.as_slice()).to_vec()
+                        }
+                        _ => value,
+                    };
+                    let range = interpolation.location();
+                    // A replacement is UTF-8 text: other bytes cannot be carried over.
+                    Some(crate::offense::Correction {
+                        range: range.start_offset()..range.end_offset(),
+                        replacement: String::from_utf8(replacement).ok()?,
+                    })
+                })
+                .flatten();
+            out.push(Offense {
+                correction,
+                cop: self.name(),
+                severity: self.severity(),
+                message: "Literal interpolation detected.".to_string(),
+                line,
+                end_line: file.last_line_of(location),
+                col,
+            });
         }
     }
 }
@@ -111,14 +140,17 @@ struct Context {
     heredoc: bool,
     /// In a regexp.
     in_regexp: bool,
+    /// In a regexp between slashes.
+    slash_regexp: bool,
     /// In a word of a `%W[]` or `%I[]` literal.
     word: bool,
 }
 
 impl Context {
-    fn regexp() -> Self {
+    fn regexp(opening: &ruby_prism::Location<'_>) -> Self {
         Context {
             in_regexp: true,
+            slash_regexp: opening.as_slice() == b"/",
             ..Context::default()
         }
     }
@@ -130,12 +162,13 @@ fn has_interpolation(parts: &NodeList<'_>) -> bool {
     })
 }
 
-/// The source location of the literal to report in `interpolation`, if any.
+/// The literal to report in `interpolation`, if any, and RuboCop's
+/// `correctable_value` for it: what the correction inlines.
 fn offending_literal<'pr>(
     interpolation: &EmbeddedStatementsNode<'pr>,
     context: &Context,
     file: &SourceFile,
-) -> Option<ruby_prism::Location<'pr>> {
+) -> Option<(Node<'pr>, Vec<u8>)> {
     let last = interpolation.statements()?.body().iter().last()?;
     if is_special_keyword(&last) || !prints_as_self(&last, file) {
         return None;
@@ -146,14 +179,62 @@ fn offending_literal<'pr>(
     if context.in_regexp && last.as_array_node().is_some() {
         return None;
     }
-    let value = Value::of(&last);
-    if starts_interpolation_after_hash_sign(interpolation, &value, file) {
+    let mut value = rendered(&last, file);
+    if context.slash_regexp && value.contains(&b'/') {
+        value = regexp_slashes(&value);
+    }
+    let bytes = &file.bytes;
+    let location = interpolation.location();
+    let (start, end) = (location.start_offset(), location.end_offset());
+    let following = bytes.get(end).copied();
+    let first = value.first().copied().or(following);
+    if matches!(first, Some(b'{' | b'@' | b'$'))
+        && start > 0
+        && unescaped_hash_sign(&bytes[..start])
+    {
         return None;
     }
-    if context.word && (value.first.is_none() || value.whitespace) {
+    if matches!(following, Some(b'{' | b'@' | b'$')) && unescaped_hash_sign(&value) {
+        value.pop();
+        value.extend_from_slice(b"\\#");
+    }
+    if context.word && (value.is_empty() || value.iter().any(|&b| is_ruby_space(b))) {
         return None;
     }
-    Some(last.location())
+    Some((last, value))
+}
+
+/// Whether `text` ends with a `#` that no backslash escapes.
+fn unescaped_hash_sign(text: &[u8]) -> bool {
+    let Some(rest) = text.strip_suffix(b"#") else {
+        return false;
+    };
+    rest.iter().rev().take_while(|&&b| b == b'\\').count() % 2 == 0
+}
+
+/// RuboCop's `handle_special_regexp_chars`: `n` backslashes before a `/`
+/// become `2 * ((n + 1) / 4) + 1`, which compile to the same regexp.
+fn regexp_slashes(value: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(value.len());
+    let mut backslashes = 0;
+    for &b in value {
+        match b {
+            b'\\' => backslashes += 1,
+            b'/' => {
+                let needed = 2 * ((backslashes + 1) / 4) + 1;
+                out.extend(std::iter::repeat_n(b'\\', needed));
+                out.push(b'/');
+                backslashes = 0;
+            }
+            _ => {
+                out.extend(std::iter::repeat_n(b'\\', backslashes));
+                out.push(b);
+                backslashes = 0;
+            }
+        }
+    }
+    out.extend(std::iter::repeat_n(b'\\', backslashes));
+    out
 }
 
 /// `__FILE__`, `__LINE__` and heredocs (RuboCop: strings without an opening
@@ -192,7 +273,7 @@ fn prints_as_self(node: &Node<'_>, file: &SourceFile) -> bool {
             pairs_print_as_self(&node.as_hash_node().unwrap().elements(), file)
         }
         // `[a: 1]`: a plain `hash` in RuboCop's AST. An array's value is
-        // inlined as its source, so `Value::of` needs no counterpart.
+        // inlined as its source, so `rendered` needs no counterpart.
         Node::KeywordHashNode { .. } => {
             pairs_print_as_self(&node.as_keyword_hash_node().unwrap().elements(), file)
         }
@@ -256,131 +337,191 @@ fn ends_line(
     line_length == end_col - 1
 }
 
-/// RuboCop's `starts_interpolation_after_hash_sign?`: inlining the value
-/// after an unescaped `#` would make `#{`, `#@` or `#$`.
-fn starts_interpolation_after_hash_sign(
-    interpolation: &EmbeddedStatementsNode<'_>,
-    value: &Value,
-    file: &SourceFile,
-) -> bool {
-    let bytes = &file.bytes;
-    let location = interpolation.location();
-    let (start, end) = (location.start_offset(), location.end_offset());
-    let following = value.first.or_else(|| bytes.get(end).copied());
-    if !matches!(following, Some(b'{' | b'@' | b'$')) {
-        return false;
-    }
-    if start == 0 || bytes[start - 1] != b'#' {
-        return false;
-    }
-    let backslashes = bytes[..start - 1]
-        .iter()
-        .rev()
-        .take_while(|&&byte| byte == b'\\')
-        .count();
-    backslashes % 2 == 0
-}
-
-/// What RuboCop's autocorrection would inline, as far as the checks need it.
-struct Value {
-    /// Its first byte; `None` when empty.
-    first: Option<u8>,
-    /// Whether it contains ASCII whitespace (Ruby's `\s`).
-    whitespace: bool,
-}
-
-impl Value {
-    fn of(node: &Node<'_>) -> Self {
-        match node {
-            Node::NilNode { .. } => Value::text(b""),
-            // Decimal digits, maybe signed: never whitespace or `{@$`.
-            Node::IntegerNode { .. } | Node::FloatNode { .. } => Value::text(b"0"),
-            Node::StringNode { .. } => {
-                let string = node.as_string_node().unwrap();
-                let unescaped = string.unescaped();
-                if std::str::from_utf8(unescaped).is_ok() {
-                    Value::text(unescaped)
-                } else {
-                    // RuboCop inlines the source without its quotes.
-                    let source = node.location().as_slice();
-                    let source = source.strip_prefix(b"\"").unwrap_or(source);
-                    Value::text(source.strip_suffix(b"\"").unwrap_or(source))
-                }
-            }
-            Node::SymbolNode { .. } => {
-                // The source between the delimiters, escapes and all.
-                let symbol = node.as_symbol_node().unwrap();
-                let location = node.location();
-                let start = symbol
-                    .opening_loc()
-                    .map_or(location.start_offset(), |opening| opening.end_offset());
-                let end = symbol
-                    .closing_loc()
-                    .map_or(location.end_offset(), |closing| closing.start_offset());
-                let source = location.as_slice();
-                let base = location.start_offset();
-                Value::text(&source[start - base..end.max(start) - base])
-            }
-            Node::ArrayNode { .. } => {
-                let array = node.as_array_node().unwrap();
-                let percent = array
-                    .opening_loc()
-                    .is_some_and(|opening| opening.as_slice().starts_with(b"%"));
-                if percent {
-                    // Upstream splits the original percent contents, not the
-                    // parsed elements: even an escaped space splits two words.
-                    let location = node.location();
-                    let start = array.opening_loc().unwrap().end_offset();
-                    let end = array.closing_loc().unwrap().start_offset();
-                    let contents = &location.as_slice()
-                        [start - location.start_offset()..end - location.start_offset()];
-                    Value {
-                        first: Some(b'['),
-                        whitespace: contents
-                            .split(|&b| is_ruby_space(b))
-                            .filter(|part| !part.is_empty())
-                            .nth(1)
-                            .is_some(),
-                    }
-                } else {
-                    Value::text(node.location().as_slice())
-                }
-            }
-            Node::HashNode { .. } => {
-                let elements = node.as_hash_node().unwrap().elements();
-                Value {
-                    first: Some(b'{'),
-                    whitespace: elements.iter().nth(1).is_some()
-                        || elements.iter().any(|pair| {
-                            pair.as_assoc_node().is_some_and(|pair| {
-                                in_hash_has_whitespace(&pair.key())
-                                    || in_hash_has_whitespace(&pair.value())
-                            })
-                        }),
-                }
-            }
-            _ => Value::text(node.location().as_slice()),
-        }
-    }
-
-    fn text(text: &[u8]) -> Self {
-        Value {
-            first: text.first().copied(),
-            whitespace: text.iter().any(|byte| is_ruby_space(*byte)),
-        }
-    }
-}
-
-/// Whether RuboCop's rendering of a hash key or value (`inspect` for
-/// strings and symbols) contains whitespace.
-fn in_hash_has_whitespace(node: &Node<'_>) -> bool {
+/// RuboCop's `autocorrected_value`: the text that replaces the
+/// interpolation.
+fn rendered(node: &Node<'_>, file: &SourceFile) -> Vec<u8> {
+    let source = node.location().as_slice();
     match node {
-        Node::IntegerNode { .. } | Node::FloatNode { .. } => false,
-        // `inspect` escapes control characters, so only spaces remain.
-        Node::StringNode { .. } => node.as_string_node().unwrap().unescaped().contains(&b' '),
-        Node::SymbolNode { .. } => node.as_symbol_node().unwrap().unescaped().contains(&b' '),
-        _ => Value::of(node).whitespace,
+        Node::IntegerNode { .. } | Node::FloatNode { .. } => number(node).into_bytes(),
+        Node::StringNode { .. } if !super::reference_basic_literal::is_dstr(node, file) => {
+            let string = node.as_string_node().unwrap();
+            let unescaped = string.unescaped();
+            if std::str::from_utf8(unescaped).is_ok() {
+                escape_content(unescaped)
+            } else {
+                unquoted(source).to_vec()
+            }
+        }
+        Node::SymbolNode { .. } if super::reference_basic_literal::is_basic_literal(node, file) => {
+            // The source between the delimiters, escapes and all.
+            let symbol = node.as_symbol_node().unwrap();
+            let location = node.location();
+            let start = symbol
+                .opening_loc()
+                .map_or(location.start_offset(), |opening| opening.end_offset());
+            let end = symbol
+                .closing_loc()
+                .map_or(location.end_offset(), |closing| closing.start_offset());
+            let base = location.start_offset();
+            escape_quotes(&source[start - base..end.max(start) - base])
+        }
+        Node::ArrayNode { .. } => array(node, file),
+        Node::HashNode { .. } => hash(&node.as_hash_node().unwrap().elements(), file),
+        Node::NilNode { .. } => Vec::new(),
+        _ => escape_quotes(source),
     }
+}
+
+/// RuboCop's `autocorrected_value_in_hash`: strings and symbols as Ruby
+/// inspects them.
+fn in_hash(node: &Node<'_>, file: &SourceFile) -> Vec<u8> {
+    match node {
+        Node::IntegerNode { .. } | Node::FloatNode { .. } => number(node).into_bytes(),
+        Node::StringNode { .. } if !super::reference_basic_literal::is_dstr(node, file) => {
+            let mut inspected = Vec::new();
+            super::duplicate_match_pattern::inspect_source(
+                node.as_string_node().unwrap().unescaped(),
+                file,
+                &mut inspected,
+            );
+            escape_content(&inspected)
+        }
+        Node::SymbolNode { .. } if super::reference_basic_literal::is_basic_literal(node, file) => {
+            let symbol = node.as_symbol_node().unwrap();
+            let value = symbol.unescaped();
+            escape_content(&super::symbol_conversion::inspect_symbol(
+                value, file, false,
+            ))
+        }
+        Node::ArrayNode { .. } => array(node, file),
+        Node::HashNode { .. } => hash(&node.as_hash_node().unwrap().elements(), file),
+        _ => escape_quotes(node.location().as_slice()),
+    }
+}
+
+/// An array as its source, a percent array as Ruby prints its words.
+fn array(node: &Node<'_>, file: &SourceFile) -> Vec<u8> {
+    let array = node.as_array_node().unwrap();
+    let location = node.location();
+    let (Some(opening), Some(closing)) = (array.opening_loc(), array.closing_loc()) else {
+        return escape_quotes(location.as_slice());
+    };
+    if !opening.as_slice().starts_with(b"%") {
+        return escape_quotes(location.as_slice());
+    }
+    // Upstream splits the original percent contents, not the parsed
+    // elements: even an escaped space splits two words.
+    let contents = &file.bytes[opening.end_offset()..closing.start_offset()];
+    let mut out = vec![b'['];
+    for (index, word) in contents
+        .split(|&b| is_ruby_space(b))
+        .filter(|word| !word.is_empty())
+        .enumerate()
+    {
+        if index > 0 {
+            out.extend_from_slice(b", ");
+        }
+        super::duplicate_match_pattern::inspect_source(word, file, &mut out);
+    }
+    out.push(b']');
+    escape_quotes(&out)
+}
+
+fn hash(elements: &NodeList<'_>, file: &SourceFile) -> Vec<u8> {
+    let mut out = vec![b'{'];
+    for (index, pair) in elements
+        .iter()
+        .filter_map(|e| e.as_assoc_node())
+        .enumerate()
+    {
+        if index > 0 {
+            out.extend_from_slice(b", ");
+        }
+        out.extend(in_hash(&pair.key(), file));
+        out.extend_from_slice(b"=>");
+        out.extend(in_hash(&pair.value(), file));
+    }
+    out.push(b'}');
+    out
+}
+
+/// Ruby's `to_i.to_s` or `to_f.to_s` of a number literal.
+fn number(node: &Node<'_>) -> String {
+    if let Some(integer) = node.as_integer_node() {
+        let value = integer.value();
+        let (negative, digits) = value.to_u32_digits();
+        let digits = crate::cops::ast::unsigned_integer_decimal(digits);
+        return if negative {
+            format!("-{digits}")
+        } else {
+            digits
+        };
+    }
+    float_to_s(node.as_float_node().unwrap().value())
+}
+
+/// Ruby's `Float#to_s`: the shortest digits that read back as the same
+/// float, in fixed notation for decimal exponents from -4 to 15, else in
+/// scientific notation with at least two exponent digits.
+fn float_to_s(value: f64) -> String {
+    if value.is_infinite() {
+        return if value > 0.0 { "Infinity" } else { "-Infinity" }.into();
+    }
+    if value.is_nan() {
+        return "NaN".into();
+    }
+    let scientific = format!("{:e}", value.abs());
+    let (mantissa, exponent) = scientific.split_once('e').unwrap();
+    let digits: String = mantissa.chars().filter(char::is_ascii_digit).collect();
+    let point = exponent.parse::<i32>().unwrap() + 1;
+    let sign = if value.is_sign_negative() { "-" } else { "" };
+    let text = if (1..=16).contains(&point) {
+        let point = point as usize;
+        if digits.len() > point {
+            format!("{}.{}", &digits[..point], &digits[point..])
+        } else {
+            format!("{digits}{}.0", "0".repeat(point - digits.len()))
+        }
+    } else if (-3..=0).contains(&point) {
+        format!("0.{}{digits}", "0".repeat(point.unsigned_abs() as usize))
+    } else {
+        let rest = if digits.len() > 1 { &digits[1..] } else { "0" };
+        format!("{}.{rest}e{:+03}", &digits[..1], point - 1)
+    };
+    format!("{sign}{text}")
+}
+
+/// RuboCop's `escape_string_content`: a backslash before each backslash,
+/// double quote, and `#` that would start an interpolation.
+fn escape_content(text: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(text.len());
+    for (index, &b) in text.iter().enumerate() {
+        if matches!(b, b'\\' | b'"')
+            || (b == b'#' && matches!(text.get(index + 1), Some(b'@' | b'{' | b'$')))
+        {
+            out.push(b'\\');
+        }
+        out.push(b);
+    }
+    out
+}
+
+/// `gsub('"', '\"')`.
+fn escape_quotes(text: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(text.len());
+    for &b in text {
+        if b == b'"' {
+            out.push(b'\\');
+        }
+        out.push(b);
+    }
+    out
+}
+
+/// The source without a leading and a trailing double quote.
+fn unquoted(source: &[u8]) -> &[u8] {
+    let source = source.strip_prefix(b"\"").unwrap_or(source);
+    source.strip_suffix(b"\"").unwrap_or(source)
 }
 
 /// Ruby's `\s`.
@@ -404,6 +545,27 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == "Lint/LiteralInInterpolation")
             .collect()
+    }
+
+    #[test]
+    fn inlines_what_rubocop_prints() {
+        for (literal, inlined) in [
+            ("1_123", "1123"),
+            ("0xaabb", "43707"),
+            ("1.2e-3", "0.0012"),
+            ("1e20", "1.0e+20"),
+            ("nil", ""),
+            ("'a\"b'", "a\\\"b"),
+            (":\"sym\"", "sym"),
+            ("%w[v1 v2]", "[\\\"v1\\\", \\\"v2\\\"]"),
+            ("{ foo: 'bar' }", "{:foo=>\\\"bar\\\"}"),
+        ] {
+            crate::cops::testing::assert_correction(
+                &LiteralInInterpolation,
+                &format!("\"x #{{{literal}}}\"\n"),
+                &format!("\"x {inlined}\"\n"),
+            );
+        }
     }
 
     fn positions(source: &str) -> Vec<(u32, u32)> {

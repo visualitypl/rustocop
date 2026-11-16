@@ -408,15 +408,13 @@ fn actual_composition_and_line_and_heredoc_controls() {
             "--only",
             "Lint",
             "--except",
-            "Lint/ConstantResolution",
+            "Lint/ConstantResolution,Lint/UselessAccessModifier",
             "--fix",
             "lib/a.rb",
         ],
     );
-    // Literal correction still composes, while the new lexical modifier
-    // finding remains unedited (constant visibility is a separate concern).
-    assert_eq!(out.status.code(), Some(1), "{out:?}");
-    assert!(String::from_utf8_lossy(&out.stdout).contains("(Lint/UselessAccessModifier)"));
+    // Literal correction still composes.
+    assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(
         fs::read(&path).unwrap(),
         b"class Foo; private; X=1; private_constant \"X\" ; end\n"

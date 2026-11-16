@@ -101,115 +101,13 @@ struct Branches<'pr> {
     falsy: Option<Node<'pr>>,
 }
 
-#[cfg(test)]
-thread_local! {
-    static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-}
-
-// Equality does not imply repeatability: a second send can mutate state, raise,
-// or return something else. In particular a custom `?` need not return Boolean.
-fn stable_read(node: &Node<'_>) -> bool {
-    matches!(
-        node,
-        Node::LocalVariableReadNode { .. }
-            | Node::InstanceVariableReadNode { .. }
-            | Node::SelfNode { .. }
-            | Node::TrueNode { .. }
-            | Node::FalseNode { .. }
-            | Node::NilNode { .. }
-    )
-}
-
 fn text<'pr>(node: &Node<'pr>) -> Option<&'pr str> {
     std::str::from_utf8(node.location().as_slice()).ok()
 }
 
-// Parentheses make fallback control flow, rescue, low-precedence operators and
-// command calls unambiguous without reparsing or moving their effects.
-fn fallback_source(node: &Node<'_>) -> Option<String> {
-    let source = text(node)?;
-    let unwrapped = stable_read(node)
-        || matches!(
-            node,
-            Node::ParenthesesNode { .. }
-                | Node::BeginNode { .. }
-                | Node::IntegerNode { .. }
-                | Node::FloatNode { .. }
-                | Node::StringNode { .. }
-                | Node::SymbolNode { .. }
-                | Node::ArrayNode { .. }
-                | Node::HashNode { .. }
-                | Node::ConstantReadNode { .. }
-                | Node::ConstantPathNode { .. }
-        )
-        || node.as_call_node().is_some_and(|n| {
-            !n.message_loc().is_some_and(|l| l.as_slice() == b"not")
-                && n.block().is_none()
-                && (n.opening_loc().is_some() || n.arguments().is_none())
-        });
-    Some(
-        if node
-            .as_array_node()
-            .is_some_and(|n| n.opening_loc().is_none())
-        {
-            format!("[{source}]")
-        } else if node.as_keyword_hash_node().is_some() {
-            format!("{{ {source} }}")
-        } else if unwrapped {
-            source.to_owned()
-        } else {
-            format!("({source})")
-        },
-    )
-}
-
-// Ruby reparses regexp/range values as implicit matches/flip-flops in
-// predicates, even through parentheses, begin and boolean operators. Scan only
-// the bounded fallback; conservatively include literals nested in value wrappers.
-fn condition_sensitive_value(node: &Node<'_>) -> bool {
-    use crate::cops::walk::{NodeVisitor, walk};
-    struct Sensitive(bool);
-    impl<'pr> NodeVisitor<'pr> for Sensitive {
-        fn enter(&mut self, node: Node<'pr>) {
-            self.0 |= matches!(
-                node,
-                Node::RegularExpressionNode { .. }
-                    | Node::InterpolatedRegularExpressionNode { .. }
-                    | Node::RangeNode { .. }
-            );
-        }
-    }
-    let mut visitor = Sensitive(false);
-    walk(&mut visitor, node);
-    visitor.0
-}
-
-fn in_predicate(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
-    let within = |predicate: Node<'_>| {
-        predicate.location().start_offset() <= node.location().start_offset()
-            && node.location().end_offset() <= predicate.location().end_offset()
-    };
-    cx.ancestors().any(|ancestor| {
-        let predicate = if let Some(n) = ancestor.as_if_node() {
-            Some(n.predicate())
-        } else if let Some(n) = ancestor.as_unless_node() {
-            Some(n.predicate())
-        } else if let Some(n) = ancestor.as_while_node() {
-            Some(n.predicate())
-        } else {
-            ancestor.as_until_node().map(|n| n.predicate())
-        };
-        predicate.is_some_and(within)
-            || ancestor
-                .as_when_node()
-                .is_some_and(|n| n.conditions().iter().any(within))
-            // Both `!` and keyword `not` have the selector `!` in Prism.
-            || ancestor
-                .as_call_node()
-                .is_some_and(|n| n.name().as_slice() == b"!")
-    })
-}
-
+/// RuboCop's corrector: `a ? a : b` becomes `a || b`, a conditional
+/// without `else` its branch, and any other one `a || b` built from the
+/// branches (`make_ternary_form`).
 fn correction(
     node: &Node<'_>,
     branches: &Branches<'_>,
@@ -217,133 +115,207 @@ fn correction(
     file: &SourceFile,
 ) -> Option<Correction> {
     let loc = node.location();
-    // Bounded correction-only source reconstruction. Detection remains uncapped.
-    if loc.as_slice().len() > 32 * 1024
-        || !stable_read(&branches.condition)
-        || cx.ancestors().any(|n| n.as_defined_node().is_some())
+    let ternary = node.as_if_node().filter(|n| n.if_keyword_loc().is_none());
+    let falsy_start = |n: &ruby_prism::IfNode<'_>| {
+        n.subsequent()?
+            .as_else_node()?
+            .statements()
+            .map(|s| s.location().start_offset())
+    };
+    // RuboCop's `contains_comments?` on each descendant: the lines from the
+    // condition up to the `end`, or to a ternary's else branch.
+    let end = match &ternary {
+        Some(n) => falsy_start(n)?,
+        None => node
+            .as_if_node()
+            .and_then(|n| n.end_keyword_loc())
+            .or_else(|| node.as_unless_node().and_then(|n| n.end_keyword_loc()))?
+            .start_offset(),
+    };
+    let lines = file.line_of(branches.condition.location().start_offset())..file.line_of(end);
+    if file
+        .comments()
+        .iter()
+        .any(|c| lines.contains(&file.line_of(c.start)))
     {
         return None;
     }
-    std::str::from_utf8(loc.as_slice()).ok()?;
-    #[cfg(test)]
-    REWRITE_BYTES.with(|n| n.set(n.get() + loc.as_slice().len()));
-    let root = cx.ancestors().next_back()?;
-    if super::correction::contains_comment(file, loc.start_offset()..loc.end_offset())
-        || super::correction::touches_directive(file, loc.start_offset()..loc.end_offset())
-        || file.contains_heredoc(root, node)
-        || file.heredoc_pending_at(root, loc.start_offset())
-        || file.class_method_bindings(root).observes_sources
-    {
-        return None;
+    let same_methods = branches.same_methods();
+    if let Some(n) = ternary.as_ref().filter(|_| !same_methods) {
+        let question = n.then_keyword_loc()?;
+        let colon = n.subsequent()?.as_else_node()?.else_keyword_loc();
+        let mut edits = vec![Correction {
+            range: question.start_offset()..colon.end_offset(),
+            replacement: "||".into(),
+        }];
+        if let Some(falsy) = branches
+            .falsy
+            .as_ref()
+            .filter(|f| f.as_range_node().is_some())
+        {
+            let f = falsy.location();
+            edits.push(Correction {
+                range: f.start_offset()..f.start_offset(),
+                replacement: "(".into(),
+            });
+            edits.push(Correction {
+                range: f.end_offset()..f.end_offset(),
+                replacement: ")".into(),
+            });
+        }
+        return super::correction::combine(file, edits);
     }
     let truthy = branches.truthy.as_ref()?;
-    let guard = text(&branches.condition)?;
-    let mut replacement = if ast::same_node(&branches.condition, truthy) {
-        match &branches.falsy {
-            Some(falsy) => {
-                if in_predicate(node, cx) && condition_sensitive_value(falsy) {
-                    return None;
-                }
-                format!("{guard} || {}", fallback_source(falsy)?)
-            }
-            // A bare replacement would return false, whereas an if without an
-            // else returns nil on that path. Retain that observable distinction.
-            None => format!("{guard} || nil"),
-        }
-    } else if let (Some((_, yes)), Some((_, no))) = (
-        assignment(truthy),
-        branches.falsy.as_ref().and_then(assignment),
-    ) {
-        if !ast::same_node(&branches.condition, &yes) {
-            return None;
-        }
-        let prefix = |branch: &Node<'_>, value: &Node<'_>| {
-            std::str::from_utf8(
-                &file.bytes[branch.location().start_offset()..value.location().start_offset()],
-            )
-            .ok()
-        };
-        let yes_prefix = prefix(truthy, &yes)?;
-        let no_prefix = prefix(branches.falsy.as_ref()?, &no)?;
-        // Do not move a namespace lookup (or conflate same short constant names).
-        if yes_prefix != no_prefix || truthy.as_constant_path_write_node().is_some() {
-            return None;
-        }
-        format!("{yes_prefix}{guard} || {}", fallback_source(&no)?)
-    } else if branches.same_methods() {
-        let (yes, arg) = method_argument(truthy)?;
-        let (_, no) = method_argument(branches.falsy.as_ref()?)?;
-        if !ast::same_node(&branches.condition, &arg)
-            || yes.receiver().is_some_and(|r| !stable_read(&r))
-            // Keyword-to-positional hash conversion is not a safe Ruby 3 rewrite.
-            || no.as_keyword_hash_node().is_some()
-        {
-            return None;
-        }
-        let source = text(truthy)?;
-        let start = arg.location().start_offset() - truthy.location().start_offset();
-        let end = arg.location().end_offset() - truthy.location().start_offset();
-        let inner = format!("{guard} || {}", fallback_source(&no)?);
-        let binary = yes.opening_loc().is_none()
-            && yes.call_operator_loc().is_none()
-            && yes.receiver().is_some()
-            && yes.equal_loc().is_none();
-        format!(
-            "{}{}{}",
-            &source[..start],
-            if binary { format!("({inner})") } else { inner },
-            &source[end..]
-        )
-    } else {
-        return None;
+    let Some(falsy) = branches.falsy.as_ref() else {
+        return Some(Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement: text(truthy)?.to_owned(),
+        });
     };
-    // Replacing a conditional with || (or an extracted assignment) must not
-    // capture a surrounding operator/receiver, modifier, range or condition.
-    let operator_argument = cx.parent().is_some_and(|p| p.as_arguments_node().is_some())
-        && cx
-            .ancestors()
-            .nth(1)
-            .and_then(|p| p.as_call_node())
-            .is_some_and(|c| {
-                c.receiver().is_some()
-                    && c.opening_loc().is_none()
-                    && c.call_operator_loc().is_none()
-                    && c.equal_loc().is_none()
-            });
-    // An extracted command call can swallow the next argument/array element,
-    // or steal an enclosing block. Group the entire call, not only its argument.
-    let command_argument = truthy
-        .as_call_node()
-        .is_some_and(|n| branches.same_methods() && n.opening_loc().is_none())
-        && cx
-            .parent()
-            .is_some_and(|p| matches!(p, Node::ArgumentsNode { .. } | Node::ArrayNode { .. }));
-    if operator_argument
-        || command_argument
-        || !cx.parent().is_some_and(|p| {
-            matches!(
-                p,
-                Node::StatementsNode { .. }
-                    | Node::ParenthesesNode { .. }
-                    | Node::ArgumentsNode { .. }
-                    | Node::ArrayNode { .. }
-                    | Node::LocalVariableWriteNode { .. }
-                    | Node::InstanceVariableWriteNode { .. }
-                    | Node::ClassVariableWriteNode { .. }
-                    | Node::GlobalVariableWriteNode { .. }
-                    | Node::ConstantWriteNode { .. }
+    let parenthesized = |n: &Node<'_>| {
+        n.as_call_node()
+            .and_then(|c| c.opening_loc())
+            .is_some_and(|o| o.as_slice() == b"(")
+    };
+    let binary = same_methods
+        && truthy.as_call_node().is_some_and(|c| {
+            c.receiver().is_some()
+                && c.call_operator_loc().is_none()
+                && super::super::layout::multiline_expression::operator_method(c.name().as_slice())
+        });
+    let if_source = if same_methods && parenthesized(truthy) {
+        text(truthy)?.strip_suffix(')')?.to_owned()
+    } else if binary {
+        let call = truthy.as_call_node()?;
+        format!(
+            "{} {} ({}",
+            text(&call.receiver()?)?,
+            std::str::from_utf8(call.name().as_slice()).ok()?,
+            text(&method_argument(truthy)?.1)?
+        )
+    } else if truthy.as_true_node().is_some() {
+        let condition = branches.condition.as_call_node()?;
+        let arguments = ast::call_arguments(&condition);
+        if arguments.is_empty() || parenthesized(&branches.condition) {
+            text(&branches.condition)?.to_owned()
+        } else {
+            let c = branches.condition.location();
+            let selector = condition.message_loc()?.end_offset();
+            let first = arguments[0].location().start_offset();
+            format!(
+                "{}({})",
+                std::str::from_utf8(&file.bytes[c.start_offset()..selector]).ok()?,
+                std::str::from_utf8(&file.bytes[first..c.end_offset()]).ok()?
             )
+        }
+    } else {
+        text(truthy)?.to_owned()
+    };
+    let wrapped = |n: &Node<'_>| -> Option<String> {
+        let source = text(n)?;
+        Some(if require_parentheses(n) {
+            format!("({source})")
+        } else if n.as_keyword_hash_node().is_some() {
+            format!("{{ {source} }}")
+        } else {
+            source.to_owned()
         })
+    };
+    let else_source = if binary {
+        format!("{})", text(&method_argument(falsy)?.1)?)
+    } else if same_methods {
+        wrapped(&method_argument(falsy)?.1)?
+    } else if require_parentheses(falsy) {
+        format!("({})", text(falsy)?)
+    } else if let Some(call) = falsy.as_call_node().filter(|c| {
+        let name = c.name().as_slice();
+        !c.is_safe_navigation()
+            && !ast::call_arguments(c).is_empty()
+            && !parenthesized(falsy)
+            && !super::super::layout::multiline_expression::operator_method(name)
+            && !(name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"===" | b"<=" | b">="))
+    }) {
+        let arguments = ast::call_arguments(&call)
+            .iter()
+            .map(text)
+            .collect::<Option<Vec<_>>>()?
+            .join(", ");
+        format!(
+            "{}({arguments})",
+            std::str::from_utf8(call.name().as_slice()).ok()?
+        )
+    } else if let (Some((name, _)), Some((other, value))) = (assignment(truthy), assignment(falsy))
+        && name == other
     {
+        wrapped(&value)?
+    } else {
+        text(falsy)?.to_owned()
+    };
+    let mut replacement = format!("{if_source} || {else_source}");
+    if same_methods && parenthesized(truthy) {
+        replacement.push(')');
+    }
+    let parent_send = cx.parent().is_some_and(|p| {
+        p.as_call_node().is_some()
+            || (p.as_arguments_node().is_some()
+                && cx
+                    .ancestors()
+                    .nth(1)
+                    .is_some_and(|g| g.as_call_node().is_some()))
+    });
+    if parent_send {
         replacement = format!("({replacement})");
     }
-    let edit = Correction {
+    Some(Correction {
         range: loc.start_offset()..loc.end_offset(),
         replacement,
-    };
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit))
-    .then_some(edit)
+    })
+}
+
+/// RuboCop's `require_parentheses?`: what binds looser than `||`.
+fn require_parentheses(node: &Node<'_>) -> bool {
+    match node {
+        Node::IfNode { .. } => node
+            .as_if_node()
+            .is_some_and(|n| n.if_keyword_loc().is_some() && n.end_keyword_loc().is_none()),
+        Node::UnlessNode { .. } => node
+            .as_unless_node()
+            .is_some_and(|n| n.end_keyword_loc().is_none()),
+        Node::WhileNode { .. } => node
+            .as_while_node()
+            .is_some_and(|n| n.closing_loc().is_none()),
+        Node::UntilNode { .. } => node
+            .as_until_node()
+            .is_some_and(|n| n.closing_loc().is_none()),
+        Node::RangeNode { .. } | Node::RescueModifierNode { .. } => true,
+        Node::AndNode { .. } => node
+            .as_and_node()
+            .is_some_and(|n| n.operator_loc().as_slice() == b"and"),
+        Node::OrNode { .. } => node
+            .as_or_node()
+            .is_some_and(|n| n.operator_loc().as_slice() == b"or"),
+        Node::CallNode { .. } => node
+            .as_call_node()
+            .is_some_and(|c| c.message_loc().is_some_and(|m| m.as_slice() == b"not")),
+        Node::ReturnNode { .. } | Node::NextNode { .. } | Node::BreakNode { .. } => {
+            let arguments = match node {
+                Node::ReturnNode { .. } => node.as_return_node().unwrap().arguments(),
+                Node::NextNode { .. } => node.as_next_node().unwrap().arguments(),
+                _ => node.as_break_node().unwrap().arguments(),
+            };
+            arguments.is_some_and(|a| {
+                let a = a.arguments();
+                !(a.len() == 1 && a.iter().next().unwrap().as_parentheses_node().is_some())
+            })
+        }
+        Node::YieldNode { .. } => node
+            .as_yield_node()
+            .is_some_and(|n| n.arguments().is_some() && n.lparen_loc().is_none()),
+        Node::SuperNode { .. } => node
+            .as_super_node()
+            .is_some_and(|n| n.arguments().is_some() && n.lparen_loc().is_none()),
+        _ => false,
+    }
 }
 
 // Statements lists are transparent in RuboCop unless they contain multiple
@@ -505,6 +477,23 @@ mod tests {
     //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
     use crate::{offense::Offense, pipeline::lint_str};
 
+    #[test]
+    fn corrects_as_rubocop() {
+        for (before, after) in [
+            ("b ? b : c\n", "b || c\n"),
+            ("b ? b : 1..2\n", "b || (1..2)\n"),
+            (
+                "if b\n  b\nelse\n  raise 'foo'\nend\n",
+                "b || raise('foo')\n",
+            ),
+            ("if b\n  b\nend\n", "b\n"),
+            ("if a.zero?\n  true\nelse\n  a\nend\n", "a.zero? || a\n"),
+            ("foo(if b\n  b\nelse\n  c\nend)\n", "foo((b || c))\n"),
+        ] {
+            crate::cops::testing::assert_correction(&super::RedundantCondition, before, after);
+        }
+    }
+
     fn offenses(source: &str) -> Vec<Offense> {
         assert_eq!(
             ruby_prism::parse(source.as_bytes()).errors().count(),
@@ -527,240 +516,6 @@ mod tests {
         );
         assert_eq!(found[0].message, message, "{source}");
         assert!(found[0].correction.is_none());
-    }
-
-    #[test]
-    fn stable_reads_have_real_corrections_and_preserve_branch_results() {
-        use crate::cops::testing::assert_correction;
-        for (before, after) in [
-            ("@b ? @b : c\n", "@b || c\n"),
-            ("if @b\n  @b\nelse\n  c\nend\n", "@b || c\n"),
-            ("b = false; if b then b else c end\n", "b = false; b || c\n"),
-            ("unless @b\n  c\nelse\n  @b\nend\n", "@b || c\n"),
-            ("if @b then @b end\n", "@b || nil\n"),
-            ("if @b then @v = @b else @v = c end\n", "@v = @b || c\n"),
-            (
-                "if @b then consume(@b) else consume(c) end\n",
-                "consume(@b || c)\n",
-            ),
-            (
-                "if @b then self.value = @b else self.value = c end\n",
-                "self.value = @b || c\n",
-            ),
-        ] {
-            assert_correction(&super::RedundantCondition, before, after);
-        }
-    }
-
-    #[test]
-    fn all_pinned_calls_and_corrections_are_accounted_for() {
-        let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/redundant_condition_pinned.json"
-        ))
-        .unwrap();
-        assert_eq!(cases.len(), 115);
-        let mut counts = (0, 0, 0);
-        for case in cases {
-            let source = case["source"].as_str().unwrap();
-            let invalid = source.contains("else next 1")
-                || source.contains("else break 1")
-                || source.contains("else yield 1")
-                || source.contains("else yield(1)");
-            if invalid {
-                assert!(ruby_prism::parse(source.as_bytes()).errors().count() > 0);
-                counts.2 += 1;
-                continue;
-            }
-            let found = offenses(source);
-            assert_eq!(
-                serde_json::json!(found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>()),
-                case["positions"],
-                "{case}"
-            );
-            assert_eq!(
-                serde_json::json!(found.iter().map(|o| &o.message).collect::<Vec<_>>()),
-                case["messages"],
-                "{case}"
-            );
-            // Only the instance-variable example repeats a provably stable
-            // read. All other correction examples repeat sends, or infer a
-            // Boolean from a custom predicate name. Neither is a safety proof.
-            let expected = if source == "@b ? @b : c\n" {
-                counts.1 += 1;
-                case["correction"].as_str().unwrap()
-            } else {
-                source
-            };
-            if case["correction"].is_string() {
-                counts.0 += 1;
-            }
-            if found.is_empty() {
-                assert!(
-                    crate::cops::testing::correction_offenses(&super::RedundantCondition, source)
-                        .is_empty()
-                );
-            } else {
-                crate::cops::testing::assert_correction(
-                    &super::RedundantCondition,
-                    source,
-                    expected,
-                );
-            }
-        }
-        assert_eq!(counts, (63, 1, 4)); // 67 upstream correction calls, four invalid.
-    }
-
-    #[test]
-    fn effects_nonboolean_predicates_namespaces_and_dynamic_receivers_are_withheld() {
-        use crate::cops::testing::assert_correction;
-        for source in [
-            "if value then value else fallback end\n",
-            "if foo? then true else fallback end\n",
-            "foo? ? true : fallback\n",
-            "if value then value end\n",
-            "if @b then A::V = @b else B::V = c end\n",
-            "if @b then A::V = @b else A::V = c end\n",
-            "if @b then receiver.consume(@b) else receiver.consume(c) end\n",
-            "if @b then consume(@b) else consume(key: c) end\n",
-            "defined?(@b ? @b : c)\n",
-        ] {
-            assert_eq!(offenses(source).len(), 1, "{source}");
-            assert_correction(&super::RedundantCondition, source, source);
-        }
-    }
-
-    #[test]
-    fn fallback_control_flow_precedence_and_branch_effects_remain_grouped() {
-        use crate::cops::testing::assert_correction;
-        for (fallback, expected) in [
-            ("raise 'x'", "(raise 'x')"),
-            ("consume x, y, key: :value", "(consume x, y, key: :value)"),
-            ("c + d", "(c + d)"),
-            ("(c || d)", "(c || d)"),
-            ("('x' if $VERBOSE)", "('x' if $VERBOSE)"),
-            ("c while d", "(c while d)"),
-            ("1..2", "(1..2)"),
-            ("b rescue c", "(b rescue c)"),
-            ("b and c", "(b and c)"),
-            ("not c", "(not c)"),
-            ("(c = work)", "(c = work)"),
-            ("work(1) do\n  effect\nend", "(work(1) do\n  effect\nend)"),
-            (
-                "begin; work; rescue; recover; ensure; cleanup; end",
-                "begin; work; rescue; recover; ensure; cleanup; end",
-            ),
-        ] {
-            assert_correction(
-                &super::RedundantCondition,
-                &format!("if @b\n  @b\nelse\n  {fallback}\nend\n"),
-                &format!("@b || {expected}\n"),
-            );
-        }
-        for (keyword, expected) in [
-            ("return 1", "(return 1)"),
-            ("yield 1", "(yield 1)"),
-            ("yield(1)", "(yield(1))"),
-            ("super 1", "(super 1)"),
-        ] {
-            assert_correction(
-                &super::RedundantCondition,
-                &format!("def example\n  x = if @b then @b else {keyword} end\nend\n"),
-                &format!("def example\n  x = @b || {expected}\nend\n"),
-            );
-        }
-        for keyword in ["next 1", "break 1"] {
-            assert_correction(
-                &super::RedundantCondition,
-                &format!("loop do\n  x = if @b then @b else {keyword} end\nend\n"),
-                &format!("loop do\n  x = @b || ({keyword})\nend\n"),
-            );
-        }
-    }
-
-    #[test]
-    fn method_assignment_operator_and_enclosing_expression_grouping() {
-        use crate::cops::testing::assert_correction;
-        for (before, after) in [
-            (
-                "if @b then @stack << @b else @stack << :new end\n",
-                "@stack << (@b || :new)\n",
-            ),
-            (
-                "if @b then @stack.-(@b) else @stack.-(1..2) end\n",
-                "@stack.-(@b || (1..2))\n",
-            ),
-            ("if @b then bar @b else bar({}) end\n", "bar @b || {}\n"),
-            (
-                "if @b then @v = @b else @v = 1, 2 end\n",
-                "@v = @b || [1, 2]\n",
-            ),
-            ("ary << if @b then @b else c end\n", "ary << (@b || c)\n"),
-            ("(if @b then @b else c end).work\n", "(@b || c).work\n"),
-            (
-                "work if (if @b then @b else c end)\n",
-                "work if (@b || c)\n",
-            ),
-            (
-                "if guard\n  if @b then @b else c end\nelsif other\n  work\nend\n",
-                "if guard\n  @b || c\nelsif other\n  work\nend\n",
-            ),
-        ] {
-            assert_correction(&super::RedundantCondition, before, after);
-        }
-    }
-
-    #[test]
-    fn regexp_and_range_fallbacks_stay_correctable_in_value_contexts() {
-        use crate::cops::testing::assert_correction;
-        for (before, after) in [
-            (
-                "value = if @b then @b else /yes/ end\n",
-                "value = @b || (/yes/)\n",
-            ),
-            (
-                "if ready\n  if @b then @b else 1..2 end\nend\n",
-                "if ready\n  @b || (1..2)\nend\n",
-            ),
-            (
-                "if (if @b then @v = @b else @v = /yes/ end); work; end\n",
-                "if (@v = @b || (/yes/)); work; end\n",
-            ),
-            (
-                "if (if @b then use(@b) else use(1..2) end); work; end\n",
-                "if (use(@b || (1..2))); work; end\n",
-            ),
-        ] {
-            assert_correction(&super::RedundantCondition, before, after);
-        }
-    }
-
-    #[test]
-    fn correction_source_work_is_lazy_and_bounded() {
-        use crate::cops::testing::correction_offenses;
-        let source = "@b ? @b : c\n".repeat(256);
-        super::REWRITE_BYTES.with(|n| n.set(0));
-        assert_eq!(offenses(&source).len(), 256);
-        super::REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-        assert_eq!(
-            correction_offenses(&super::RedundantCondition, &source)
-                .iter()
-                .filter(|o| o.correction.is_some())
-                .count(),
-            256
-        );
-        super::REWRITE_BYTES.with(|n| assert!(n.get() <= source.len()));
-        let source = format!(
-            "if @b then @b else consume('{}') end\n",
-            "x".repeat(33 * 1024)
-        );
-        super::REWRITE_BYTES.with(|n| n.set(0));
-        assert_correction_hold(&source);
-        super::REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-    }
-
-    fn assert_correction_hold(source: &str) {
-        assert_eq!(offenses(source).len(), 1);
-        crate::cops::testing::assert_correction(&super::RedundantCondition, source, source);
     }
 
     const PIPES: &str = "Use double pipes `||` instead.";

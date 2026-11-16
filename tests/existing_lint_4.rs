@@ -7,9 +7,8 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
-const CASES: [(&str, &[u8]); 7] = [
+const CASES: [(&str, &[u8]); 6] = [
     ("Lint/LiteralAsCondition", b"if 1; x; end\n"),
-    ("Lint/LiteralInInterpolation", b"\"#{1}\"\n"),
     ("Lint/NestedMethodDefinition", b"def f; def g; end; end\n"),
     (
         "Lint/NonLocalExitFromIterator",
@@ -19,8 +18,13 @@ const CASES: [(&str, &[u8]); 7] = [
     ("Lint/RaiseException", b"raise Exception\n"),
     ("Lint/RedundantRequireStatement", b"require \"set\"\n"),
 ];
+/// The rows of the cops that are still detection-only.
 fn rows() -> Vec<serde_json::Value> {
-    serde_json::from_str(include_str!("fixtures/existing_lint_4.json")).unwrap()
+    let rows: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/existing_lint_4.json")).unwrap();
+    rows.into_iter()
+        .filter(|row| row["cop"] != "Lint/LiteralInInterpolation")
+        .collect()
 }
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();

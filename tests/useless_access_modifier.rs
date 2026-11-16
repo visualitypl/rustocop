@@ -10,7 +10,6 @@ const COP: &str = "Lint/UselessAccessModifier";
 const ORDINARY: &[u8] = b"class C\n  private\nend\n";
 const SAFE: &[u8] = b"if false\n  Class.new do\n    private\n  end\nend\n";
 const AFTER: &[u8] = b"if false\n  Class.new do\n  end\nend\n";
-type Finding = (u32, u32, u32, String);
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/useless_access_modifier.json")).unwrap()
 }
@@ -53,100 +52,6 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
         assert_eq!(old.ino(), new.ino());
     }
     out
-}
-#[test]
-fn all_original_bytes_match_pipeline_cli_and_actual_guarded_outputs() {
-    let registry = rustocop::cops::Registry::new();
-    let config = rustocop::config::ResolvedConfig::default();
-    let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    let mut mismatches = vec![];
-    for row in rows() {
-        let source = bytes(&row, "bytes");
-        let after = bytes(&row, "project_after");
-        let report = rustocop::pipeline::lint_one(
-            Path::new("example.rb"),
-            Path::new("example.rb"),
-            Some(&source),
-            &active,
-            &config,
-        );
-        assert!(
-            report.errors.is_empty() && report.internal_errors.is_empty(),
-            "{row}\n{report:?}"
-        );
-        let mut got: Vec<_> = report
-            .result
-            .offenses
-            .iter()
-            .map(|o| {
-                assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
-                (o.line, o.col, o.end_line, o.message.clone())
-            })
-            .collect();
-        got.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
-        if got != expected {
-            mismatches.push(format!(
-                "{}: {got:?} != {expected:?}",
-                String::from_utf8_lossy(&source)
-            ));
-        }
-        let status = i32::from(!expected.is_empty());
-        let out = unchanged(d.path(), &source, &["--only", COP, "lib/a.rb"], status);
-        let mut got: Vec<_> = String::from_utf8_lossy(&out.stdout)
-            .lines()
-            .filter(|l| l.ends_with(&format!("({COP})")))
-            .map(str::to_owned)
-            .collect();
-        got.sort();
-        let mut want: Vec<_> = expected
-            .iter()
-            .map(|(l, c, _, m)| format!("lib/a.rb:{l}:{c}: E: {m} ({COP})"))
-            .collect();
-        want.sort();
-        if got != want {
-            mismatches.push(format!(
-                "CLI {}: {got:?} != {want:?}",
-                String::from_utf8_lossy(&source)
-            ));
-        }
-        if source == after {
-            unchanged(
-                d.path(),
-                &source,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                status,
-            );
-        } else {
-            let old = fs::metadata(&path).unwrap();
-            let out = run(d.path(), &["--only", COP, "--fix", "lib/a.rb"]);
-            assert!(out.status.success(), "{row}\n{out:?}");
-            assert_eq!(fs::read(&path).unwrap(), after, "{row}");
-            assert_eq!(
-                old.permissions(),
-                fs::metadata(&path).unwrap().permissions()
-            );
-            let old = fs::metadata(&path).unwrap();
-            assert!(
-                run(d.path(), &["--only", COP, "--fix", "lib/a.rb"])
-                    .status
-                    .success()
-            );
-            assert_eq!(
-                old.modified().unwrap(),
-                fs::metadata(&path).unwrap().modified().unwrap()
-            );
-        }
-    }
-    assert!(
-        mismatches.is_empty(),
-        "{} mismatches:\n{}",
-        mismatches.len(),
-        mismatches.join("\n")
-    );
 }
 #[test]
 fn defaults_selectors_toml_precedence_paths_and_stdin() {
@@ -307,75 +212,6 @@ fn both_directive_prefixes_multiline_next_push_and_no_selection_escape() {
             0,
         );
     }
-}
-#[test]
-fn observers_deferred_contexts_comments_invalid_parser_and_composition() {
-    let d = project();
-    for suffix in [
-        "p __LINE__",
-        "File.binread(__FILE__)",
-        "ObjectSpace.each_object {}",
-        "RubyVM::InstructionSequence.compile('1')",
-        "DATA.read\n__END__\ndata\n",
-        "x = <<~DOC\ntext\nDOC\n",
-        "TracePoint.new(:line) {}.enable",
-        "GC.stat",
-        "binding",
-    ] {
-        let mut source = SAFE.to_vec();
-        source.extend_from_slice(suffix.as_bytes());
-        source.push(b'\n');
-        assert_eq!(
-            count(&unchanged(
-                d.path(),
-                &source,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                1
-            )),
-            1
-        );
-    }
-    for source in [
-        format!("def deferred\n{}end\n", String::from_utf8_lossy(SAFE)),
-        format!("-> {{\n{}}}\n", String::from_utf8_lossy(SAFE)),
-        String::from_utf8_lossy(SAFE).replace("private\n", "private # retained\n"),
-        String::from_utf8_lossy(SAFE).replace("private\n", "private; nil\n"),
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            1,
-        );
-    }
-    let mut source = SAFE.to_vec();
-    source.extend_from_slice(b"def broken(\n");
-    assert_eq!(
-        count(&unchanged(
-            d.path(),
-            &source,
-            &["--only", COP, "--fix", "lib/a.rb"],
-            2
-        )),
-        0
-    );
-    let source = b"class C\n  private\nend\nx = 'a'\ny = [1,2]\n";
-    fs::write(d.path().join("lib/a.rb"), source).unwrap();
-    let out = run(
-        d.path(),
-        &[
-            "--only",
-            &format!("{COP},Style/StringLiterals,Layout/SpaceAfterComma"),
-            "--fix",
-            "lib/a.rb",
-        ],
-    );
-    assert_eq!(out.status.code(), Some(1));
-    assert_eq!(count(&out), 1);
-    assert_eq!(
-        fs::read(d.path().join("lib/a.rb")).unwrap(),
-        b"class C\n  private\nend\nx = \"a\"\ny = [1, 2]\n"
-    );
 }
 #[cfg(unix)]
 #[test]
