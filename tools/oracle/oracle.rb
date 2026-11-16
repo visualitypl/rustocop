@@ -341,7 +341,7 @@ module Oracle
           # corrected source (EndAlignment once `if` follows `=`): then the
           # correction is not compared.
           wanted = expectation.correction
-          if !reason && wanted.is_a?(String) && config_mismatch(cop, expectation.config, defaults, wanted).first
+          if !reason && wanted.is_a?(String) && config_mismatch(cop, expectation.config, defaults, wanted, correction: true).first
             expectation.correction = nil
           end
         end

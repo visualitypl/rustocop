@@ -1111,7 +1111,8 @@ module Oracle
   class << self
     # Why an example's configuration does not apply to rustocop (a list of
     # mismatching settings), or nil; and the rustocop.toml settings it needs.
-    def config_mismatch(cop, config, defaults, source)
+    # `correction`: `source` is the corrected source of an example.
+    def config_mismatch(cop, config, defaults, source, correction: false)
       target = config.fetch("AllCops", {}).fetch("TargetRubyVersion", FixedPolicy::TARGET_RUBY)
       version_reason = FixedPolicy.ruby_mismatch(cop, target)
       mismatches = version_reason ? [version_reason] : []
@@ -1378,7 +1379,10 @@ module Oracle
              DoEndBlockSuitability.unchanged?(source, config.dig('Layout/LineLength', 'Max') || defaults.dig('Layout/LineLength', 'Max'))
             values = values.merge(defaults.fetch(section, {}).slice('Enabled', 'InspectBlocks'))
           end
-          if ['Style/WordArray', 'Style/SymbolArray'].include?(cop) && section == 'Style/PercentLiteralDelimiters'
+          # The delimiters matter only for the percent literals a correction writes.
+          if ['Style/WordArray', 'Style/SymbolArray'].include?(cop) && section == 'Style/PercentLiteralDelimiters' &&
+             (!correction || PercentDelimiterSettings.equivalent?(defaults.fetch(section, {}).merge(values),
+                                                                  defaults.fetch(section, {}), source))
             values = values.reject { |key, _| key == 'PreferredDelimiters' }
           end
           # CommandLiteral reads only the effective %x delimiter (falling
