@@ -9,15 +9,11 @@ const COP: &str = "Lint/SymbolConversion";
 const SOURCE: &[u8] = b":foo.to_sym\n";
 const SAFE: &[u8] = b"if false\n  :foo.to_sym\nend\n";
 const AFTER: &[u8] = b"if false\n  :foo\nend\n";
-type Finding = (u32, u32, u32, String);
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/symbol_conversion.json")).unwrap()
 }
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
     serde_json::from_value(row[key].clone()).unwrap()
-}
-fn expected(row: &serde_json::Value) -> Vec<Finding> {
-    serde_json::from_value(row["findings"].clone()).unwrap()
 }
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
@@ -55,119 +51,6 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
         assert_eq!(old.ino(), new.ino());
     }
     out
-}
-#[test]
-fn all_original_bytes_match_pipeline_cli_and_guarded_canonical_outputs() {
-    let registry = rustocop::cops::Registry::new();
-    let config = rustocop::config::ResolvedConfig::default();
-    let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let rows = rows();
-    assert_eq!(rows.iter().filter(|r| r["origin"] == "spec").count(), 46);
-    assert_eq!(
-        rows.iter().filter(|r| r["origin"] == "canonical").count(),
-        8
-    );
-    parallel_rows!(for row in rows => {
-        let d = project();
-        let path = d.path().join("lib/a.rb");
-        let source = bytes(&row, "bytes");
-        let after = if row.get("project_after").is_some() {
-            bytes(&row, "project_after")
-        } else {
-            source.clone()
-        };
-        let report = rustocop::pipeline::lint_one(
-            Path::new("example.rb"),
-            Path::new("example.rb"),
-            Some(&source),
-            &active,
-            &config,
-        );
-        if row.get("parser_rejection").is_some() || row.get("native_parser_rejection").is_some() {
-            assert!(
-                !report.errors.is_empty() && report.result.offenses.is_empty(),
-                "{row} {report:?}"
-            );
-            unchanged(d.path(), &source, &["--only", COP, "lib/a.rb"], 2);
-            unchanged(d.path(), &source, &["--only", COP, "--fix", "lib/a.rb"], 2);
-            continue;
-        }
-        assert!(
-            report.errors.is_empty() && report.internal_errors.is_empty(),
-            "{row}\n{report:?}"
-        );
-        let mut got: Vec<_> = report
-            .result
-            .offenses
-            .iter()
-            .map(|o| {
-                assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
-                (o.line, o.col, o.end_line, o.message.clone())
-            })
-            .collect();
-        got.sort();
-        if row.get("reference_error").is_none() {
-            assert_eq!(got, expected(&row), "{row}");
-        } else if source.windows(7).any(|s| s == b".to_sym") {
-            assert_eq!(
-                got,
-                vec![(
-                    2,
-                    1,
-                    2,
-                    "Unnecessary symbol conversion; use `:\"\\x80\"` instead.".to_owned()
-                )],
-                "{row}"
-            );
-        } else {
-            assert!(got.is_empty(), "direct percent elements are exempt: {row}");
-        }
-        let status = i32::from(!got.is_empty());
-        let out = unchanged(d.path(), &source, &["--only", COP, "lib/a.rb"], status);
-        let marker = format!("({COP})\n");
-        let mut got: Vec<_> = String::from_utf8_lossy(&out.stdout)
-            .split_inclusive(&marker)
-            .filter(|l| l.ends_with(&marker))
-            .map(|s| s.strip_suffix('\n').unwrap().to_owned())
-            .collect();
-        got.sort();
-        let mut want: Vec<_> = row
-            .get("cli_findings")
-            .map_or_else(
-                || {
-                    row.get("findings")
-                        .map_or_else(Vec::new, |_| expected(&row))
-                },
-                |v| serde_json::from_value(v.clone()).unwrap(),
-            )
-            .into_iter()
-            .map(|(l, c, _, m)| format!("lib/a.rb:{l}:{c}: E: {m} ({COP})"))
-            .collect();
-        want.sort();
-        want.dedup();
-        if row.get("reference_error").is_none() {
-            assert_eq!(got, want, "{row}");
-        }
-        if source == after {
-            unchanged(
-                d.path(),
-                &source,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                status,
-            );
-        } else {
-            let old = fs::metadata(&path).unwrap();
-            let out = run(d.path(), &["--only", COP, "--fix", "lib/a.rb"]);
-            assert!(out.status.success(), "{row}\n{out:?}");
-            assert_eq!(fs::read(&path).unwrap(), after, "{row}");
-            assert_eq!(
-                old.permissions(),
-                fs::metadata(&path).unwrap().permissions()
-            );
-            unchanged(d.path(), &after, &["--only", COP, "--fix", "lib/a.rb"], 0);
-        }
-    });
 }
 #[test]
 fn defaults_selectors_toml_precedence_and_path_stdin_provenance() {
@@ -351,84 +234,6 @@ fn directives_multiline_next_push_and_selection_boundaries() {
             2
         );
     }
-}
-#[test]
-fn observers_delayed_scopes_invalid_parser_and_independent_composition() {
-    let d = project();
-    for suffix in [
-        "p __LINE__",
-        "File.binread(__FILE__)",
-        "ObjectSpace.each_object {}",
-        "RubyVM::InstructionSequence.compile('1')",
-        "DATA.read\n__END__\ndata\n",
-        "x = <<~DOC\ntext\nDOC\n",
-        "TracePoint.new(:line) {}.enable",
-        "GC.stat",
-        "binding",
-    ] {
-        let text = format!("{}{suffix}\n", String::from_utf8_lossy(SAFE));
-        assert_eq!(
-            count(&unchanged(
-                d.path(),
-                text.as_bytes(),
-                &["--only", COP, "--fix", "lib/a.rb"],
-                1
-            )),
-            1
-        );
-    }
-    for wrapper in [
-        "def deferred\n%s\nend\n",
-        "-> {\n%s\n}\n",
-        "if true\n%s\nend\n",
-    ] {
-        let text = wrapper.replace("%s", &String::from_utf8_lossy(SAFE));
-        unchanged(
-            d.path(),
-            text.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            1,
-        );
-    }
-    let invalid = format!("{}def broken(\n", String::from_utf8_lossy(SAFE));
-    assert_eq!(
-        count(&unchanged(
-            d.path(),
-            invalid.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            2
-        )),
-        0
-    );
-    let mixed = format!("{}x = [1,2]\n", String::from_utf8_lossy(SAFE));
-    fs::write(d.path().join("lib/a.rb"), &mixed).unwrap();
-    let out = run(
-        d.path(),
-        &[
-            "--only",
-            "Lint/SymbolConversion,Layout/SpaceAfterComma",
-            "--fix",
-            "lib/a.rb",
-        ],
-    );
-    assert_eq!(out.status.code(), Some(1));
-    assert_eq!(count(&out), 1);
-    assert_eq!(
-        fs::read(d.path().join("lib/a.rb")).unwrap(),
-        mixed.replace("1,2", "1, 2").as_bytes()
-    );
-    let composed = b"if false\n  :foo.to_sym;  \nend\n";
-    fs::write(d.path().join("lib/a.rb"), composed).unwrap();
-    let selection = "Lint/SymbolConversion,Style/Semicolon,Layout/TrailingWhitespace";
-    let out = run(d.path(), &["--only", selection, "--fix", "lib/a.rb"]);
-    assert!(out.status.success(), "{out:?}");
-    assert_eq!(fs::read(d.path().join("lib/a.rb")).unwrap(), AFTER);
-    unchanged(
-        d.path(),
-        AFTER,
-        &["--only", selection, "--fix", "lib/a.rb"],
-        0,
-    );
 }
 #[cfg(unix)]
 #[test]

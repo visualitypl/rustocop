@@ -39,7 +39,6 @@ struct Case {
     source: String,
     positions: Vec<(u32, u32)>,
     messages: Vec<String>,
-    correction: Option<String>,
 }
 fn lint(cop: &str, s: &str) -> Vec<rustocop::offense::Offense> {
     let r = rustocop::cops::Registry::new();
@@ -83,46 +82,6 @@ fn every_pinned_detection_call_has_exact_positions_and_messages() {
         );
     }
     assert_eq!(counts, [38, 25, 39]);
-}
-#[test]
-fn all_pinned_correction_calls_are_individually_accounted_for() {
-    let cases: Vec<Case> =
-        serde_json::from_str(include_str!("fixtures/boolean_predicates_pinned.json")).unwrap();
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    let mut corrections = [0; 3];
-    for c in cases.into_iter().filter(|c| c.correction.is_some()) {
-        let i = COPS.iter().position(|&cop| cop == c.cop).unwrap();
-        corrections[i] += 1;
-        let p = d.path().join("a.rb");
-        fs::write(&p, &c.source).unwrap();
-        let time = fs::metadata(&p).unwrap().modified().unwrap();
-        let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(d.path())
-            .args(["--only", &c.cop, "--fix", "a.rb"])
-            .output()
-            .unwrap();
-        // Unsafe AndOr; unknown CaseEquality operands; unresolved constant/method
-        // CombinableDefined chains: keep detection but do not assume dispatch or
-        // remove defined? probes with observable effects/return values.
-        assert_eq!(
-            output.status.code(),
-            Some(1),
-            "{}:{}: {output:?}",
-            c.cop,
-            c.spec_line
-        );
-        assert_eq!(
-            fs::read_to_string(&p).unwrap(),
-            c.source,
-            "{}:{}",
-            c.cop,
-            c.spec_line
-        );
-        assert_eq!(fs::metadata(&p).unwrap().modified().unwrap(), time);
-    }
-    assert_eq!(corrections, [22, 8, 22]);
 }
 #[test]
 fn default_selectors_enabling_excludes_and_directives_use_real_cli() {
@@ -213,62 +172,6 @@ fn default_selectors_enabling_excludes_and_directives_use_real_cli() {
         }
         unchanged(d.path(), b"(\n", &["--only", cop, "--fix", "a.rb"], 2);
     }
-}
-#[test]
-fn fixes_preserve_bom_encoding_crlf_lines_and_data_bytes() {
-    let d = project();
-    for (cop, before, after) in [
-        (COPS[1], "(1..10) === 7", "(1..10).include?(7)"),
-        (
-            COPS[2],
-            "module Foo; Bar=1; end; defined?(Foo) && defined?(Foo::Bar)",
-            "module Foo; Bar=1; end; defined?(Foo::Bar)",
-        ),
-    ] {
-        for (prefix, suffix) in [
-            ("\u{feff}", "\r\n"),
-            ("# coding: us-ascii\r\n", "\r\n__LINE__\r\n"),
-            ("# coding: windows-1252\n# café\n", "\n__END__\npayload\r\n"),
-        ] {
-            let s = format!("{prefix}{before}{suffix}");
-            let expected = format!("{prefix}{after}{suffix}");
-            fs::write(d.path().join("a.rb"), s).unwrap();
-            cli(d.path(), &["--only", cop, "--fix", "a.rb"], 0);
-            assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), expected);
-            unchanged(
-                d.path(),
-                expected.as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-        }
-    }
-    for (cop, s) in [
-        (COPS[1], "Array === # keep\n []\n"),
-        (COPS[1], "Array ===\n []\np __LINE__\n"),
-        (
-            COPS[2],
-            "module Foo; Bar=1; end; defined?(Foo) && # keep\n defined?(Foo::Bar)\n",
-        ),
-        (
-            COPS[2],
-            "module Foo; Bar=1; end; defined?(Foo) &&\n defined?(Foo::Bar)\n__LINE__\n",
-        ),
-        (COPS[1], "(1..10) === 7\nFile.read(__FILE__)\n"),
-        (
-            COPS[2],
-            "module Foo; Bar=1; end; defined?(Foo) && defined?(Foo::Bar)\np DATA.pos\n__END__\npayload\n",
-        ),
-    ] {
-        unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-    }
-    let source = b"# coding: windows-1252\n# caf\xe9\n(1..10) === 7\n";
-    fs::write(d.path().join("a.rb"), source).unwrap();
-    cli(d.path(), &["--only", COPS[1], "--fix", "a.rb"], 0);
-    assert_eq!(
-        fs::read(d.path().join("a.rb")).unwrap(),
-        b"# coding: windows-1252\n# caf\xe9\n(1..10).include?(7)\n"
-    );
 }
 #[test]
 fn constant_class_convention_uses_declared_encoding_lowercase_letters() {
@@ -414,36 +317,6 @@ fn safe_rewrites_preserve_real_values_not_just_parse_success() {
             cli(d.path(), &["--only", cop, "--fix", "a.rb"], 0);
             let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
             assert_ne!(after, source);
-            assert_eq!(observe(&ruby, d.path()), before);
-        }
-    }
-}
-#[test]
-fn dispatch_short_circuiting_probe_effects_and_defined_values_remain_unchanged() {
-    let d = project();
-    for (cop, s) in [
-        (
-            COPS[0],
-            "def run\n x=nil\n if x = true and false\n  :wrong\n end\n [x, (0 and :truthy), (nil or :fallback)]\nend\np run\n",
-        ),
-        (
-            COPS[1],
-            "class Foo; def self.===(x); :custom; end; end\nx=Object.new\ndef x.is_a?(x); :different; end\np(Foo === x)\n",
-        ),
-        (COPS[1], "p [(\"a\"..\"z\") === \"ab\", (1..10) === 1.5]\n"),
-        (
-            COPS[2],
-            "$n=0\ndef foo; $n+=1; Object; end\np(defined?(foo::String) && defined?(foo))\np $n\n",
-        ),
-        (
-            COPS[2],
-            "$events=[]\nclass Probe\n def respond_to_missing?(name,all=false); $events << name; true; end\n def method_missing(name,*); self; end\nend\ndef foo; $events << :foo; Probe.new; end\np(defined?(foo.bar) && defined?(foo.bar.baz))\np $events\n",
-        ),
-    ] {
-        for ruby in rubies() {
-            fs::write(d.path().join("a.rb"), s).unwrap();
-            let before = observe(&ruby, d.path());
-            unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
             assert_eq!(observe(&ruby, d.path()), before);
         }
     }

@@ -33,7 +33,7 @@ mod duplicate_case_condition;
 mod duplicate_elsif_condition;
 mod duplicate_hash_key;
 mod duplicate_magic_comment;
-mod duplicate_match_pattern;
+pub(crate) mod duplicate_match_pattern;
 mod duplicate_methods;
 mod duplicate_regexp_character_class_element;
 mod duplicate_require;

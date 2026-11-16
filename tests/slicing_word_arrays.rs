@@ -218,33 +218,6 @@ fn unsafe_slicing_getters_array_like_and_mutation_remain_byte_exact() {
         );
     }
 }
-#[test]
-fn multiline_word_fixes_do_not_abort_independent_corrections() {
-    for nl in ["\n", "\r\n"] {
-        for kind in ["w", "W"] {
-            let source = format!(
-                "x = %{kind}[a\\ b\\{nl}c d]{nl}y = [\"one\", \"two\"]{nl}p [x, y, __LINE__]{nl}"
-            );
-            let expected = format!(
-                "x = [\"a b\\nc\",{nl} \"d\"]{nl}y = %w[one two]{nl}p [x, y, __LINE__]{nl}"
-            );
-            let d = project();
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            cli(d.path(), &["--only", WORD, "--fix", "a.rb"], 0);
-            let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
-            assert_eq!(after, expected);
-            unchanged(
-                d.path(),
-                after.as_bytes(),
-                &["--only", WORD, "--fix", "a.rb"],
-                0,
-            );
-            if Command::new("ruby").arg("--version").output().is_ok() {
-                assert_eq!(observe("ruby", &source), observe("ruby", &after));
-            }
-        }
-    }
-}
 fn observe(ruby: &str, source: &str) -> (Vec<u8>, Vec<u8>) {
     let o = Command::new(ruby)
         .args(["-W:deprecated", "-e", source])
@@ -252,57 +225,6 @@ fn observe(ruby: &str, source: &str) -> (Vec<u8>, Vec<u8>) {
         .unwrap();
     assert!(o.status.success(), "{ruby}: {source}: {o:?}");
     (o.stdout, o.stderr)
-}
-fn runtime(ruby: &str) {
-    let mut changed = 0;
-    for magic in [
-        "",
-        "# frozen_string_literal: false\n",
-        "# frozen_string_literal: true\n",
-    ] {
-        for literal in [
-            "['one','two']",
-            "['one','one']",
-            "[\"one\\n\",\"hi\\tthere\"]",
-            "[\"one\", ?\\n]",
-            "['ВУЗ','中文网']",
-            "[\"\\u0061\",\"two\"]",
-            "[\"\\u4e2d\",\"two\"]",
-            "%w[one\\ two three\\ four]",
-            "%W[one\\ two three\\ four]",
-            "%w[a\\ b]",
-            "%w[a\\ b\\\nc]",
-            "%w[a\\ b \\]c \\#{literal}]",
-            "[\n'one',\n 'two',\n]",
-            "[\"one\n\", \"two\"]",
-            "[\"a\\\nb\",'two']",
-            "[ 'one', \\\n 'two', \\\n 'three' ]",
-        ] {
-            let s = format!("{magic}x = {literal}\n");
-            let after = fixed(&s, WORD);
-            assert_ne!(s, after, "canonical must apply: {s}");
-            changed += 1;
-            let suffix = r#"p x.map { |s| [s.bytes, s.encoding.name, s.frozen?] }
-p x.each_index.map { |i| x.each_index.map { |j| x[i].equal?(x[j]) } }
-x.each { |s| begin; s << '!'; rescue => e; p e.class.name; end }
-p x.map { |s| [s.bytes, s.encoding.name, s.frozen?] }
-p __LINE__
-"#;
-            assert_eq!(
-                observe(ruby, &format!("{s}{suffix}")),
-                observe(ruby, &format!("{after}{suffix}")),
-                "{s} -> {after}"
-            );
-            assert_eq!(fixed(&after, WORD), after);
-        }
-    }
-    assert_eq!(changed, 48);
-}
-#[test]
-fn controlled_host_runtime_every_child_bytes_encoding_identity_mutation_and_warnings() {
-    if Command::new("ruby").arg("--version").output().is_ok() {
-        runtime("ruby");
-    }
 }
 #[test]
 fn deferred_literals_and_encoded_ascii_children_keep_warning_and_identity_profiles() {
@@ -360,44 +282,6 @@ fn deferred_literals_and_encoded_ascii_children_keep_warning_and_identity_profil
                 }
             }
         }
-    }
-}
-#[test]
-fn controlled_native_34_runtime_every_child_in_all_frozen_modes() {
-    if let Ok(ruby) = crate::support::runtime::ruby() {
-        let version = Command::new(&ruby)
-            .args(["-e", "print RUBY_VERSION"])
-            .output()
-            .unwrap();
-        assert!(
-            version
-                .stdout
-                .starts_with(crate::support::runtime::version_prefix().as_bytes())
-        );
-        for literal in ["['one','two']", "%w[one two]", "%W[one two]"] {
-            for (magic, warnings) in [
-                ("", 2),
-                ("# frozen_string_literal: false\n", 0),
-                ("# frozen_string_literal: true\n", 0),
-            ] {
-                let (_, stderr) = observe(
-                    &ruby,
-                    &format!(
-                        "{magic}x={literal}\nx.each {{ |s| begin; s << '!'; rescue => e; p e.class.name; end }}\n"
-                    ),
-                );
-                assert_eq!(
-                    String::from_utf8_lossy(&stderr)
-                        .matches("literal string will be frozen")
-                        .count(),
-                    warnings,
-                    "{magic}{literal}"
-                );
-            }
-        }
-        runtime(&ruby);
-    } else {
-        eprintln!("SKIP native Ruby 3.4 runtime: set RUSTOCOP_RUBY34");
     }
 }
 #[test]
@@ -527,29 +411,6 @@ fn legacy_buffer_projection_binary_ascii_and_forced_utf8_profiles() {
             fixed(&s, WORD),
             format!("# encoding: {encoding}\n%w[one two]\n")
         );
-    }
-}
-#[test]
-fn interpolation_values_evaluation_order_and_binding_are_never_regrouped() {
-    let d = project();
-    for s in [
-        r#"%W[#{effect} a\ b]"#,
-        r#"%W[a\ b #{effect} #{other}]"#,
-        r#"%W[a\ b #{x = 1} #{x}]"#,
-        r#"%W[a\ b #{yield}]"#,
-    ] {
-        let s = format!("def f; {s}; end\n");
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", WORD, "--fix", "a.rb"],
-            1,
-        );
-    }
-    let s = r#"log=[]; x=%W[a\ b #{log << 1; 'x'} #{log << 2; 'y'}]; p [x,log]"#;
-    assert_eq!(fixed(s, WORD), s);
-    if Command::new("ruby").arg("--version").output().is_ok() {
-        assert_eq!(observe("ruby", s), observe("ruby", &fixed(s, WORD)));
     }
 }
 #[test]

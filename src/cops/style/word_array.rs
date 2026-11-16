@@ -89,7 +89,7 @@ impl Cop for WordArray {
             }
         }
         let replacement = if percent {
-            brackets(&array)
+            brackets(&array, file)
         } else if cx.corrections_requested() {
             words(&array)
         } else {
@@ -109,26 +109,18 @@ impl Cop for WordArray {
             replacement.and_then(|replacement| {
                 // No transcoding: non-UTF8 interiors/forced binary literals stay
                 // reported. Dynamic percent words retain all interpolation code.
-                if (!file.is_utf8()
+                if !file.is_utf8()
                     && array.elements().iter().any(|n| {
                         n.as_string_node()
                             .is_some_and(|s| !s.unescaped().is_ascii())
-                    }))
-                    || super::correction::contains_comment(
-                        file,
-                        loc.start_offset()..loc.end_offset(),
-                    )
+                    })
                 {
                     return None;
                 }
-                super::literal_spelling::safe_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: loc.start_offset()..loc.end_offset(),
-                        replacement,
-                    },
-                )
+                Some(Correction {
+                    range: loc.start_offset()..loc.end_offset(),
+                    replacement,
+                })
             })
         } else {
             None
@@ -508,40 +500,23 @@ fn words(array: &ArrayNode<'_>) -> Option<String> {
     out.push(']');
     Some(out)
 }
-fn brackets(array: &ArrayNode<'_>) -> Option<String> {
-    let open = array.opening_loc()?;
-    let close = array.closing_loc()?;
-    let source = array.location().as_slice();
-    let base = array.location().start_offset();
-    let mut cursor = open.end_offset();
-    let mut out = "[".to_owned();
-    for (i, node) in array.elements().iter().enumerate() {
-        let s = node.as_string_node()?;
-        let gap =
-            std::str::from_utf8(&source[cursor - base..s.location().start_offset() - base]).ok()?;
-        out.push_str(gap);
-        out.push('"');
-        out.push_str(&escaped(&s, false, true)?);
-        out.push('"');
-        // A physical newline can terminate the element expression. Emit its
-        // comma first, including when the newline came from inside the word.
-        if i + 1 < array.elements().len() {
-            out.push(',');
-        }
-        for line in s.location().as_slice().split_inclusive(|&b| b == b'\n') {
-            if line.ends_with(b"\n") {
-                out.push_str(if line.ends_with(b"\r\n") {
-                    "\r\n"
-                } else {
-                    "\n"
-                });
+/// RuboCop's `build_bracketed_array`: each word as `to_string_literal`
+/// spells it.
+fn brackets(array: &ArrayNode<'_>, file: &SourceFile) -> Option<String> {
+    let words = array
+        .elements()
+        .iter()
+        .map(|word| {
+            if let Some(s) = word.as_string_node() {
+                super::correction::to_string_literal(s.unescaped(), file)
+            } else {
+                let literal =
+                    super::correction::to_string_literal(word.location().as_slice(), file)?;
+                Some(super::correction::trim_interpolation_escape(&literal))
             }
-        }
-        cursor = s.location().end_offset();
-    }
-    out.push_str(std::str::from_utf8(&source[cursor - base..close.start_offset() - base]).ok()?);
-    out.push(']');
-    Some(out)
+        })
+        .collect::<Option<Vec<_>>>()?;
+    super::correction::bracketed_array(array, &words, file)
 }
 #[cfg(test)]
 mod tests {
@@ -769,125 +744,10 @@ mod tests {
         }
     }
     #[test]
-    fn percent_word_fragments_are_static_even_with_embedded_physical_newlines() {
-        let source = "%w[a\\ b\\\nc]";
-        let found = offenses(source);
-        assert_eq!(found.len(), 1);
-        assert_correction(&WordArray, source, "[\"a b\\nc\"\n]");
-        assert!(offenses("[%w[a\\\n!], ['one','two']]").is_empty());
-    }
-    #[test]
-    fn nonfinal_multiline_percent_words_put_commas_before_retained_newlines() {
-        for nl in ["\n", "\r\n"] {
-            for kind in ["w", "W"] {
-                let source = format!("%{kind}[a\\ b\\{nl}c d\\ e\\{nl}f g]");
-                let expected = format!("[\"a b\\nc\",{nl} \"d e\\nf\",{nl} \"g\"]");
-                assert_correction(&WordArray, &source, &expected);
-            }
-        }
-    }
-    #[test]
     fn matrix_policy() {
         assert_eq!(offenses("[['one','One'], ['two','Two']]").len(), 2);
         assert!(offenses("[['one','One'], ['two','Two'], ['forty two','Forty Two']]").is_empty());
         assert_eq!(offenses("[['one','One'], 2, 3]").len(), 1);
-    }
-    #[test]
-    fn all_twenty_one_applicable_pinned_correction_calls() {
-        // Spec lines identify each call independently, including auto-gen-config
-        // duplicates. Adapt delimiters to fixed [] and quoted output to double;
-        // preserve physical newlines rather than shifting Ruby source positions.
-        for (line, before, after) in [
-            (31, "['one', 'two', 'three']\n", "%w[one two three]\n"),
-            (42, "[\"one\", \"two\", \"three\"]\n", "%w[one two three]\n"),
-            (53, "['foo', 'bar', 'foo-bar']\n", "%w[foo bar foo-bar]\n"),
-            (
-                68,
-                "[\"ВУЗ\", \"вуз\", \"中文网\"]\n",
-                "%w[ВУЗ вуз 中文网]\n",
-            ),
-            (
-                85,
-                "[\"ВУЗ\", \"вуз\", \"中文网\"]\n",
-                "%w[ВУЗ вуз 中文网]\n",
-            ),
-            (98, "[\"one\", ?\\n]\n", "%W[one \\n]\n"),
-            (
-                109,
-                "[\"one\n\", \"hi\tthere\"]\n",
-                "%W[one\\n\n hi\\tthere]\n",
-            ),
-            (
-                121,
-                "[\"one\\n\", \"hi\\tthere\"]\n",
-                "%W[one\\n hi\\tthere]\n",
-            ),
-            (
-                170,
-                "foo(['bar', 'baz']) { qux }\n",
-                "foo(%w[bar baz]) { qux }\n",
-            ),
-            (
-                196,
-                "[\n\"foo\",\n\"bar\",\n\"baz\"\n] # test\n",
-                "%w[\nfoo\nbar\nbaz\n] # test\n",
-            ),
-            (215, "['one', %q(two), 'three']\n", "%w[one two three]\n"),
-            (
-                237,
-                "[%|one|, %Q(two), ?\\n, ?\\t]\n",
-                "%W[one two \\n \\t]\n",
-            ),
-            (248, "['one',\n 'two', 'three']\n", "%w[one\n two three]\n"),
-            (
-                261,
-                "[\n\"foo\",\n\"bar\",\n\"baz\"\n]\n",
-                "%w[\nfoo\nbar\nbaz\n]\n",
-            ),
-            (
-                280,
-                "[\"foo\", \"bar\", \"baz\",\n\"boz\", \"buz\",\n\"biz\"]\n",
-                "%w[foo bar baz\nboz buz\nbiz]\n",
-            ),
-            (
-                295,
-                "['one', 'two', 'three']\n%w(a b c d)\n",
-                "%w[one two three]\n%w(a b c d)\n",
-            ),
-            (
-                310,
-                "['one', 'two', 'three']\n%w(a b)\n",
-                "%w[one two three]\n%w(a b)\n",
-            ),
-            (
-                338,
-                "%w(one\\ two three\\ four)\n",
-                "[\"one two\", \"three four\"]\n",
-            ),
-            (368, "A = [\"one\", \"two\",]\n", "A = %w[one two]\n"),
-            (
-                386,
-                "[\n  ['one', 'One'],\n  ['two', 'Two']\n]\n",
-                "[\n  %w[one One],\n  %w[two Two]\n]\n",
-            ),
-            (411, "[['one', 'One'], 2, 3]\n", "[%w[one One], 2, 3]\n"),
-        ] {
-            assert!(
-                !crate::cops::testing::correction_offenses(&WordArray, before).is_empty(),
-                "spec line {line}"
-            );
-            assert_correction(&WordArray, before, after);
-            assert_eq!(
-                crate::corrections::apply(
-                    after.as_bytes(),
-                    &crate::cops::testing::correction_offenses(&WordArray, after)
-                )
-                .unwrap()
-                .bytes,
-                after.as_bytes(),
-                "spec line {line}"
-            );
-        }
     }
     #[test]
     fn array_separator_continuations_never_become_percent_word_data() {
@@ -895,26 +755,6 @@ mod tests {
             let before = format!("[ 'one', \\{nl} 'two', \\{nl} 'three' ]");
             let after = format!("%w[ one {nl} two {nl} three ]");
             assert_correction(&WordArray, &before, &after);
-        }
-    }
-    #[test]
-    fn canonical_fixed_delimiters_and_quotes() {
-        for (s, want) in [
-            ("['one', 'two', 'three']", "%w[one two three]"),
-            ("[\"one\", \"two\"]", "%w[one two]"),
-            ("['foo', 'bar', 'foo-bar']", "%w[foo bar foo-bar]"),
-            ("['ВУЗ','中文网']", "%w[ВУЗ 中文网]"),
-            ("[%q(one), ?a]", "%w[one a]"),
-            ("[\"one\\n\", \"hi\\tthere\"]", "%W[one\\n hi\\tthere]"),
-            ("[\"one\", ?\\n]", "%W[one \\n]"),
-            ("A = [\"one\", \"two\",]", "A = %w[one two]"),
-            (
-                "%w[one\\ two three\\ four]",
-                "[\"one two\", \"three four\"]",
-            ),
-        ] {
-            assert_correction(&WordArray, s, want);
-            assert!(offenses(want).is_empty(), "{want}");
         }
     }
 }

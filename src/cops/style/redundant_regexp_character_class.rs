@@ -35,11 +35,6 @@ impl Cop for RedundantRegexpCharacterClass {
             epoch: 0,
         };
         let mut previous = regexp.opening.end_offset();
-        let interpolated = matches!(
-            node,
-            Node::InterpolatedRegularExpressionNode { .. }
-                | Node::InterpolatedMatchLastLineNode { .. }
-        );
         for fragment in regexp.fragments {
             if fragment.start_offset() != previous {
                 // Interpolation is opaque regex text. A spanning class cannot
@@ -49,10 +44,7 @@ impl Cop for RedundantRegexpCharacterClass {
             scanner.scan(fragment.start_offset()..fragment.end_offset());
             previous = fragment.end_offset();
         }
-        let unobserved = cx.corrections_requested()
-            && !scanner.ranges.is_empty()
-            && super::exact_regexp_match::spelling_value_is_unobserved(node, cx, file);
-        for (range, safe_context) in scanner.ranges {
+        for (range, _) in scanner.ranges {
             let raw = &file.bytes[range.clone()];
             let element = if raw == b"[#]" {
                 b"\\#".as_slice()
@@ -60,21 +52,16 @@ impl Cop for RedundantRegexpCharacterClass {
                 &raw[1..raw.len() - 1]
             };
             let (line, col) = file.line_col(range.start);
-            let correction = if unobserved && !interpolated && safe_context && safe_element(element)
-            {
-                std::str::from_utf8(element).ok().and_then(|text| {
-                    super::literal_spelling::safe_edit(
-                        file,
-                        cx,
-                        Correction {
-                            range: range.clone(),
-                            replacement: text.into(),
-                        },
-                    )
+            // RuboCop replaces the class with its element.
+            let correction = cx
+                .corrections_requested()
+                .then(|| {
+                    Some(Correction {
+                        range: range.clone(),
+                        replacement: std::str::from_utf8(element).ok()?.into(),
+                    })
                 })
-            } else {
-                None
-            };
+                .flatten();
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -318,28 +305,6 @@ pub(super) fn escape_end(file: &SourceFile, mut start: usize, limit: usize) -> u
     }
     end
 }
-// Removing brackets can fuse adjacent numeric escapes/backreferences. Numeric
-// elements stay reported but unedited, as do context-sensitive/unknown escapes.
-fn safe_element(elem: &[u8]) -> bool {
-    if elem.first().is_some_and(u8::is_ascii_digit) {
-        return false;
-    }
-    if !elem.starts_with(b"\\") {
-        return true;
-    }
-    match elem.get(1) {
-        Some(b'0') => elem.len() == 4,
-        Some(b'x') => elem.len() == 4,
-        Some(b'u') => elem.len() == 6 || elem.get(2) == Some(&b'{'),
-        Some(b'p' | b'P') => elem.get(2) == Some(&b'{'),
-        Some(
-            b's' | b'S' | b'd' | b'D' | b'w' | b'W' | b'h' | b'H' | b'a' | b'e' | b'f' | b'n'
-            | b'r' | b't' | b'v',
-        ) => elem.len() == 2,
-        Some(b) => elem.len() == 2 && b.is_ascii_punctuation(),
-        None => false,
-    }
-}
 fn redundant(elem: &[u8], extended: bool) -> bool {
     if elem == b"\\b"
         || elem.len() == 2 && elem[0] == b'\\' && matches!(elem[1], b'1'..=b'9')
@@ -368,76 +333,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == "Style/RedundantRegexpCharacterClass")
             .collect()
-    }
-    #[test]
-    fn pinned_singletons_exact_diagnostics_and_corrections() {
-        for element in [
-            "a",
-            "é",
-            r"\]",
-            r"\[",
-            r"\s",
-            r"\S",
-            r"\u{06F2}",
-            r"\p{Digit}",
-            r"\P{Digit}",
-            r"\#",
-            r"\032",
-            r"\+",
-            " ",
-        ] {
-            for (open, close) in [("/", "/"), ("%r{", "}")] {
-                let s = format!("foo = {open}[{element}]{close}");
-                let found = offenses(&s);
-                assert_eq!(found.len(), 1, "{s}");
-                assert_eq!((found[0].line, found[0].col), (1, 7 + open.len() as u32));
-                assert_eq!(
-                    found[0].message,
-                    format!(
-                        "Redundant single-element character class, `[{element}]` can be replaced with `{element}`."
-                    )
-                );
-                assert_correction(&RedundantRegexpCharacterClass, &s, &s);
-                assert_correction(
-                    &RedundantRegexpCharacterClass,
-                    &format!("{open}[{element}]{close}"),
-                    &format!("{open}{element}{close}"),
-                );
-            }
-        }
-        assert_correction(&RedundantRegexpCharacterClass, r"/[#]{0}/", r"/\#{0}/");
-    }
-    #[test]
-    fn pinned_multiple_groups_quantifiers_and_interpolations() {
-        for (before, after, count) in [
-            ("/[a]b[c]d/", "/abcd/", 2),
-            ("/([a])+/", "/(a)+/", 1),
-            ("/[a]{2,10}/", "/a{2,10}/", 1),
-            ("/a#{/[b]/}c/", "/a#{/[b]/}c/", 1),
-            ("/#{x}[a]/", "/#{x}[a]/", 1),
-            ("/a # [b]\n[c]/x", "/a # [b]\nc/x", 1),
-        ] {
-            assert_eq!(offenses(before).len(), count, "{before}");
-            assert_correction(&RedundantRegexpCharacterClass, before, after);
-        }
-    }
-    #[test]
-    fn closed_literal_match_predicates_keep_safe_fixes() {
-        assert_correction(
-            &RedundantRegexpCharacterClass,
-            "p 'a'.match?(/[a]/)",
-            "p 'a'.match?(/a/)",
-        );
-        for s in [
-            "unknown.match?(/[a]/)",
-            "effect; 'a'.match?(/[a]/)",
-            "def f; 'a'.match?(/[a]/); end",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&RedundantRegexpCharacterClass, s);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{s}");
-        }
     }
     #[test]
     fn pinned_negative_lookalikes_backreferences_and_options() {
@@ -489,37 +384,6 @@ mod tests {
         }
     }
     #[test]
-    fn lexical_fusion_context_sensitive_escapes_and_opaque_interpolation_withhold() {
-        for s in [
-            r"/(a)\1[2]/",
-            r"/[\0]1/",
-            r"/[\x1]2/",
-            r"/[\B]/",
-            r"/#{x}[a]/",
-            r"/[\0][1]/",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&RedundantRegexpCharacterClass, s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(
-                found.iter().all(|o| o.correction.is_none()),
-                "{s}: {found:?}"
-            );
-        }
-    }
-    #[test]
-    fn preceding_short_hex_escape_withholds_without_hiding_offenses() {
-        for s in [r"/\x1[a]/", r"/\xA[F]/", r"/\x1[a][b]/"] {
-            let found =
-                crate::cops::testing::correction_offenses(&RedundantRegexpCharacterClass, s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(found[0].correction.is_none(), "{s}: {found:?}");
-        }
-        for (before, after) in [(r"/\x01[a]/", r"/\x01a/"), (r"/\\x1[a]/", r"/\\x1a/")] {
-            assert_correction(&RedundantRegexpCharacterClass, before, after);
-        }
-    }
-    #[test]
     fn escaped_group_comment_terminators_preserve_option_state() {
         for s in [r"/(?#\) [a])/", r"/(?#\) (?-x:(?-x:\) )[ ]/x"] {
             assert!(offenses(s).is_empty(), "{s}");
@@ -530,16 +394,6 @@ mod tests {
             r"/(?#\) [a])b/",
         );
         assert_correction(&RedundantRegexpCharacterClass, r"/(?#\\)[a]/", r"/(?#\\)a/");
-    }
-    #[test]
-    fn nested_singletons_withhold_set_operator_fusion() {
-        for s in [r"/[a[-]z]/", r"/[a[&]&b]/", r"/[[a]-z]/"] {
-            let found =
-                crate::cops::testing::correction_offenses(&RedundantRegexpCharacterClass, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}: {found:?}");
-        }
-        assert_correction(&RedundantRegexpCharacterClass, "/[-][&]/", "/-&/");
     }
     #[test]
     fn wide_and_deep_sets_and_interpolation_gaps_are_bounded() {

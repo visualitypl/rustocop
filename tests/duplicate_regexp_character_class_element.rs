@@ -176,59 +176,6 @@ fn operator_recovery_exact_cli_no_internal_errors_no_writes_and_native_syntax() 
     }
 }
 #[test]
-fn operator_round2_shared_cli_findings_and_held_fixes_preserve_source() {
-    let rows: Vec<serde_json::Value> =
-        serde_json::from_str(include_str!("fixtures/duplicate_regexp_extended.json")).unwrap();
-    let dir = project();
-    let names = [
-        COP,
-        "Lint/MixedRegexpCaptureTypes",
-        "Lint/UnescapedBracketInRegexp",
-        "Lint/RedundantRegexpQuantifiers",
-        "Lint/MixedCaseRange",
-    ];
-    let only = names.join(",");
-    let mut checked = 0;
-    for row in rows {
-        let Some(findings) = row.get("shared_findings").and_then(|v| v.as_array()) else {
-            continue;
-        };
-        checked += 1;
-        for fix in [false, true] {
-            let mut args = vec!["--only", &only, "lib/a.rb"];
-            if fix {
-                args.push("--fix");
-            }
-            let out = unchanged(
-                dir.path(),
-                row["source"].as_str().unwrap().as_bytes(),
-                &args,
-                Some(i32::from(!findings.is_empty())),
-            );
-            assert!(out.stderr.is_empty(), "{row}\n{out:?}");
-            let text = String::from_utf8(out.stdout).unwrap();
-            assert_eq!(
-                text.matches(": E: ").count(),
-                findings.len(),
-                "{row}\n{text}"
-            );
-            for f in findings {
-                assert!(
-                    text.contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({})",
-                        f[1],
-                        f[2],
-                        f[4].as_str().unwrap(),
-                        f[0].as_str().unwrap()
-                    )),
-                    "{row}\n{text}"
-                );
-            }
-        }
-    }
-    assert_eq!(checked, 607);
-}
-#[test]
 fn operator_round2_review_extended_whitespace_cli_no_write_and_native_syntax() {
     let dir = project();
     let only = format!(

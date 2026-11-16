@@ -113,46 +113,19 @@ impl Cop for SymbolConversion {
                 "Unnecessary symbol conversion; use `{}` instead.",
                 diagnostic(&correction)
             ),
+            // RuboCop replaces the node with the text of the message. A
+            // replacement is UTF-8 text: other bytes cannot be carried over.
             correction: cx
                 .corrections_requested()
-                .then(|| canonical_edit(node, cx, file))
+                .then(|| {
+                    Some(crate::offense::Correction {
+                        range: start..end,
+                        replacement: String::from_utf8(correction.clone()).ok()?,
+                    })
+                })
                 .flatten(),
         });
     }
-}
-// Ordinary conversion removal changes dispatch, exceptions, allocations and
-// observability. Prove ONLY the inventoried canonical spelling in a closed,
-// top-level inactive envelope; all other findings remain unedited. No argument,
-// block, interpolation, binding, delimiter or line movement can enter this edit.
-// Existing main-parse encoding/runtime/source/code-object/heap/atomic guards
-// still decide whether the proposed individual edit may be applied.
-fn canonical_edit(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() || node.location().as_slice() != b":foo.to_sym" {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: node.location().start_offset() + 4..node.location().end_offset(),
-        replacement: String::new(),
-    })
 }
 fn diagnostic(bytes: &[u8]) -> String {
     let mut result = String::new();

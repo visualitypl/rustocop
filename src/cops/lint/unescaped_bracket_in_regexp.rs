@@ -73,7 +73,21 @@ impl Cop for UnescapedBracketInRegexp {
             }
             range
         };
-        let correctable = cx.corrections_requested() && closed_defined_literal(node, cx, file);
+        // RuboCop's `escaped_bracket`: one backslash in a regexp or a
+        // single-quoted string, two in any other string.
+        let escaped = if regexp.is_some()
+            || node
+                .as_call_node()
+                .and_then(|c| c.arguments())
+                .and_then(|a| a.arguments().iter().next())
+                .and_then(|n| n.as_string_node())
+                .and_then(|s| s.opening_loc())
+                .is_some_and(|o| o.as_slice().starts_with(b"'") || o.as_slice().starts_with(b"%q"))
+        {
+            "\\]"
+        } else {
+            "\\\\]"
+        };
         for (range, (line, col)) in
             super::duplicate_regexp_character_class_element::unescaped_brackets(
                 regexp.as_ref(),
@@ -81,10 +95,12 @@ impl Cop for UnescapedBracketInRegexp {
                 file,
             )
         {
-            let correction = correctable.then(|| crate::offense::Correction {
-                range: range.clone(),
-                replacement: "\\]".into(),
-            });
+            let correction = cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: range.clone(),
+                    replacement: escaped.into(),
+                });
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -135,46 +151,6 @@ fn dynamic_string(node: &Node<'_>) -> bool {
         }
     }
     false
-}
-
-// Escaping changes Regexp#source and native warnings, and constructor strings
-// change values/evaluation. Only a consumed, closed [defined?(STATIC_REGEXP)]
-// is proved: defined? recognizes it without creating a Regexp. No calls,
-// bindings, delayed execution, source/DATA observers or additional statements.
-// Keep the proof intentionally smaller than detection. Central main-parse
-// encoding/line/code-object/heap/heredoc/atomic guards still apply to every edit.
-fn closed_defined_literal(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> bool {
-    let Some(regexp) = node.as_regular_expression_node() else {
-        return false;
-    };
-    if file.data_start().is_some()
-        || !regexp
-            .content_loc()
-            .as_slice()
-            .iter()
-            .all(|b| b.is_ascii_alphanumeric() || *b == b']')
-    {
-        return false;
-    }
-    let mut ancestors = cx.ancestors();
-    if ancestors
-        .next()
-        .is_none_or(|n| n.as_defined_node().is_none())
-    {
-        return false;
-    }
-    let Some(array) = ancestors.next().and_then(|n| n.as_array_node()) else {
-        return false;
-    };
-    let Some(statements) = ancestors.next().and_then(|n| n.as_statements_node()) else {
-        return false;
-    };
-    array.elements().len() == 1
-        && statements.body().len() == 1
-        && ancestors
-            .next()
-            .is_some_and(|n| n.as_program_node().is_some())
-        && ancestors.next().is_none()
 }
 
 #[cfg(test)]
@@ -262,34 +238,6 @@ mod tests {
             r"/[\§]/",
         ] {
             assert!(offenses(source).is_empty(), "{source}");
-        }
-    }
-    #[test]
-    fn canonical_escaping_only_for_closed_unevaluated_consumed_literal() {
-        let registry = crate::cops::Registry::new();
-        let cop = registry
-            .cops()
-            .iter()
-            .find(|c| c.name() == "Lint/UnescapedBracketInRegexp")
-            .unwrap();
-        for (source, safe) in [
-            ("[defined?(/abc]123/)]\n", true),
-            ("/abc]123/\n", false),
-            ("[defined?(Regexp.new('abc]123'))]\n", false),
-            ("[defined?(/abc]123/)]\np __LINE__\n", false),
-            ("[defined?(/abc]123/)]\n__END__\ndata\n", false),
-        ] {
-            let found = crate::pipeline::lint_str_with_corrections(&[cop.as_ref()], source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!(found[0].correction.is_some(), safe, "{source}");
-            if safe {
-                assert_eq!(
-                    crate::corrections::apply(source.as_bytes(), &found)
-                        .unwrap()
-                        .bytes,
-                    b"[defined?(/abc\\]123/)]\n"
-                );
-            }
         }
     }
     #[test]

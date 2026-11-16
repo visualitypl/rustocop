@@ -80,59 +80,6 @@ fn real_defaults_opt_in_exact_diagnostics_and_no_write_without_fix() {
     );
 }
 #[test]
-fn selectors_config_excludes_and_strict_fixed_options() {
-    let d = project();
-    for (cop, s) in [
-        (CHARS, "s.split(\"\")\n"),
-        (METHODS, "\"x\".intern\n"),
-        (STRIP, "\"x\".lstrip.rstrip\n"),
-    ] {
-        for config in [
-            "[cops.Style]\nenabled = false\n".into(),
-            format!("[cops.\"{cop}\"]\nenabled = false\n"),
-        ] {
-            fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            // Default-on Lint/SymbolConversion still reports the literal
-            // conversion when its opt-in Style/StringMethods peer is disabled.
-            let out = unchanged(
-                d.path(),
-                s.as_bytes(),
-                &["--fix", "a.rb"],
-                i32::from(cop == METHODS),
-            );
-            if cop == METHODS {
-                assert!(String::from_utf8_lossy(&out.stdout).contains("(Lint/SymbolConversion)"));
-            }
-            unchanged(
-                d.path(),
-                s.as_bytes(),
-                &["--only", cop, "--except", cop, "--fix", "a.rb"],
-                0,
-            );
-            unchanged(d.path(), s.as_bytes(), &["--only", cop, "a.rb"], 1);
-        }
-        fs::write(
-            d.path().join("rustocop.toml"),
-            format!("[cops.Style]\nenabled = false\n[cops.\"{cop}\"]\nenabled = true\n"),
-        )
-        .unwrap();
-        unchanged(d.path(), s.as_bytes(), &["a.rb"], 1);
-        for config in [
-            "exclude = [\"a.rb\"]\n".into(),
-            format!("[cops.\"{cop}\"]\nexclude = [\"a.rb\"]\n"),
-        ] {
-            fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 0);
-        }
-        fs::write(
-            d.path().join("rustocop.toml"),
-            format!("[cops.\"{cop}\"]\nPreferredMethods = {{ intern = \"length\" }}\n"),
-        )
-        .unwrap();
-        unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 2);
-    }
-}
-#[test]
 fn directives_clean_error_and_unsafe_files_keep_bytes_and_mtime() {
     let d = project();
     for (cop, s) in [

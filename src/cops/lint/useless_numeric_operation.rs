@@ -1,7 +1,7 @@
 //! `Lint/UselessNumericOperation` — numeric identity syntax on variables.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Correction, Offense},
+    offense::Offense,
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -74,7 +74,7 @@ impl Cop for UselessNumericOperation {
             message: "Do not apply inconsequential numeric operations to variables.".into(),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_edit(node, cx, file))
+                .then(|| correction(node, start..end))
                 .flatten(),
         });
     }
@@ -114,60 +114,41 @@ fn identity(op: &[u8], node: &Node<'_>, file: &SourceFile) -> bool {
         (b"+" | b"-", Some(0)) | (b"*" | b"/" | b"**", Some(1))
     )
 }
-
-// Ordinary identities can invoke arbitrary operators, alter values/exceptions,
-// bindings, warnings and read/write hooks. No type flow or builtin assumption.
-// Only a bare receiverless call in a closed top-level inactive branch is edited;
-// compound assignments are deliberately withheld (binding/compiler side effects).
-// Exact spellings exclude comments, grouping, blocks and deferred heredocs.
-// Pipeline source/runtime/encoding/code-object/heap guards still apply.
-fn inactive_edit(
+/// RuboCop replaces an operation with its receiver, and an abbreviated
+/// assignment with a plain one (`x = x`).
+fn correction(
     node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    let receiver = call.receiver()?;
-    let bare = receiver.as_call_node()?;
-    let name = bare.name().as_slice();
-    if bare.receiver().is_some()
-        || bare.arguments().is_some()
-        || bare.block().is_some()
-        || name.is_empty()
-        || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-        || receiver.location().as_slice() != name
-    {
-        return None;
-    }
-    let name = std::str::from_utf8(name).ok()?;
-    let op = std::str::from_utf8(call.name().as_slice()).ok()?;
-    let number = if matches!(op, "+" | "-") { 0 } else { 1 };
-    if node.location().as_slice() != format!("{name} {op} {number}").as_bytes() {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    if body.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || top.body().len() != 1 {
-        return None;
-    }
-    Some(Correction {
-        range: node.location().start_offset()..node.location().end_offset(),
-        replacement: name.into(),
-    })
+    range: std::ops::Range<usize>,
+) -> Option<crate::offense::Correction> {
+    let source = |bytes: &[u8]| std::str::from_utf8(bytes).ok().map(str::to_owned);
+    let replacement = if let Some(call) = node.as_call_node() {
+        source(call.receiver()?.location().as_slice())?
+    } else {
+        let target = match node {
+            Node::LocalVariableOperatorWriteNode { .. } => {
+                node.as_local_variable_operator_write_node()?.name_loc()
+            }
+            Node::InstanceVariableOperatorWriteNode { .. } => {
+                node.as_instance_variable_operator_write_node()?.name_loc()
+            }
+            Node::ClassVariableOperatorWriteNode { .. } => {
+                node.as_class_variable_operator_write_node()?.name_loc()
+            }
+            Node::GlobalVariableOperatorWriteNode { .. } => {
+                node.as_global_variable_operator_write_node()?.name_loc()
+            }
+            Node::ConstantOperatorWriteNode { .. } => {
+                node.as_constant_operator_write_node()?.name_loc()
+            }
+            _ => node
+                .as_constant_path_operator_write_node()?
+                .target()
+                .location(),
+        };
+        let target = source(target.as_slice())?;
+        format!("{target} = {target}")
+    };
+    Some(crate::offense::Correction { range, replacement })
 }
 #[cfg(test)]
 mod tests {

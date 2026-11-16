@@ -1,12 +1,12 @@
 //! `Style/FormatStringToken` — fixed annotated, aggressive, maximum one unnamed token.
 use crate::{
-    cops::{Cop, NodeContext, ast},
+    cops::{Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
 use regex::bytes::Regex;
 use ruby_prism::{CallNode, Node};
-use std::{collections::HashSet, sync::LazyLock};
+use std::sync::LazyLock;
 
 // Sequence grammar ported from RuboCop's Utils::FormatString (MIT License,
 // Copyright (c) 2012-26 Bozhidar Batsov). ASCII word names/digits deliberately
@@ -51,6 +51,22 @@ fn direct_context(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
         .and_then(|p| p.as_call_node())
         .is_some_and(|c| typical(&c, node))
 }
+/// RuboCop's `format_string_context?`: the string, or an interpolated
+/// string around it, is the format of a typical format call.
+fn format_context(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
+    if direct_context(node, cx) {
+        return true;
+    }
+    let ancestors: Vec<_> = cx.ancestors().collect();
+    ancestors.iter().enumerate().any(|(i, d)| {
+        d.as_interpolated_string_node().is_some()
+            && ancestors[i + 1..]
+                .iter()
+                .find(|p| p.as_arguments_node().is_none())
+                .and_then(|p| p.as_call_node())
+                .is_some_and(|c| typical(&c, d))
+    })
+}
 pub struct FormatStringToken;
 impl Cop for FormatStringToken {
     fn name(&self) -> &'static str {
@@ -89,40 +105,14 @@ impl Cop for FormatStringToken {
         let content = string.content_loc();
         let bytes = content.as_slice();
         let context = direct_context(node, cx);
-        // Detection's permissive upstream grammar is not a proof of Ruby's
-        // argument mode. Prove a conservative named-only subset during this
-        // same scan: every percent must belong to %% or a complete named token.
-        // In particular, '*' and '$' can consume positional arguments even in
-        // an annotated token. Unknown/malformed directives withhold ALL edits,
-        // in either order, without changing detection or reparsing candidates.
-        let mut named_only = cx.corrections_requested();
-        let mut covered = 0;
         let detections: Vec<_> = TOKENS
             .captures_iter(bytes)
             .filter_map(|caps| {
                 let token = caps.get(0).unwrap();
-                named_only = named_only && !bytes[covered..token.start()].contains(&b'%');
-                covered = token.end();
                 if token.as_bytes() == b"%%" {
                     return None;
                 }
                 let template = caps.name("template");
-                named_only = named_only
-                    && if let Some(template) = template {
-                        // Only plain %{name}, not flags/widths before the braces.
-                        template.start() == token.start() + 1
-                    } else {
-                        // %<name> followed by static flags/width/precision/type.
-                        // The captured grammar bounds these bytes; exclude dynamic
-                        // widths/precision and all numbered-argument syntax.
-                        caps.name("name_before").is_some_and(|name| {
-                            name.start() == token.start() + 1
-                                && !token
-                                    .as_bytes()
-                                    .iter()
-                                    .any(|b| matches!(b, b'*' | b'$' | b'{' | b'}'))
-                        })
-                    };
                 let named = template.is_some()
                     || ["name_after", "name_middle", "name_before"]
                         .iter()
@@ -138,10 +128,6 @@ impl Cop for FormatStringToken {
         if detections.len() <= 1 && detections.iter().all(|(_, t, a)| !t && !a) {
             return;
         }
-        named_only = named_only && !bytes[covered..].contains(&b'%');
-        let keys = (named_only && detections.iter().any(|(_, t, _)| *t))
-            .then(|| correction_context(node, cx, file))
-            .flatten();
         for (token, template, annotated) in detections {
             if annotated {
                 continue;
@@ -163,95 +149,25 @@ impl Cop for FormatStringToken {
                 line,
                 col,
                 end_line: file.line_of(end.saturating_sub(1)),
-                correction: keys
-                    .filter(|_| template)
-                    .and_then(|keys| correction(keys, cx, file, start..end)),
+                correction: (cx.corrections_requested() && template && format_context(node, cx))
+                    .then(|| correction(file, start..end))
+                    .flatten(),
             });
         }
     }
 }
-/// A fragment is not a whole format: interpolation/implicit concatenation can
-/// supply a preceding '%' that escapes the apparent directive. Never edit such
-/// fragments, decoded escapes, modifiers or data consumed by unknown dispatch.
-fn correction_context<'f>(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &'f SourceFile,
-) -> Option<&'f HashSet<Vec<u8>>> {
-    let string = node.as_string_node()?;
-    if string.content_loc().as_slice() != string.unescaped() {
-        return None;
-    }
-    // New ASCII bytes must not become percent-literal closing delimiters.
-    // '<...>' is balanced; an unpaired '>' would terminate early.
-    if let (Some(open), Some(close)) = (string.opening_loc(), string.closing_loc())
-        && close.as_slice() == b">"
-        && open.as_slice().last() != Some(&b'<')
-    {
-        return None;
-    }
-    let call = cx
-        .ancestors()
-        .find(|p| p.as_arguments_node().is_none())?
-        .as_call_node()?;
-    if !typical(&call, node) || call.is_safe_navigation() || call.block().is_some() {
-        return None;
-    }
-    if call.name().as_slice() != b"%"
-        && (!matches!(call.name().as_slice(), b"format" | b"sprintf")
-            || !call
-                .receiver()
-                .is_none_or(|r| ast::is_global_const(&r, &["Kernel"])))
-    {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    let arguments = call.arguments()?.arguments();
-    let hash = if call.name().as_slice() == b"%" {
-        if arguments.len() != 1 {
-            return None;
-        }
-        arguments.iter().next()?
-    } else {
-        if arguments.len() != 2 {
-            return None;
-        }
-        arguments.iter().nth(1)?
-    };
-    let facts = file.format_string_facts(root);
-    // Missing-key errors spell the directive as key{x} versus key<x>.
-    // Only a literal symbol-keyed Hash proves this edit cannot change that
-    // observable exception. Key sets are indexed once, not scanned per token.
-    if !facts.core_before(call.location().start_offset())
-        || !facts.closed(&call.as_node())
-        || file.heredoc_pending_at(root, call.location().start_offset())
-    {
-        return None;
-    }
-    facts.named_keys(&hash)
-}
-fn correction(
-    keys: &HashSet<Vec<u8>>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    range: std::ops::Range<usize>,
-) -> Option<Correction> {
-    let token = &file.bytes[range.clone()];
-    if !token.starts_with(b"%{") || !token.ends_with(b"}") {
-        return None;
-    }
-    let name = std::str::from_utf8(&token[2..token.len() - 1]).ok()?;
-    if !keys.contains(name.as_bytes()) {
-        return None;
-    }
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
-        Correction {
-            range,
-            replacement: format!("%<{name}>s"),
-        },
-    )
+/// RuboCop's correction of a template token to the annotated style:
+/// `%-10{foo}` becomes `%<foo>-10s`.
+fn correction(file: &SourceFile, range: std::ops::Range<usize>) -> Option<Correction> {
+    let token = std::str::from_utf8(&file.bytes[range.clone()]).ok()?;
+    let (flags, name) = token
+        .strip_prefix('%')?
+        .strip_suffix('}')?
+        .split_once('{')?;
+    Some(Correction {
+        range,
+        replacement: format!("%<{name}>{flags}s"),
+    })
 }
 
 #[cfg(test)]
@@ -372,40 +288,6 @@ mod tests {
         }
     }
     #[test]
-    fn every_remaining_pinned_correction_call_is_individually_withheld() {
-        use crate::cops::testing::correction_offenses;
-        // 18 annotated types x 3 correction calls in the upstream shared group.
-        for ty in [
-            "A", "B", "E", "G", "X", "a", "b", "c", "d", "e", "f", "g", "i", "o", "p", "s", "u",
-            "x",
-        ] {
-            for s in [
-                format!(
-                    "format(<<-HEREDOC, foo: bar)\nfoo %<named>{ty} + bar %{{template}}\nHEREDOC\n"
-                ),
-                format!("format(\"a#{{b}}%<named>{ty} c#{{d}}%{{template}} e#{{f}}\")\n"),
-                "format(\"%{a}\", a: foo)\n".into(),
-            ] {
-                let o = correction_offenses(&FormatStringToken, &s);
-                assert_eq!(o.len(), 1, "{s}");
-                assert!(
-                    o[0].correction.is_none(),
-                    "unknown argument/interpolation: {s}"
-                );
-            }
-        }
-        // The three other withheld pinned calls: unknown b (two), and printf.
-        for s in [
-            "format(\"c#{b}%{template}\")\n",
-            "printf('%{foo}', foo: 'bar')\n",
-            "\"c#{b}%{foo}\" % { foo: 'bar' }\n",
-        ] {
-            let o = correction_offenses(&FormatStringToken, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-    }
-    #[test]
     fn five_applicable_pinned_corrections_apply_exactly() {
         use crate::cops::testing::assert_correction;
         for (before, after) in [
@@ -432,28 +314,6 @@ mod tests {
         ] {
             assert_correction(&FormatStringToken, before, after);
         }
-    }
-    #[test]
-    fn delimiter_changes_and_fragment_directives_are_never_blindly_edited() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        for s in [
-            "format(%q>%{x}>, x: 1)",
-            "format(\"%\" \"%{x}\", x: 1)",
-            "format(\"a%{x}\" \"%{y}\", x: 1, y: 2)",
-            "format(\"#{'%'}%{x}\", x: 1)",
-            "format(\"\\x25%{x}\", x: 1)",
-            "format(\"%{x}\\n\", x: 1)",
-            "format('%10{x}', x: 1)",
-            "format('%{x>y}', :'x>y' => 1)",
-        ] {
-            let o = correction_offenses(&FormatStringToken, s);
-            assert!(o.iter().all(|o| o.correction.is_none()), "{s}");
-        }
-        assert_correction(
-            &FormatStringToken,
-            "format(%q<%{x}>, x: 1)",
-            "format(%q<%<x>s>, x: 1)",
-        );
     }
     #[test]
     fn aggressive_detection_keeps_fragment_ownership_and_physical_positions() {
@@ -491,42 +351,6 @@ mod tests {
         assert_eq!(offenses("format('%s/%<x>s', x: 1)").len(), 1);
         assert!(offenses("format('%s/%%', 1)").is_empty());
         assert!(offenses("format('%s', '%s %s')").is_empty());
-    }
-    #[test]
-    fn mixed_or_uncertain_whole_formats_keep_offenses_without_edits() {
-        use crate::cops::testing::correction_offenses;
-        for other in [
-            "%s",
-            "%1$s",
-            "%10.2s",
-            "%*.*f",
-            "%1$*2$.*3$f",
-            "%<x>*s",
-            "%*<x>s",
-            "%10{x}",
-            "%#{w}{x}",
-            "%<x>#{w}s",
-            "%<x>.#{p}s",
-            "%q",
-            "%",
-            "%<other",
-            "%{not-a-word}",
-        ] {
-            for format in [
-                format!("{other}/%{{x}}/%%/%{{y}}"),
-                format!("%{{x}}/%%/%{{y}}/{other}"),
-            ] {
-                for s in [
-                    format!("format('{format}', x: 1, y: 2)"),
-                    format!("sprintf('{format}', x: 1, y: 2)"),
-                    format!("'{format}' % {{x: 1, y: 2}}"),
-                ] {
-                    let o = correction_offenses(&FormatStringToken, &s);
-                    assert!(o.len() >= 2, "offenses retained: {s}");
-                    assert!(o.iter().all(|o| o.correction.is_none()), "{s}");
-                }
-            }
-        }
     }
     #[test]
     fn named_only_whole_formats_still_get_canonical_edits() {

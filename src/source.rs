@@ -162,8 +162,6 @@ pub struct SourceFile {
     comparable_clamp_safety: OnceLock<crate::cops::style::comparable_clamp::Safety>,
     /// Correction-only closed Integer comparison/Boolean result proof.
     redundant_conditional_safety: OnceLock<crate::cops::style::redundant_conditional::Safety>,
-    /// Correction-only immediate-Integer parity dispatch proof.
-    even_odd_safety: OnceLock<crate::cops::style::even_odd::Safety>,
     /// Correction-only closed literal String regexp-predicate dispatch proof.
     exact_regexp_safety: OnceLock<crate::cops::style::exact_regexp_match::Safety>,
     /// Shared lazy closed-core proof for regexp argument/constructor edits.
@@ -321,7 +319,6 @@ impl SourceFile {
             min_max_safety: OnceLock::new(),
             comparable_clamp_safety: OnceLock::new(),
             redundant_conditional_safety: OnceLock::new(),
-            even_odd_safety: OnceLock::new(),
             exact_regexp_safety: OnceLock::new(),
             redundant_regexp_safety: OnceLock::new(),
             boolean_predicate_safety: OnceLock::new(),
@@ -840,11 +837,6 @@ impl SourceFile {
     ) -> &crate::cops::style::exact_regexp_match::Safety {
         self.exact_regexp_safety
             .get_or_init(|| crate::cops::style::exact_regexp_match::Safety::build(root))
-    }
-
-    pub(crate) fn even_odd_safety(&self, root: &Node<'_>) -> &crate::cops::style::even_odd::Safety {
-        self.even_odd_safety
-            .get_or_init(|| crate::cops::style::even_odd::Safety::build(root))
     }
 
     pub(crate) fn min_max_safety(&self, root: &Node<'_>) -> &crate::cops::style::min_max::Safety {
@@ -2518,81 +2510,6 @@ mod tests {
     }
 
     #[test]
-    fn format_token_many_directives_share_one_lazy_dispatch_and_hash_index() {
-        use crate::cops::{
-            Cop, run_cops, run_cops_with_corrections,
-            style::FormatStringToken,
-            walk::{self, NodeVisitor},
-        };
-        let format = (0..2000)
-            .map(|i| format!("%{{k{i}}}"))
-            .collect::<Vec<_>>()
-            .join("/");
-        let hash = (0..2000)
-            .map(|i| format!("k{i}: {i}"))
-            .collect::<Vec<_>>()
-            .join(",");
-        let source = format!("format('{format}', {hash})\n");
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&FormatStringToken];
-        let mut out = vec![];
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 2000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 2000);
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        let mut count = Count(0);
-        walk::walk(&mut count, &parsed.node());
-        let facts = file.format_string_facts.get().unwrap();
-        assert_eq!(facts.visits, count.0);
-        assert!(facts.visits < 2000 * 6);
-        for _ in 0..1000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
-        }
-        let other = SourceFile::new("other.rb".into(), b"'%{x}'".to_vec());
-        assert!(other.format_string_facts.get().is_none());
-    }
-
-    #[test]
-    fn format_token_large_mixed_formats_withhold_without_dispatch_walks() {
-        use crate::cops::{Cop, run_cops, style::FormatStringToken};
-        let named = std::iter::repeat_n("%{x}", 2000)
-            .collect::<Vec<_>>()
-            .join("/%%/");
-        for other in ["%s", "%1$s", "%q", "%<x>*s"] {
-            for format in [format!("{other}/{named}"), format!("{named}/{other}")] {
-                let source = format!("format('{format}', x: 1)\n");
-                let file = SourceFile::new("x.rb".into(), source.into_bytes());
-                let parsed = crate::parser::parse(&file.bytes);
-                let cops: [&dyn Cop; 1] = [&FormatStringToken];
-                let mut out = vec![];
-                assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-                let expected = if matches!(other, "%s" | "%1$s") {
-                    2001
-                } else {
-                    2000
-                };
-                assert_eq!(out.len(), expected);
-                assert!(out.iter().all(|o| o.correction.is_none()));
-                // Whole-format mode proof uses existing token facts, not a
-                // main-tree/hash walk, per-offense rescan or candidate parse.
-                assert!(file.format_string_facts.get().is_none());
-            }
-        }
-    }
-
-    #[test]
     fn interpolation_proofs_are_lazy_file_local_and_one_bounded_main_ast_walk() {
         use crate::cops::{
             Cop, run_cops,
@@ -3403,56 +3320,6 @@ mod tests {
     }
 
     #[test]
-    fn boolean_predicates_share_one_lazy_bounded_safety_walk() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{AndOr, CaseEquality, CombinableDefined},
-        };
-        for source in [
-            "(1..10) === 7\n".repeat(6000),
-            format!(
-                "module Foo; Bar=1; end;\n{}",
-                "defined?(Foo) && defined?(Foo::Bar)\n".repeat(6000)
-            ),
-        ] {
-            let file = SourceFile::new("x.rb".into(), source.into_bytes());
-            let parsed = ruby_prism::parse(&file.bytes);
-            for corrections in [false, true, true] {
-                let mut found = vec![];
-                assert!(
-                    run_cops_with_corrections(
-                        &[&AndOr, &CaseEquality, &CombinableDefined],
-                        &parsed,
-                        &file,
-                        &mut found,
-                        corrections
-                    )
-                    .is_empty()
-                );
-                assert_eq!(found.len(), 6000);
-                assert_eq!(
-                    found.iter().filter(|o| o.correction.is_some()).count(),
-                    if corrections { 6000 } else { 0 }
-                );
-                if !corrections {
-                    assert!(file.boolean_predicate_safety.get().is_none());
-                }
-            }
-            let facts = file.boolean_predicate_safety.get().unwrap();
-            assert_eq!(
-                facts.visits,
-                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
-                    .len()
-            );
-            assert!(facts.visits < 90000);
-            assert!(std::ptr::eq(
-                facts,
-                file.boolean_predicate_safety(&parsed.node())
-            ));
-        }
-    }
-
-    #[test]
     fn exact_regexp_match_uses_one_lazy_bounded_safety_walk() {
         use crate::cops::{run_cops_with_corrections, style::ExactRegexpMatch};
         let file = SourceFile::new(
@@ -3496,96 +3363,6 @@ mod tests {
         let mut found = vec![];
         run_cops_with_corrections(&[&ExactRegexpMatch], &parsed, &other, &mut found, true);
         assert!(other.exact_regexp_safety.get().is_none());
-    }
-
-    #[test]
-    fn regexp_spelling_cops_share_one_lazy_bounded_dispatch_proof() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{RedundantRegexpCharacterClass, RedundantRegexpEscape},
-        };
-        let clean = SourceFile::new("x.rb".into(), b"'a'.match?(/a/)".to_vec());
-        let parsed = crate::parser::parse(&clean.bytes);
-        let mut found = vec![];
-        run_cops_with_corrections(
-            &[&RedundantRegexpCharacterClass, &RedundantRegexpEscape],
-            &parsed,
-            &clean,
-            &mut found,
-            true,
-        );
-        assert!(found.is_empty());
-        assert!(clean.exact_regexp_safety.get().is_none());
-        let file = SourceFile::new(
-            "x.rb".into(),
-            "'a-b'.match?(/[a]\\-b/)\n".repeat(6000).into_bytes(),
-        );
-        let parsed = crate::parser::parse(&file.bytes);
-        for corrections in [false, true, true] {
-            let mut found = vec![];
-            assert!(
-                run_cops_with_corrections(
-                    &[&RedundantRegexpCharacterClass, &RedundantRegexpEscape],
-                    &parsed,
-                    &file,
-                    &mut found,
-                    corrections,
-                )
-                .is_empty()
-            );
-            assert_eq!(found.len(), 12000);
-            assert_eq!(
-                found.iter().filter(|o| o.correction.is_some()).count(),
-                if corrections { 12000 } else { 0 }
-            );
-            if !corrections {
-                assert!(file.exact_regexp_safety.get().is_none());
-            }
-        }
-        let facts = file.exact_regexp_safety.get().unwrap();
-        assert_eq!(
-            facts.visits,
-            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
-        );
-        assert!(facts.visits < 60000);
-        assert!(std::ptr::eq(
-            facts,
-            file.exact_regexp_safety(&parsed.node())
-        ));
-    }
-
-    #[test]
-    fn even_odd_uses_one_lazy_bounded_safety_walk() {
-        use crate::cops::{run_cops_with_corrections, style::EvenOdd};
-        let file = SourceFile::new("x.rb".into(), "2 % 2 == 0\n".repeat(6000).into_bytes());
-        let result = ruby_prism::parse(&file.bytes);
-        for corrections in [false, true, true] {
-            let mut found = vec![];
-            assert!(
-                run_cops_with_corrections(&[&EvenOdd], &result, &file, &mut found, corrections)
-                    .is_empty()
-            );
-            assert_eq!(found.len(), 6000);
-            assert_eq!(
-                found.iter().filter(|o| o.correction.is_some()).count(),
-                if corrections { 6000 } else { 0 }
-            );
-            if !corrections {
-                assert!(file.even_odd_safety.get().is_none());
-            }
-        }
-        let facts = file.even_odd_safety.get().unwrap();
-        assert_eq!(
-            facts.visits,
-            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
-        );
-        assert!(facts.visits < 60000);
-        assert!(std::ptr::eq(facts, file.even_odd_safety(&result.node())));
-        let file = SourceFile::new("x.rb".into(), b"x % 2 == 0".to_vec());
-        let result = ruby_prism::parse(&file.bytes);
-        let mut found = vec![];
-        run_cops_with_corrections(&[&EvenOdd], &result, &file, &mut found, true);
-        assert!(file.even_odd_safety.get().is_none());
     }
 
     #[test]

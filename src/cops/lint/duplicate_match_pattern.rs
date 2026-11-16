@@ -147,7 +147,7 @@ fn normalized_newlines(source: &[u8]) -> Cow<'_, [u8]> {
     )
 }
 
-pub(super) fn inspect_source(source: &[u8], file: &SourceFile, out: &mut Vec<u8>) {
+pub(crate) fn inspect_source(source: &[u8], file: &SourceFile, out: &mut Vec<u8>) {
     out.push(b'"');
     let mut i = 0;
     while i < source.len() {

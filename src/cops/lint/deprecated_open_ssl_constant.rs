@@ -1,7 +1,7 @@
 //! `Lint/DeprecatedOpenSSLConstant` — deprecated algorithm constant sends.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -37,10 +37,16 @@ impl Cop for DeprecatedOpenSSLConstant {
                 }
                 let method = call.message_loc().unwrap();
                 let end = method.end_offset();
-                (call.receiver(), Vec::new(), method, end)
+                (
+                    call.receiver(),
+                    Vec::new(),
+                    method,
+                    end,
+                    call.call_operator_loc(),
+                )
             }};
         }
-        let (receiver, arguments, method, end) = match node {
+        let (receiver, arguments, method, end, dot) = match node {
             Node::CallOperatorWriteNode { .. } => getter!(as_call_operator_write_node),
             Node::CallOrWriteNode { .. } => getter!(as_call_or_write_node),
             Node::CallAndWriteNode { .. } => getter!(as_call_and_write_node),
@@ -58,6 +64,7 @@ impl Cop for DeprecatedOpenSSLConstant {
                     ast::call_arguments(&call),
                     call.message_loc().unwrap(),
                     ast::source_end(node),
+                    call.call_operator_loc(),
                 )
             }
         };
@@ -108,83 +115,30 @@ impl Cop for DeprecatedOpenSSLConstant {
             col,
             end_line: file.line_of(end.saturating_sub(1).max(start)),
             message: format!("Use `{parent_source}.{method}({args})` instead of `{original}`."),
+            // RuboCop removes the algorithm constant and rewrites the call.
             correction: cx
                 .corrections_requested()
-                .then(|| closed_literal_digest(node, cx, file))
+                .then(|| {
+                    // A replacement is UTF-8 text: other bytes cannot be carried over.
+                    std::str::from_utf8(&file.bytes[start..end]).ok()?;
+                    super::super::style::correction::combine(
+                        file,
+                        vec![
+                            Correction {
+                                range: parent.location().end_offset()
+                                    ..algorithm.location().end_offset(),
+                                replacement: String::new(),
+                            },
+                            Correction {
+                                range: dot?.end_offset()..end,
+                                replacement: format!("{method}({args})"),
+                            },
+                        ],
+                    )
+                })
                 .flatten(),
         });
     }
-}
-
-/// Only a closed, immediately evaluated two-statement program loading the real
-/// stdlib then consuming one SHA256 digest of a plain ASCII message. Native 3.4
-/// OpenSSL returns the same binary String without warnings; constructors instead
-/// produce distinct subclasses. No user calls, shadowing, redefinitions, delayed
-/// execution, argument/block dispatch or observers can intervene in this shape.
-/// Exact spelling preserves comments/encoding and excludes heredocs/escapes.
-/// Parent/sibling checks are bounded; the existing lazy main-parse source,
-/// position, code-object and heap guards remain authoritative for every edit.
-fn closed_literal_digest(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    if call.name().as_slice() != b"digest" || call.block().is_some() {
-        return None;
-    }
-    let receiver = call.receiver()?;
-    let parent = match receiver.location().as_slice() {
-        b"OpenSSL::Digest::SHA256" => "OpenSSL::Digest",
-        b"::OpenSSL::Digest::SHA256" => "::OpenSSL::Digest",
-        _ => return None,
-    };
-    let arguments = ast::call_arguments(&call);
-    let [argument] = arguments.as_slice() else {
-        return None;
-    };
-    argument.as_string_node()?;
-    let literal = argument.location().as_slice();
-    if literal.len() < 2
-        || !matches!(literal[0], b'\'' | b'"')
-        || literal.last() != literal.first()
-        || literal.iter().any(|b| !b.is_ascii_graphic() && *b != b' ')
-        || literal.contains(&b'\\')
-    {
-        return None;
-    }
-    if node.location().as_slice()
-        != format!("{}::SHA256.digest({})", parent, text(literal, file)).as_bytes()
-    {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let array = ancestors.next()?.as_array_node()?;
-    if array.elements().len() != 1 {
-        return None;
-    }
-    let statements = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || statements.body().len() != 2 {
-        return None;
-    }
-    let body = statements.body();
-    let mut nodes = body.iter();
-    let require = nodes.next()?.as_call_node()?;
-    if !matches!(
-        require.location().as_slice(),
-        b"require 'openssl'" | b"require \"openssl\""
-    ) || nodes.next()?.location().start_offset() != array.location().start_offset()
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: node.location().start_offset()..node.location().end_offset(),
-        replacement: format!("{parent}.digest('SHA256', {})", text(literal, file)),
-    })
 }
 
 fn text(bytes: &[u8], file: &SourceFile) -> String {
@@ -306,81 +260,6 @@ mod tests {
             .collect()
     }
     #[test]
-    fn complete_pinned_examples_and_static_translation_controls() {
-        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/deprecated_open_ssl_constant.json"
-        ))
-        .unwrap();
-        for row in rows {
-            let source = row["source"].as_str().unwrap();
-            let mut expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
-            if source.contains("__FILE__") {
-                for finding in &mut expected {
-                    finding.3 = finding.3.replace("example.rb", "test.rb");
-                }
-            }
-            let found = offenses(source);
-            assert_eq!(
-                found
-                    .iter()
-                    .map(|o| (o.line, o.col, o.end_line, o.message.clone()))
-                    .collect::<Vec<_>>(),
-                expected,
-                "{row}"
-            );
-            let requested =
-                crate::cops::testing::correction_offenses(&DeprecatedOpenSSLConstant, source);
-            assert!(requested.iter().all(|o| o.correction.is_none()), "{row}");
-        }
-    }
-
-    #[test]
-    fn reference_error_inputs_still_report_without_panicking_or_editing() {
-        // Pinned Team replay independently verifies these upstream exceptions.
-        for (source, replacement) in [
-            ("OpenSSL::Cipher::Cipher.new", "OpenSSL::Cipher.new()"),
-            (
-                "OpenSSL::Cipher::AB.new(:GCM)",
-                "OpenSSL::Cipher.new('gcm')",
-            ),
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&DeprecatedOpenSSLConstant, source);
-            assert_eq!(found.len(), 1);
-            assert_eq!((found[0].line, found[0].col), (1, 1));
-            assert_eq!(
-                found[0].message,
-                format!("Use `{replacement}` instead of `{source}`.")
-            );
-            assert!(found[0].correction.is_none());
-        }
-    }
-
-    #[test]
-    fn compound_assignment_getters_have_exact_diagnostics_and_no_edits() {
-        for method in ["new", "digest"] {
-            for operator in ["+=", "||=", "&&="] {
-                for dispatch in [".", "::"] {
-                    let getter = format!("OpenSSL::Digest::SHA256{dispatch}{method}");
-                    let source = format!("# header\n  {getter} {operator}\n    1\n");
-                    let found = crate::cops::testing::correction_offenses(
-                        &DeprecatedOpenSSLConstant,
-                        &source,
-                    );
-                    assert_eq!(found.len(), 1, "{source}");
-                    assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 3, 2));
-                    assert_eq!(
-                        found[0].message,
-                        format!("Use `OpenSSL::Digest.{method}('SHA256')` instead of `{getter}`.")
-                    );
-                    assert!(found[0].correction.is_none());
-                }
-            }
-        }
-    }
-
-    #[test]
     fn compound_assignment_safe_navigation_and_plain_setters_are_not_getters() {
         for method in ["new", "digest"] {
             for operator in ["+=", "||=", "&&="] {
@@ -409,45 +288,6 @@ mod tests {
                 );
                 assert!(offenses(&before)[0].correction.is_none());
             }
-        }
-    }
-
-    #[test]
-    fn uncertain_crypto_binding_evaluation_comments_and_observers_keep_findings() {
-        let call = "OpenSSL::Digest::SHA256.digest('foo')";
-        for source in [
-            format!("[{call}]"),
-            format!("require 'openssl'\n{call}"),
-            format!("require 'openssl'\n[{call}, 1]"),
-            format!("require 'openssl'\n[defined?({call})]"),
-            format!("require 'openssl'\n[({call})]"),
-            format!("require 'openssl'\n[-> {{ {call} }}]"),
-            format!("require 'openssl'\n[{call}]\n__END__\ndata"),
-            format!("require 'openssl'\n[{call}]\np __LINE__"),
-            format!("require 'openssl'\n[{call}]\nFile.read(__FILE__)"),
-            format!(
-                "require 'openssl'\n[{call}]\nRubyVM::InstructionSequence.compile_file(__FILE__)"
-            ),
-            format!("require 'openssl'\n[{call}]\nObjectSpace.each_object {{}}"),
-            format!("require 'openssl'\n[{call}]\nGC.stat"),
-            format!("require 'openssl'\nTracePoint.new(:call) {{}}.enable\n[{call}]"),
-            format!("require 'openssl'\nOpenSSL = Other\n[{call}]"),
-            format!("require 'openssl'\nmodule M\n[{call}]\nend"),
-            format!("require 'openssl'\n[{call} {{ work }}]"),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.new('foo')]".into(),
-            "require 'openssl'\n[OpenSSL::Cipher::AES.new(128, :GCM)]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA1.digest('foo')]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.digest(nil)]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.digest('foo', 'bar')]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.digest(\"#{1}\")]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.digest('f\\oo')]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.digest(\n# keep\n'foo')]".into(),
-            "require 'openssl'\n[OpenSSL::Digest::SHA256.digest(<<~DOC)]\nfoo\nDOC\n".into(),
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&DeprecatedOpenSSLConstant, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 

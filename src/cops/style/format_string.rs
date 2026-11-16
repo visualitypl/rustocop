@@ -338,9 +338,6 @@ impl Facts {
         walk::walk(&mut index, root);
         index.facts
     }
-    pub(crate) fn named_keys(&self, hash: &Node<'_>) -> Option<&HashSet<Vec<u8>>> {
-        self.named_keys.get(&key(hash))
-    }
     pub(crate) fn closed(&self, n: &Node<'_>) -> bool {
         self.closed.get(&key(n)).copied().unwrap_or(false)
     }

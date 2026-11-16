@@ -25,7 +25,7 @@ impl Cop for EvenOdd {
         };
         let loc = node.location();
         let correction = if cx.corrections_requested() {
-            correct(node, &base, method, cx, file)
+            correct(node, &base, method)
         } else {
             None
         };
@@ -106,111 +106,36 @@ fn candidate<'pr>(
         if equal == (value == 0) { "even" } else { "odd" },
     ))
 }
-fn small_integer(node: &Node<'_>) -> bool {
-    let value = if let Some(p) = node.as_parentheses_node() {
-        single_group(p.as_node()).and_then(|n| integer(&n, None))
-    } else {
-        integer(node, None)
-    };
-    value.is_some_and(|n| (-(1 << 30)..(1 << 30)).contains(&n))
-}
-fn correct(
-    node: &Node<'_>,
-    base: &Node<'_>,
-    method: &str,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if !small_integer(base) || candidate(node, None).is_none() {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    let facts = file.even_odd_safety(root);
-    let range = node.location().start_offset()..ast::source_end(node);
-    if facts.changed
-        || facts.first_effect.is_some_and(|end| end <= range.start)
-        || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
-        || file.heredoc_pending_at(root, range.start)
-    {
-        return None;
-    }
+/// RuboCop's corrector: an operator receiver other than `[]` binds looser
+/// than the appended call, so it is wrapped in parentheses.
+fn correct(node: &Node<'_>, base: &Node<'_>, method: &str) -> Option<Correction> {
     let source = std::str::from_utf8(base.location().as_slice()).ok()?;
-    // Negative/explicitly signed literal tokens must remain the method receiver,
-    // not unary operators applied to the predicate's Boolean result.
-    let source = if source.starts_with(['-', '+']) {
+    let operator = base.as_call_node().is_some_and(|c| {
+        let name = c.name().as_slice();
+        name != b"[]" && super::super::layout::multiline_expression::operator_method(name)
+    });
+    let source = if operator {
         format!("({source})")
     } else {
         source.into()
     };
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
-        Correction {
-            range,
-            replacement: format!("{source}.{method}?"),
-        },
-    )
+    Some(Correction {
+        range: node.location().start_offset()..ast::source_end(node),
+        replacement: format!("{source}.{method}?"),
+    })
 }
 
-/// Lazy, one-walk closed-core dispatch proof. Never infer a local/call's type.
-#[derive(Default)]
-pub(crate) struct Safety {
-    changed: bool,
-    first_effect: Option<usize>,
-    #[cfg(test)]
-    pub(crate) visits: usize,
-}
-impl Safety {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut facts = Self::default();
-        crate::cops::walk::walk(&mut facts, root);
-        facts
-    }
-}
-impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Safety {
-    fn enter(&mut self, node: Node<'pr>) {
-        #[cfg(test)]
-        {
-            self.visits += 1;
-        }
-        if let Some(call) = node.as_call_node() {
-            let trusted = candidate(&node, None).is_some_and(|(base, _)| small_integer(&base))
-                || remainder(call.as_node(), None).is_some_and(|base| small_integer(&base))
-                || (matches!(call.name().as_slice(), b"even?" | b"odd?")
-                    && call.receiver().is_some_and(|n| small_integer(&n))
-                    && call.arguments().is_none()
-                    && call.block().is_none()
-                    && !call.is_safe_navigation());
-            if !trusted || call.block().is_some() {
-                self.changed |= call.block().is_some();
-                let end = call.location().end_offset();
-                self.first_effect = Some(self.first_effect.map_or(end, |old| old.min(end)));
-            }
-        } else {
-            self.changed |= !matches!(
-                node,
-                Node::ProgramNode { .. }
-                    | Node::StatementsNode { .. }
-                    | Node::ArgumentsNode { .. }
-                    | Node::IntegerNode { .. }
-                    | Node::ParenthesesNode { .. }
-                    | Node::ArrayNode { .. }
-                    | Node::LocalVariableReadNode { .. }
-                    | Node::LocalVariableWriteNode { .. }
-                    | Node::SourceLineNode { .. }
-                    | Node::TrueNode { .. }
-                    | Node::FalseNode { .. }
-                    | Node::NilNode { .. }
-            );
-        }
-    }
-}
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/even_odd_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::assert_correction;
+    #[test]
+    fn corrects_as_rubocop() {
+        assert_correction(&EvenOdd, "x % 2 == 0\n", "x.even?\n");
+        assert_correction(&EvenOdd, "(x - y) % 2 != 0\n", "(x - y).odd?\n");
+        assert_correction(&EvenOdd, "-1 % 2 == 1\n", "-1.odd?\n");
+    }
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -263,86 +188,6 @@ mod tests {
             "(x % 2)&.==(0)",
         ] {
             assert!(offenses(s).is_empty(), "{s}");
-        }
-    }
-    #[test]
-    fn spaced_and_multiline_minus_are_detection_only() {
-        for s in [
-            "x % 2 == - 0",
-            "x % - -2 == 0",
-            "x % -\n-2 == 0",
-            "x % 2 == -\n0",
-            "x % 2 == - +0",
-            "2 % 2 == - 0",
-            "2 % - -2 == 0",
-            "- 2 % 2 == 0",
-        ] {
-            let found = offenses(s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert_eq!((found[0].line, found[0].col), (1, 1));
-            assert_eq!(found[0].message, "Replace with `Integer#even?`.");
-            assert!(
-                correction_offenses(&EvenOdd, s)[0].correction.is_none(),
-                "{s}"
-            );
-        }
-        for s in [
-            "x % + 2 == 0",
-            "x % - - 2 == 0",
-            "x % 2 == - - 0",
-            "x % 2 == - + 0",
-            "x % 2 == 0.-@",
-            "x % 2 == -(0)",
-        ] {
-            assert!(offenses(s).is_empty(), "{s}");
-        }
-    }
-    #[test]
-    fn line_macros_are_exact_integer_values_for_detection() {
-        for s in [
-            "\nx % __LINE__ == 0",
-            "x % 2 == __LINE__",
-            "\n2 % __LINE__ == 0",
-            "2 % 2 == __LINE__",
-        ] {
-            assert_eq!(offenses(s).len(), 1, "{s}");
-            let found = correction_offenses(&EvenOdd, s);
-            assert!(found[0].correction.is_none(), "uncertain macro edit: {s}");
-        }
-        assert!(offenses("\nx % 2 == __LINE__").is_empty());
-    }
-    #[test]
-    fn literal_integer_corrections() {
-        for (s, after) in [
-            ("1 % 2 != 1", "1.even?"),
-            ("0x10 % 02 == 0", "0x10.even?"),
-            ("-3 % 2 == 1", "(-3).odd?"),
-            ("(+2 % 2) != 0", "(+2).odd?"),
-            ("(0) % 2 != 1", "(0).even?"),
-        ] {
-            assert_correction(&EvenOdd, s, after);
-        }
-    }
-    #[test]
-    fn uncertain_numeric_receivers_and_dispatch_remain_reported() {
-        for s in [
-            "x % 2 == 0",
-            "x.y % 2 == 1",
-            "a * b % 2 == 0",
-            "-a % 2 == 0",
-            "a[0] % 2 == 0",
-            "1.0 % 2 == 0",
-            "1r % 2 == 1",
-            "1i % 2 == 1",
-            "9999999999999999999999999 % 2 == 1",
-            "class Integer; def even?; false; end; end; 2 % 2 == 0",
-            "patch; 2 % 2 == 0",
-            "def f; 2 % 2 == 0; end",
-            "(2 % #keep\n 2) == 0",
-        ] {
-            let found = correction_offenses(&EvenOdd, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
         }
     }
 }

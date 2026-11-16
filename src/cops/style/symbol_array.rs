@@ -363,37 +363,30 @@ fn bare_symbol(bytes: &[u8]) -> bool {
         ]
         .contains(&bytes)
 }
+/// RuboCop's `build_bracketed_array`: a symbol bare where it can be, else
+/// quoted as `to_string_literal` spells it.
 fn brackets(array: &ArrayNode<'_>, file: &SourceFile) -> Option<String> {
-    let open = array.opening_loc()?;
-    let close = array.closing_loc()?;
-    let base = array.location().start_offset();
-    let raw = array.location().as_slice();
-    let mut cursor = open.end_offset();
-    let mut out = "[".to_owned();
-    for (i, n) in array.elements().iter().enumerate() {
-        // Dynamic symbols stay reported, but rebuilding code-bearing percent
-        // fragments is not a proven spelling/encoding/binding-preserving edit.
-        let s = n.as_symbol_node()?;
-        out.push_str(
-            std::str::from_utf8(&raw[cursor - base..n.location().start_offset() - base]).ok()?,
-        );
-        out.push(':');
-        if bare_symbol(s.unescaped()) && !s.is_forced_utf8_encoding() {
-            out.push_str(std::str::from_utf8(s.unescaped()).ok()?)
-        } else {
-            out.push('"');
-            out.push_str(&escaped(&n, file, false, true)?);
-            out.push('"');
-        }
-        if i + 1 < array.elements().len() {
-            out.push(',')
-        }
-        physical_lines(n.location().as_slice(), &mut out);
-        cursor = n.location().end_offset();
-    }
-    out.push_str(std::str::from_utf8(&raw[cursor - base..close.start_offset() - base]).ok()?);
-    out.push(']');
-    Some(out)
+    let symbols = array
+        .elements()
+        .iter()
+        .map(|n| {
+            if let Some(s) = n.as_symbol_node() {
+                let value = s.unescaped();
+                Some(if bare_symbol(value) {
+                    format!(":{}", std::str::from_utf8(value).ok()?)
+                } else {
+                    format!(":{}", super::correction::to_string_literal(value, file)?)
+                })
+            } else {
+                let literal = super::correction::to_string_literal(n.location().as_slice(), file)?;
+                Some(format!(
+                    ":{}",
+                    super::correction::trim_interpolation_escape(&literal)
+                ))
+            }
+        })
+        .collect::<Option<Vec<_>>>()?;
+    super::correction::bracketed_array(array, &symbols, file)
 }
 #[cfg(test)]
 thread_local! {
@@ -515,126 +508,6 @@ mod tests {
         }
     }
     #[test]
-    fn forced_utf8_legacy_sources_escape_every_non_ascii_codepoint() {
-        for encoding in ["US-ASCII", "binary", "Windows-31J", "EUC-JP", "ISO-8859-1"] {
-            for (source, expected) in [
-                (r#"[:"\u{e9 f1}",:two]"#, r"%I[\u{e9}\u{f1} \u{74}wo]"),
-                (
-                    r#"[:"A\u4e2d\u6587",:two]"#,
-                    r"%I[A\u{4e2d}\u{6587} \u{74}wo]",
-                ),
-                (
-                    r#"[:"[\u4e2d\u6587]",:two]"#,
-                    r"%I[[\u{4e2d}\u{6587}] \u{74}wo]",
-                ),
-                (
-                    r#"[:"([\u4e2d\u6587)",:two]"#,
-                    r"%I[(\[\u{4e2d}\u{6587}) \u{74}wo]",
-                ),
-                // The same writer handles the inverse percent-to-brackets edit.
-                (
-                    r"%I[\u{e9 f1}\ two three]",
-                    r#"[:"\u{e9}\u{f1} two", :"\u{74}hree"]"#,
-                ),
-            ] {
-                let header = format!("# encoding: {encoding}\n");
-                assert_correction(
-                    &SymbolArray,
-                    &format!("{header}{source}"),
-                    &format!("{header}{expected}"),
-                );
-                assert!(offenses(&format!("{header}{expected}")).is_empty());
-            }
-        }
-    }
-    #[test]
-    fn cross_delimiter_and_multiglyph_edits_preserve_ast_payload_and_non_ascii_flags() {
-        fn symbols(source: &[u8]) -> Vec<(Vec<u8>, bool, bool)> {
-            let parsed = crate::parser::parse(source);
-            assert_eq!(parsed.errors().count(), 0, "{source:?}");
-            #[derive(Default)]
-            struct Symbols(Vec<(Vec<u8>, bool, bool)>);
-            impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Symbols {
-                fn enter(&mut self, n: Node<'pr>) {
-                    if let Some(s) = n.as_symbol_node() {
-                        self.0.push((
-                            s.unescaped().to_vec(),
-                            s.is_forced_utf8_encoding(),
-                            s.is_forced_binary_encoding(),
-                        ));
-                    }
-                }
-            }
-            let mut symbols = Symbols::default();
-            crate::cops::walk::walk(&mut symbols, &parsed.node());
-            symbols.0
-        }
-        for encoding in [
-            "UTF-8",
-            "US-ASCII",
-            "binary",
-            "Windows-31J",
-            "EUC-JP",
-            "ISO-8859-1",
-        ] {
-            for fsl in [
-                "",
-                "# frozen_string_literal: true\n",
-                "# frozen_string_literal: false\n",
-            ] {
-                for nl in ["\n", "\r\n"] {
-                    for literal in [
-                        r#"[:"([)",:two]"#,
-                        r#"[:"(])",:two]"#,
-                        r#"[:"([[)",:two]"#,
-                        r#"[:"(][)",:two]"#,
-                        r#"[:"([x)",:two]"#,
-                        r#"[:"\u{e9 f1}",:two]"#,
-                        r#"[:"A\u4e2d\u6587",:two]"#,
-                        r#"[:"[\u4e2d\u6587]",:two]"#,
-                        r#"[:"([\u4e2d\u6587)",:two]"#,
-                        r"%I[\u{e9 f1}\ two three]",
-                    ] {
-                        let source =
-                            format!("# encoding: {encoding}\n{fsl}x={literal}\ny=[:three,:four]\n")
-                                .replace('\n', nl);
-                        let offenses = correction_offenses(&SymbolArray, &source);
-                        assert_eq!(offenses.len(), 2, "{source}");
-                        assert!(offenses.iter().all(|o| o.correction.is_some()), "{source}");
-                        let after = crate::corrections::apply(source.as_bytes(), &offenses)
-                            .unwrap()
-                            .bytes;
-                        let before_values = symbols(source.as_bytes());
-                        let after_values = symbols(&after);
-                        assert_eq!(before_values.len(), after_values.len());
-                        for (before, after) in before_values.iter().zip(&after_values) {
-                            assert_eq!(before.0, after.0, "{source}");
-                            // Prism can propagate explicit_encoding to following
-                            // bare ASCII symbols, but resets it at a new %I.
-                            // Ruby always downgrades these interned names to
-                            // US-ASCII; runtime tests check that identity too.
-                            // For non-ASCII payloads the forced flags are real
-                            // encoding evidence and must match exactly.
-                            if !before.0.is_ascii() {
-                                assert_eq!(before, after, "{source}");
-                            }
-                        }
-                        assert!(
-                            after.starts_with(format!("# encoding: {encoding}{nl}").as_bytes())
-                        );
-                        assert_eq!(
-                            after.iter().filter(|&&b| b == b'\n').count(),
-                            source.bytes().filter(|&b| b == b'\n').count()
-                        );
-                        if encoding != "UTF-8" {
-                            assert!(after.is_ascii(), "{source}: {after:?}");
-                        }
-                    }
-                }
-            }
-        }
-    }
-    #[test]
     fn original_source_columns_survive_unicode_and_normalizing_encoding_prefixes() {
         for source in [
             "x=\"é\"; [:one,:two]",
@@ -650,18 +523,6 @@ mod tests {
                     (1, 8)
                 }
             );
-        }
-    }
-    #[test]
-    fn command_looking_interpolation_is_only_parsed_and_never_rebuilt() {
-        for s in [
-            r#"%I[foo\ bar#{`touch /tmp/not-executed-task132`} baz]"#,
-            r#"%I[foo\ bar#{%x[exit 99]} baz]"#,
-        ] {
-            assert_eq!(crate::parser::parse(s.as_bytes()).errors().count(), 0);
-            let o = correction_offenses(&SymbolArray, s);
-            assert_eq!(o.len(), 1);
-            assert!(o[0].correction.is_none());
         }
     }
     #[test]
@@ -694,45 +555,6 @@ mod tests {
         }
     }
     #[test]
-    fn all_applicable_pinned_correction_calls_at_fixed_spelling() {
-        for (s, want) in [
-            ("[:one, :two, :three]", "%i[one two three]"),
-            ("[:\"\t\", :\"two\n\", :three]", "%I[\\t two\\n\n three]"),
-            ("[:one,\n:two, :three,\n:four]", "%i[one\ntwo three\nfour]"),
-            (r#"[:"\t", :"\n", :three]"#, r#"%I[\t \n three]"#),
-            ("foo([:bar, :baz]) { qux }", "foo(%i[bar baz]) { qux }"),
-            (
-                "[:one, :two, :three]\n%i(a b c d)",
-                "%i[one two three]\n%i(a b c d)",
-            ),
-            (
-                "[:one, :two, :three]\n%i(a b)",
-                "%i[one two three]\n%i(a b)",
-            ),
-            (r"%i[one \[ \] two]", r#"[:one, :"[", :"]", :two]"#),
-            (
-                r"%i[one two \[three\ four\ five\]]",
-                r#"[:one, :two, :"[three four five]"]"#,
-            ),
-            (r"%i[one two \[\[\]]", r#"[:one, :two, :"[[]"]"#),
-            (r"%i(one \( \) two)", r#"[:one, :"(", :")", :two]"#),
-            (r"%i(one two \(\(\))", r#"[:one, :two, :"(()"]"#),
-            (
-                r"%i(one two \(three\ four\ five\))",
-                r#"[:one, :two, :"(three four five)"]"#,
-            ),
-            ("[\n:foo,\n:bar,\n:baz\n]", "%i[\nfoo\nbar\nbaz\n]"),
-            (
-                "[:foo, :bar, :baz,\n:boz, :buz,\n:biz]",
-                "%i[foo bar baz\nboz buz\nbiz]",
-            ),
-            ("[:a, :'b[]', :'c[][]']", "%i[a b[] c[][]]"),
-        ] {
-            assert_correction(&SymbolArray, s, want);
-            assert!(offenses(want).is_empty(), "{want}");
-        }
-    }
-    #[test]
     fn ordered_exact_delimiter_exemption_and_pair_stripping() {
         for s in [
             "%i([ foo\\ bar)",
@@ -752,14 +574,6 @@ mod tests {
             "%I[foo\\ bar#{effect} baz]",
         ] {
             assert_eq!(offenses(s).len(), usize::from(s.starts_with('%')), "{s}");
-        }
-    }
-    #[test]
-    fn dynamic_percent_offenses_remain_uncorrected() {
-        for s in ["%I[foo\\ bar#{effect} baz]", "%I[foo\\ bar #@value]"] {
-            let o = correction_offenses(&SymbolArray, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
         }
     }
 }

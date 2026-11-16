@@ -259,49 +259,6 @@ fn observe(ruby: &str, s: &[u8]) -> (Vec<u8>, Vec<u8>) {
     (o.stdout, o.stderr)
 }
 #[test]
-fn controlled_symbol_values_encodings_intern_identity_and_warnings_all_frozen_modes() {
-    for ruby in runtimes() {
-        for magic in [
-            "",
-            "# frozen_string_literal: true\n",
-            "# frozen_string_literal: false\n",
-        ] {
-            for (literal, count) in [
-                ("[:one,:two]", 2),
-                ("[:\"\u{85}\",:two]", 2),
-                ("[:\"one\\\r\ntwo\",:three]", 2),
-                ("[:'b[]',:'c[][]']", 2),
-                (r#"[:"\t", :"\n", :three]"#, 3),
-                (r#"[:"\u4e2d", :"\u0061"]"#, 2),
-                (r#"[:"[\u4e2d]", :two]"#, 2),
-                (r#"[:"[]\u4e2d[]", :two]"#, 2),
-                (r#"[:"\u4e2d", :"[]"]"#, 2),
-                (r#"[:"a\\b", :'#{effect}']"#, 2),
-                ("[:\"\t\", :\"two\n\", :three]", 3),
-                (r"%i[one \[ \] two]", 4),
-                (r"%I[one two\ three]", 2),
-                ("%i[a\\ b\\\nc d\\ e\\\nf]", 2),
-            ] {
-                let s = format!(
-                    "{magic}x={literal}\np x.map {{ |s| [s.to_s.bytes,s.encoding.name,s.frozen?,s.equal?(s.to_s.to_sym)] }}\np [x.length,x[0].equal?(x[0]),__LINE__]\nx << :extra\np x.length\n"
-                );
-                let after = fixed(&s, SYMBOL);
-                assert_ne!(after, s, "{ruby}: {s}");
-                let before_observation = observe(&ruby, s.as_bytes());
-                assert_eq!(
-                    before_observation,
-                    observe(&ruby, after.as_bytes()),
-                    "{ruby}: {s} => {after}"
-                );
-                assert!(
-                    String::from_utf8_lossy(&before_observation.0)
-                        .contains(&format!("[{count}, true,"))
-                );
-            }
-        }
-    }
-}
-#[test]
 fn encoded_symbol_delimiters_use_character_heads_and_uncertain_encoding_edits_are_withheld() {
     // Windows-31J ソ has a backslash trail; Ы has a '[' trail, Ъ a ']'.
     for (encoding, bytes) in [

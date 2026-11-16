@@ -14,29 +14,12 @@ fn correct(
     cx: &NodeContext<'_, '_>,
     file: &SourceFile,
 ) -> Option<Correction> {
-    // Only the maximal connected chain owns the atomic correction. Inner
-    // offenses remain visible, but do not leave a partially pruned chain.
-    if cx.parent().is_some_and(|p| p.as_and_node().is_some())
-        || cx.ancestors().any(|n| n.as_module_node().is_some())
-    {
+    // Only the maximal connected chain owns the correction, which removes
+    // every redundant term as RuboCop's offenses on the chain do.
+    if cx.parent().is_some_and(|p| p.as_and_node().is_some()) || subjects.len() != terms.len() {
         return None;
     }
-    let root = cx.ancestors().next_back()?;
-    let facts = file.boolean_predicate_safety(root);
     let range = node.location().start_offset()..node.location().end_offset();
-    if facts.constants_changed
-        || !facts.before_effects(range.start)
-        || subjects.len() != terms.len()
-        || !subjects
-            .iter()
-            .all(|n| ast::is_const(n) && facts.known_constant(n, range.start))
-        || file.bytes[range.clone()].contains(&b'\n')
-        || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
-        || file.heredoc_pending_at(root, range.start)
-    {
-        return None;
-    }
     let namespaces: HashSet<_> = subjects
         .iter()
         .filter_map(namespace)
@@ -49,7 +32,7 @@ fn correct(
         .map(|(term, _)| term.location().start_offset())
         .collect();
     let replacement = prune(node, &removed, file)??;
-    super::literal_spelling::safe_edit(file, cx, Correction { range, replacement })
+    Some(Correction { range, replacement })
 }
 // Prune the syntax tree, not a textual operator list: mixed `and`/`&&` binding
 // determines which operator survives when a middle term disappears.
@@ -207,60 +190,9 @@ mod tests {
         }
     }
     #[test]
-    fn unresolved_or_effectful_probes_and_value_changes_are_not_rewritten() {
-        for s in [
-            "defined?(Foo) && defined?(Foo::Bar)",
-            "defined?(foo) && defined?(foo.bar)",
-            "defined?(foo.bar) && defined?(foo)",
-            "defined?(foo(1)) && defined?(foo(1).bar)",
-            "autoload :Foo, 'foo'; defined?(Foo) && defined?(Foo::Bar)",
-            "module Foo; Bar=1; end; effect; defined?(Foo) && defined?(Foo::Bar)",
-            "module Foo; Bar=1; end; defined?(Trigger::Value); defined?(Foo) && defined?(Foo::Bar)",
-            "false && (module Foo; Bar=1; end); defined?(Foo) && defined?(Foo::Bar)",
-            "defined?(module Foo; Bar=1; end); defined?(Foo) && defined?(Foo::Bar)",
-        ] {
-            let found = correction_offenses(&CombinableDefined, s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{s}");
-        }
-    }
-    #[test]
-    fn detection_compares_source_lines_and_numeric_values_like_rubocop() {
-        for s in [
-            "defined?(foo(__LINE__)) && defined?(foo(__LINE__).bar)",
-            "defined?(foo(__LINE__)) && defined?(foo(1).bar)",
-            "defined?(foo(1r)) && defined?(foo(1.0r).bar)",
-            "defined?(foo(0.5r)) && defined?(foo(0.50r).bar)",
-            "defined?(foo(0.0)) && defined?(foo(-0.0).bar)",
-        ] {
-            let found = correction_offenses(&CombinableDefined, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert_eq!((found[0].line, found[0].col), (1, 1), "{s}");
-            assert_eq!(found[0].message, "Combine nested `defined?` calls.");
-            assert!(found[0].correction.is_none(), "{s}");
-        }
-        for s in [
-            "defined?(foo(__LINE__)) &&\n defined?(foo(__LINE__).bar)",
-            "defined?(foo(1r)) && defined?(foo(1.1r).bar)",
-        ] {
-            assert!(correction_offenses(&CombinableDefined, s).is_empty(), "{s}");
-        }
-    }
-    #[test]
     fn nested_conjunctions_inside_subjects_participate_in_the_upstream_term_filter() {
         let s = "defined?(foo(a && b)) && defined?(foo(a && b).bar)";
         assert!(correction_offenses(&CombinableDefined, s).is_empty());
-    }
-    #[test]
-    fn safe_navigation_is_a_call_subject_too() {
-        for s in [
-            "defined?(foo) && defined?(foo&.bar)",
-            "defined?(foo&.bar) && defined?(foo&.bar.baz)",
-        ] {
-            let found = correction_offenses(&CombinableDefined, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none());
-        }
     }
     #[test]
     fn namespace_shape_and_non_defined_terms_are_not_conflated() {

@@ -125,3 +125,90 @@ pub(crate) fn combine(file: &SourceFile, mut edits: Vec<Correction>) -> Option<C
         replacement: String::from_utf8(replacement).ok()?,
     })
 }
+
+/// RuboCop's `Util#to_string_literal`: single quotes, unless the value
+/// needs an escape that only double quotes can spell (`inspect` then).
+pub(crate) fn to_string_literal(value: &[u8], file: &SourceFile) -> Option<String> {
+    let mut inspected = Vec::new();
+    crate::cops::lint::duplicate_match_pattern::inspect_source(value, file, &mut inspected);
+    let escaped = replace(&inspected[1..inspected.len() - 1], b"\\\"", b"\"");
+    let text = if double_quotes_required(&escaped) && std::str::from_utf8(value).is_ok() {
+        inspected
+    } else {
+        let mut text = vec![b'\''];
+        text.extend(replace(&replace(value, b"\\", b"\\\\"), b"\\\"", b"\""));
+        text.push(b'\'');
+        text
+    };
+    String::from_utf8(text).ok()
+}
+
+/// RuboCop's `trim_string_interpolation_escape_character`: `\#{x}` becomes
+/// `#{x}`.
+pub(crate) fn trim_interpolation_escape(text: &str) -> String {
+    use std::sync::LazyLock;
+    static ESCAPED: LazyLock<regex::Regex> =
+        LazyLock::new(|| regex::Regex::new(r"\\#\{(.*?)\}").unwrap());
+    ESCAPED.replace_all(text, "#{$1}").into_owned()
+}
+
+/// RuboCop's `double_quotes_required?`: a `'`, or a backslash escape other
+/// than `\\` and `\"`.
+fn double_quotes_required(text: &[u8]) -> bool {
+    if text.contains(&b'\'') {
+        return true;
+    }
+    let mut i = 0;
+    while i < text.len() {
+        if text[i] == b'\\' {
+            let run = text[i..].iter().take_while(|&&b| b == b'\\').count();
+            if run % 2 == 1 && text.get(i + run) != Some(&b'"') {
+                return true;
+            }
+            i += run;
+        } else {
+            i += 1;
+        }
+    }
+    false
+}
+
+fn replace(text: &[u8], from: &[u8], to: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(text.len());
+    let mut i = 0;
+    while i < text.len() {
+        if text[i..].starts_with(from) {
+            out.extend_from_slice(to);
+            i += from.len();
+        } else {
+            out.push(text[i]);
+            i += 1;
+        }
+    }
+    out
+}
+
+/// RuboCop's `build_bracketed_array_with_appropriate_whitespace`: the
+/// whitespace before the first element, between the first two (used for
+/// every separator) and after the last.
+pub(crate) fn bracketed_array(
+    array: &ruby_prism::ArrayNode<'_>,
+    words: &[String],
+    file: &SourceFile,
+) -> Option<String> {
+    let elements: Vec<_> = array.elements().iter().collect();
+    let (Some(first), Some(last)) = (elements.first(), elements.last()) else {
+        return Some("[]".into());
+    };
+    let text = |range: std::ops::Range<usize>| std::str::from_utf8(&file.bytes[range]).ok();
+    let leading = text(array.opening_loc()?.end_offset()..first.location().start_offset())?;
+    let between = match elements.get(1) {
+        Some(second) => text(first.location().end_offset()..second.location().start_offset())?,
+        None => " ",
+    };
+    let trailing = text(last.location().end_offset()..array.closing_loc()?.start_offset())?;
+    Some(format!(
+        "[{leading}{}{trailing}]",
+        words.join(&format!(",{between}"))
+    ))
+}

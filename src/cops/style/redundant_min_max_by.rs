@@ -35,25 +35,11 @@ impl Cop for RedundantMinMaxBy {
             return;
         };
         let (line, col) = file.line_col(selector.start_offset());
-        let correction = cx
-            .corrections_requested()
-            .then(|| {
-                if !call
-                    .receiver()
-                    .is_some_and(|n| super::min_max::integer_array(&n))
-                {
-                    return None;
-                }
-                super::min_max::safe_numeric_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: selector.start_offset()..call.location().end_offset(),
-                        replacement: replacement.into(),
-                    },
-                )
-            })
-            .flatten();
+        // RuboCop replaces from the selector to the end of the block.
+        let correction = cx.corrections_requested().then(|| Correction {
+            range: selector.start_offset()..call.location().end_offset(),
+            replacement: replacement.into(),
+        });
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -103,34 +89,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == RedundantMinMaxBy.name())
             .collect()
-    }
-    #[test]
-    fn canonical_numeric_fixes_and_sensitive_values_withholding() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        for (method, replacement) in [
-            ("max_by", "max"),
-            ("min_by", "min"),
-            ("minmax_by", "minmax"),
-        ] {
-            for block in ["{ |x| x }", "{ _1 }", "{ it }", "do |x|\n x\nend"] {
-                let s = format!("[3,1,2].{method} {block}");
-                assert_correction(&RedundantMinMaxBy, &s, &format!("[3,1,2].{replacement}"));
-            }
-        }
-        for s in [
-            "array.min_by { |x| x }",
-            "[nil,1].min_by { |x| x }",
-            "[0.0, -0.0].min_by { |x| x }",
-            "[Float::NAN].min_by { |x| x }",
-            "[[1],[1]].minmax_by { it }",
-            "[999999999999999999999999].max_by { it }",
-            "[1].min_by { |x| x # comment\n}",
-            "[1].min_by do |x|\n x\nend\np __LINE__",
-        ] {
-            let o = correction_offenses(&RedundantMinMaxBy, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
     }
     #[test]
     fn all_pinned_methods_and_block_shapes() {

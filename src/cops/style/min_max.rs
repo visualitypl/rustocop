@@ -243,47 +243,6 @@ mod tests {
         }
     }
     #[test]
-    fn visible_overrides_loads_observers_and_deferred_scopes_withhold_both_safe_cops() {
-        use crate::cops::testing::correction_offenses;
-        for prefix in [
-            "class Integer; def <=>(x); 0; end; end\n",
-            "class Array; private :min; end\n",
-            "class Array; alias min max; end\n",
-            "class Array; undef minmax; end\n",
-            "Array.define_method(:min) { 7 }\n",
-            "require 'patch'\n",
-            "eval(code)\n",
-            "using Extensions\n",
-            "ObjectSpace.count_objects\n",
-            "TracePoint.new {}\n",
-            "DATA.pos\n",
-            "File.read(__FILE__)\n",
-        ] {
-            for (cop, body) in [
-                (&MinMax as &dyn Cop, "[[3,1].min,[3,1].max]\n"),
-                (
-                    &super::super::RedundantMinMaxBy as &dyn Cop,
-                    "[3,1].min_by { it }\n",
-                ),
-            ] {
-                let s = format!("{prefix}{body}");
-                let o = correction_offenses(cop, &s);
-                assert_eq!(o.len(), 1, "{s}");
-                assert!(o[0].correction.is_none(), "{s}");
-            }
-        }
-        for s in [
-            "def f; [[3,1].min,[3,1].max]; end",
-            "custom.each { [[3,1].min,[3,1].max] }",
-            "[[3,1].min,[3,1].max]; class Array; def minmax; 7; end; end",
-        ] {
-            assert!(
-                correction_offenses(&MinMax, s)[0].correction.is_none(),
-                "{s}"
-            );
-        }
-    }
-    #[test]
     fn pinned_array_assignment_and_return_locations() {
         for (s, col, old) in [
             ("[foo.min, foo.max]", 1, "[foo.min, foo.max]"),

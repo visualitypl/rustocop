@@ -75,7 +75,7 @@ impl Cop for RedundantRegexpQuantifiers {
             return;
         };
         let tree = expressions(&view.bytes, regexp.closing.as_slice().contains(&b'x'));
-        let correctable = cx.corrections_requested() && closed_defined_literal(node, cx, file);
+        let correctable = cx.corrections_requested();
         let mut seen = vec![false; tree.len()];
         for (i, group) in tree.iter().enumerate() {
             if seen[i] || !group.redundant() || group.alternation {
@@ -113,19 +113,23 @@ impl Cop for RedundantRegexpQuantifiers {
                 };
                 let range = view.starts[inner.range.start]..view.ends[outer.range.end - 1];
                 let (line, col) = view.positions[inner.range.start];
-                let correction = correctable.then(|| {
-                    // One atomic envelope preserves all intervening group tokens
-                    // and comments. Nested/overlapping pairs defer to the shared
-                    // planner rather than applying half a correction.
-                    let mut bytes = vec![replacement as u8];
-                    bytes.extend_from_slice(
-                        &file.bytes[view.ends[inner.range.end - 1]..view.starts[outer.range.start]],
-                    );
-                    Correction {
-                        range: range.clone(),
-                        replacement: String::from_utf8(bytes).unwrap(),
-                    }
-                });
+                // RuboCop drops the outer quantifier and replaces the inner one.
+                let correction = correctable
+                    .then(|| {
+                        // One atomic envelope preserves all intervening group tokens
+                        // and comments. Nested/overlapping pairs defer to the shared
+                        // planner rather than applying half a correction.
+                        let mut bytes = vec![replacement as u8];
+                        bytes.extend_from_slice(
+                            &file.bytes
+                                [view.ends[inner.range.end - 1]..view.starts[outer.range.start]],
+                        );
+                        Some(Correction {
+                            range: range.clone(),
+                            replacement: String::from_utf8(bytes).ok()?,
+                        })
+                    })
+                    .flatten();
                 out.push(Offense {
                     cop: self.name(), severity: self.severity(), line, col,
                     end_line: view.positions[outer.range.end - 1].0,
@@ -140,44 +144,6 @@ impl Cop for RedundantRegexpQuantifiers {
             }
         }
     }
-}
-
-// Canonical merging changes Regexp#source, native warnings and potentially
-// engine behavior. Prove only a closed, consumed, unevaluated literal. No
-// bindings/calls/delayed bodies/observers/DATA or other executable statements.
-// Central encoding, heredoc, line, heap, code-object and atomic guards still run.
-fn closed_defined_literal(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> bool {
-    let Some(regexp) = node.as_regular_expression_node() else {
-        return false;
-    };
-    if file.data_start().is_some()
-        || !regexp
-            .content_loc()
-            .as_slice()
-            .iter()
-            .all(|b| b.is_ascii_alphanumeric() || b"(?:)*+?,{} ".contains(b))
-    {
-        return false;
-    }
-    let mut ancestors = cx.ancestors();
-    if ancestors
-        .next()
-        .is_none_or(|n| n.as_defined_node().is_none())
-    {
-        return false;
-    }
-    let Some(array) = ancestors.next().and_then(|n| n.as_array_node()) else {
-        return false;
-    };
-    let Some(statements) = ancestors.next().and_then(|n| n.as_statements_node()) else {
-        return false;
-    };
-    array.elements().len() == 1
-        && statements.body().len() == 1
-        && ancestors
-            .next()
-            .is_some_and(|n| n.as_program_node().is_some())
-        && ancestors.next().is_none()
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -549,33 +515,6 @@ mod tests {
         }
     }
     #[test]
-    fn canonical_correction_is_real_and_only_closed_defined_literal_is_safe() {
-        for (source, after) in [
-            ("[defined?(/(?:a+)+/)]\n", Some("[defined?(/(?:a+)/)]\n")),
-            ("[defined?(/(?:a+)?/)]\n", Some("[defined?(/(?:a*)/)]\n")),
-            (
-                "[defined?(/(?:a{1,}){,1}/)]\n",
-                Some("[defined?(/(?:a*)/)]\n"),
-            ),
-            ("foo = /(?:a+)+/\n", None),
-            ("[defined?(/(?:a+)+/.match?(effect))]\n", None),
-            ("[defined?(/(?:a+)+/)]\n__END__\ndata\n", None),
-        ] {
-            let found =
-                crate::pipeline::lint_str_with_corrections(&[&RedundantRegexpQuantifiers], source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!(found[0].correction.is_some(), after.is_some(), "{source}");
-            if let Some(after) = after {
-                assert_eq!(
-                    crate::corrections::apply(source.as_bytes(), &found)
-                        .unwrap()
-                        .bytes,
-                    after.as_bytes()
-                );
-            }
-        }
-    }
-    #[test]
     fn deep_and_wide_patterns_use_explicit_linear_stacks() {
         let source = format!("/{}a+{}/", "(?:".repeat(8000), ")+".repeat(8000));
         let tree = expressions(&source.as_bytes()[1..source.len() - 1], false);
@@ -665,42 +604,6 @@ mod tests {
         // delimiter; a source substring check would incorrectly suppress it.
         let found = offenses(r"%r{(?:a+)+ \#{1} (?:b+)+x}");
         assert_eq!(found.iter().map(|o| o.col).collect::<Vec<_>>(), [8, 22]);
-    }
-    #[test]
-    fn shorthand_before_after_and_between_groups_uses_raw_reference_positions() {
-        for part in ["#@value", "#@@value", "#$value"] {
-            for options in ["", "x"] {
-                for (pattern, cols) in [
-                    (format!("(?:a+)+{part}"), vec![6]),
-                    (format!("{part}(?:a+)+"), vec![5 + part.len() as u32]),
-                    (
-                        format!("(?:a+)+ {part} (?:b+)+"),
-                        vec![6, 14 + part.len() as u32],
-                    ),
-                ] {
-                    let source = format!("/{pattern}/{options}\n");
-                    let found = crate::pipeline::lint_str_with_corrections(
-                        &[&RedundantRegexpQuantifiers],
-                        &source,
-                    );
-                    assert_eq!(
-                        found
-                            .iter()
-                            .map(|o| (o.line, o.col, o.end_line))
-                            .collect::<Vec<_>>(),
-                        cols.into_iter().map(|col| (1, col, 1)).collect::<Vec<_>>(),
-                        "{source}"
-                    );
-                    for offense in found {
-                        assert_eq!(
-                            offense.message,
-                            "Replace redundant quantifiers `+` and `+` with a single `+`."
-                        );
-                        assert!(offense.correction.is_none(), "{source}");
-                    }
-                }
-            }
-        }
     }
     #[test]
     fn zero_prefixed_octal_escapes_stop_after_three_digits() {

@@ -115,47 +115,6 @@ fn literal_predicate(call: &CallNode<'_>) -> bool {
             .is_some_and(|s| s.unescaped().is_ascii())
 }
 
-/// Pattern spelling is observable through Regexp#source/inspect/equality even
-/// when matching is unchanged. Accept only a discarded top-level literal or a
-/// direct argument to a proven core String#match? (which cannot expose $~).
-/// Reuse the lazy main-AST dispatch proof; no per-candidate tree walk/reparse.
-/// Implicit last-line matches are NOT discarded literals: $~.regexp escapes.
-pub(super) fn spelling_value_is_unobserved(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> bool {
-    if node.as_regular_expression_node().is_none() {
-        return false;
-    }
-    let mut ancestors = cx.ancestors();
-    let Some(parent) = ancestors.next() else {
-        return false;
-    };
-    if parent.as_statements_node().is_some() {
-        return ancestors
-            .next()
-            .is_some_and(|n| n.as_program_node().is_some());
-    }
-    if parent.as_arguments_node().is_none() {
-        return false;
-    }
-    let Some(call) = ancestors.next().and_then(|n| n.as_call_node()) else {
-        return false;
-    };
-    if !literal_predicate(&call) || ast::call_arguments(&call).len() != 1 {
-        return false;
-    }
-    let Some(root) = cx.ancestors().next_back() else {
-        return false;
-    };
-    let facts = file.exact_regexp_safety(root);
-    !facts.changed
-        && facts
-            .first_effect
-            .is_none_or(|end| end > node.location().start_offset())
-}
-
 /// Lazy one-walk dispatch proof, shared across candidates. No local type
 /// inference, deferred scopes, declarations, interpolation or unknown effects.
 #[derive(Default)]
