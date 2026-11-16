@@ -37,10 +37,6 @@ impl Cop for UnusedBlockArgument {
         // One force analysis and one typed-child-complete metadata walk per file,
         // never a root rescan per parameter. Keep raw correction consumers intact.
         let analysis = ScopeAnalysis::for_underscore_variables(&program, file);
-        let canonical = cx
-            .corrections_requested()
-            .then(|| canonical_parameter(node, file))
-            .flatten();
         let mut calls = BlockCalls::default();
         walk(&mut calls, node);
         for scope_id in analysis.scopes_in_exit_order() {
@@ -112,58 +108,53 @@ impl Cop for UnusedBlockArgument {
                     col,
                     end_line: line,
                     message,
-                    correction: canonical
-                        .clone()
-                        .filter(|r| r.start == variable.declaration_range.start)
-                        .map(|range| crate::offense::Correction {
-                            range,
-                            replacement: "_value".into(),
-                        }),
+                    correction: cx
+                        .corrections_requested()
+                        .then(|| correction(variable, file))
+                        .flatten(),
                 });
             }
         }
     }
 }
-// Renaming a live block parameter can change binding/reflection, keyword APIs,
-// capture identities, defaults, code objects and allocation behavior. Only the
-// exact inventoried positional rename in a closed top-level inactive envelope
-// is proved here. The sole body has no assignments, collisions, defaults or
-// nested captures; neither the call nor block is evaluated/allocated. Keep all
-// other findings, including keyword and block-argument corrector exceptions.
-// Shared source/code-object/heap/position/encoding guards still filter the edit.
-fn canonical_parameter(node: &Node<'_>, file: &SourceFile) -> Option<std::ops::Range<usize>> {
-    if file.data_start().is_some() {
-        return None;
+/// RuboCop's `UnusedArgCorrector`: a keyword argument stays, a block
+/// argument is removed with the space and comma before it, any other gets
+/// a `_` before its name.
+fn correction(
+    variable: &crate::cops::variables::Variable<'_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let name = variable.declaration_range.clone();
+    match variable.declaration {
+        Declaration::Parameter(ParameterKind::RequiredKeyword | ParameterKind::OptionalKeyword) => {
+            None
+        }
+        Declaration::Parameter(ParameterKind::Block) => {
+            let bytes = &file.bytes;
+            let mut start = name.start;
+            while start > 0 && bytes[start - 1] != b'&' {
+                start -= 1;
+            }
+            start = start.checked_sub(1)?;
+            while start > 0 && matches!(bytes[start - 1], b' ' | b'\t') {
+                start -= 1;
+            }
+            while start > 0 && bytes[start - 1] == b'\n' {
+                start -= 1;
+            }
+            if start > 0 && bytes[start - 1] == b',' {
+                start -= 1;
+            }
+            Some(crate::offense::Correction {
+                range: start..name.end,
+                replacement: String::new(),
+            })
+        }
+        _ => Some(crate::offense::Correction {
+            replacement: format!("_{}", std::str::from_utf8(&file.bytes[name.clone()]).ok()?),
+            range: name,
+        }),
     }
-    let program = node.as_program_node()?;
-    let top = program.statements().body();
-    if top.len() != 1 {
-        return None;
-    }
-    let conditional = top.iter().next()?.as_if_node()?;
-    if conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let body = conditional.statements()?.body();
-    if body.len() != 1 {
-        return None;
-    }
-    let call = body.iter().next()?;
-    let raw = call.location().as_slice();
-    let normalized: Vec<_> = raw
-        .iter()
-        .enumerate()
-        .filter_map(|(i, b)| (*b != b'\r' || raw.get(i + 1) != Some(&b'\n')).then_some(*b))
-        .collect();
-    if normalized != b"hash.each do |key, value|\n  puts key\nend" {
-        return None;
-    }
-    let start = call.location().start_offset() + 19;
-    Some(start..start + 5)
 }
 #[derive(Default)]
 struct BlockCalls(HashMap<usize, (bool, bool)>);

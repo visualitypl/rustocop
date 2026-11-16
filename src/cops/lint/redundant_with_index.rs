@@ -1,7 +1,7 @@
 //! `Lint/RedundantWithIndex` — redundant index block parameter shapes.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, Node};
@@ -65,9 +65,32 @@ impl Cop for RedundantWithIndex {
                 "Remove redundant `with_index`."
             }
             .into(),
+            // RuboCop renames `each_with_index` to `each`, and removes
+            // `.with_index(...)`.
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_index(node, cx, file))
+                .then(|| {
+                    if each {
+                        return Some(Correction {
+                            range: selector.start_offset()..selector.end_offset(),
+                            replacement: "each".into(),
+                        });
+                    }
+                    let dot = call.call_operator_loc()?;
+                    super::super::style::correction::combine(
+                        file,
+                        vec![
+                            Correction {
+                                range: dot.start_offset()..dot.end_offset(),
+                                replacement: String::new(),
+                            },
+                            Correction {
+                                range: selector.start_offset()..ast::source_end(node),
+                                replacement: String::new(),
+                            },
+                        ],
+                    )
+                })
                 .flatten(),
         });
     }
@@ -111,95 +134,6 @@ pub(super) fn redundant_parameters(block: &BlockNode<'_>, allow_empty: bool) -> 
                     .unwrap()
                     .as_required_parameter_node()
                     .is_some()))
-}
-
-// Ordinary rewrites change dispatch, yielding/destructuring, return values,
-// offsets, exceptions, allocation and block control flow. Prove only an exact
-// call/block in the sole, closed top-level `if false`. No arguments, bindings,
-// definitions or comments are removed; block parameters and bodies survive
-// byte-for-byte. Main-parse encoding/source/position/runtime/heap guards apply.
-fn inactive_index(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    let receiver = call.receiver()?;
-    let base = if call.name().as_slice() == b"with_index" {
-        let each = receiver.as_call_node()?;
-        if each.name().as_slice() != b"each" || each.arguments().is_some() || each.block().is_some()
-        {
-            return None;
-        }
-        each.receiver()?
-    } else {
-        call.receiver()?
-    };
-    let bare = base.as_call_node()?;
-    let name = bare.name().as_slice();
-    if bare.receiver().is_some()
-        || bare.arguments().is_some()
-        || bare.block().is_some()
-        || name.is_empty()
-        || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-        || base.location().as_slice() != name
-    {
-        return None;
-    }
-    let base_text = std::str::from_utf8(name).ok()?;
-    let dot = if call.is_safe_navigation() { "&." } else { "." };
-    let prefix = if call.name().as_slice() == b"with_index" {
-        let each = receiver.as_call_node()?;
-        format!(
-            "{base_text}{}each{dot}with_index",
-            if each.is_safe_navigation() { "&." } else { "." }
-        )
-    } else {
-        format!("{base_text}{dot}each_with_index")
-    };
-    let raw = std::str::from_utf8(node.location().as_slice()).ok()?;
-    if ![
-        " { |v| v }",
-        " { _1 }",
-        " { it }",
-        " { nil }",
-        " { || nil }",
-    ]
-    .iter()
-    .any(|block| raw == format!("{prefix}{block}"))
-    {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let selector = call.message_loc()?;
-    Some(if call.name().as_slice() == b"each_with_index" {
-        crate::offense::Correction {
-            range: selector.start_offset()..selector.end_offset(),
-            replacement: "each".into(),
-        }
-    } else {
-        crate::offense::Correction {
-            range: call.call_operator_loc()?.start_offset()..selector.end_offset(),
-            replacement: String::new(),
-        }
-    })
 }
 
 #[cfg(test)]

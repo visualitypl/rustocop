@@ -371,7 +371,6 @@ fn every_canonical_obeys_selection_config_and_both_directive_prefixes() {
 fn three_policy_exceptions_three_version_gates_and_no_index_are_no_write() {
     let d = project();
     for (cop, source, status) in [
-        ("Lint/MultipleComparison", "1 < 2 < 3\n", 1),
         ("Lint/PercentSymbolArray", "%i(:alpha, :beta,)\n", 1),
         ("Lint/TopLevelReturnWithArgument", "return 7, 8\n", 1),
         ("Lint/ItWithoutArgumentsInBlock", "[1].map { it }\n", 0),

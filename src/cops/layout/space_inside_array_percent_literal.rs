@@ -45,7 +45,6 @@ pub(super) struct PercentLiteral {
     /// The array's elements, in source order; empty for `%x`.
     pub elements: Vec<Range<usize>>,
     pub single_line: bool,
-    pub command: bool,
 }
 
 /// The percent literal `node` is, when its type (the opening without its
@@ -55,28 +54,18 @@ pub(super) fn percent_literal(
     file: &SourceFile,
     types: &[&[u8]],
 ) -> Option<PercentLiteral> {
-    let (opening, closing, elements, command) = if let Some(array) = node.as_array_node() {
+    let (opening, closing, elements) = if let Some(array) = node.as_array_node() {
         let elements = array
             .elements()
             .iter()
             .map(|e| e.location().start_offset()..e.location().end_offset())
             .collect();
-        (array.opening_loc()?, array.closing_loc()?, elements, false)
+        (array.opening_loc()?, array.closing_loc()?, elements)
     } else if let Some(command) = node.as_x_string_node() {
-        (
-            command.opening_loc(),
-            command.closing_loc(),
-            Vec::new(),
-            true,
-        )
+        (command.opening_loc(), command.closing_loc(), Vec::new())
     } else {
         let command = node.as_interpolated_x_string_node()?;
-        (
-            command.opening_loc(),
-            command.closing_loc(),
-            Vec::new(),
-            true,
-        )
+        (command.opening_loc(), command.closing_loc(), Vec::new())
     };
     let open = opening.as_slice();
     if !open.starts_with(b"%") || !types.contains(&&open[..open.len() - 1]) {
@@ -87,7 +76,6 @@ pub(super) fn percent_literal(
         contents: opening.end_offset()..closing.start_offset(),
         elements,
         single_line: file.line_of(location.start_offset()) == file.last_line_of(location),
-        command,
     })
 }
 

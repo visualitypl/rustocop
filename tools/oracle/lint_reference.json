@@ -6381,6 +6381,7 @@
     "Lint/ImplicitStringConcatenation",
     "Lint/LambdaWithoutLiteralBlock",
     "Lint/LiteralInInterpolation",
+    "Lint/MultipleComparison",
     "Lint/ParenthesesAsGroupedExpression",
     "Lint/RedundantCopDisableDirective",
     "Lint/RedundantCopEnableDirective",

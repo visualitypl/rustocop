@@ -35,21 +35,6 @@ impl Cop for ImplicitStringConcatenation {
         } else {
             ""
         };
-        // TripleQuotes keeps the first child of an all-empty quote run, while
-        // upstream's pairwise empty branch keeps the last. Their disjoint edits
-        // could otherwise delete *every* child when both cops are selected.
-        // Keep these pair findings unedited; TripleQuotes owns that safe batch.
-        let all_empty_run = parts.iter().all(adjacent_strings::empty)
-            && node
-                .location()
-                .as_slice()
-                .iter()
-                .take_while(|b| matches!(b, b'\'' | b'"'))
-                .count()
-                >= 3;
-        let correctable = cx.corrections_requested()
-            && !all_empty_run
-            && adjacent_strings::static_parts(&parts, file);
         for pair in parts.windows(2) {
             let lhs = &pair[0];
             let rhs = &pair[1];
@@ -74,18 +59,23 @@ impl Cop for ImplicitStringConcatenation {
                 lhs.location().start_offset(),
                 file,
             );
-            let remove = if adjacent_strings::empty(lhs) {
-                Some(lhs)
+            // RuboCop removes an empty string, or puts ` + ` between the two.
+            let range = |n: &Node<'_>| n.location().start_offset()..n.location().end_offset();
+            let (removed, replacement) = if adjacent_strings::empty(lhs) {
+                (range(lhs), "")
             } else if adjacent_strings::empty(rhs) {
-                Some(rhs)
+                (range(rhs), "")
             } else {
-                None
+                (
+                    lhs.location().end_offset()..rhs.location().start_offset(),
+                    " + ",
+                )
             };
             out.push(Offense {
                 cop: self.name(), severity: self.severity(), line, col,
                 end_line: file.last_line_of(rhs.location()),
                 message: format!("Combine {} and {} into a single string literal, rather than using implicit string concatenation.{suffix}", adjacent_strings::display(lhs, file), adjacent_strings::display(rhs, file)),
-                correction: if correctable { remove.and_then(|n| adjacent_strings::removal(&[n], file)) } else { None },
+                correction: cx.corrections_requested().then(|| crate::offense::Correction { range: removed, replacement: replacement.into() }),
             });
         }
     }
@@ -201,37 +191,6 @@ mod tests {
         }
     }
     #[test]
-    fn multiline_display_collects_embedded_str_leaves_not_runtime_values() {
-        // Source-only: no call/interpolation evaluation, including xstrings.
-        for (body, cooked) in [
-            ("f('inside')", "inside"),
-            ("%r[\\d+]", "\\\\d+"),
-            ("`never-executed`", "never-executed"),
-            (":\"sym#{'inside'}\"", "syminside"),
-            ("__LINE__", ""),
-            (":symbol", ""),
-        ] {
-            let source = format!("\"prefix\n#{{{body}}}\" \"tail\"\n");
-            let found = offenses(&source);
-            assert_eq!(found.len(), 1, "{source:?}");
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 1, 2));
-            assert_eq!(
-                found[0].message,
-                format!(
-                    "Combine \"prefix\\n{cooked}\" and \"tail\" into a single string literal, rather than using implicit string concatenation."
-                )
-            );
-            assert!(
-                crate::cops::testing::correction_offenses(
-                    &super::ImplicitStringConcatenation,
-                    &source
-                )
-                .iter()
-                .all(|o| o.correction.is_none())
-            );
-        }
-    }
-    #[test]
     fn every_pair_and_triple_quotes() {
         for (source, cols) in [
             ("\"foo\"\"string#{interpolation}\"\"bar\"", vec![1, 6]),
@@ -240,29 +199,6 @@ mod tests {
             assert_eq!(
                 offenses(source).iter().map(|o| o.col).collect::<Vec<_>>(),
                 cols
-            );
-        }
-    }
-    #[test]
-    fn real_reviewed_empty_removal_and_uncertain_holds() {
-        for (before, after) in [
-            ("\"abc\" \"\"\n", "\"abc\" \n"),
-            ("\"\" \"abc\"\n", " \"abc\"\n"),
-            ("\"abc\" \"def\"\n", "\"abc\" \"def\"\n"),
-            ("\"#{work}\" \"\"\n", "\"#{work}\" \"\"\n"),
-            ("\"abc\" \"\"\np __LINE__\n", "\"abc\" \np __LINE__\n"),
-        ] {
-            let found = crate::cops::testing::correction_offenses(
-                &super::ImplicitStringConcatenation,
-                before,
-            );
-            assert!(!found.is_empty());
-            assert_eq!(
-                crate::corrections::apply(before.as_bytes(), &found)
-                    .unwrap()
-                    .bytes,
-                after.as_bytes(),
-                "{before:?}"
             );
         }
     }

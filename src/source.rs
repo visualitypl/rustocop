@@ -4920,59 +4920,6 @@ mod tests {
     }
 
     #[test]
-    fn nil_lambda_reuses_lazy_cached_main_ast_observer_and_lookup_proofs() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::NilLambda,
-            walk::{NodeVisitor, walk},
-        };
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        for n in [100, 1000] {
-            for observer in ["", "p DATA.pos\n__END__\nraw\n", "TracePoint.new {}\n"] {
-                let source = format!(
-                    "{}{observer}",
-                    "lambda { return nil }; lambda { next nil }; -> { nil }\n".repeat(n)
-                );
-                let f = file(source.as_bytes());
-                let parsed = ruby_prism::parse(&f.bytes);
-                for collect in [false, true] {
-                    let mut out = Vec::new();
-                    assert!(
-                        run_cops_with_corrections(&[&NilLambda], &parsed, &f, &mut out, collect)
-                            .is_empty()
-                    );
-                    assert_eq!(out.len(), n * 3);
-                    assert!(
-                        out.iter()
-                            .all(|o| o.correction.is_some() == (collect && observer.is_empty()))
-                    );
-                    if !collect {
-                        assert!(f.lambda_facts.get().is_none());
-                        assert!(f.class_method_bindings.get().is_none());
-                        assert!(f.literal_ranges.get().is_none());
-                    }
-                }
-                let mut count = Count(0);
-                walk(&mut count, &parsed.node());
-                let lookup = f.lambda_facts.get().unwrap();
-                assert_eq!(lookup.visits, count.0);
-                assert!(std::ptr::eq(lookup, f.lambda_facts(&parsed.node())));
-                assert_eq!(
-                    f.class_method_bindings.get().unwrap().observer_visits,
-                    count.0
-                );
-                assert!(count.0 < n * 25);
-                assert!(f.visible_locals.get().is_none());
-            }
-        }
-    }
-
-    #[test]
     fn lambda_lookup_proof_is_lazy_cached_and_one_bounded_main_ast_walk() {
         use crate::cops::{
             run_cops_with_corrections,

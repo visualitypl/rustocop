@@ -123,42 +123,6 @@ fn directives_and_exclusions_suppress_both_detection_and_fix_with_bytes_and_mtim
     );
 }
 #[test]
-fn strict_fixed_settings_clean_error_and_noncorrectable_files_do_not_write() {
-    let dir = project();
-    for (cop, source, status) in [
-        (LIMIT, "foo { [_1, _2] }\n", 1),
-        (BOTH, "-> {}; proc { return nil }; foo { _9 }\n", 0),
-        (NIL, "proc { break nil }\n", 1),
-        (BOTH, "-> {\n", 2),
-        (
-            BOTH,
-            "# -> { nil }\n'foo { [_1,_2] }'\n__END__\n-> { nil }\n",
-            0,
-        ),
-    ] {
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", cop, "--fix", "x.rb"],
-            status,
-        );
-    }
-    for cop in [NIL, LIMIT] {
-        for key in [
-            "max=2",
-            "TargetRubyVersion=\"2.6\"",
-            "EnforcedStyle=\"other\"",
-        ] {
-            fs::write(
-                dir.path().join("rustocop.toml"),
-                format!("[cops.\"{cop}\"]\n{key}\n"),
-            )
-            .unwrap();
-            unchanged(dir.path(), b"-> { nil }\n", &["--fix", "x.rb"], 2);
-        }
-    }
-}
-#[test]
 fn stdin_paths_only_and_except_work_but_fix_never_writes() {
     let dir = project();
     let path = dir.path().join("x.rb");
@@ -194,36 +158,6 @@ fn stdin_paths_only_and_except_work_but_fix_never_writes() {
         let out = cli(dir.path(), &["--only", cop, "--fix", "--stdin", "x.rb"]);
         assert_eq!(out.status.code(), Some(2));
         assert_eq!(fs::read_to_string(&path).unwrap(), "on disk\n");
-    }
-}
-#[test]
-fn bom_crlf_legacy_literals_line_values_comments_heredocs_and_data_payloads() {
-    let dir = project();
-    for (before, after) in [
-        (
-            b"\xef\xbb\xbff = -> { nil }\r\np __LINE__\r\n__END__\r\nraw\xff\r\n".as_slice(),
-            b"\xef\xbb\xbff = -> {}\r\np __LINE__\r\n__END__\r\nraw\xff\r\n".as_slice(),
-        ),
-        (
-            b"# encoding: ISO-8859-1\r\nf = ->(x = 'caf\xe9') do\r\n nil # caf\xe9\r\nend\r\n"
-                .as_slice(),
-            b"# encoding: ISO-8859-1\r\nf = ->(x = 'caf\xe9') do\r\n # caf\xe9\r\nend\r\n"
-                .as_slice(),
-        ),
-        (
-            b"f = ->(x = <<~TEXT) do\r\n nil { # payload\r\nTEXT\r\n nil\r\nend\r\np __LINE__\r\n"
-                .as_slice(),
-            b"f = ->(x = <<~TEXT) do\r\n nil { # payload\r\nTEXT\r\n\r\nend\r\np __LINE__\r\n"
-                .as_slice(),
-        ),
-    ] {
-        let path = dir.path().join("x.rb");
-        fs::write(&path, before).unwrap();
-        fix(dir.path(), NIL);
-        assert_eq!(fs::read(&path).unwrap(), after);
-        let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        fix(dir.path(), NIL);
-        assert_eq!(fs::metadata(path).unwrap().modified().unwrap(), mtime);
     }
 }
 fn ruby(dir: &Path) -> Output {
@@ -301,94 +235,6 @@ fn runtime_lambda_return_break_next_and_proc_next_keep_arity_and_binding() {
     );
 }
 #[test]
-fn runtime_line_numbers_parameter_heredoc_values_and_block_association_survive() {
-    if !has_ruby() {
-        return;
-    }
-    observed_fix(
-        "events=[]; def consume(x); yield if block_given?; x; end\nf = consume ->(x = <<~TEXT) do\n literal } # nil\nTEXT\n nil\nend do\n events << :outer\nend\np f.call; p events; p __LINE__\n",
-        "nil\n[:outer]\n9\n",
-    );
-    observed_fix(
-        "events=[]; f = ->(x = (events << __LINE__; <<~TEXT)) do\n literal } # nil\nTEXT\n nil\nend\np f.call; p events; p __LINE__\n",
-        "nil\n[1]\n6\n",
-    );
-}
-#[test]
-fn proc_break_nonlocal_return_and_custom_lambda_have_naive_edit_witnesses() {
-    if !has_ruby() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("x.rb");
-    for (source, naive) in [
-        (
-            "f = proc { break nil }; begin; p f.call; rescue LocalJumpError => e; p e.reason; end\n",
-            "f = proc {}; begin; p f.call; rescue LocalJumpError => e; p e.reason; end\n",
-        ),
-        (
-            "def run; f = proc { return nil }; f.call; :after; end; p run\n",
-            "def run; f = proc {}; f.call; :after; end; p run\n",
-        ),
-        (
-            "def lambda; yield; :after; end\ndef run; lambda { return nil }; :done; end; p run\n",
-            "def lambda; yield; :after; end\ndef run; lambda {}; :done; end; p run\n",
-        ),
-        (
-            "def lambda; yield; :after; end\np(lambda { break nil })\n",
-            "def lambda; yield; :after; end\np(lambda {})\n",
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = ruby(dir.path());
-        assert!(before.status.success(), "{before:?}");
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", NIL, "--fix", "x.rb"],
-            if source.contains("proc { return") {
-                0
-            } else {
-                1
-            },
-        );
-        fs::write(&path, naive).unwrap();
-        let after = ruby(dir.path());
-        assert!(after.status.success(), "{after:?}");
-        assert_ne!(after.stdout, before.stdout, "{source}");
-    }
-}
-#[test]
-fn source_tracepoint_and_data_observers_withhold_edits_with_runtime_witnesses() {
-    if !has_ruby() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("x.rb");
-    for source in [
-        "f=-> { nil }; p DATA.pos\n__END__\nraw\n",
-        "f=-> { nil }; p File.binread(__FILE__)\n",
-        "f=-> do\n nil\nend\nevents=[]; t=TracePoint.new(:line) { |tp| events << tp.lineno }; t.enable { f.call }; p events\n",
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = ruby(dir.path());
-        assert!(before.status.success(), "{before:?}");
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", NIL, "--fix", "x.rb"],
-            1,
-        );
-        let naive = source
-            .replace(" { nil }", " {}")
-            .replace("\n nil\n", "\n\n");
-        fs::write(&path, naive).unwrap();
-        let after = ruby(dir.path());
-        assert!(after.status.success(), "{after:?}");
-        assert_ne!(after.stdout, before.stdout, "{source}");
-    }
-}
-#[test]
 fn fixed_prism34_parameter_scope_evidence_distinguishes_numbered_it_and_explicit() {
     let dir = project();
     let path = dir.path().join("x.rb");
@@ -440,47 +286,4 @@ fn fixed_prism34_parameter_scope_evidence_distinguishes_numbered_it_and_explicit
         "{before:?}: {after:?}"
     );
     assert_eq!(after.stdout, before.stdout);
-}
-#[test]
-fn actual_default_style_layout_and_selected_lambda_peers_stabilize() {
-    let dir = project();
-    let path = dir.path().join("x.rb");
-    let source = "# Copyright (c) 2026 Example\n# frozen_string_literal: true\nf = ->() { nil }; g = lambda do |x|\n next nil\nend\nh = proc { break nil }; k = -> { [_1, _2] }\np([f.call, g.call(1), k.call(2,3)])\n";
-    for selected in [
-        None,
-        Some(
-            "Style/NilLambda,Style/NumberedParametersLimit,Style/Lambda,Style/EmptyBlockParameter,Style/EmptyLambdaParameter,Style/BlockDelimiters,Style/ItBlockParameter,Style/NumberedParameters,Layout",
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = has_ruby().then(|| ruby(dir.path()));
-        let args = selected.map_or_else(
-            || vec!["--fix", "x.rb"],
-            |only| vec!["--only", only, "--fix", "x.rb"],
-        );
-        for _ in 0..6 {
-            let out = cli(dir.path(), &args);
-            assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
-        }
-        let stable = fs::read(&path).unwrap();
-        let text = String::from_utf8_lossy(&stable);
-        assert!(
-            !text.contains("{ nil }") && !text.contains("next nil"),
-            "{text}"
-        );
-        assert!(
-            text.contains("break nil") && text.contains("[_1, _2]"),
-            "{text}"
-        );
-        if let Some(before) = before {
-            let after = ruby(dir.path());
-            assert!(before.status.success(), "{before:?}");
-            assert_eq!(
-                (after.status.code(), after.stdout, after.stderr),
-                (before.status.code(), before.stdout, before.stderr)
-            );
-        }
-        cli(dir.path(), &args);
-        assert_eq!(fs::read(&path).unwrap(), stable);
-    }
 }

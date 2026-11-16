@@ -13,10 +13,13 @@ impl Cop for MultipleComparison {
     fn name(&self) -> &'static str {
         "Lint/MultipleComparison"
     }
+    fn safe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -50,7 +53,18 @@ impl Cop for MultipleComparison {
             line,
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1)),
-            correction: None,
+            // RuboCop repeats the middle operand: `x < y < z` becomes
+            // `x < y && y < z`.
+            correction: cx
+                .corrections_requested()
+                .then(|| {
+                    let center_source = std::str::from_utf8(center.location().as_slice()).ok()?;
+                    Some(crate::offense::Correction {
+                        range: center.location().start_offset()..center.location().end_offset(),
+                        replacement: format!("{center_source} && {center_source}"),
+                    })
+                })
+                .flatten(),
         });
     }
 }

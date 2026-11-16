@@ -1,7 +1,7 @@
 //! `Lint/SendWithMixinArgument` — static indirect mixin dispatch.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Correction, Offense},
+    offense::Offense,
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -68,76 +68,16 @@ impl Cop for SendWithMixinArgument {
             col,
             end_line: file.line_of(end.saturating_sub(1)),
             message: format!("Use `{method} {names}` instead of `{bad}`."),
-            correction: cx
-                .corrections_requested()
-                .then(|| inactive_mixin(node, method, cx, file))
-                .flatten(),
+            // RuboCop replaces from the selector to the end of the call. A
+            // replacement is UTF-8 text: other bytes cannot be carried over.
+            correction: (cx.corrections_requested()
+                && std::str::from_utf8(&file.bytes[selector.start_offset()..end]).is_ok())
+            .then(|| crate::offense::Correction {
+                range: selector.start_offset()..end,
+                replacement: format!("{method} {names}"),
+            }),
         });
     }
-}
-// Indirect dispatch can be overridden, bypass visibility or change warnings,
-// allocation, hooks, exceptions and values. Only the sole call in a closed
-// top-level `if false` is proved. Exact ASCII constant paths and a plain symbol
-// remove no binding/comment/heredoc and execute neither dispatch. Existing main
-// parse source/encoding/position/code-object/heap guards remain authoritative.
-fn inactive_mixin(
-    node: &Node<'_>,
-    method: &str,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    if call.block().is_some() {
-        return None;
-    }
-    let args = ast::call_arguments(&call);
-    let mut paths = Vec::new();
-    for module in &args[1..] {
-        paths.push(plain_constant(module)?);
-    }
-    let receiver = match call.receiver() {
-        None => String::new(),
-        Some(r) if r.as_self_node().is_some() => "self.".into(),
-        Some(r) => format!("{}.", plain_constant(&r)?),
-    };
-    let selector = call.message_loc()?;
-    let name = std::str::from_utf8(call.name().as_slice()).ok()?;
-    let modules = paths.join(", ");
-    if node.location().as_slice() != format!("{receiver}{name}(:{method}, {modules})").as_bytes() {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let outer = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || outer.predicate().as_false_node().is_none()
-        || outer.subsequent().is_some()
-        || outer.end_keyword_loc().is_none()
-        || outer.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    Some(Correction {
-        range: selector.start_offset()..ast::source_end(node),
-        replacement: format!("{method} {modules}"),
-    })
-}
-fn plain_constant(node: &Node<'_>) -> Option<String> {
-    let text = std::str::from_utf8(node.location().as_slice()).ok()?;
-    let path = text.strip_prefix("::").unwrap_or(text);
-    path.split("::")
-        .all(|part| {
-            part.as_bytes().first().is_some_and(u8::is_ascii_uppercase)
-                && part.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
-        })
-        .then(|| text.to_owned())
 }
 fn source_text(bytes: &[u8], file: &SourceFile) -> String {
     file.match_pattern_source(bytes)
@@ -201,47 +141,6 @@ mod tests {
     //! Ported from RuboCop lint/send_with_mixin_argument_spec.rb.
     //! MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
     use crate::pipeline::lint_str;
-    #[test]
-    fn canonical_edit_and_dispatch_holds() {
-        use super::SendWithMixinArgument;
-        for method in ["include", "prepend", "extend"] {
-            for dispatch in ["send", "public_send", "__send__"] {
-                for receiver in ["", "self.", "Foo.", "A::Foo."] {
-                    let call = format!("{receiver}{dispatch}(:{method}, Bar, Baz)");
-                    let source = format!("if false\n  {call}\nend\n");
-                    let found =
-                        crate::cops::testing::correction_offenses(&SendWithMixinArgument, &source);
-                    assert_eq!(found.len(), 1);
-                    assert!(found[0].correction.is_some(), "{source}");
-                    let after = crate::corrections::apply(source.as_bytes(), &found).unwrap();
-                    assert_eq!(
-                        after.bytes,
-                        source
-                            .replace(
-                                &format!("{dispatch}(:{method}, Bar, Baz)"),
-                                &format!("{method} Bar, Baz")
-                            )
-                            .as_bytes()
-                    );
-                    let found =
-                        crate::cops::testing::correction_offenses(&SendWithMixinArgument, &call);
-                    assert_eq!(found.len(), 1);
-                    assert!(found[0].correction.is_none());
-                }
-            }
-        }
-        for s in [
-            "if false; Foo.send(:include, Bar) {}; end",
-            "if false; Foo.send(:include, Bar); nil; end",
-            "if false; Foo.send(:include, Bar); end\np __LINE__",
-            "if false; Foo.send(:include, Bar); end\n__END__\ndata",
-            "if false; Foo.send(:include, # keep\n Bar); end",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&SendWithMixinArgument, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
-        }
-    }
     #[test]
     fn pinned_main_examples() {
         for dispatch in ["send", "public_send", "__send__"] {

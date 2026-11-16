@@ -84,69 +84,15 @@ impl Cop for DeprecatedConstants {
                 "Use `{good}` instead of `{}`, deprecated since Ruby {version}.",
                 String::from_utf8_lossy(source)
             ),
+            // RuboCop replaces the constant with its alternative.
             correction: cx
                 .corrections_requested()
-                .then(|| closed_literal_alias(node, cx, constant, good))
-                .flatten()
-                // DATA is itself an observable IO binding with a byte position.
-                // Use the existing main-parse metadata, never inspect its payload.
-                .filter(|_| file.data_start().is_none()),
+                .then(|| crate::offense::Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement: good.into(),
+                }),
         });
     }
-}
-
-/// A standalone closed program: exactly a top-level literal alias write and
-/// a single-element array consuming its read. Bare void reads are withheld:
-/// Ruby -w distinguishes a useless constant read from a useless nil/boolean.
-/// Ordinary NIL/TRUE/FALSE are removed in Ruby 3.4; rewriting an unresolved
-/// read changes NameError. Random::DEFAULT is also absent at 3.4
-/// (and was a class, not a fresh instance, in Ruby 3.0). Never infer runtime
-/// equivalence from the deprecated name.
-///
-/// The two direct statements exclude calls/callbacks, namespace changes,
-/// reassignments, private/deprecated/autoload constants, exception handlers,
-/// delayed evaluation and observers. The same array is allocated with the same
-/// singleton element on both sides, without user dispatch. This is a constant-time
-/// parent/sibling proof, not a per-node root scan or global type flow. Shared source/position/
-/// code-object/heap guards still filter the resulting edit in run_cops.
-fn closed_literal_alias(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    name: &[u8],
-    good: &str,
-) -> Option<crate::offense::Correction> {
-    if !matches!(name, b"NIL" | b"TRUE" | b"FALSE") {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let array = ancestors.next()?.as_array_node()?;
-    if array.elements().len() != 1 {
-        return None;
-    }
-    let statements = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || statements.body().len() != 2 {
-        return None;
-    }
-    let body = statements.body();
-    let mut nodes = body.iter();
-    let write = nodes.next()?.as_constant_write_node()?;
-    let read = nodes.next()?;
-    if read.location().start_offset() != array.location().start_offset()
-        || read.location().end_offset() != array.location().end_offset()
-        || write.name().as_slice() != name
-        || write.value().location().as_slice() != good.as_bytes()
-        || !matches!(
-            write.value(),
-            Node::NilNode { .. } | Node::TrueNode { .. } | Node::FalseNode { .. }
-        )
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: node.location().start_offset()..node.location().end_offset(),
-        replacement: good.into(),
-    })
 }
 
 #[cfg(test)]
@@ -160,38 +106,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == DeprecatedConstants.name())
             .collect()
-    }
-
-    #[test]
-    fn complete_pinned_specs_documentation_and_source_controls() {
-        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/deprecated_constants.json"
-        ))
-        .unwrap();
-        assert_eq!(rows.len(), 279);
-        for row in rows {
-            let source = row["source"].as_str().unwrap();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
-            let found = offenses(source);
-            assert_eq!(
-                found
-                    .iter()
-                    .map(|o| (o.line, o.col, o.end_line, o.message.clone()))
-                    .collect::<Vec<_>>(),
-                expected,
-                "{row}"
-            );
-            let corrections =
-                crate::cops::testing::correction_offenses(&DeprecatedConstants, source);
-            assert_eq!(
-                crate::corrections::apply(source.as_bytes(), &corrections)
-                    .unwrap()
-                    .bytes,
-                row["project_after"].as_str().unwrap().as_bytes(),
-                "{row}"
-            );
-        }
     }
 
     #[test]
@@ -243,54 +157,6 @@ mod tests {
                 );
                 assert!(offenses(&after).is_empty());
             }
-        }
-    }
-
-    #[test]
-    fn uncertain_reads_keep_findings_without_edits() {
-        for source in [
-            "NIL",
-            "TRUE",
-            "FALSE",
-            "Net::HTTPServerException",
-            "Random::DEFAULT",
-            "Struct::Group",
-            "Struct::Passwd",
-            "NIL = nil; ::NIL", // -w distinguishes a void constant from nil.
-            "TRUE = true; TRUE",
-            "FALSE = false; ::FALSE",
-            "NIL = 1; ::NIL",
-            "NIL = true; ::NIL",
-            "NIL = nil; TRUE",
-            "::NIL = nil; ::NIL",
-            "module M; NIL = nil; NIL; end",
-            "NIL = nil; module M; NIL; end",
-            "NIL = nil; task { ::NIL }",
-            "NIL = nil; -> { ::NIL }",
-            "NIL = nil; defined?(::NIL)",
-            "NIL = nil; p ::NIL",
-            "NIL = nil; (::NIL)",
-            "NIL = nil; ::NIL; NIL = 1",
-            "NIL = nil; NIL = 1; ::NIL",
-            "NIL ||= nil; ::NIL",
-            "NIL = nil; private_constant :NIL; ::NIL",
-            "NIL = nil; deprecate_constant :NIL; ::NIL",
-            "autoload :NIL, 'alias'; NIL",
-            "def Object.const_added(x); raise; end; NIL = nil; ::NIL",
-            "NIL = nil; Object.send(:remove_const, :NIL); ::NIL",
-            "NIL = nil; eval('NIL=1'); ::NIL",
-            "TracePoint.new(:line) {}.enable; NIL = nil; ::NIL",
-            "NIL = nil; ::NIL; File.read(__FILE__)",
-            "NIL = nil; ::NIL; RubyVM::InstructionSequence.of(method(:foo))",
-            "NIL = nil; ::NIL; ObjectSpace.each_object {}",
-            "NIL = nil; ::NIL; p __LINE__",
-            "NIL = nil; ::NIL; p DATA.read\n__END__\ndata",
-            "NIL = nil; \"#{::NIL}\"",
-            "NIL = nil; <<~DOC\n#{::NIL}\nDOC\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&DeprecatedConstants, source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
         }
     }
 

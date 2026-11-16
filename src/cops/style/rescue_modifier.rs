@@ -47,76 +47,99 @@ impl Cop for RescueModifier {
     }
 }
 
-fn closed_literal(node: &Node<'_>) -> bool {
-    matches!(
-        node,
-        Node::NilNode { .. }
-            | Node::TrueNode { .. }
-            | Node::FalseNode { .. }
-            | Node::IntegerNode { .. }
-            | Node::FloatNode { .. }
-            | Node::RationalNode { .. }
-            | Node::ImaginaryNode { .. }
-            | Node::StringNode { .. }
-            | Node::SymbolNode { .. }
-    )
-}
-
+/// RuboCop's corrector: the modifier becomes a `begin`/`rescue`/`end`
+/// block at the column of the expression, an enclosing pair of
+/// parentheses is removed, and an unbracketed array gets brackets.
 fn correction(
     node: &Node<'_>,
     cx: &NodeContext<'_, '_>,
     file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
+    use crate::offense::Correction;
     let rescue = node.as_rescue_modifier_node()?;
     let operation = rescue.expression();
     let fallback = rescue.rescue_expression();
-    // Upstream moves executable expressions onto new lines. That changes
-    // exceptions' backtraces even if they are rescued and inspected later.
-    // Only closed literal leaves in an otherwise inert top-level program have
-    // no such observable execution locations. Never broaden this to calls,
-    // constants, interpolations, assignments, blocks or method bodies.
-    if !closed_literal(&operation) || !closed_literal(&fallback) {
-        return None;
-    }
-    let mut range = node.location().start_offset()..node.location().end_offset();
-    for ancestor in cx.ancestors() {
-        match ancestor {
-            Node::ProgramNode { .. } => {}
-            Node::StatementsNode { .. } if ancestor.as_statements_node()?.body().len() == 1 => {}
-            Node::ParenthesesNode { .. } => {
-                range = ancestor.location().start_offset()..ancestor.location().end_offset();
-            }
-            _ => return None,
-        }
-    }
-    let root = cx.ancestors().next_back()?;
-    if file.contains_heredoc(root, &operation)
-        || file.contains_heredoc(root, &fallback)
-        || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
+    let heredoc_end = |n: &Node<'_>| {
+        let mut bodies = Vec::new();
+        super::file_write::heredoc_bodies(n, &mut bodies);
+        bodies.iter().map(|b| b.end).max()
+    };
+    // The fallback's heredoc body would be left behind, and an enclosing
+    // modifier whose fallback this is moves it already.
+    let start = node.location().start_offset();
+    if heredoc_end(&fallback).is_some()
+        || cx.ancestors().any(|a| {
+            a.as_rescue_modifier_node().is_some_and(|r| {
+                let f = r.rescue_expression().location();
+                f.start_offset() <= start && node.location().end_offset() <= f.end_offset()
+            })
+        })
     {
         return None;
     }
-    let start = file.line_start(file.line_of(range.start));
-    let prefix = &file.bytes[start..range.start];
-    if !prefix.iter().all(|b| matches!(b, b' ' | b'\t')) {
-        return None;
-    }
-    let indent = std::str::from_utf8(prefix).ok()?;
-    let operation = std::str::from_utf8(operation.location().as_slice()).ok()?;
-    let fallback = std::str::from_utf8(fallback.location().as_slice()).ok()?;
-    let line_end = file.line_start(file.line_of(range.end) + 1);
-    let newline = if file.bytes[..line_end].ends_with(b"\r\n") {
-        "\r\n"
-    } else {
-        "\n"
+    let parentheses = cx
+        .parent()
+        .filter(|p| p.as_statements_node().is_some())
+        .and_then(|_| cx.ancestors().nth(1))
+        .and_then(|p| p.as_parentheses_node());
+    let column = file.line_col(start).1 as usize - 1;
+    let shift = usize::from(parentheses.is_some());
+    let offset = " ".repeat(column.saturating_sub(shift));
+    let indentation = " ".repeat((column + 2).saturating_sub(shift));
+    let text = |n: &Node<'_>| {
+        std::str::from_utf8(n.location().as_slice())
+            .ok()
+            .map(str::to_owned)
     };
-    Some(crate::offense::Correction {
-        range,
-        replacement: format!(
-            "begin{newline}{indent}  {operation}{newline}{indent}rescue{newline}{indent}  {fallback}{newline}{indent}end"
+    let op = operation.location();
+    let insert = |at: usize, text: String| Correction {
+        range: at..at,
+        replacement: text,
+    };
+    let mut edits = vec![insert(op.start_offset(), format!("begin\n{indentation}"))];
+    let unbracketed = operation
+        .as_array_node()
+        .is_some_and(|a| a.opening_loc().is_none());
+    if unbracketed {
+        edits.push(insert(op.start_offset(), "[".into()));
+        edits.push(insert(op.end_offset(), "]".into()));
+    }
+    edits.push(Correction {
+        range: op.end_offset()..node.location().end_offset(),
+        replacement: String::new(),
+    });
+    edits.push(insert(
+        heredoc_end(&operation).unwrap_or(op.end_offset()),
+        format!(
+            "\n{offset}rescue\n{indentation}{}\n{offset}end",
+            text(&fallback)?
         ),
-    })
+    ));
+    if let Some(parentheses) = parentheses {
+        let bytes = &file.bytes;
+        let open = parentheses.opening_loc();
+        let mut right = open.end_offset();
+        while bytes.get(right).is_some_and(u8::is_ascii_whitespace) {
+            right += 1;
+        }
+        edits.push(Correction {
+            range: open.start_offset()..right,
+            replacement: String::new(),
+        });
+        let close = parentheses.closing_loc();
+        let mut left = close.start_offset();
+        while left > 0 && matches!(bytes[left - 1], b' ' | b'\t') {
+            left -= 1;
+        }
+        while left > 0 && bytes[left - 1] == b'\n' {
+            left -= 1;
+        }
+        edits.push(Correction {
+            range: left..close.end_offset(),
+            replacement: String::new(),
+        });
+    }
+    super::correction::combine(file, edits)
 }
 
 #[cfg(test)]
@@ -124,108 +147,7 @@ mod tests {
     //! Ported from RuboCop's style/rescue_modifier_spec.rb (MIT,
     //! Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
-
-    #[test]
-    fn every_applicable_pinned_diagnostic() {
-        let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/rescue_modifier_pinned.json"
-        ))
-        .unwrap();
-        assert_eq!(cases.len(), 25);
-        let mut held = 0;
-        for case in cases {
-            let source = case["source"].as_str().unwrap();
-            let found: Vec<_> = crate::pipeline::lint_str(source)
-                .into_iter()
-                .filter(|o| o.cop == RescueModifier.name())
-                .collect();
-            let expected: Vec<Vec<u32>> =
-                serde_json::from_value(case["positions"].clone()).unwrap();
-            if case["spec_line"] == 404 {
-                // This example uses Exclude=['**/**']; the real-config CLI
-                // fixture test executes it. lint_str intentionally has no path config.
-                assert!(expected.is_empty());
-                assert_eq!(found.len(), 1);
-                continue;
-            }
-            assert_eq!(
-                found
-                    .iter()
-                    .map(|o| vec![o.line, o.col])
-                    .collect::<Vec<_>>(),
-                expected,
-                "{source}"
-            );
-            let messages: Vec<String> = serde_json::from_value(case["messages"].clone()).unwrap();
-            assert_eq!(
-                found.iter().map(|o| o.message.clone()).collect::<Vec<_>>(),
-                messages,
-                "{source}"
-            );
-            if case["correction"].is_string() {
-                // Dynamic expressions move their backtrace line in upstream's
-                // multiline expansion. Detection remains complete.
-                assert!(
-                    correction_offenses(&RescueModifier, source)
-                        .iter()
-                        .all(|o| o.correction.is_none()),
-                    "{source}"
-                );
-                held += 1;
-            }
-        }
-        assert_eq!(held, 15);
-    }
-
-    #[test]
-    fn scope_backtrace_and_source_sensitive_cases_keep_the_offense_without_edits() {
-        for source in [
-            "raise rescue $!",
-            "1 rescue error",
-            "::Value rescue nil",
-            "def f; 1 rescue nil; end",
-            "-> { 1 rescue nil }",
-            "proc { 1 rescue nil }",
-            "begin; 1 rescue nil; ensure; cleanup; end",
-            "x = 1 rescue nil",
-            "1 rescue nil; raise",
-            "1 rescue nil; p __LINE__",
-            "\"#{work}\" rescue nil",
-            "1 rescue nil rescue false",
-            "1 rescue (2 rescue nil)",
-            "(1 rescue # retained\nnil)",
-            "<<~X rescue nil\nx\nX\n",
-            "1 rescue <<~X\nx\nX\n",
-            "__LINE__ rescue nil",
-            "DATA.pos; 1 rescue nil\n__END__\npayload",
-            "\u{feff}1 rescue nil\n",
-        ] {
-            let found = correction_offenses(&RescueModifier, source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
-    }
-
-    #[test]
-    fn closed_literal_bytes_crlf_and_payload_are_preserved() {
-        for (before, after) in [
-            (
-                "1 rescue nil\r\n__END__\r\ndata",
-                "begin\r\n  1\r\nrescue\r\n  nil\r\nend\r\n__END__\r\ndata",
-            ),
-            (
-                "# frozen_string_literal: true\n\"a\\x82\\n\" rescue :fallback\n",
-                "# frozen_string_literal: true\nbegin\n  \"a\\x82\\n\"\nrescue\n  :fallback\nend\n",
-            ),
-            (
-                "%q(a\nb) rescue false",
-                "begin\n  %q(a\nb)\nrescue\n  false\nend",
-            ),
-        ] {
-            assert_correction(&RescueModifier, before, after);
-        }
-    }
+    use crate::cops::testing::assert_correction;
 
     #[test]
     fn canonical_expansion_for_closed_standalone_literals() {

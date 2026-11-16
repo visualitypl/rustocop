@@ -53,9 +53,21 @@ impl Cop for RedundantStringCoercion {
                     "Use `self` instead of `Object#to_s`"
                 }
             ),
+            // RuboCop replaces the call with its receiver, or `self`.
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_conversion(node, context, cx, file))
+                .then(|| {
+                    let replacement = match call.receiver() {
+                        Some(receiver) => std::str::from_utf8(receiver.location().as_slice())
+                            .ok()?
+                            .into(),
+                        None => "self".into(),
+                    };
+                    Some(crate::offense::Correction {
+                        range: node.location().start_offset()..crate::cops::ast::source_end(node),
+                        replacement,
+                    })
+                })
                 .flatten(),
         });
     }
@@ -94,101 +106,6 @@ fn context(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Option<&'static str> {
         }
     }
     None
-}
-// Removing explicit to_s can change dispatch (including non-String returns),
-// allocation, exceptions, safe-navigation behavior, and overridden output APIs.
-// Do not assume builtin methods or infer receiver types. Prove only an immediate
-// expression in one closed, top-level `if false`. Exact single-interpolation or
-// single-output-argument shapes exclude nested bindings, definitions, heredocs,
-// line movement, and deleted comments. The main-parse shared source/encoding/
-// runtime/position/code-object/heap guards still apply. No candidate parses.
-fn inactive_conversion(
-    node: &Node<'_>,
-    context: &str,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    let replacement = if let Some(receiver) = call.receiver() {
-        let bare = receiver.as_call_node()?;
-        let name = bare.name().as_slice();
-        if bare.receiver().is_some()
-            || bare.arguments().is_some()
-            || bare.block().is_some()
-            || name.is_empty()
-            || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-            || receiver.location().as_slice() != name
-        {
-            return None;
-        }
-        std::str::from_utf8(name).ok()?.to_owned()
-    } else {
-        "self".to_owned()
-    };
-    let raw = std::str::from_utf8(node.location().as_slice()).ok()?;
-    let expected = if call.receiver().is_some() {
-        format!(
-            "{replacement}{}to_s",
-            if call.is_safe_navigation() { "&." } else { "." }
-        )
-    } else {
-        "to_s".to_owned()
-    };
-    if raw != expected && raw != format!("{expected}()") {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let expression = if context == "interpolation" {
-        let statements = ancestors.next()?.as_statements_node()?;
-        if statements.body().len() != 1 {
-            return None;
-        }
-        ancestors.next()?.as_embedded_statements_node()?;
-        let literal = ancestors.next()?;
-        let interpolation = format!("#{{{raw}}}");
-        if ![
-            format!("\"{interpolation}\""),
-            format!("/{interpolation}/"),
-            format!(":\"{interpolation}\""),
-            format!("`{interpolation}`"),
-        ]
-        .iter()
-        .any(|s| s.as_bytes() == literal.location().as_slice())
-        {
-            return None;
-        }
-        literal
-    } else {
-        ancestors.next()?.as_arguments_node()?;
-        let output = ancestors.next()?;
-        let method = context.trim_matches('`');
-        if output.location().as_slice() != format!("{method} {raw}").as_bytes() {
-            return None;
-        }
-        output
-    };
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || body.location().start_offset() != expression.location().start_offset()
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: node.location().start_offset()..node.location().end_offset(),
-        replacement,
-    })
 }
 #[cfg(test)]
 mod tests {

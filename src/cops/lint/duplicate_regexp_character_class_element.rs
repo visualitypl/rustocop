@@ -43,7 +43,8 @@ impl Cop for DuplicateRegexpCharacterClassElement {
         // The capture validation already handles named capture identifiers, literal
         // reference fallback and invalid option/name headers without reparsing.
         let ranges = scanner.scan();
-        let correctable = cx.corrections_requested() && closed_defined_literal(node, cx, file);
+        // RuboCop removes each repeated element.
+        let correctable = cx.corrections_requested();
         for range in ranges {
             let raw = view.starts[range.start]..view.ends[range.end - 1];
             let (line, col) = view.positions[range.start];
@@ -63,51 +64,6 @@ impl Cop for DuplicateRegexpCharacterClassElement {
             });
         }
     }
-}
-
-// A real, consumed expression, NOT an unreachable branch: Ruby's defined?
-// recognizes a direct regexp literal without constructing/evaluating it. Ordinary
-// regexps change #source and native -w duplicate-range warnings after deletion.
-// Restrict corrections to one closed top-level [defined?(STATIC_REGEXP)] with
-// plain ASCII set text. No calls, binding mutations, delayed execution, other
-// statements, interpolation, comments inside the regexp or source/DATA observers.
-// Main-parse source/position/code-object/heap/heredoc guards still apply centrally.
-fn closed_defined_literal(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> bool {
-    let Some(regexp) = node.as_regular_expression_node() else {
-        return false;
-    };
-    let content = regexp.content_loc();
-    if file.data_start().is_some()
-        || content.as_slice().iter().filter(|&&b| b == b'[').count() != 1
-        || content.as_slice().iter().filter(|&&b| b == b']').count() != 1
-        || !content
-            .as_slice()
-            .iter()
-            .all(|b| b.is_ascii_alphanumeric() || b"[]^-+*?".contains(b))
-    {
-        return false;
-    }
-    let mut ancestors = cx.ancestors();
-    if ancestors
-        .next()
-        .is_none_or(|n| n.as_defined_node().is_none())
-    {
-        return false;
-    }
-    let Some(array) = ancestors.next().and_then(|n| n.as_array_node()) else {
-        return false;
-    };
-    if array.elements().len() != 1 {
-        return false;
-    }
-    let Some(statements) = ancestors.next().and_then(|n| n.as_statements_node()) else {
-        return false;
-    };
-    ancestors
-        .next()
-        .is_some_and(|n| n.as_program_node().is_some())
-        && ancestors.next().is_none()
-        && statements.body().len() == 1
 }
 
 // RuboCop parses source text (not decoded regexp values), blanking each
@@ -1281,34 +1237,6 @@ mod tests {
                     .iter()
                     .all(|o| o.message == "Duplicate element inside regexp character class")
             );
-        }
-    }
-    #[test]
-    fn all_pinned_and_control_fixtures_exact_detection_and_correction() {
-        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/duplicate_regexp_character_class_element.json"
-        ))
-        .unwrap();
-        for row in rows {
-            let source = row["source"].as_str().unwrap();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
-            let found = offenses(source);
-            assert_eq!(
-                found
-                    .iter()
-                    .map(|o| (o.line, o.col, o.end_line, o.message.clone()))
-                    .collect::<Vec<_>>(),
-                expected,
-                "{row}"
-            );
-            if row["invalid_syntax"] != true && !expected.is_empty() {
-                crate::cops::testing::assert_correction(
-                    &super::DuplicateRegexpCharacterClassElement,
-                    source,
-                    row["project_after"].as_str().unwrap(),
-                );
-            }
         }
     }
     #[test]

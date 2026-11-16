@@ -20,25 +20,11 @@
 //!   the second byte of a legacy double-byte character is no backslash).
 //!   Tabs are not spaces here.
 //!
-//! The corrections remove the reported range in the array literals, where
-//! the removed whitespace is separator layout, never part of an element:
-//! the elements, their values and the encoding are unchanged (an escaped
-//! space is never removed, as the `\` check keeps it). A blank body's edit
-//! covers the leading and trailing runs inside it, which keep their
-//! findings without a second edit; a blank body holding an element (NUL,
-//! which `String#strip` drops) keeps every finding without an edit; a run that is not between the delimiter
-//! and the nearest element keeps its finding without an edit. A blank body
-//! holding a line break is joined as upstream; `__LINE__`, `DATA` and
-//! heredoc boundaries after it are held by the shared `run_cops` guards.
-//! A `%x` command keeps every finding without an edit: its blanks are part
-//! of the command string, which reaches `` ` `` (possibly redefined) as is,
-//! so the trim is not assumed to keep the program's behaviour. The
-//! listed source observers hold every edit.
+//! The corrections remove each reported range, as RuboCop's do.
 use std::ops::Range;
 
 use ruby_prism::Node;
 
-use super::space_after_colon::observed;
 use super::space_inside_array_percent_literal::{characters, percent_literal};
 use crate::{
     cops::{Cop, NodeContext},
@@ -120,9 +106,10 @@ impl Cop for SpaceInsidePercentLiteralDelimiters {
         if found.is_empty() {
             return;
         }
-        let edit = cx.corrections_requested() && !literal.command && !observed(cx, file);
+        // RuboCop removes each reported range.
+        let edit = cx.corrections_requested();
         let mut reported: Vec<usize> = Vec::new();
-        for (range, editable) in found {
+        for (range, _) in found {
             if reported.contains(&range.start) {
                 continue;
             }
@@ -130,7 +117,7 @@ impl Cop for SpaceInsidePercentLiteralDelimiters {
             let (line, col) = file.line_col(range.start);
             let end_line = file.line_of(range.end.saturating_sub(1).max(range.start));
             out.push(Offense {
-                correction: (edit && editable).then(|| Correction {
+                correction: edit.then(|| Correction {
                     range,
                     replacement: String::new(),
                 }),
