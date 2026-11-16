@@ -344,6 +344,10 @@ module Oracle
           if !reason && wanted.is_a?(String) && config_mismatch(cop, expectation.config, defaults, wanted, correction: true).first
             expectation.correction = nil
           end
+          # Nor is a correction for a Ruby version that rustocop does not run
+          # (it checks older code as Ruby 3.4), which can name other APIs.
+          target = expectation.config.fetch("AllCops", {}).fetch("TargetRubyVersion", FixedPolicy::TARGET_RUBY).to_f
+          expectation.correction = nil if !reason && FixedPolicy.run_ruby(target) != target
         end
         if reason
           result[:skipped] << [expectation, reason]
@@ -351,9 +355,14 @@ module Oracle
         end
 
         id = case_id(cop, expectation, toml)
-        next if seen[id]
+        # The same example with another expected correction (another Ruby
+        # version, say) is a case of its own.
+        if seen.key?(id) && seen[id] != expectation.correction
+          id = Digest::SHA256.hexdigest([id, expectation.correction.inspect].join("\0"))[0, 12]
+        end
+        next if seen.key?(id)
 
-        seen[id] = true
+        seen[id] = expectation.correction
         result[:cases] << Case.new(id: id, expectation: expectation, toml: toml,
                                    actual: [], errors: [])
       end
