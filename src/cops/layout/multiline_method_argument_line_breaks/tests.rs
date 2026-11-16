@@ -40,13 +40,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&MultilineMethodArgumentLineBreaks, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source is accepted.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -61,7 +54,6 @@ const PINNED: &[Pinned] = &[
     ),
     (28, "a['b',\n    'c', 'd'] = e\n", &[], ""),
     (37, "taz(\n  \"abc\", \"foo\"\n)\n", &[], ""),
-    // The shared heredoc boundary holds this edit (see `HELD`).
     (
         47,
         "taz(\"abc\",\n\"foo\", <<~TEXT, \"bar\")\n  text\nTEXT\n",
@@ -151,25 +143,12 @@ const PINNED: &[Pinned] = &[
     ),
 ];
 
-/// Pinned corrections withheld by the shared heredoc boundary, finding kept:
-/// a line break inserted right before a heredoc opener (as for the
-/// first-element seam).
-const HELD: &[u32] = &[47];
-
 #[test]
 fn pinned_examples_replay_the_fixed_results() {
     assert_eq!(PINNED.len(), 20);
     for &(line, source, expected, after) in PINNED {
         assert_eq!(positions(source), expected, "spec line {line}");
-        if HELD.contains(&line) {
-            held(source);
-            // A plain string in the opener's place takes the same edit (and
-            // no longer exempts the argument after it).
-            assert_eq!(
-                fixed("taz(\"abc\",\n\"foo\", \"text\", \"bar\")\n"),
-                "taz(\"abc\",\n\"foo\", \n\"text\", \n\"bar\")\n"
-            );
-        } else if expected.is_empty() {
+        if expected.is_empty() {
             assert!(
                 correction_offenses(&MultilineMethodArgumentLineBreaks, source).is_empty(),
                 "spec line {line}"

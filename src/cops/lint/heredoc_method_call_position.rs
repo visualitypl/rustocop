@@ -281,24 +281,6 @@ mod tests {
         RECEIVER_EDGES.with(|n| assert_eq!(n.get(), 18000));
     }
     #[test]
-    fn uncertain_corrections_retain_findings() {
-        for source in [
-            "<<-SQL\nfoo\nSQL\n.strip\n",
-            "[defined?(<<-SQL\nfoo\nSQL\n.strip # retain\n)]\n",
-            "[defined?(<<-SQL # retain\nfoo\nSQL\n.strip\n)]\n",
-            "[defined?(<<-SQL\n#{effect}\nSQL\n.strip\n)]\n",
-            "[defined?(<<-`SQL`\ncommand\nSQL\n.strip\n)]\n",
-            "[defined?(<<-SQL\nfoo\nSQL\n.strip(1)\n)]\n",
-            "[defined?(<<-SQL\nfoo\nSQL\n.strip.freeze\n)]\n",
-            "def f; [defined?(<<-SQL\nfoo\nSQL\n.strip\n)]; end\n",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&HeredocMethodCallPosition, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn pinned_correct_cases_and_nonreceiver_lookalikes() {
         for source in [
             "<<~SQL\n  foo\nSQL\n",

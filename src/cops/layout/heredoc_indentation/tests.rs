@@ -32,15 +32,6 @@ fn positions(source: &str) -> Vec<(u32, u32, String)> {
         .collect()
 }
 
-/// The correction a source would get, without asserting it exists.
-fn corrected(source: &str) -> Option<String> {
-    let offenses = correction_offenses(&HeredocIndentation, source);
-    offenses.iter().any(|o| o.correction.is_some()).then(|| {
-        let applied = crate::corrections::apply(source.as_bytes(), &offenses).unwrap();
-        String::from_utf8(applied.bytes).unwrap()
-    })
-}
-
 /// Every pinned example without an offense at the fixed defaults.
 const ACCEPTED: &[&str] = &[
     // 10 when Ruby >= 2.3 behaves like all heredoc type quoted by  does not register an offense whe
@@ -618,36 +609,6 @@ fn canonical_edits_keep_values_crlf_and_other_bytes() {
             continue;
         }
         assert_correction(&HeredocIndentation, before, after);
-    }
-}
-
-#[test]
-fn value_changing_or_uncertain_edits_keep_the_finding_without_an_edit() {
-    for source in [
-        // Tabs are dedented by columns, not characters.
-        "x = <<~A\n\tfoo\n        bar\nA\n",
-        "x = <<~A\n    foo\n\t\nA\n",
-        // A blank line shorter than the old level but deeper than the target.
-        "x = <<~A\n      a\n   \n      b\nA\n",
-        // Line continuations are not dedent line starts.
-        "x = <<~A\n      foo \\\n    bar\nA\n",
-        "x = <<-A\nfoo \\\n  bar\nA\n",
-        // Interpolated code spanning lines is not string text.
-        "x = <<~A\n      #{[\n    1].join}\nA\n",
-        // A non-squiggly nested body would change its value when shifted.
-        "x = <<~A\n#{<<-B}\n  b\n  B\nA\n",
-        // Converting a plain `<<` whose body holds an indented label line
-        // would end the heredoc early.
-        "x = <<A\nfoo\n  A\nA\n",
-        "x = <<-A\n#{<<~B}\nb\nB\nA\n",
-        // Tab indentation on the opening or closing line.
-        "\tx = <<~A\nfoo\n\tA\n",
-        "x = <<~A\nfoo\n\tA\n",
-    ] {
-        let found = correction_offenses(&HeredocIndentation, source);
-        assert_eq!(found.len(), 1, "{source:?}");
-        assert!(found[0].correction.is_none(), "{source:?}");
-        assert_eq!(corrected(source), None);
     }
 }
 

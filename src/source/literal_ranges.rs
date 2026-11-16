@@ -112,9 +112,7 @@ pub(super) struct PunctuationRanges {
     pub keyword_block_subtrees: HashSet<(usize, usize)>,
     /// Sorted real opener offsets, including heredocs owned by sibling nodes.
     pub heredoc_openings: Vec<usize>,
-    pub heredocs: Vec<super::heredoc_boundaries::Heredoc>,
-    pub heredoc_boundaries:
-        std::sync::OnceLock<std::sync::Arc<super::heredoc_boundaries::Boundaries>>,
+    pub heredocs: Vec<Heredoc>,
 }
 
 fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> PunctuationRanges {
@@ -181,7 +179,6 @@ fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> Punct
         keyword_block_subtrees: collector.keyword_block_subtrees,
         heredoc_openings: collector.heredoc_openings,
         heredocs: collector.heredocs,
-        heredoc_boundaries: std::sync::OnceLock::new(),
     }
 }
 
@@ -209,7 +206,7 @@ struct Collector<'a, 'pr> {
     heredoc_subtrees: HashSet<(usize, usize)>,
     keyword_block_subtrees: HashSet<(usize, usize)>,
     heredoc_openings: Vec<usize>,
-    heredocs: Vec<super::heredoc_boundaries::Heredoc>,
+    heredocs: Vec<Heredoc>,
 }
 
 struct SubtreeExtent {
@@ -284,25 +281,15 @@ impl<'pr> Collector<'_, 'pr> {
             self.extents.last_mut().unwrap().has_heredoc = true;
             self.heredoc_openings.push(opening.start_offset());
             if let Some(closing) = closing {
-                let raw = opening.as_slice();
-                let indented = matches!(raw.get(2), Some(b'-' | b'~'));
-                let mut label =
-                    opening.start_offset() + 2 + usize::from(indented)..opening.end_offset();
-                if matches!(self.file.bytes.get(label.start), Some(b'\'' | b'"' | b'`')) {
-                    label.start += 1;
-                    label.end = label.end.saturating_sub(1).max(label.start);
-                }
                 let end_line = self.file.line_of(closing.start_offset());
                 let closing_start = self.file.line_start(end_line);
                 let body_start = body_start.map_or(closing_start, |offset| {
                     self.file.line_start(self.file.line_of(offset))
                 });
-                self.heredocs.push(super::heredoc_boundaries::Heredoc {
+                self.heredocs.push(Heredoc {
                     opening: opening.start_offset()..opening.end_offset(),
                     body: body_start..closing_start,
                     closing: closing_start..closing.end_offset(),
-                    label,
-                    indented,
                 });
             }
         }
@@ -608,4 +595,12 @@ impl<'pr> NodeVisitor<'pr> for Collector<'_, 'pr> {
             parent.has_keyword_block |= extent.has_keyword_block;
         }
     }
+}
+
+/// A heredoc's opening, body and terminator line, as byte ranges.
+#[derive(Clone, Debug)]
+pub(crate) struct Heredoc {
+    pub opening: std::ops::Range<usize>,
+    pub body: std::ops::Range<usize>,
+    pub closing: std::ops::Range<usize>,
 }

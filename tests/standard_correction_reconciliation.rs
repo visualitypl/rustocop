@@ -114,7 +114,7 @@ fn fix(dir: &Path, cop: &str, file: &str, source: &str, held: bool) -> (Output, 
 /// documented hold here, each with its reason.
 /// `true`: the same witness inside the documented closed inactive envelope
 /// (`if false ... end`) gets the canonical edit.
-const HELD_WITNESSES: [(&str, bool, &str); 7] = [
+const HELD_WITNESSES: [(&str, bool, &str); 6] = [
     (
         "Bundler/InsecureProtocolSource",
         true,
@@ -144,11 +144,6 @@ const HELD_WITNESSES: [(&str, bool, &str); 7] = [
         "Gemspec/RequireMFA",
         true,
         "gemspec edits only in the closed inactive envelope",
-    ),
-    (
-        "Layout/MultilineMethodArgumentLineBreaks",
-        false,
-        "pinned line 47 edit before a heredoc opener is held by the shared heredoc boundary",
     ),
 ];
 

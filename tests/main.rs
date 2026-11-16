@@ -132,7 +132,6 @@ mod hash_lookup_patterns;
 mod hash_slice;
 mod hash_transform_methods;
 mod hashes;
-mod heredoc_boundaries;
 mod heredoc_comment_indentation;
 mod heredoc_method_call_position;
 mod heredoc_spelling;

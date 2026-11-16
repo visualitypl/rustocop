@@ -243,10 +243,7 @@ fn projected_locals<'pr>(
 }
 /// Heredoc bodies lex at their opener, before the rest of that physical line.
 /// Same ordering as the existing projected-local consumer; offsets stay intact.
-pub(super) fn heredoc_order(
-    heredocs: &[crate::source::heredoc_boundaries::Heredoc],
-    mut offset: usize,
-) -> Vec<usize> {
+pub(super) fn heredoc_order(heredocs: &[crate::source::Heredoc], mut offset: usize) -> Vec<usize> {
     let mut key = vec![usize::MAX];
     while let Some(h) = heredocs
         .iter()

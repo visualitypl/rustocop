@@ -7,9 +7,9 @@ use ruby_prism::{Node, ParseResult};
 mod columns;
 mod diagnostics;
 mod encoding;
-pub(crate) mod heredoc_boundaries;
 mod input_metadata;
 mod literal_ranges;
+pub(crate) use literal_ranges::Heredoc;
 pub(crate) use literal_ranges::literal_interior;
 mod punctuation;
 pub(crate) mod tokens;
@@ -1311,30 +1311,8 @@ impl SourceFile {
     }
 
     /// Original-byte heredoc excursions from the existing main-parse index.
-    pub(crate) fn heredocs(&self, root: &Node<'_>) -> &[heredoc_boundaries::Heredoc] {
+    pub(crate) fn heredocs(&self, root: &Node<'_>) -> &[Heredoc] {
         &self.token_ranges(root).heredocs
-    }
-
-    /// Shared lazy physical heredoc evidence from this file's main parse.
-    pub(crate) fn heredoc_boundaries(
-        &self,
-        root: &Node<'_>,
-    ) -> &std::sync::Arc<heredoc_boundaries::Boundaries> {
-        let ranges = self.token_ranges(root);
-        ranges.heredoc_boundaries.get_or_init(|| {
-            std::sync::Arc::new(heredoc_boundaries::Boundaries::build(
-                self,
-                &ranges.heredocs,
-            ))
-        })
-    }
-
-    pub(crate) fn cached_heredoc_boundaries(
-        &self,
-    ) -> Option<&std::sync::Arc<heredoc_boundaries::Boundaries>> {
-        self.token_ranges
-            .get()
-            .and_then(|ranges| ranges.heredoc_boundaries.get())
     }
 
     /// Percent-array separator token starts, collected in the shared AST walk.
@@ -4722,78 +4700,6 @@ mod tests {
                 assert!(std::ptr::eq(cache, f.token_ranges(&result.node())));
             }
         }
-    }
-
-    #[test]
-    fn heredoc_boundary_guard_bounds_long_labels_and_is_shared_only_for_fixes() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{SymbolLiteral, VariableInterpolation},
-        };
-        for nonword in [false, true] {
-            let delimiter = format!("{}{}", "X".repeat(4096), if nonword { "#" } else { "" });
-            let source = format!(
-                "p <<~\"{delimiter}\"\n{}{delimiter}\n",
-                "#@x #{:\"word\"}\n".repeat(1000)
-            );
-            let f = file(source.as_bytes());
-            let result = ruby_prism::parse(&f.bytes);
-            assert_eq!(result.errors().count(), 0);
-            f.record_comments(&result);
-            let cops: &[&dyn crate::cops::Cop] = &[&SymbolLiteral, &VariableInterpolation];
-            let mut found = Vec::new();
-            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
-            assert_eq!(found.len(), 2000);
-            assert!(f.token_ranges.get().is_none());
-            found.clear();
-            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
-            assert_eq!(found.len(), 2000);
-            assert!(found.iter().all(|o| o.correction.is_none() == nonword));
-            let cache = f.token_ranges.get().unwrap();
-            assert_eq!(cache.heredoc_openings.len(), 1);
-            for _ in 0..2000 {
-                assert!(std::sync::Arc::ptr_eq(
-                    cache.heredoc_boundaries.get().unwrap(),
-                    f.heredoc_boundaries(&result.node())
-                ));
-                assert!(std::ptr::eq(cache, f.token_ranges(&result.node())));
-            }
-        }
-    }
-
-    #[test]
-    fn ns06_boundary_renames_reuse_one_lazy_bounded_main_parse_index() {
-        use crate::cops::{naming::HeredocDelimiterCase, run_cops_with_corrections};
-        let source = "p <<~sql\nvalue\nsql\n".repeat(2000);
-        let f = file(source.as_bytes());
-        let parsed = crate::parser::parse(&f.bytes);
-        f.record_comments(&parsed);
-        let mut found = Vec::new();
-        let cops: &[&dyn crate::cops::Cop] = &[&HeredocDelimiterCase];
-        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, false).is_empty());
-        assert_eq!(found.len(), 2000);
-        assert!(f.cached_heredoc_boundaries().is_none());
-        assert!(f.token_ranges.get().is_none());
-        found.clear();
-        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
-        assert_eq!(
-            found.iter().filter(|o| o.correction.is_some()).count(),
-            2000
-        );
-        let index = f.cached_heredoc_boundaries().unwrap();
-        assert_eq!(f.token_ranges.get().unwrap().heredocs.len(), 2000);
-        for _ in 0..2000 {
-            assert!(std::sync::Arc::ptr_eq(
-                index,
-                f.heredoc_boundaries(&parsed.node())
-            ));
-        }
-        let large = file(format!("p <<~sql\n{}\nsql\n", "x".repeat(4096)).as_bytes());
-        let parsed = crate::parser::parse(&large.bytes);
-        let mut found = Vec::new();
-        run_cops_with_corrections(cops, &parsed, &large, &mut found, true);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
     }
 
     #[test]

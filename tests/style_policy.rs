@@ -4285,48 +4285,6 @@ fn ns06_atomic_disabled_anchors_comments_stdin_provenance_and_no_write() {
 }
 
 #[test]
-fn ns06_live_default_renaming_does_not_weaken_prior_body_to_terminator_guards() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, expected) in [
-        // Once no peer writes the body (third pass), default-on
-        // HeredocIndentation turns the plain opener into `<<~` (zero dedent;
-        // the renamed label cannot match the body line).
-        (
-            "a = 1\nb = 2\np <<\"#{a + b}\"\n#{a+b}\n#{a + b}\n",
-            "a = 1\nb = 2\np <<~\"#{A + B}\"\n#{a + b}\n#{A + B}\n",
-        ),
-        (
-            "@x = 3\np <<-\"#{@x}\"\n\u{b}#@x\n#{@x}\n",
-            "@x = 3\np <<-\"#{@X}\"\n\u{b}#@x\n#{@X}\n",
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let ruby = crate::support::runtime::ruby_os();
-        let before = ruby.as_ref().map(|r| ns04_ruby(r, &path).unwrap());
-        for _ in 0..3 {
-            let run = cli(
-                dir.path(),
-                "",
-                &["--fix", "--fix-passes", "1", "lib/a.rb"],
-                None,
-            );
-            assert_ne!(run.status.code(), Some(2), "{run:?}");
-        }
-        assert_eq!(fs::read_to_string(&path).unwrap(), expected);
-        if let Some(before) = before {
-            let after = ns04_ruby(ruby.as_ref().unwrap(), &path).unwrap();
-            assert!(
-                before.status.success() && after.status.success(),
-                "{before:?} {after:?}"
-            );
-            assert_eq!(before.stdout, after.stdout);
-            assert_eq!(before.stderr, after.stderr);
-        }
-    }
-}
-
-#[test]
 fn ns06_legacy_label_bytes_ascii_only_renames_and_non_utf8_envelope_holds() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");

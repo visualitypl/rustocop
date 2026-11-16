@@ -451,13 +451,7 @@ mod tests {
             corrections_requested: fixes,
         };
         let mut out = Vec::new();
-        crate::cops::run_post_investigation(
-            &[&RedundantCopDisableDirective],
-            &parsed,
-            &file,
-            &cx,
-            &mut out,
-        );
+        crate::cops::run_post_investigation(&[&RedundantCopDisableDirective], &file, &cx, &mut out);
         out.retain(|o| directives.is_enabled_for_lines(o.cop, o.line, o.end_line));
         out.sort_by_key(|o| (o.line, o.col));
         out

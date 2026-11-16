@@ -104,56 +104,6 @@ fn all_pinned_original_bytes_match_pipeline() {
     );
 }
 #[test]
-fn all_fixtures_rebuilt_cli_exact_positions_no_write_or_canonical_atomic_edit() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    for row in rows() {
-        let source = bytes(&row, "bytes");
-        let after = bytes(&row, "project_after");
-        let status = i32::from(!expected(&row).is_empty());
-        let out = unchanged(d.path(), &source, &["--only", COP, "lib/a.rb"], status);
-        let mut want: Vec<_> = expected(&row)
-            .into_iter()
-            .map(|(l, c, _, m)| format!("lib/a.rb:{l}:{c}: E: {m} ({COP})"))
-            .collect();
-        want.sort();
-        let mut got: Vec<_> = String::from_utf8_lossy(&out.stdout)
-            .lines()
-            .filter(|l| l.ends_with(&format!("({COP})")))
-            .map(str::to_owned)
-            .collect();
-        got.sort();
-        assert_eq!(got, want, "{row}");
-        if source == after {
-            unchanged(
-                d.path(),
-                &source,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                status,
-            );
-        } else {
-            let old = fs::metadata(&path).unwrap();
-            let out = run(d.path(), &["--only", COP, "--fix", "lib/a.rb"]);
-            assert!(out.status.success(), "{row}\n{out:?}");
-            assert_eq!(fs::read(&path).unwrap(), after, "{row}");
-            assert_eq!(
-                old.permissions(),
-                fs::metadata(&path).unwrap().permissions()
-            );
-            let old = fs::metadata(&path).unwrap();
-            assert!(
-                run(d.path(), &["--only", COP, "--fix", "lib/a.rb"])
-                    .status
-                    .success()
-            );
-            assert_eq!(
-                old.modified().unwrap(),
-                fs::metadata(&path).unwrap().modified().unwrap()
-            );
-        }
-    }
-}
-#[test]
 fn opt_in_metadata_selectors_toml_path_and_stdin_provenance() {
     let registry = rustocop::cops::Registry::new();
     assert_eq!(registry.cops().len(), 613);

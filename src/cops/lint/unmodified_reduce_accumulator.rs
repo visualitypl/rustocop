@@ -428,7 +428,7 @@ impl<'a> SyntacticNames<'a> {
 /// Ruby lexes each heredoc body at its opener, then resumes the opener line.
 /// Keep byte positions intact; only this cop's projected-read query needs these
 /// ordering keys. Nested/multiple heredocs use the same main-parse excursions.
-struct HeredocOrder<'a>(&'a [crate::source::heredoc_boundaries::Heredoc]);
+struct HeredocOrder<'a>(&'a [crate::source::Heredoc]);
 impl HeredocOrder<'_> {
     fn key(&self, mut offset: usize) -> Vec<usize> {
         let mut key = vec![usize::MAX];

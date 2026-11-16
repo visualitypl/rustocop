@@ -1192,7 +1192,6 @@ struct CopWalker<'a, 'b, 'pr> {
     out: &'a mut Vec<Offense>,
     panics: Vec<CopPanic>,
     corrections_requested: bool,
-    has_heredoc: bool,
     require_order_reports: RefCell<HashSet<(usize, usize)>>,
 }
 
@@ -1200,20 +1199,6 @@ impl<'pr> CopWalker<'_, '_, 'pr> {
     /// Call `check_node` (or, when `LEAVE`, `leave_node`) on `node` for
     /// every cop that takes it.
     fn dispatch<const LEAVE: bool>(&mut self, node: &Node<'pr>) {
-        if !LEAVE && !self.has_heredoc {
-            let opening = match node {
-                Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
-                Node::InterpolatedStringNode { .. } => {
-                    node.as_interpolated_string_node().unwrap().opening_loc()
-                }
-                Node::XStringNode { .. } => Some(node.as_x_string_node().unwrap().opening_loc()),
-                Node::InterpolatedXStringNode { .. } => {
-                    Some(node.as_interpolated_x_string_node().unwrap().opening_loc())
-                }
-                _ => None,
-            };
-            self.has_heredoc = opening.is_some_and(|loc| loc.as_slice().starts_with(b"<<"));
-        }
         let kind = if LEAVE { 0 } else { self.kind(node) };
         let cx = NodeContext {
             ancestors: &self.ancestors,
@@ -1402,34 +1387,18 @@ pub(crate) fn run_cops_with_corrections(
         out,
         panics,
         corrections_requested,
-        has_heredoc: false,
         require_order_reports: RefCell::default(),
     };
     walk::walk(&mut walker, &result.node());
-    let has_heredoc = walker.has_heredoc;
     let panics = walker.panics;
-    guard_corrections(
-        cops,
-        result,
-        file,
-        &mut out[first_offense..],
-        corrections_requested,
-        has_heredoc,
-    );
+    guard_corrections(cops, &mut out[first_offense..], corrections_requested);
     panics
 }
 
 /// What ordinary and post-investigation batches share: the corrections that
-/// incompatible cops withhold, and whole heredocs. As `rubocop -a` does, an
-/// edit is applied whatever the program could observe of it.
-fn guard_corrections(
-    cops: &[&dyn Cop],
-    result: &ruby_prism::ParseResult<'_>,
-    file: &SourceFile,
-    emitted: &mut [Offense],
-    corrections_requested: bool,
-    has_heredoc: bool,
-) {
+/// incompatible cops withhold. As `rubocop -a` does, an edit is applied
+/// whatever the program could observe of it.
+fn guard_corrections(cops: &[&dyn Cop], emitted: &mut [Offense], corrections_requested: bool) {
     if corrections_requested {
         for cop in cops {
             if cop
@@ -1450,9 +1419,6 @@ fn guard_corrections(
         for offense in emitted {
             offense.correction = None;
         }
-    } else if has_heredoc && emitted.iter().any(|o| o.correction.is_some()) {
-        file.heredoc_boundaries(&result.node())
-            .filter(&file.bytes, emitted);
     }
 }
 
@@ -1482,7 +1448,6 @@ pub(crate) fn statically_inert(program: &Node<'_>) -> bool {
 /// make a peer's post finding appear in another callback's raw inputs.
 pub(crate) fn run_post_investigation(
     cops: &[&dyn Cop],
-    result: &ruby_prism::ParseResult<'_>,
     file: &SourceFile,
     cx: &PostInvestigation<'_>,
     out: &mut Vec<Offense>,
@@ -1501,16 +1466,7 @@ pub(crate) fn run_post_investigation(
             });
         }
     }
-    // The shared main-parse boundary cache is lazy. Unlike ordinary dispatch,
-    // this phase has no node walk to supply a cheap has-heredoc hint.
-    guard_corrections(
-        cops,
-        result,
-        file,
-        &mut out[first..],
-        cx.corrections_requested,
-        true,
-    );
+    guard_corrections(cops, &mut out[first..], cx.corrections_requested);
     panics
 }
 

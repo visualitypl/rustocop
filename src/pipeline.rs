@@ -131,8 +131,6 @@ impl fmt::Display for InternalError {
 /// Everything linting one file produced.
 #[derive(Debug)]
 pub struct FileReport {
-    /// Main-parse structural evidence retained for the merged alias batch.
-    heredoc_boundaries: Option<std::sync::Arc<crate::source::heredoc_boundaries::Boundaries>>,
     /// Number of corrections successfully written to this file.
     pub corrections_applied: usize,
     /// The file's offenses.
@@ -148,7 +146,6 @@ impl FileReport {
     /// A report with no offenses and no errors yet.
     fn empty(display_path: &Path) -> Self {
         FileReport {
-            heredoc_boundaries: None,
             corrections_applied: 0,
             result: FileResult {
                 path: display_path.to_path_buf(),
@@ -838,7 +835,7 @@ fn lint_file(
             corrections_requested: mode != CorrectionMode::None,
         };
         let mut post = Vec::new();
-        let panics = crate::cops::run_post_investigation(&running, &result, &file, &cx, &mut post);
+        let panics = crate::cops::run_post_investigation(&running, &file, &cx, &mut post);
         report
             .internal_errors
             .extend(panics.into_iter().map(|panic| InternalError {
@@ -896,9 +893,6 @@ fn lint_file(
                 offense.correction = None;
             }
         }
-    }
-    if mode != CorrectionMode::None && offenses.iter().any(|o| o.correction.is_some()) {
-        report.heredoc_boundaries = file.cached_heredoc_boundaries().cloned();
     }
     report.result.offenses = offenses;
     let CorrectionMode::Apply(passes) = mode else {
@@ -963,7 +957,7 @@ fn correct_files(
             .map_or((original, &reports), |(bytes, pending)| {
                 (bytes.as_slice(), pending)
             });
-        let mut safe: Vec<_> = pending
+        let safe: Vec<_> = pending
             .iter()
             .flat_map(|report| &report.result.offenses)
             .filter(|offense| {
@@ -974,12 +968,6 @@ fn correct_files(
             })
             .cloned()
             .collect();
-        // Aliases can contribute disjoint candidates which were never considered
-        // together by a cop run. Reuse their original main-parse evidence, not a
-        // second parse, and prove the union before conflict selection.
-        if let Some(boundaries) = pending.iter().find_map(|r| r.heredoc_boundaries.as_ref()) {
-            boundaries.filter(source, &mut safe);
-        }
         let applied = match crate::corrections::apply(source, &safe) {
             Ok(applied) => applied,
             Err(error) => {

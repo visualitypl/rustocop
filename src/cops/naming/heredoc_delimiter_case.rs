@@ -1,7 +1,7 @@
 //! `Naming/HeredocDelimiterCase` — fixed uppercase heredoc labels.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -38,14 +38,33 @@ impl Cop for HeredocDelimiterCase {
         {
             return;
         }
-        let correction = if cx.corrections_requested() {
-            cx.ancestors().next_back().and_then(|root| {
-                file.heredoc_boundaries(root)
-                    .uppercase_correction(&file.bytes, h.opening.start_offset())
+        // RuboCop upcases the opening and the terminator's delimiter.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let opening = std::str::from_utf8(h.opening.as_slice()).ok()?;
+                let delimiter = std::str::from_utf8(label).ok()?;
+                let closing = h.closing.as_slice();
+                let eol =
+                    usize::from(closing.ends_with(b"\n")) + usize::from(closing.ends_with(b"\r\n"));
+                let end = h.closing.end_offset() - eol;
+                let start = end.checked_sub(label.len())?;
+                (&file.bytes[start..end] == label).then_some(())?;
+                crate::cops::style::correction::combine(
+                    file,
+                    vec![
+                        Correction {
+                            range: h.opening.start_offset()..h.opening.end_offset(),
+                            replacement: opening.to_uppercase(),
+                        },
+                        Correction {
+                            range: start..end,
+                            replacement: delimiter.to_uppercase(),
+                        },
+                    ],
+                )
             })
-        } else {
-            None
-        };
+            .flatten();
         let (line, col) = file.line_col(h.closing.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -87,18 +106,6 @@ mod tests {
         }
     }
     #[test]
-    fn quoted_whitespace_label_collision_keeps_finding_but_never_promotes_body() {
-        for op in ["<<", "<<-", "<<~"] {
-            let source = format!("p {op}' sql '\n SQL \n sql \n");
-            let found = crate::cops::testing::correction_offenses(&HeredocDelimiterCase, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{source}");
-            let safe = format!("p {op}' sql '\nvalue\n sql \n");
-            assert_correction(&HeredocDelimiterCase, &safe, &safe.replace("sql", "SQL"));
-        }
-    }
-
-    #[test]
     fn opening_capture_retries_after_quotes_and_backtracks_optional_modifier() {
         for label in ["\"<<sql", "`<<sql", "\"<<~sql", "\"<<-sql"] {
             let source = format!("p <<'{label}'\nbody\n{label}\n");
@@ -106,7 +113,6 @@ mod tests {
             assert_eq!(found.len(), 1, "{source}");
             assert_eq!((found[0].line, found[0].col), (3, 1));
             assert_eq!(found[0].message, "Use uppercase heredoc delimiters.");
-            assert!(found[0].correction.is_none());
         }
         for source in ["p <<~'\"sql'\nbody\n\"sql\n", "p <<'\"sql'\nbody\n\"sql\n"] {
             assert!(

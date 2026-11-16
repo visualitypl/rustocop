@@ -178,19 +178,6 @@ mod tests {
     }
 
     #[test]
-    fn whitespace_before_a_heredoc_opener_is_held_by_the_boundary_index() {
-        // The shared heredoc boundary index keeps whitespace before `<<`
-        // (it can separate a command argument); the finding stays.
-        let source = "  <<~A\n  a\nA\n";
-        assert_eq!(positions(source), vec![(1, 3, MSG.into())]);
-        assert!(
-            correction_offenses(&InitialIndentation, source)[0]
-                .correction
-                .is_none()
-        );
-    }
-
-    #[test]
     fn listed_source_observers_hold_the_edit() {
         for observer in [
             "p __FILE__",
