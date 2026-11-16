@@ -1120,3 +1120,18 @@ fn fix_with_stdin_is_rejected_before_reading_or_writing() {
             .contains("--fix cannot be used with --stdin")
     );
 }
+
+/// Each pass lints the corrected source afresh. RuboCop keeps the ranges a
+/// cop ignored (`ignore_node`) across passes, so its single run stops at
+/// `bar = do_something`; a second RuboCop run, like this one pass loop,
+/// also removes the now reported `bar = `.
+#[test]
+fn passes_do_not_carry_ignored_ranges_over() {
+    let (dir, config) = project("def some_method\n  foo = bar = do_something\nend\n");
+    let registry = Registry::from_cops(vec![Box::new(crate::cops::lint::UselessAssignment)]);
+    run_project(dir.path(), &config, &registry, true);
+    assert_eq!(
+        fs::read_to_string(dir.path().join("x.rb")).unwrap(),
+        "def some_method\n  do_something\nend\n"
+    );
+}
