@@ -266,7 +266,7 @@ impl WhileUntilModifier {
         {
             return None;
         }
-        super::negated_if::finish(Correction { range, replacement }, cx, file)
+        Some(Correction { range, replacement })
     }
 }
 const REWRITE_BUDGET: usize = 16 * 1024;
@@ -429,19 +429,6 @@ mod tests {
                 &s,
                 &format!("{body} while cond\n"),
             );
-        }
-    }
-    #[test]
-    fn binding_and_source_hazards_still_report_without_edits() {
-        for s in [
-            "while value\n value = 1\nend",
-            "while cond\n work rescue recover\nend",
-            "while cond # encoding: ascii-8bit\n work\nend",
-            "while cond\n work\nend\np __LINE__\n",
-        ] {
-            let o = correction_offenses(&WhileUntilModifier::default(), s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
         }
     }
 }

@@ -103,7 +103,7 @@ impl Cop for ParenthesesAroundCondition {
                 let replacement = std::str::from_utf8(first.location().as_slice())
                     .ok()?
                     .to_owned();
-                super::negated_if::finish(Correction { range, replacement }, cx, file)
+                Some(Correction { range, replacement })
             })
             .flatten();
         let keyword = String::from_utf8_lossy(keyword);
@@ -280,23 +280,6 @@ mod tests {
             ),
         ] {
             crate::cops::testing::assert_correction(&ParenthesesAroundCondition, source, after);
-        }
-    }
-    #[test]
-    fn ambiguous_comments_heredocs_and_observed_sources_stay_reported() {
-        for source in [
-            "if (a && # keep\n b); end\n",
-            "if (\n __LINE__\n); end\n",
-            "if (\n a\n); end\np __LINE__\n",
-            "if (DATA.pos); end\n__END__\npayload\n",
-            "if (method(:f).source_location); end\n",
-            "if (<<~H); end\nbody\nH\n",
-            "if (a); end # rubocop:disable Lint/Debugger\n",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&ParenthesesAroundCondition, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

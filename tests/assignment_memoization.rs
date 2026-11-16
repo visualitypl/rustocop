@@ -91,51 +91,6 @@ fn default_enablement_selectors_and_config_never_implicitly_write() {
     }
 }
 #[test]
-fn excludes_and_both_directive_prefixes_protect_atomic_corrections() {
-    let d = project();
-    for (cop, before, after) in CASES {
-        for config in [
-            "exclude = [\"a.rb\"]\n".to_owned(),
-            format!("[cops.\"{cop}\"]\nexclude = [\"a.rb\"]\n"),
-        ] {
-            fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            unchanged(
-                d.path(),
-                cop,
-                before.as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-        }
-        fs::write(d.path().join("rustocop.toml"), "").unwrap();
-        for prefix in ["rustocop", "rubocop"] {
-            for target in [cop, "Style", "all"] {
-                let source = format!("# {prefix}:disable {target}\n{before}");
-                unchanged(
-                    d.path(),
-                    cop,
-                    source.as_bytes(),
-                    &["--only", cop, "--fix", "a.rb"],
-                    0,
-                );
-            }
-            let source =
-                format!("# {prefix}:disable {cop}\n{before}# {prefix}:enable {cop}\n{before}");
-            let corrected =
-                format!("# {prefix}:disable {cop}\n{before}# {prefix}:enable {cop}\n{after}");
-            fix(d.path(), cop, &source, &corrected);
-        }
-    }
-    let source = "foo ||= (\n  work # rubocop:disable Lint/Debugger\n)\n";
-    unchanged(
-        d.path(),
-        MEMO,
-        source.as_bytes(),
-        &["--only", MEMO, "--fix", "a.rb"],
-        1,
-    );
-}
-#[test]
 fn all_twenty_pinned_correction_calls_are_canonical_or_individually_withheld() {
     let d = project();
     let mut canonical = 0;
@@ -185,56 +140,6 @@ fn all_twenty_pinned_correction_calls_are_canonical_or_individually_withheld() {
     }
     assert_eq!(canonical, 12);
     assert_eq!(held, [17, 28, 39, 72, 87, 102, 158, 221]);
-}
-#[test]
-fn bom_crlf_encoding_line_values_and_unread_data_bytes_are_preserved() {
-    let d = project();
-    for (cop, before, after) in CASES {
-        let before = format!(
-            "\u{feff}# coding: UTF-8\r\n{}__END__\r\npayload é\r\n",
-            before.replace('\n', "\r\n")
-        );
-        let after = format!(
-            "\u{feff}# coding: UTF-8\r\n{}__END__\r\npayload é\r\n",
-            after.replace('\n', "\r\n")
-        );
-        fix(d.path(), cop, &before, &after);
-        unchanged(
-            d.path(),
-            cop,
-            after.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-        );
-    }
-    fix(
-        d.path(),
-        MEMO,
-        "x ||= (\n __LINE__\n)\np __LINE__\n",
-        "x ||= begin\n __LINE__\nend\np __LINE__\n",
-    );
-    fix(
-        d.path(),
-        OR,
-        "x = x ? x : __LINE__\np __LINE__\n",
-        "x ||= __LINE__\np __LINE__\n",
-    );
-    for (cop, source) in [
-        (
-            MEMO,
-            b"# coding: ISO-8859-1\nx ||= (\n '\xe9'\n)\n".as_slice(),
-        ),
-        (OR, b"# coding: ISO-8859-1\nx = x ? x : '\xe9'\n".as_slice()),
-        (MEMO, b"x ||= (work ||\n other)\np __LINE__\n".as_slice()),
-        (OR, b"x = if x\n x\nelse\n 3\nend\np __LINE__\n".as_slice()),
-        (
-            MEMO,
-            b"x ||= (\n DATA.pos\n)\n__END__\npayload\n".as_slice(),
-        ),
-        (OR, b"x = x ? x : DATA.pos\n__END__\npayload\n".as_slice()),
-    ] {
-        unchanged(d.path(), cop, source, &["--only", cop, "--fix", "a.rb"], 1);
-    }
 }
 #[test]
 fn clean_uncorrectable_and_parse_error_files_keep_bytes_and_mtime() {

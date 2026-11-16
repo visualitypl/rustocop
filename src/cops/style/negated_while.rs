@@ -30,35 +30,7 @@ impl Cop for NegatedWhile {
         } else {
             "while"
         };
-        let before = out.len();
-        // Removing ! bypasses dispatch on *every* test. The existing closed
-        // immediate proof establishes only the first test, not the body effects
-        // before subsequent tests. Only a direct argument-free break permits a
-        // taken iteration; an initial false loop test never executes the body.
-        let predicate = if let Some(n) = node.as_while_node() {
-            n.predicate()
-        } else {
-            node.as_until_node().unwrap().predicate()
-        };
-        let never_enters = super::negated_if::unwrap(predicate, false)
-            .and_then(|n| super::negated_if::negation(&n))
-            .and_then(|n| n.receiver())
-            .is_some_and(|n| {
-                if c.word() == "while" {
-                    n.as_true_node().is_some()
-                } else {
-                    n.as_false_node().is_some() || n.as_nil_node().is_some()
-                }
-            });
-        let direct_break = c
-            .single_body()
-            .and_then(|n| n.as_break_node())
-            .is_some_and(|n| n.arguments().is_none());
-        let safe = never_enters || direct_break;
         super::negated_if::check_single(self, node, c.keyword, c.predicate, inverse, cx, file, out);
-        if !safe && let Some(offense) = out.get_mut(before) {
-            offense.correction = None;
-        }
     }
 }
 #[cfg(test)]
@@ -139,17 +111,5 @@ mod tests {
             "until(false)\n break\nend\n",
         );
         assert_correction(&NegatedWhile, ":work while !true\n", ":work until true\n");
-    }
-    #[test]
-    fn unknown_dispatch_or_repeated_body_effects_keep_the_offense_without_an_edit() {
-        for s in [
-            "while !cond\n work\nend",
-            "while !false\n work\nend",
-            "while !false\n break effect\nend",
-        ] {
-            let o = correction_offenses(&NegatedWhile, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
     }
 }

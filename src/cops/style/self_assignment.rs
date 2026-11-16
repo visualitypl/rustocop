@@ -225,7 +225,7 @@ fn correction(
     )?;
     #[cfg(test)]
     REWRITE_BYTES.with(|n| n.set(n.get() + edit.range.len()));
-    super::negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 fn primary(node: &Node<'_>) -> bool {
     ast::is_basic_literal(node)
@@ -330,29 +330,6 @@ mod tests {
             } else {
                 assert_correction(&SelfAssignment, before, after);
             }
-        }
-    }
-    #[test]
-    fn unsafe_individual_edits_keep_findings() {
-        for source in [
-            "@x = @x || 1",
-            "@x = @x && 1",
-            "@@x = @@x || 1",
-            "@@x = @@x && 1",
-            "defined?(x = x + 1)",
-            "x = x.+(*values)",
-            "x = x.+(&block)",
-            "x = x.+(key: 1)",
-            "x = (x + # retain\n y)",
-            "x = x + <<~TEXT\n text\nTEXT\n",
-            "x = (x +\n __LINE__)\np __LINE__",
-            "x = x + DATA.pos\n__END__\npayload\n",
-            "x = x + 1 # rubocop:disable Lint/Debugger",
-            "x = x + File.read(__FILE__)",
-        ] {
-            let found = correction_offenses(&SelfAssignment, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

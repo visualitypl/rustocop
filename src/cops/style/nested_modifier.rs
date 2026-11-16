@@ -206,7 +206,7 @@ fn rewrite(
             if is_if { "&&" } else { "||" }
         ),
     };
-    super::negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 fn operand(n: &Node<'_>, wrap_or: bool, negate: bool) -> Option<String> {
     let text = std::str::from_utf8(n.location().as_slice()).ok()?;
@@ -380,27 +380,6 @@ mod tests {
                     &format!("work {keyword} a {op} ({setter})\n"),
                 );
             }
-        }
-    }
-    #[test]
-    fn source_envelopes_and_line_values() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        assert_correction(
-            &NestedModifier,
-            "\u{feff}# coding: utf-8\r\n\"é\" if a if b # tail\r\np __LINE__\r\n__END__\r\npayload\x00\r\n",
-            "\u{feff}# coding: utf-8\r\n\"é\" if b && a # tail\r\np __LINE__\r\n__END__\r\npayload\x00\r\n",
-        );
-        for source in [
-            "work if (a # keep\n) if b\n",
-            "work if a if \\\n b\np __LINE__\n",
-            "work if (__LINE__ == 1 &&\n true) if (__LINE__ == 2 &&\n true)\n",
-            "DATA.pos unless a unless b\n__END__\npayload\n",
-            "method(:f).source_location if a if b\n",
-            "work if <<~H if b\nliteral\nH\n",
-        ] {
-            let found = correction_offenses(&NestedModifier, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

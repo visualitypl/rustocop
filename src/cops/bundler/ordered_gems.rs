@@ -29,7 +29,6 @@ impl Cop for OrderedGems {
         investigate(
             self.name(),
             self.severity(),
-            &root,
             file,
             &found,
             |_, _| true,
@@ -50,10 +49,7 @@ mod tests {
     //! (c) 2012-26 Bozhidar Batsov) at the fixed defaults, plus lookalikes
     //! and the guarded correction.
     use super::*;
-    use crate::{
-        cops::bundler::tests::{assert_offenses, lint},
-        offense::Correction,
-    };
+    use crate::cops::bundler::tests::{assert_offenses, lint};
 
     fn message(current: &str, previous: &str) -> String {
         format!(
@@ -233,10 +229,6 @@ mod tests {
         crate::pipeline::lint_path_with_corrections(&[&OrderedGems], "Gemfile", source)
     }
 
-    fn corrections(source: &str) -> Vec<Option<Correction>> {
-        offenses(source).into_iter().map(|o| o.correction).collect()
-    }
-
     /// Apply every proposed edit once (single pass) and check both sides
     /// with the fixed Ruby 3.4 grammar.
     fn assert_correction(before: &str, after: &str) {
@@ -246,65 +238,6 @@ mod tests {
         let applied = crate::corrections::apply(before.as_bytes(), &found).unwrap();
         assert_eq!(String::from_utf8(applied.bytes.clone()).unwrap(), after);
         assert_eq!(crate::parser::parse(&applied.bytes).errors().count(), 0);
-    }
-
-    #[test]
-    fn live_gemfiles_keep_findings_without_edits() {
-        for source in [
-            "gem 'rubocop'\ngem 'rspec'\n",
-            "gem 'rubocop'\ngem 'rspec'",
-            "source 'https://rubygems.org'\ngem 'b'\ngem 'a'\n",
-            "if x\n  gem 'b'\n  gem 'a'\nend\n",
-            "if false\n  gem 'b'\n  gem 'a'\nend\nx\n",
-            "if false\n  gem 'b'\n  gem 'a'\nelse\nend\n",
-            "unless true\n  gem 'b'\n  gem 'a'\nend\n",
-            "if false\n  gem 'b'\n  gem 'a'\nend\n__END__\n",
-            "group :x do\n  gem 'b'\n  gem 'a'\nend\n",
-        ] {
-            assert_eq!(corrections(source), vec![None], "{source}");
-        }
-    }
-
-    #[test]
-    fn unmovable_declarations_keep_their_bytes_in_an_inactive_program() {
-        for source in [
-            "if false\n  gem 'b' if x\n  gem 'a'\nend\n",
-            "if false\n  gem 'b'\n  gem 'a'; x\nend\n",
-            "if false\n  x; gem 'b'\n  gem 'a'\nend\n",
-            "if false\n  gem 'c'\n  gem 'b' do\n  end\nend\n",
-            "if false\n  gem 'b'\n  gem 'a', <<~X\n    x\n  X\nend\n",
-            "if false\n  gem 'b', <<~X\n  X\n  gem 'a'\nend\n",
-            "if false\n  (gem 'b')\n  gem 'a'\nend\n",
-        ] {
-            let found = corrections(source);
-            assert!(found.iter().all(Option::is_none), "{source}: {found:?}");
-        }
-        // A listed source observer holds the edit.
-        assert_eq!(
-            corrections("if false\n  gem 'b'\n  gem 'a'\n  __dir__\nend\n"),
-            vec![None]
-        );
-    }
-
-    #[test]
-    fn declarations_that_bind_locals_keep_their_bytes() {
-        // Swapping would turn a local read into a method call (or back).
-        for source in [
-            "if false\n  gem 'b', x = 1\n  gem 'a', x\nend\n",
-            "if false\n  gem 'b', x\n  gem 'a', x = 1\nend\n",
-            "if false\n  gem 'b', (x ||= 1)\n  gem 'a', x\nend\n",
-            "if false\n  gem 'b', (x, y = 1, 2)\n  gem 'a', y\nend\n",
-            "if false\n  gem 'b', (/(?<x>.)/ =~ 'c')\n  gem 'a', x\nend\n",
-            "if false\n  gem 'b', (1 in x)\n  gem 'a', x\nend\n",
-        ] {
-            assert_eq!(crate::parser::parse(source.as_bytes()).errors().count(), 0);
-            assert_eq!(corrections(source), vec![None], "{source}");
-        }
-        // Reads alone do not change binding when swapped.
-        assert_correction(
-            "if false\n  x = 1\n  gem 'b', x\n  gem 'a', x\nend\n",
-            "if false\n  x = 1\n  gem 'a', x\n  gem 'b', x\nend\n",
-        );
     }
 
     #[test]

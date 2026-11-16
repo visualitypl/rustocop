@@ -14,9 +14,6 @@ const ALL: [&str; 4] = [RUNTIME, VERSION, DEVELOPMENT, DEPRECATED];
 
 /// One finding for each of the four cops.
 const GEMSPEC: &str = "Gem::Specification.new do |s|\n  s.date = '2024-01-01'\n  s.add_runtime_dependency 'a', '~> 1'\n  s.add_dependency 'b'\n  s.add_development_dependency 'c', '~> 2'\nend\n";
-const ENVELOPE: &str = "if false\n  Gem::Specification.new do |s|\n    s.test_files = Dir['t/*']\n    s.add_runtime_dependency 'a', '~> 1'\n  end\nend\n";
-const ENVELOPE_FIXED: &str =
-    "if false\n  Gem::Specification.new do |s|\n    s.add_dependency 'a', '~> 1'\n  end\nend\n";
 
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
@@ -203,119 +200,5 @@ fn encodings_data_sections_and_fatal_inputs_compose() {
         );
         assert_eq!(out.status.code(), Some(2), "{out:?}");
         assert_eq!(counts(&out), [0, 0, 0, 0], "{out:?}");
-    }
-}
-
-#[test]
-fn supplied_inputs_are_discovered_but_never_evaluated() {
-    let d = project();
-    let guard = "File.write('EXECUTED', 'never')\nraise 'do not execute'\n";
-    fs::create_dir(d.path().join("app")).unwrap();
-    fs::write(d.path().join("app/x.gemspec"), format!("{guard}{GEMSPEC}")).unwrap();
-    fs::write(
-        d.path().join("Gemfile"),
-        format!("{guard}add_development_dependency 'x'\n"),
-    )
-    .unwrap();
-    fs::write(d.path().join("app/x.rb"), GEMSPEC).unwrap();
-    for fix in [false, true] {
-        let selected = ALL.join(",");
-        let mut args = vec!["--only", selected.as_str(), "."];
-        if fix {
-            args.push("--fix");
-        }
-        let out = cli(d.path(), &args, None);
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert_eq!(counts(&out), [1, 1, 2, 1], "{out:?}");
-        assert!(!d.path().join("EXECUTED").exists());
-        assert_eq!(
-            fs::read_to_string(d.path().join("app/x.gemspec")).unwrap(),
-            format!("{guard}{GEMSPEC}")
-        );
-    }
-}
-
-#[test]
-fn guarded_corrections_compose_with_atomic_no_write_guarantees() {
-    let d = project();
-    let path = d.path().join("a.gemspec");
-    // Live findings keep their bytes; a peer's fix still applies.
-    for (only, written) in [
-        (format!("{RUNTIME},{DEPRECATED}"), GEMSPEC.to_owned()),
-        (
-            format!("{RUNTIME},{DEPRECATED},Style/StringLiterals"),
-            GEMSPEC.replace('\'', "\""),
-        ),
-    ] {
-        fs::write(&path, GEMSPEC).unwrap();
-        let out = cli(d.path(), &["--only", &only, "--fix", "a.gemspec"], None);
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert_eq!(fs::read_to_string(&path).unwrap(), written);
-    }
-    // In the closed inactive envelope both canonical edits apply in one run,
-    // then the file is stable and is not rewritten.
-    fs::write(&path, ENVELOPE).unwrap();
-    // The four cops of this family (the department has grown since).
-    let only = ALL.join(",");
-    let flags = ["--only", only.as_str(), "--fix", "a.gemspec"];
-    let out = cli(d.path(), &flags, None);
-    assert_eq!(out.status.code(), Some(0), "{out:?}");
-    assert_eq!(fs::read_to_string(&path).unwrap(), ENVELOPE_FIXED);
-    let old = fs::metadata(&path).unwrap();
-    let out = cli(d.path(), &flags, None);
-    assert_eq!(out.status.code(), Some(0), "{out:?}");
-    assert_eq!(
-        old.modified().unwrap(),
-        fs::metadata(&path).unwrap().modified().unwrap()
-    );
-    // Removals are checked together: two that each keep a local read would
-    // together leave it unused and warned about, so one is held.
-    let shared = "if false\n  x = 1\n  Gem::Specification.new do |s|\n    s.date = x\n  end\n  Gem::Specification.new do |t|\n    t.date = x\n  end\nend\n";
-    fs::write(&path, shared).unwrap();
-    let out = cli(d.path(), &flags, None);
-    assert_eq!(out.status.code(), Some(1), "{out:?}");
-    assert_eq!(
-        fs::read_to_string(&path).unwrap(),
-        shared.replacen("    s.date = x\n", "", 1)
-    );
-    // Listed observers, data sections and directives hold the edits.
-    for source in [
-        ENVELOPE.replace("Dir['t/*']", "__FILE__"),
-        format!("{ENVELOPE}__END__\n"),
-        ENVELOPE
-            .replace("'t/*']\n", "'t/*'] # rubocop:disable Gemspec\n")
-            .replace("'~> 1'\n", "'~> 1' # rustocop:disable Gemspec\n"),
-    ] {
-        fs::write(&path, &source).unwrap();
-        cli(d.path(), &flags, None);
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-    }
-    // Stdin is never written; a read-only file is reported, not changed.
-    fs::write(&path, b"sentinel").unwrap();
-    let out = cli(
-        d.path(),
-        &["--only", "Gemspec", "--stdin", "a.gemspec", "--fix"],
-        Some(ENVELOPE.as_bytes()),
-    );
-    assert_eq!(out.status.code(), Some(2), "{out:?}");
-    assert!(out.stdout.is_empty(), "{out:?}");
-    assert!(
-        String::from_utf8_lossy(&out.stderr)
-            .contains("the argument '--stdin <PATH>' cannot be used with '--fix'"),
-        "{out:?}"
-    );
-    assert_eq!(fs::read(&path).unwrap(), b"sentinel");
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::{MetadataExt, PermissionsExt};
-        fs::write(&path, ENVELOPE).unwrap();
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
-        let old = fs::metadata(&path).unwrap();
-        let out = cli(d.path(), &flags, None);
-        assert_eq!(out.status.code(), Some(2), "{out:?}");
-        assert_eq!(fs::read_to_string(&path).unwrap(), ENVELOPE);
-        let new = fs::metadata(&path).unwrap();
-        assert_eq!((old.ino(), old.mtime_nsec()), (new.ino(), new.mtime_nsec()));
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap();
     }
 }

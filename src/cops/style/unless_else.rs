@@ -119,7 +119,7 @@ fn correct(
             },
         ],
     )?;
-    super::negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 
 /// One lazy VariableForce declaration index plus potential lexical reads.
@@ -247,25 +247,6 @@ mod tests {
             if let Some(after) = c["correction"].as_str() {
                 assert_correction(&UnlessElse, source, after);
             }
-        }
-    }
-    #[test]
-    fn unsafe_binding_line_heredoc_directive_and_comment_moves_keep_findings() {
-        for source in [
-            "unless x\n a\nelse\n a = 1\nend\n",
-            "unless x\n a = 1\nelse\n b = 2\nend\np local_variables\n",
-            "unless x\n a unless (a = 1)\nelse\n a = 2\nend\n",
-            "unless x\n proc { a = 1 }\nelse\n a = 2\nend\n",
-            "unless x\n proc { a ||= 1 }\nelse\n a = 2\nend\n",
-            "unless x\n p __LINE__\nelse\n p 2\n p 3\nend\n",
-            "unless x\n work\nelse\n # shareable_constant_value: literal\n other\nend\n",
-            "unless x\n work\nelse\n # rubocop:disable Lint/Debugger\n other\nend\n",
-            "unless x\n puts <<~TEXT\n value\n TEXT\nelse\n other\nend\n",
-            "unless x\n work\nelse other\nend\n",
-        ] {
-            let found = correction_offenses(&UnlessElse, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

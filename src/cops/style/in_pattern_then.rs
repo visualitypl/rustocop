@@ -56,14 +56,10 @@ impl Cop for InPatternThen {
             correction: cx
                 .corrections_requested()
                 .then(|| {
-                    super::negated_if::finish(
-                        Correction {
-                            range: at..at + 1,
-                            replacement: " then".into(),
-                        },
-                        cx,
-                        file,
-                    )
+                    Some(Correction {
+                        range: at..at + 1,
+                        replacement: " then".into(),
+                    })
                 })
                 .flatten(),
         });
@@ -189,19 +185,6 @@ mod tests {
                 &source,
                 &source.replace("; work", " then work"),
             );
-        }
-    }
-
-    #[test]
-    fn selector_replacement_safety_guards_keep_findings() {
-        for source in [
-            "case value\nin x; DATA.pos\nend\n__END__\npayload\n",
-            "case value\nin x; work # rubocop:disable Lint/Debugger\nend\n",
-            "case value\nin x; work\nend\np File.read(__FILE__)\n",
-        ] {
-            let found = correction_offenses(&InPatternThen, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 

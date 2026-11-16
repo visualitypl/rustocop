@@ -239,7 +239,7 @@ fn correct(
         });
     }
     let edit = super::correction::combine(file, edits)?;
-    negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 fn transparent(n: &Node<'_>) -> bool {
     if let Some(p) = n.as_parentheses_node() {

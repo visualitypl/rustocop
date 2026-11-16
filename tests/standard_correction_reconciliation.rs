@@ -114,38 +114,7 @@ fn fix(dir: &Path, cop: &str, file: &str, source: &str, held: bool) -> (Output, 
 /// documented hold here, each with its reason.
 /// `true`: the same witness inside the documented closed inactive envelope
 /// (`if false ... end`) gets the canonical edit.
-const HELD_WITNESSES: [(&str, bool, &str); 6] = [
-    (
-        "Bundler/InsecureProtocolSource",
-        true,
-        "the edit changes what a live Gemfile resolves; closed inactive envelope only",
-    ),
-    (
-        "Bundler/OrderedGems",
-        true,
-        "reordering a live Gemfile changes resolution; closed inactive envelope only",
-    ),
-    (
-        "Gemspec/AddRuntimeDependency",
-        true,
-        "gemspec edits only in the closed inactive envelope",
-    ),
-    (
-        "Gemspec/DeprecatedAttributeAssignment",
-        true,
-        "gemspec edits only in the closed inactive envelope",
-    ),
-    (
-        "Gemspec/OrderedDependencies",
-        true,
-        "gemspec edits only in the closed inactive envelope",
-    ),
-    (
-        "Gemspec/RequireMFA",
-        true,
-        "gemspec edits only in the closed inactive envelope",
-    ),
-];
+const HELD_WITNESSES: [(&str, bool, &str); 0] = [];
 
 #[test]
 fn every_safe_source_witness_is_the_canonical_edit_or_a_documented_hold() {

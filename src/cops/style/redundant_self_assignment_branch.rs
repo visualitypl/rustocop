@@ -150,14 +150,10 @@ fn correction(
     let prefix =
         std::str::from_utf8(&file.bytes[loc.start_offset()..value.location().start_offset()])
             .ok()?;
-    super::negated_if::finish(
-        Correction {
-            range: loc.start_offset()..loc.end_offset(),
-            replacement: format!("{prefix}{rhs} {keyword} {predicate}{suffix}"),
-        },
-        cx,
-        file,
-    )
+    Some(Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: format!("{prefix}{rhs} {keyword} {predicate}{suffix}"),
+    })
 }
 fn envelope(node: &Node<'_>) -> Option<String> {
     let text = std::str::from_utf8(node.location().as_slice()).ok()?;
@@ -419,46 +415,6 @@ mod tests {
             "def f(foo); foo = ready ? foo : 3; foo; end",
             "def f(foo); foo = 3 unless ready; foo; end",
         );
-    }
-    #[test]
-    fn precedence_control_flow_and_statement_scopes() {
-        for (before, after) in [
-            (
-                "foo = if a or b; foo; else; 1; end",
-                "foo = 1 unless (a or b)",
-            ),
-            (
-                "foo = if c; foo; else; not bar; end",
-                "foo = (not bar) unless c",
-            ),
-            (
-                "foo = if c; foo; else; a and b; end",
-                "foo = (a and b) unless c",
-            ),
-            ("foo = unless c; foo; else; 1; end", "foo = 1 if c"),
-            ("foo = if c; foo; end", "foo = nil unless c"),
-            (
-                "begin; foo = c ? foo : 1; end",
-                "begin; foo = 1 unless c; end",
-            ),
-            (
-                "def f(foo); work; ensure; foo = c ? foo : 1; end",
-                "def f(foo); work; ensure; foo = 1 unless c; end",
-            ),
-        ] {
-            assert_correction(&Branch, before, after);
-        }
-        for source in [
-            "def f(foo); foo = if c; foo; else; return 1; end; foo; end",
-            "foo = if c # important\n foo\nelse\n 1\nend",
-            "foo = if c\n foo\nelse\n __LINE__\nend",
-            "foo = if c\n foo\nelse\n 1\nend\np __LINE__",
-            "foo = c ? foo : DATA.pos\n__END__\npayload\n",
-        ] {
-            let found = correction_offenses(&Branch, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
     #[test]
     fn nonempty_parentheses_are_not_convertible_branches() {

@@ -480,14 +480,10 @@ fn correction(
     } else {
         lines.join(&format!("{newline}{indent}"))
     };
-    super::negated_if::finish(
-        Correction {
-            range: loc.start_offset()..envelope.location().end_offset(),
-            replacement,
-        },
-        cx,
-        file,
-    )
+    Some(Correction {
+        range: loc.start_offset()..envelope.location().end_offset(),
+        replacement,
+    })
 }
 struct Pure<'a> {
     safe: bool,

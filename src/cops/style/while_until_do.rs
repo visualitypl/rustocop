@@ -44,14 +44,10 @@ impl Cop for WhileUntilDo {
             // expression as the right endpoint and change loop execution.
             && !super::multiline_if_then::ends_with_open_range(&c.predicate)
         {
-            super::negated_if::finish(
-                Correction {
-                    range,
-                    replacement: String::new(),
-                },
-                cx,
-                file,
-            )
+            Some(Correction {
+                range,
+                replacement: String::new(),
+            })
         } else {
             None
         };

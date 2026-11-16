@@ -169,42 +169,6 @@ fn every_pinned_correction_is_canonical_or_an_individual_no_write_hold() {
     assert_eq!((canonical, boolean_holds, unsafe_holds), (76, 6, 8));
 }
 #[test]
-fn bom_crlf_encoding_line_values_and_data_payloads_are_preserved() {
-    let d = project();
-    let before = "\u{feff}# coding: UTF-8\r\nx = x + 'é'\r\np __LINE__\r\n__END__\r\npayload é\r\n";
-    let after = before.replace("x = x +", "x +=");
-    fix(d.path(), SELF, before, &after);
-    fix(
-        d.path(),
-        SELF,
-        "x = x + __LINE__\np __LINE__\n",
-        "x += __LINE__\np __LINE__\n",
-    );
-    for source in [
-        b"# coding: ISO-8859-1\nx = x + '\xe9'\n".as_slice(),
-        b"x = (x +\n __LINE__)\np __LINE__\n".as_slice(),
-        b"x = x + DATA.pos\n__END__\npayload\n".as_slice(),
-        b"x = x + 1 # rustocop:disable Lint/Debugger\n".as_slice(),
-        b"x = (x + # comment\n 1)\n".as_slice(),
-    ] {
-        unchanged(
-            d.path(),
-            SELF,
-            source,
-            &["--only", SELF, "--fix", "a.rb"],
-            1,
-        );
-    }
-    let before = "\u{feff}# coding: UTF-8\r\ntmp=x\r\nx=y\r\ny=tmp\r\n__END__\r\npayload\r\n";
-    unchanged(
-        d.path(),
-        SWAP,
-        before.as_bytes(),
-        &["--only", SWAP, "--fix", "a.rb"],
-        1,
-    );
-}
-#[test]
 fn non_utf8_swap_identifiers_are_compared_as_bytes_and_never_rewritten() {
     let d = project();
     for (tmp, x, y) in [

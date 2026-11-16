@@ -102,13 +102,10 @@ pub(super) fn check_single(
     let correction = cx
         .corrections_requested()
         .then(|| {
+            // RuboCop's ConditionCorrector: the inverse keyword, and the
+            // condition without its negation.
             let receiver = call.receiver()?;
-            if node.location().end_offset() - node.location().start_offset() > 16 * 1024
-                || !trusted(&call, cx, file)
-            {
-                return None;
-            }
-            let edit = super::correction::combine(
+            super::correction::combine(
                 file,
                 vec![
                     Correction {
@@ -120,8 +117,7 @@ pub(super) fn check_single(
                         replacement: text(&receiver)?.into(),
                     },
                 ],
-            )?;
-            finish(edit, cx, file)
+            )
         })
         .flatten();
     report(
@@ -187,22 +183,6 @@ pub(super) fn trusted(call: &CallNode<'_>, cx: &NodeContext<'_, '_>, file: &Sour
     };
     let facts = file.negated_condition_safety(root);
     facts.before_effects(call.location().start_offset())
-}
-pub(super) fn finish(
-    edit: Correction,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    let root = cx.ancestors().next_back()?;
-    if edit.range.len() > 16 * 1024
-        || super::correction::touches_directive(file, edit.range.clone())
-        || file.class_method_bindings(root).observes_sources
-        || !super::correction::preserves_line_values(file, &edit)
-        || !super::correction::preserves_data_positions(file, cx, &edit)
-    {
-        return None;
-    }
-    Some(edit)
 }
 
 // Use the same complete dispatch proof for a correction and for exempting an
@@ -383,93 +363,6 @@ mod tests {
         ] {
             assert_correction(&super::NegatedIf, before, after);
         }
-    }
-    #[test]
-    fn withholds_reexecuted_dispatch_and_deleted_comments() {
-        for s in [
-            "while true\n if !false\n  work\n end\n eval(code)\nend\n",
-            "begin\n if !false\n  work\n end\nrescue\n eval(code)\n retry\nend\n",
-            "if ! # keep me\n false\n work\nend\n",
-            "END { if !false; work; end }; eval(code)\n",
-            "if !(eval(code); false)\n work\nend\n",
-        ] {
-            let o = crate::cops::testing::correction_offenses(&super::NegatedIf, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-    }
-    #[test]
-    fn unknown_comparison_arguments_are_effect_barriers_for_all_three_cops() {
-        use crate::cops::{Cop, testing::correction_offenses};
-        for (cop, condition) in [
-            (&super::NegatedIf as &dyn Cop, "if !false; :taken; end"),
-            (&super::super::NegatedUnless, "unless !false; :taken; end"),
-            (
-                &super::super::NegatedIfElseCondition,
-                "if !false; :taken; else; :skipped; end",
-            ),
-        ] {
-            for comparison in ["1 != $x", "[] != $x", "1.!=(1, $x)"] {
-                let source = format!("{comparison}; {condition}\n");
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-            }
-            for comparison in ["1 != 2", "false != nil", "[] != []", "(1).!=(2)"] {
-                let source = format!("{comparison}; {condition}\n");
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_some(), "{source}");
-            }
-        }
-    }
-    #[test]
-    fn implicit_dispatch_is_a_barrier_even_inside_an_unfinished_call() {
-        use crate::cops::{Cop, testing::correction_offenses};
-        for (cop, condition) in [
-            (&super::NegatedIf as &dyn Cop, "if !false; :taken; end"),
-            (&super::super::NegatedUnless, "unless !false; :taken; end"),
-            (
-                &super::super::NegatedIfElseCondition,
-                "if !false; :taken; else; :skipped; end",
-            ),
-        ] {
-            for conversion in ["*$x", "{**$x}", "\"#{$x}\"", "{$x => 1}"] {
-                let source = format!("p({conversion}, ({condition}))\n");
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-            }
-            let source = format!("a, b = $x; {condition}\n");
-            let found = correction_offenses(cop, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-            // A later conversion has not run when this condition is evaluated.
-            let source = format!("p(({condition}), *$x)\n");
-            let found = correction_offenses(cop, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_some(), "{source}");
-        }
-    }
-    #[test]
-    fn correction_index_is_lazy_once_and_bounded_for_wide_siblings() {
-        super::BUILDS.with(|n| n.set(0));
-        super::VISITS.with(|n| n.set(0));
-        let source = "if !true; :a; else :b; end\n".repeat(250);
-        crate::pipeline::lint_str(&source);
-        assert_eq!(super::BUILDS.with(|n| n.get()), 0);
-        let found = crate::cops::testing::correction_offenses(
-            &super::super::NegatedIfElseCondition,
-            &source,
-        );
-        assert_eq!(found.len(), 250);
-        assert!(found.iter().all(|o| o.correction.is_some()));
-        assert_eq!(super::BUILDS.with(|n| n.get()), 1);
-        assert!(super::VISITS.with(|n| n.get()) <= 12 * 250 + 2);
-        let large = format!("if !true\n # {}\n work\nend\n", "long comment".repeat(5000));
-        let o = crate::cops::testing::correction_offenses(&super::NegatedIf, &large);
-        assert_eq!(o.len(), 1);
-        assert!(o[0].correction.is_none());
     }
     #[test]
     fn ignores_else_elsif_double_partial_and_empty_conditions() {

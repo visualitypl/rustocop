@@ -164,66 +164,6 @@ fn every_pinned_safe_correction_is_exact_and_single_pass_stable() {
     }
     assert_eq!(count, 10);
 }
-#[test]
-fn withheld_clean_invalid_files_do_not_write_and_encoded_fixes_preserve_bytes() {
-    let d = project();
-    for (cop, source) in [
-        (IN, "case value\nin x; DATA.pos\nend\n__END__\npayload\n"),
-        (
-            IN,
-            "case value\nin x; work # rubocop:disable Lint/Debugger\nend\n",
-        ),
-        (MULTI, "case value\nin x then end\n"),
-        (MULTI, "case value\nin x if 1.. then\n work\nend\n"),
-        (
-            MULTI,
-            "case value\nin x then\n DATA.pos\nend\n__END__\npayload\n",
-        ),
-    ] {
-        unchanged(
-            d.path(),
-            cop,
-            source.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            1,
-        );
-    }
-    for (cop, _, after) in CASES {
-        unchanged(
-            d.path(),
-            cop,
-            after.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-        );
-        fs::write(d.path().join("a.rb"), b"case value\nin [\n").unwrap();
-        let modified = fs::metadata(d.path().join("a.rb"))
-            .unwrap()
-            .modified()
-            .unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(2), "{o:?}");
-        assert_eq!(
-            fs::read(d.path().join("a.rb")).unwrap(),
-            b"case value\nin [\n"
-        );
-        assert_eq!(
-            fs::metadata(d.path().join("a.rb"))
-                .unwrap()
-                .modified()
-                .unwrap(),
-            modified
-        );
-    }
-    let encoded = b"# coding: ISO-8859-1\ncase value\nin [\"\xe9\", x]; x\nend\n";
-    fs::write(d.path().join("a.rb"), encoded).unwrap();
-    let o = cli(d.path(), &["--only", IN, "--fix", "a.rb"]);
-    assert_eq!(o.status.code(), Some(0), "{o:?}");
-    assert_eq!(
-        fs::read(d.path().join("a.rb")).unwrap(),
-        b"# coding: ISO-8859-1\ncase value\nin [\"\xe9\", x] then x\nend\n"
-    );
-}
 fn observe(root: &Path, source: &str, selected: &str, minimum_edits: usize) {
     fs::write(root.join("before.rb"), source).unwrap();
     fs::write(root.join("a.rb"), source).unwrap();

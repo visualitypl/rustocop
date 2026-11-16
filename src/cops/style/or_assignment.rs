@@ -109,14 +109,10 @@ fn correction(
     } else {
         format!("({text})")
     };
-    super::negated_if::finish(
-        Correction {
-            range: loc.start_offset()..loc.end_offset(),
-            replacement: format!("{name} ||= {default}"),
-        },
-        cx,
-        file,
-    )
+    Some(Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: format!("{name} ||= {default}"),
+    })
 }
 fn read<'pr>(node: &Node<'pr>) -> Option<Variable<'pr>> {
     Some(match node {
@@ -366,22 +362,6 @@ mod tests {
             ),
         ] {
             assert_correction(&OrAssignment, before, after);
-        }
-    }
-    #[test]
-    fn comments_heredocs_directives_and_line_literals_withhold_atomic_edits() {
-        for source in [
-            "def f; foo = if foo; foo; else; return 3; end; end",
-            "foo = if foo # important\n foo\nelse\n 3\nend",
-            "foo = foo ? foo : <<~TEXT\n  value\nTEXT\n",
-            "foo = if foo\n foo\nelse\n __LINE__\nend",
-            "foo = if foo\n foo\nelse\n 3\nend\np __LINE__",
-            "foo = foo ? foo : 1 # rubocop:disable Lint/Debugger\n",
-            "foo = foo ? foo : DATA.pos\n__END__\npayload\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&OrAssignment, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

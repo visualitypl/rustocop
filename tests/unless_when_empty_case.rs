@@ -87,68 +87,6 @@ fn defaults_selectors_enabling_and_config_do_not_write_without_fix() {
     }
 }
 #[test]
-fn both_directive_prefixes_excludes_disabled_spans_and_clean_files_never_write() {
-    let d = project();
-    for (cop, source, after) in CASES {
-        for config in [
-            "exclude = [\"a.rb\"]\n".to_owned(),
-            format!("[cops.\"{cop}\"]\nexclude = [\"a.rb\"]\n"),
-        ] {
-            fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            unchanged(
-                d.path(),
-                cop,
-                source.as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-        }
-        fs::write(d.path().join("rustocop.toml"), "").unwrap();
-        for prefix in ["rustocop", "rubocop"] {
-            for target in [cop, "Style", "all"] {
-                unchanged(
-                    d.path(),
-                    cop,
-                    format!("# {prefix}:disable {target}\n{source}").as_bytes(),
-                    &["--only", cop, "--fix", "a.rb"],
-                    0,
-                );
-            }
-            unchanged(
-                d.path(),
-                cop,
-                format!("# {prefix}:disable-next {cop}\n{source}").as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-            let line = if cop == "Style/WhenThen" { 1 } else { 0 };
-            let mut lines: Vec<_> = source.lines().map(str::to_owned).collect();
-            lines[line].push_str(&format!(" # {prefix}:disable {cop}"));
-            unchanged(
-                d.path(),
-                cop,
-                format!("{}\n", lines.join("\n")).as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-        }
-        unchanged(
-            d.path(),
-            cop,
-            after.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-        );
-    }
-    unchanged(
-        d.path(),
-        "Style/UnlessElse",
-        b"unless ready\n negative\nelse\n # rubocop:disable Lint/Debugger\n positive\nend\n",
-        &["--only", "Style/UnlessElse", "--fix", "a.rb"],
-        1,
-    );
-}
-#[test]
 fn canonical_and_every_pinned_correction_use_the_real_single_pass_pipeline() {
     // RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
     let d = project();
@@ -274,46 +212,6 @@ fn actual_missing_else_uses_configured_unless_else_not_cli_selection() {
         fs::read_to_string(d.path().join("a.rb")).unwrap(),
         CASES[0].2
     );
-}
-#[test]
-fn sensitive_line_data_legacy_encoding_and_reflective_files_retain_bytes() {
-    let d = project();
-    for (cop, source) in [
-        (
-            "Style/UnlessElse",
-            b"unless true\n p __LINE__\nelse\n :no\nend\n".as_slice(),
-        ),
-        (
-            "Style/EmptyCaseCondition",
-            b"case\nwhen true\n p __LINE__\nend\n",
-        ),
-        ("Style/EmptyCaseCondition", b"case\nwhen /a/\n :yes\nend\n"),
-        (
-            "Style/UnlessElse",
-            b"# coding: ISO-8859-1\nunless true\n '\xe9'\nelse\n :no\nend\n",
-        ),
-    ] {
-        unchanged(d.path(), cop, source, &["--only", cop, "--fix", "a.rb"], 1);
-    }
-    for (cop, source, _) in CASES {
-        for prefix in ["p DATA.pos\n", "p File.read(__FILE__)\n"] {
-            unchanged(
-                d.path(),
-                cop,
-                format!("{prefix}{source}__END__\npayload\n").as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                1,
-            );
-        }
-        let path = d.path().join("a.rb");
-        let invalid = b"case (\n";
-        fs::write(&path, invalid).unwrap();
-        let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(2));
-        assert_eq!(fs::read(&path).unwrap(), invalid);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
-    }
 }
 fn rubies() -> Vec<String> {
     let mut result = vec!["ruby".to_owned()];

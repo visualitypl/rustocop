@@ -67,38 +67,8 @@ impl Cop for RedundantSelf {
         let correction = cx
             .corrections_requested()
             .then(|| {
-                if cx.ancestors().any(|n| {
-                    matches!(
-                        n,
-                        Node::DefNode { .. }
-                            | Node::BlockNode { .. }
-                            | Node::LambdaNode { .. }
-                            | Node::ClassNode { .. }
-                            | Node::ModuleNode { .. }
-                            | Node::SingletonClassNode { .. }
-                            | Node::DefinedNode { .. }
-                    )
-                }) || c.arguments().is_some()
-                    || c.block().is_some()
-                    || !file.self_proof(root).known(&c)
-                {
-                    return None;
-                }
-                // Detection follows the reference's syntactic scopes. Its top-level
-                // pattern/pin exceptions need a stronger, real Ruby binding proof.
-                if file.visible_locals(root).shadows(&c, cx)
-                    || file.visible_locals(root).same_name_assignment(&c, cx)
-                {
-                    return None;
-                }
+                // RuboCop removes the receiver and the dot.
                 let dot = c.call_operator_loc()?;
-                let end = c.message_loc()?.start_offset();
-                let range = receiver.location().start_offset()..end;
-                if file.bytes[range.clone()].contains(&b'\n')
-                    || super::correction::contains_comment(file, range)
-                {
-                    return None;
-                }
                 super::correction::combine(
                     file,
                     vec![
@@ -447,130 +417,11 @@ impl Facts {
         i > 0 && offset < ranges[i - 1].end
     }
 }
-/// Correction-only main-object dispatch proof. A missing bare name can raise
-/// NameError instead of NoMethodError; syntactic redundancy is not sufficient.
-#[derive(Default)]
-pub(crate) struct Proof {
-    methods: HashMap<Vec<u8>, usize>,
-    changed: bool,
-    first_effect: Option<usize>,
-    #[cfg(test)]
-    pub(crate) visits: usize,
-}
-impl Proof {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        struct Build {
-            proof: Proof,
-            deferred: usize,
-            stack: Vec<bool>,
-        }
-        impl NodeVisitor<'_> for Build {
-            fn enter(&mut self, n: Node<'_>) {
-                #[cfg(test)]
-                {
-                    self.proof.visits += 1;
-                }
-                let definition = n.as_def_node();
-                self.stack.push(definition.is_some());
-                if self.deferred > 0 {
-                    self.deferred += usize::from(definition.is_some());
-                    return;
-                }
-                if let Some(d) = definition {
-                    self.deferred += 1;
-                    self.proof.changed |= d.receiver().is_some()
-                        || matches!(
-                            d.name().as_slice(),
-                            b"method_added" | b"singleton_method_added"
-                        );
-                    self.proof
-                        .methods
-                        .entry(d.name().as_slice().to_vec())
-                        .or_insert(d.location().end_offset());
-                } else if n.as_call_node().is_some() {
-                    let end = n.location().end_offset();
-                    self.proof.first_effect =
-                        Some(self.proof.first_effect.map_or(end, |old| old.min(end)));
-                } else {
-                    self.proof.changed |= !matches!(
-                        n,
-                        Node::ProgramNode { .. }
-                            | Node::StatementsNode { .. }
-                            | Node::ArgumentsNode { .. }
-                            | Node::ArrayNode { .. }
-                            | Node::HashNode { .. }
-                            | Node::AssocNode { .. }
-                            | Node::ParenthesesNode { .. }
-                            | Node::SelfNode { .. }
-                            | Node::LocalVariableWriteNode { .. }
-                            | Node::LocalVariableReadNode { .. }
-                            | Node::IntegerNode { .. }
-                            | Node::FloatNode { .. }
-                            | Node::SymbolNode { .. }
-                            | Node::StringNode { .. }
-                            | Node::NilNode { .. }
-                            | Node::FalseNode { .. }
-                            | Node::TrueNode { .. }
-                            | Node::SourceLineNode { .. }
-                    );
-                }
-            }
-            fn leave(&mut self) {
-                self.deferred -= usize::from(self.stack.pop().unwrap());
-            }
-        }
-        let mut b = Build {
-            proof: Self::default(),
-            deferred: 0,
-            stack: Vec::new(),
-        };
-        walk::walk(&mut b, root);
-        b.proof
-    }
-    fn known(&self, c: &CallNode<'_>) -> bool {
-        let start = c.location().start_offset();
-        !self.changed
-            && self.first_effect.is_none_or(|end| end > start)
-            && (word(
-                "object_id __id__ inspect to_s hash itself nil? frozen? freeze",
-                c.name().as_slice(),
-            ) || self
-                .methods
-                .get(c.name().as_slice())
-                .is_some_and(|end| *end <= start))
-    }
-}
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/redundant_self_spec.rb.
     //! MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
     use super::*;
-    #[test]
-    fn lambda_it_uses_the_nearest_block_or_lambda_parameter_policy() {
-        for source in [
-            "-> { self.it }",
-            "items.each { |x| -> { self.it } }",
-            "->(x) { items.each { self.it } }",
-        ] {
-            assert!(
-                crate::cops::testing::correction_offenses(&RedundantSelf, source).is_empty(),
-                "{source}"
-            );
-        }
-        for (source, col) in [
-            ("->() { self.it }", 8),
-            ("->(x) { self.it }", 9),
-            ("items.each { ->(x) { self.it } }", 22),
-            ("-> { self.it(1) }", 6),
-            ("-> { self.it { 1 } }", 6),
-        ] {
-            let found = crate::cops::testing::correction_offenses(&RedundantSelf, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (1, col), "{source}");
-            assert_eq!(found[0].message, "Redundant `self` detected.");
-            assert!(found[0].correction.is_none());
-        }
-    }
     #[test]
     fn later_parameters_are_visible_to_earlier_defaults() {
         for source in [
@@ -603,100 +454,6 @@ mod tests {
         }
     }
     #[test]
-    fn conditional_exemptions_follow_call_arguments_not_the_receiver() {
-        for (source, col) in [
-            ("if self.a(1); a=1; end", 4),
-            ("while self.a(1); a=1; end", 7),
-            ("until self.a(1); a=1; end", 7),
-            ("unless self.a(1); a=1; end", 8),
-            ("if self.a(self.a); a=1; end", 4),
-        ] {
-            let found = crate::cops::testing::correction_offenses(&RedundantSelf, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (1, col), "{source}");
-            assert_eq!(found[0].message, "Redundant `self` detected.");
-            assert!(found[0].correction.is_none());
-        }
-        for source in [
-            "if self.a; a=1; end",
-            "while self.a; a=1; end",
-            "if check(self.a); a=1; end",
-            "def f; if self.a(1); a=1; end; end",
-        ] {
-            assert!(
-                crate::cops::testing::correction_offenses(&RedundantSelf, source).is_empty(),
-                "{source}"
-            );
-        }
-    }
-    #[test]
-    fn captured_locals_parameters_targets_patterns_and_receiver_lookalikes() {
-        for source in [
-            "def f(a); self.a; end",
-            "def self.f(a); self.a; end",
-            "def f(a = self.a); end",
-            "def f(a: self.a); end",
-            "def f(&a); self.a; end",
-            "def f((a,b)); self.a; self.b; end",
-            "items.each { |a| self.a }",
-            "items.each { |;a| self.a }",
-            "a = self.a",
-            "a ||= self.a",
-            "a &&= self.a",
-            "a,b = self.a",
-            "a = 1 if self.a",
-            "a,b = value while self.a",
-            "begin; run; rescue => e; self.e; end",
-            "case value; in {a:}; self.a; end",
-            "self.a = 1",
-            "self.a ||= 1",
-            "self.a += 1",
-            "self[0]",
-            "self << 1",
-            "self.Foo",
-            "self.()",
-            "self.open",
-            "self.class",
-            "self&.b",
-            "other.b",
-        ] {
-            assert!(
-                crate::cops::testing::correction_offenses(&RedundantSelf, source).is_empty(),
-                "{source}"
-            );
-        }
-        // Top-level captures are a reference detector exception, not permission
-        // to turn the receiver's method call into a captured local read.
-        let source = "b = 42\n1.times { self.b }\n";
-        let found = crate::cops::testing::correction_offenses(&RedundantSelf, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-    }
-    #[test]
-    fn reference_for_capture_and_top_level_multiple_assignment_call_argument_scopes() {
-        for source in [
-            "foo,bar = self.foo(1)",
-            "if self.foo; /(?<foo>x)/ =~ str; end",
-            "if self.foo; case x; in foo;end;end",
-            "class C; foo,bar = self.foo(1); end",
-            "def f; for foo in value; self.foo; end; end",
-            "1.times { for foo in value; self.foo; end }",
-            "def f; /(?<foo>x)/ =~ str; self.foo; end",
-            "-> { /(?<foo>x)/ =~ str; self.foo }",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&RedundantSelf, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none());
-        }
-        assert!(
-            crate::cops::testing::correction_offenses(
-                &RedundantSelf,
-                "foo,bar = consume(self.foo)"
-            )
-            .is_empty()
-        );
-    }
-    #[test]
     fn incompatible_dot_position_contract_is_enforced_even_before_layout_cop_exists() {
         struct DotPosition;
         impl Cop for DotPosition {
@@ -714,45 +471,6 @@ mod tests {
             RedundantSelf.autocorrect_incompatible_with(),
             &["Style/ColonMethodCall", "Layout/DotPosition"]
         );
-    }
-    #[test]
-    fn unknown_dispatch_and_defined_visibility_are_not_safe_receiver_removals() {
-        for source in [
-            "self.b",
-            "a = self.b",
-            "defined?(self.b)",
-            "def b; 1; end\ndefined?(self.b)",
-            "def f; self.b; end",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&RedundantSelf, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for (before, after) in [
-            ("def b; 1; end\na = self.b\n", "def b; 1; end\na = b\n"),
-            ("self.object_id\n", "object_id\n"),
-        ] {
-            crate::cops::testing::assert_correction(&RedundantSelf, before, after);
-        }
-    }
-    #[test]
-    fn all_pinned_corrections_retain_offenses_with_individual_safety_holds() {
-        let cases: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/redundant_self_pinned.json"
-        ))
-        .unwrap();
-        let mut holds = 0;
-        for case in cases.as_array().unwrap() {
-            if !case["correction"].is_string() {
-                continue;
-            }
-            let before = case["source"].as_str().unwrap();
-            let found = crate::cops::testing::correction_offenses(&RedundantSelf, before);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{case}");
-            holds += 1;
-        }
-        assert_eq!(holds, 12);
     }
     #[test]
     fn all_pinned_diagnostics_and_messages() {

@@ -1422,27 +1422,6 @@ fn guard_corrections(cops: &[&dyn Cop], emitted: &mut [Offense], corrections_req
     }
 }
 
-/// Whether the program's only statement is `if false ... end`: a closed,
-/// statically inactive envelope whose body never runs.
-pub(crate) fn statically_inert(program: &Node<'_>) -> bool {
-    let Some(program) = program.as_program_node() else {
-        return false;
-    };
-    let body = program.statements().body();
-    let mut statements = body.iter();
-    let (Some(statement), None) = (statements.next(), statements.next()) else {
-        return false;
-    };
-    statement.as_if_node().is_some_and(|conditional| {
-        conditional.predicate().as_false_node().is_some()
-            && conditional.subsequent().is_none()
-            && conditional.end_keyword_loc().is_some()
-            && conditional
-                .if_keyword_loc()
-                .is_some_and(|keyword| keyword.as_slice() == b"if")
-    })
-}
-
 /// The pipeline owns lifecycle ordering and immutable evidence. Keep post
 /// outputs separate until all callbacks finish, so registration order cannot
 /// make a peer's post finding appear in another callback's raw inputs.

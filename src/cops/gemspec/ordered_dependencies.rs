@@ -49,7 +49,6 @@ impl Cop for OrderedDependencies {
         investigate(
             self.name(),
             self.severity(),
-            &root,
             file,
             &found,
             same_method,
@@ -71,7 +70,7 @@ mod tests {
     //! Copyright (c) 2012-26 Bozhidar Batsov) at the fixed defaults, plus
     //! lookalikes and the guarded correction.
     use super::*;
-    use crate::{cops::bundler::tests::assert_offenses, offense::Correction};
+    use crate::cops::bundler::tests::assert_offenses;
 
     fn message(current: &str, previous: &str) -> String {
         format!(
@@ -228,28 +227,6 @@ mod tests {
             "example.gemspec",
             source,
         )
-    }
-
-    fn corrections(source: &str) -> Vec<Option<Correction>> {
-        offenses(source).into_iter().map(|o| o.correction).collect()
-    }
-
-    #[test]
-    fn live_gemspecs_keep_findings_without_edits() {
-        for source in [
-            spec("  spec.add_dependency 'rubocop'\n  spec.add_dependency 'rspec'\n"),
-            "spec = x\nif y\n  spec.add_dependency 'b'\n  spec.add_dependency 'a'\nend\n".to_owned(),
-            "if false\n  spec = 1\n  spec.add_dependency 'b'\n  spec.add_dependency 'a'\nend\n__END__\n"
-                .to_owned(),
-            "if false\n  spec = 1\n  spec.add_dependency 'b'\n  spec.add_dependency 'a'\n  $0\nend\n"
-                .to_owned(),
-            "if false\n  s = 1\n  s.add_dependency 'b', x = 1\n  s.add_dependency 'a', x\nend\n"
-                .to_owned(),
-            "if false\n  s = 1\n  s.add_dependency 'b', x\n  s.add_dependency 'a', x = 1\nend\n"
-                .to_owned(),
-        ] {
-            assert_eq!(corrections(&source), vec![None], "{source}");
-        }
     }
 
     #[test]

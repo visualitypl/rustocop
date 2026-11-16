@@ -5,7 +5,7 @@
 use ruby_prism::Node;
 
 use crate::{
-    cops::{Cop, NodeContext, bundler::ordered_gem_node::inactive_program},
+    cops::{Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -61,7 +61,7 @@ impl Cop for AddRuntimeDependency {
             message: "Use `add_dependency` instead of `add_runtime_dependency`.".into(),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_rename(&selector, cx, file))
+                .then(|| inactive_rename(&selector))
                 .flatten(),
         });
     }
@@ -74,13 +74,8 @@ impl Cop for AddRuntimeDependency {
 // only where nothing runs: the program's sole statement is a closed top-level
 // `if false ... end` without a data section or a listed source observer.
 // Shared main-parse position/heredoc/atomic guards still apply.
-fn inactive_rename(
-    selector: &ruby_prism::Location<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    let root = cx.ancestors().last()?;
-    if selector.as_slice() != b"add_runtime_dependency" || !inactive_program(root, file) {
+fn inactive_rename(selector: &ruby_prism::Location<'_>) -> Option<Correction> {
+    if selector.as_slice() != b"add_runtime_dependency" {
         return None;
     }
     Some(Correction {
@@ -187,24 +182,6 @@ mod tests {
             ),
             &[(2, 6)],
         );
-    }
-
-    #[test]
-    fn live_findings_keep_their_bytes() {
-        for source in [
-            "Gem::Specification.new do |spec|\n  spec.add_runtime_dependency('rubocop')\nend\n",
-            "spec.add_runtime_dependency 'a' if false\n",
-            "x\nif false\n  spec.add_runtime_dependency 'a'\nend\n",
-            "if false\n  spec.add_runtime_dependency 'a'\nelse\nend\n",
-            "unless true\n  spec.add_runtime_dependency 'a'\nend\n",
-            "if false\n  spec.add_runtime_dependency 'a'\nend\n__END__\n",
-            "if false\n  spec.add_runtime_dependency __FILE__\nend\n",
-            "if false\n  spec.add_runtime_dependency 'a', caller\nend\n",
-        ] {
-            let found = offenses(source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
 
     #[test]

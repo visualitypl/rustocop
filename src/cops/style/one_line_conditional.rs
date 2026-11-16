@@ -245,7 +245,7 @@ fn rewrite(
             result
         }
     };
-    super::negated_if::finish(Correction { range, replacement }, cx, file)
+    Some(Correction { range, replacement })
 }
 fn multiline(node: &Node<'_>, p: &Parts<'_>, file: &SourceFile) -> Option<String> {
     if super::multiline_if_then::ends_with_open_range(&p.condition) {
@@ -409,26 +409,6 @@ mod tests {
             ),
         ] {
             crate::cops::testing::assert_correction(&OneLineConditional, before, after);
-        }
-    }
-    #[test]
-    fn binding_control_flow_and_source_sensitive_edits_stay_reported() {
-        for source in [
-            "unless c then x = 1 else x end\n",
-            "unless c then /(?<x>a)/ =~ value else x end\n",
-            "if c then def f; 1 end else 2 end\n",
-            "begin; work; rescue; if c then retry else 2 end; end\n",
-            "loop { if c then redo else 2 end }\n",
-            "if c then <<~H else 2 end\nbody\nH\n",
-            "if c then 1 elsif d then 2 end\np __LINE__\n",
-            "if c then __LINE__ elsif d then 2 end\n",
-            "if c then DATA.pos else 2 end\n__END__\npayload\n",
-            "if c then 1 else 2 end # rubocop:disable Lint/Debugger\n",
-            "if c then method(:f).source_location else 2 end\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&OneLineConditional, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

@@ -53,7 +53,6 @@ pub struct SourceFile {
     class_emitter_siblings: OnceLock<crate::cops::naming::class_emitters::Siblings>,
     freeze_facts: OnceLock<crate::cops::style::redundant_freeze::Facts>,
     self_facts: OnceLock<crate::cops::style::redundant_self::Facts>,
-    self_proof: OnceLock<crate::cops::style::redundant_self::Proof>,
     initialize_comments: OnceLock<crate::cops::style::redundant_initialize::Comments>,
     redundant_assignment_safety: OnceLock<crate::cops::style::redundant_assignment::Safety>,
     trailing_underscore_facts: OnceLock<crate::cops::style::trailing_underscore_variable::Facts>,
@@ -159,8 +158,6 @@ pub struct SourceFile {
     min_max_safety: OnceLock<crate::cops::style::min_max::Safety>,
     /// Correction-only closed eager core proof for literal conditional clamps.
     comparable_clamp_safety: OnceLock<crate::cops::style::comparable_clamp::Safety>,
-    /// Correction-only closed Integer comparison/Boolean result proof.
-    redundant_conditional_safety: OnceLock<crate::cops::style::redundant_conditional::Safety>,
     /// Shared lazy closed-core proof for regexp argument/constructor edits.
     redundant_regexp_safety: OnceLock<crate::cops::style::redundant_regexp_constructor::Safety>,
     /// Shared correction-only core-dispatch and declared-constant proof.
@@ -267,7 +264,6 @@ impl SourceFile {
             class_emitter_siblings: OnceLock::new(),
             freeze_facts: OnceLock::new(),
             self_facts: OnceLock::new(),
-            self_proof: OnceLock::new(),
             initialize_comments: OnceLock::new(),
             redundant_assignment_safety: OnceLock::new(),
             trailing_underscore_facts: OnceLock::new(),
@@ -314,7 +310,6 @@ impl SourceFile {
             object_then_bindings: OnceLock::new(),
             min_max_safety: OnceLock::new(),
             comparable_clamp_safety: OnceLock::new(),
-            redundant_conditional_safety: OnceLock::new(),
             redundant_regexp_safety: OnceLock::new(),
             boolean_predicate_safety: OnceLock::new(),
             mixin_grouping_bindings: OnceLock::new(),
@@ -778,14 +773,6 @@ impl SourceFile {
             .get_or_init(|| crate::cops::style::comparable_clamp::Safety::build(root))
     }
 
-    pub(crate) fn redundant_conditional_safety(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::redundant_conditional::Safety {
-        self.redundant_conditional_safety
-            .get_or_init(|| crate::cops::style::redundant_conditional::Safety::build(root))
-    }
-
     pub(crate) fn empty_case_return_bodies(
         &self,
         root: &Node<'_>,
@@ -1219,11 +1206,6 @@ impl SourceFile {
     ) -> &crate::cops::style::redundant_initialize::Comments {
         self.initialize_comments
             .get_or_init(|| crate::cops::style::redundant_initialize::Comments::build(root))
-    }
-
-    pub(crate) fn self_proof(&self, root: &Node<'_>) -> &crate::cops::style::redundant_self::Proof {
-        self.self_proof
-            .get_or_init(|| crate::cops::style::redundant_self::Proof::build(root))
     }
 
     pub(crate) fn self_facts(&self, root: &Node<'_>) -> &crate::cops::style::redundant_self::Facts {
@@ -3174,39 +3156,6 @@ mod tests {
     }
 
     #[test]
-    fn redundant_conditional_corrections_use_one_lazy_bounded_main_parse_proof() {
-        use crate::cops::{run_cops_with_corrections, style::RedundantConditional};
-        let source = "if 1 < 2\n  true\nelse\n  false\nend\n".repeat(2000);
-        let file = SourceFile::new("many.rb".into(), source.into_bytes());
-        let parsed = ruby_prism::parse(&file.bytes);
-        let mut found = Vec::new();
-        assert!(
-            run_cops_with_corrections(&[&RedundantConditional], &parsed, &file, &mut found, false)
-                .is_empty()
-        );
-        assert_eq!(found.len(), 2000);
-        assert!(found.iter().all(|o| o.correction.is_none()));
-        assert!(file.redundant_conditional_safety.get().is_none());
-        for _ in 0..2 {
-            found.clear();
-            assert!(
-                run_cops_with_corrections(
-                    &[&RedundantConditional],
-                    &parsed,
-                    &file,
-                    &mut found,
-                    true
-                )
-                .is_empty()
-            );
-            assert_eq!(found.len(), 2000);
-            assert!(found.iter().all(|o| o.correction.is_some()));
-            let proof = file.redundant_conditional_safety.get().unwrap();
-            assert!(proof.visits < 25 * 2000, "{}", proof.visits);
-        }
-    }
-
-    #[test]
     fn comparable_clamp_uses_one_lazy_bounded_safety_walk() {
         use crate::cops::{run_cops_with_corrections, style::ComparableClamp};
         let source = "if 2 < 1; 1; elsif 3 < 2; 3; else; 2; end\n".repeat(6000);
@@ -3677,61 +3626,6 @@ mod tests {
                 .is_empty()
         );
         assert!(inert.initialize_comments.get().is_none());
-    }
-    #[test]
-    fn freeze_and_self_proofs_are_lazy_main_parse_only_cached_and_bounded() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{RedundantFreeze, RedundantSelf},
-        };
-        let source = "a = 1.freeze\nself.object_id\n".repeat(2000);
-        let f = file(source.as_bytes());
-        let parsed = crate::parser::parse(&f.bytes);
-        f.record_comments(&parsed);
-        f.record_data_start(&parsed);
-        f.record_encoding(&parsed);
-        let cops: &[&dyn crate::cops::Cop] = &[&RedundantFreeze, &RedundantSelf];
-        let mut found = Vec::new();
-        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, false).is_empty());
-        assert_eq!(found.len(), 4000);
-        assert!(f.freeze_facts.get().is_none());
-        assert!(f.self_proof.get().is_none());
-        assert!(f.visible_locals.get().is_none());
-        let detection = f.self_facts.get().unwrap();
-        assert!(detection.visits < 20010);
-        let detection_pointer = std::ptr::from_ref(detection);
-        found.clear();
-        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
-        assert_eq!(found.len(), 4000);
-        let freeze = f.freeze_facts.get().unwrap();
-        let proof = f.self_proof.get().unwrap();
-        assert!(freeze.visits < 20010);
-        assert!(proof.visits < 20010);
-        let freeze_pointer = std::ptr::from_ref(freeze);
-        let proof_pointer = std::ptr::from_ref(proof);
-        found.clear();
-        assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, true).is_empty());
-        assert_eq!(
-            detection_pointer,
-            std::ptr::from_ref(f.self_facts.get().unwrap())
-        );
-        assert_eq!(
-            freeze_pointer,
-            std::ptr::from_ref(f.freeze_facts.get().unwrap())
-        );
-        assert_eq!(
-            proof_pointer,
-            std::ptr::from_ref(f.self_proof.get().unwrap())
-        );
-        let other = file(b"1.freeze\n");
-        assert!(other.freeze_facts.get().is_none());
-        assert!(other.self_facts.get().is_none());
-        let inert = file(b"nil\n");
-        let parsed = crate::parser::parse(&inert.bytes);
-        assert!(run_cops_with_corrections(cops, &parsed, &inert, &mut Vec::new(), true).is_empty());
-        assert!(inert.freeze_facts.get().is_none());
-        assert!(inert.self_proof.get().is_none());
-        assert!(inert.self_facts.get().is_none());
     }
     #[test]
     fn definition_spacing_reuses_bottom_up_extents_and_lazy_safety_caches() {

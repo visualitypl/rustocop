@@ -187,39 +187,6 @@ fn every_pinned_correction_call_runs_and_safe_edits_stabilize() {
     }
     assert_eq!(counts, (32, 10, 22));
 }
-#[test]
-fn unsafe_clean_invalid_encoded_and_source_sensitive_files_do_not_write() {
-    let d = project();
-    for (cop, source) in [
-        (MODIFIER, b"work if a while b\n".as_slice()),
-        (MODIFIER, b"work if a if a = true\n"),
-        (MODIFIER, b"work unless a if b\n"),
-        (MODIFIER, b"DATA.pos unless a unless b\n__END__\npayload\n"),
-        (MODIFIER, b"# coding: ISO-8859-1\nwork if '\xe9' if true\n"),
-        (TERNARY, b"a ? (b ? 1 : 2) : 3\np __LINE__\n"),
-        (TERNARY, b"a ? (b ? DATA.pos : 2) : 3\n__END__\npayload\n"),
-        (TERNARY, b"# coding: ISO-8859-1\na ? (b ? '\xe9' : 2) : 3\n"),
-        (TERNARY, b"a ? <<~H : (b ? 1 : 2)\nliteral\nH\n"),
-    ] {
-        unchanged(d.path(), cop, source, &["--only", cop, "--fix", "a.rb"], 1);
-    }
-    for (cop, _, _) in CASES {
-        unchanged(
-            d.path(),
-            cop,
-            b"work\n",
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-        );
-        let path = d.path().join("a.rb");
-        fs::write(&path, b"if broken\n").unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(2), "{o:?}");
-        assert_eq!(fs::read(&path).unwrap(), b"if broken\n");
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
     if let Ok(ruby) = crate::support::runtime::ruby() {

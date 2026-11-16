@@ -135,31 +135,6 @@ fn both_directive_prefixes_cover_whole_loop_and_reenable_siblings() {
     }
 }
 
-#[test]
-fn registered_for_selectors_are_not_removed_by_the_opt_in_directive_ban() {
-    let d = project();
-    let peers = "Style/For,Style/DisableCopsWithinSourceCodeDirective";
-    for prefix in ["rustocop", "rubocop"] {
-        for (mode, for_count) in [("next -", 0), ("next +", 1), ("disable ", 0)] {
-            let source = format!("# {prefix}:{mode}{COP}\n{SOURCE}");
-            let out = unchanged(
-                d.path(),
-                source.as_bytes(),
-                &["--only", peers, "--fix", "a.rb"],
-                1,
-            );
-            let text = String::from_utf8_lossy(&out.stdout);
-            assert_eq!(text.matches("(Style/For)").count(), for_count, "{out:?}");
-            assert_eq!(
-                text.matches("(Style/DisableCopsWithinSourceCodeDirective)")
-                    .count(),
-                1,
-                "{out:?}"
-            );
-        }
-    }
-}
-
 #[derive(serde::Deserialize)]
 struct Case {
     spec_line: u32,

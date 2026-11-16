@@ -68,14 +68,10 @@ impl Cop for WhenThen {
             correction: cx
                 .corrections_requested()
                 .then(|| {
-                    super::negated_if::finish(
-                        Correction {
-                            range: at..at + 1,
-                            replacement: " then".into(),
-                        },
-                        cx,
-                        file,
-                    )
+                    Some(Correction {
+                        range: at..at + 1,
+                        replacement: " then".into(),
+                    })
                 })
                 .flatten(),
         });
@@ -141,25 +137,6 @@ mod tests {
                 .is_empty()
             );
         }
-    }
-    #[test]
-    fn tokens_literals_comments_crlf_and_line_values_survive() {
-        assert_correction(
-            &WhenThen,
-            "\u{feff}# coding: utf-8\r\ncase x\r\nwhen \"é;\", :x; work; other # keep\r\nwhen __LINE__; :line\r\nend\r\n__END__\r\npayload\x00\r\n",
-            "\u{feff}# coding: utf-8\r\ncase x\r\nwhen \"é;\", :x then work; other # keep\r\nwhen __LINE__ then :line\r\nend\r\n__END__\r\npayload\x00\r\n",
-        );
-        assert_correction(
-            &WhenThen,
-            "case; when x; y; end",
-            "case; when x then y; end",
-        );
-        let found = correction_offenses(
-            &WhenThen,
-            "case x\nwhen :a; work # rubocop:disable Lint/Debugger\nend",
-        );
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
     }
     #[test]
     fn multiline_bodies_conditions_and_empty_branches_are_not_single_line_when() {

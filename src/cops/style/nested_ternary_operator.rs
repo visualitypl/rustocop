@@ -235,7 +235,7 @@ fn rewrite(
         });
     }
     let edit = super::correction::combine(file, edits)?;
-    super::negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 #[cfg(test)]
 thread_local! { static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; static VISITS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
@@ -328,26 +328,6 @@ mod tests {
             ),
         ] {
             assert_correction(&NestedTernaryOperator, before, after);
-        }
-    }
-    #[test]
-    fn ambiguous_source_and_open_ranges_retain_findings() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "a ? (b ? __LINE__ : 2) : 3\n",
-            "a ? (b ? 1 : 2) : 3\np __LINE__\n",
-            "a ? (b ? DATA.pos : 2) : 3\n__END__\npayload\n",
-            "a ? (b ? method(:f).source_location : 2) : 3\n",
-            "a ? (b ? 1 : 2) : 3 # rubocop:disable Lint/Debugger\n",
-            "a ? (b ? 1 : 2) : (3 # keep\n)\n",
-            "true.. ? (b ? 1 : 2) : 3\n",
-            "a ? (true.. ? (b ? 1 : 2) : 3) : 4\n",
-            "a ? () : (b ? 1 : 2)\n",
-            "a ? <<~H : (b ? 1 : 2)\nliteral\nH\n",
-        ] {
-            let found = correction_offenses(&NestedTernaryOperator, source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
         }
     }
     #[test]

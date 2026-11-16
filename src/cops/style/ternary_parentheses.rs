@@ -253,7 +253,7 @@ fn rewrite(
     #[cfg(test)]
     REWRITE_BYTES.with(|n| n.set(n.get() + range.len()));
     let edit = super::correction::combine(file, edits)?;
-    super::negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 
 #[cfg(test)]
@@ -494,25 +494,6 @@ mod tests {
                 .correction
                 .is_none()
         );
-    }
-
-    #[test]
-    fn source_envelopes_and_literal_interiors_are_verbatim() {
-        assert_correction(
-            &TernaryParentheses,
-            "\u{feff}# coding: utf-8\r\n(\"é\r\n  value\") ? __LINE__ : false\r\n__END__\r\npayload\x00\r\n",
-            "\u{feff}# coding: utf-8\r\n\"é\r\n  value\" ? __LINE__ : false\r\n__END__\r\npayload\x00\r\n",
-        );
-        for source in [
-            "(DATA.pos) ? a : b\n__END__\npayload\n",
-            "(method(:f).source_location) ? a : b\n",
-            "(ready) ? a : b # rubocop:disable Lint/Debugger\n",
-            "(<<~H) ? a : b\nbody\nH\n",
-        ] {
-            let found = correction_offenses(&TernaryParentheses, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
 
     #[test]

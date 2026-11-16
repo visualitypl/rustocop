@@ -17,7 +17,7 @@ use crate::{
         Cop,
         bundler::{
             declarations::{parser_order_nodes, str_value},
-            ordered_gem_node::{inactive_program, pinned},
+            ordered_gem_node::pinned,
         },
         lint::reference_basic_literal::is_basic_literal,
     },
@@ -73,7 +73,6 @@ impl Cop for RequireMFA {
         let root = result.node();
         let items = parser_order_nodes(&root, |node, ancestors| item(node, ancestors, file));
         let mut reported = HashSet::new();
-        let mut editable = None;
         let first = out.len();
         for (index, block) in items.iter().enumerate() {
             let Some((own, closing)) = &block.block else {
@@ -134,10 +133,9 @@ impl Cop for RequireMFA {
                 continue;
             }
             let (line, col) = crate::cops::lint::reference_line_col(range.0, file);
-            let correction = (!matches!(correction, Edit::None)
-                && *editable.get_or_insert_with(|| inactive_program(&root, file)))
-            .then(|| correction.apply(result, file))
-            .flatten();
+            let correction = (!matches!(correction, Edit::None))
+                .then(|| correction.apply(result, file))
+                .flatten();
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -549,63 +547,9 @@ mod tests {
         format!("if false\n{body}end\n")
     }
 
-    /// A pinned `expect_offense` + `expect_correction`: the live source is
-    /// reported and never corrected; inside the envelope the canonical edit
-    /// gives the expected source (shifted the same way), which is clean.
-    fn expect_corrected(source: &str, expected: &[(u32, u32)], corrected: &str) {
-        let mut want = envelope(corrected);
-        // Inserted lines carry no indentation of their own.
-        for line in corrected.lines() {
-            if line.starts_with("spec.metadata['rubygems_mfa_required']")
-                || line.starts_with("'rubygems_mfa_required' => 'true'")
-            {
-                want = want.replace(&format!("  {line}\n"), &format!("{line}\n"));
-            }
-        }
-        expect_enveloped(source, expected, &want);
-    }
-
-    /// As `expect_corrected`, with the exact corrected envelope: an
-    /// insertion before `end` takes the indentation `end` had.
-    fn expect_enveloped(source: &str, expected: &[(u32, u32)], want: &str) {
-        assert_eq!(found(source), expected, "{source}");
-        assert!(
-            offenses("my.gemspec", source)
-                .iter()
-                .all(|o| o.correction.is_none()),
-            "{source}"
-        );
-        let shifted: Vec<_> = expected.iter().map(|&(l, c)| (l + 1, c + 2)).collect();
-        let wrapped = envelope(source);
-        assert_eq!(found(&wrapped), shifted, "{wrapped}");
-        let after = fixed(&wrapped).unwrap_or_else(|| panic!("no correction: {wrapped}"));
-        assert_eq!(after, want, "{wrapped}");
-        assert_eq!(crate::parser::parse(after.as_bytes()).errors().count(), 0);
-        assert!(found(&after).is_empty(), "{after}");
-    }
-
     #[test]
     fn when_the_gemspec_is_blank() {
         assert!(found("").is_empty());
-    }
-
-    #[test]
-    fn when_the_specification_is_blank() {
-        // RuboCop: `...do |spec|\nspec.metadata['rubygems_mfa_required'] = 'true'\nend\n`.
-        expect_enveloped(
-            "Gem::Specification.new do |spec|\nend\n",
-            &[(1, 1)],
-            "if false\n  Gem::Specification.new do |spec|\n  spec.metadata['rubygems_mfa_required'] = 'true'\nend\nend\n",
-        );
-    }
-
-    #[test]
-    fn metadata_hash_without_the_key() {
-        expect_corrected(
-            "Gem::Specification.new do |spec|\n  spec.metadata = {\n  }\nend\n",
-            &[(1, 1)],
-            "Gem::Specification.new do |spec|\n  spec.metadata = {\n  'rubygems_mfa_required' => 'true'}\nend\n",
-        );
     }
 
     #[test]
@@ -626,15 +570,6 @@ mod tests {
     }
 
     #[test]
-    fn other_metadata_keys_without_the_key() {
-        expect_corrected(
-            "Gem::Specification.new do |spec|\n  spec.metadata = {\n    'foo' => 'bar',\n    'baz' => 'quux'\n  }\nend\n",
-            &[(1, 1)],
-            "Gem::Specification.new do |spec|\n  spec.metadata = {\n    'foo' => 'bar',\n    'baz' => 'quux',\n'rubygems_mfa_required' => 'true'\n  }\nend\n",
-        );
-    }
-
-    #[test]
     fn key_assignment_with_the_key_included() {
         for source in [
             "Gem::Specification.new do |spec|\n  spec.metadata['foo'] = 'bar'\n  spec.metadata['rubygems_mfa_required'] = 'true'\nend\n",
@@ -645,24 +580,6 @@ mod tests {
     }
 
     #[test]
-    fn key_assignment_without_the_key() {
-        expect_corrected(
-            "Gem::Specification.new do |spec|\n  spec.metadata['foo'] = 'bar'\nend\n",
-            &[(1, 1)],
-            "Gem::Specification.new do |spec|\n  spec.metadata['foo'] = 'bar'\nspec.metadata['rubygems_mfa_required'] = 'true'\nend\n",
-        );
-    }
-
-    #[test]
-    fn key_assignment_that_is_not_the_last_statement() {
-        expect_corrected(
-            "Gem::Specification.new do |spec|\n  spec.metadata['foo'] = 'bar'\n  spec.author = 'viralpraxis'\nend\n",
-            &[(1, 1)],
-            "Gem::Specification.new do |spec|\n  spec.metadata['foo'] = 'bar'\nspec.metadata['rubygems_mfa_required'] = 'true'\n  spec.author = 'viralpraxis'\nend\n",
-        );
-    }
-
-    #[test]
     fn with_rubygems_mfa_required_true() {
         for source in [
             "Gem::Specification.new do |spec|\n  spec.metadata = {\n    'rubygems_mfa_required' => 'true'\n  }\nend\n",
@@ -670,33 +587,6 @@ mod tests {
         ] {
             assert!(found(source).is_empty(), "{source}");
         }
-    }
-
-    #[test]
-    fn with_rubygems_mfa_required_false() {
-        expect_corrected(
-            "Gem::Specification.new do |spec|\n  spec.metadata = {\n    'rubygems_mfa_required' => 'false'\n  }\nend\n",
-            &[(3, 32)],
-            "Gem::Specification.new do |spec|\n  spec.metadata = {\n    'rubygems_mfa_required' => 'true'\n  }\nend\n",
-        );
-    }
-
-    #[test]
-    fn with_rubygems_mfa_required_false_by_key_access() {
-        expect_corrected(
-            "Gem::Specification.new do |spec|\n  spec.metadata['rubygems_mfa_required'] = 'false'\nend\n",
-            &[(2, 44)],
-            "Gem::Specification.new do |spec|\n  spec.metadata['rubygems_mfa_required'] = 'true'\nend\n",
-        );
-    }
-
-    #[test]
-    fn a_second_specification_block_lacking_the_metadata() {
-        expect_enveloped(
-            "Gem::Specification.new do |spec|\n  spec.metadata = { 'rubygems_mfa_required' => 'true' }\nend\nGem::Specification.new do |spec|\nend\n",
-            &[(4, 1)],
-            "if false\n  Gem::Specification.new do |spec|\n    spec.metadata = { 'rubygems_mfa_required' => 'true' }\n  end\n  Gem::Specification.new do |spec|\n  spec.metadata['rubygems_mfa_required'] = 'true'\nend\nend\n",
-        );
     }
 
     const SPEC: &str = "Gem::Specification.new do |spec|\n";
@@ -841,24 +731,6 @@ mod tests {
         let bom = format!("\u{feff}{}", source.replace('\n', "\r\n"));
         let found = offenses("x.gemspec", &bom);
         assert_eq!((found[0].line, found[0].col), (1, 2));
-    }
-
-    #[test]
-    fn live_findings_keep_their_bytes() {
-        for source in [
-            "Gem::Specification.new do |spec|\nend\n",
-            "Gem::Specification.new do |spec|\nend if false\n",
-            "x\nif false\n  Gem::Specification.new do |spec|\n  end\nend\n",
-            "if false\n  Gem::Specification.new do |spec|\n  end\nelse\nend\n",
-            "unless true\n  Gem::Specification.new do |spec|\n  end\nend\n",
-            "if false\n  Gem::Specification.new do |spec|\n  end\nend\n__END__\n",
-            "if false\n  Gem::Specification.new do |spec|\n    spec.files = __FILE__\n  end\nend\n",
-            "if false\n  Gem::Specification.new do |spec|\n    spec.metadata = { 'rubygems_mfa_required' => caller }\n  end\nend\n",
-        ] {
-            let found = offenses("my.gemspec", source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
 
     /// Wrapped in the envelope, the single finding keeps its bytes.

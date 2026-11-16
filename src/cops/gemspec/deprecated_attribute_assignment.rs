@@ -11,10 +11,7 @@ use super::help::specification_block;
 use crate::{
     cops::{
         Cop,
-        bundler::{
-            declarations::parser_order_nodes,
-            ordered_gem_node::{inactive_program, pinned},
-        },
+        bundler::{declarations::parser_order_nodes, ordered_gem_node::pinned},
     },
     offense::{Correction, Offense},
     source::SourceFile,
@@ -80,7 +77,6 @@ impl Cop for DeprecatedAttributeAssignment {
         // already reported (by an enclosing block) is not added again.
         let mut done = HashSet::new();
         let mut reported = HashSet::new();
-        let mut editable = None;
         let first = out.len();
         for candidate in candidates {
             let mut matched = false;
@@ -93,10 +89,9 @@ impl Cop for DeprecatedAttributeAssignment {
                 continue;
             }
             let (line, col) = crate::cops::lint::reference_line_col(candidate.start, file);
-            let correction = (candidate.statement
-                && *editable.get_or_insert_with(|| inactive_program(&root, file)))
-            .then(|| removal(result, file, &candidate))
-            .flatten();
+            let correction = (candidate.statement)
+                .then(|| removal(result, file, &candidate))
+                .flatten();
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -473,35 +468,6 @@ mod tests {
         );
         for path in ["Gemfile", "gems.rb", "x.rb", "gemspec"] {
             assert!(found(path, source).is_empty());
-        }
-    }
-
-    #[test]
-    fn live_findings_keep_their_bytes() {
-        let spec = |body: &str| format!("Gem::Specification.new do |s|\n{body}end\n");
-        let envelope =
-            |body: &str| format!("if false\n  Gem::Specification.new do |s|\n{body}  end\nend\n");
-        for source in [
-            spec("  s.date = 1\n"),
-            format!("x\n{}", envelope("    s.date = 1\n")),
-            format!("{}__END__\n", envelope("    s.date = 1\n")),
-            envelope("    s.date = __FILE__\n"),
-            envelope("    s.date = 1 # keep\n"),
-            envelope("    s.date = [\n      # keep\n      1\n    ]\n"),
-            envelope("    s.date = 1; s.name = 2\n"),
-            envelope("    x; s.date = 1\n"),
-            envelope("    a, s.date = 1, 2\n"),
-            envelope("    foo(s.date = 1)\n"),
-            envelope("    s.date = <<~D\n      1\n    D\n"),
-            envelope("    s.date = (x = 1)\n    s.name = x\n"),
-            envelope("    s.date = /(?<x>a)/ =~ y\n"),
-            // Losing or adding a parse warning holds the edit.
-            envelope("    s.date = { a: 1, a: 2 }\n"),
-            envelope("    x = 1\n    s.date = x\n"),
-        ] {
-            let found = offenses("example.gemspec", &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 

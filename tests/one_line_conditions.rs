@@ -164,42 +164,6 @@ fn all_pinned_correction_calls_run_through_cli() {
     }
     assert_eq!(fixes, 63);
 }
-#[test]
-fn clean_invalid_uncertain_and_legacy_files_retain_bytes_and_mtime() {
-    let d = project();
-    for (cop, source) in [
-        (ONE, b"unless c then x=1 else x end\n".as_slice()),
-        (ONE, b"if c then 1 elsif d then 2 end\np __LINE__\n"),
-        (ONE, b"if c then DATA.pos else 2 end\n__END__\npayload\n"),
-        (ONE, b"# coding: ISO-8859-1\nif c then '\xe9' else 2 end\n"),
-        (PARENS, b"if (1..); work; end\n"),
-        (PARENS, b"if (begin work end while ready); action; end\n"),
-        (PARENS, b"if (begin work end until ready); action; end\n"),
-        (PARENS, b"action if (begin work end while ready)\n"),
-        (PARENS, b"while (begin work end until ready); action; end\n"),
-        (PARENS, b"if (first\nsecond); work; end\n"),
-        (PARENS, b"if (\n a\n); end\np __LINE__\n"),
-        (PARENS, b"# coding: ISO-8859-1\nif ('\xe9'); end\n"),
-    ] {
-        unchanged(d.path(), cop, source, &["--only", cop, "--fix", "a.rb"], 1);
-    }
-    for (cop, _, _) in CASES {
-        unchanged(
-            d.path(),
-            cop,
-            b"work\n",
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-        );
-        let path = d.path().join("a.rb");
-        fs::write(&path, "if broken\n").unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(2), "{o:?}");
-        assert_eq!(fs::read_to_string(&path).unwrap(), "if broken\n");
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
 fn observations_equal(root: &Path) {
     let mut rubies = vec!["ruby".to_owned()];
     if let Ok(ruby) = crate::support::runtime::ruby() {

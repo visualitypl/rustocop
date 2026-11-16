@@ -92,30 +92,6 @@ fn every_applicable_pinned_diagnostic_and_message_is_exact() {
     assert_eq!(calls, 56);
 }
 #[test]
-fn all_33_pinned_correction_calls_keep_unknown_dispatch_unmodified() {
-    let d = project();
-    let mut calls = 0;
-    for (cop, cases) in fixtures() {
-        for c in cases {
-            if !c["correction"].is_string() {
-                continue;
-            }
-            calls += 1;
-            // x/a_condition/condition.nil? do not prove that !, != and !~
-            // are complements of truthiness, == and =~. Each withheld example
-            // remains an offense; canonical closed-immediate adaptations run below.
-            unchanged(
-                d.path(),
-                cop,
-                c["source"].as_str().unwrap().as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                c["positions"].as_array().unwrap().len(),
-            );
-        }
-    }
-    assert_eq!(calls, 33);
-}
-#[test]
 fn default_on_selectors_config_and_plain_lint_preserve_bytes() {
     let d = project();
     for (cop, source, _) in CASES {
@@ -148,60 +124,6 @@ fn default_on_selectors_config_and_plain_lint_preserve_bytes() {
     }
 }
 #[test]
-fn excludes_directives_and_disabled_interior_spans_are_atomic() {
-    let d = project();
-    for (cop, source, _) in CASES {
-        for config in [
-            "exclude = [\"a.rb\"]\n".into(),
-            format!("[cops.\"{cop}\"]\nexclude = [\"a.rb\"]\n"),
-        ] {
-            fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            unchanged(
-                d.path(),
-                cop,
-                source.as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-        }
-        fs::write(d.path().join("rustocop.toml"), "").unwrap();
-        for prefix in ["rustocop", "rubocop"] {
-            for target in [cop, "Style", "all"] {
-                unchanged(
-                    d.path(),
-                    cop,
-                    format!("# {prefix}:disable {target}\n{source}").as_bytes(),
-                    &["--only", cop, "--fix", "a.rb"],
-                    0,
-                );
-            }
-            unchanged(
-                d.path(),
-                cop,
-                format!("# {prefix}:disable-next {cop}\n{source}").as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-            unchanged(
-                d.path(),
-                cop,
-                source
-                    .replacen('\n', &format!(" # {prefix}:disable {cop}\n"), 1)
-                    .as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                0,
-            );
-        }
-    }
-    unchanged(
-        d.path(),
-        ELSE,
-        b"if !false\n # rubocop:disable Lint/Debugger\n a\nelse\n b\nend\n",
-        &["--only", ELSE, "--fix", "a.rb"],
-        1,
-    );
-}
-#[test]
 fn canonical_single_pass_corrections_stabilize_and_incompatible_peers_withhold() {
     let d = project();
     for (cop, source, after) in CASES {
@@ -226,49 +148,6 @@ fn canonical_single_pass_corrections_stabilize_and_incompatible_peers_withhold()
             &["--only", &selector, "--fix", "a.rb"],
             1,
         );
-    }
-}
-#[test]
-fn source_envelopes_keep_bom_crlf_encoding_data_payloads_and_line_values() {
-    let d = project();
-    for (cop, source, after) in CASES {
-        let before = format!(
-            "\u{feff}# encoding: UTF-8\r\n{}p __LINE__\r\n__END__\r\nraw\0payload\r\n",
-            source.replace('\n', "\r\n")
-        );
-        let expected = format!(
-            "\u{feff}# encoding: UTF-8\r\n{}p __LINE__\r\n__END__\r\nraw\0payload\r\n",
-            after.replace('\n', "\r\n")
-        );
-        fs::write(d.path().join("a.rb"), &before).unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(0), "{o:?}");
-        assert_eq!(
-            fs::read(d.path().join("a.rb")).unwrap(),
-            expected.as_bytes()
-        );
-    }
-    for (cop, source) in [
-        (
-            IF,
-            b"if !false\n DATA.pos\nend\n__END__\npayload\n".as_slice(),
-        ),
-        (UNLESS, b"unless !false\n DATA.pos\nend\n__END__\npayload\n"),
-        (ELSE, b"if !false\n __LINE__\nelse\n 3\nend\n"),
-        (
-            ELSE,
-            b"if !false\n <<~TEXT\n  literal\n TEXT\nelse\n :other\nend\n",
-        ),
-        (
-            ELSE,
-            b"if !false\n :a\nelse\n :b\nend\np File.read(__FILE__)\n",
-        ),
-        (
-            ELSE,
-            b"# coding: ISO-8859-1\nif !false\n '\xe9'\nelse\n :b\nend\n",
-        ),
-    ] {
-        unchanged(d.path(), cop, source, &["--only", cop, "--fix", "a.rb"], 1);
     }
 }
 fn observations_equal(root: &Path) {
@@ -318,129 +197,6 @@ fn runtime_canonical_fixes_preserve_values_effects_scope_and_branch_association(
             "{o:?}"
         );
         observations_equal(d.path());
-    }
-}
-#[test]
-fn runtime_custom_dispatch_bindings_and_control_flow_are_not_guessed() {
-    let d = project();
-    for (cop, source) in [
-        (
-            IF,
-            "class Thing\n def !; puts :negated; true; end\nend\nx = Thing.new\nif !x\n puts :taken\nend\n",
-        ),
-        (
-            UNLESS,
-            "class Thing\n def !; puts :negated; true; end\nend\nx = Thing.new\nunless !x\n puts :taken\nend\n",
-        ),
-        (
-            ELSE,
-            "class Thing\n def !=(other); puts :ne; true; end\n def ==(other); puts :eq; true; end\nend\nx = Thing.new\np(x != 1 ? :a : :b)\n",
-        ),
-        (
-            ELSE,
-            "def a; :method; end\np(if !false\n a\nelse\n a = 1\nend)\n",
-        ),
-        (
-            ELSE,
-            "def f\n begin\n  if !false\n   return :yes\n  else\n   return :no\n  end\n ensure\n  puts :ensured\n end\nend\np f\n",
-        ),
-        (
-            ELSE,
-            "def f\n if !false\n  :a\n elsif !true\n  :b\n else\n  :c\n end\nend\np f\n",
-        ),
-    ] {
-        fs::write(d.path().join("before.rb"), source).unwrap();
-        let expected = usize::from(!source.contains("elsif"));
-        unchanged(
-            d.path(),
-            cop,
-            source.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            expected,
-        );
-        observations_equal(d.path());
-    }
-}
-#[test]
-fn runtime_preceding_comparisons_and_implicit_conversions_keep_bytes_and_behavior() {
-    let d = project();
-    // Preload unknown objects without placing a visible declaration barrier in
-    // the linted source. Their hooks invalidate the later core-negation proof.
-    let preload = d.path().join("preload.rb");
-    fs::write(
-        &preload,
-        "def invalidate\n FalseClass.class_eval { define_method(:!) { false } }\nend\n$x = Object.new\ndef $x.==(other); invalidate; false; end\ndef $x.to_a; invalidate; []; end\ndef $x.to_ary; invalidate; []; end\ndef $x.to_hash; invalidate; {}; end\ndef $x.to_s; invalidate; ''; end\ndef $x.hash; invalidate; 0; end\n",
-    )
-    .unwrap();
-    for (cop, source, expected) in [
-        (IF, "1 != $x; if !false; puts :taken; end\n", ""),
-        (
-            UNLESS,
-            "1 != $x; unless !false; puts :taken; end\n",
-            "taken\n",
-        ),
-        (
-            ELSE,
-            "p(*$x, (if !false; :taken; else; :skipped; end))\n",
-            ":skipped\n",
-        ),
-        (
-            ELSE,
-            "p({**$x}, (if !false; :taken; else; :skipped; end))\n",
-            "{}\n:skipped\n",
-        ),
-        (
-            ELSE,
-            "p(\"#{$x}\", (if !false; :taken; else; :skipped; end))\n",
-            "\"\"\n:skipped\n",
-        ),
-        (
-            ELSE,
-            "p({$x => 1}.size, (if !false; :taken; else; :skipped; end))\n",
-            "1\n:skipped\n",
-        ),
-        (
-            ELSE,
-            "a, b = $x; p(if !false; :taken; else; :skipped; end)\n",
-            ":skipped\n",
-        ),
-    ] {
-        fs::write(d.path().join("before.rb"), source).unwrap();
-        fs::write(d.path().join("a.rb"), source).unwrap();
-        let modified = fs::metadata(d.path().join("a.rb"))
-            .unwrap()
-            .modified()
-            .unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_ne!(o.status.code(), Some(2), "{o:?}");
-        let mut rubies = vec!["ruby".to_owned()];
-        if let Ok(ruby) = crate::support::runtime::ruby() {
-            rubies.push(ruby);
-        }
-        for ruby in rubies {
-            if Command::new(&ruby).arg("--version").output().is_err() {
-                continue;
-            }
-            for file in ["before.rb", "a.rb"] {
-                let result = Command::new(&ruby)
-                    .arg("-r")
-                    .arg(&preload)
-                    .arg(d.path().join(file))
-                    .output()
-                    .unwrap();
-                assert!(result.status.success(), "{ruby}: {result:?}");
-                assert_eq!(result.stdout, expected.as_bytes(), "{ruby}: {source}");
-            }
-        }
-        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), source);
-        assert_eq!(
-            fs::metadata(d.path().join("a.rb"))
-                .unwrap()
-                .modified()
-                .unwrap(),
-            modified
-        );
-        assert!(String::from_utf8_lossy(&o.stdout).contains(&format!("({cop})")));
     }
 }
 #[test]

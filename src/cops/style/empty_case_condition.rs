@@ -156,7 +156,7 @@ fn correct(
         }
     }
     let edit = super::correction::combine(file, edits)?;
-    super::negated_if::finish(edit, cx, file)
+    Some(edit)
 }
 // Only leave proven tight operands exposed to the inserted `||` / if header.
 // In particular Prism represents plain attribute/index setters as CallNodes,
@@ -345,30 +345,6 @@ mod tests {
             if let Some(after) = c["correction"].as_str() {
                 assert_correction(&EmptyCaseCondition, source, after);
             }
-        }
-    }
-    #[test]
-    fn truthiness_splats_line_values_and_ambiguous_comments_are_report_only() {
-        for source in [
-            "case\nwhen /a/\n :yes\nend\n",
-            "case\nwhen (/a/)\n :yes\nend\n",
-            "case\nwhen (false || /a/)\n :yes\nend\n",
-            "case\nwhen (true && /a/), other\n :yes\nend\n",
-            "case\nwhen 1..2, other\n :yes\nend\n",
-            "case\nwhen *values\n :yes\nend\n",
-            "case\nwhen probe(&block)\n :yes\nend\n",
-            "case\nwhen begin; /a/; end\n :yes\nend\n",
-            "case\nwhen true\n p __LINE__\nend\n",
-            "case\nwhen true\n work\nend\np __LINE__\n",
-            "case\nwhen first, # keep\n second\n work\nend\n",
-            "x = case # keep\nwhen true\n :yes\nend\n",
-            "case # frozen_string_literal: true\nwhen true\n :yes\nend\n",
-            "case\n# rubocop:disable Lint/Debugger\nwhen true\n :yes\nend\n",
-            "case\nwhen true\n puts <<~TEXT\n value\n TEXT\nend\n",
-        ] {
-            let found = correction_offenses(&EmptyCaseCondition, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

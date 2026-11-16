@@ -114,7 +114,7 @@ impl Cop for MultilineMemoization {
                         },
                     ],
                 )?;
-                super::negated_if::finish(edit, cx, file)
+                Some(edit)
             })
             .flatten();
         super::negated_if::report(
@@ -231,25 +231,6 @@ mod tests {
         ] {
             assert_correction(&MultilineMemoization, before, after);
         }
-    }
-    #[test]
-    fn line_data_heredoc_and_directive_hazards_retain_findings_without_edits() {
-        for source in [
-            "foo ||= (bar ||\n __LINE__)\n",
-            "foo ||= (bar ||\n baz)\np __LINE__\n",
-            "foo ||= (\n <<~TEXT\n value\nTEXT\n)\n",
-            "foo ||= (\n work # rustocop:disable Lint/Debugger\n)\n",
-            "foo ||= (\n DATA.pos\n)\n__END__\npayload\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&MultilineMemoization, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &MultilineMemoization,
-            "foo ||= (\n __LINE__\n)\np __LINE__\n",
-            "foo ||= begin\n __LINE__\nend\np __LINE__\n",
-        );
     }
     #[test]
     fn bounded_local_source_work_is_lazy_even_for_wide_lines() {

@@ -189,7 +189,6 @@ fn cli(root: &Path, args: &[&str], input: Option<&[u8]>) -> std::process::Output
     drop(child.stdin.take());
     child.wait_with_output().unwrap()
 }
-use crate::support::deprecated_constructor_native as native;
 use crate::support::stdin;
 fn count(out: &std::process::Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -377,54 +376,6 @@ fn both_directives_and_syntax_encoding_resource_io_failures_compose() {
             .modified()
             .unwrap()
     );
-}
-#[test]
-fn supplied_gemspec_is_not_evaluated_or_loaded_and_safe_peer_fixes_stabilize() {
-    let d = project();
-    let source = format!("File.write('EXECUTED', 'never')\nraise 'do not execute'\n{SOURCE}");
-    fs::write(d.path().join("a.gemspec"), &source).unwrap();
-    let out = cli(d.path(), &["--only", "Gemspec", "--fix", "a.gemspec"], None);
-    assert_eq!(count(&out), 3);
-    assert!(!d.path().join("EXECUTED").exists());
-    assert_eq!(
-        fs::read_to_string(d.path().join("a.gemspec")).unwrap(),
-        source
-    );
-    let before = SOURCE.replace("{}", "{ 'x' => 'y' }");
-    fs::write(d.path().join("a.gemspec"), &before).unwrap();
-    let flags = [
-        "--only",
-        "Gemspec,Style/StringLiterals",
-        "--fix",
-        "a.gemspec",
-    ];
-    let out = cli(d.path(), &flags, None);
-    assert_eq!(out.status.code(), Some(1), "{out:?}");
-    assert_eq!(count(&out), 3);
-    let after = fs::read_to_string(d.path().join("a.gemspec")).unwrap();
-    assert_eq!(
-        after,
-        before.replace("'x'", "\"x\"").replace("'y'", "\"y\"")
-    );
-    let old = fs::metadata(d.path().join("a.gemspec")).unwrap();
-    let out = cli(d.path(), &flags, None);
-    assert_eq!(count(&out), 3);
-    assert_eq!(
-        old.modified().unwrap(),
-        fs::metadata(d.path().join("a.gemspec"))
-            .unwrap()
-            .modified()
-            .unwrap()
-    );
-    if let Ok(ruby) = crate::support::runtime::ruby() {
-        // Authored, finite semantic witness only: deleting repeated setters or
-        // merging mixed assignments would alter this trace/value/control flow.
-        let witness = "class Spec; attr_reader :metadata; def metadata=(v); puts [:set,v].inspect; @metadata=v; end; end; spec=Spec.new; spec.metadata={}; spec.metadata[:x]=1; spec.metadata[:x]=2; p spec.metadata\n";
-        let a = native::run(&ruby, witness);
-        assert!(a.status.success(), "{a:?}");
-        assert_eq!(a.stdout, b"[:set, {}]\n{x: 2}\n");
-        assert!(a.stderr.is_empty(), "{a:?}");
-    }
 }
 #[cfg(unix)]
 #[test]

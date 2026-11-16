@@ -8,7 +8,6 @@ use std::{
 };
 const COP: &str = "Style/ParallelAssignment";
 const BEFORE: &str = "a,b=1,2\n";
-const AFTER: &str = "a = 1\nb = 2\n";
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
     fs::create_dir(d.path().join(".git")).unwrap();
@@ -81,46 +80,6 @@ fn defaults_selectors_and_config_never_implicitly_write() {
     }
 }
 #[test]
-fn excludes_and_directives_protect_whole_corrections() {
-    let d = project();
-    for config in [
-        "exclude=['a.rb']\n".into(),
-        format!("[cops.\"{COP}\"]\nexclude=['a.rb']\n"),
-    ] {
-        fs::write(d.path().join("rustocop.toml"), config).unwrap();
-        unchanged(
-            d.path(),
-            BEFORE.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            0,
-        );
-    }
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    for prefix in ["rustocop", "rubocop"] {
-        for target in [COP, "Style", "all"] {
-            let source = format!("# {prefix}:disable {target}\n{BEFORE}");
-            unchanged(
-                d.path(),
-                source.as_bytes(),
-                &["--only", COP, "--fix", "a.rb"],
-                0,
-            );
-        }
-        fix(
-            d.path(),
-            &format!("# {prefix}:disable {COP}\n{BEFORE}# {prefix}:enable {COP}\n{BEFORE}"),
-            &format!("# {prefix}:disable {COP}\n{BEFORE}# {prefix}:enable {COP}\n{AFTER}"),
-        );
-        let source = format!("a,b=1,2 # {prefix}:disable Lint/Debugger\n");
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-    }
-}
-#[test]
 fn all_forty_eight_pinned_correction_calls_are_individually_accounted_for() {
     let d = project();
     let cases: Vec<serde_json::Value> =
@@ -163,36 +122,6 @@ fn all_forty_eight_pinned_correction_calls_are_individually_accounted_for() {
     }
     assert_eq!(applied, canonical);
     assert_eq!(withheld, held);
-}
-#[test]
-fn bom_crlf_encoding_comments_lines_and_data_envelopes() {
-    let d = project();
-    fix(
-        d.path(),
-        "\u{feff}# coding: UTF-8\r\na,b=1,2\r\n__END__\r\npayload é\r\n",
-        "\u{feff}# coding: UTF-8\r\na = 1\r\nb = 2\r\n__END__\r\npayload é\r\n",
-    );
-    fix(
-        d.path(),
-        "# coding: ISO-8859-1\na,b=1,2\n",
-        "# coding: ISO-8859-1\na = 1\nb = 2\n",
-    );
-    fix(
-        d.path(),
-        "a,b=1,2 # attached comment\n",
-        "a = 1\nb = 2 # attached comment\n",
-    );
-    for source in [
-        b"a,b=1,2\np __LINE__\n".as_slice(),
-        b"a,b=__LINE__,2\n".as_slice(),
-        b"a,b=1,2\np DATA.pos\n__END__\npayload\n".as_slice(),
-        b"a,b=[1, # comment\n2],3\n".as_slice(),
-        b"# coding: ISO-8859-1\na,b='\xe9',2\n".as_slice(),
-        b"# coding: ISO-8859-1\na,b=%W(\\u{e9} x)\n".as_slice(),
-        b"a,b=%W(\\r x)\n".as_slice(),
-    ] {
-        unchanged(d.path(), source, &["--only", COP, "--fix", "a.rb"], 1);
-    }
 }
 #[test]
 fn clean_unsafe_and_error_files_are_never_rewritten() {

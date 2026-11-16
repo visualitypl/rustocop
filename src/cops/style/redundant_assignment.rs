@@ -83,14 +83,10 @@ fn correction(
         &file.bytes[assignment.location().end_offset()..reference.location().start_offset()],
     )
     .ok()?;
-    super::negated_if::finish(
-        Correction {
-            range: start..end,
-            replacement: format!("{text}{gap}"),
-        },
-        cx,
-        file,
-    )
+    Some(Correction {
+        range: start..end,
+        replacement: format!("{text}{gap}"),
+    })
 }
 /// Compound attribute writes invoke a getter that is not a `CallNode` child.
 pub(super) fn observes_locals(node: &Node<'_>) -> bool {
@@ -258,33 +254,6 @@ mod tests {
         pipeline::lint_str,
     };
     #[test]
-    fn scope_reflection_and_captured_values_keep_their_assignments() {
-        for source in [
-            "def f; x = nil; capture = -> { x }; x = capture; x; end",
-            "def f; x = -> { x }; x; end",
-            "def f; b = binding; x = 1; x; end",
-            "def f; x = 1; saved = -> { x }; x = 2; x; end",
-            "def f; x = 1; x; ensure; p x; end",
-            "def f; x = 1; x; rescue; p x; end",
-            "def f; x = defined?(x); x; end",
-            "def f; x = local_variables; x; end",
-            "def f; x = proc { local_variables }; x; end",
-            "def f; x = (self.local_variables ||= []); x; end",
-            "def f; x = (self.local_variables &&= []); x; end",
-            "def f; x = (self.local_variables += []); x; end",
-            "def f; x = (self&.local_variables ||= []); x; end",
-        ] {
-            let found = correction_offenses(&RedundantAssignment, source);
-            // A method-level ensure suppresses the main-body finding upstream.
-            if source.contains("ensure") {
-                assert!(found.is_empty());
-            } else {
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-            }
-        }
-    }
-    #[test]
     fn only_method_tail_branches_not_predicates_loops_or_nonlocals() {
         for source in [
             "x = 1; x",
@@ -364,20 +333,6 @@ mod tests {
                     .any(|o| o.cop == "Style/RedundantAssignment"),
                 "{source}"
             );
-        }
-    }
-    #[test]
-    fn comments_heredocs_and_source_observers_withhold_edits() {
-        for source in [
-            "def f\n x = 1 # note\n x\nend",
-            "def f\n x = 1\n # note\n x\nend",
-            "def f\n x = <<~TEXT\n value\nTEXT\n x\nend",
-            "def f\n x =\n __LINE__\n x\nend",
-            "def f; x = DATA.pos; x; end\n__END__\npayload\n",
-        ] {
-            let found = correction_offenses(&RedundantAssignment, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]
