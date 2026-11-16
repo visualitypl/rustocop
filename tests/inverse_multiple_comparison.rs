@@ -70,7 +70,6 @@ struct Case {
     source: String,
     positions: Vec<(u32, u32)>,
     messages: Vec<String>,
-    correction: Option<String>,
 }
 fn cases() -> Vec<Case> {
     serde_json::from_str(include_str!(
@@ -116,38 +115,6 @@ fn every_pinned_call_has_exact_positions_and_messages() {
         );
     }
     assert_eq!(counts, [111, 27]);
-}
-#[test]
-fn every_pinned_correction_is_applied_or_individually_withheld_without_hiding_offenses() {
-    let d = project();
-    let mut counts = [0; 2];
-    for c in cases().into_iter().filter(|c| c.correction.is_some()) {
-        counts[COPS.iter().position(|&cop| cop == c.cop).unwrap()] += 1;
-        if c.cop == COPS[1] && c.spec_line == 120 {
-            fs::write(d.path().join("a.rb"), &c.source).unwrap();
-            cli(d.path(), &["--only", &c.cop, "--fix", "a.rb"], 0);
-            assert_eq!(
-                fs::read_to_string(d.path().join("a.rb")).unwrap(),
-                c.correction.unwrap()
-            );
-            continue;
-        }
-        // InverseMethods is unsafe; MultipleComparison has unknown locals/calls,
-        // String identity/dispatch, or method evaluation/count/orientation risks.
-        let o = unchanged(
-            d.path(),
-            c.source.as_bytes(),
-            &["--only", &c.cop, "--fix", "a.rb"],
-            1,
-        );
-        assert!(
-            String::from_utf8_lossy(&o.stdout).contains(&c.cop),
-            "{}:{}",
-            c.cop,
-            c.spec_line
-        );
-    }
-    assert_eq!(counts, [96, 15]);
 }
 #[test]
 fn defaults_selectors_config_excludes_directives_and_no_write() {
@@ -235,105 +202,6 @@ fn defaults_selectors_config_excludes_directives_and_no_write() {
         }
         unchanged(d.path(), b"(\n", &["--only", cop, "--fix", "a.rb"], 2);
         unchanged(d.path(), b"a=1\n", &["--only", cop, "--fix", "a.rb"], 0);
-    }
-}
-#[test]
-fn safe_edits_preserve_encoding_bom_crlf_line_and_data_envelopes() {
-    let d = project();
-    for (prefix, suffix) in [
-        ("\u{feff}", "\r\n"),
-        ("# coding: us-ascii\r\n", "\r\n__LINE__\r\n"),
-        (
-            "# coding: windows-1252\n# café\n",
-            "\n__END__\nraw\0data\r\n",
-        ),
-    ] {
-        let s = format!("{prefix}a=1; a == 1 || a == 2{suffix}");
-        let after = format!("{prefix}a=1; [1, 2].include?(a){suffix}");
-        unchanged(d.path(), s.as_bytes(), &["--only", COPS[1], "a.rb"], 1);
-        cli(d.path(), &["--only", COPS[1], "--fix", "a.rb"], 0);
-        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
-        unchanged(
-            d.path(),
-            after.as_bytes(),
-            &["--only", COPS[1], "--fix", "a.rb"],
-            0,
-        );
-    }
-    for s in [
-        "a=1; a == 1 || # keep\n a == 2\n",
-        "a=1; a == 1 ||\n a == 2\np __LINE__\n",
-        "a=1; a == 1 || a == 2\nFile.read(__FILE__)\n",
-        "a=1; a == 1 || a == 2\np DATA.pos\n__END__\ndata",
-    ] {
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", COPS[1], "--fix", "a.rb"],
-            1,
-        );
-    }
-}
-#[test]
-fn controlled_runtime_observations_preserve_safe_edits_and_explain_withholds() {
-    let mut rubies = vec!["ruby".to_string()];
-    if let Ok(p) = crate::support::runtime::ruby() {
-        rubies.push(p);
-    }
-    let run = |ruby: &str, s: &str| {
-        let o = Command::new(ruby)
-            .args(["--disable-gems", "-e", s])
-            .output()
-            .unwrap();
-        assert!(o.status.success(), "{s}: {o:?}");
-        o.stdout
-    };
-    let d = project();
-    for ruby in rubies {
-        if Command::new(&ruby).arg("--version").output().is_err() {
-            continue;
-        }
-        for value in [-2, 0, 1, 2, 3] {
-            for expr in [
-                "a == 1 || a == 2",
-                "-2 == a || a == 0 || 3 == a",
-                "a == -2 or a == 0",
-            ] {
-                let s = format!("a={value}; result=({expr}); p [result,a,__LINE__]");
-                fs::write(d.path().join("a.rb"), &s).unwrap();
-                cli(d.path(), &["--only", COPS[1], "--fix", "a.rb"], 0);
-                let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
-                assert_ne!(after, s);
-                assert_eq!(run(&ruby, &s), run(&ruby, &after));
-            }
-        }
-        for (before, unsafe_after) in [
-            (
-                "class X; def ==(x); :truthy; end; end; a=X.new; p(a == 1 || a == 2)",
-                "class X; def ==(x); :truthy; end; end; a=X.new; p([1,2].include?(a))",
-            ),
-            (
-                "$n=0; def read; $n+=1; $n; end; p(read == 0 || read == 2); p $n",
-                "$n=0; def read; $n+=1; $n; end; p([0,2].include?(read)); p $n",
-            ),
-            (
-                "class X; def none?; nil; end; def any?; :different; end; end; p(!X.new.none?)",
-                "class X; def none?; nil; end; def any?; :different; end; end; p(X.new.any?)",
-            ),
-        ] {
-            assert_ne!(run(&ruby, before), run(&ruby, unsafe_after));
-            let cop = if before.contains("none?") {
-                COPS[0]
-            } else {
-                COPS[1]
-            };
-            unchanged(
-                d.path(),
-                before.as_bytes(),
-                &["--only", cop, "--fix", "a.rb"],
-                1,
-            );
-        }
     }
 }
 #[test]

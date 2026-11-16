@@ -27,7 +27,7 @@ impl Cop for ExactRegexpMatch {
         let Some(call) = node.as_call_node() else {
             return;
         };
-        let Some((subject, text, whole)) = candidate(&call, file) else {
+        let Some((subject, text, _)) = candidate(&call, file) else {
             return;
         };
         let op = if call.name().as_slice() == b"!~" {
@@ -52,176 +52,66 @@ impl Cop for ExactRegexpMatch {
             message: format!("Use `{prefer}`."),
             correction: cx
                 .corrections_requested()
-                .then(|| correct(&call, &subject, &text, whole, &prefer, cx, file))
+                .then(|| correct(&call, &prefer, cx))
                 .flatten(),
         });
     }
 }
 
-/// Only match? is match-state-free. Other operators alter $~ even when their
-/// result is discarded; unknown subjects can override either compared method.
-fn correct(
-    call: &CallNode<'_>,
-    subject: &Node<'_>,
-    text: &str,
-    whole: bool,
-    prefer: &str,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if !whole || !text.is_ascii() || !literal_predicate(call) {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
+/// RuboCop's corrector: only for a method that returns a Boolean, or a
+/// result used for its truthiness alone; parenthesized as the receiver or
+/// operand of another call.
+fn correct(call: &CallNode<'_>, prefer: &str, cx: &NodeContext<'_, '_>) -> Option<Correction> {
     let node = call.as_node();
-    let start = node.location().start_offset();
-    let facts = file.exact_regexp_safety(root);
-    let range = start..ast::source_end(&node);
-    if facts.changed
-        || facts.first_effect.is_some_and(|end| end <= start)
-        || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
-        || file.contains_heredoc(root, subject)
-        || file.heredoc_pending_at(root, start)
-        || file.bytes[range.clone()].contains(&b'\n')
-    {
+    let boolean =
+        !call.is_safe_navigation() && matches!(call.name().as_slice(), b"===" | b"!~" | b"match?");
+    let ancestors: Vec<_> = cx.ancestors().collect();
+    if !boolean && !truthiness_only(&node, &ancestors) {
         return None;
     }
+    let start = node.location().start_offset();
     let parent = cx.ancestors().find(|n| n.as_arguments_node().is_none());
     let group = parent.and_then(|p| p.as_call_node()).is_some_and(|p| {
         p.receiver()
             .is_some_and(|r| r.location().start_offset() == start)
             || ast::is_operator_method(p.name().as_slice()) && p.name().as_slice() != b"[]"
     });
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
-        Correction {
-            range,
-            replacement: if group {
-                format!("({prefer})")
-            } else {
-                prefer.into()
-            },
+    Some(Correction {
+        range: start..ast::source_end(&node),
+        replacement: if group {
+            format!("({prefer})")
+        } else {
+            prefer.into()
         },
-    )
+    })
 }
-fn literal_predicate(call: &CallNode<'_>) -> bool {
-    call.name().as_slice() == b"match?"
-        && call.block().is_none()
-        && call
-            .receiver()
-            .and_then(|n| n.as_string_node())
-            .is_some_and(|s| s.unescaped().is_ascii())
-}
-
-/// Lazy one-walk dispatch proof, shared across candidates. No local type
-/// inference, deferred scopes, declarations, interpolation or unknown effects.
-#[derive(Default)]
-pub(crate) struct Safety {
-    changed: bool,
-    first_effect: Option<usize>,
-    #[cfg(test)]
-    pub(crate) visits: usize,
-}
-impl Safety {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut facts = Self::default();
-        crate::cops::walk::walk(
-            &mut SafetyBuilder {
-                facts: &mut facts,
-                predicates: Vec::new(),
-            },
-            root,
-        );
-        facts
+/// RuboCop's `truthiness_only?`: the value is unused, or only decides a
+/// condition (through `!`, `&&`, `||` and grouping).
+fn truthiness_only(node: &Node<'_>, ancestors: &[&Node<'_>]) -> bool {
+    if !super::correction::value_used(node, ancestors.iter().copied()) {
+        return true;
     }
-}
-struct SafetyBuilder<'a> {
-    facts: &'a mut Safety,
-    // One frame per ancestor. Modifier predicates execute before the earlier
-    // body, so effects in their source ranges must invalidate that body too.
-    predicates: Vec<Option<(std::ops::Range<usize>, usize)>>,
-}
-impl<'pr> crate::cops::walk::NodeVisitor<'pr> for SafetyBuilder<'_> {
-    fn enter(&mut self, node: Node<'pr>) {
-        #[cfg(test)]
-        {
-            self.facts.visits += 1;
+    let span = |n: &Node<'_>| (n.location().start_offset(), n.location().end_offset());
+    let Some(index) = ancestors
+        .iter()
+        .position(|a| a.as_statements_node().is_none())
+    else {
+        return false;
+    };
+    let parent = ancestors[index];
+    match parent {
+        Node::ParenthesesNode { .. } | Node::AndNode { .. } | Node::OrNode { .. } => {
+            truthiness_only(parent, &ancestors[index + 1..])
         }
-        let conditional = if let Some(n) = node.as_if_node() {
-            Some((n.predicate(), n.statements()))
-        } else {
-            node.as_unless_node()
-                .map(|n| (n.predicate(), n.statements()))
-        };
-        self.predicates
-            .push(conditional.and_then(|(predicate, statements)| {
-                let loc = predicate.location();
-                statements
-                    .filter(|s| s.location().start_offset() < loc.start_offset())
-                    .map(|_| {
-                        (
-                            loc.start_offset()..loc.end_offset(),
-                            node.location().start_offset(),
-                        )
-                    })
-            }));
-        if let Some(call) = node.as_call_node() {
-            let args = ast::call_arguments(&call);
-            if !literal_predicate(&call)
-                || args.len() != 1
-                || args[0].as_regular_expression_node().is_none()
-            {
-                let loc = call.location();
-                let effect = self.predicates.iter().flatten().fold(
-                    loc.end_offset(),
-                    |offset, (predicate, body_start)| {
-                        if predicate.contains(&loc.start_offset())
-                            && loc.end_offset() <= predicate.end
-                        {
-                            offset.min(*body_start)
-                        } else {
-                            offset
-                        }
-                    },
-                );
-                self.facts.first_effect = Some(
-                    self.facts
-                        .first_effect
-                        .map_or(effect, |old| old.min(effect)),
-                );
-            }
-            self.facts.changed |= call.block().is_some();
-        } else {
-            self.facts.changed |= !matches!(
-                node,
-                Node::ProgramNode { .. }
-                    | Node::StatementsNode { .. }
-                    | Node::ArgumentsNode { .. }
-                    | Node::StringNode { .. }
-                    | Node::RegularExpressionNode { .. }
-                    | Node::ParenthesesNode { .. }
-                    | Node::LocalVariableReadNode { .. }
-                    | Node::LocalVariableWriteNode { .. }
-                    | Node::ArrayNode { .. }
-                    | Node::TrueNode { .. }
-                    | Node::FalseNode { .. }
-                    | Node::NilNode { .. }
-                    | Node::IfNode { .. }
-                    | Node::UnlessNode { .. }
-                    | Node::ElseNode { .. }
-                    | Node::AndNode { .. }
-                    | Node::OrNode { .. }
-                    | Node::SourceLineNode { .. }
-                    | Node::GlobalVariableReadNode { .. }
-                    | Node::BackReferenceReadNode { .. }
-                    | Node::NumberedReferenceReadNode { .. }
-            );
+        Node::IfNode { .. } => span(&parent.as_if_node().unwrap().predicate()) == span(node),
+        Node::UnlessNode { .. } => {
+            span(&parent.as_unless_node().unwrap().predicate()) == span(node)
         }
-    }
-    fn leave(&mut self) {
-        self.predicates.pop();
+        Node::WhileNode { .. } => span(&parent.as_while_node().unwrap().predicate()) == span(node),
+        Node::UntilNode { .. } => span(&parent.as_until_node().unwrap().predicate()) == span(node),
+        _ => parent
+            .as_call_node()
+            .is_some_and(|c| c.name().as_slice() == b"!"),
     }
 }
 fn candidate<'pr>(call: &CallNode<'pr>, file: &SourceFile) -> Option<(Node<'pr>, String, bool)> {
@@ -500,65 +390,6 @@ mod tests {
                 offenses(&format!("s.match?({pattern})")).is_empty(),
                 "{pattern}"
             );
-        }
-    }
-    #[test]
-    fn canonical_literal_match_predicate_corrections() {
-        use crate::cops::testing::assert_correction;
-        for (before, after) in [
-            (r"'string'.match?(/\Astring\z/)", "'string' == 'string'"),
-            (
-                r"'foo/bar'.match?(/\Afoo\/bar\z/)",
-                "'foo/bar' == 'foo/bar'",
-            ),
-            (
-                r#""foo'bar"&.match?(/\Afoo'bar\z/)"#,
-                r#""foo'bar" == 'foo\'bar'"#,
-            ),
-            (r"!'string'.match?(/\Astring\z/)", "!('string' == 'string')"),
-            (
-                r"'string'.match?(/\Astring\z/).to_s",
-                "('string' == 'string').to_s",
-            ),
-            (r"result = 'x'.match?(/\Ax\z/)", "result = 'x' == 'x'"),
-            (
-                r"a = 'x'.match?(/\Ax\z/) if true; p a",
-                "a = 'x' == 'x' if true; p a",
-            ),
-            (
-                r"a = 'x'.match?(/\Ax\z/) unless false; p a",
-                "a = 'x' == 'x' unless false; p a",
-            ),
-        ] {
-            assert_correction(&ExactRegexpMatch, before, after);
-        }
-        // A later modifier effect must not invalidate an earlier eager call.
-        assert_correction(
-            &ExactRegexpMatch,
-            r"a = 'x'.match?(/\Ax\z/); b = 'x'.match?(/\Ax\z/) if ''.class.undef_method('==')",
-            r"a = 'x' == 'x'; b = 'x'.match?(/\Ax\z/) if ''.class.undef_method('==')",
-        );
-    }
-    #[test]
-    fn risky_dispatch_result_values_state_and_unsupported_literal_edits_are_withheld() {
-        use crate::cops::testing::assert_correction;
-        for s in [
-            r"string.match?(/\Astring\z/)",
-            r"nil&.match?(/\Astring\z/)",
-            r"'x' =~ /\Ax\z/",
-            r"'x'.match(/\Ax\z/)",
-            r"/\Ax\z/ === 'x'",
-            r"'x' !~ /\Ax\z/",
-            r"if 'x' =~ /\Ax\z/; p $~; end",
-            r"'x'.match?(/\Ax\zbar/)",
-            r"'café'.match?(/\Acafé\z/)",
-            r#""\xFF".match?(/\Ax\z/)"#,
-            r"'x'.match?(/\Ax\z/) { side_effect }",
-            "class String; def ==(x); false; end; end\n'x'.match?(/\\Ax\\z/)",
-            "require 'anything'\n'x'.match?(/\\Ax\\z/)",
-            "def f; 'x'.match?(/\\Ax\\z/); end",
-        ] {
-            assert_correction(&ExactRegexpMatch, s, s);
         }
     }
     #[test]

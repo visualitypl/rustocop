@@ -69,7 +69,6 @@ pub struct SourceFile {
     argument_rewrite_facts: OnceLock<crate::cops::style::explicit_block_argument::Facts>,
     option_hash_supers: OnceLock<crate::cops::style::option_hash::SuperIndex>,
     inverse_method_nexts: OnceLock<crate::cops::style::inverse_methods::NextIndex>,
-    multiple_comparison_safety: OnceLock<crate::cops::style::multiple_comparison::Safety>,
     negated_condition_safety: OnceLock<crate::cops::style::negated_if::Safety>,
     /// Correction-only lexical declaration/read evidence for branch swaps.
     unless_else_bindings: OnceLock<crate::cops::style::unless_else::Bindings>,
@@ -162,8 +161,6 @@ pub struct SourceFile {
     comparable_clamp_safety: OnceLock<crate::cops::style::comparable_clamp::Safety>,
     /// Correction-only closed Integer comparison/Boolean result proof.
     redundant_conditional_safety: OnceLock<crate::cops::style::redundant_conditional::Safety>,
-    /// Correction-only closed literal String regexp-predicate dispatch proof.
-    exact_regexp_safety: OnceLock<crate::cops::style::exact_regexp_match::Safety>,
     /// Shared lazy closed-core proof for regexp argument/constructor edits.
     redundant_regexp_safety: OnceLock<crate::cops::style::redundant_regexp_constructor::Safety>,
     /// Shared correction-only core-dispatch and declared-constant proof.
@@ -286,7 +283,6 @@ impl SourceFile {
             argument_rewrite_facts: OnceLock::new(),
             option_hash_supers: OnceLock::new(),
             inverse_method_nexts: OnceLock::new(),
-            multiple_comparison_safety: OnceLock::new(),
             negated_condition_safety: OnceLock::new(),
             unless_else_bindings: OnceLock::new(),
             empty_case_return_bodies: OnceLock::new(),
@@ -319,7 +315,6 @@ impl SourceFile {
             min_max_safety: OnceLock::new(),
             comparable_clamp_safety: OnceLock::new(),
             redundant_conditional_safety: OnceLock::new(),
-            exact_regexp_safety: OnceLock::new(),
             redundant_regexp_safety: OnceLock::new(),
             boolean_predicate_safety: OnceLock::new(),
             mixin_grouping_bindings: OnceLock::new(),
@@ -831,14 +826,6 @@ impl SourceFile {
             .get_or_init(|| crate::cops::style::redundant_regexp_constructor::Safety::build(root))
     }
 
-    pub(crate) fn exact_regexp_safety(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::exact_regexp_match::Safety {
-        self.exact_regexp_safety
-            .get_or_init(|| crate::cops::style::exact_regexp_match::Safety::build(root))
-    }
-
     pub(crate) fn min_max_safety(&self, root: &Node<'_>) -> &crate::cops::style::min_max::Safety {
         self.min_max_safety
             .get_or_init(|| crate::cops::style::min_max::Safety::build(root))
@@ -1168,14 +1155,6 @@ impl SourceFile {
             offset += encoding.width(&self.bytes[offset..range.end]);
             Some(start)
         })
-    }
-
-    pub(crate) fn multiple_comparison_safety(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::multiple_comparison::Safety {
-        self.multiple_comparison_safety
-            .get_or_init(|| crate::cops::style::multiple_comparison::Safety::build(root))
     }
 
     pub(crate) fn inverse_method_nexts(
@@ -2509,67 +2488,6 @@ mod tests {
         }
     }
 
-    #[test]
-    fn interpolation_proofs_are_lazy_file_local_and_one_bounded_main_ast_walk() {
-        use crate::cops::{
-            Cop, run_cops,
-            style::{EmptyStringInsideInterpolation, RedundantInterpolationUnfreeze},
-            walk::{self, NodeVisitor},
-        };
-        let source = format!(
-            "# frozen_string_literal: false\n{}",
-            "[\"#{1}#{true ? 'x' : ''}\", +\"#{1}\"]\n".repeat(1500)
-        );
-        let f = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&f.bytes);
-        let mut out = Vec::new();
-        let cops: [&dyn Cop; 2] = [
-            &EmptyStringInsideInterpolation,
-            &RedundantInterpolationUnfreeze,
-        ];
-        assert!(
-            crate::cops::run_cops_with_corrections(&cops, &parsed, &f, &mut out, false).is_empty()
-        );
-        assert!(f.interpolation_facts.get().is_none());
-        assert_eq!(out.len(), 3000);
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &f, &mut out).is_empty());
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 1500);
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        let mut count = Count(0);
-        walk::walk(&mut count, &parsed.node());
-        let facts = f.interpolation_facts.get().unwrap();
-        assert_eq!(facts.visits, count.0);
-        assert!(facts.visits < 1500 * 30);
-        for _ in 0..1000 {
-            assert!(std::ptr::eq(facts, f.interpolation_facts(&parsed.node())));
-        }
-        // Many conditionals sharing ONE interpolation must reuse its cached
-        // shapes, not rescan all sibling parts per offense. Empty String branches
-        // remain reported, but no longer authorize encoding-changing edits.
-        let wide = format!(
-            "# frozen_string_literal: false\n\"{}#{{1}}\"\n",
-            "#{true ? '' : 'yes'}".repeat(1500)
-        );
-        let wide_file = SourceFile::new("wide.rb".into(), wide.into_bytes());
-        let wide_parse = crate::parser::parse(&wide_file.bytes);
-        out.clear();
-        assert!(run_cops(&cops, &wide_parse, &wide_file, &mut out).is_empty());
-        assert_eq!(out.len(), 1500);
-        assert!(out.iter().all(|o| o.correction.is_none()));
-        let mut count = Count(0);
-        walk::walk(&mut count, &wide_parse.node());
-        assert_eq!(wide_file.interpolation_facts.get().unwrap().visits, count.0);
-        assert!(count.0 < 1500 * 15);
-        let other = SourceFile::new("other.rb".into(), b"effect; +\"#{1}\"".to_vec());
-        assert!(other.interpolation_facts.get().is_none());
-    }
-
     fn file(bytes: &[u8]) -> SourceFile {
         SourceFile::new(PathBuf::from("test.rb"), bytes.to_vec())
     }
@@ -3175,70 +3093,6 @@ mod tests {
     }
 
     #[test]
-    fn inverse_and_multiple_comparison_indexes_are_lazy_cached_and_linear() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{InverseMethods, MultipleComparison},
-        };
-        for inverse in [false, true] {
-            let source = if inverse {
-                "foo.select { |e| !e.even? }\n".repeat(6000)
-            } else {
-                format!("a=1\n{}", "a == 1 || a == 2\n".repeat(6000))
-            };
-            let file = SourceFile::new("x.rb".into(), source.into_bytes());
-            let parsed = ruby_prism::parse(&file.bytes);
-            for corrections in [false, true, true] {
-                let mut found = vec![];
-                assert!(
-                    run_cops_with_corrections(
-                        &[&InverseMethods, &MultipleComparison],
-                        &parsed,
-                        &file,
-                        &mut found,
-                        corrections
-                    )
-                    .is_empty()
-                );
-                assert_eq!(found.len(), 6000);
-                assert_eq!(
-                    found.iter().filter(|o| o.correction.is_some()).count(),
-                    if corrections && !inverse { 6000 } else { 0 }
-                );
-                if !corrections {
-                    assert!(file.multiple_comparison_safety.get().is_none());
-                }
-            }
-            let count =
-                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
-                    .len();
-            assert!(count < 150000);
-            if inverse {
-                let nexts = file.inverse_method_nexts.get().unwrap();
-                assert_eq!(nexts.visits, count);
-                assert!(std::ptr::eq(
-                    nexts,
-                    file.inverse_method_nexts(&parsed.node())
-                ));
-                assert!(file.multiple_comparison_safety.get().is_none());
-            } else {
-                let safety = file.multiple_comparison_safety.get().unwrap();
-                assert_eq!(safety.visits, count);
-                assert!(std::ptr::eq(
-                    safety,
-                    file.multiple_comparison_safety(&parsed.node())
-                ));
-                assert!(file.inverse_method_nexts.get().is_none());
-            }
-        }
-        let file = SourceFile::new("x.rb".into(), b"!foo.none?".to_vec());
-        let parsed = ruby_prism::parse(&file.bytes);
-        let mut found = vec![];
-        run_cops_with_corrections(&[&InverseMethods], &parsed, &file, &mut found, false);
-        assert!(file.inverse_method_nexts.get().is_none());
-    }
-
-    #[test]
     fn keyword_negation_and_wide_predicate_tails_keep_bounded_lazy_work() {
         use crate::cops::{
             run_cops_with_corrections,
@@ -3317,52 +3171,6 @@ mod tests {
             facts,
             file.boolean_predicate_safety(&parsed.node())
         ));
-    }
-
-    #[test]
-    fn exact_regexp_match_uses_one_lazy_bounded_safety_walk() {
-        use crate::cops::{run_cops_with_corrections, style::ExactRegexpMatch};
-        let file = SourceFile::new(
-            "x.rb".into(),
-            "'x'.match?(/\\Ax\\z/)\n".repeat(6000).into_bytes(),
-        );
-        let result = ruby_prism::parse(&file.bytes);
-        for corrections in [false, true, true] {
-            let mut found = vec![];
-            assert!(
-                run_cops_with_corrections(
-                    &[&ExactRegexpMatch],
-                    &result,
-                    &file,
-                    &mut found,
-                    corrections
-                )
-                .is_empty()
-            );
-            assert_eq!(found.len(), 6000);
-            assert_eq!(
-                found.iter().filter(|o| o.correction.is_some()).count(),
-                if corrections { 6000 } else { 0 }
-            );
-            if !corrections {
-                assert!(file.exact_regexp_safety.get().is_none());
-            }
-        }
-        let facts = file.exact_regexp_safety.get().unwrap();
-        assert_eq!(
-            facts.visits,
-            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
-        );
-        assert!(facts.visits < 60000);
-        assert!(std::ptr::eq(
-            facts,
-            file.exact_regexp_safety(&result.node())
-        ));
-        let other = SourceFile::new("x.rb".into(), b"s.match?(/\\Ax\\z/)".to_vec());
-        let parsed = ruby_prism::parse(&other.bytes);
-        let mut found = vec![];
-        run_cops_with_corrections(&[&ExactRegexpMatch], &parsed, &other, &mut found, true);
-        assert!(other.exact_regexp_safety.get().is_none());
     }
 
     #[test]

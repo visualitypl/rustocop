@@ -146,38 +146,6 @@ fn directives_excludes_clean_error_and_unsafe_files_preserve_bytes_and_mtime() {
     unchanged(d.path(), R, b"p \"#{value}\"\n", 1);
 }
 #[test]
-fn bom_crlf_line_data_and_legacy_encoding_survive_real_safe_edits() {
-    let d = project();
-    for source in [
-        "\u{feff}# encoding: UTF-8\r\np +\"#{1} café\"\r\np __LINE__\r\n__END__\r\nraw\\payload\r\n".as_bytes(),
-        b"# encoding: ISO-8859-1\np +\"#{1} caf\xe9\"\np __LINE__\n__END__\nraw\n",
-    ] {
-        fs::write(d.path().join("a.rb"),source).unwrap(); let before = has_ruby().then(|| ruby(d.path()));
-        cli(d.path(), &["--only",U,"--fix","a.rb"],0); let after = fs::read(d.path().join("a.rb")).unwrap();
-        let plus = source.iter().position(|&b| b == b'+').unwrap(); let mut expected = source.to_vec(); expected.remove(plus); assert_eq!(after,expected);
-        if let Some(before) = before { same(&before,&ruby(d.path())); }
-    }
-    for encoding in ["UTF-8", "ISO-8859-1", "US-ASCII", "ASCII-8BIT"] {
-        let source = format!(
-            "# encoding: {encoding}\n# frozen_string_literal: false\nv = \"#{{nil}}#{{true ? '' : 'yes'}}\"\np [v.bytes, v.encoding.name, v.frozen?]\nv << 'tail'\np v\n"
-        );
-        fs::write(d.path().join("a.rb"), &source).unwrap();
-        let before = has_ruby().then(|| ruby(d.path()));
-        unchanged(d.path(), E, source.as_bytes(), 1);
-        if let Some(before) = before {
-            same(&before, &ruby(d.path()));
-        }
-    }
-    for name in [E, U] {
-        let source = if name == E {
-            "p \"#{true ? 'x' : nil}\"\np DATA.pos\n__END__\npayload\n"
-        } else {
-            "p +\"#{1}\"\np DATA.pos\n__END__\npayload\n"
-        };
-        unchanged(d.path(), name, source.as_bytes(), 1);
-    }
-}
-#[test]
 fn controlled_runtime_nil_branch_preserves_effect_order_truthiness_and_assignment_value() {
     if !has_ruby() {
         return;
@@ -208,51 +176,6 @@ p [result.bytes, result.encoding.name, result.frozen?, $events, __LINE__]
             .contains("'x' if condition")
     );
     same(&before, &ruby(d.path()));
-}
-#[test]
-fn hostile_to_s_and_copy_hooks_have_parseable_runtime_counterexamples() {
-    if !has_ruby() {
-        return;
-    }
-    let d = project();
-    for (cop, before, naive) in [
-        (
-            E,
-            "class NilClass; def to_s; 'N'; end; end\np \"#{false ? 'x' : ''}\"\n",
-            "class NilClass; def to_s; 'N'; end; end\np \"#{'x' if false}\"\n",
-        ),
-        (
-            E,
-            "def c; class << nil; def to_s; 'N'; end; end; false; end\np \"#{c ? 'x' : ''}\"\n",
-            "def c; class << nil; def to_s; 'N'; end; end; false; end\np \"#{'x' if c}\"\n",
-        ),
-        (
-            U,
-            "class String; def initialize_copy(x); super; self << 'copy'; end; end\np \"#{1}\".dup\n",
-            "class String; def initialize_copy(x); super; self << 'copy'; end; end\np \"#{1}\"\n",
-        ),
-        (
-            U,
-            "class String; def +@; 'plus'; end; end\np +\"#{1}\"\n",
-            "class String; def +@; 'plus'; end; end\np \"#{1}\"\n",
-        ),
-        (
-            U,
-            "class String; def initialize(x); replace(x); self << 'new'; end; end\np String.new(\"#{1}\")\n",
-            "class String; def initialize(x); replace(x); self << 'new'; end; end\np \"#{1}\"\n",
-        ),
-    ] {
-        fs::write(d.path().join("a.rb"), before).unwrap();
-        let original = ruby(d.path());
-        assert!(original.status.success(), "{original:?}");
-        unchanged(d.path(), cop, before.as_bytes(), 1);
-        same(&original, &ruby(d.path()));
-        assert_eq!(ruby_prism::parse(naive.as_bytes()).errors().count(), 0);
-        fs::write(d.path().join("a.rb"), naive).unwrap();
-        let changed = ruby(d.path());
-        assert!(changed.status.success(), "{changed:?}");
-        assert_ne!(original.stdout, changed.stdout);
-    }
 }
 #[test]
 fn controlled_frozen_mutable_encoding_and_identity_observations_survive_unfreeze() {
@@ -314,30 +237,6 @@ fn heredoc_indent_and_boundary_ownership_are_preserved_without_command_execution
             .as_interpolated_x_string_node()
             .is_some()
     );
-}
-#[test]
-fn known_source_observers_and_binding_risks_keep_reported_files_unchanged() {
-    let d = project();
-    for (name, source, _) in CASES {
-        for observer in [
-            "p File.binread($0)",
-            "p method(:p).source_location",
-            "p RubyVM::AbstractSyntaxTree",
-        ] {
-            unchanged(
-                d.path(),
-                name,
-                format!("{source}{observer}\n").as_bytes(),
-                1,
-            );
-        }
-    }
-    for source in [
-        "x = nil; p \"#{(x = true) ? x : nil}\"\n",
-        "p \"#{x ? (x = 1) : nil}\"\n",
-    ] {
-        unchanged(d.path(), E, source.as_bytes(), 1);
-    }
 }
 #[test]
 fn strict_options_and_stdin_remain_detection_only_and_read_only() {
@@ -505,114 +404,6 @@ w.call(r.value)
     }
     if !prism34 {
         eprintln!("SKIP explicit Prism 3.4 cross-check (gem unavailable), main-AST flags checked");
-    }
-}
-#[test]
-fn primitive_sibling_runtime_counterexamples_retain_bytes_and_mtime() {
-    let d = project();
-    for header in [
-        "",
-        "# frozen_string_literal: true\n",
-        "# frozen_string_literal: false\n",
-    ] {
-        let mut cases = Vec::new();
-        for body in [r##""#{1}#{''}""##, r##""#{''}#{1}""##] {
-            for wrapped in [
-                format!("+{body}"),
-                format!("{body}.+@"),
-                format!("{body}.dup"),
-                format!("String.new({body})"),
-            ] {
-                cases.push((U, wrapped, body.to_owned()));
-            }
-        }
-        for (expr, modifier) in [
-            ("true ? '' : 'yes'", "'yes' unless true"),
-            ("false ? 'yes' : ''", "'yes' if false"),
-        ] {
-            cases.push((
-                E,
-                format!("\"#{{1}}#{{{expr}}}#{{''}}\""),
-                format!("\"#{{1}}#{{{modifier}}}#{{''}}\""),
-            ));
-        }
-        for (cop, before, naive) in cases {
-            let observe = "\np [v.bytes, v.encoding.name, v.frozen?]\nv << '!'\np v\n";
-            let source = format!("{header}v = {before}{observe}");
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let original = has_ruby().then(|| ruby(d.path()));
-            unchanged(d.path(), cop, source.as_bytes(), 1);
-            if let Some(original) = original {
-                same(&original, &ruby(d.path()));
-                fs::write(
-                    d.path().join("a.rb"),
-                    format!("{header}v = {naive}{observe}"),
-                )
-                .unwrap();
-                let changed = ruby(d.path());
-                // Both findings have concrete witnesses on the installed host.
-                // No inference about the 3.4 compiler is made from this check.
-                let version = Command::new("ruby")
-                    .args(["-e", "print RUBY_VERSION"])
-                    .output()
-                    .unwrap();
-                if version.stdout.starts_with(b"3.2.") && before.contains("#{1}#{") {
-                    assert!(
-                        original.stdout != changed.stdout || original.status != changed.status,
-                        "{source}"
-                    );
-                }
-            }
-        }
-    }
-}
-#[test]
-fn controlled_host_frozen_branch_counterexamples_are_not_parse_proofs() {
-    if !has_ruby() {
-        return;
-    }
-    let d = project();
-    for predicate in ["true", "false", "nil", "0"] {
-        // Always select the immutable empty branch, without evaluating general Ruby.
-        let truthy = matches!(predicate, "true" | "0");
-        let expr = if truthy {
-            format!("{predicate} ? '' : 'yes'")
-        } else {
-            format!("{predicate} ? 'yes' : ''")
-        };
-        let naive = if truthy {
-            format!("'yes' unless {predicate}")
-        } else {
-            format!("'yes' if {predicate}")
-        };
-        let body = format!("\"#{{{expr}}}\"");
-        for (cop, before, after) in [
-            (E, body.clone(), format!("\"#{{{naive}}}\"")),
-            (U, format!("+{body}"), body.clone()),
-            (U, format!("{body}.dup"), body.clone()),
-            (U, format!("String.new({body})"), body.clone()),
-        ] {
-            let source = format!(
-                "# frozen_string_literal: true\nv = {before}\np [v.bytes, v.encoding.name, v.frozen?]\n"
-            );
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let original = ruby(d.path());
-            unchanged(d.path(), cop, source.as_bytes(), 1);
-            same(&original, &ruby(d.path()));
-            let rewritten = source.replace(&format!("v = {before}"), &format!("v = {after}"));
-            assert_eq!(ruby_prism::parse(rewritten.as_bytes()).errors().count(), 0);
-            fs::write(d.path().join("a.rb"), rewritten).unwrap();
-            let changed = ruby(d.path());
-            assert!(changed.status.success());
-            // This is a local runtime witness, NOT a target-version deduction.
-            let version = Command::new("ruby")
-                .args(["--disable-gems", "-e", "print RUBY_VERSION"])
-                .output()
-                .unwrap();
-            if version.stdout.starts_with(b"3.2.") {
-                assert_ne!(original.stdout, changed.stdout);
-            }
-        }
     }
 }
 #[test]

@@ -39,7 +39,7 @@ impl Cop for FileOpen {
                     .and_then(|c| c.receiver())
                     .is_some_and(|r| same(&r, node))
         });
-        if !local_or_chain && value_used(node, cx) {
+        if !local_or_chain && super::correction::value_used(node, cx.ancestors()) {
             return;
         }
         let start = node.location().start_offset();
@@ -59,71 +59,6 @@ impl Cop for FileOpen {
 fn same(a: &Node<'_>, b: &Node<'_>) -> bool {
     a.location().start_offset() == b.location().start_offset()
         && a.location().end_offset() == b.location().end_offset()
-}
-
-/// RuboCop AST's value_used? adapted to Prism's transparent statement lists.
-/// Unknown contexts conservatively consume the value. Ancestor depth is bounded
-/// by the pipeline; no descendant scans or reparsing are needed per offense.
-fn value_used(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
-    let mut child = node;
-    for parent in cx.ancestors() {
-        if let Some(statements) = parent.as_statements_node() {
-            if !statements
-                .body()
-                .last()
-                .is_some_and(|last| same(&last, child))
-            {
-                return false;
-            }
-        } else if parent.as_program_node().is_some() {
-            return false;
-        } else if let Some(n) = parent.as_if_node() {
-            if same(&n.predicate(), child) {
-                return true;
-            }
-        } else if let Some(n) = parent.as_unless_node() {
-            if same(&n.predicate(), child) {
-                return true;
-            }
-        } else if let Some(n) = parent.as_while_node() {
-            return same(&n.predicate(), child);
-        } else if let Some(n) = parent.as_until_node() {
-            return same(&n.predicate(), child);
-        } else if let Some(n) = parent.as_for_node() {
-            if same(&n.collection(), child) {
-                return true;
-            }
-        } else if let Some(n) = parent.as_case_node() {
-            if n.predicate().is_some_and(|p| same(&p, child)) {
-                return true;
-            }
-        } else if let Some(n) = parent.as_begin_node() {
-            if n.rescue_clause().is_some() || n.ensure_clause().is_some() {
-                return true;
-            }
-        } else if !matches!(
-            parent,
-            Node::ParenthesesNode { .. }
-                | Node::EmbeddedStatementsNode { .. }
-                | Node::ElseNode { .. }
-                | Node::WhenNode { .. }
-                | Node::ArrayNode { .. }
-                | Node::HashNode { .. }
-                | Node::KeywordHashNode { .. }
-                | Node::AssocNode { .. }
-                | Node::DefinedNode { .. }
-                | Node::InterpolatedStringNode { .. }
-                | Node::InterpolatedSymbolNode { .. }
-                | Node::InterpolatedRegularExpressionNode { .. }
-                | Node::InterpolatedXStringNode { .. }
-                | Node::RangeNode { .. }
-                | Node::FlipFlopNode { .. }
-        ) {
-            return true;
-        }
-        child = parent;
-    }
-    false
 }
 
 #[cfg(test)]

@@ -212,3 +212,72 @@ pub(crate) fn bracketed_array(
         words.join(&format!(",{between}"))
     ))
 }
+
+/// RuboCop AST's value_used? adapted to Prism's transparent statement lists.
+/// Unknown contexts conservatively consume the value. Ancestor depth is bounded
+/// by the pipeline; no descendant scans or reparsing are needed per offense.
+pub(crate) fn value_used<'a, 'pr: 'a>(
+    node: &ruby_prism::Node<'pr>,
+    ancestors: impl IntoIterator<Item = &'a ruby_prism::Node<'pr>>,
+) -> bool {
+    let span = |n: &ruby_prism::Node<'_>| (n.location().start_offset(), n.location().end_offset());
+    let mut child = span(node);
+    for parent in ancestors {
+        if let Some(statements) = parent.as_statements_node() {
+            if !statements
+                .body()
+                .last()
+                .is_some_and(|last| span(&last) == child)
+            {
+                return false;
+            }
+        } else if parent.as_program_node().is_some() {
+            return false;
+        } else if let Some(n) = parent.as_if_node() {
+            if span(&n.predicate()) == child {
+                return true;
+            }
+        } else if let Some(n) = parent.as_unless_node() {
+            if span(&n.predicate()) == child {
+                return true;
+            }
+        } else if let Some(n) = parent.as_while_node() {
+            return span(&n.predicate()) == child;
+        } else if let Some(n) = parent.as_until_node() {
+            return span(&n.predicate()) == child;
+        } else if let Some(n) = parent.as_for_node() {
+            if span(&n.collection()) == child {
+                return true;
+            }
+        } else if let Some(n) = parent.as_case_node() {
+            if n.predicate().is_some_and(|p| span(&p) == child) {
+                return true;
+            }
+        } else if let Some(n) = parent.as_begin_node() {
+            if n.rescue_clause().is_some() || n.ensure_clause().is_some() {
+                return true;
+            }
+        } else if !matches!(
+            parent,
+            ruby_prism::Node::ParenthesesNode { .. }
+                | ruby_prism::Node::EmbeddedStatementsNode { .. }
+                | ruby_prism::Node::ElseNode { .. }
+                | ruby_prism::Node::WhenNode { .. }
+                | ruby_prism::Node::ArrayNode { .. }
+                | ruby_prism::Node::HashNode { .. }
+                | ruby_prism::Node::KeywordHashNode { .. }
+                | ruby_prism::Node::AssocNode { .. }
+                | ruby_prism::Node::DefinedNode { .. }
+                | ruby_prism::Node::InterpolatedStringNode { .. }
+                | ruby_prism::Node::InterpolatedSymbolNode { .. }
+                | ruby_prism::Node::InterpolatedRegularExpressionNode { .. }
+                | ruby_prism::Node::InterpolatedXStringNode { .. }
+                | ruby_prism::Node::RangeNode { .. }
+                | ruby_prism::Node::FlipFlopNode { .. }
+        ) {
+            return true;
+        }
+        child = span(parent);
+    }
+    false
+}

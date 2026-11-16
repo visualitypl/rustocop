@@ -31,7 +31,7 @@ impl Cop for MultipleComparison {
         let range = first.start_offset()..last.end_offset();
         let (line, col) = file.line_col(range.start);
         let correction = if cx.corrections_requested() {
-            correct(&group, range.clone(), cx, file)
+            correct(&group, range.clone())
         } else {
             None
         };
@@ -129,35 +129,12 @@ fn collect<'pr>(node: &Node<'pr>, file: &SourceFile) -> Option<Group<'pr>> {
         omitted,
     })
 }
-fn small_integer(n: &Node<'_>) -> bool {
-    n.as_integer_node().is_some()
-        && super::even_odd::integer(n, None).is_some_and(|i| (-(1 << 30)..(1 << 30)).contains(&i))
-}
-fn correct(
-    group: &Group<'_>,
-    range: std::ops::Range<usize>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    group.variable.as_local_variable_read_node()?;
-    if !group.values.iter().all(small_integer)
-        || group.omitted.iter().any(|n| {
-            n.location().start_offset() >= range.start && n.location().end_offset() <= range.end
-        })
-    {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    let facts = file.multiple_comparison_safety(root);
-    if !facts
-        .integer_reads
-        .contains(&group.variable.location().start_offset())
-        || facts.changed
-        || facts.first_effect.is_some_and(|end| end <= range.start)
-        || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
-        || file.heredoc_pending_at(root, range.start)
-    {
+fn correct(group: &Group<'_>, range: std::ops::Range<usize>) -> Option<Correction> {
+    // RuboCop's `skipped_within_range?`: a comparison it leaves out sits
+    // between the values.
+    if group.omitted.iter().any(|n| {
+        n.location().start_offset() >= range.start && n.location().end_offset() <= range.end
+    }) {
         return None;
     }
     let elements = group
@@ -168,124 +145,16 @@ fn correct(
         .ok()?
         .join(", ");
     let arg = std::str::from_utf8(group.variable.location().as_slice()).ok()?;
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
-        Correction {
-            range,
-            replacement: format!("[{elements}].include?({arg})"),
-        },
-    )
-}
-/// Correction-only owned summary of the shared VariableForce analysis. A single
-/// unconditional top-level immediate-Integer assignment must dominate each read;
-/// captures, rebinding, dynamic mutation and unknown/deferred dispatch invalidate
-/// the proof. This is not inferred purity for arbitrary locals or calls.
-#[derive(Default)]
-pub(crate) struct Safety {
-    integer_reads: std::collections::HashSet<usize>,
-    changed: bool,
-    first_effect: Option<usize>,
-    #[cfg(test)]
-    pub(crate) visits: usize,
-}
-impl Safety {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        use crate::cops::variables::ScopeAnalysis;
-        let mut facts = Self::default();
-        if let Some(program) = root.as_program_node() {
-            let analysis = ScopeAnalysis::of(&program);
-            let writes: std::collections::HashSet<_> = program
-                .statements()
-                .body()
-                .iter()
-                .filter(|n| n.as_local_variable_write_node().is_some())
-                .map(|n| n.location().start_offset())
-                .collect();
-            for scope in analysis.scopes_in_exit_order() {
-                for id in analysis.scope(scope).variables() {
-                    let var = analysis.variable(id);
-                    if var.is_parameter()
-                        || var.captured_by_block
-                        || var.has_pattern_bindings
-                        || analysis.may_be_dynamically_mutated(id)
-                        || var.assignments.len() != 1
-                    {
-                        continue;
-                    }
-                    let assignment = analysis.assignment(var.assignments[0]);
-                    let Some(write) = assignment.node.as_local_variable_write_node() else {
-                        continue;
-                    };
-                    if !writes.contains(&write.location().start_offset())
-                        || !small_integer(&write.value())
-                    {
-                        continue;
-                    }
-                    for reference in &var.references {
-                        let r = analysis.reference(*reference);
-                        if r.is_explicit() && r.range.start >= write.location().end_offset() {
-                            facts.integer_reads.insert(r.range.start);
-                        }
-                    }
-                }
-            }
-        }
-        crate::cops::walk::walk(&mut facts, root);
-        facts
-    }
-    fn integer(&self, n: &Node<'_>) -> bool {
-        small_integer(n)
-            || (n.as_local_variable_read_node().is_some()
-                && self.integer_reads.contains(&n.location().start_offset()))
-    }
-}
-impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Safety {
-    fn enter(&mut self, node: Node<'pr>) {
-        #[cfg(test)]
-        {
-            self.visits += 1;
-        }
-        if let Some(c) = node.as_call_node() {
-            let args = ast::call_arguments(&c);
-            let trusted = !c.is_safe_navigation()
-                && c.block().is_none()
-                && args.len() == 1
-                && c.receiver().is_some_and(|lhs| {
-                    (c.name().as_slice() == b"==" && self.integer(&lhs) && self.integer(&args[0]))
-                        || (c.name().as_slice() == b"include?"
-                            && lhs
-                                .as_array_node()
-                                .is_some_and(|a| a.elements().iter().all(|n| small_integer(&n)))
-                            && self.integer(&args[0]))
-                });
-            if !trusted {
-                self.changed |= c.block().is_some();
-                let end = node.location().end_offset();
-                self.first_effect = Some(self.first_effect.map_or(end, |old| old.min(end)));
-            }
-        } else {
-            self.changed |= !matches!(
-                node,
-                Node::ProgramNode { .. }
-                    | Node::StatementsNode { .. }
-                    | Node::ArgumentsNode { .. }
-                    | Node::IntegerNode { .. }
-                    | Node::LocalVariableReadNode { .. }
-                    | Node::LocalVariableWriteNode { .. }
-                    | Node::OrNode { .. }
-                    | Node::ParenthesesNode { .. }
-                    | Node::ArrayNode { .. }
-                    | Node::SourceLineNode { .. }
-            );
-        }
-    }
+    Some(Correction {
+        range,
+        replacement: format!("[{elements}].include?({arg})"),
+    })
 }
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/multiple_comparison_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::assert_correction;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -348,55 +217,6 @@ mod tests {
         }
     }
     #[test]
-    fn block_passes_are_send_arguments_not_literal_block_wrappers() {
-        for s in [
-            "foo(&b) == 1 || foo(&b) == 2",
-            "foo(&:bar) == 1 || foo(&:bar) == 2",
-            "foo(&factory()) == 1 || foo(&factory()) == 2",
-            "a=1; a.==(&b) || a.==(&c)",
-        ] {
-            let o = offenses(s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(
-                correction_offenses(&MultipleComparison, s)[0]
-                    .correction
-                    .is_none()
-            );
-        }
-        for s in [
-            "foo { work } == 1 || foo { work } == 2",
-            "foo(&b) == 1 || foo(&c) == 2",
-            "a=1; a.==(1) { work } || a == 2",
-        ] {
-            assert!(offenses(s).is_empty(), "{s}");
-        }
-    }
-
-    #[test]
-    fn detection_compares_numeric_arguments_by_ruby_ast_value() {
-        for s in [
-            "foo(-0.0) == 1 || foo(0.0) == 2",
-            "foo(__LINE__) == 1 || foo(1) == 2",
-        ] {
-            let o = correction_offenses(&MultipleComparison, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert_eq!((o[0].line, o[0].col), (1, 1));
-            assert_eq!(
-                o[0].message,
-                "Avoid comparing a variable with multiple items in a conditional, use `Array#include?` instead."
-            );
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-        for s in [
-            "foo(-0.5) == 1 || foo(0.5) == 2",
-            "foo(__LINE__) == 1 || foo(2) == 2",
-            "foo(__LINE__) == 1 ||\nfoo(__LINE__) == 2",
-        ] {
-            assert!(offenses(s).is_empty(), "{s}");
-        }
-    }
-
-    #[test]
     fn canonical_closed_local_integer_corrections() {
         for (s, after) in [
             ("a = 1; a == 1 || a == 2", "a = 1; [1, 2].include?(a)"),
@@ -407,27 +227,6 @@ mod tests {
             ("a = 1; a == -1 or a == 0", "a = 1; [-1, 0].include?(a)"),
         ] {
             assert_correction(&MultipleComparison, s, after);
-        }
-    }
-    #[test]
-    fn unknown_dispatch_truthy_comparisons_and_effects_remain_reported() {
-        for s in [
-            "def f(a); a == 1 || a == 2; end",
-            "a = unknown; a == 1 || a == 2",
-            "a=1; a == (x = 1) || a == (x = 2)",
-            "a=1; a == C || a == D",
-            "foo == 1 || foo == 2",
-            "a[:key] == 1 || a[:key] == 2",
-            "a&.work == 1 || a&.work == 2",
-            "a=1; a == 'a' || a == 'b'",
-            "a=1; effect; a == 1 || a == 2",
-            "a=1; a=unknown; a == 1 || a == 2",
-            "class Integer; def ==(x); :truthy; end; end; a=1; a == 1 || a == 2",
-            "a=1; b=2; a == 1 || a == b || a == 2",
-        ] {
-            let o = correction_offenses(&MultipleComparison, s);
-            assert!(!o.is_empty(), "{s}");
-            assert!(o.iter().all(|o| o.correction.is_none()), "{s}");
         }
     }
 }
