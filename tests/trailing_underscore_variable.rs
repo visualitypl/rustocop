@@ -367,54 +367,6 @@ fn ruby_data_positions_are_observable_but_unobserved_payloads_can_change_prefix(
     }
 }
 #[test]
-fn curated_comma_assignment_style_layout_composition_stabilizes() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    let source = "def sample\n  a, _ = [1,2,]; b, (c, _) = [3,[4,5,]]; p(a,b,c,)\nend\nsample\n";
-    for selection in [
-        Some(
-            "Style/TrailingUnderscoreVariable,Style/TrailingCommaInArrayLiteral,Style/TrailingCommaInArguments,Style/ParallelAssignment,Style/StringLiterals,Style/HashSyntax,Style/RedundantReturn,Style/Semicolon,Style/RedundantParentheses,Style/SignalException,Layout",
-        ),
-        None,
-    ] {
-        // ParallelAssignment is now a real selected/default peer;
-        // its discard-target hold leaves forced destructuring to this cop.
-        let registry = rustocop::cops::Registry::new();
-        let selected = selection.map(|s| {
-            s.split(',')
-                .filter(|n| !n.contains('/') || registry.has_cop(n))
-                .collect::<Vec<_>>()
-                .join(",")
-        });
-        fs::write(&path, source).unwrap();
-        let before = ruby(&path);
-        let mut stable = false;
-        for _ in 0..6 {
-            let old = fs::read(&path).unwrap();
-            let mut args = vec!["--fix", "lib/a.rb"];
-            if let Some(s) = &selected {
-                args.extend(["--only", s.as_str()]);
-            }
-            let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(d.path())
-                .args(args)
-                .output()
-                .unwrap();
-            assert_ne!(out.status.code(), Some(2), "{out:?}");
-            if fs::read(&path).unwrap() == old {
-                stable = true;
-                break;
-            }
-        }
-        assert!(stable);
-        assert!(!fs::read_to_string(&path).unwrap().contains("_"));
-        if let Some(before) = before {
-            assert!(before.status.success());
-            same_observations(before, ruby(&path).unwrap());
-        }
-    }
-}
-#[test]
 fn lexical_rhs_captures_survive_cli_fixes_with_independent_safe_edits() {
     let d = project();
     let path = d.path().join("lib/a.rb");

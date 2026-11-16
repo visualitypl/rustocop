@@ -155,36 +155,6 @@ pub(super) fn report(
     });
 }
 
-// Negation is Ruby dispatch, not a promise that arbitrary objects' !/!=/==
-// methods are complementary. Only closed immediate operands are corrected.
-pub(super) fn trusted(call: &CallNode<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> bool {
-    if cx.ancestors().any(|n| {
-        matches!(
-            n,
-            Node::WhileNode { .. }
-                | Node::UntilNode { .. }
-                | Node::ForNode { .. }
-                | Node::BlockNode { .. }
-                | Node::LambdaNode { .. }
-        ) || n
-            .as_begin_node()
-            .is_some_and(|b| b.rescue_clause().is_some() || b.ensure_clause().is_some())
-    }) || super::correction::contains_comment(
-        file,
-        call.location().start_offset()..call.location().end_offset(),
-    ) {
-        return false;
-    }
-    if !closed_primitive(call) {
-        return false;
-    }
-    let Some(root) = cx.ancestors().next_back() else {
-        return false;
-    };
-    let facts = file.negated_condition_safety(root);
-    facts.before_effects(call.location().start_offset())
-}
-
 // Use the same complete dispatch proof for a correction and for exempting an
 // earlier call from the effect index. Integer#!= can invoke an unknown RHS's ==.
 fn closed_primitive(call: &CallNode<'_>) -> bool {

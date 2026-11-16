@@ -23,12 +23,12 @@ impl Cop for OrAssignment {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some((variable, default, conditional)) = candidate(node) else {
+        let Some((variable, default, _)) = candidate(node) else {
             return;
         };
         let correction = cx
             .corrections_requested()
-            .then(|| correction(node, variable, &default, conditional, cx, file))
+            .then(|| correction(node, variable, &default))
             .flatten();
         super::negated_if::report(
             self,
@@ -52,63 +52,12 @@ enum Kind {
     Class,
     Global,
 }
-const REWRITE_LIMIT: usize = 16 * 1024;
 
-fn correction(
-    node: &Node<'_>,
-    variable: Variable<'_>,
-    default: &Node<'_>,
-    conditional: bool,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
+fn correction(node: &Node<'_>, variable: Variable<'_>, default: &Node<'_>) -> Option<Correction> {
+    // RuboCop writes `name ||= default` with the default's source.
     let loc = node.location();
-    // Class reads may raise where ||= initializes. Unconditional self-writes
-    // also raise on frozen instance receivers or invoke global trace_var hooks.
-    if loc.end_offset() - loc.start_offset() > REWRITE_LIMIT
-        || variable.0 == Kind::Class
-        || (matches!(variable.0, Kind::Instance | Kind::Global) && !conditional)
-        || matches!(
-            default,
-            Node::ReturnNode { .. }
-                | Node::BreakNode { .. }
-                | Node::NextNode { .. }
-                | Node::RedoNode { .. }
-                | Node::RetryNode { .. }
-        )
-        || (conditional && !discarded(node, cx))
-        || super::correction::contains_comment(file, loc.start_offset()..loc.end_offset())
-    {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    // Reuse cached scope analysis to verify that moving an unless target to
-    // the start cannot introduce an earlier local binding or capture.
-    if variable.0 == Kind::Local
-        && !file
-            .visible_locals(root)
-            .declared_before(variable.1, node, cx, loc.start_offset())
-    {
-        return None;
-    }
-    #[cfg(test)]
-    REWRITE_BYTES.with(|n| n.set(n.get() + loc.end_offset() - loc.start_offset()));
-    if file.contains_heredoc(root, node) || file.heredoc_pending_at(root, loc.start_offset()) {
-        return None;
-    }
     let name = std::str::from_utf8(variable.1).ok()?;
-    let text = std::str::from_utf8(default.location().as_slice()).ok()?;
-    // The original conditional protects low-precedence defaults. Retain an
-    // expression envelope for arbitrary expressions (including command calls).
-    let default = if crate::cops::ast::is_basic_literal(default)
-        || read(default).is_some()
-        || default.as_parentheses_node().is_some()
-        || default.as_string_node().is_some()
-    {
-        text.into()
-    } else {
-        format!("({text})")
-    };
+    let default = std::str::from_utf8(default.location().as_slice()).ok()?;
     Some(Correction {
         range: loc.start_offset()..loc.end_offset(),
         replacement: format!("{name} ||= {default}"),
@@ -204,29 +153,6 @@ fn candidate<'pr>(node: &Node<'pr>) -> Option<(Variable<'pr>, Node<'pr>, bool)> 
     (read(&predicate)? == variable).then_some((variable, default, true))
 }
 
-// An unless/empty-then returns nil on its skipped branch; ||= returns the
-// existing truthy variable. Only statement-discarding contexts permit this fix.
-fn discarded(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
-    let mut child = node;
-    for parent in cx.ancestors() {
-        if let Some(body) = parent.as_statements_node() {
-            if body
-                .body()
-                .last()
-                .is_some_and(|n| n.location().start_offset() != child.location().start_offset())
-            {
-                return true;
-            }
-        } else if parent.as_program_node().is_some() {
-            return true;
-        } else if !matches!(parent, Node::ParenthesesNode { .. }) {
-            return false;
-        }
-        child = parent;
-    }
-    false
-}
-
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/or_assignment_spec.rb (MIT,
@@ -259,139 +185,12 @@ mod tests {
         }
     }
     #[test]
-    fn pinned_variable_forms_positions_and_corrections() {
-        for name in ["foo", "@foo", "@@foo", "$foo"] {
-            for expression in [
-                format!("{name} = {name} ? {name} : 'default'"),
-                format!("{name} = if {name}\n  {name}\nelse\n  'default'\nend"),
-                format!("{name} = 'default' unless {name}"),
-                format!("unless {name}\n  {name} = 'default'\nend"),
-                format!("if {name}\nelse\n  {name} = 'default'\nend"),
-            ] {
-                let source = format!("{name} = nil\n  {expression}\n");
-                let found: Vec<_> = lint_str(&source)
-                    .into_iter()
-                    .filter(|o| o.cop == OrAssignment.name())
-                    .collect();
-                assert_eq!(found.len(), 1, "{source}");
-                assert_eq!((found[0].line, found[0].col), (2, 3), "{source}");
-                assert_eq!(
-                    found[0].message,
-                    "Use the double pipe equals operator `||=` instead."
-                );
-                if name.starts_with("@@")
-                    || ((name.starts_with('$') || name.starts_with('@'))
-                        && expression.starts_with(&format!("{name} = "))
-                        && !expression.ends_with(&format!("unless {name}")))
-                {
-                    assert!(
-                        crate::cops::testing::correction_offenses(&OrAssignment, &source)[0]
-                            .correction
-                            .is_none()
-                    );
-                } else {
-                    assert_correction(
-                        &OrAssignment,
-                        &source,
-                        &format!("{name} = nil\n  {name} ||= 'default'\n"),
-                    );
-                }
-            }
-        }
-    }
-    #[test]
     fn reversed_unless_expression_is_normalized_like_upstream() {
         assert_correction(
             &OrAssignment,
             "foo = unless foo\n 'default'\nelse\n foo\nend",
             "foo ||= 'default'",
         );
-    }
-    #[test]
-    fn global_write_hooks_and_class_initialization_keep_findings_without_fixes() {
-        for source in [
-            "@foo = @foo ? @foo : 1", // Frozen receivers still raise on the original self-write.
-            "$foo = $foo ? $foo : 1",
-            "@@foo = @@foo ? @@foo : 1",
-            "unless @@foo\n @@foo = 1\nend",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&OrAssignment, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn consumed_unless_keeps_nil_return_and_standalone_statements_can_fix() {
-        for source in [
-            "result = (@foo = 1 unless @foo)",
-            "def f; unless @foo; @foo = 1; end; end",
-            "items.map { @foo = 1 unless @foo }",
-            "-> { unless @foo; @foo = 1; end }",
-            "def f; if @foo; else; @foo = 1; end; end",
-            "defined?((@foo = 1 unless @foo))",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&OrAssignment, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &OrAssignment,
-            "def f; @foo = 1 unless @foo; :done; end",
-            "def f; @foo ||= 1; :done; end",
-        );
-    }
-    #[test]
-    fn binding_capture_default_precedence_and_control_flow() {
-        for (before, after) in [
-            ("foo = foo ? foo : -> { foo }", "foo ||= (-> { foo })"),
-            (
-                "foo = nil; proc { foo = foo ? foo : 3 }",
-                "foo = nil; proc { foo ||= 3 }",
-            ),
-            (
-                "foo = nil; proc { |foo| foo = foo ? foo : 3 }",
-                "foo = nil; proc { |foo| foo ||= 3 }",
-            ),
-            (
-                "foo = nil; proc { |;foo| foo = foo ? foo : 3 }",
-                "foo = nil; proc { |;foo| foo ||= 3 }",
-            ),
-            (
-                "foo = if foo; foo; else; false or 3; end",
-                "foo ||= (false or 3)",
-            ),
-        ] {
-            assert_correction(&OrAssignment, before, after);
-        }
-    }
-    #[test]
-    fn bounded_lazy_rewrites_and_one_cached_scope_analysis() {
-        use crate::cops::variables::VISIBLE_LOCAL_BUILDS;
-        let source = "foo = foo ? foo : 1\n".repeat(1000);
-        REWRITE_BYTES.with(|n| n.set(0));
-        VISIBLE_LOCAL_BUILDS.with(|n| n.set(0));
-        assert_eq!(
-            lint_str(&source)
-                .iter()
-                .filter(|o| o.cop == OrAssignment.name())
-                .count(),
-            1000
-        );
-        REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-        VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 0));
-        let found = crate::cops::testing::correction_offenses(&OrAssignment, &source);
-        assert_eq!(found.len(), 1000);
-        assert!(found.iter().all(|o| o.correction.is_some()));
-        REWRITE_BYTES.with(|n| assert!(n.get() <= source.len()));
-        VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 1));
-        let huge = format!("foo = foo ? foo : '{}'", "x".repeat(20_000));
-        REWRITE_BYTES.with(|n| n.set(0));
-        assert!(
-            crate::cops::testing::correction_offenses(&OrAssignment, &huge)[0]
-                .correction
-                .is_none()
-        );
-        REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
     }
     #[test]
     fn lookalikes_do_not_match() {

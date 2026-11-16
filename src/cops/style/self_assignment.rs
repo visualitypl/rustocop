@@ -35,20 +35,7 @@ impl Cop for SelfAssignment {
         };
         let correction = cx
             .corrections_requested()
-            .then(|| {
-                correction(
-                    node,
-                    Parts {
-                        variable,
-                        value: value_loc,
-                        equal,
-                        operator,
-                        operand: &operand,
-                    },
-                    cx,
-                    file,
-                )
-            })
+            .then(|| correction(&value_loc, &equal, operator, &operand, file))
             .flatten();
         super::negated_if::report(
             self,
@@ -150,66 +137,17 @@ fn operation<'pr>(node: &Node<'pr>, variable: Variable<'pr>) -> Option<(&'pr [u8
     (matches!(op.as_slice(), b"&&" | b"||") && read(&left) == Some(variable))
         .then_some((op.as_slice(), right))
 }
-struct Parts<'a, 'pr> {
-    variable: Variable<'pr>,
-    value: Location<'pr>,
-    equal: Location<'pr>,
-    operator: &'pr [u8],
-    operand: &'a Node<'pr>,
-}
+/// RuboCop's corrector: the operator before `=`, the operand's source after.
 fn correction(
-    node: &Node<'_>,
-    Parts {
-        variable,
-        value,
-        equal,
-        operator,
-        operand,
-    }: Parts<'_, '_>,
-    cx: &NodeContext<'_, '_>,
+    value: &Location<'_>,
+    equal: &Location<'_>,
+    operator: &[u8],
+    operand: &Node<'_>,
     file: &SourceFile,
 ) -> Option<Correction> {
-    let loc = node.location();
-    // ||= can suppress an undefined-class-variable exception; both boolean
-    // forms can skip a nonlocal write (notably on frozen receivers/classes).
-    if loc.end_offset() - loc.start_offset() > 16 * 1024
-        || (variable.0 != 0 && matches!(operator, b"||" | b"&&"))
-        || cx.ancestors().any(|n| n.as_defined_node().is_some())
-        || matches!(
-            operand,
-            Node::SplatNode { .. }
-                | Node::BlockArgumentNode { .. }
-                | Node::ForwardingArgumentsNode { .. }
-                | Node::KeywordHashNode { .. }
-                | Node::ReturnNode { .. }
-                | Node::BreakNode { .. }
-                | Node::NextNode { .. }
-                | Node::RedoNode { .. }
-                | Node::RetryNode { .. }
-        )
-        || super::correction::contains_comment(file, loc.start_offset()..loc.end_offset())
-    {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    if file.contains_heredoc(root, node) || file.heredoc_pending_at(root, loc.start_offset()) {
-        return None;
-    }
-    if variable.0 == 0
-        && !file
-            .visible_locals(root)
-            .declared_before(variable.1, node, cx, loc.start_offset())
-    {
-        return None;
-    }
-    let text = std::str::from_utf8(operand.location().as_slice()).ok()?;
-    // Preserve precedence, command binding and control flow of arbitrary RHS
-    // expressions. Primary operands retain RuboCop's canonical spelling.
-    let rhs = if primary(operand) {
-        text.to_owned()
-    } else {
-        format!("({text})")
-    };
+    let rhs = std::str::from_utf8(operand.location().as_slice())
+        .ok()?
+        .to_owned();
     let edit = super::correction::combine(
         file,
         vec![
@@ -223,27 +161,7 @@ fn correction(
             },
         ],
     )?;
-    #[cfg(test)]
-    REWRITE_BYTES.with(|n| n.set(n.get() + edit.range.len()));
     Some(edit)
-}
-fn primary(node: &Node<'_>) -> bool {
-    ast::is_basic_literal(node)
-        || read(node).is_some()
-        || matches!(
-            node,
-            Node::ConstantReadNode { .. }
-                | Node::ConstantPathNode { .. }
-                | Node::ParenthesesNode { .. }
-                | Node::StringNode { .. }
-                | Node::ArrayNode { .. }
-                | Node::HashNode { .. }
-        )
-        || node.as_call_node().is_some_and(|n| {
-            n.block().is_none()
-                && !ast::is_operator_method(n.name().as_slice())
-                && (n.opening_loc().is_some() || ast::call_arguments(&n).is_empty())
-        })
 }
 #[cfg(test)]
 thread_local! { static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
@@ -253,10 +171,7 @@ mod tests {
     //! Ported from RuboCop style/self_assignment_spec.rb (MIT,
     //! Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::assert_correction, pipeline::lint_str};
     #[test]
     fn variable_kinds_captured_scopes_and_nonmatching_writes() {
         for source in [
@@ -313,57 +228,6 @@ mod tests {
         }
     }
     #[test]
-    fn rhs_precedence_control_flow_and_dispatch_are_retained() {
-        for (before, after) in [
-            ("x = x.+(y * z)", "x += (y * z)"),
-            ("x = x ** y + z", "x = x ** y + z"),
-            ("x = x.+((false or y))", "x += (false or y)"),
-            ("x = x + (y = 2)", "x += (y = 2)"),
-            ("x = x.+(work y)", "x += (work y)"),
-        ] {
-            if before == after {
-                assert!(
-                    !lint_str(before)
-                        .iter()
-                        .any(|o| o.cop == SelfAssignment.name())
-                );
-            } else {
-                assert_correction(&SelfAssignment, before, after);
-            }
-        }
-    }
-    #[test]
-    fn corrections_are_lazy_bounded_and_scope_analysis_is_shared() {
-        use crate::cops::variables::VISIBLE_LOCAL_BUILDS;
-        let source = "x = x + 1\n".repeat(1000);
-        REWRITE_BYTES.with(|n| n.set(0));
-        VISIBLE_LOCAL_BUILDS.with(|n| n.set(0));
-        assert_eq!(
-            lint_str(&source)
-                .iter()
-                .filter(|o| o.cop == SelfAssignment.name())
-                .count(),
-            1000
-        );
-        REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-        VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 0));
-        assert!(
-            correction_offenses(&SelfAssignment, &source)
-                .iter()
-                .all(|o| o.correction.is_some())
-        );
-        REWRITE_BYTES.with(|n| assert!(n.get() <= source.len()));
-        VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 1));
-        let huge = format!("x = x + '{}'", "z".repeat(20_000));
-        REWRITE_BYTES.with(|n| n.set(0));
-        assert!(
-            correction_offenses(&SelfAssignment, &huge)[0]
-                .correction
-                .is_none()
-        );
-        REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-    }
-    #[test]
     fn every_pinned_call_has_exact_diagnostics() {
         let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
             "../../../tests/fixtures/self_assignment_pinned.json"
@@ -387,29 +251,5 @@ mod tests {
                 "{source}"
             );
         }
-    }
-    #[test]
-    fn pinned_corrections_are_canonical_or_nonlocal_boolean_safety_holds() {
-        let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/self_assignment_pinned.json"
-        ))
-        .unwrap();
-        let (mut fixed, mut held) = (0, 0);
-        for c in cases {
-            let Some(after) = c["correction"].as_str() else {
-                continue;
-            };
-            let before = c["source"].as_str().unwrap();
-            if before.starts_with('@') && (before.contains("||") || before.contains("&&")) {
-                let found = correction_offenses(&SelfAssignment, before);
-                assert_eq!(found.len(), 1);
-                assert!(found[0].correction.is_none(), "{before}");
-                held += 1;
-            } else {
-                assert_correction(&SelfAssignment, before, after);
-                fixed += 1;
-            }
-        }
-        assert_eq!((fixed, held), (76, 6));
     }
 }

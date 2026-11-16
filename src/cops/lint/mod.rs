@@ -129,7 +129,7 @@ mod unexpected_block_arity;
 pub use unexpected_block_arity::UnexpectedBlockArity;
 mod underscore_prefixed_variable_name;
 pub use underscore_prefixed_variable_name::UnderscorePrefixedVariableName;
-mod symbol_conversion;
+pub(crate) mod symbol_conversion;
 pub use symbol_conversion::SymbolConversion;
 mod suppressed_exception;
 mod trailing_comma_in_attribute_declaration;

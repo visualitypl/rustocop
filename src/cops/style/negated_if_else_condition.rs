@@ -24,11 +24,13 @@ impl Cop for NegatedIfElseCondition {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some(c) = candidate(node) else { return };
+        let Some(c) = candidate(node, file) else {
+            return;
+        };
         let kind = if c.ternary { "ternary" } else { "if-else" };
         let correction = cx
             .corrections_requested()
-            .then(|| correct(node, &c, cx, file))
+            .then(|| correct(&c, file))
             .flatten();
         negated_if::report(
             self,
@@ -42,7 +44,6 @@ impl Cop for NegatedIfElseCondition {
 }
 struct Candidate<'pr> {
     condition: CallNode<'pr>,
-    predicate: Node<'pr>,
     body: Option<StatementsNode<'pr>>,
     other: StatementsNode<'pr>,
     boundary: usize,
@@ -51,7 +52,7 @@ struct Candidate<'pr> {
     end: usize,
     ternary: bool,
 }
-fn candidate<'pr>(node: &Node<'pr>) -> Option<Candidate<'pr>> {
+fn candidate<'pr>(node: &Node<'pr>, file: &SourceFile) -> Option<Candidate<'pr>> {
     let (predicate, body, other, boundary, else_loc, end, ternary) =
         if let Some(n) = node.as_if_node() {
             if n.if_keyword_loc().is_some_and(|k| k.as_slice() == b"elsif") {
@@ -103,13 +104,17 @@ fn candidate<'pr>(node: &Node<'pr>) -> Option<Candidate<'pr>> {
     {
         return None;
     }
-    let predicate = node
-        .as_if_node()
-        .map(|n| n.predicate())
-        .or_else(|| node.as_unless_node().map(|n| n.predicate()))?;
+    // RuboCop's AST takes a `;` after the condition as the `then`.
+    let mut boundary = boundary;
+    let mut after = boundary;
+    while matches!(file.bytes.get(after), Some(b' ' | b'\t')) {
+        after += 1;
+    }
+    if file.bytes.get(after) == Some(&b';') {
+        boundary = after + 1;
+    }
     Some(Candidate {
         condition,
-        predicate,
         body,
         other,
         boundary,
@@ -119,144 +124,57 @@ fn candidate<'pr>(node: &Node<'pr>) -> Option<Candidate<'pr>> {
         ternary,
     })
 }
-fn correct(
-    node: &Node<'_>,
-    c: &Candidate<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if !negated_if::trusted(&c.condition, cx, file) {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    let loc = node.location();
-    if loc.end_offset() - loc.start_offset() > 16 * 1024
-        || file.contains_heredoc(root, node)
-        || file.heredoc_pending_at(root, loc.start_offset())
-    {
-        return None;
-    }
-    // Branch order is lexical order too: moving a first declaration can turn
-    // a vcall into a local or a block-local into a capture. Use VariableForce's
-    // declarations, not a second approximation of Ruby assignment syntax.
-    let declarations = &file.negated_condition_safety(root).declarations;
-    let at = declarations.partition_point(|&p| p < c.boundary);
-    if declarations.get(at).is_some_and(|&p| p < c.end) {
-        return None;
-    }
-    let source = &file.bytes[loc.start_offset()..loc.end_offset()];
-    if source.windows(8).any(|w| w == b"__LINE__") {
-        return None;
-    }
-    let comments = file.comments();
-    let first = comments.partition_point(|r| r.end <= c.boundary);
-    if comments[first..]
-        .iter()
-        .take_while(|r| r.start < c.end)
-        .any(|r| !super::correction::comment_relocation_safe(&file.bytes[r.clone()]))
-    {
-        return None;
-    }
-    // Only a single transparently grouped expression is correction-eligible.
-    // Detection follows upstream's first-child unwrapping of multi-statement
-    // begin conditions; changing that first child need not invert their value.
-    if !transparent(&c.predicate) {
-        return None;
-    }
+/// RuboCop's corrector: the condition without its negation (`!=`
+/// becomes `==`), and the two branches swapped, whitespace and comments
+/// included; an empty `if` branch instead loses the `else` line.
+fn correct(c: &Candidate<'_>, file: &SourceFile) -> Option<Correction> {
+    let text =
+        |r: std::ops::Range<usize>| std::str::from_utf8(&file.bytes[r]).ok().map(str::to_owned);
+    let span = |n: &Node<'_>| n.location().start_offset()..n.location().end_offset();
+    let condition = c.condition.as_node();
     let receiver = c.condition.receiver()?;
     let replacement = if c.condition.name().as_slice() == b"!" {
-        negated_if::text(&receiver)?.to_owned()
+        text(span(&receiver))?
     } else {
-        let arg = ast::call_arguments(&c.condition).into_iter().next()?;
+        let argument = ast::call_arguments(&c.condition).into_iter().next()?;
+        let method = if c.condition.name().as_slice() == b"!=" {
+            "=="
+        } else {
+            "=~"
+        };
         format!(
-            "{} == {}",
-            negated_if::text(&receiver)?,
-            negated_if::text(&arg)?
+            "{} {method} {}",
+            text(span(&receiver))?,
+            text(span(&argument))?
         )
     };
     let mut edits = vec![Correction {
-        range: c.condition.location().start_offset()..c.condition.location().end_offset(),
+        range: span(&condition),
         replacement,
     }];
-    if let Some(body) = &c.body {
+    let empty_if = c.body.as_ref().is_none_or(|b| b.body().is_empty());
+    if empty_if {
+        let line = file.line_of(c.else_start);
+        edits.push(Correction {
+            range: file.line_start(line)..file.line_start(line + 1),
+            replacement: String::new(),
+        });
+    } else {
         let (a, b) = if c.ternary {
-            (
-                body.location().start_offset()..body.location().end_offset(),
-                c.other.location().start_offset()..c.other.location().end_offset(),
-            )
+            (span(&c.body.as_ref()?.as_node()), span(&c.other.as_node()))
         } else {
-            let mut boundary = c.boundary;
-            while boundary < c.else_start
-                && matches!(
-                    file.bytes[boundary],
-                    b' ' | b'\t' | b'\x0b' | b'\x0c' | b'\r'
-                )
-            {
-                boundary += 1;
-            }
-            if file.bytes.get(boundary) == Some(&b';') {
-                boundary += 1;
-            } else {
-                boundary = c.boundary;
-            }
-            // A newline-only header relies on the branch's leading separator.
-            // An inline else body cannot be pasted directly after its predicate
-            // (`if false b`); do not rely on final parse rejection for safety.
-            if boundary == c.predicate.location().end_offset() {
-                let suffix = &file.bytes[c.else_end..c.end];
-                let first = suffix
-                    .iter()
-                    .copied()
-                    .find(|b| !matches!(b, b' ' | b'\t' | b'\r' | b'\x0b' | b'\x0c'))?;
-                if !matches!(first, b'\n' | b';' | b'#') {
-                    return None;
-                }
-            }
-            (boundary..c.else_start, c.else_end..c.end)
+            (c.boundary..c.else_start, c.else_end..c.end)
         };
         edits.push(Correction {
             range: a.clone(),
-            replacement: std::str::from_utf8(&file.bytes[b.clone()]).ok()?.into(),
+            replacement: text(b.clone())?,
         });
         edits.push(Correction {
             range: b,
-            replacement: std::str::from_utf8(&file.bytes[a]).ok()?.into(),
-        });
-    } else {
-        // Empty if branches become a positive one-branch guard. Keep comments
-        // or same-line separators intact by withholding ambiguous removals.
-        let start = file.line_start(file.line_of(c.else_start));
-        let end = file.line_start(file.line_of(c.else_start) + 1);
-        if !file.bytes[start..c.else_start].trim_ascii().is_empty()
-            || !file.bytes[c.else_end..end].trim_ascii().is_empty()
-            || super::correction::contains_comment(file, c.boundary..c.else_start)
-        {
-            return None;
-        }
-        edits.push(Correction {
-            range: start..end,
-            replacement: String::new(),
+            replacement: text(a)?,
         });
     }
-    let edit = super::correction::combine(file, edits)?;
-    Some(edit)
-}
-fn transparent(n: &Node<'_>) -> bool {
-    if let Some(p) = n.as_parentheses_node() {
-        return p.body().as_ref().is_some_and(transparent);
-    }
-    if let Some(s) = n.as_statements_node() {
-        return s.body().len() == 1 && s.body().first().as_ref().is_some_and(transparent);
-    }
-    if let Some(b) = n.as_begin_node() {
-        return b.rescue_clause().is_none()
-            && b.ensure_clause().is_none()
-            && b.else_clause().is_none()
-            && b.statements().is_some_and(|s| {
-                s.body().len() == 1 && s.body().first().as_ref().is_some_and(transparent)
-            });
-    }
-    n.as_call_node().is_some()
+    super::correction::combine(file, edits)
 }
 
 #[cfg(test)]
@@ -281,78 +199,6 @@ mod tests {
                 o[0].message,
                 format!("Invert the negated condition and swap the {kind} branches.")
             );
-        }
-    }
-    #[test]
-    fn negated_comparison_receivers_are_not_double_negations() {
-        for (source, kind) in [
-            ("if !x != y; a; else; b; end", "if-else"),
-            ("!x !~ y ? a : b", "ternary"),
-            ("unless !x != y; a; else; b; end", "if-else"),
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&super::NegatedIfElseCondition, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (1, 1));
-            assert_eq!(
-                found[0].message,
-                format!("Invert the negated condition and swap the {kind} branches.")
-            );
-            assert!(found[0].correction.is_none());
-        }
-    }
-    #[test]
-    fn canonical_branch_swaps_comments_then_semicolons_ternaries_and_empty_if() {
-        use crate::cops::testing::assert_correction;
-        for (before, after) in [
-            (
-                "if !false\n  a\nelse\n  b\nend\n",
-                "if false\n  b\nelse\n  a\nend\n",
-            ),
-            (
-                "if not true then a else b end\n",
-                "if true then b else a end\n",
-            ),
-            ("if !nil; a; else b; end\n", "if nil; b; else a; end\n"),
-            (
-                "if !nil\x0c; a; else b; end\n",
-                "if nil\x0c; b; else a; end\n",
-            ),
-            ("!false ? a : b\n", "false ? b : a\n"),
-            ("(1 != 2) ? a : b\n", "(1 == 2) ? b : a\n"),
-            (
-                "if !true\n # A\n a\nelse\n # B\n b\nend\n",
-                "if true\n # B\n b\nelse\n # A\n a\nend\n",
-            ),
-            ("if !true\nelse\n b\nend\n", "if true\n b\nend\n"),
-            (
-                "unless !false\n a\nelse\n b\nend\n",
-                "unless false\n b\nelse\n a\nend\n",
-            ),
-        ] {
-            assert_correction(&super::NegatedIfElseCondition, before, after);
-        }
-    }
-    #[test]
-    fn relocating_magic_comments_cannot_change_lexical_literal_policy() {
-        let source = "if !false\n :a\nelse\n # shareable_constant_value: literal\n :b\nend\n";
-        let found =
-            crate::cops::testing::correction_offenses(&super::NegatedIfElseCondition, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-    }
-    #[test]
-    fn branch_declarations_and_multistatement_predicates_keep_offenses_without_edits() {
-        for source in [
-            "if !true\n a\nelse\n a = 1\nend\n",
-            "if !true\n a\nelse b\nend\n",
-            "if !true\n :a\nelse\n proc { x = 1 }\nend\n",
-            "if begin\n !true\n false\nend\n :a\nelse\n :b\nend\n",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&super::NegatedIfElseCondition, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]
