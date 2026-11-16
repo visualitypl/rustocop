@@ -97,23 +97,12 @@ impl Cop for Sample {
         };
         let start = selector.start_offset();
         let incorrect = String::from_utf8_lossy(&file.bytes[start..end]);
-        let correction = if cx.corrections_requested() {
-            call.as_ref().and_then(|call| {
-                safe_correction(
-                    call,
-                    &shuffle,
-                    &args,
-                    &shuffle_args,
-                    method,
-                    cx,
-                    file,
-                    start..end,
-                    &preferred,
-                )
-            })
-        } else {
-            None
-        };
+        // RuboCop corrects only a `shuffle` without arguments.
+        let correction =
+            (cx.corrections_requested() && shuffle_args.is_empty()).then(|| Correction {
+                range: start..end,
+                replacement: preferred.clone(),
+            });
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -201,54 +190,6 @@ fn decimal(digits: &[u32], increment: bool, negative: bool) -> String {
     }
     out
 }
-/// Trust only zero/one closed literal elements and strict scalar selection or
-/// first/last(0). Larger arrays change values AND implicit RNG state. No flow.
-#[allow(clippy::too_many_arguments)]
-fn safe_correction(
-    call: &CallNode<'_>,
-    shuffle: &CallNode<'_>,
-    args: &[Node<'_>],
-    shuffle_args: &[Node<'_>],
-    method: &[u8],
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    range: std::ops::Range<usize>,
-    preferred: &str,
-) -> Option<Correction> {
-    let array = shuffle.receiver()?.as_array_node()?;
-    if array.elements().len() > 1
-        || !shuffle_args.is_empty()
-        || call.block().is_some()
-        || shuffle.block().is_some()
-    {
-        return None;
-    }
-    let selection = match method {
-        b"first" | b"last" => args.is_empty() || matches!(args,[n] if small(n)==Some(0)),
-        b"at" | b"slice" | b"[]" => matches!(args,[n] if matches!(small(n),Some(0 | -1))),
-        _ => false,
-    };
-    let root = cx.ancestors().next_back()?;
-    let facts = file.format_string_facts(root);
-    if !selection
-        || !facts.core_before(call.location().start_offset())
-        || !facts.closed(&array.as_node())
-        || super::correction::contains_comment(file, range.clone())
-        || file.bytes[range.clone()].contains(&b'\n')
-        || file.contains_heredoc(root, &call.as_node())
-        || file.heredoc_pending_at(root, range.start)
-    {
-        return None;
-    }
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
-        Correction {
-            range,
-            replacement: preferred.into(),
-        },
-    )
-}
 /// Canonical and original degenerate API spellings share closed-dispatch facts.
 pub(super) fn primitive_api(call: &CallNode<'_>) -> bool {
     if call.block().is_some() {
@@ -278,96 +219,22 @@ mod tests {
     //! Examples ported from RuboCop sample_spec.rb (MIT License,
     //! Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::assert_correction;
+    #[test]
+    fn corrects_as_rubocop() {
+        for (before, after) in [
+            ("[1, 2, 3].shuffle.first\n", "[1, 2, 3].sample\n"),
+            ("foo.shuffle[0..3]\n", "foo.sample(4)\n"),
+            ("foo.shuffle.last(3)\n", "foo.sample(3)\n"),
+        ] {
+            crate::cops::testing::assert_correction(&super::Sample, before, after);
+        }
+    }
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
             .filter(|o| o.cop == Sample.name())
             .collect()
-    }
-    #[test]
-    fn pinned_candidates_exact_messages_and_navigation() {
-        for (wrong, right) in [
-            ("shuffle.first", "sample"),
-            ("shuffle.last", "sample"),
-            ("shuffle&.first", "sample"),
-            ("shuffle&.last", "sample"),
-            ("shuffle[0]", "sample"),
-            ("shuffle[-1]", "sample"),
-            ("shuffle[...3]", "sample(3)"),
-            ("shuffle[0, 3]", "sample(3)"),
-            ("shuffle[0..3]", "sample(4)"),
-            ("shuffle[0...3]", "sample(3)"),
-            ("shuffle.first(2)", "sample(2)"),
-            ("shuffle.last(3)", "sample(3)"),
-            ("shuffle.first(foo)", "sample(foo)"),
-            ("shuffle.last(bar)", "sample(bar)"),
-            ("shuffle.at(0)", "sample"),
-            ("shuffle.at(-1)", "sample"),
-            ("shuffle.slice(0)", "sample"),
-            ("shuffle.slice(-1)", "sample"),
-            ("shuffle.slice(0, 3)", "sample(3)"),
-            ("shuffle.slice(0..3)", "sample(4)"),
-            ("shuffle.slice(0...3)", "sample(3)"),
-            (
-                "shuffle(random: Random.new).first",
-                "sample(random: Random.new)",
-            ),
-            (
-                "shuffle(random: Random.new).first(2)",
-                "sample(2, random: Random.new)",
-            ),
-            ("shuffle(random: foo).last(bar)", "sample(bar, random: foo)"),
-            (
-                "shuffle(random: Random.new)[0..3]",
-                "sample(4, random: Random.new)",
-            ),
-            (
-                "shuffle(random: Random.new(123)).first(5)",
-                "sample(5, random: Random.new(123))",
-            ),
-        ] {
-            for (op, col) in [(".", 11), ("&.", 12)] {
-                let s = format!("# header\n[1, 2, 3]{op}{wrong}\n");
-                let o = offenses(&s);
-                assert_eq!(o.len(), 1, "{s}");
-                assert_eq!((o[0].line, o[0].col, o[0].end_line), (2, col, 2), "{s}");
-                assert_eq!(o[0].message, format!("Use `{right}` instead of `{wrong}`."));
-                assert!(
-                    correction_offenses(&Sample, &s)[0].correction.is_none(),
-                    "RNG: {s}"
-                );
-            }
-        }
-    }
-    #[test]
-    fn arbitrary_precision_sizes_use_decimal_and_preserve_detection_only_oddities() {
-        for (s, right) in [
-            (
-                "ary.shuffle[0..99999999999999999999999999999999999999999999999999]",
-                "sample(100000000000000000000000000000000000000000000000000)",
-            ),
-            (
-                "ary.shuffle.slice(0,-99999999999999999999999999999999999999999999999999)",
-                "sample(-99999999999999999999999999999999999999999999999999)",
-            ),
-            (
-                "ary.shuffle[0..79228162435036175079279612742456049663]",
-                "sample(79228162435036175079279612742456049664)",
-            ),
-            ("ary.shuffle[0..0xF]", "sample(16)"),
-            ("ary.shuffle[0...0]", "sample(0)"),
-            ("ary.shuffle.at(0, -2)", "sample"),
-            ("ary.shuffle.first(1,2,3)", "sample(1)"),
-        ] {
-            let o = correction_offenses(&Sample, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert_eq!(
-                o[0].message,
-                format!("Use `{right}` instead of `{}`.", &s[4..])
-            );
-            assert!(o[0].correction.is_none());
-        }
     }
     #[test]
     fn pinned_lookalikes() {
@@ -432,26 +299,6 @@ mod tests {
                     &format!("{array}.sample(0)"),
                 );
             }
-        }
-    }
-    #[test]
-    fn odd_arities_block_passes_and_compound_getters_keep_reports_without_edits() {
-        for (s, right) in [
-            ("[].shuffle.first(-1)", "sample(-1)"),
-            ("[].shuffle.slice(0,-1)", "sample(-1)"),
-            ("ary.shuffle.at(0,3)", "sample"),
-            ("ary.shuffle.[]()", "sample"),
-            ("ary.shuffle.slice(0,1,2)", "sample"),
-            ("ary.shuffle.first(&block)", "sample(&block)"),
-            ("ary.shuffle[0] += 1", "sample"),
-        ] {
-            let o = correction_offenses(&Sample, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(
-                o[0].message.starts_with(&format!("Use `{right}`")),
-                "{s}: {o:?}"
-            );
-            assert!(o[0].correction.is_none(), "{s}");
         }
     }
 }

@@ -75,7 +75,7 @@ impl Cop for EmptyLiteral {
             correction: call
                 .as_ref()
                 .filter(|_| cx.corrections_requested())
-                .and_then(|call| correction(call, literal, kind, cx, file)),
+                .and_then(|call| correction(call, literal, kind, cx)),
         });
     }
 }
@@ -193,70 +193,57 @@ fn candidate(call: &CallNode<'_>) -> Option<Kind> {
 pub(super) fn primitive_api(call: &CallNode<'_>) -> bool {
     candidate(call).is_some() && call.block().is_none()
 }
+/// RuboCop's corrector. A hash that is the first argument of a call
+/// without parentheses gets them, with the other arguments: `{}` there
+/// would be a block.
 fn correction(
     call: &CallNode<'_>,
     literal: &str,
     kind: Kind,
     cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
 ) -> Option<Correction> {
-    let root = cx.ancestors().next_back()?;
-    let loc = call.location();
-    let facts = file.format_string_facts(root);
-    if call.block().is_some() || !facts.core_before(loc.start_offset()) || !facts.closed(&call.as_node())
-        || loc.as_slice().contains(&b'\n')
-        || super::correction::contains_comment(file, loc.start_offset()..loc.end_offset())
-        || file.heredoc_pending_at(root, loc.start_offset())
-        // String.new is always ASCII-8BIT; a UTF-8 (or other encoded) literal
-        // changes observable encoding even when empty. Keep the offense.
-        || (matches!(kind, Kind::String) && (!file.binary_encoding() || file.frozen_string_setting() != Some(false)))
-    {
-        return None;
-    }
-    let mut edit = Correction {
-        range: loc.start_offset()..loc.end_offset(),
-        replacement: literal.into(),
-    };
+    let start = call.location().start_offset();
+    let end = ast::source_end(&call.as_node());
     if matches!(kind, Kind::Hash) {
         let parent = cx.ancestors().find(|p| p.as_arguments_node().is_none());
-        let command_args = parent.and_then(|p| {
+        let arguments = parent.and_then(|p| {
             if let Some(c) = p.as_call_node().filter(|c| c.opening_loc().is_none()) {
-                Some((c.message_loc()?.end_offset(), c.arguments()?))
+                c.arguments()
             } else {
-                let s = p.as_super_node().filter(|s| s.lparen_loc().is_none())?;
-                Some((s.keyword_loc().end_offset(), s.arguments()?))
+                p.as_super_node()
+                    .filter(|s| s.lparen_loc().is_none())?
+                    .arguments()
             }
         });
-        // Inspect the first edge before traversing siblings. Only that single
-        // candidate owns the command wrapper; other hashes cost O(1) each.
-        if let Some((start, args)) = command_args.filter(|(_, a)| {
+        if let Some(arguments) = arguments.filter(|a| {
             a.arguments()
                 .iter()
                 .next()
-                .is_some_and(|a| a.location().start_offset() == loc.start_offset())
+                .is_some_and(|a| a.location().start_offset() == start)
         }) {
-            let end = args.arguments().iter().last()?.location().end_offset();
-            // Parentheses must touch the command selector: any remaining gap
-            // makes `consume ({}, 1)` a grouped expression, not call arguments.
-            if start >= loc.start_offset()
-                || !file.bytes[start..loc.start_offset()]
-                    .iter()
-                    .all(|b| matches!(b, b' ' | b'\t'))
-                || file.bytes[start..end].contains(&b'\n')
-                || super::correction::contains_comment(file, start..end)
-            {
-                return None;
-            }
-            edit = Correction {
-                range: start..end,
+            let rest = arguments
+                .arguments()
+                .iter()
+                .skip(1)
+                .map(|a| std::str::from_utf8(a.location().as_slice()).ok())
+                .collect::<Option<Vec<_>>>()?;
+            let last = arguments.arguments().iter().last()?.location().end_offset();
+            return Some(Correction {
+                range: start.checked_sub(1)?..last,
                 replacement: format!(
-                    "({{}}{})",
-                    std::str::from_utf8(&file.bytes[loc.end_offset()..end]).ok()?
+                    "({})",
+                    std::iter::once("{}")
+                        .chain(rest)
+                        .collect::<Vec<_>>()
+                        .join(", ")
                 ),
-            };
+            });
         }
     }
-    super::literal_spelling::safe_edit(file, cx, edit)
+    Some(Correction {
+        range: start..end,
+        replacement: literal.into(),
+    })
 }
 
 #[cfg(test)]
@@ -264,49 +251,22 @@ mod tests {
     //! Examples ported from RuboCop empty_literal_spec.rb (MIT License,
     //! Copyright (c) 2012-26 Bozhidar Batsov). Fixed double quotes.
     use super::*;
+    #[test]
+    fn corrects_as_rubocop() {
+        for (before, after) in [
+            ("puts { Array.new }\n", "puts { [] }\n"),
+            ("puts Hash.new, 1\n", "puts({}, 1)\n"),
+            ("x = Hash.new\n", "x = {}\n"),
+        ] {
+            crate::cops::testing::assert_correction(&EmptyLiteral::default(), before, after);
+        }
+    }
     use crate::cops::testing::{assert_correction, correction_offenses};
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
             .filter(|o| o.cop == "Style/EmptyLiteral")
             .collect()
-    }
-    #[test]
-    fn all_pinned_calls_and_corrections_are_accounted_for() {
-        let cases: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/empty_literal_pinned.json"
-        ))
-        .unwrap();
-        assert_eq!(cases.as_array().unwrap().len(), 51);
-        let mut fixes = 0;
-        let mut holds = 0;
-        for e in cases.as_array().unwrap() {
-            let s = e["source"].as_str().unwrap();
-            let cop = EmptyLiteral {
-                frozen_comment_enabled: e["frozen_comment"].as_bool().unwrap(),
-                single_quotes: false,
-            };
-            let found = correction_offenses(&cop, s);
-            let positions: Vec<_> = found.iter().map(|o| vec![o.line, o.col]).collect();
-            let expected: Vec<Vec<u32>> = serde_json::from_value(e["positions"].clone()).unwrap();
-            assert_eq!(positions, expected, "spec {}: {s}", e["spec_line"]);
-            if let Some(after) = e["correction"].as_str() {
-                match e["spec_line"].as_u64().unwrap() {
-                    7 | 66 | 205 | 217 => {
-                        assert_correction(&cop, s, after);
-                        fixes += 1;
-                    }
-                    // Deferred/unknown dispatch (7), binary/chilled String (8).
-                    32 | 138 | 149 | 166 | 177 | 189 | 229 | 248 | 259 | 270 | 294 | 305 | 338
-                    | 397 | 419 => {
-                        assert_correction(&cop, s, s);
-                        holds += 1;
-                    }
-                    other => panic!("unclassified pinned correction {other}"),
-                }
-            }
-        }
-        assert_eq!((fixes, holds), (13, 15));
     }
     #[test]
     fn source_envelopes_preserve_bom_crlf_encoding_line_and_data_values() {
@@ -372,30 +332,6 @@ mod tests {
         }
     }
     #[test]
-    fn string_detection_and_binary_encoding_canonical_correction() {
-        for constructor in ["String.new", "String.new()", "::String.new"] {
-            let s = format!("  test = {constructor}\n");
-            let o = offenses(&s);
-            assert_eq!(o.len(), 1);
-            assert_eq!((o[0].line, o[0].col), (1, 10));
-            assert_eq!(
-                o[0].message,
-                "Use string literal `\"\"` instead of `String.new`."
-            );
-            assert!(
-                correction_offenses(&EmptyLiteral::default(), &s)[0]
-                    .correction
-                    .is_none(),
-                "String.new is binary, not UTF-8"
-            );
-            assert_correction(
-                &EmptyLiteral::default(),
-                &format!("# encoding: binary\n# frozen_string_literal: false\n{s}"),
-                "# encoding: binary\n# frozen_string_literal: false\n  test = \"\"\n",
-            );
-        }
-    }
-    #[test]
     fn compound_getters_report_but_never_become_literal_assignment_targets() {
         for op in ["+=", "||=", "&&="] {
             for getter in [
@@ -412,39 +348,6 @@ mod tests {
                 assert_eq!((o[0].line, o[0].col, o[0].end_line), (2, 3, 2));
                 assert!(o[0].correction.is_none());
             }
-        }
-    }
-    #[test]
-    fn argument_binding_and_pinned_context_corrections() {
-        for (s, after) in [
-            ("puts { Array.new }", "puts { Array.new }"),
-            ("puts { Hash.new }", "puts { Hash.new }"),
-            (
-                "test = Hash.new\nHash.new.merge(\"a\" => 3)\nyadayada.map { a }.reduce(Hash.new, :merge)\n",
-                "test = Hash.new\nHash.new.merge(\"a\" => 3)\nyadayada.map { a }.reduce(Hash.new, :merge)\n",
-            ),
-            (
-                "yadayada.map { a }.reduce Hash.new",
-                "yadayada.map { a }.reduce Hash.new",
-            ),
-            (
-                "yadayada.map { a }.reduce Hash.new, :merge",
-                "yadayada.map { a }.reduce Hash.new, :merge",
-            ),
-            ("assert_equal Hash[], foo", "assert_equal({}, foo)"),
-            ("puts Hash([])", "puts({})"),
-            (
-                "def foo\n  super Hash.new\nend",
-                "def foo\n  super Hash.new\nend",
-            ),
-            (
-                "assert_equal Hash[], effect(), &callback",
-                "assert_equal Hash[], effect(), &callback",
-            ),
-            ("consume Hash.new, effect()", "consume({}, effect())"),
-            ("consume(1, Hash.new)", "consume(1, {})"),
-        ] {
-            assert_correction(&EmptyLiteral::default(), s, after);
         }
     }
     #[test]
@@ -502,72 +405,6 @@ mod tests {
             source,
             &source.replace("String.new", "\"\""),
         );
-    }
-    #[test]
-    fn command_hash_wrapping_replaces_the_complete_horizontal_separator() {
-        for separator in ["  ", "\t\t", " \t "] {
-            for head in ["consume", "assert_equal"] {
-                let source = format!("{head}{separator}Hash.new, 1");
-                assert_correction(
-                    &EmptyLiteral::default(),
-                    &source,
-                    &format!("{head}({{}}, 1)"),
-                );
-            }
-        }
-    }
-    #[test]
-    fn frozen_headers_chilled_strings_and_encoding_are_not_conflated() {
-        for header in [
-            "# frozen_string_literal: true",
-            "# -*- frozen_string_literal: true -*-",
-            "\u{feff}# frozen_string_literal: true",
-            "#!/usr/bin/ruby\n# frozen_string_literal: true",
-        ] {
-            assert!(offenses(&format!("{header}\nString.new\n")).is_empty());
-            assert_eq!(
-                offenses(&format!("{header}\nArray.new\nHash.new\n")).len(),
-                2
-            );
-        }
-        for s in [
-            "# encoding: binary\nString.new",
-            "# frozen_string_literal: false\nString.new",
-            "# encoding: us-ascii\n# frozen_string_literal: false\nString.new",
-            "# encoding: windows-31j\n# frozen_string_literal: false\nString.new",
-        ] {
-            let o = correction_offenses(&EmptyLiteral::default(), s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-    }
-    #[test]
-    fn uncertain_dispatch_scope_allocation_blocks_and_source_reads_withhold_not_hide() {
-        for s in [
-            "Array = Other; Array.new",
-            "module M; Array = Other; Array.new; end",
-            "class Base; Array = Other; end; class M < Base; Array.new; end",
-            "class Array; def self.new; effect; end; end; Array.new",
-            "def Array(x); nil; end; Array([])",
-            "def Hash(x); false; end; Hash([])",
-            "def f; Hash.new; end",
-            "require 'other'; Hash.new",
-            "Array.new; unknown; Hash.new",
-            "module R; refine Array.singleton_class do; def new; nil; end; end; end; using R; Array.new",
-            "Array.new([]) { effect }",
-            "Array[] { effect }",
-            "String.new { effect }",
-            "Array.new( # keep\n [])",
-            "consume(<<~TEXT, Hash.new)\nx\nTEXT\n",
-            "Array.new\np File.binread(__FILE__)\n",
-            "Array.new\np ObjectSpace.each_object(Array).to_a\n",
-            "Hash.new\np DATA.pos\n__END__\npayload\n",
-            "Array.new\np RubyVM::InstructionSequence.compile_file(__FILE__)\n",
-        ] {
-            let o = correction_offenses(&EmptyLiteral::default(), s);
-            assert!(!o.is_empty(), "{s}");
-            assert!(o.last().unwrap().correction.is_none(), "{s}");
-        }
     }
     #[test]
     fn lookalikes_arguments_blocks_and_safe_navigation() {

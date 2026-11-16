@@ -171,7 +171,6 @@ pub struct SourceFile {
     /// Shared correction-only core-dispatch and declared-constant proof.
     boolean_predicate_safety: OnceLock<crate::cops::style::boolean_safety::Safety>,
     /// Correction-only closed literal-expression proof for Module predicates.
-    module_member_bindings: OnceLock<crate::cops::style::module_member_existence_check::Bindings>,
     /// Correction-only closed-declaration proof for separated mixins.
     mixin_grouping_bindings: OnceLock<crate::cops::style::mixin_grouping::Bindings>,
     /// Detection-only conservative method return facts, built once on demand.
@@ -326,7 +325,6 @@ impl SourceFile {
             exact_regexp_safety: OnceLock::new(),
             redundant_regexp_safety: OnceLock::new(),
             boolean_predicate_safety: OnceLock::new(),
-            module_member_bindings: OnceLock::new(),
             mixin_grouping_bindings: OnceLock::new(),
             predicate_method_returns: OnceLock::new(),
             memoized_name_fingerprints: OnceLock::new(),
@@ -769,15 +767,6 @@ impl SourceFile {
     ) -> &crate::cops::style::missing_respond_to_missing::CompanionIndex {
         self.respond_to_missing_index.get_or_init(|| {
             crate::cops::style::missing_respond_to_missing::CompanionIndex::build(root)
-        })
-    }
-
-    pub(crate) fn module_member_bindings(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::module_member_existence_check::Bindings {
-        self.module_member_bindings.get_or_init(|| {
-            crate::cops::style::module_member_existence_check::Bindings::build(root)
         })
     }
 
@@ -2062,30 +2051,6 @@ mod tests {
                 file.format_string_facts(&parsed.node())
             ));
         }
-    }
-
-    #[test]
-    fn sample_degenerate_literals_share_one_lazy_bounded_dispatch_index() {
-        use crate::cops::{Cop, run_cops, run_cops_with_corrections, style::Sample};
-        let file = SourceFile::new(
-            "x.rb".into(),
-            "x = [42].shuffle.first\n".repeat(6000).into_bytes(),
-        );
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&Sample];
-        let mut out = vec![];
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
-        let facts = file.format_string_facts.get().unwrap();
-        assert!(facts.visits <= 6000 * 6 + 2, "{}", facts.visits);
-        assert!(std::ptr::eq(
-            facts,
-            file.format_string_facts(&parsed.node())
-        ));
     }
 
     #[test]
@@ -3890,44 +3855,6 @@ mod tests {
                 file.class_check_bindings(&result.node())
             ));
         }
-    }
-
-    #[test]
-    fn module_member_proof_is_lazy_and_reused_for_many_offenses_and_comments() {
-        use crate::cops::{run_cops_with_corrections, style::ModuleMemberExistenceCheck};
-        let source = "# unrelated comment\nArray.instance_methods.include?(:size)\n".repeat(2000);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = ruby_prism::parse(&file.bytes);
-        for corrections in [false, true, true] {
-            let mut found = Vec::new();
-            assert!(
-                run_cops_with_corrections(
-                    &[&ModuleMemberExistenceCheck],
-                    &parsed,
-                    &file,
-                    &mut found,
-                    corrections
-                )
-                .is_empty()
-            );
-            assert_eq!(found.len(), 2000);
-            assert_eq!(
-                found.iter().filter(|o| o.correction.is_some()).count(),
-                if corrections { 2000 } else { 0 }
-            );
-            if !corrections {
-                assert!(file.module_member_bindings.get().is_none());
-            }
-        }
-        let index = file.module_member_bindings.get().unwrap();
-        assert_eq!(
-            index.visited,
-            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
-        );
-        assert!(std::ptr::eq(
-            index,
-            file.module_member_bindings(&parsed.node())
-        ));
     }
 
     #[test]
@@ -5758,37 +5685,6 @@ mod tests {
     }
 
     #[test]
-    fn regexp_escape_corrections_share_one_lazy_bounded_main_ast_proof() {
-        use crate::cops::{run_cops_with_corrections, style::RedundantRegexpEscape};
-        let n = 6000;
-        let source = "/a\\-b/\n".repeat(n);
-        let f = file(source.as_bytes());
-        let parsed = ruby_prism::parse(&f.bytes);
-        for collect in [false, true, true] {
-            let mut out = Vec::new();
-            assert!(
-                run_cops_with_corrections(
-                    &[&RedundantRegexpEscape],
-                    &parsed,
-                    &f,
-                    &mut out,
-                    collect
-                )
-                .is_empty()
-            );
-            assert_eq!(out.len(), n);
-            assert!(out.iter().all(|o| o.correction.is_some() == collect));
-            if !collect {
-                assert!(f.class_method_bindings.get().is_none());
-            } else {
-                let proof = f.class_method_bindings.get().unwrap();
-                assert!(proof.observer_visits <= n * 3 + 2);
-                assert!(std::ptr::eq(proof, f.class_method_bindings(&parsed.node())));
-            }
-        }
-    }
-
-    #[test]
     fn redundant_literal_spelling_reuses_one_lazy_main_ast_observer_fold() {
         use crate::cops::{
             run_cops_with_corrections,
@@ -6941,54 +6837,6 @@ mod tests {
                 "{} visits for {count}",
                 CALL_ARGUMENT_VISITS.get()
             );
-        }
-    }
-
-    #[test]
-    fn empty_constructor_proofs_are_lazy_cached_and_linear_in_main_ast_work() {
-        use crate::cops::{
-            Cop, run_cops_with_corrections,
-            style::{EmptyClassDefinition, EmptyLiteral},
-        };
-        for count in [1, 100, 1000] {
-            for classes in [false, true] {
-                let source = if classes {
-                    (0..count)
-                        .map(|i| format!("FreshError{i} = Class.new(StandardError)\n"))
-                        .collect::<String>()
-                } else {
-                    "Array.new\nHash.new\n".repeat(count)
-                };
-                let f = file(source.as_bytes());
-                let parsed = crate::parser::parse(&f.bytes);
-                let literal = EmptyLiteral::default();
-                let cops: &[&dyn Cop] = if classes {
-                    &[&EmptyClassDefinition]
-                } else {
-                    &[&literal]
-                };
-                let mut found = Vec::new();
-                for fixes in [false, true, true] {
-                    found.clear();
-                    run_cops_with_corrections(cops, &parsed, &f, &mut found, fixes);
-                    assert_eq!(found.len(), count * if classes { 1 } else { 2 });
-                    assert!(found.iter().all(|o| o.correction.is_some() == fixes));
-                    if !fixes {
-                        assert!(f.empty_class_facts.get().is_none());
-                        assert!(f.format_string_facts.get().is_none());
-                        assert!(f.class_method_bindings.get().is_none());
-                    }
-                }
-                if classes {
-                    let facts = f.empty_class_facts.get().unwrap();
-                    assert!(facts.visits <= count + 2);
-                    assert!(std::ptr::eq(facts, f.empty_class_facts(&parsed.node())));
-                } else {
-                    let facts = f.format_string_facts.get().unwrap();
-                    assert!(facts.visits <= count * 4 + 2);
-                    assert!(std::ptr::eq(facts, f.format_string_facts(&parsed.node())));
-                }
-            }
         }
     }
 

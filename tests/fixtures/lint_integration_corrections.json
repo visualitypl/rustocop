@@ -19,7 +19,7 @@
   {"cop":"Lint/RedundantCopDisableDirective","before":"# rubocop:disable Lint/Debugger\n","after":"","boundary":"Actual post-investigation empty ordinary finding set, comment-only deletion."},
   {"cop":"Lint/RedundantCopEnableDirective","before":"# rubocop:enable Lint/Debugger\n","after":"","boundary":"Unmatched enable comment only, no preceding disabled scope."},
   {"cop":"Lint/RedundantRegexpQuantifiers","before":"[defined?(/(?:a+)+/)]\n","after":"[defined?(/(?:a+)/)]\n","held":"value = /(?:a+)+/\n","boundary":"Closed unevaluated consumed literal; ordinary regexp source held."},
-  {"cop":"Lint/RedundantSplatExpansion","before":"begin; nil; rescue *[First, Second]; end\n","after":"begin; nil; rescue First, Second; end\n","held":"begin; work; rescue *[First, Second]; end\n","boundary":"Inert protected body; live matching dispatch held."},
+  {"cop":"Lint/RedundantSplatExpansion","before":"begin; nil; rescue *[First, Second]; end\n","after":"begin; nil; rescue First, Second; end\n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/RedundantStringCoercion","before":"if false\n  \"#{alpha.to_s}\"\nend\n","after":"if false\n  \"#{alpha}\"\nend\n","held":"\"#{alpha.to_s}\"\n","boundary":"Closed inactive branch; live coercion/value/dispatch held."},
   {"cop":"Lint/RedundantTypeConversion","before":"if false\n  alpha.to_s.to_s\nend\n","after":"if false\n  alpha.to_s\nend\n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/RedundantWithIndex","before":"if false\n  alpha.each_with_index { |v| v }\nend\n","after":"if false\n  alpha.each { |v| v }\nend\n","held":"alpha.each_with_index { |v| v }\n","boundary":"Closed inactive branch; ordinary enumerator dispatch held."},

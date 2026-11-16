@@ -235,50 +235,6 @@ fn cross_delimiter_and_multiglyph_edits_commit_independent_lf_crlf_siblings() {
         }
     }
 }
-#[test]
-fn uncertain_edits_do_not_abort_independent_files_or_siblings() {
-    let d = project();
-    for (cop, s) in [
-        (SAMPLE, "ary.shuffle.first\n"),
-        (SAMPLE, "[1,2].shuffle.first\n"),
-        (SAMPLE, "[].shuffle.first(-1)\n"),
-        (SAMPLE, "[].shuffle.slice(0,-1)\n"),
-        (SAMPLE, "[].shuffle.at(0,3)\n"),
-        (SAMPLE, "[].shuffle.first(&factory())\n"),
-        (SAMPLE, "x=<<~DOC; y=[42].shuffle.first\n[:one,:two]\nDOC\n"),
-        (SAMPLE, "[].shuffle { effect }.first\n"),
-        (SYMBOL, "%I[foo\\ bar#{effect} baz]\n"),
-    ] {
-        fs::write(d.path().join("safe.rb"), "[:one,:two]\n").unwrap();
-        // A literal shuffle block is intentionally not an upstream candidate.
-        let code = if s.contains("shuffle {") { 0 } else { 1 };
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &[
-                "--only",
-                &format!("{cop},{SYMBOL}"),
-                "--fix",
-                "a.rb",
-                "safe.rb",
-            ],
-            code,
-        );
-        assert_eq!(
-            fs::read_to_string(d.path().join("safe.rb")).unwrap(),
-            "%i[one two]\n"
-        );
-    }
-    for s in [
-        "x=1; [effect()].shuffle.first",
-        "class Array; def sample; :changed; end; end; [].shuffle.first",
-        "[42].shuffle(random: random).first",
-        "[42].shuffle.first { effect }",
-        "[].shuffle.slice(0, -1)",
-    ] {
-        assert_eq!(fixed(s, SAMPLE), s);
-    }
-}
 fn runtimes() -> Vec<String> {
     let mut out = Vec::new();
     if Command::new("ruby").arg("--version").output().is_ok() {

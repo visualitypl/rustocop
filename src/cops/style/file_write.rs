@@ -1,8 +1,7 @@
 //! `Style/FileWrite` — whole-file truncating writes.
-use super::file_api::write_replacement;
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -36,33 +35,32 @@ impl Cop for FileWrite {
         } else {
             "write"
         };
-        // Opening/truncation precedes content evaluation in the original. Only
-        // literal strings and non-block local reads can safely move before it.
-        // Update/text modes and descriptor-valued paths are not equivalent APIs.
-        // Chained opens can retain buffered output until GC; the convenience
-        // helper closes/flushes immediately. Only block forms preserve closure.
-        let correction = (cx.corrections_requested() && !mode.contains('+') && mode != "wt")
+        // RuboCop replaces from `open` to the end of the write, and restores
+        // the bodies of heredocs that the replaced range held.
+        let correction = cx
+            .corrections_requested()
             .then(|| {
-                if path.as_string_node().is_none() && path.as_source_file_node().is_none() {
-                    return None;
+                let end = whole.location().end_offset();
+                let source = |n: &Node<'_>| {
+                    std::str::from_utf8(n.location().as_slice())
+                        .ok()
+                        .map(str::to_owned)
+                };
+                let mut text = format!("{method}({}, {})", source(&path)?, source(&content)?);
+                let mut heredocs = Vec::new();
+                for argument in [&path, &content] {
+                    heredoc_bodies(argument, &mut heredocs);
                 }
-                let movable = content.as_string_node().is_some()
-                    || content
-                        .as_local_variable_read_node()
-                        .is_some_and(|r| parameter.as_deref() != Some(r.name().as_slice()));
-                if parameter.is_none() || !movable {
-                    return None;
+                heredocs.retain(|body| body.end <= end);
+                heredocs.sort_by_key(|body| body.start);
+                for body in heredocs {
+                    text.push('\n');
+                    text.push_str(std::str::from_utf8(&file.bytes[body]).ok()?);
                 }
-                let receiver = open.receiver()?;
-                let receiver = std::str::from_utf8(receiver.location().as_slice()).ok()?;
-                let path = std::str::from_utf8(path.location().as_slice()).ok()?;
-                let content = std::str::from_utf8(content.location().as_slice()).ok()?;
-                write_replacement(
-                    &whole,
-                    cx,
-                    file,
-                    format!("{receiver}.{method}({path}, {content})"),
-                )
+                Some(Correction {
+                    range: open.message_loc()?.start_offset()..end,
+                    replacement: text,
+                })
             })
             .flatten();
         let start = whole.location().start_offset();
@@ -168,6 +166,51 @@ fn evidence<'pr>(open: &CallNode<'pr>, cx: &NodeContext<'_, 'pr>) -> Option<Evid
     }
     Some((path, mode, write_content(&write)?, write.as_node(), None))
 }
+/// The bodies of the heredocs in `node`, from the first body line to the
+/// end of the terminator (without its newline), as RuboCop's `heredoc_range`.
+fn heredoc_bodies(node: &Node<'_>, out: &mut Vec<std::ops::Range<usize>>) {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Bodies<'a>(&'a mut Vec<std::ops::Range<usize>>);
+    impl<'pr> NodeVisitor<'pr> for Bodies<'_> {
+        fn enter(&mut self, node: Node<'pr>) {
+            let (opening, start, closing) = if let Some(n) = node.as_string_node() {
+                (
+                    n.opening_loc(),
+                    Some(n.content_loc().start_offset()),
+                    n.closing_loc(),
+                )
+            } else if let Some(n) = node.as_interpolated_string_node() {
+                let start = n.parts().iter().next().map(|p| p.location().start_offset());
+                (n.opening_loc(), start, n.closing_loc())
+            } else if let Some(n) = node.as_x_string_node() {
+                (
+                    Some(n.opening_loc()),
+                    Some(n.content_loc().start_offset()),
+                    Some(n.closing_loc()),
+                )
+            } else if let Some(n) = node.as_interpolated_x_string_node() {
+                let start = n.parts().iter().next().map(|p| p.location().start_offset());
+                (Some(n.opening_loc()), start, Some(n.closing_loc()))
+            } else {
+                return;
+            };
+            let (Some(opening), Some(closing)) = (opening, closing) else {
+                return;
+            };
+            if !opening.as_slice().starts_with(b"<<") {
+                return;
+            }
+            let terminator = closing.as_slice();
+            let trimmed = terminator
+                .strip_suffix(b"\n")
+                .map(|t| t.strip_suffix(b"\r").unwrap_or(t))
+                .unwrap_or(terminator);
+            let end = closing.start_offset() + trimmed.len();
+            self.0.push(start.unwrap_or(closing.start_offset())..end);
+        }
+    }
+    walk(&mut Bodies(out), node);
+}
 fn write_content<'pr>(write: &CallNode<'pr>) -> Option<Node<'pr>> {
     if write.name().as_slice() != b"write" || write.is_safe_navigation() {
         return None;
@@ -184,46 +227,20 @@ mod tests {
     //! Ported from RuboCop's style/file_write_spec.rb (MIT,
     //! Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::correction_offenses, pipeline::lint_str};
     #[test]
-    fn pinned_modes_receivers_and_block_forms() {
-        for receiver in ["File", "::File"] {
-            for mode in ["w", "wt", "wb", "w+", "w+t", "w+b"] {
-                let method = if mode.ends_with('b') {
-                    "binwrite"
-                } else {
-                    "write"
-                };
-                for suffix in [
-                    ".write(content)",
-                    " { |f| f.write(content) }",
-                    " do |f|\n    f.write(content)\n  end",
-                    " { |f,| f.write(content) }",
-                ] {
-                    let source = format!(
-                        "content = 'hello'\n  {receiver}.open(filename, '{mode}'){suffix}\n"
-                    );
-                    let found: Vec<_> = lint_str(&source)
-                        .into_iter()
-                        .filter(|o| o.cop == "Style/FileWrite")
-                        .collect();
-                    assert_eq!(found.len(), 1, "{source}");
-                    assert_eq!((found[0].line, found[0].col), (2, 3));
-                    assert_eq!(found[0].message, format!("Use `File.{method}`."));
-                    assert_correction(&FileWrite, &source, &source); // unknown descriptors
-                    let source = source.replace("filename", "'file'");
-                    let expected =
-                        if mode.contains('+') || mode == "wt" || suffix == ".write(content)" {
-                            source.clone()
-                        } else {
-                            format!("content = 'hello'\n  {receiver}.{method}('file', content)\n")
-                        };
-                    assert_correction(&FileWrite, &source, &expected);
-                }
-            }
+    fn corrects_as_rubocop() {
+        for (before, after) in [
+            (
+                "File.open(filename, 'w').write(content)\n",
+                "File.write(filename, content)\n",
+            ),
+            (
+                "File.open(filename, 'wb') { |f| f.write(content) }\n",
+                "File.binwrite(filename, content)\n",
+            ),
+        ] {
+            crate::cops::testing::assert_correction(&super::FileWrite, before, after);
         }
     }
     #[test]
@@ -298,54 +315,6 @@ mod tests {
                 correction_offenses(&FileWrite, source).is_empty(),
                 "{source}"
             );
-        }
-    }
-    #[test]
-    fn withholds_evaluation_binding_resource_and_source_sensitive_edits() {
-        for source in [
-            "File.open(fd, 'w').write(content)",
-            "File.open('file', 'w+').write(content)",
-            "File.open('file', 'wt').write(content)",
-            "File.open('file', 'w').write(build_content)",
-            "File.open('file', 'w').write(\"#{File.read('file')}\")",
-            "File.open('file', 'w') { |f| f.write(f) }",
-            "File.open('file', 'w') { |f| f.write(f.path) }",
-            "File.open('file', 'w') { |f| f.write(helper { break 'x' }) }",
-            "File.open('file', 'w').write('x')",
-            "File.open('file', 'w').write('x') { side_effect }",
-            "File.open('file', 'w', &:write).write('x')",
-            "File.open( # keep\n 'file', 'w').write('x')",
-            "File.open('file', 'w') { |f| # keep\n f.write('x') }",
-            "File.open('file', 'w') do |f|\n f.write('x')\nend\np __LINE__\n",
-        ] {
-            let found = correction_offenses(&FileWrite, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn pinned_heredoc_variants_keep_findings_but_withhold_literal_movement() {
-        for content in [
-            "<<~EOS",
-            "<<~EOS.gsub(/^/, '')",
-            "'prefix' + <<~EOS",
-            "process(<<~EOS)",
-        ] {
-            let source = format!(
-                "File.open(filename, 'w') do |f|\n  f.write({content})\n    content\n  EOS\nend\n"
-            );
-            let found = correction_offenses(&FileWrite, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none());
-        }
-        for source in [
-            "File.open('file', 'w') { |f| f.write(<<~EOS) }\n  content\nEOS\n",
-            "File.open('file', 'w') do |f|\n f.write(<<~HEAD + <<~TAIL)\n head\nHEAD\n tail\nTAIL\nend\n",
-            "File.open(<<~PATH.strip, 'w') do |f|\n path/to/file\nPATH\n f.write(content)\nend\n",
-        ] {
-            let found = correction_offenses(&FileWrite, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none());
         }
     }
 }

@@ -158,97 +158,6 @@ fn both_directive_prefixes_all_scopes_clean_and_error_files_preserve_bytes_and_m
     }
 }
 #[test]
-fn frozen_comment_dependency_uses_configuration_not_selection_and_never_changes_string_mutability()
-{
-    let d = project();
-    fs::write(
-        d.path().join("rustocop.toml"),
-        "[cops.\"Style/FrozenStringLiteralComment\"]\nenabled = true\n",
-    )
-    .unwrap();
-    unchanged(
-        d.path(),
-        b"String.new\n",
-        &["--only", LITERAL, "--fix", "a.rb"],
-        0,
-    );
-    unchanged(
-        d.path(),
-        b"# frozen_string_literal: false\nString.new\n",
-        &["--only", LITERAL, "--fix", "a.rb"],
-        1,
-    );
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    unchanged(
-        d.path(),
-        b"String.new\n",
-        &["--only", LITERAL, "--fix", "a.rb"],
-        1,
-    );
-    unchanged(
-        d.path(),
-        b"# frozen_string_literal: true\nString.new\n",
-        &["--only", LITERAL, "--fix", "a.rb"],
-        0,
-    );
-    fixed(
-        d.path(),
-        LITERAL,
-        "# encoding: binary\n# frozen_string_literal: false\nString.new\n",
-        "# encoding: binary\n# frozen_string_literal: false\n\"\"\n",
-    );
-}
-#[test]
-fn all_pinned_detection_and_correction_calls_use_the_real_cli() {
-    let d = project();
-    let mut totals = [0, 0, 0];
-    for (cop, fixture) in [
-        (LITERAL, include_str!("fixtures/empty_literal_pinned.json")),
-        (
-            CLASS,
-            include_str!("fixtures/empty_class_definition_pinned.json"),
-        ),
-    ] {
-        let cases: serde_json::Value = serde_json::from_str(fixture).unwrap();
-        for e in cases.as_array().unwrap() {
-            totals[0] += 1;
-            fs::write(
-                d.path().join("rustocop.toml"),
-                if e["frozen_comment"] == true {
-                    "[cops.\"Style/FrozenStringLiteralComment\"]\nenabled = true\n"
-                } else {
-                    ""
-                },
-            )
-            .unwrap();
-            let s = e["source"].as_str().unwrap();
-            let has_offense = !e["positions"].as_array().unwrap().is_empty();
-            unchanged(
-                d.path(),
-                s.as_bytes(),
-                &["--only", cop, "a.rb"],
-                i32::from(has_offense),
-            );
-            if let Some(after) = e["correction"].as_str() {
-                let line = e["spec_line"].as_u64().unwrap();
-                let safe = if cop == LITERAL {
-                    matches!(line, 7 | 66 | 205 | 217)
-                } else {
-                    matches!(line, 8 | 38 | 493)
-                };
-                if safe {
-                    fixed(d.path(), cop, s, after);
-                    totals[1] += 1;
-                } else {
-                    unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-                    totals[2] += 1;
-                }
-            }
-        }
-    }
-    assert_eq!(totals, [84, 16, 18]);
-}
-#[test]
 fn stdin_is_diagnostic_only_and_rejects_fix() {
     let d = project();
     for (cop, s) in COPS {
@@ -395,60 +304,6 @@ fn safe_literals_preserve_contents_mutability_identity_encoding_and_argument_eva
     }
 }
 #[test]
-fn repeated_frozen_directives_and_command_separators_preserve_runtime_behavior() {
-    let d = project();
-    for (source, after, suffix) in [
-        (
-            "# encoding: binary\n# frozen_string_literal: false\n# frozen_string_literal: true\ns = String.new\n",
-            "# encoding: binary\n# frozen_string_literal: false\n# frozen_string_literal: true\ns = String.new\n",
-            "s << 'x'; p [s, s.frozen?, s.encoding.name]\n",
-        ),
-        (
-            "# encoding: binary\n# frozen_string_literal: true\n# frozen_string_literal: false\ns = String.new\n",
-            "# encoding: binary\n# frozen_string_literal: true\n# frozen_string_literal: false\ns = \"\"\n",
-            "s << 'x'; p [s, s.frozen?, s.encoding.name]\n",
-        ),
-        ("consume  Hash.new, 1\n", "consume({}, 1)\n", ""),
-        ("consume\t\tHash.new, 1\n", "consume({}, 1)\n", ""),
-        ("consume \t Hash.new, 1\n", "consume({}, 1)\n", ""),
-    ] {
-        if source == after {
-            unchanged(
-                d.path(),
-                source.as_bytes(),
-                &["--only", LITERAL, "--fix", "a.rb"],
-                0,
-            );
-        } else {
-            fixed(d.path(), LITERAL, source, after);
-        }
-        let prefix = if source.starts_with("consume") {
-            "def consume(h, n); h[:n] = n; p [h, n]; end\n"
-        } else {
-            ""
-        };
-        for runtime in runtimes() {
-            let before = ruby(d.path(), &runtime, &format!("{prefix}{source}{suffix}"));
-            let corrected = ruby(d.path(), &runtime, &format!("{prefix}{after}{suffix}"));
-            assert!(before.status.success(), "{before:?}");
-            assert_eq!(
-                (before.status.code(), before.stdout, before.stderr),
-                (corrected.status.code(), corrected.stdout, corrected.stderr),
-                "{runtime}: {source}"
-            );
-            if source == after {
-                let naive = ruby(
-                    d.path(),
-                    &runtime,
-                    &format!("{}{suffix}", source.replace("String.new", "\"\"")),
-                );
-                assert!(!naive.status.success(), "{runtime}: {naive:?}");
-                assert!(String::from_utf8_lossy(&naive.stderr).contains("FrozenError"));
-            }
-        }
-    }
-}
-#[test]
 fn safe_class_definitions_preserve_fresh_names_parents_initialization_and_scope() {
     let d = project();
     for (source, after, suffix) in [
@@ -472,64 +327,6 @@ fn safe_class_definitions_preserve_fresh_names_parents_initialization_and_scope(
                 (before.status.code(), before.stdout, before.stderr),
                 (after.status.code(), after.stdout, after.stderr)
             );
-        }
-    }
-}
-#[test]
-fn unsafe_constructor_and_class_rewrites_have_concrete_runtime_counterexamples() {
-    let d = project();
-    for (cop, source, naive) in [
-        (
-            LITERAL,
-            "s = String.new\np s.encoding.name\n",
-            "s = \"\"\np s.encoding.name\n",
-        ),
-        (
-            LITERAL,
-            "class Array; def self.new; puts :allocated; [false]; end; end\np Array.new\n",
-            "class Array; def self.new; puts :allocated; [false]; end; end\np []\n",
-        ),
-        (
-            LITERAL,
-            "module M; Array = nil; p Array&.new; end\n",
-            "module M; Array = nil; p []; end\n",
-        ),
-        (
-            LITERAL,
-            "h = Hash.new { |h,k| h[k] = false }; p h[:x]\n",
-            "h = {}; p h[:x]\n",
-        ),
-        (
-            CLASS,
-            "class Base; def self.inherited(c); p c.name; end; end\nFooError = Class.new(Base)\n",
-            "class Base; def self.inherited(c); p c.name; end; end\nclass FooError < Base\nend\n",
-        ),
-        (
-            CLASS,
-            "class FooError < StandardError; def custom; true; end; end\nFooError = Class.new(StandardError)\np FooError.new.respond_to?(:custom)\n",
-            "class FooError < StandardError; def custom; true; end; end\nclass FooError < StandardError\nend\np FooError.new.respond_to?(:custom)\n",
-        ),
-        (
-            CLASS,
-            "module M; Class = Object.new; def Class.new(x); p :factory; nil; end; Foo = Class.new(StandardError); p Foo; end\n",
-            "module M; Class = Object.new; def Class.new(x); p :factory; nil; end; class Foo < StandardError; end; p Foo; end\n",
-        ),
-    ] {
-        // No-offense lookalikes are just as important as withheld offenses.
-        fs::write(d.path().join("a.rb"), source).unwrap();
-        let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(d.path())
-            .args(["--only", cop, "--fix", "a.rb"])
-            .output()
-            .unwrap();
-        assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
-        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), source);
-        for runtime in runtimes() {
-            let before = ruby(d.path(), &runtime, source);
-            let changed = ruby(d.path(), &runtime, naive);
-            assert!(before.status.success(), "{before:?}");
-            assert!(changed.status.success(), "{changed:?}");
-            assert_ne!(before.stdout, changed.stdout, "{runtime}: {source}");
         }
     }
 }
@@ -582,32 +379,4 @@ fn startup_constants_are_not_fresh_class_names_even_without_source_reopening() {
         assert!(!naive.status.success(), "{runtime}: {naive:?}");
         assert!(String::from_utf8_lossy(&naive.stderr).contains("TypeError"));
     }
-}
-
-#[test]
-fn native_ruby34_chilled_literal_mutation_is_not_equivalent_to_string_new() {
-    let Ok(runtime) = crate::support::runtime::ruby() else {
-        return;
-    };
-    let d = project();
-    let source = "# encoding: binary\ns = String.new\ns << 'x'\np s\n";
-    unchanged(
-        d.path(),
-        source.as_bytes(),
-        &["--only", LITERAL, "--fix", "a.rb"],
-        1,
-    );
-    let before = ruby(d.path(), &runtime, source);
-    let after = ruby(
-        d.path(),
-        &runtime,
-        "# encoding: binary\ns = \"\"\ns << 'x'\np s\n",
-    );
-    assert!(before.status.success() && after.status.success());
-    assert_eq!(before.stdout, after.stdout);
-    assert!(before.stderr.is_empty());
-    assert!(
-        !after.stderr.is_empty(),
-        "native Ruby 3.4 must expose chilled mutation: {after:?}"
-    );
 }

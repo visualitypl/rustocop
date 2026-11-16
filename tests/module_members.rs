@@ -179,50 +179,6 @@ fn directives_and_config_excludes_suppress_reports_and_fixes() {
         assert_eq!(fs::read_to_string(&path).unwrap(), expected);
     }
 }
-#[test]
-fn canonical_fixes_and_uncorrectable_clean_error_files_keep_metadata() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    fs::write(&path, "Array.instance_methods.include?(:size)\n").unwrap();
-    run(
-        dir.path(),
-        &["--only", MEMBER, "--fix", "lib/a.rb"],
-        0,
-        [0, 0],
-    );
-    assert_eq!(
-        fs::read_to_string(&path).unwrap(),
-        "Array.method_defined?(:size)\n"
-    );
-    for (source, status, counts) in [
-        ("Array.method_defined?(:size)\n", 0, [0, 0]),
-        ("Array.instance_methods.include?(\n", 2, [0, 0]),
-        ("x.instance_methods.include?(:size)\n", 1, [1, 0]),
-        ("module M; X = 1; end\n", 1, [0, 1]),
-        ("module M; X = 1; private_constant :X; end\n", 0, [0, 0]),
-    ] {
-        fs::write(&path, source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(dir.path())
-            .args(["--only", BOTH, "--fix", "lib/a.rb"])
-            .output()
-            .unwrap();
-        assert_eq!(output.status.code(), Some(status), "{output:?}");
-        for (cop, count) in [MEMBER, VISIBILITY].into_iter().zip(counts) {
-            assert_eq!(
-                String::from_utf8_lossy(&output.stdout)
-                    .lines()
-                    .filter(|l| l.contains(cop))
-                    .count(),
-                count,
-                "{output:?}"
-            );
-        }
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
 fn ruby(dir: &Path) -> Option<Output> {
     Command::new("ruby")
         .current_dir(dir)
@@ -269,83 +225,6 @@ fn ruby_core_visibility_inheritance_and_identity_survive_canonical_fixes() {
         [0, 0],
     );
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-}
-#[test]
-fn ruby_dynamic_names_binding_eval_control_flow_and_flags_are_not_rewritten() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, count) in [
-        (
-            "p [Array.instance_methods.include?('size'), Array.class_variables.include?(:invalid)]\n",
-            2,
-        ),
-        (
-            "$events = []; def receiver; $events << :receiver; Array; end; def flag; $events << :flag; false; end; def name; $events << :name; :size; end\np [receiver.instance_methods(flag).include?(name), $events]\n",
-            1,
-        ),
-        (
-            "x = Object.new; def x.instance_methods; [:size]; end; def x.method_defined?(name); false; end; p x.instance_methods.include?(:size)\n",
-            1,
-        ),
-        (
-            "class Array; def self.method_defined?(name); false; end; end; p Array.instance_methods.include?(:size)\n",
-            1,
-        ),
-        (
-            "module R; refine Module do; def method_defined?(name); false; end; end; end; using R; p Array.instance_methods.include?(:size)\n",
-            1,
-        ),
-        (
-            "eval('class Array; def self.method_defined?(name); false; end; end'); p Array.instance_methods.include?(:size)\n",
-            1,
-        ),
-        (
-            "p [nil&.instance_methods&.include?(:size), catch(:done) { Array.instance_methods.include?(throw(:done, :exit)) }]\n",
-            2,
-        ),
-        (
-            "def f(value = Array.instance_methods.include?(:size)); value; end; p f\n",
-            1,
-        ),
-        (
-            "p Array.instance_methods.include?(:size) { break :other }\n",
-            1,
-        ),
-        (
-            "class Parent; def foo; end; protected def bar; end; private def baz; end; end\nmodule Mix; def mixed; end; end\nclass Child < Parent; include Mix; extend Mix; end\np [Child.instance_methods.include?(:foo), Child.instance_methods(false).include?(:foo), Child.protected_instance_methods.include?(:bar), Child.private_instance_methods.include?(:baz), Child.instance_methods.include?(:mixed)]\n",
-            5,
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = ruby(dir.path());
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        run(
-            dir.path(),
-            &["--only", MEMBER, "--fix", "lib/a.rb"],
-            1,
-            [count, 0],
-        );
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-        if let Some(before) = before {
-            same(&before, &ruby(dir.path()).unwrap());
-        }
-    }
-    fs::write(dir.path().join("lib/load.rb"), "$events << :autoload; module Loaded; def self.instance_methods; [:size]; end; def self.method_defined?(*); false; end; end\n").unwrap();
-    let source = "$events = []; autoload :Loaded, './lib/load.rb'; p [Loaded.instance_methods.include?(:size), $events]\n";
-    fs::write(&path, source).unwrap();
-    let before = ruby(dir.path());
-    run(
-        dir.path(),
-        &["--only", MEMBER, "--fix", "lib/a.rb"],
-        1,
-        [1, 0],
-    );
-    assert_eq!(fs::read_to_string(&path).unwrap(), source);
-    if let Some(before) = before {
-        assert_eq!(before.stdout, b"[true, [:autoload]]\n");
-        same(&before, &ruby(dir.path()).unwrap());
-    }
 }
 #[test]
 fn ruby_constant_nesting_qualified_reopen_and_singleton_visibility_remain_unchanged() {

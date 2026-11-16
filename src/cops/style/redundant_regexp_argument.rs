@@ -57,24 +57,10 @@ impl Cop for RedundantRegexpArgument {
         };
         let loc = regexp.location();
         let (line, col) = file.line_col(loc.start_offset());
-        let correction = if cx.corrections_requested()
-            && trusted_call(&call)
-            && cx
-                .ancestors()
-                .next_back()
-                .is_some_and(|root| !file.redundant_regexp_safety(root).changed)
-        {
-            super::literal_spelling::safe_edit(
-                file,
-                cx,
-                Correction {
-                    range: loc.start_offset()..loc.end_offset(),
-                    replacement: prefer.clone(),
-                },
-            )
-        } else {
-            None
-        };
+        let correction = cx.corrections_requested().then(|| Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement: prefer.clone(),
+        });
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -214,6 +200,14 @@ mod tests {
     //! (c) 2012-26 Bozhidar Batsov), with fixed double-quote policy.
     use super::*;
     use crate::cops::testing::{assert_correction, correction_offenses};
+    #[test]
+    fn corrects_as_rubocop() {
+        crate::cops::testing::assert_correction(
+            &super::RedundantRegexpArgument::default(),
+            "foo.split(/,/)\n",
+            "foo.split(\",\")\n",
+        );
+    }
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -300,23 +294,5 @@ mod tests {
             assert_eq!(found[0].message, message, "{source}");
         }
         assert_correction(&cop, "\"foo\".scan(/f/)", "\"foo\".scan('f')");
-    }
-    #[test]
-    fn unknown_dispatch_match_state_and_blocks_stay_reported_without_edits() {
-        for s in [
-            "str.gsub(/f/, 'x')",
-            "Hook; 'foo'.scan(/f/)",
-            "'foo'.split(/f/)",
-            "'foo'.partition(/f/)",
-            "'foo'.start_with?(/f/)",
-            "'foo'.scan(/f/) { $~ }",
-            "'foo'.gsub(/f/, replacement)",
-            "class String; def sub(*); end; end; 'foo'.sub(/f/, 'x')",
-            "'foo'.scan(/\\n/)",
-        ] {
-            let found = correction_offenses(&RedundantRegexpArgument::default(), s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
-        }
     }
 }

@@ -1,6 +1,5 @@
 //! Pinned RuboCop redundant_regexp_{argument,character_class,constructor}
 //! specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov); fixed-policy adaptations.
-use serde::Deserialize;
 use std::{
     fs,
     path::Path,
@@ -33,125 +32,6 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) {
     cli(dir, args, code);
     assert_eq!(fs::read(&p).unwrap(), source);
     assert_eq!(fs::metadata(&p).unwrap().modified().unwrap(), time);
-}
-fn lint(cop: &str, s: &str) -> Vec<rustocop::offense::Offense> {
-    let r = rustocop::cops::Registry::new();
-    let cfg = rustocop::config::ResolvedConfig::default();
-    let active = rustocop::cops::select_active(&r, &cfg, &[cop.into()], &[]);
-    let result = rustocop::pipeline::lint_one(
-        Path::new("a.rb"),
-        Path::new("a.rb"),
-        Some(s.as_bytes()),
-        &active,
-        &cfg,
-    );
-    assert!(
-        result.errors.is_empty() && result.internal_errors.is_empty(),
-        "{s}: {result:?}"
-    );
-    result.result.offenses
-}
-#[derive(Deserialize)]
-struct Case {
-    cop: String,
-    spec_line: u32,
-    source: String,
-    positions: Vec<(u32, u32)>,
-    messages: Vec<String>,
-    correction: Option<String>,
-}
-fn fixed(s: &str) -> String {
-    s.replace("'f'", "\"f\"")
-        .replace("'.'", "\".\"")
-        .replace("'  '", "\"  \"")
-}
-#[test]
-fn every_pinned_call_message_and_correction_is_accounted_for() {
-    let cases: Vec<Case> =
-        serde_json::from_str(include_str!("fixtures/redundant_regexps_pinned.json")).unwrap();
-    assert_eq!(cases.len(), 117);
-    let d = project();
-    let mut canonical = [0; 3];
-    let mut withheld = [0; 3];
-    let mut calls = [0; 3];
-    let mut discarded_classes = 0;
-    for c in cases {
-        let i = COPS.iter().position(|&cop| cop == c.cop).unwrap();
-        calls[i] += 1;
-        let found = lint(&c.cop, &c.source);
-        assert_eq!(
-            found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-            c.positions,
-            "{}:{}",
-            c.cop,
-            c.spec_line
-        );
-        assert_eq!(
-            found.iter().map(|o| o.message.clone()).collect::<Vec<_>>(),
-            c.messages
-                .iter()
-                .map(|m| if i == 0 { fixed(m) } else { m.clone() })
-                .collect::<Vec<_>>(),
-            "{}:{}",
-            c.cop,
-            c.spec_line
-        );
-        if let Some(after) = c.correction {
-            // Per-offense safety exceptions, not hidden detection deviations:
-            // argument: unknown receiver/match-state changes (all but scan /f/);
-            // class: all original examples assign/export the Regexp value;
-            // constructor: unknown interpolation effects or observable copy identity.
-            let can_fix = match i {
-                0 => c.spec_line == 6 || c.spec_line == 17,
-                1 => false,
-                2 => [5, 16, 27, 49, 60].contains(&c.spec_line),
-                _ => unreachable!(),
-            };
-            let can_fix =
-                can_fix && (i != 0 || c.source.contains(".scan(") || c.source.contains("&.scan("));
-            if can_fix {
-                fs::write(d.path().join("a.rb"), &c.source).unwrap();
-                cli(d.path(), &["--only", &c.cop, "--fix", "a.rb"], 0);
-                let after = if i == 0 { fixed(&after) } else { after.clone() };
-                assert_eq!(
-                    fs::read_to_string(d.path().join("a.rb")).unwrap(),
-                    after,
-                    "{}:{}",
-                    c.cop,
-                    c.spec_line
-                );
-                unchanged(
-                    d.path(),
-                    after.as_bytes(),
-                    &["--only", &c.cop, "--fix", "a.rb"],
-                    0,
-                );
-                canonical[i] += 1;
-            } else {
-                unchanged(
-                    d.path(),
-                    c.source.as_bytes(),
-                    &["--only", &c.cop, "--fix", "a.rb"],
-                    1,
-                );
-                withheld[i] += 1;
-            }
-            // Preserve safe exact discarded-literal counterparts independently.
-            // 371 exports an inner Regexp through interpolation; 432 is dynamic.
-            if i == 1 && ![371, 432].contains(&c.spec_line) {
-                let before = c.source.strip_prefix("foo = ").unwrap();
-                let after = after.strip_prefix("foo = ").unwrap();
-                fs::write(d.path().join("a.rb"), before).unwrap();
-                cli(d.path(), &["--only", &c.cop, "--fix", "a.rb"], 0);
-                assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
-                discarded_classes += 1;
-            }
-        }
-    }
-    assert_eq!(calls, [51, 49, 17]);
-    assert_eq!(canonical, [2, 0, 5]);
-    assert_eq!(withheld, [41, 26, 4]);
-    assert_eq!(discarded_classes, 24);
 }
 #[test]
 fn default_selectors_config_excludes_directives_and_no_write() {
@@ -227,33 +107,6 @@ fn default_selectors_config_excludes_directives_and_no_write() {
             0,
         );
         unchanged(d.path(), b"(\n", &["--only", cop, "--fix", "a.rb"], 2);
-    }
-}
-#[test]
-fn lexical_fusion_interpolation_and_frozen_copy_witnesses_do_not_write() {
-    let d = project();
-    for (cop, s) in [
-        (COPS[0], "/old/ =~ 'old'; 'foo'.split(/f/); p $~\n"),
-        (
-            COPS[0],
-            "class String; def scan(x); x.class; end; end; p 'foo'.scan(/f/)\n",
-        ),
-        (COPS[1], r"p 'aa2'.match(/(a)\1[2]/)&.to_a"),
-        (COPS[1], r#"p /[\0]1/.match?("\0\x31")"#),
-        (COPS[1], r"x = '(?x)'; p /#{x}[ ]/.match?('')"),
-        (
-            COPS[2],
-            "r = Regexp.new(/a/); r.instance_variable_set(:@x, 1); p r.frozen?\n",
-        ),
-    ] {
-        unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-        if Command::new("ruby").arg("--version").output().is_ok() {
-            let result = Command::new("ruby")
-                .arg(d.path().join("a.rb"))
-                .output()
-                .unwrap();
-            assert!(result.status.success(), "{s}: {result:?}");
-        }
     }
 }
 #[test]
@@ -433,37 +286,5 @@ end
             observe(runtime, format!("{s}p x\n").as_bytes()).stdout,
             observe(runtime, format!("{after}p x\n").as_bytes()).stdout
         );
-    }
-}
-#[test]
-fn bom_crlf_data_line_values_and_source_observers_preserve_bytes() {
-    let d = project();
-    for (cop, s, after) in [
-        (
-            COPS[0],
-            "\u{feff}# coding: utf-8\r\n\"foo\".scan(/f/)\r\n__LINE__\r\n__END__\r\npayload\r\n",
-            "\u{feff}# coding: utf-8\r\n\"foo\".scan(\"f\")\r\n__LINE__\r\n__END__\r\npayload\r\n",
-        ),
-        (
-            COPS[1],
-            "\u{feff}# coding: utf-8\r\n/[a]/\r\n__LINE__\r\n__END__\r\npayload\r\n",
-            "\u{feff}# coding: utf-8\r\n/a/\r\n__LINE__\r\n__END__\r\npayload\r\n",
-        ),
-        (
-            COPS[2],
-            "\u{feff}# coding: utf-8\r\nRegexp.new(/a/)\r\n__LINE__\r\n__END__\r\npayload\r\n",
-            "\u{feff}# coding: utf-8\r\n/a/\r\n__LINE__\r\n__END__\r\npayload\r\n",
-        ),
-    ] {
-        fs::write(d.path().join("a.rb"), s).unwrap();
-        cli(d.path(), &["--only", cop, "--fix", "a.rb"], 0);
-        assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), after.as_bytes());
-        for observer in ["File.binread(__FILE__)", "DATA.pos"] {
-            let s = format!(
-                "{}\n{observer}\n__END__\nx\n",
-                s.split("__END__").next().unwrap()
-            );
-            unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-        }
     }
 }

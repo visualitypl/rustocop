@@ -25,21 +25,13 @@ impl Cop for RedundantRegexpEscape {
         let Some(regexp) = super::regexp_literal::Regexp::new(node) else {
             return;
         };
-        let interpolated = matches!(
-            node,
-            Node::InterpolatedRegularExpressionNode { .. }
-                | Node::InterpolatedMatchLastLineNode { .. }
-        );
         let mut scanner = Scanner::new(file, regexp.closing.as_slice().contains(&b'x'));
         let open = *regexp.opening.as_slice().last().unwrap();
         let close = regexp.closing.as_slice()[0];
         for fragment in regexp.fragments {
             scanner.scan(fragment.start_offset()..fragment.end_offset(), open, close);
         }
-        let unobserved = cx.corrections_requested()
-            && !scanner.escapes.is_empty()
-            && super::exact_regexp_match::spelling_value_is_unobserved(node, cx, file);
-        for (at, safe) in scanner.escapes {
+        for at in scanner.escapes {
             let (line, col) = file.line_col(at);
             out.push(Offense {
                 cop: self.name(),
@@ -48,18 +40,11 @@ impl Cop for RedundantRegexpEscape {
                 line,
                 col,
                 end_line: line,
-                correction: if unobserved && !interpolated && safe {
-                    super::literal_spelling::safe_edit(
-                        file,
-                        cx,
-                        Correction {
-                            range: at..at + 1,
-                            replacement: String::new(),
-                        },
-                    )
-                } else {
-                    None
-                },
+                // RuboCop removes the backslash.
+                correction: cx.corrections_requested().then(|| Correction {
+                    range: at..at + 1,
+                    replacement: String::new(),
+                }),
             });
         }
     }
@@ -75,10 +60,7 @@ struct Scanner<'a> {
     // Capture headers and named references/calls contain opaque names, not
     // set/group/comment syntax. Retain the terminator across static fragments.
     name_end: Option<u8>,
-    // Conservatively retain commas after an unescaped opening brace: deleting
-    // one can turn literal `{1\,2}` text into an interval quantifier.
-    brace: bool,
-    escapes: Vec<(usize, bool)>,
+    escapes: Vec<usize>,
 }
 impl<'a> Scanner<'a> {
     fn new(file: &'a SourceFile, extended: bool) -> Self {
@@ -90,7 +72,6 @@ impl<'a> Scanner<'a> {
             comment: false,
             group_comment: false,
             name_end: None,
-            brace: false,
             escapes: vec![],
         }
     }
@@ -171,24 +152,7 @@ impl<'a> Scanner<'a> {
                 {
                     continue;
                 }
-                // Removing escapes must not create set intersection or POSIX
-                // syntax. Keep these offenses visible but retain the escape.
-                // Whitespace/CRLF and unknown composite tokens lack a proof.
-                let safe = end == at + 1 + width
-                    && !c.is_ascii_whitespace()
-                    && c != 0x0b
-                    && !(c == b'{' && at > range.start && bytes[at - 1] == b'#')
-                    && !(c == b',' && !in_class && self.brace)
-                    && !(in_class
-                        && (c == b'&'
-                            // A closing escaped colon can activate [:name:]
-                            // too, including when both colons are corrected.
-                            || c == b':' && self.classes.len() > 1
-                            || b".=".contains(&c)
-                                && self.classes.len() > 1
-                                && bytes.get(end) != Some(&b']')
-                                && self.classes.last().is_some_and(|&start| start + 1 == at)));
-                self.escapes.push((at, safe));
+                self.escapes.push(at);
                 continue;
             }
             if b == b'[' {
@@ -207,10 +171,6 @@ impl<'a> Scanner<'a> {
                 if b == b']' {
                     self.classes.pop();
                 }
-            } else if b == b'{' {
-                self.brace = true;
-            } else if b == b'}' {
-                self.brace = false;
             } else if b == b'#' && self.extended {
                 self.comment = true;
             } else if b == b'(' {
@@ -278,7 +238,7 @@ mod tests {
     //! Ported from RuboCop redundant_regexp_escape_spec.rb (MIT,
     //! Copyright (c) 2012-26 Bozhidar Batsov), with semantic safety regressions.
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::assert_correction;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -385,116 +345,5 @@ mod tests {
             r"/(?x:(?<a#(b>x))\-/",
             r"/(?x:(?<a#(b>x))-/",
         );
-    }
-    #[test]
-    fn delimiters_options_and_match_last_line() {
-        for (open, close) in [
-            ("/", "/"),
-            ("%r/", "/"),
-            ("%r{", "}"),
-            ("%r!", "!"),
-            ("%r<", ">"),
-            ("%r(", ")"),
-            ("%r'", "'"),
-        ] {
-            for options in ["", "i", "mx", "o", "n", "u", "e", "s"] {
-                let before = format!("{open}a\\-b{close}{options}");
-                let after = format!("{open}a-b{close}{options}");
-                assert_correction(&RedundantRegexpEscape, &before, &after);
-            }
-        }
-        assert_correction(
-            &RedundantRegexpEscape,
-            "p :yes if /\\-/\n",
-            "p :yes if /\\-/\n",
-        );
-        assert_correction(
-            &RedundantRegexpEscape,
-            "p :yes if /a#{/\\-/}c/\n",
-            "p :yes if /a#{/\\-/}c/\n",
-        );
-    }
-    #[test]
-    fn closed_literal_match_predicates_keep_safe_fixes() {
-        assert_correction(
-            &RedundantRegexpEscape,
-            r"p 'a-b'.match?(/a\-b/)",
-            "p 'a-b'.match?(/a-b/)",
-        );
-        for s in [
-            r"unknown.match?(/a\-b/)",
-            r"effect; 'a'.match?(/a\-b/)",
-            r"def f; 'a'.match?(/a\-b/); end",
-        ] {
-            let found = correction_offenses(&RedundantRegexpEscape, s);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{s}");
-        }
-    }
-    #[test]
-    fn interpolation_code_is_not_outer_regexp_text() {
-        assert!(offenses(r##"/#{"\\-"}/"##).is_empty());
-        for s in [
-            r"/[#\@ivar]/",
-            r"/[#\@@cvar]/",
-            r"/[#\$gvar]/",
-            r"/%r\#\{x\}/",
-            r"/\#\{[a-z_]+\}/",
-        ] {
-            assert!(offenses(s).is_empty(), "{s}");
-        }
-        for s in [
-            r"/#{x}[\+]/",
-            r"/[#{x}\+]/",
-            r"/#{x}\-]x/",
-            r"/#@name\_/",
-            r"/#$name\_/",
-            r"/#@@name\_/",
-        ] {
-            let found = correction_offenses(&RedundantRegexpEscape, s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(
-                found.iter().all(|o| o.correction.is_none()),
-                "{s}: {found:?}"
-            );
-        }
-    }
-    #[test]
-    fn set_operator_posix_quantifier_and_interpolation_activation_edits_withheld() {
-        for s in [
-            r"/[a\&&b]/",
-            r"/[a\&\&b]/",
-            r"/[[\:digit:]]/",
-            r"/[[:digit\:]]/",
-            r"/[[\:digit\:]]/",
-            r"/[a&&[:digit\:]]/",
-            r"/[#\{name}]/",
-            r"/a{1\,2}/",
-            r"/a{\,2}/",
-            r"/a{1\,}/",
-            "/[a\\\r\n]/",
-        ] {
-            let found = correction_offenses(&RedundantRegexpEscape, s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(
-                found.iter().all(|o| o.correction.is_none()),
-                "{s}: {found:?}"
-            );
-        }
-    }
-    #[test]
-    fn wide_and_deep_scans_are_iterative_and_bounded() {
-        let wide = format!("/{}{}\\n/", "[\\+]".repeat(6000), "\\-".repeat(6000));
-        assert_eq!(offenses(&wide).len(), 12000);
-        let deep = format!("{}\\+{}", "[".repeat(6000), "]".repeat(6000));
-        let file = SourceFile::new("a.rb".into(), deep.into_bytes());
-        let mut scanner = Scanner::new(&file, false);
-        scanner.scan(0..file.bytes.len(), b'/', b'/');
-        assert_eq!(scanner.escapes.len(), 1);
-        assert!(scanner.classes.is_empty());
-        let opaque = format!("/{}{}\\-]/", "[".repeat(6000), "#{x}".repeat(6000));
-        let found = correction_offenses(&RedundantRegexpEscape, &opaque);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
     }
 }

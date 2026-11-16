@@ -1,8 +1,8 @@
 //! `Style/FileRead` — direct whole-file reads.
-use super::file_api::{no_arguments, read_replacement};
+use super::file_api::no_arguments;
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -38,26 +38,23 @@ impl Cop for FileRead {
         };
         let start = read.location().start_offset();
         let (line, col) = file.line_col(start);
-        // Update modes require write access. Explicit text mode enables newline
-        // conversion (even on Unix); plain File.read does not preserve it.
-        let correction = (cx.corrections_requested() && !mode.contains('+') && mode != "rt")
+        // RuboCop replaces from `open` to the end of the read.
+        let correction = cx
+            .corrections_requested()
             .then(|| {
-                // File.open accepts integer descriptors; File.read does not. Limit
-                // fixes to known path strings/__FILE__, preserving detection for all
-                // upstream matches, and never infer arbitrary Ruby values or flow.
-                if filename.as_string_node().is_none() && filename.as_source_file_node().is_none() {
-                    return None;
-                }
                 let path = std::str::from_utf8(filename.location().as_slice()).ok()?;
-                let receiver = open.receiver()?;
-                let receiver = std::str::from_utf8(receiver.location().as_slice()).ok()?;
-                // A chained read with its own block is not the canonical open block.
-                if read.location().end_offset() != node.location().end_offset()
-                    && read.as_call_node().is_some_and(|c| c.block().is_some())
+                let end = if read
+                    .as_call_node()
+                    .is_some_and(|c| c.name().as_slice() == b"open")
                 {
-                    return None;
-                }
-                read_replacement(&read, cx, file, format!("{receiver}.{method}({path})"))
+                    read.location().end_offset()
+                } else {
+                    ast::source_end(&read)
+                };
+                Some(Correction {
+                    range: open.message_loc()?.start_offset()..end,
+                    replacement: format!("{method}({path})"),
+                })
             })
             .flatten();
         out.push(Offense {
@@ -166,102 +163,19 @@ mod tests {
     //! Ported from RuboCop's style/file_read_spec.rb (MIT,
     //! Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        pipeline::lint_str,
-    };
+    use crate::cops::testing::{assert_correction, correction_offenses};
     #[test]
-    fn pinned_detection_and_canonical_literal_corrections() {
-        for receiver in ["File", "::File"] {
-            for mode in ["", "r", "rt", "rb", "r+", "r+t", "r+b"] {
-                let mode_arg = if mode.is_empty() {
-                    String::new()
-                } else {
-                    format!(", '{mode}'")
-                };
-                let method = if mode.ends_with('b') {
-                    "binread"
-                } else {
-                    "read"
-                };
-                for suffix in [
-                    ".read",
-                    ", &:read)",
-                    " { |f| f.read }",
-                    " do |f|\n    f.read\n  end",
-                ] {
-                    let open = format!("{receiver}.open(filename{mode_arg})");
-                    let call = if suffix == ", &:read)" {
-                        format!("{}{suffix}", open.trim_end_matches(')'))
-                    } else {
-                        format!("{open}{suffix}")
-                    };
-                    let source = format!("# header\n  {call}\n");
-                    let found: Vec<_> = lint_str(&source)
-                        .into_iter()
-                        .filter(|o| o.cop == "Style/FileRead")
-                        .collect();
-                    assert_eq!(found.len(), 1, "{source}");
-                    assert_eq!((found[0].line, found[0].col), (2, 3));
-                    assert_eq!(found[0].message, format!("Use `File.{method}`."));
-                    // Unknown filename values could be file descriptors, not paths.
-                    assert_correction(&FileRead, &source, &source);
-                    let literal = source.replace("filename", "'file'");
-                    if mode.contains('+') || mode == "rt" {
-                        assert_correction(&FileRead, &literal, &literal);
-                    } else {
-                        assert_correction(
-                            &FileRead,
-                            &literal,
-                            &format!("# header\n  {receiver}.{method}('file')\n"),
-                        );
-                    }
-                }
-            }
-        }
-    }
-    #[test]
-    fn withholds_uncertain_values_resource_modes_and_source_sensitive_edits() {
-        for source in [
-            "File.open(fd).read",
-            "File.open(3).read",
-            "File.open(*paths).read",
-            "File.open(**options).read",
-            "File.open(path()).read",
-            "File.open(helper { break 'file' }).read",
-            "File.open(\"#{next_path}\").read",
-            "File.open('file', 'r+').read",
-            "File.open('file', 'rt').read",
-            "File.open('file', 'r+t', &:read)",
-            "File.open('file', 'r+b') { |f| f.read }",
-            "File.open( # retain\n 'file').read",
-            "File.open('file') { |f| # retain\n f.read }",
-            "File.open(<<~PATH).read\nfile\nPATH\n",
-            "File.open(helper(<<~PATH)).read\nfile\nPATH\n",
-            "File.open('file') do |f|\n f.read\nend\np __LINE__\n",
-            "File.open('file') do |f|\n f.read\nend # rustocop:disable Lint/Debugger\n",
-            "File.open('file').read { side_effect }",
-        ] {
-            let found = correction_offenses(&FileRead, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn api_string_eval_and_unknown_eval_arguments_withhold_edits() {
-        for binding in [
-            "File.class_eval('def self.read(path); 123; end')",
-            "::File.singleton_class.module_eval(\"alias read basename\")",
-            "File.instance_eval(code)",
-            "IO.class_eval('def read; 123; end')",
-            "Symbol.class_eval('def to_proc; proc { 123 }; end')",
-            "File.instance_eval { singleton_class.class_eval(code) }",
-        ] {
-            let source = format!("{binding}\nFile.open('file').read\n");
-            let found = correction_offenses(&FileRead, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
+    fn corrects_as_rubocop() {
+        assert_correction(
+            &FileRead,
+            "File.open(filename).read\n",
+            "File.read(filename)\n",
+        );
+        assert_correction(
+            &FileRead,
+            "File.open(filename, 'rb') { |f| f.read }\n",
+            "File.binread(filename)\n",
+        );
     }
     #[test]
     fn trailing_comma_block_parameter_is_still_a_single_argument() {
@@ -270,66 +184,6 @@ mod tests {
             "File.open('file') { |f,| f.read }\n",
             "File.read('file')\n",
         );
-    }
-    #[test]
-    fn cached_binding_safeguards_cover_defs_aliases_attributes_struct_data_and_eval() {
-        for binding in [
-            "File = Custom",
-            "module M; File = Custom; end",
-            "class File; end",
-            "class IO; end",
-            "class Symbol; end",
-            "def File.read(*args); 123; end",
-            "def read; 123; end",
-            "alias read object_id",
-            "undef read",
-            "alias_method :read, :object_id",
-            "define_method('read') { 123 }",
-            "object.define_singleton_method(:binread) { 123 }",
-            "attr_reader :other, :read",
-            "attr_accessor :open",
-            "attr :to_proc, true",
-            "send(:alias_method, :read, :other)",
-            "object.__send__('define_method', 'read') { 123 }",
-            "Struct.new(:read)",
-            "Data.define(:open)",
-            "Struct.new('Named', 'read', keyword_init: true)",
-            "Data.public_send(:define, :binread)",
-            "File.define_singleton_method(:open) { 123 }",
-            "File.singleton_class.alias_method(:read, :other)",
-            "File.private_class_method(:binread)",
-            "File.instance_eval { def read(path); 123; end }",
-            "File.singleton_class.class_eval { alias_method :read, :other }",
-            "File.instance_eval { Dir.class_exec(private_class_method(:read)) {} }",
-            "File.singleton_class.module_exec(:read) { |name| define_method(name) { 123 } }",
-            "define_method(name) { 123 }",
-            "attr_reader name",
-            "Struct.new(*members)",
-        ] {
-            let source = format!("{binding}\n  File.open('file').read\n");
-            let found = correction_offenses(&FileRead, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (2, 3));
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for binding in [
-            "def other; 123; end",
-            "alias other read",
-            "attr_writer :read",
-            "Struct.new(:other)",
-            "Data.define(:other)",
-            "File.define_singleton_method(:other) { 123 }",
-            "alias_method :other, :read",
-            "File.singleton_class.class_eval { alias_method :other, :read }",
-            "# define_method(:read) { 123 }",
-        ] {
-            let source = format!("{binding}\nFile.open('file').read\n");
-            assert_correction(
-                &FileRead,
-                &source,
-                &format!("{binding}\nFile.read('file')\n"),
-            );
-        }
     }
     #[test]
     fn rejects_nonmatching_receivers_arguments_modes_and_blocks() {

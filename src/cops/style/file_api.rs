@@ -704,24 +704,6 @@ pub(super) fn replacement(
     replacement_inner(node, cx, file, text, api, false)
 }
 
-pub(super) fn read_replacement(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    text: String,
-) -> Option<Correction> {
-    replacement_inner(node, cx, file, text, "FileRead", true)
-}
-
-pub(super) fn write_replacement(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    text: String,
-) -> Option<Correction> {
-    replacement_inner(node, cx, file, text, "FileWrite", true)
-}
-
 pub(super) fn yaml_replacement(
     node: &Node<'_>,
     cx: &NodeContext<'_, '_>,
@@ -922,58 +904,6 @@ mod tests {
         );
         assert!(first.visited < 40_000);
         for cop in [&Dir as &dyn Cop, &DirEmpty] {
-            let found = correction_offenses(cop, &source);
-            assert_eq!(found.len(), 2000);
-            assert!(found.iter().all(|o| o.correction.is_none()));
-        }
-    }
-
-    #[test]
-    fn read_bindings_share_one_bounded_index_for_many_offenses() {
-        use crate::cops::style::FileRead;
-        let source = format!(
-            "File.singleton_class.class_eval {{ private :read }}\n{}",
-            "File.open('file').read\n".repeat(2000)
-        );
-        let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
-        let parsed = ruby_prism::parse(&file.bytes);
-        let root = parsed.node();
-        let index = file.file_api_bindings(&root);
-        assert!(index.file);
-        for _ in 0..2000 {
-            assert!(std::ptr::eq(index, file.file_api_bindings(&root)));
-        }
-        assert_eq!(
-            index.visited,
-            crate::cops::testing::preorder_kinds(&source).len()
-        );
-        assert!(index.visited < 25_000);
-        let found = correction_offenses(&FileRead, &source);
-        assert_eq!(found.len(), 2000);
-        assert!(found.iter().all(|o| o.correction.is_none()));
-    }
-
-    #[test]
-    fn write_and_yaml_matches_reuse_one_bounded_binding_index() {
-        use crate::cops::style::{FileWrite, YAMLFileRead};
-        let source = format!(
-            "File.define_singleton_method(:binwrite) {{ 123 }}\nYAML.class_eval(code)\n{}",
-            "File.open('file', 'wb') { |f| f.write('data') }\nYAML.load(File.read(File::NULL))\n"
-                .repeat(2000)
-        );
-        let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
-        let parsed = ruby_prism::parse(&file.bytes);
-        let root = parsed.node();
-        let index = file.file_api_bindings(&root);
-        for _ in 0..4000 {
-            assert!(std::ptr::eq(index, file.file_api_bindings(&root)));
-        }
-        assert_eq!(
-            index.visited,
-            crate::cops::testing::preorder_kinds(&source).len()
-        );
-        assert!(index.visited < 50_000);
-        for cop in [&FileWrite as &dyn Cop, &YAMLFileRead] {
             let found = correction_offenses(cop, &source);
             assert_eq!(found.len(), 2000);
             assert!(found.iter().all(|o| o.correction.is_none()));

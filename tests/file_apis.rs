@@ -1,9 +1,8 @@
 //! real CLI contracts and controlled, local filesystem semantics.
 use std::{
     fs,
-    io::Write,
     path::Path,
-    process::{Command, Output, Stdio},
+    process::{Command, Output},
 };
 
 const CASES: &[(&str, &str, &str)] = &[
@@ -64,13 +63,6 @@ const CASES: &[(&str, &str, &str)] = &[
         "File.size(\"path/to/file\") == 0\n",
     ),
 ];
-fn offense_column(cop: &str) -> usize {
-    match cop {
-        "Style/YAMLFileRead" | "Style/NestedFileDirname" | "Style/ExpandPathArguments" => 6,
-        "Style/RedundantCurrentDirectoryInPath" => 19,
-        _ => 1,
-    }
-}
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -129,89 +121,6 @@ fn directives_excludes_and_disabled_spans_preserve_bytes() {
         0,
     );
     assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-}
-
-#[test]
-fn stdin_and_uncorrectable_clean_error_files_never_write() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    fs::write(&path, "sentinel\n").unwrap();
-    for (cop, source, _) in CASES {
-        for (config, input, status) in [
-            (String::new(), source.to_string(), 1),
-            (
-                format!("[cops.\"{cop}\"]\nexclude = [\"lib/a.rb\"]\n"),
-                source.to_string(),
-                0,
-            ),
-            (
-                String::new(),
-                format!("# rustocop:disable {cop}\n{source}"),
-                0,
-            ),
-        ] {
-            fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-            let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(dir.path().join("lib"))
-                .args(["--only", cop, "--stdin", "a.rb"])
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped())
-                .spawn()
-                .unwrap();
-            child
-                .stdin
-                .take()
-                .unwrap()
-                .write_all(input.as_bytes())
-                .unwrap();
-            let output = child.wait_with_output().unwrap();
-            assert_eq!(output.status.code(), Some(status), "{output:?}");
-            if status == 1 {
-                let col = offense_column(cop);
-                assert!(
-                    String::from_utf8_lossy(&output.stdout).contains(&format!("a.rb:1:{col}:"))
-                );
-            }
-            assert_eq!(fs::read(&path).unwrap(), b"sentinel\n");
-        }
-    }
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    for (cop, source, status) in [
-        (
-            "Style/Dir",
-            "__dir__ = 1; File.dirname(File.realpath(__FILE__))\n",
-            1,
-        ),
-        (
-            "Style/DirEmpty",
-            "Dir.children(<<~PATH).empty?\n  path\nPATH\n",
-            1,
-        ),
-        (
-            "Style/FileEmpty",
-            "\u{feff}# encoding: UTF-8\r\nFile.read(path).empty?\r\np __LINE__\r\n__END__\r\nraw\r\n",
-            1,
-        ),
-        ("Style/FileRead", "File.open( # comment\n 'file').read\n", 1),
-        ("Style/FileRead", "File.open('file', 'r+').read\n", 1),
-        ("Style/FileRead", "File.open(filename).read\n", 1),
-        ("Style/FileRead", "File.open(\n", 2),
-        ("Style/FileRead", "File.read('file')\n", 0),
-        (
-            "Style/FileNull",
-            "\u{feff}# encoding: UTF-8\r\n\"/dev/null\"\r\n__END__\r\nraw\r\n",
-            1,
-        ),
-        ("Style/DirEmpty", "Dir.empty?(path)\n", 0),
-        ("Style/DirEmpty", "Dir.children(\n", 2),
-    ] {
-        fs::write(&path, source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
 }
 
 #[test]

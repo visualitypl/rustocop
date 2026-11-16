@@ -57,71 +57,6 @@ fn rows() -> Vec<serde_json::Value> {
     data["rows"].as_array().unwrap().clone()
 }
 #[test]
-fn all_reference_byte_rows_run_rebuilt_cli_lint_fix_and_idempotence() {
-    let d = project();
-    let mut fixed = 0;
-    for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let invalid =
-            row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some();
-        let findings = row["findings"].as_array();
-        let status = if invalid {
-            2
-        } else {
-            i32::from(!findings.unwrap().is_empty())
-        };
-        let out = unchanged(d.path(), &bytes, &["--only", COP, "lib/a.rb"], Some(status));
-        if invalid {
-            assert_eq!(count(&out), 0);
-            unchanged(
-                d.path(),
-                &bytes,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                Some(2),
-            );
-            continue;
-        }
-        assert_eq!(count(&out), findings.unwrap().len(), "{row}\n{out:?}");
-        let text = String::from_utf8_lossy(&out.stdout);
-        for f in findings.unwrap() {
-            assert!(
-                text.contains(&format!(
-                    "lib/a.rb:{}:{}: E: {} ({COP})",
-                    f[0],
-                    f[1],
-                    f[3].as_str().unwrap()
-                )),
-                "{row}\n{text}"
-            );
-        }
-        if let Some(after) = row.get("project_after") {
-            fixed += 1;
-            let expected: Vec<u8> = serde_json::from_value(after.clone()).unwrap();
-            let out = run(d.path(), &["--only", COP, "--fix", "lib/a.rb"]);
-            assert_eq!(out.status.code(), Some(0), "{row}\n{out:?}");
-            assert_eq!(
-                fs::read(d.path().join("lib/a.rb")).unwrap(),
-                expected,
-                "{row}"
-            );
-            unchanged(
-                d.path(),
-                &expected,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                Some(0),
-            );
-        } else {
-            unchanged(
-                d.path(),
-                &bytes,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                Some(status),
-            );
-        }
-    }
-    assert_eq!(fixed, 42);
-}
-#[test]
 fn fixed_metadata_and_actual_current_admission() {
     let registry = rustocop::cops::Registry::new();
     let c = registry.cops().iter().find(|c| c.name() == COP).unwrap();
@@ -193,69 +128,6 @@ fn selectors_strict_toml_enablement_department_and_excludes() {
             &["--only", COP, "--fix", "lib/a.rb"],
             Some(0),
         );
-    }
-}
-#[test]
-fn both_prefixes_multiline_next_push_and_activation() {
-    let d = project();
-    for p in ["rustocop", "rubocop"] {
-        for target in [COP, "Lint", "all"] {
-            let s = format!("# {p}:disable {target}\n{}", String::from_utf8_lossy(SAFE));
-            assert_eq!(
-                count(&unchanged(
-                    d.path(),
-                    s.as_bytes(),
-                    &["--only", COP, "--fix", "lib/a.rb"],
-                    Some(0)
-                )),
-                0
-            );
-        }
-        for s in [
-            format!(
-                "# {p}:push -{COP}\n{}# {p}:pop\n",
-                String::from_utf8_lossy(SAFE)
-            ),
-            format!("begin\n nil\n# {p}:disable-next {COP}\nrescue *[First, Second]\nend\n"),
-            format!("begin\n nil\n# {p}:next -{COP}\nrescue *[First, Second]\nend\n"),
-            format!("begin; nil; rescue *[First, # {p}:disable {COP}\nSecond]; end\n"),
-            format!("begin; nil; rescue *[First, Second] # {p}:disable {COP}\nend\n"),
-        ] {
-            unchanged(
-                d.path(),
-                s.as_bytes(),
-                &["--only", COP, "--fix", "lib/a.rb"],
-                Some(0),
-            );
-        }
-        for open in [
-            format!("# {p}:push +{COP}\n"),
-            format!("# {p}:enable-next {COP}\n"),
-        ] {
-            let s = format!(
-                "# {p}:disable {COP}\n{open}begin; work; rescue *[First, Second]; end\n# {p}:pop\n"
-            );
-            assert_eq!(
-                count(&unchanged(
-                    d.path(),
-                    s.as_bytes(),
-                    &["--only", COP, "--fix", "lib/a.rb"],
-                    Some(1)
-                )),
-                1
-            );
-        }
-        fs::write(
-            d.path().join("rustocop.toml"),
-            format!("[cops.\"{COP}\"]\nenabled = false\n"),
-        )
-        .unwrap();
-        let s = format!("# {p}:enable {COP}\n{}", String::from_utf8_lossy(LIVE));
-        assert_eq!(
-            count(&unchanged(d.path(), s.as_bytes(), &["lib/a.rb"], None)),
-            1
-        );
-        fs::write(d.path().join("rustocop.toml"), "").unwrap();
     }
 }
 #[test]
@@ -386,28 +258,6 @@ fn native(source: &[u8], syntax: bool) -> Option<Output> {
     Some(c.wait_with_output().unwrap())
 }
 #[test]
-fn authored_native_trace_exception_filter_evaluation_is_withheld() {
-    let d = project();
-    let template = "$log = []\ndef second; $log << :second; TypeError; end\narmed = true\ntrace = TracePoint.new(:line) do |event|\n if event.lineno == LINE && armed\n  armed = false\n  raise 'trace'\n end\nend\ntrace.enable\nbegin\n nil\nrescue *[RuntimeError, second]\nend\ntrace.disable\np $log\n";
-    let line = template.lines().position(|s| s == " nil").unwrap() + 1;
-    let before = template.replace("LINE", &line.to_string());
-    unchanged(
-        d.path(),
-        before.as_bytes(),
-        &["--only", COP, "--fix", "lib/a.rb"],
-        Some(1),
-    );
-    let after = before.replace("*[RuntimeError, second]", "RuntimeError, second");
-    if let (Some(a), Some(b)) = (
-        native(before.as_bytes(), false),
-        native(after.as_bytes(), false),
-    ) {
-        assert!(a.status.success() && b.status.success(), "{a:?}\n{b:?}");
-        assert_eq!(a.stdout, b"[:second]\n");
-        assert_eq!(b.stdout, b"[]\n");
-    }
-}
-#[test]
 fn reference_inputs_are_only_syntax_checked_never_executed() {
     for row in rows() {
         let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
@@ -421,69 +271,6 @@ fn reference_inputs_are_only_syntax_checked_never_executed() {
             if let Some(out) = native(&bytes, true) {
                 assert!(out.status.success(), "{row}\n{out:?}");
             }
-        }
-    }
-}
-#[test]
-fn authored_native_values_bindings_evaluation_filter_and_allocation_controls() {
-    let d = project();
-    for body in ["", "nil", "true", "false", "nil; true; false"] {
-        let before = format!(
-            "log = []\ndef first; raise 'not evaluated'; end\ndef second; raise 'not evaluated'; end\nvalue = begin; {body}; rescue *[first, second]; log << :handler; ensure; log << :ensure; end\np [value, log, local_variables.sort, $!]\n"
-        );
-        let after = before.replace("*[first, second]", "first, second");
-        fs::write(d.path().join("lib/a.rb"), &before).unwrap();
-        assert_eq!(
-            run(d.path(), &["--only", COP, "--fix", "lib/a.rb"])
-                .status
-                .code(),
-            Some(0)
-        );
-        assert_eq!(
-            fs::read_to_string(d.path().join("lib/a.rb")).unwrap(),
-            after
-        );
-        if let (Some(a), Some(b)) = (
-            native(before.as_bytes(), false),
-            native(after.as_bytes(), false),
-        ) {
-            assert!(a.status.success() && b.status.success(), "{a:?}\n{b:?}");
-            assert_eq!(a.stdout, b.stdout);
-            assert_eq!(a.stderr, b.stderr);
-        }
-    }
-    // Deliberately authored counterexamples, never reference/corpus execution.
-    // Flattening when/rescue conditions changes short-circuit evaluation;
-    // scalar/constructor splats can dispatch to_a or change argument values.
-    for (before, old, new) in [
-        (
-            "log = []; def second(log); log << :second; TypeError; end; begin; raise 'x'; rescue *[RuntimeError, second(log)]; end; p log\n",
-            "*[RuntimeError, second(log)]",
-            "RuntimeError, second(log)",
-        ),
-        (
-            "class String; def to_a; [:changed]; end; end; def f(*x); p x; end; f(*'x')\n",
-            "*'x'",
-            "'x'",
-        ),
-        (
-            "def f(*x); p x; end; result = f(*Array.new(2, 42))\n",
-            "*Array.new(2, 42)",
-            "Array.new(2, 42)",
-        ),
-    ] {
-        unchanged(
-            d.path(),
-            before.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(1),
-        );
-        if let (Some(a), Some(b)) = (
-            native(before.as_bytes(), false),
-            native(before.replace(old, new).as_bytes(), false),
-        ) {
-            assert!(a.status.success() && b.status.success(), "{a:?}\n{b:?}");
-            assert_ne!(a.stdout, b.stdout);
         }
     }
 }

@@ -116,73 +116,81 @@ impl Cop for RedundantSplatExpansion {
             message: message.into(),
             correction: cx
                 .corrections_requested()
-                .then(|| inert_rescue_correction(node, &value, cx, file))
+                .then(|| correction(node, &value, constructor, argument, in_array, cx))
                 .flatten(),
         });
     }
 }
-// A live literal flattening can change dispatch (to_a), allocation, exception
-// filter evaluation, keyword arguments and value/control flow. Only a first
-// rescue whose protected statements cannot raise or allocate is eligible.
-// Trace/source/code-object/heap/position/heredoc barriers remain shared. The
-// exact canonical simple-filter spelling also excludes comments, newlines,
-// encodings needing replacement conversion, nested splats and grammar changes.
-fn inert_rescue_correction(
+/// RuboCop's `replacement_range_and_content`. Prism puts a rescue's
+/// exceptions straight under the rescue, where RuboCop's AST has an
+/// unbracketed array.
+fn correction(
     node: &Node<'_>,
     value: &Node<'_>,
+    constructor: bool,
+    argument: bool,
+    in_array: bool,
     cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
-    cx.parent()?.as_rescue_node()?;
-    let begin = cx.ancestors().nth(1)?.as_begin_node()?;
-    if begin.statements().is_some_and(|s| {
-        s.body().iter().any(|n| {
-            !matches!(
-                n,
-                Node::NilNode { .. } | Node::TrueNode { .. } | Node::FalseNode { .. }
+    let source = |n: &Node<'_>| {
+        std::str::from_utf8(n.location().as_slice())
+            .ok()
+            .map(str::to_owned)
+    };
+    let parent = cx.parent()?;
+    let rescue = parent.as_rescue_node().is_some();
+    let whole = node.location().start_offset()..node.location().end_offset();
+    let (range, replacement) = if constructor {
+        let range = if parent.as_array_node().is_some() {
+            parent.location().start_offset()..parent.location().end_offset()
+        } else {
+            whole
+        };
+        (range, source(value)?.to_owned())
+    } else if let Some(array) = value.as_array_node() {
+        if parent.as_when_node().is_some() || argument || in_array || rescue {
+            let elements = array
+                .elements()
+                .iter()
+                .map(|e| source(&e))
+                .collect::<Option<Vec<_>>>()?;
+            let opening = array.opening_loc();
+            let opening = opening.as_ref().map_or(b"".as_slice(), |o| o.as_slice());
+            let text = if opening.starts_with(b"%w") {
+                format!("'{}'", elements.join("', '"))
+            } else if opening.starts_with(b"%W") {
+                format!("\"{}\"", elements.join("\", \""))
+            } else if opening.starts_with(b"%i") {
+                format!(":{}", elements.join(", :"))
+            } else if opening.starts_with(b"%I") {
+                format!(":\"{}\"", elements.join("\", :\""))
+            } else {
+                elements.join(", ")
+            };
+            (whole, text)
+        } else {
+            let operator = node.as_splat_node()?.operator_loc();
+            (
+                operator.start_offset()..operator.end_offset(),
+                String::new(),
             )
-        })
-    }) {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    if file.class_method_bindings(root).observes_sources() {
-        return None;
-    }
-    let array = value.as_array_node()?;
-    if array.opening_loc()?.as_slice() != b"[" || array.closing_loc()?.as_slice() != b"]" {
-        return None;
-    }
-    let mut elements = Vec::new();
-    for element in array.elements().iter() {
-        if crate::cops::ast::const_name(&element).is_none()
-            && !element.as_call_node().is_some_and(|c| {
-                c.receiver().is_none()
-                    && c.arguments().is_none()
-                    && c.block().is_none()
-                    && c.message_loc()
-                        .is_some_and(|l| l.as_slice() == c.name().as_slice())
-            })
-        {
-            return None;
         }
-        let source = element.location().as_slice();
-        if !source.is_ascii() || source.iter().any(|b| matches!(b, b'#' | b'\r' | b'\n')) {
-            return None;
-        }
-        elements.push(std::str::from_utf8(source).ok()?);
-    }
-    if elements.is_empty() {
-        return None;
-    }
-    let replacement = elements.join(", ");
-    if node.location().as_slice() != format!("*[{replacement}]").as_bytes() {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: node.location().start_offset()..node.location().end_offset(),
-        replacement,
-    })
+    } else {
+        let text = source(value)?;
+        let unbracketed = rescue
+            || parent
+                .as_array_node()
+                .is_some_and(|a| a.opening_loc().is_none());
+        (
+            whole,
+            if unbracketed {
+                format!("[{text}]")
+            } else {
+                text.to_owned()
+            },
+        )
+    };
+    Some(crate::offense::Correction { range, replacement })
 }
 // Single-statement/argument lists are transparent in the reference AST, but
 // multi-statement sequences, groups and literal blocks are real begin/block
@@ -241,6 +249,20 @@ mod tests {
     //! Ported from RuboCop's lint/redundant_splat_expansion_spec.rb
     //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
+    #[test]
+    fn corrects_as_rubocop() {
+        for (before, after) in [
+            (
+                "begin\n  foo\nrescue *[First, Second]\n  bar\nend\n",
+                "begin\n  foo\nrescue First, Second\n  bar\nend\n",
+            ),
+            ("a = *\"a\"\n", "a = [\"a\"]\n"),
+            ("[*%w[a b]]\n", "['a', 'b']\n"),
+            ("[*Array.new(3)]\n", "Array.new(3)\n"),
+        ] {
+            crate::cops::testing::assert_correction(&super::RedundantSplatExpansion, before, after);
+        }
+    }
     fn offenses(source: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(source)
             .into_iter()
