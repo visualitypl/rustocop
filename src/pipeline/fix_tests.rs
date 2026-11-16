@@ -24,6 +24,9 @@ impl Cop for Fixer {
     fn safe_fixes(&self) -> bool {
         self.safe
     }
+    fn unsafe_fixes(&self) -> bool {
+        !self.safe
+    }
     fn check_node<'pr>(
         &self,
         node: &ruby_prism::Node<'pr>,
@@ -987,6 +990,27 @@ fn excludes_hold_for_absolute_paths_through_a_symlink_to_the_root() {
 }
 
 #[test]
+fn only_autocorrect_all_applies_unsafe_corrections() {
+    let (dir, config) = project("before; risky\n");
+    let report = run(
+        &[dir.path().to_path_buf()],
+        &RunOptions {
+            fix: true,
+            fix_unsafe: true,
+            ..RunOptions::default()
+        },
+        &config,
+        &registry(),
+    )
+    .unwrap();
+    assert_eq!(report.corrections_applied, 2);
+    assert_eq!(
+        fs::read(dir.path().join("x.rb")).unwrap(),
+        b"after; changed\n"
+    );
+}
+
+#[test]
 fn remaining_positions_are_recomputed_after_length_changing_fixes() {
     let (dir, config) = project("before; risky\n");
     let report = run_project(dir.path(), &config, &registry(), true);
@@ -1267,6 +1291,7 @@ fn write_failure_reports_an_error_and_leaves_original_offenses() {
         Some(Passes {
             max: MAX_CORRECTION_PASSES,
             explicit: false,
+            unsafe_fixes: false,
         }),
     );
     assert_eq!(report.corrections_applied, 0);

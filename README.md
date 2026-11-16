@@ -21,8 +21,8 @@ app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)
 - **No Ruby runtime.** The binary needs neither Ruby, Bundler nor gems.
 - **Fast.** Parses with [Prism](https://github.com/ruby/prism) and lints files
   in parallel across all cores.
-- **Safe autocorrection.** `--fix` applies the corrections of `rubocop -a`,
-  the ones RuboCop marks safe. Everything else stays a report.
+- **Autocorrection as in RuboCop.** `--fix` (`-a`) applies the corrections
+  of `rubocop -a`, the ones RuboCop marks safe; `-A` adds the unsafe ones.
 - **Not a RuboCop drop-in.** Cop names and `# rubocop:disable` comments are
   familiar, but rustocop does not read `.rubocop.yml` and has few
   settings: limits, quotes and the hash syntax. `--import-rubocop-config`
@@ -85,7 +85,7 @@ only to Ruby versions older than 3.4; they stay registered but report nothing.
 - **Standard cops only.** All nine RuboCop departments are covered. Metrics
   cops are opt-in, and `max` is their only setting. There is no support for
   extension gems such as rubocop-rails or rubocop-rspec.
-- **No unsafe autocorrect, formatter or server mode.**
+- **No formatter or server mode.**
 
 ## Installation
 
@@ -118,6 +118,7 @@ rustocop --format json             # RuboCop's JSON, for editor plugins
 rustocop --write-baseline          # silence today's offenses in rustocop.toml
 rustocop --import-rubocop-config   # write a rustocop.toml from .rubocop.yml
 rustocop --fix app lib             # apply safe corrections in place
+rustocop -A app lib                # apply unsafe corrections too
 rustocop --fix --fix-passes 1 app  # apply a single correction pass
 cat file.rb | rustocop --stdin file.rb
 rustocop --show-ruby-version       # the Ruby version of the run and its source
@@ -164,7 +165,7 @@ The output differs from RuboCop's in these ways:
 - An offense records where it starts and not where it ends. Each `location`
   is the one character at the start, so an editor marks that character and
   not the whole expression.
-- `correctable` says that the cop has safe corrections, not that this
+- `correctable` says that the cop has corrections, not that this
   offense has one. `corrected` is always `false`.
 - `metadata` holds `rustocop_version` only.
 - A syntax error is an offense of `Lint/Syntax` with the severity `fatal`, as
@@ -286,10 +287,12 @@ silence what rustocop still reports with the imported config.
 The remaining defaults follow RuboCop 1.92.0. Pin the binary version if new
 default-on cops are unwanted.
 
-## Safe corrections
+## Corrections
 
-`--fix` applies the corrections that `rubocop -a` applies, the ones RuboCop
-marks safe. As in RuboCop, an edit is applied even where the program could
+`--fix` (also `-a` or `--autocorrect`) applies the corrections that
+`rubocop -a` applies, the ones RuboCop marks safe. `-A`
+(`--autocorrect-all`) also applies the ones RuboCop marks unsafe, as
+`rubocop -A` does, for the cops that have them in rustocop. As in RuboCop, an edit is applied even where the program could
 observe it, for example a correction that moves a line before a
 `__LINE__`, or that changes the bytes a program reads from its own source or
 its `DATA` section. Without `--fix`, files are never written.
@@ -317,7 +320,7 @@ Corrected source is validated before an atomic replacement that preserves
 permissions and symlinks. If the first pass fails validation, the original
 is left unchanged; if a later pass does, the earlier passes are kept and the
 failure is reported. Disabled lines, path exclusions and files with syntax
-errors are never rewritten. `--fix` cannot be combined with `--stdin`.
+errors are never rewritten. `--fix` and `-A` cannot be combined with `--stdin`.
 
 ## Configuration
 

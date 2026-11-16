@@ -11,7 +11,8 @@ use rustocop::{baseline, config, cops::Registry, import, output, pipeline};
     name = "rustocop",
     version,
     about = "A blazing-fast, opinionated Ruby linter",
-    after_help = "No config file is required; add rustocop.toml to customize."
+    after_help = "No config file is required; add rustocop.toml to customize.",
+    group = clap::ArgGroup::new("fixing").multiple(true)
 )]
 struct Cli {
     /// Files or directories to lint.
@@ -30,12 +31,22 @@ struct Cli {
     #[arg(long, value_enum, default_value_t = output::Format::Text)]
     format: output::Format,
 
-    /// Apply safe corrections and rewrite files in place.
-    #[arg(long, conflicts_with = "stdin")]
+    /// Apply the corrections of `rubocop -a` and rewrite files in place.
+    #[arg(
+        long,
+        short = 'a',
+        visible_alias = "autocorrect",
+        group = "fixing",
+        conflicts_with = "stdin"
+    )]
     fix: bool,
 
+    /// Also apply the corrections RuboCop marks unsafe, as `rubocop -A` does.
+    #[arg(long, short = 'A', group = "fixing", conflicts_with = "stdin")]
+    autocorrect_all: bool,
+
     /// Stop after N correction passes over each file (default: until nothing changes).
-    #[arg(long, value_name = "N", requires = "fix")]
+    #[arg(long, value_name = "N", requires = "fixing")]
     fix_passes: Option<usize>,
 
     /// Read source from stdin, using PATH as the display name.
@@ -51,15 +62,15 @@ struct Cli {
     server: bool,
 
     /// Print the Ruby version that code is checked for, and where it comes from.
-    #[arg(long, conflicts_with_all = ["fix", "stdin"])]
+    #[arg(long, conflicts_with_all = ["fixing", "stdin"])]
     show_ruby_version: bool,
 
     /// Write a rustocop.toml, or add to the one there is, to silence the offenses the code has now.
-    #[arg(long, conflicts_with_all = ["fix", "stdin", "only", "except", "show_ruby_version"])]
+    #[arg(long, conflicts_with_all = ["fixing", "stdin", "only", "except", "show_ruby_version"])]
     write_baseline: bool,
 
     /// Write a rustocop.toml with the settings of .rubocop.yml that it can hold.
-    #[arg(long, conflicts_with_all = ["fix", "stdin", "only", "except", "show_ruby_version", "write_baseline"])]
+    #[arg(long, conflicts_with_all = ["fixing", "stdin", "only", "except", "show_ruby_version", "write_baseline"])]
     import_rubocop_config: bool,
 }
 
@@ -84,7 +95,8 @@ fn real_main() -> i32 {
             only: cli.only.clone(),
             except: cli.except.clone(),
             stdin: cli.stdin.clone(),
-            fix: cli.fix,
+            fix: cli.fix || cli.autocorrect_all,
+            fix_unsafe: cli.autocorrect_all,
             fix_passes: cli.fix_passes,
         };
         let report = pipeline::run(&cli.paths, &options, &config, &registry)?;

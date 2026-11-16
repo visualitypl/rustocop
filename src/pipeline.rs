@@ -31,6 +31,9 @@ pub struct RunOptions {
     /// `--fix`: apply safe corrections to files, repeating passes until
     /// nothing changes.
     pub fix: bool,
+    /// `-A`: with `fix`, also apply the corrections of cops whose
+    /// corrections RuboCop marks unsafe ([`crate::cops::Cop::unsafe_fixes`]).
+    pub fix_unsafe: bool,
     /// `--fix-passes N`: stop after N passes without an error. `None` runs
     /// up to [`MAX_CORRECTION_PASSES`] and reports files that do not settle.
     pub fix_passes: Option<usize>,
@@ -223,10 +226,12 @@ pub fn run(
             Passes {
                 max: MAX_CORRECTION_PASSES,
                 explicit: false,
+                unsafe_fixes: options.fix_unsafe,
             },
             |max| Passes {
                 max,
                 explicit: true,
+                unsafe_fixes: options.fix_unsafe,
             },
         )
     });
@@ -537,6 +542,8 @@ enum CorrectionMode {
 struct Passes {
     max: usize,
     explicit: bool,
+    /// `-A`: apply unsafe corrections too.
+    unsafe_fixes: bool,
 }
 
 /// Byte ownership and disk/load-path provenance are independent: alias groups
@@ -960,11 +967,10 @@ fn correct_files(
             .iter()
             .flat_map(|report| &report.result.offenses)
             .filter(|offense| {
-                active
-                    .enabled
-                    .iter()
-                    .chain(&active.disabled)
-                    .any(|cop| cop.name() == offense.cop && cop.safe_fixes())
+                active.enabled.iter().chain(&active.disabled).any(|cop| {
+                    cop.name() == offense.cop
+                        && (cop.safe_fixes() || passes.unsafe_fixes && cop.unsafe_fixes())
+                })
             })
             .cloned()
             .collect();

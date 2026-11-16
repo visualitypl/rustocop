@@ -111,8 +111,8 @@ pub fn render_offenses(report: &RunReport) -> String {
 ///   location is the one character at the start.
 /// - A whole-file finding is at line 1, column 1, where RuboCop reports the
 ///   same cops.
-/// - `correctable` says that the cop has safe corrections, not that this
-///   offense has one.
+/// - `correctable` says that the cop has corrections, safe or unsafe, not
+///   that this offense has one.
 /// - A syntax error is an offense of `Lint/Syntax` with the severity
 ///   `fatal`, as in RuboCop. Any other file error, and each internal error,
 ///   is a string in the `errors` of its file and counts in `error_count` of
@@ -120,7 +120,7 @@ pub fn render_offenses(report: &RunReport) -> String {
 pub fn render_json(report: &RunReport, registry: &Registry) -> String {
     let cops = registry.cops().iter();
     let correctable: HashSet<&str> = cops
-        .filter(|cop| cop.safe_fixes())
+        .filter(|cop| cop.safe_fixes() || cop.unsafe_fixes())
         .map(|cop| cop.name())
         .collect();
     let offense = |severity: &str, message: &str, cop: &str, (line, column): (u32, u32)| {

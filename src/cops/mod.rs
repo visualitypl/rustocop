@@ -56,6 +56,12 @@ pub trait Cop: Send + Sync {
         false
     }
 
+    /// Whether this cop's corrections are ones RuboCop marks unsafe (`Safe`
+    /// or `SafeAutoCorrect` false): only `-A` applies them.
+    fn unsafe_fixes(&self) -> bool {
+        false
+    }
+
     /// Selected companions that must not correct in the same pass as this cop.
     /// Keep detection and capability metadata intact, but withhold this cop's
     /// edits whenever a named companion is active (independent of input order).
