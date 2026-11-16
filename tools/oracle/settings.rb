@@ -1129,6 +1129,20 @@ module Oracle
       run = FixedPolicy.run_ruby(target)
       toml["ruby_version"] = run.to_s unless run == FixedPolicy::TARGET_RUBY
       sections = { cop => {} }.merge(config)
+      # Another cop's setting that the cop reads, left at RuboCop's default
+      # where rustocop's default differs (the quotes of Style/StringLiterals).
+      READ_BY_OTHER_COPS.each do |section, keys|
+        next if config.key?(section)
+
+        keys.each do |key, readers|
+          next unless readers == :all || readers.include?(cop)
+
+          name = defaults.fetch(section, {}).keys.find { |k| FixedPolicy.declared_setting(section, k)&.key == key }
+          next unless name && SETTINGS.dig(section, name) && SETTINGS.dig(section, name) != defaults[section][name]
+
+          sections[section] = { name => defaults[section][name] }
+        end
+      end
       sections.each do |section, values|
         next unless values.is_a?(Hash)
 

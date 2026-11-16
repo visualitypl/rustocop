@@ -38,7 +38,7 @@ module Oracle
       wanted = expectation.correction
       return if wanted.nil? || fixed.nil?
 
-      fixed == (wanted == :none ? expectation.source : wanted)
+      fixed.b == (wanted == :none ? expectation.source : wanted).b
     end
 
     def misses

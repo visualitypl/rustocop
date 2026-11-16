@@ -348,7 +348,9 @@ class EmptyConstructorsFixtureTest < Minitest::Test
     [true, false].each do |enabled|
       reason, toml = Oracle.config_mismatch('Style/EmptyLiteral', {'Style/FrozenStringLiteralComment' => {'Enabled' => enabled}}, defaults, 'String.new')
       assert_nil reason
-      assert_equal({'Style/FrozenStringLiteralComment' => {'enabled' => enabled}}, toml)
+      # EmptyLiteral writes RuboCop's default quotes, which rustocop's differ from.
+      assert_equal({'Style/FrozenStringLiteralComment' => {'enabled' => enabled},
+                    'Style/StringLiterals' => {'enforced_style' => 'single_quotes'}}, toml)
     end
     assert_nil Oracle.config_mismatch('Style/EmptyClassDefinition', {'Style/EmptyClassDefinition' => {'EnforcedStyle' => 'class_definition'}}, defaults, 'Foo = Class.new(StandardError)').first
   ensure
