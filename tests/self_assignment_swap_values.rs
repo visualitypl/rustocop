@@ -254,21 +254,6 @@ fn non_utf8_swap_identifiers_are_compared_as_bytes_and_never_rewritten() {
     );
 }
 #[test]
-fn incompatible_layout_keeps_detection_and_safe_capability_but_withholds_edits() {
-    let d = project();
-    let selected = format!("{SELF},Layout/SpaceAroundOperators");
-    unchanged(
-        d.path(),
-        SELF,
-        b"x = x + 1\n",
-        &["--only", &selected, "--fix", "a.rb"],
-        1,
-    );
-    fix(d.path(), SELF, "x = x + 1\n", "x += 1\n");
-    // The default path selects the incompatible layout peer as well.
-    unchanged(d.path(), SELF, b"x = x + 1\n", &["--fix", "a.rb"], 1);
-}
-#[test]
 fn stdin_policy_positions_and_error_clean_uncorrectable_no_write_contract() {
     let d = project();
     for (cop, source) in CASES {

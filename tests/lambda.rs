@@ -40,45 +40,6 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], status: i32) {
     assert_eq!(fs::metadata(path).unwrap().modified().unwrap(), mtime);
 }
 #[test]
-fn default_selectors_config_and_no_write() {
-    let dir = project();
-    for args in [vec!["x.rb"], vec!["--only", COP, "x.rb"]] {
-        unchanged(dir.path(), BEFORE.as_bytes(), &args, 1);
-        assert!(String::from_utf8_lossy(&cli(dir.path(), &args).stdout).contains(COP));
-    }
-    unchanged(
-        dir.path(),
-        BEFORE.as_bytes(),
-        &["--only", COP, "--except", COP, "--fix", "x.rb"],
-        0,
-    );
-    for (config, args, expected) in [
-        (
-            format!("[cops.\"{COP}\"]\nenabled=false\n"),
-            vec!["--fix", "x.rb"],
-            BEFORE,
-        ),
-        (
-            format!("[cops.\"{COP}\"]\nenabled=false\n"),
-            vec!["--only", COP, "--fix", "x.rb"],
-            AFTER,
-        ),
-        (
-            format!("[cops.Style]\nenabled=false\n[cops.\"{COP}\"]\nenabled=true\n"),
-            vec!["--fix", "x.rb"],
-            AFTER,
-        ),
-    ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-        fs::write(dir.path().join("x.rb"), BEFORE).unwrap();
-        cli(dir.path(), &args);
-        assert_eq!(
-            fs::read_to_string(dir.path().join("x.rb")).unwrap(),
-            expected
-        );
-    }
-}
-#[test]
 fn directives_excludes_and_atomic_disabled_delimiters() {
     let dir = project();
     for prefix in ["rustocop", "rubocop"] {

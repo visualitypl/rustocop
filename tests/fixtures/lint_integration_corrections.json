@@ -14,6 +14,7 @@
   {"cop":"Lint/IdentityComparison","before":"if false\n  first.object_id == second.object_id\nend\n","after":"if false\n  first.equal?(second)\nend\n","held":"first.object_id == second.object_id\n","boundary":"Closed inactive branch; ordinary override/dispatch held."},
   {"cop":"Lint/ImplicitStringConcatenation","before":"\"integration372\" \"\"\n","after":"\"integration372\" \n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/LambdaWithoutLiteralBlock","before":"if false\n  lambda(unreachable)\nend\n","after":"if false\n  unreachable\nend\n","held":"lambda(callback)\n","boundary":"Closed inactive branch; live lambda value/arity held."},
+  {"cop":"Lint/LiteralAsCondition","before":"if true\n  work\nend\n","after":"work\n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/LiteralInInterpolation","before":"\"x #{1}\"\n","after":"\"x 1\"\n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/MultipleComparison","before":"x < y < z\n","after":"x < y && y < z\n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/ParenthesesAsGroupedExpression","before":"processor.call (value)\n","after":"processor.call(value)\n","held":"processor.call (first; second)\n","boundary":"Single grouped argument; sequence/assignment/block uncertainty held."},
@@ -39,5 +40,7 @@
   {"cop":"Lint/UnusedMethodArgument","before":"if false\ndef some_method(foo, bar)\n  puts bar\nend\nend\n","after":"if false\ndef some_method(_foo, bar)\n  puts bar\nend\nend\n","held":"def some_method(foo, bar)\n  puts bar\nend\n","boundary":"Closed inactive positional rename; ordinary API/binding/reflection held."},
   {"cop":"Lint/UriRegexp","before":"require 'uri'\n[defined?(URI.regexp)]\n","after":"require 'uri'\n[defined?(URI::RFC2396_PARSER.make_regexp)]\n","boundary":"Applied as RuboCop's corrector applies it."},
   {"cop":"Lint/UselessAccessModifier","before":"if false\n  Class.new do\n    public\n  end\nend\n","after":"if false\n  Class.new do\n  end\nend\n","boundary":"Applied as RuboCop's corrector applies it."},
-  {"cop":"Lint/UselessNumericOperation","before":"if false\n  number + 0\nend\n","after":"if false\n  number\nend\n","boundary":"Applied as RuboCop's corrector applies it."}
+  {"cop":"Lint/UselessAssignment","before":"def f\n  unused = compute\nend\n","after":"def f\n  compute\nend\n","boundary":"Applied as RuboCop's corrector applies it."},
+  {"cop":"Lint/UselessNumericOperation","before":"if false\n  number + 0\nend\n","after":"if false\n  number\nend\n","boundary":"Applied as RuboCop's corrector applies it."},
+  {"cop":"Lint/Void","before":"def f\n  1\n  work\nend\n","after":"def f\n  work\nend\n","boundary":"Applied as RuboCop's corrector applies it."}
 ]

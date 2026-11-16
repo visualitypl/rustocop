@@ -28,7 +28,7 @@ use ruby_prism::{CaseMatchNode, CaseNode, IfNode, Node, UnlessNode, Visit};
 
 use crate::{
     cops::{Cop, NodeContext, ast::is_literal},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -40,10 +40,14 @@ impl Cop for LiteralAsCondition {
         "Lint/LiteralAsCondition"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -51,33 +55,62 @@ impl Cop for LiteralAsCondition {
             cop: self,
             file,
             out,
+            corrections: cx.corrections_requested(),
+        };
+        let source = |n: &Node<'_>| {
+            std::str::from_utf8(n.location().as_slice())
+                .ok()
+                .map(str::to_owned)
+        };
+        let whole = |n: &Node<'_>, replacement: String| Correction {
+            range: n.location().start_offset()..n.location().end_offset(),
+            replacement,
         };
         match node {
-            Node::AndNode { .. } => {
-                let left = node.as_and_node().unwrap().left();
-                if is_truthy_literal(&left) {
-                    reporter.report(&left);
+            Node::AndNode { .. } | Node::OrNode { .. } => {
+                let (left, right, and) = match node.as_and_node() {
+                    Some(n) => (n.left(), n.right(), true),
+                    None => {
+                        let n = node.as_or_node().unwrap();
+                        (n.left(), n.right(), false)
+                    }
+                };
+                if if and {
+                    is_truthy_literal(&left)
+                } else {
+                    is_falsey_literal(&left)
+                } {
+                    // RuboCop keeps the right operand, unless it ends in a
+                    // `return`, `break` or `next`.
+                    let correction = (!void_value_expression(&right))
+                        .then(|| Some(whole(node, source(&right)?)))
+                        .flatten();
+                    reporter.report_with(&left, correction);
                 }
             }
-            Node::OrNode { .. } => {
-                let left = node.as_or_node().unwrap().left();
-                if is_falsey_literal(&left) {
-                    reporter.report(&left);
-                }
+            Node::IfNode { .. } => check_if(&node.as_if_node().unwrap(), node, cx, &mut reporter),
+            Node::UnlessNode { .. } => {
+                check_unless(&node.as_unless_node().unwrap(), node, cx, &mut reporter);
             }
-            Node::IfNode { .. } => check_if(&node.as_if_node().unwrap(), &mut reporter),
-            Node::UnlessNode { .. } => check_unless(&node.as_unless_node().unwrap(), &mut reporter),
             Node::WhileNode { .. } => {
+                let n = node.as_while_node().unwrap();
                 check_loop(
-                    &node.as_while_node().unwrap().predicate(),
-                    b"true",
+                    node,
+                    &n.predicate(),
+                    n.statements(),
+                    n.is_begin_modifier(),
+                    true,
                     &mut reporter,
                 );
             }
             Node::UntilNode { .. } => {
+                let n = node.as_until_node().unwrap();
                 check_loop(
-                    &node.as_until_node().unwrap().predicate(),
-                    b"false",
+                    node,
+                    &n.predicate(),
+                    n.statements(),
+                    n.is_begin_modifier(),
+                    false,
                     &mut reporter,
                 );
             }
@@ -109,15 +142,21 @@ struct Reporter<'a> {
     cop: &'a LiteralAsCondition,
     file: &'a SourceFile,
     out: &'a mut Vec<Offense>,
+    corrections: bool,
 }
 
 impl Reporter<'_> {
     fn report(&mut self, literal: &Node<'_>) {
-        let location = literal.location();
-        self.report_range(location.start_offset(), location.end_offset());
+        self.report_with(literal, None);
     }
 
-    fn report_range(&mut self, start: usize, end: usize) {
+    fn report_with(&mut self, literal: &Node<'_>, correction: Option<Correction>) {
+        let location = literal.location();
+        let correction = correction.filter(|_| self.corrections);
+        self.report_range(location.start_offset(), location.end_offset(), correction);
+    }
+
+    fn report_range(&mut self, start: usize, end: usize, correction: Option<Correction>) {
         let (line, col) = super::array_literal_in_regexp::reference_line_col(start, self.file);
         let projected = self.file.match_pattern_source(&self.file.bytes[start..end]);
         let source = projected
@@ -142,7 +181,7 @@ impl Reporter<'_> {
             return;
         }
         self.out.push(Offense {
-            correction: None,
+            correction,
             cop,
             severity: self.cop.severity(),
             message,
@@ -216,7 +255,12 @@ fn is_falsey_literal(node: &Node<'_>) -> bool {
 }
 
 /// `if`, `elsif`, ternary and modifier `if` (RuboCop's `on_if`).
-fn check_if(node: &IfNode<'_>, reporter: &mut Reporter<'_>) {
+fn check_if(
+    node: &IfNode<'_>,
+    whole: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    reporter: &mut Reporter<'_>,
+) {
     let keyword = node.if_keyword_loc();
     let keyword = keyword.as_ref().map(|keyword| keyword.as_slice());
     if node.end_keyword_loc().is_none()
@@ -229,31 +273,73 @@ fn check_if(node: &IfNode<'_>, reporter: &mut Reporter<'_>) {
     if !is_literal(&condition) {
         return;
     }
+    let file = reporter.file;
+    let if_branch = node.statements().map(|s| span(&s.as_node()));
+    let elsif_branch = node.subsequent().and_then(|n| n.as_if_node());
     let else_branch = match node.subsequent() {
-        None => false,
+        None => None,
         Some(subsequent) => match subsequent.as_else_node() {
-            Some(else_node) => else_node.statements().is_some(),
-            // An `elsif`.
-            None => true,
+            Some(else_node) => else_node.statements().map(|s| span(&s.as_node())),
+            None => elsif_branch
+                .as_ref()
+                .map(|e| e.location().start_offset()..chain_end(e)),
         },
     };
     let is_elsif = keyword == Some(b"elsif".as_slice());
     // A ternary has no `else` keyword in RuboCop's terms.
     let has_else = keyword.is_some() && node.subsequent().is_some();
-    let taken = is_truthy_literal(&condition);
-    let surviving = if taken {
-        node.statements().is_some()
-    } else {
-        else_branch
-    };
-    if !surviving && (is_elsif || has_else) {
+    let result = is_truthy_literal(&condition);
+    let surviving = if result { &if_branch } else { &else_branch };
+    if surviving.is_none() && (is_elsif || has_else) {
         return;
     }
-    reporter.report(&condition);
+    let text = |r: &std::ops::Range<usize>| {
+        std::str::from_utf8(&file.bytes[r.clone()])
+            .ok()
+            .map(str::to_owned)
+    };
+    let correction = (|| {
+        let new_node = if is_elsif && result {
+            format!(
+                "else\n  {}",
+                text(&with_comments(if_branch.clone()?, file))?
+            )
+        } else if is_elsif {
+            format!("else\n  {}", text(else_branch.as_ref()?)?)
+        } else if let Some(branch) = if_branch.as_ref().filter(|_| result) {
+            text(branch)?
+        } else if elsif_branch.is_some() {
+            format!(
+                "{}\nend",
+                text(else_branch.as_ref()?)?.replacen("elsif", "if", 1)
+            )
+        } else if has_else || keyword.is_none() {
+            text(else_branch.as_ref()?)?
+        } else if super::super::style::correction::value_used(whole, cx.ancestors()) {
+            "nil".into()
+        } else {
+            String::new()
+        };
+        let range = if is_elsif {
+            node.location().start_offset()..chain_end(node)
+        } else {
+            span(whole)
+        };
+        Some(Correction {
+            range,
+            replacement: new_node,
+        })
+    })();
+    reporter.report_with(&condition, correction);
 }
 
 /// `unless` and modifier `unless` (RuboCop's `on_if`).
-fn check_unless(node: &UnlessNode<'_>, reporter: &mut Reporter<'_>) {
+fn check_unless(
+    node: &UnlessNode<'_>,
+    whole: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    reporter: &mut Reporter<'_>,
+) {
     if node.end_keyword_loc().is_none()
         && is_pattern_guard(node.location().start_offset(), reporter.file)
     {
@@ -263,19 +349,116 @@ fn check_unless(node: &UnlessNode<'_>, reporter: &mut Reporter<'_>) {
     if !is_literal(&condition) {
         return;
     }
+    let file = reporter.file;
     let else_clause = node.else_clause();
-    let taken = is_falsey_literal(&condition);
-    let surviving = if taken {
-        node.statements().is_some()
-    } else {
-        else_clause
-            .as_ref()
-            .is_some_and(|else_clause| else_clause.statements().is_some())
-    };
-    if !surviving && else_clause.is_some() {
+    let if_branch = node.statements().map(|s| span(&s.as_node()));
+    let else_branch = else_clause
+        .as_ref()
+        .and_then(|e| e.statements())
+        .map(|s| span(&s.as_node()));
+    let result = is_falsey_literal(&condition);
+    let surviving = if result { &if_branch } else { &else_branch };
+    if surviving.is_none() && else_clause.is_some() {
         return;
     }
-    reporter.report(&condition);
+    let text = |r: &std::ops::Range<usize>| {
+        std::str::from_utf8(&file.bytes[r.clone()])
+            .ok()
+            .map(str::to_owned)
+    };
+    let correction = (|| {
+        let new_node = if let Some(branch) = if_branch.as_ref().filter(|_| result) {
+            text(branch)?
+        } else if else_clause.is_some() {
+            text(else_branch.as_ref()?)?
+        } else if super::super::style::correction::value_used(whole, cx.ancestors()) {
+            "nil".into()
+        } else {
+            String::new()
+        };
+        Some(Correction {
+            range: span(whole),
+            replacement: new_node,
+        })
+    })();
+    reporter.report_with(&condition, correction);
+}
+
+fn span(node: &Node<'_>) -> std::ops::Range<usize> {
+    node.location().start_offset()..node.location().end_offset()
+}
+
+/// Where an `elsif` ends in RuboCop's AST: with the last branch of its
+/// chain, before the `end`.
+fn chain_end(node: &IfNode<'_>) -> usize {
+    match node.subsequent() {
+        Some(subsequent) => match subsequent.as_if_node() {
+            Some(elsif) => chain_end(&elsif),
+            None => {
+                let else_node = subsequent.as_else_node().unwrap();
+                else_node
+                    .statements()
+                    .map_or(else_node.else_keyword_loc().end_offset(), |s| {
+                        s.location().end_offset()
+                    })
+            }
+        },
+        None => node.statements().map_or_else(
+            || node.predicate().location().end_offset(),
+            |s| s.location().end_offset(),
+        ),
+    }
+}
+
+/// RuboCop's `range_with_comments`: the comments before the range on lines
+/// of their own, and one after it on its last line.
+fn with_comments(mut range: std::ops::Range<usize>, file: &SourceFile) -> std::ops::Range<usize> {
+    let bytes = &file.bytes;
+    let comments = file.comments();
+    loop {
+        let before = comments.partition_point(|c| c.end <= range.start);
+        let Some(comment) = before.checked_sub(1).map(|i| &comments[i]) else {
+            break;
+        };
+        if bytes[comment.end..range.start]
+            .iter()
+            .all(u8::is_ascii_whitespace)
+            && bytes[file.line_start(file.line_of(comment.start))..comment.start]
+                .iter()
+                .all(|b| matches!(b, b' ' | b'\t'))
+        {
+            range.start = comment.start;
+        } else {
+            break;
+        }
+    }
+    let after = comments.partition_point(|c| c.start < range.end);
+    if let Some(comment) = comments.get(after)
+        && bytes[range.end..comment.start]
+            .iter()
+            .all(|b| matches!(b, b' ' | b'\t'))
+    {
+        range.end = comment.end;
+    }
+    range
+}
+
+/// RuboCop's `void_value_expression?`: ends in `return`, `break` or `next`.
+fn void_value_expression(node: &Node<'_>) -> bool {
+    let last = last_statement(node);
+    matches!(
+        last.as_ref().unwrap_or(node),
+        Node::ReturnNode { .. } | Node::BreakNode { .. } | Node::NextNode { .. }
+    )
+}
+
+fn last_statement<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
+    let body = node.as_parentheses_node()?.body()?;
+    let last = match body.as_statements_node() {
+        Some(statements) => statements.body().iter().last()?,
+        None => body,
+    };
+    Some(last_statement(&last).unwrap_or(last))
 }
 
 /// Whether a modifier-form `if`/`unless` starting at `start` is a `case …
@@ -322,13 +505,114 @@ fn word_ends_at(bytes: &[u8], end: usize, word: &[u8]) -> bool {
 }
 
 /// `while`/`until` and their modifier and post forms.
-fn check_loop(condition: &Node<'_>, idiomatic: &[u8], reporter: &mut Reporter<'_>) {
-    if condition.location().as_slice() == idiomatic {
+fn check_loop(
+    node: &Node<'_>,
+    condition: &Node<'_>,
+    statements: Option<ruby_prism::StatementsNode<'_>>,
+    post: bool,
+    is_while: bool,
+    reporter: &mut Reporter<'_>,
+) {
+    let idiomatic: &[u8] = if is_while { b"true" } else { b"false" };
+    if condition.location().as_slice() == idiomatic || !is_literal(condition) {
         return;
     }
-    if is_literal(condition) {
-        reporter.report(condition);
+    let keep = if is_while {
+        is_truthy_literal(condition)
+    } else {
+        is_falsey_literal(condition)
+    };
+    let idiom = std::str::from_utf8(idiomatic).unwrap();
+    let correction = (|| {
+        if keep && !post {
+            return Some(Correction {
+                range: span(condition),
+                replacement: idiom.into(),
+            });
+        }
+        if keep {
+            // RuboCop replaces the first occurrence of the condition's source.
+            let source = std::str::from_utf8(node.location().as_slice()).ok()?;
+            let literal = std::str::from_utf8(condition.location().as_slice()).ok()?;
+            return Some(Correction {
+                range: span(node),
+                replacement: source.replacen(literal, idiom, 1),
+            });
+        }
+        if !post {
+            return Some(Correction {
+                range: span(node),
+                replacement: String::new(),
+            });
+        }
+        // A loop that runs once: its body, unless that strands a `next`,
+        // `break` or `redo`.
+        let begin = statements?.body().iter().next()?;
+        let begin = begin.as_begin_node()?;
+        if orphans_loop_control(&begin.as_node()) {
+            return None;
+        }
+        let body = begin
+            .statements()
+            .map(|s| {
+                s.body()
+                    .iter()
+                    .map(|n| {
+                        std::str::from_utf8(n.location().as_slice())
+                            .ok()
+                            .map(str::to_owned)
+                    })
+                    .collect::<Option<Vec<_>>>()
+            })
+            .unwrap_or(Some(Vec::new()))?
+            .join("\n");
+        Some(Correction {
+            range: span(node),
+            replacement: body,
+        })
+    })();
+    reporter.report_with(condition, correction);
+}
+
+/// RuboCop's `orphans_loop_control_keyword?`.
+fn orphans_loop_control(body: &Node<'_>) -> bool {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Finder {
+        scopes: Vec<bool>,
+        found: bool,
     }
+    impl<'pr> NodeVisitor<'pr> for Finder {
+        fn enter(&mut self, node: Node<'pr>) {
+            let inner = !self.scopes.is_empty()
+                && matches!(
+                    node,
+                    Node::BlockNode { .. }
+                        | Node::LambdaNode { .. }
+                        | Node::WhileNode { .. }
+                        | Node::UntilNode { .. }
+                        | Node::ForNode { .. }
+                );
+            if !self.scopes.iter().any(|&s| s)
+                && !inner
+                && matches!(
+                    node,
+                    Node::NextNode { .. } | Node::BreakNode { .. } | Node::RedoNode { .. }
+                )
+            {
+                self.found = true;
+            }
+            self.scopes.push(inner);
+        }
+        fn leave(&mut self) {
+            self.scopes.pop();
+        }
+    }
+    let mut finder = Finder {
+        scopes: Vec::new(),
+        found: false,
+    };
+    walk(&mut finder, body);
+    finder.found
 }
 
 fn check_case(node: &CaseNode<'_>, reporter: &mut Reporter<'_>) {
@@ -355,6 +639,7 @@ fn check_case(node: &CaseNode<'_>, reporter: &mut Reporter<'_>) {
                 reporter.report_range(
                     first.location().start_offset(),
                     last.location().end_offset(),
+                    None,
                 );
             }
         }

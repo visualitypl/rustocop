@@ -98,7 +98,7 @@ pub(crate) mod file_null;
 mod file_open;
 mod file_read;
 mod file_touch;
-mod file_write;
+pub(crate) mod file_write;
 mod float_division;
 mod r#for;
 pub(crate) mod format_string;

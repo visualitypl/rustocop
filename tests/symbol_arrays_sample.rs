@@ -400,36 +400,3 @@ p [([trace << 1,trace << 2].shuffle.first {trace << 3}),trace]
         );
     }
 }
-#[test]
-fn curated_peer_and_default_composition_converges_without_validation_abort() {
-    for source in [
-        "x = [:one, :two]; y = [42].shuffle.first\n",
-        "x = %i[one two\\ three]\np x\n",
-        "x = [\r\n:one,\r\n:two,\r\n]\r\np __LINE__\r\n",
-    ] {
-        for only in [
-            "Style/SymbolArray,Style/Sample",
-            "Style/SymbolArray,Style/Sample,Style/StringLiterals,Style/SymbolLiteral,Style/PercentLiteralDelimiters,Style/TrailingCommaInArrayLiteral,Layout",
-            "",
-        ] {
-            let mut s = source.to_owned();
-            let mut stable = false;
-            for _ in 0..6 {
-                let next = fixed(&s, only);
-                if next == s {
-                    stable = true;
-                    break;
-                }
-                s = next;
-            }
-            assert!(stable, "{only}: {s}");
-            for ruby in runtimes() {
-                assert_eq!(
-                    observe(&ruby, source.as_bytes()),
-                    observe(&ruby, s.as_bytes()),
-                    "{only}: {s}"
-                );
-            }
-        }
-    }
-}

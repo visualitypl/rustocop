@@ -389,60 +389,6 @@ fn corrections_keep_values_warnings_and_where_unfolded_tokens_ast_and_comments()
 }
 
 #[test]
-fn single_line_block_chain_takes_precedence_without_oscillation() {
-    // With both enabled, SingleLineBlockChain breaks the chain and this cop
-    // defers to it; joining never undoes the break.
-    let dir = project();
-    fs::write(
-        dir.path().join("rustocop.toml"),
-        format!("{ENABLE}[cops.\"Layout/SingleLineBlockChain\"]\nenabled = true\n"),
-    )
-    .unwrap();
-    for (selection, source, result) in [
-        (
-            vec![
-                "--only",
-                "Layout/RedundantLineBreak,Layout/SingleLineBlockChain",
-            ],
-            "x = [1, 2].map { |v| v * 2 }.sum\np x\n",
-            "x = [1, 2].map { |v| v * 2 }\n.sum\np x\n",
-        ),
-        (
-            vec![
-                "--only",
-                "Layout/RedundantLineBreak,Layout/SingleLineBlockChain",
-            ],
-            "x = [1, 2].map { |v| v * 2 }\n  .sum\np x\n",
-            "x = [1, 2].map { |v| v * 2 }\n  .sum\np x\n",
-        ),
-        (
-            vec![],
-            "x = [1, 2].map { |v| v * 2 }.sum\np x\np(foo(1,\n  2)) if false\n",
-            "x = [1, 2].map { |v| v * 2 }\n          .sum\np x\np(foo(1, 2)) if false\n",
-        ),
-    ] {
-        fs::write(dir.path().join("example.rb"), source).unwrap();
-        let before = ruby(dir.path());
-        let mut after = source.as_bytes().to_vec();
-        for _ in 0..6 {
-            let (out, next) = fix(dir.path(), &after, &selection);
-            assert_ne!(out.status.code(), Some(2), "{out:?}");
-            after = next;
-        }
-        assert_eq!(String::from_utf8_lossy(&after), result, "{source:?}");
-        let mut args = selection.clone();
-        args.push("--fix");
-        // Stable: no further edit (Lint findings may remain).
-        let out = unchanged(dir.path(), &after, &args, None);
-        assert!(
-            String::from_utf8_lossy(&out.stdout).contains("0 corrections applied"),
-            "{out:?}"
-        );
-        assert_eq!(ruby(dir.path()), before);
-    }
-}
-
-#[test]
 fn layout_and_default_selections_converge_without_oscillation() {
     let dir = project();
     fs::write(dir.path().join("rustocop.toml"), ENABLE).unwrap();

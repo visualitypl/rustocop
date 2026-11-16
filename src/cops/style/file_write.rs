@@ -168,7 +168,7 @@ fn evidence<'pr>(open: &CallNode<'pr>, cx: &NodeContext<'_, 'pr>) -> Option<Evid
 }
 /// The bodies of the heredocs in `node`, from the first body line to the
 /// end of the terminator (without its newline), as RuboCop's `heredoc_range`.
-pub(super) fn heredoc_bodies(node: &Node<'_>, out: &mut Vec<std::ops::Range<usize>>) {
+pub(crate) fn heredoc_bodies(node: &Node<'_>, out: &mut Vec<std::ops::Range<usize>>) {
     use crate::cops::walk::{NodeVisitor, walk};
     struct Bodies<'a>(&'a mut Vec<std::ops::Range<usize>>);
     impl<'pr> NodeVisitor<'pr> for Bodies<'_> {

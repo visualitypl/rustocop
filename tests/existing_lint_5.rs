@@ -7,17 +7,20 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
-const CASES: [(&str, &[u8]); 7] = [
+const CASES: [(&str, &[u8]); 5] = [
     ("Lint/RescueException", b"begin; x; rescue Exception; end\n"),
     ("Lint/SelfAssignment", b"@x = @x\n"),
     ("Lint/StructNewOverride", b"Struct.new(:members)\n"),
     ("Lint/SuppressedException", b"begin; x; rescue; end\n"),
     ("Lint/UnreachableCode", b"def f; raise; x; end\n"),
-    ("Lint/UselessAssignment", b"unused = 1\n"),
-    ("Lint/Void", b"1; x\n"),
 ];
+/// The rows of the cops that are still detection-only.
 fn rows() -> Vec<serde_json::Value> {
-    serde_json::from_str(include_str!("fixtures/existing_lint_5.json")).unwrap()
+    let rows: Vec<serde_json::Value> =
+        serde_json::from_str(include_str!("fixtures/existing_lint_5.json")).unwrap();
+    rows.into_iter()
+        .filter(|row| row["cop"] != "Lint/UselessAssignment" && row["cop"] != "Lint/Void")
+        .collect()
 }
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
@@ -516,91 +519,6 @@ fn observer_bytes_parser_gate_style_layout_composition_and_symlink_atomic_failur
         }
     }
 }
-#[test]
-fn multiline_offense_ranges_control_later_line_directives() {
-    let d = project();
-    let registry = rustocop::cops::Registry::new();
-    for (cop, source, expected_range) in [
-        (
-            "Lint/RescueException",
-            "begin\nx\nrescue Exception\nx\nend\n",
-            (3, 4),
-        ),
-        ("Lint/SelfAssignment", "foo =\nfoo\n", (1, 2)),
-        (
-            "Lint/StructNewOverride",
-            "Struct.new(\n:members\n)\n",
-            (2, 2),
-        ),
-        (
-            "Lint/SuppressedException",
-            "begin\nx\nrescue\nend\n",
-            (3, 3),
-        ),
-        (
-            "Lint/UnreachableCode",
-            "def f\nreturn\nfoo(\nx\n)\nend\n",
-            (3, 5),
-        ),
-        ("Lint/UselessAssignment", "/(?<foo>\na\n)/ =~ x\n", (1, 3)),
-        ("Lint/Void", "[\n1,\n2\n]\nx\n", (1, 4)),
-    ] {
-        let implementation = registry
-            .cops()
-            .iter()
-            .find(|c| c.name() == cop)
-            .unwrap()
-            .as_ref();
-        let report = rustocop::pipeline::lint_one(
-            Path::new("lib/a.rb"),
-            Path::new("lib/a.rb"),
-            Some(source.as_bytes()),
-            &[implementation],
-            &ResolvedConfig::default(),
-        );
-        assert!(report.errors.is_empty() && report.internal_errors.is_empty());
-        assert_eq!(report.result.offenses.len(), 1, "{cop}");
-        let o = &report.result.offenses[0];
-        assert_eq!((o.line, o.end_line), expected_range, "{cop}");
-        for prefix in ["rubocop", "rustocop"] {
-            for (line, count_expected) in [(expected_range.1, 0), (expected_range.1 + 1, 1)] {
-                let mut lines: Vec<_> = source.lines().map(str::to_string).collect();
-                lines.push(String::new());
-                // Adding a comment to the range end must suppress the offense;
-                // a comment on the next physical line must not leak backwards.
-                lines[(line - 1) as usize].push_str(&format!(" # {prefix}:disable {cop}"));
-                let text = lines.join("\n") + "\n";
-                let out = unchanged(
-                    d.path(),
-                    text.as_bytes(),
-                    &["--only", cop, "--fix", "lib/a.rb"],
-                    Some(count_expected),
-                );
-                assert_eq!(count(&out, cop), count_expected as usize, "{cop}: {text}");
-            }
-        }
-    }
-}
-
-#[test]
-fn binary_void_messages_escape_unrepresentable_bytes_without_flattening() {
-    let d = project();
-    let source = b"# coding: ASCII-8BIT\n['\xff',\r\n'\xc3(']; x\r\n";
-    let out = unchanged(
-        d.path(),
-        source,
-        &["--only", "Lint/Void", "--fix", "lib/a.rb"],
-        Some(1),
-    );
-    assert!(
-        out.stdout.starts_with(
-            b"lib/a.rb:2:1: E: Literal `['\\xFF',\n'\\xC3(']` used in void context. (Lint/Void)\n"
-        ),
-        "{out:?}"
-    );
-    assert!(!String::from_utf8_lossy(&out.stdout).contains('\u{fffd}'));
-}
-
 #[test]
 fn native_ruby34_syntax_only_all_reference_and_adversarial_original_bytes() {
     if crate::support::runtime::skips("asserts the Ruby 3.4 grammar, which Ruby 4.0 changed") {

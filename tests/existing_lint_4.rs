@@ -7,8 +7,7 @@ use std::{
     path::Path,
     process::{Command, Output, Stdio},
 };
-const CASES: [(&str, &[u8]); 6] = [
-    ("Lint/LiteralAsCondition", b"if 1; x; end\n"),
+const CASES: [(&str, &[u8]); 5] = [
     ("Lint/NestedMethodDefinition", b"def f; def g; end; end\n"),
     (
         "Lint/NonLocalExitFromIterator",
@@ -23,7 +22,9 @@ fn rows() -> Vec<serde_json::Value> {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/existing_lint_4.json")).unwrap();
     rows.into_iter()
-        .filter(|row| row["cop"] != "Lint/LiteralInInterpolation")
+        .filter(|row| {
+            row["cop"] != "Lint/LiteralInInterpolation" && row["cop"] != "Lint/LiteralAsCondition"
+        })
         .collect()
 }
 fn project() -> tempfile::TempDir {
@@ -205,159 +206,6 @@ fn all_original_bytes_rebuilt_cli_lint_and_fix_preserve_bytes_mtime_permissions_
         }
     });
 }
-#[test]
-fn multiline_binary_messages_keep_invalid_bytes_explicit_without_flattening() {
-    let d = project();
-    let cop = "Lint/LiteralAsCondition";
-    let registry = rustocop::cops::Registry::new();
-    let implementation = registry
-        .cops()
-        .iter()
-        .find(|c| c.name() == cop)
-        .unwrap()
-        .as_ref();
-    for (source, message) in [
-        (
-            b"# coding: ASCII-8BIT\nif ['\xff',\n\t'\xc3(']; x;end\n".as_slice(),
-            "Literal `['\\xFF',\n\t'\\xC3(']` appeared as a condition.",
-        ),
-        (
-            b"# coding: ASCII-8BIT\nif ['\xff',\r\n\t'\xc3(']; x;end\r\n".as_slice(),
-            "Literal `['\\xFF',\n\t'\\xC3(']` appeared as a condition.",
-        ),
-        (
-            b"# coding: ASCII-8BIT\nif ['\xc3\xa9',\n\t'\\xff']; x;end\n".as_slice(),
-            "Literal `['é',\n\t'\\xff']` appeared as a condition.",
-        ),
-    ] {
-        if let Ok(ruby) = crate::support::runtime::ruby() {
-            let mut child = Command::new(ruby)
-                .args(["--parser=prism", "-W0", "-c"])
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped())
-                .spawn()
-                .unwrap();
-            child.stdin.take().unwrap().write_all(source).unwrap();
-            let out = child.wait_with_output().unwrap();
-            assert!(out.status.success(), "{out:?}");
-        }
-        let report = rustocop::pipeline::lint_one(
-            Path::new("lib/a.rb"),
-            Path::new("lib/a.rb"),
-            Some(source),
-            &[implementation],
-            &ResolvedConfig::default(),
-        );
-        assert!(report.errors.is_empty() && report.internal_errors.is_empty());
-        assert_eq!(report.result.offenses.len(), 1);
-        let offense = &report.result.offenses[0];
-        assert_eq!((offense.line, offense.col, offense.end_line), (2, 4, 3));
-        assert_eq!(offense.message, message);
-        assert!(offense.correction.is_none());
-        for fix in [false, true] {
-            let mut args = vec!["--only", cop];
-            if fix {
-                args.push("--fix");
-            }
-            args.push("lib/a.rb");
-            let out = unchanged(d.path(), source, &args, Some(1));
-            let expected = format!("lib/a.rb:2:4: E: {message} ({cop})\n");
-            assert!(out.stdout.starts_with(expected.as_bytes()), "{out:?}");
-            assert_eq!(count(&out, cop), 1);
-            assert!(out.stderr.is_empty());
-        }
-    }
-}
-
-#[test]
-fn multiline_messages_and_directives_keep_literal_endrange_and_no_write() {
-    let d = project();
-    let cop = "Lint/LiteralAsCondition";
-    let registry = rustocop::cops::Registry::new();
-    let implementation = registry
-        .cops()
-        .iter()
-        .find(|c| c.name() == cop)
-        .unwrap()
-        .as_ref();
-    let literal = "[\n1,\n\t2\n]";
-    let base = format!("if {literal}; x;end\n");
-    for prefix in ["rubocop", "rustocop"] {
-        for nl in ["\n", "\r\n"] {
-            for (source, line) in [
-                (base.clone(), Some(1)),
-                (format!("{base}# {prefix}:disable {cop}\n"), Some(1)),
-                (
-                    format!("if {literal}; x;end # {prefix}:disable {cop}\n"),
-                    None,
-                ),
-                (format!("# {prefix}:disable-next {cop}\n{base}"), None),
-                (
-                    format!("# {prefix}:push -{cop}\n{base}# {prefix}:pop\n"),
-                    None,
-                ),
-                (
-                    format!(
-                        "# {prefix}:disable {cop}\n# {prefix}:push +{cop}\n{base}# {prefix}:pop\n"
-                    ),
-                    Some(3),
-                ),
-            ] {
-                let source = source.replace('\n', nl);
-                let report = rustocop::pipeline::lint_one(
-                    Path::new("lib/a.rb"),
-                    Path::new("lib/a.rb"),
-                    Some(source.as_bytes()),
-                    &[implementation],
-                    &ResolvedConfig::default(),
-                );
-                assert!(report.errors.is_empty() && report.internal_errors.is_empty());
-                let expected = line.map(|line| {
-                    (
-                        line,
-                        4,
-                        line + 3,
-                        format!("Literal `{literal}` appeared as a condition."),
-                    )
-                });
-                assert_eq!(
-                    report
-                        .result
-                        .offenses
-                        .iter()
-                        .map(|o| {
-                            assert!(o.correction.is_none());
-                            (o.line, o.col, o.end_line, o.message.clone())
-                        })
-                        .collect::<Vec<_>>(),
-                    expected.clone().into_iter().collect::<Vec<_>>(),
-                    "{source:?}"
-                );
-                for fix in [false, true] {
-                    let mut args = vec!["--only", cop];
-                    if fix {
-                        args.push("--fix");
-                    }
-                    args.push("lib/a.rb");
-                    let out = unchanged(
-                        d.path(),
-                        source.as_bytes(),
-                        &args,
-                        Some(i32::from(line.is_some())),
-                    );
-                    assert!(out.stderr.is_empty());
-                    assert_eq!(count(&out, cop), usize::from(line.is_some()));
-                    if let Some((line, col, _, message)) = &expected {
-                        let diagnostic = format!("lib/a.rb:{line}:{col}: E: {message} ({cop})\n");
-                        assert!(out.stdout.starts_with(diagnostic.as_bytes()), "{out:?}");
-                    }
-                }
-            }
-        }
-    }
-}
-
 #[test]
 fn defaults_selectors_strict_toml_department_precedence_and_path_excludes() {
     let registry = rustocop::cops::Registry::new();

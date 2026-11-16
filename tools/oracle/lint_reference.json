@@ -6380,6 +6380,7 @@
     "Lint/IdentityComparison",
     "Lint/ImplicitStringConcatenation",
     "Lint/LambdaWithoutLiteralBlock",
+    "Lint/LiteralAsCondition",
     "Lint/LiteralInInterpolation",
     "Lint/MultipleComparison",
     "Lint/ParenthesesAsGroupedExpression",
@@ -6406,6 +6407,8 @@
     "Lint/UnusedMethodArgument",
     "Lint/UriRegexp",
     "Lint/UselessAccessModifier",
-    "Lint/UselessNumericOperation"
+    "Lint/UselessAssignment",
+    "Lint/UselessNumericOperation",
+    "Lint/Void"
   ]
 }

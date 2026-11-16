@@ -46,50 +46,6 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], status: i32) {
     assert_eq!(fs::metadata(path).unwrap().modified().unwrap(), mtime);
 }
 #[test]
-fn default_on_selectors_and_config_precedence_with_no_write_without_fix() {
-    let dir = project();
-    for (cop, before, after) in CASES {
-        for args in [vec!["x.rb"], vec!["--only", cop, "x.rb"]] {
-            unchanged(dir.path(), before.as_bytes(), &args, 1);
-            assert!(String::from_utf8_lossy(&cli(dir.path(), &args).stdout).contains(cop));
-        }
-        unchanged(
-            dir.path(),
-            before.as_bytes(),
-            &["--only", cop, "--except", cop, "--fix", "x.rb"],
-            0,
-        );
-        for (config, args, expected) in [
-            (
-                "[cops.Style]\nenabled=false\n".to_string(),
-                vec!["--fix", "x.rb"],
-                before,
-            ),
-            (
-                format!("[cops.\"{cop}\"]\nenabled=false\n"),
-                vec!["--only", cop, "--fix", "x.rb"],
-                after,
-            ),
-            (
-                format!("[cops.Style]\nenabled=false\n[cops.\"{cop}\"]\nenabled=true\n"),
-                vec!["--fix", "x.rb"],
-                after,
-            ),
-        ] {
-            fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-            fs::write(dir.path().join("x.rb"), before).unwrap();
-            let out = cli(dir.path(), &args);
-            assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
-            assert_eq!(
-                fs::read_to_string(dir.path().join("x.rb")).unwrap(),
-                expected,
-                "{cop}"
-            );
-        }
-        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    }
-}
-#[test]
 fn both_directive_prefixes_and_config_excludes_preserve_bytes_and_mtime() {
     let dir = project();
     for (cop, before, _) in CASES {

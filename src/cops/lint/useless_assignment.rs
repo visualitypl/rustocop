@@ -31,7 +31,7 @@ use crate::{
         name_similarity::find_similar_name,
         variables::{Assignment, AssignmentKind, ScopeAnalysis, ScopeId},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -43,6 +43,10 @@ impl Cop for UselessAssignment {
         "Lint/UselessAssignment"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_program_node().is_some()
     }
@@ -50,7 +54,7 @@ impl Cop for UselessAssignment {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -58,6 +62,11 @@ impl Cop for UselessAssignment {
             return;
         };
         let analysis = ScopeAnalysis::for_useless_assignments(&program, file);
+        let sequential = if cx.corrections_requested() {
+            sequential_writes(node)
+        } else {
+            Vec::new()
+        };
         // Assignments whose nested assignments are not reported (RuboCop's
         // `ignore_node`), across scopes, in RuboCop's checking order.
         let mut ignored: Vec<Range<usize>> = Vec::new();
@@ -116,8 +125,12 @@ impl Cop for UselessAssignment {
                         assignment.name_range.start,
                         file,
                     );
+                    let correction = cx
+                        .corrections_requested()
+                        .then(|| correction(assignment, variable.name, &extent, &sequential, file))
+                        .flatten();
                     out.push(Offense {
-                        correction: None,
+                        correction,
                         cop: self.name(),
                         severity: self.severity(),
                         message,
@@ -151,6 +164,137 @@ fn reference_name(name: &[u8], file: &SourceFile) -> String {
 
 /// The range of the assignment node in RuboCop's AST: an operator
 /// assignment's is just the variable name.
+/// RuboCop's corrector, by the kind of assignment. A write inside the
+/// array value of another write (`x = 1, y = 2`) and `||=`/`&&=` stay.
+fn correction(
+    assignment: &Assignment<'_>,
+    name: &[u8],
+    extent: &Range<usize>,
+    sequential: &[Range<usize>],
+    file: &SourceFile,
+) -> Option<Correction> {
+    let bytes = &file.bytes;
+    let node = &assignment.node;
+    let location = node.location();
+    match assignment.kind {
+        AssignmentKind::Rescue => {
+            // From the end of the exception list (or `rescue`) on.
+            let mut start = location.start_offset();
+            while start > 0 && bytes[start - 1].is_ascii_whitespace() {
+                start -= 1;
+            }
+            start = start
+                .checked_sub(2)
+                .filter(|&s| &bytes[s..s + 2] == b"=>")?;
+            while start > 0 && bytes[start - 1].is_ascii_whitespace() {
+                start -= 1;
+            }
+            Some(Correction {
+                range: start..location.end_offset(),
+                replacement: String::new(),
+            })
+        }
+        AssignmentKind::Multiple | AssignmentKind::For => Some(Correction {
+            range: location.start_offset()..location.end_offset(),
+            replacement: "_".into(),
+        }),
+        AssignmentKind::Operator => {
+            let operator = node
+                .as_local_variable_operator_write_node()?
+                .binary_operator_loc();
+            Some(Correction {
+                range: operator.end_offset() - 1..operator.end_offset(),
+                replacement: String::new(),
+            })
+        }
+        AssignmentKind::NamedCapture => {
+            let regexp = node.as_match_write_node()?.call().receiver()?;
+            let source = std::str::from_utf8(regexp.location().as_slice()).ok()?;
+            let name = std::str::from_utf8(name).ok()?;
+            Some(Correction {
+                range: regexp.location().start_offset()..regexp.location().end_offset(),
+                replacement: source.replacen(&format!("(?<{name}>"), "(?:", 1),
+            })
+        }
+        AssignmentKind::Write => {
+            if sequential
+                .iter()
+                .any(|r| r.start <= extent.start && extent.end <= r.end)
+            {
+                return None;
+            }
+            let write = node.as_local_variable_write_node()?;
+            let value = write.value();
+            let start = write.name_loc().start_offset();
+            let unbracketed = value
+                .as_array_node()
+                .is_some_and(|a| a.opening_loc().is_none());
+            if unbracketed {
+                super::super::style::correction::combine(
+                    file,
+                    vec![
+                        Correction {
+                            range: start..value.location().start_offset(),
+                            replacement: "[".into(),
+                        },
+                        Correction {
+                            range: value.location().end_offset()..value.location().end_offset(),
+                            replacement: "]".into(),
+                        },
+                    ],
+                )
+            } else {
+                Some(Correction {
+                    range: start..value.location().start_offset(),
+                    replacement: String::new(),
+                })
+            }
+        }
+        AssignmentKind::Target => None,
+    }
+}
+
+/// RuboCop's `sequential_assignment?`: writes whose value is an array that
+/// holds an assignment.
+fn sequential_writes(root: &Node<'_>) -> Vec<Range<usize>> {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Writes(Vec<Range<usize>>);
+    struct HasAssignment(bool);
+    impl<'pr> NodeVisitor<'pr> for HasAssignment {
+        fn enter(&mut self, node: Node<'pr>) {
+            self.0 |= matches!(
+                node,
+                Node::LocalVariableWriteNode { .. }
+                    | Node::InstanceVariableWriteNode { .. }
+                    | Node::ClassVariableWriteNode { .. }
+                    | Node::GlobalVariableWriteNode { .. }
+                    | Node::ConstantWriteNode { .. }
+                    | Node::LocalVariableOperatorWriteNode { .. }
+                    | Node::LocalVariableOrWriteNode { .. }
+                    | Node::LocalVariableAndWriteNode { .. }
+                    | Node::MultiWriteNode { .. }
+            );
+        }
+    }
+    impl<'pr> NodeVisitor<'pr> for Writes {
+        fn enter(&mut self, node: Node<'pr>) {
+            if let Some(write) = node.as_local_variable_write_node()
+                && let Some(array) = write.value().as_array_node()
+            {
+                let mut found = HasAssignment(false);
+                walk(&mut found, &array.as_node());
+                if found.0 {
+                    self.0
+                        .push(node.location().start_offset()..node.location().end_offset());
+                }
+            }
+        }
+    }
+    let mut writes = Writes(Vec::new());
+    walk(&mut writes, root);
+    writes.0
+}
+
 fn extent(assignment: &Assignment<'_>) -> Range<usize> {
     if assignment.kind == AssignmentKind::Operator {
         return assignment.name_range.clone();

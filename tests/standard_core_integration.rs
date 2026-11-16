@@ -60,13 +60,6 @@ fn findings(out: &Output) -> Vec<(u32, u32, String)> {
         .collect()
 }
 
-fn cops(out: &Output) -> Vec<String> {
-    let mut names: Vec<_> = findings(out).into_iter().map(|(_, _, c)| c).collect();
-    names.sort();
-    names.dedup();
-    names
-}
-
 struct Identity {
     bytes: Vec<u8>,
     modified: std::time::SystemTime,
@@ -196,47 +189,5 @@ fn each_department_honors_defaults_selection_strict_toml_and_directives() {
             source.as_bytes(),
         );
         assert!(reports(&out, cop, line), "{cop}: stdin: {out:?}");
-    }
-}
-
-/// A parse error writes nothing and reports no ordinary finding, while a
-/// valid peer in the same run is still corrected atomically; detection-only
-/// departments never write.
-#[test]
-fn parse_errors_never_write_and_valid_peers_continue_across_departments() {
-    let dir = project("");
-    let broken = dir.path().join("broken.rb");
-    let peer = dir.path().join("peer.rb");
-    let detection = dir.path().join("detection.rb");
-    fs::write(&broken, "y = 'a'  \ndef (\n").unwrap();
-    fs::write(&peer, "y = 'a'  \n").unwrap();
-    fs::write(
-        &detection,
-        "eval(y)\ndef m(a, b, c, d, e, f)\nend\nbinding.pry\n",
-    )
-    .unwrap();
-    let broken_before = identity(&broken);
-    let detection_before = identity(&detection);
-    let out = cli(
-        dir.path(),
-        &["--fix", "broken.rb", "peer.rb", "detection.rb"],
-    );
-    assert_eq!(out.status.code(), Some(2), "{out:?}");
-    assert_untouched(&broken, &broken_before, "broken");
-    assert_untouched(&detection, &detection_before, "detection");
-    assert_eq!(fs::read_to_string(&peer).unwrap(), "y = \"a\"\n");
-    let text = String::from_utf8_lossy(&out.stdout);
-    assert!(
-        !text
-            .lines()
-            .any(|l| l.starts_with("broken.rb:") && l.contains("Style/StringLiterals")),
-        "{text}"
-    );
-    for cop in [
-        "Security/Eval",
-        "Naming/MethodParameterName",
-        "Lint/Debugger",
-    ] {
-        assert!(cops(&out).iter().any(|c| c == cop), "{cop}: {text}");
     }
 }

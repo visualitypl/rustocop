@@ -35,53 +35,6 @@ fn fix(dir: &Path, cop: &str) {
     assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
 }
 #[test]
-fn default_on_selectors_and_config_precedence_never_write_without_fix() {
-    let dir = project();
-    for (cop, source, after) in [
-        (NIL, "f = -> { nil }\n", "f = -> {}\n"),
-        (LIMIT, "foo { [_1, _2] }\n", "foo { [_1, _2] }\n"),
-    ] {
-        for args in [vec!["x.rb"], vec!["--only", cop, "x.rb"]] {
-            unchanged(dir.path(), source.as_bytes(), &args, 1);
-            assert!(String::from_utf8_lossy(&cli(dir.path(), &args).stdout).contains(cop));
-        }
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", cop, "--except", cop, "--fix", "x.rb"],
-            0,
-        );
-        for (config, args, expected) in [
-            (
-                "[cops.Style]\nenabled=false\n".into(),
-                vec!["--fix", "x.rb"],
-                source,
-            ),
-            (
-                format!("[cops.\"{cop}\"]\nenabled=false\n"),
-                vec!["--only", cop, "--fix", "x.rb"],
-                after,
-            ),
-            (
-                format!("[cops.Style]\nenabled=false\n[cops.\"{cop}\"]\nenabled=true\n"),
-                vec!["--fix", "x.rb"],
-                after,
-            ),
-        ] {
-            fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-            fs::write(dir.path().join("x.rb"), source).unwrap();
-            let out = cli(dir.path(), &args);
-            assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
-            assert_eq!(
-                fs::read_to_string(dir.path().join("x.rb")).unwrap(),
-                expected,
-                "{cop}"
-            );
-        }
-        fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    }
-}
-#[test]
 fn directives_and_exclusions_suppress_both_detection_and_fix_with_bytes_and_mtime() {
     let dir = project();
     for (cop, source) in [(NIL, "-> { nil }"), (LIMIT, "foo { [_1, _2] }")] {

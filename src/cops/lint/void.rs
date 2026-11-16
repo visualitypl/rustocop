@@ -54,7 +54,7 @@ use crate::{
         Cop, NodeContext,
         ast::{is_const, is_literal, is_variable},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -66,6 +66,10 @@ impl Cop for Void {
         "Lint/Void"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_program_node().is_some()
     }
@@ -73,7 +77,7 @@ impl Cop for Void {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -84,6 +88,8 @@ impl Cop for Void {
             cop: self,
             file,
             out,
+            corrections: cx.corrections_requested(),
+            setters: Vec::new(),
             blocks: Vec::new(),
             void_lists: HashSet::new(),
             void_units: HashSet::new(),
@@ -128,6 +134,9 @@ struct Walker<'a> {
     cop: &'a Void,
     file: &'a SourceFile,
     out: &'a mut Vec<Offense>,
+    corrections: bool,
+    /// Enclosing method definitions: whether each is a setter.
+    setters: Vec<bool>,
     /// Enclosing blocks, innermost last.
     blocks: Vec<Block>,
     /// Sequences that are the whole body of a void context, by span; marked
@@ -210,7 +219,11 @@ impl<'pr> Visit<'pr> for Walker<'_> {
         {
             self.void_body(&statements);
         }
+        let name = node.name().as_slice();
+        self.setters
+            .push(name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"===" | b"<=" | b">="));
         ruby_prism::visit_def_node(self, node);
+        self.setters.pop();
     }
 
     fn visit_for_node(&mut self, node: &ForNode<'pr>) {
@@ -361,6 +374,10 @@ impl<'pr> Walker<'_> {
         let at = call
             .message_loc()
             .map_or(call.location().start_offset(), |loc| loc.start_offset());
+        let correction = self
+            .corrections
+            .then(|| self.void_op_correction(&call))
+            .flatten();
         self.report(
             at,
             at + call.message_loc().map_or(1, |loc| loc.as_slice().len()),
@@ -368,21 +385,64 @@ impl<'pr> Walker<'_> {
                 "Operator `{}` used in void context.",
                 String::from_utf8_lossy(name)
             ),
+            correction,
         );
+    }
+
+    /// RuboCop's `autocorrect_void_op`: a unary operation becomes its
+    /// operand; a binary one loses its dot, and its operator with the blanks
+    /// around it becomes a line break.
+    fn void_op_correction(&self, call: &CallNode<'pr>) -> Option<Correction> {
+        let bytes = &self.file.bytes;
+        if call.arguments().is_none() {
+            let receiver = call.receiver()?;
+            return Some(Correction {
+                range: call.location().start_offset()..call.location().end_offset(),
+                replacement: std::str::from_utf8(receiver.location().as_slice())
+                    .ok()?
+                    .into(),
+            });
+        }
+        let selector = call.message_loc()?;
+        let mut start = selector.start_offset();
+        while start > 0 && matches!(bytes[start - 1], b' ' | b'\t') {
+            start -= 1;
+        }
+        let mut end = selector.end_offset();
+        while matches!(bytes.get(end), Some(b' ' | b'\t')) {
+            end += 1;
+        }
+        let mut edits = vec![Correction {
+            range: start..end,
+            replacement: "\n".into(),
+        }];
+        if let Some(dot) = call.call_operator_loc() {
+            edits.push(Correction {
+                range: dot.start_offset()..dot.end_offset(),
+                replacement: String::new(),
+            });
+        }
+        crate::cops::style::correction::combine(self.file, edits)
     }
 
     /// RuboCop's `check_expression`: conditionals are looked into.
     fn check_expression(&mut self, node: &Node<'pr>) {
+        self.check_branch_expression(node, false);
+    }
+
+    /// `branch`: `node` is a branch of a conditional, whose expression
+    /// RuboCop does not remove.
+    fn check_branch_expression(&mut self, node: &Node<'pr>, branch: bool) {
         match node {
             Node::IfNode { .. } => {
                 if let Some(statement) = node.as_if_node().unwrap().statements().and_then(lone) {
-                    self.check_void_expression_nodes(&statement);
+                    self.check_void_expression_nodes(&statement, true);
                 }
             }
             Node::UnlessNode { .. } => {
                 if let Some(statement) = node.as_unless_node().unwrap().statements().and_then(lone)
                 {
-                    self.check_void_expression_nodes(&statement);
+                    self.check_void_expression_nodes(&statement, true);
                 }
             }
             Node::CaseNode { .. } => {
@@ -393,7 +453,7 @@ impl<'pr> Walker<'_> {
                         .and_then(|when| when.statements())
                         .and_then(lone)
                     {
-                        self.check_expression(&statement);
+                        self.check_branch_expression(&statement, true);
                     }
                 }
                 self.check_else(case.else_clause());
@@ -406,12 +466,12 @@ impl<'pr> Walker<'_> {
                         .and_then(|pattern| pattern.statements())
                         .and_then(lone)
                     {
-                        self.check_expression(&statement);
+                        self.check_branch_expression(&statement, true);
                     }
                 }
                 self.check_else(case.else_clause());
             }
-            _ => self.check_void_expression_nodes(node),
+            _ => self.check_void_expression_nodes(node, branch),
         }
     }
 
@@ -420,12 +480,49 @@ impl<'pr> Walker<'_> {
             .and_then(|clause| clause.statements())
             .and_then(lone)
         {
-            self.check_expression(&statement);
+            self.check_branch_expression(&statement, true);
         }
     }
 
     /// Literals, variables, constants, `self`, `defined?`, lambdas, procs.
-    fn check_void_expression_nodes(&mut self, node: &Node<'pr>) {
+    fn check_void_expression_nodes(&mut self, node: &Node<'pr>, branch: bool) {
+        // RuboCop's `autocorrect_void_expression`: not a constant (loading
+        // it can have effects), a conditional's branch or in a setter; the
+        // expression goes with the blanks and line breaks before it.
+        let correction = (self.corrections
+            && !branch
+            && !(is_const(node) && node.as_source_encoding_node().is_none())
+            && self.setters.last() != Some(&true))
+        .then(|| {
+            let mut end = node.location().end_offset();
+            let heredoc = match node {
+                Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
+                Node::InterpolatedStringNode { .. } => {
+                    node.as_interpolated_string_node().unwrap().opening_loc()
+                }
+                _ => None,
+            }
+            .is_some_and(|o| o.as_slice().starts_with(b"<<"));
+            if heredoc {
+                let mut bodies = Vec::new();
+                crate::cops::style::file_write::heredoc_bodies(node, &mut bodies);
+                if let Some(body) = bodies.first() {
+                    end = end.max(body.end);
+                }
+            }
+            let bytes = &self.file.bytes;
+            let mut start = node.location().start_offset();
+            while start > 0 && matches!(bytes[start - 1], b' ' | b'\t') {
+                start -= 1;
+            }
+            while start > 0 && bytes[start - 1] == b'\n' {
+                start -= 1;
+            }
+            Correction {
+                range: start..end,
+                replacement: String::new(),
+            }
+        });
         // Classified first: the source is only copied for a report.
         let kind = if is_entirely_literal(node)
             && !matches!(
@@ -445,6 +542,7 @@ impl<'pr> Walker<'_> {
                 node.location().start_offset(),
                 node.location().end_offset(),
                 "`self` used in void context.".to_string(),
+                correction,
             );
             return;
         } else if node.as_defined_node().is_some() || is_lambda_or_proc(node) {
@@ -457,16 +555,23 @@ impl<'pr> Walker<'_> {
             node.location().start_offset(),
             node.location().end_offset(),
             format!("{kind}`{source}` used in void context."),
+            correction,
         );
     }
 
-    fn report(&mut self, offset: usize, end: usize, message: String) {
+    fn report(
+        &mut self,
+        offset: usize,
+        end: usize,
+        message: String,
+        correction: Option<Correction>,
+    ) {
         if !self.reported.insert((offset, message.clone())) {
             return;
         }
         let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, self.file);
         self.out.push(Offense {
-            correction: None,
+            correction,
             cop: self.cop.name(),
             severity: self.cop.severity(),
             message,
