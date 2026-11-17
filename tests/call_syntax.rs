@@ -221,7 +221,8 @@ fn unicode_uppercase_calls_preserve_method_versus_constant_binding() {
         runtime_equivalent(
             CASES[0].0,
             &format!("{constant}def É; :method; end\np É()\ndef plain; :plain; end\np plain()\n"),
-            1,
+            // RuboCop's reparse check drops `É()`: bare, it reads as a constant.
+            0,
         );
     }
 }

@@ -62,77 +62,19 @@ impl Cop for RequireRelativeSelfPath {
             severity: self.severity(),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_require(node, cx, file))
-                .flatten(),
+                .then(|| crate::offense::Correction {
+                    range: crate::cops::style::correction::whole_lines(
+                        file,
+                        node.location().start_offset()..crate::cops::ast::source_end(node),
+                    ),
+                    replacement: String::new(),
+                }),
             line,
             col,
             end_line: file.line_of(crate::cops::ast::source_end(node).saturating_sub(1)),
             message: "Remove the `require_relative` that requires itself.".into(),
         });
     }
-}
-// Removing an ordinary self-require changes dispatch/evaluation/return values,
-// load-feature recursion and warnings. Prove only a single inert bare call in
-// the sole closed top-level `if false`; no bindings, blocks, heredocs, sibling
-// expressions or removed comments. Existing source/position/VM/heap guards still
-// apply. This is the actual upstream whole-line deletion, not intention repair.
-fn inactive_require(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    let args = call.arguments()?;
-    if call.receiver().is_some() || call.block().is_some() || args.arguments().len() != 1 {
-        return None;
-    }
-    let s = args.arguments().iter().next()?.as_string_node()?;
-    if !matches!(s.opening_loc()?.as_slice(), b"'" | b"\"")
-        || !s
-            .content_loc()
-            .as_slice()
-            .iter()
-            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'.' | b'-'))
-    {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-        || conditional.end_keyword_loc().is_none()
-    {
-        return None;
-    }
-    let line = file.line_of(node.location().start_offset());
-    let start = file.line_start(line);
-    let end = file.line_start(line + 1);
-    if !file
-        .bytes
-        .get(start..node.location().start_offset())?
-        .iter()
-        .all(|b| matches!(b, b' ' | b'\t'))
-        || !matches!(
-            file.bytes.get(node.location().end_offset()..end)?,
-            b"\n" | b"\r\n"
-        )
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: start..end,
-        replacement: String::new(),
-    })
 }
 struct StringValue {
     bytes: Vec<u8>,

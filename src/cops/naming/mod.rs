@@ -111,38 +111,6 @@ mod pinned_naming_tests {
     }
 
     #[test]
-    fn ns04_all_pinned_corrections_are_canonical_or_individually_withheld() {
-        let fixture: serde_json::Value =
-            serde_json::from_str(include_str!("../../../tests/fixtures/ns04_pinned.json")).unwrap();
-        let mut canonical = 0;
-        let mut withheld = 0;
-        for call in fixture["calls"].as_array().unwrap() {
-            let Some(corrected) = call["correction"].as_str() else {
-                continue;
-            };
-            let cop: &dyn crate::cops::Cop = if call["cop"] == "Naming/BinaryOperatorParameterName"
-            {
-                &super::BinaryOperatorParameterName
-            } else {
-                &super::RescuedExceptionsVariableName
-            };
-            let source = call["source"].as_str().unwrap();
-            if cop.name() == "Naming/RescuedExceptionsVariableName"
-                && [372, 418, 441].contains(&call["spec_line"].as_u64().unwrap())
-            {
-                let found = crate::cops::testing::correction_offenses(cop, source);
-                assert!(!found.is_empty());
-                assert!(found.iter().all(|o| o.correction.is_none()), "{call}");
-                withheld += 1;
-            } else {
-                crate::cops::testing::assert_correction(cop, source, corrected);
-                canonical += 1;
-            }
-        }
-        assert_eq!((canonical, withheld), (22, 3));
-    }
-
-    #[test]
     fn ns05_all_pinned_calls_source_and_corrections_are_accounted_for() {
         let fixture: serde_json::Value =
             serde_json::from_str(include_str!("../../../tests/fixtures/ns05_pinned.json")).unwrap();

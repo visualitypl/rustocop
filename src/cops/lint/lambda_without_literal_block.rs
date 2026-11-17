@@ -61,7 +61,13 @@ impl Cop for LambdaWithoutLiteralBlock {
             end_line: file.line_of(end.saturating_sub(1).max(start)),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_first_argument(node, cx, file))
+                .then(|| {
+                    let text = std::str::from_utf8(args[0].location().as_slice()).ok()?;
+                    Some(crate::offense::Correction {
+                        range: start..end,
+                        replacement: text.strip_prefix('&').unwrap_or(text).to_owned(),
+                    })
+                })
                 .flatten(),
         });
     }
@@ -243,68 +249,6 @@ fn ordinary_block_parent(call: &ruby_prism::CallNode<'_>, cx: &NodeContext<'_, '
     parent
         .as_lambda_node()
         .is_some_and(|lambda| ordinary(lambda.parameters()))
-}
-
-// Dropping lambda dispatch, to_proc conversion or extra arguments is not safe
-// in reachable code. Even a builtin call can change warnings, allocation and
-// proc identity/lambda-ness. Prove only one immediate dead expression in an
-// otherwise closed top-level false branch. The sole positional argument is
-// a bare send: no bindings, definitions, literals, parameters or compiler effects.
-// Unknown block passes remain withheld by the shared selector-acquisition guards;
-// literal procs remain withheld because their block positions change. Exact
-// spelling excludes comments, heredocs and line movement. Shared main-parse
-// source/encoding/position/code-object/heap guards remain authoritative.
-fn inactive_first_argument(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    if call.receiver().is_some() || call.block().is_some() {
-        return None;
-    }
-    let arguments = call.arguments()?.arguments();
-    if arguments.len() != 1 {
-        return None;
-    }
-    let expression = arguments.iter().next()?;
-    let bare = expression.as_call_node()?;
-    let name = bare.name().as_slice();
-    if bare.receiver().is_some()
-        || bare.arguments().is_some()
-        || bare.block().is_some()
-        || name.is_empty()
-        || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-        || expression.location().as_slice() != name
-    {
-        return None;
-    }
-    let replacement = std::str::from_utf8(name).ok()?.to_owned();
-    if node.location().as_slice() != format!("lambda({replacement})").as_bytes() {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: node.location().start_offset()..node.location().end_offset(),
-        replacement,
-    })
 }
 
 #[cfg(test)]

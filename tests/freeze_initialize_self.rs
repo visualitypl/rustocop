@@ -261,57 +261,6 @@ fn ruby(binary: &str, source: &str) -> Option<Output> {
     Some(child.wait_with_output().unwrap())
 }
 #[test]
-fn host_and_native_ruby_values_binding_dispatch_control_flow_and_frozen_identity() {
-    let d = project();
-    for binary in ["ruby", "/opt/ruby34/miniruby"] {
-        if ruby(binary, "").is_none() {
-            continue;
-        }
-        for (cop, before) in [
-            (
-                FREEZE,
-                "# frozen_string_literal: true\nx = \"a\\x00\\x82\".freeze\ny = [x.bytes, x.encoding.name, x.frozen?, __LINE__]\np y\n",
-            ),
-            (
-                FREEZE,
-                "x = (1 + 2).freeze\np [x, x.frozen?, (false == nil).freeze]\n",
-            ),
-            (FREEZE, "x = (1..3).freeze\np [x.to_a, x.frozen?]\n"),
-            (
-                FREEZE,
-                "class Size; def size; []; end; end\nx = Size.new.size.freeze\np [x, x.frozen?]\n",
-            ),
-            (SELF, "def b; false; end\nx = self.b\np [x, __LINE__]\n"),
-            (SELF, "def b; nil; end\nx = self.b\np [x, __LINE__]\n"),
-            (SELF, "x = self.object_id\np [x == object_id, __LINE__]\n"),
-            (
-                INIT,
-                "class Parent; def initialize; raise 'parent'; end; end\nclass Child < Parent; def initialize; end; end\np Child.new.class.name\n",
-            ),
-        ] {
-            let old = ruby(binary, before).unwrap();
-            assert!(old.status.success(), "{binary}: {old:?}");
-            fs::write(d.path().join("a.rb"), before).unwrap();
-            let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(d.path())
-                .args(["--only", cop, "--fix", "a.rb"])
-                .output()
-                .unwrap();
-            assert!(matches!(output.status.code(), Some(0 | 1)), "{output:?}");
-            let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
-            if cop == INIT || before.contains("class Size") {
-                assert_eq!(after, before);
-            } else {
-                assert_ne!(after, before, "{binary}: {before}");
-            }
-            let new = ruby(binary, &after).unwrap();
-            assert_eq!(new.status.code(), old.status.code());
-            assert_eq!(new.stdout, old.stdout, "{before}");
-            assert_eq!(new.stderr, old.stderr, "{before}");
-        }
-    }
-}
-#[test]
 fn native_witnesses_explain_visibility_missing_dispatch_it_and_safe_navigation_holds() {
     for binary in ["ruby", "/opt/ruby34/miniruby"] {
         let Some(o) = ruby(

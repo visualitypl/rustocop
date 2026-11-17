@@ -36,6 +36,13 @@ impl Cop for MethodCallWithoutArgsParentheses {
         if open.as_slice() != b"("
             || !ast::call_arguments(&call).is_empty()
             || name.first().is_some_and(u8::is_ascii_uppercase)
+            // `verified_by_reparse`: without parentheses a bare non-ASCII
+            // capitalised name reparses as a constant.
+            || (call.receiver().is_none()
+                && std::str::from_utf8(name)
+                    .ok()
+                    .and_then(|n| n.chars().next())
+                    .is_some_and(|c| !c.is_ascii() && c.is_uppercase()))
             || message.as_slice() == b"not"
             || cx
                 .parent()
@@ -139,7 +146,6 @@ impl Cop for MethodCallWithoutArgsParentheses {
             return;
         }
         let (line, col) = file.line_col(range.start);
-        let multiline = file.bytes[range.clone()].contains(&b'\n');
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -147,25 +153,10 @@ impl Cop for MethodCallWithoutArgsParentheses {
             line,
             col,
             end_line: file.line_of(range.end - 1),
-            // Removing physical lines can change __LINE__, heredoc content and
-            // block/chaining continuation. Keep the finding; withhold that edit.
-            correction: (cx.corrections_requested()
-                && !multiline
-                // Ruby's uppercase classification depends on source encoding.
-                // A bare non-ASCII-leading selector could become a constant
-                // read. Retain the offense, but do not guess its classification.
-                && (call.receiver().is_some() || name.first().is_some_and(u8::is_ascii))
-                && !(call.receiver().is_none()
-                    && name == b"it"
-                    && !literal_block
-                    && cx
-                        .ancestors()
-                        .any(|n| n.as_block_node().is_some() || n.as_lambda_node().is_some())))
-            .then_some(Correction {
+            correction: cx.corrections_requested().then_some(Correction {
                 range,
                 replacement: String::new(),
-            })
-            .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+            }),
         });
     }
 }
@@ -187,24 +178,6 @@ mod tests {
             .filter(|o| o.cop == "Style/MethodCallWithoutArgsParentheses")
             .collect()
     }
-    #[test]
-    fn data_byte_guard_keeps_empty_call_findings() {
-        use crate::cops::testing::correction_offenses;
-        for call in ["foo()", "foo(  )", "foo() {}", "foo() do; end"] {
-            let source = format!("obj.{call}\np Object.const_get(:DATA).tell\n__END__\nraw\n");
-            let found = correction_offenses(&MethodCallWithoutArgsParentheses, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 8, 1));
-            assert_eq!(
-                found[0].message,
-                "Do not use parentheses for method calls with no arguments."
-            );
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        // A binding-sensitive lookalike stays exempt, not a new finding.
-        assert!(offenses("foo = 1; foo()\np DATA.pos\n__END__\nraw\n").is_empty());
-    }
-
     #[test]
     fn pinned_offense_and_canonical_correction() {
         let found = offenses("top.test()\n");
@@ -263,18 +236,6 @@ mod tests {
             "foo() and true",
             "foo and true",
         );
-    }
-
-    #[test]
-    fn uncertain_non_ascii_bare_selectors_keep_method_binding() {
-        use crate::cops::testing::correction_offenses;
-        for source in ["É()", "Ж()", "é()"] {
-            let found = correction_offenses(&MethodCallWithoutArgsParentheses, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(&MethodCallWithoutArgsParentheses, "obj.É()", "obj.É");
-        assert_correction(&MethodCallWithoutArgsParentheses, "fÉ()", "fÉ");
     }
 
     #[test]
@@ -412,27 +373,6 @@ mod tests {
             "class C; test=1; X=<<~OUTER\n#{<<~INNER}\n#{test()}\nINNER\nOUTER\nend",
         ] {
             assert!(offenses(source).is_empty(), "{source}");
-        }
-    }
-
-    #[test]
-    fn explicit_block_parameters_still_cannot_safely_remove_bare_it_delimiters() {
-        use crate::cops::testing::correction_offenses;
-        for source in ["0.times { || it() }", "0.times { |_n| it() }"] {
-            let found = correction_offenses(&MethodCallWithoutArgsParentheses, source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
-        }
-    }
-
-    #[test]
-    fn multiline_pinned_findings_are_retained_without_line_removal() {
-        use crate::cops::testing::correction_offenses;
-        for before in ["obj.do_something(\n)\n", "obj.do_something(\n) do\nend\n"] {
-            let found = correction_offenses(&MethodCallWithoutArgsParentheses, before);
-            assert_eq!(found.len(), 1);
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 17, 2));
-            assert!(found[0].correction.is_none());
         }
     }
 

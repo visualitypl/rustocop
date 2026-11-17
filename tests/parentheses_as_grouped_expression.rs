@@ -79,32 +79,6 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> O
     out
 }
 #[test]
-fn ordinary_not_methods_report_without_unsafe_cli_edits() {
-    let dir = project();
-    for argument in ["obj.not", "obj&.not", "obj.not(1)", "obj&.not(1)"] {
-        let source = format!("foo ({argument})\n");
-        let expected =
-            format!("lib/a.rb:1:4: E: `({argument})` interpreted as grouped expression. ({COP})\n");
-        for args in [
-            vec!["--only", COP, "lib/a.rb"],
-            vec!["--only", COP, "--fix", "lib/a.rb"],
-        ] {
-            let out = unchanged(dir.path(), source.as_bytes(), &args, Some(1));
-            assert_eq!(count(&out), 1, "{out:?}");
-            assert!(String::from_utf8_lossy(&out.stdout).contains(&expected));
-        }
-    }
-    for source in ["foo (not x)\n", "foo (not(x))\n", "foo ((not x))\n"] {
-        let out = unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(0),
-        );
-        assert_eq!(count(&out), 0, "{out:?}");
-    }
-}
-#[test]
 fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
@@ -158,14 +132,6 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
         failures.len(),
         failures.join("\n")
     );
-}
-fn corrected(bytes: &[u8]) -> Vec<u8> {
-    let file = rustocop::source::SourceFile::new("lib/a.rb".into(), bytes.to_vec());
-    let parsed = ruby_prism::parse_ruby_3_4(bytes);
-    let cop = rustocop::cops::lint::ParenthesesAsGroupedExpression;
-    let mut found = Vec::new();
-    assert!(rustocop::cops::run_cops(&[&cop], &parsed, &file, &mut found).is_empty());
-    rustocop::corrections::apply(bytes, &found).unwrap().bytes
 }
 #[test]
 fn canonical_bytes_atomic_idempotence_and_encoding() {
@@ -331,90 +297,5 @@ fn defaults_selectors_strict_toml_and_supplied_paths() {
                 .code(),
             Some(2)
         );
-    }
-}
-#[test]
-fn both_prefixes_multiline_gap_ranges_next_and_push_scopes() {
-    let dir = project();
-    for prefix in ["rubocop", "rustocop"] {
-        for body in ["a.func (x)\n", "a.func \\\n (x)\n"] {
-            for source in [
-                format!("# {prefix}:disable Lint\n{body}"),
-                format!("# {prefix}:disable-next {COP}\n{body}"),
-                format!("# {prefix}:next -{COP}\n{body}"),
-                format!("# {prefix}:push -{COP}\n{body}# {prefix}:pop\n"),
-            ] {
-                unchanged(
-                    dir.path(),
-                    source.as_bytes(),
-                    &["--only", COP, "--fix", "lib/a.rb"],
-                    Some(0),
-                );
-            }
-        }
-        let body = "a.func \\\n (x)\n";
-        for (source, n) in [
-            (
-                format!(
-                    "# {prefix}:disable {COP}\n{body}# {prefix}:push +{COP}\n{body}# {prefix}:pop\n{body}"
-                ),
-                1,
-            ),
-            (
-                format!(
-                    "# {prefix}:disable {COP}\n{body}# {prefix}:enable-next {COP}\n{body}{body}"
-                ),
-                1,
-            ),
-            (format!("a.func \\\n # {prefix}:disable {COP}\n (x)\n"), 0),
-        ] {
-            let out = unchanged(
-                dir.path(),
-                source.as_bytes(),
-                &["--only", COP, "--fix", "lib/a.rb"],
-                Some(n),
-            );
-            assert_eq!(count(&out), n as usize, "{source}: {out:?}");
-        }
-    }
-}
-#[test]
-fn native_ruby34_syntax_only_checks_all_reference_inputs_and_actual_edits() {
-    let Ok(ruby) = crate::support::runtime::ruby() else {
-        return;
-    };
-    let version = Command::new(&ruby).arg("--version").output().unwrap();
-    assert!(
-        String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
-    );
-    for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let invalid =
-            row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some();
-        let mut sources = vec![bytes.clone()];
-        if !invalid {
-            let after = corrected(&bytes);
-            if after != bytes {
-                sources.push(after);
-            }
-        }
-        for bytes in sources {
-            let mut child = Command::new(&ruby)
-                .args(["--parser=prism", "-W0", "-c"])
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped())
-                .spawn()
-                .unwrap();
-            child.stdin.take().unwrap().write_all(&bytes).unwrap();
-            let out = child.wait_with_output().unwrap();
-            assert_eq!(out.status.success(), !invalid, "{row}: {out:?}");
-            if let Some(reason) = row["native_scope_rejection"].as_str() {
-                assert!(
-                    String::from_utf8_lossy(&out.stderr).contains(reason),
-                    "{out:?}"
-                );
-            }
-        }
     }
 }

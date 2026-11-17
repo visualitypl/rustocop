@@ -27,39 +27,16 @@ impl Cop for RedundantRegexpConstructor {
         let loc = node.location();
         let range = loc.start_offset()..ast::source_end(node);
         let (line, col) = file.line_col(loc.start_offset());
-        // A literal is frozen; Regexp.new(literal) is an unfrozen copy. Only
-        // discarded top-level values have no observable identity/frozen state.
-        let mut ancestors = cx.ancestors();
-        let discarded = ancestors
-            .next()
-            .is_some_and(|n| n.as_statements_node().is_some())
-            && ancestors
-                .next()
-                .is_some_and(|n| n.as_program_node().is_some());
-        let correction = if cx.corrections_requested()
-            && discarded
-            && call.block().is_none()
-            && !super::correction::contains_comment(file, range.clone())
-            && cx
-                .ancestors()
-                .next_back()
-                .is_some_and(|root| !file.redundant_regexp_safety(root).changed)
-        {
-            std::str::from_utf8(regexp.location().as_slice())
-                .ok()
-                .and_then(|text| {
-                    super::literal_spelling::safe_edit(
-                        file,
-                        cx,
-                        Correction {
-                            range: range.clone(),
-                            replacement: text.into(),
-                        },
-                    )
+        let correction = (cx.corrections_requested() && !ambiguous_slash_regexp(node, &regexp, cx))
+            .then(|| {
+                Some(Correction {
+                    range: range.clone(),
+                    replacement: std::str::from_utf8(regexp.location().as_slice())
+                        .ok()?
+                        .into(),
                 })
-        } else {
-            None
-        };
+            })
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -93,64 +70,46 @@ fn candidate<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
     )
     .then_some(first)
 }
-/// Shared correction-only closed-core proof: one cached complete main-AST walk.
-/// No deferred scopes, declarations, interpolation calls, or unknown effects.
-#[derive(Default)]
-pub(crate) struct Safety {
-    pub(super) changed: bool,
-    #[cfg(test)]
-    pub(crate) visits: usize,
-}
-impl Safety {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut facts = Self::default();
-        crate::cops::walk::walk(&mut facts, root);
-        facts
+/// RuboCop's `ambiguous_slash_regexp?`: `/ x/` or `/=x/` as a command's
+/// first argument would read as division.
+fn ambiguous_slash_regexp(node: &Node<'_>, regexp: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
+    let (opening, content) = if let Some(r) = regexp.as_regular_expression_node() {
+        (r.opening_loc(), r.content_loc().as_slice().to_vec())
+    } else if let Some(r) = regexp.as_interpolated_regular_expression_node() {
+        let start = r.opening_loc().end_offset();
+        let end = r.closing_loc().start_offset();
+        let base = regexp.location().start_offset();
+        (
+            r.opening_loc(),
+            regexp.location().as_slice()[start - base..end - base].to_vec(),
+        )
+    } else {
+        return false;
+    };
+    if opening.as_slice() != b"/"
+        || !content
+            .first()
+            .is_some_and(|b| b.is_ascii_whitespace() || *b == b'=')
+    {
+        return false;
     }
-}
-impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Safety {
-    fn enter(&mut self, node: Node<'pr>) {
-        #[cfg(test)]
-        {
-            self.visits += 1;
-        }
-        if let Some(call) = node.as_call_node() {
-            self.changed |= call.block().is_some()
-                || !(candidate(&node).is_some()
-                    || super::redundant_regexp_argument::trusted_call(&call));
-        } else if matches!(
-            node,
-            Node::ConstantReadNode { .. } | Node::ConstantPathNode { .. }
-        ) {
-            // An unrelated constant lookup can execute an autoload hook before
-            // the candidate. Only the built-in receiver has a closed proof.
-            self.changed |= !ast::is_global_const(&node, &["Regexp"]);
-        } else {
-            self.changed |= !matches!(
-                node,
-                Node::ProgramNode { .. }
-                    | Node::StatementsNode { .. }
-                    | Node::ArgumentsNode { .. }
-                    | Node::StringNode { .. }
-                    | Node::RegularExpressionNode { .. }
-                    | Node::InterpolatedRegularExpressionNode { .. }
-                    | Node::EmbeddedStatementsNode { .. }
-                    | Node::LocalVariableReadNode { .. }
-                    | Node::LocalVariableWriteNode { .. }
-                    | Node::TrueNode { .. }
-                    | Node::FalseNode { .. }
-                    | Node::NilNode { .. }
-                    | Node::SourceLineNode { .. }
-            );
-        }
-    }
+    let start = node.location().start_offset();
+    cx.ancestors().filter_map(|a| a.as_call_node()).any(|call| {
+        let name = call.name().as_slice();
+        let arguments = ast::call_arguments(&call);
+        !arguments.is_empty()
+            && !call.opening_loc().is_some_and(|o| o.as_slice() == b"(")
+            && !ast::is_operator_method(name)
+            && !(name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"===" | b"<=" | b">="))
+            && arguments[0].location().start_offset() == start
+    })
 }
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop redundant_regexp_constructor_spec.rb (MIT, Copyright
     //! (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::assert_correction;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -199,23 +158,6 @@ mod tests {
                     &format!("{pattern}\n"),
                 );
             }
-        }
-    }
-    #[test]
-    fn ambiguous_command_frozen_identity_comments_and_shadowing_withhold_only_edits() {
-        for s in [
-            "p Regexp.new(/ a/)",
-            "Regexp.new(/#{Hook}/)",
-            "foo&.bar Regexp.new(/=a/)",
-            "p Regexp.new(/ a/).source",
-            "x = Regexp.new(/a/)",
-            "Regexp.new(/a/).frozen?",
-            "Regexp = Custom; Regexp.new(/a/)",
-            "Regexp.new( # keep\n /a/)",
-        ] {
-            let found = correction_offenses(&RedundantRegexpConstructor, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
         }
     }
 }

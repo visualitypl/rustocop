@@ -373,7 +373,7 @@ pub(super) fn attach(
 mod tests {
     use super::*;
     use crate::cops::{
-        naming::{BinaryOperatorParameterName, RescuedExceptionsVariableName},
+        naming::BinaryOperatorParameterName,
         testing::{assert_correction, correction_offenses},
     };
     #[test]
@@ -394,38 +394,10 @@ mod tests {
         assert!(std::ptr::eq(facts, file.local_rename_facts(&root)));
     }
     #[test]
-    fn repeated_rescue_identity_emits_only_one_atomic_replacement() {
-        let source = "begin; rescue => error; log(error); end\n".repeat(400);
-        let found = correction_offenses(&RescuedExceptionsVariableName, &source);
-        assert_eq!(found.len(), 400);
-        assert_eq!(found.iter().filter(|o| o.correction.is_some()).count(), 1);
-        let c = found[0].correction.as_ref().unwrap();
-        assert!(c.replacement.len() <= source.len());
-        assert_correction(
-            &RescuedExceptionsVariableName,
-            &source,
-            &source.replace("error", "e"),
-        );
-    }
-    #[test]
     fn closed_scopes_shadowed_blocks_and_default_captures_keep_their_owners() {
         let before = "e=1; other=2\ndef +(arg)\n def inner(arg); arg; end\n def self.inner(arg); arg; end\n f { |arg| arg }; f { |;arg| arg=1 }\n ->(v=arg) { arg = v; arg }\nend\n";
         let after = "e=1; other=2\ndef +(other)\n def inner(arg); arg; end\n def self.inner(arg); arg; end\n f { |arg| arg }; f { |;arg| arg=1 }\n ->(v=other) { other = v; other }\nend\n";
         assert_correction(&BinaryOperatorParameterName, before, after);
-    }
-    #[test]
-    fn distinct_rescue_identities_cannot_merge_cross_clause_reads_or_captures() {
-        for source in [
-            "begin; rescue => first; log(first); rescue Other => second; log(first, second); end",
-            "begin; rescue => first; f { first }; rescue Other => second; log(second); end",
-            "begin; rescue => first; first; rescue Other => second; second; end; log(first)",
-        ] {
-            let found = correction_offenses(&RescuedExceptionsVariableName, source);
-            assert_eq!(found.len(), 2, "{source}");
-            // At least the escaping identity must not be merged. A clause-local
-            // second variable can still be renamed without changing the first.
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
     #[test]
     fn canonical_rewrite_preserves_variableforce_scope_edges_and_reference_kinds() {

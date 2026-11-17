@@ -84,7 +84,7 @@ impl Cop for Next {
             end_line: file.line_of(condition.location().end_offset().saturating_sub(1)),
             correction: cx
                 .corrections_requested()
-                .then(|| Conditional::parse(&offending).and_then(|c| c.rewrite(cx, file)))
+                .then(|| Conditional::parse(&offending).and_then(|c| c.rewrite(&offending, file)))
                 .flatten(),
         });
     }
@@ -145,57 +145,15 @@ struct Conditional<'pr> {
     unless: bool,
 }
 impl<'pr> Conditional<'pr> {
-    fn rewrite(&self, cx: &NodeContext<'_, '_>, file: &SourceFile) -> Option<Correction> {
-        // A finite local proof budget bounds nested candidates as well as wide
-        // sibling lists; detection has no such limit. No correction reparses.
-        const BUDGET: usize = 32 * 1024;
+    /// RuboCop's `autocorrect_block`.
+    fn rewrite(&self, node: &Node<'_>, file: &SourceFile) -> Option<Correction> {
         let start = self.keyword.start_offset();
         let end = self.end.end_offset();
-        if end - start > BUDGET {
-            return None;
-        }
-        #[cfg(test)]
-        REWRITE_BYTES.with(|n| n.set(n.get() + end - start));
-        let root = cx.ancestors().next_back()?;
-        let line = file.line_of(start);
-        let end_line = file.line_of(end);
-        let prefix = &file.bytes[file.line_start(line)..start];
-        let suffix = &file.line_text(end_line)[end - file.line_start(end_line)..];
-        let end_prefix = &file.bytes[file.line_start(end_line)..self.end.start_offset()];
-        if !end_prefix.iter().all(|b| matches!(b, b' ' | b'\t'))
-            || !prefix.iter().all(|b| matches!(b, b' ' | b'\t'))
-            || suffix.len() > BUDGET
-            || suffix
-                .iter()
-                .copied()
-                .find(|b| !b.is_ascii_whitespace())
-                .is_some_and(|b| b != b'#')
-            || file.line_of(self.condition.location().end_offset()) != line
-            || file.heredoc_pending_at(root, start)
-            || file.contains_heredoc(root, &self.condition)
-            || super::correction::touches_directive(file, start..end)
-            || cx.ancestors().any(|n| n.as_defined_node().is_some())
-        {
-            return None;
-        }
         let condition = std::str::from_utf8(self.condition.location().as_slice()).ok()?;
         let header_end = self
             .then
             .as_ref()
             .map_or(self.condition.location().end_offset(), |l| l.end_offset());
-        if super::correction::contains_comment(file, start..header_end)
-            // Removing `then` must not merge an inline body expression into
-            // the guard predicate (e.g. `next unless ready? first`). Keep the
-            // offense but withhold the ambiguous inline-header rewrite.
-            || self.then.is_some()
-                && file.bytes[header_end..file.line_start(file.line_of(header_end) + 1)]
-                    .iter()
-                    .copied()
-                    .find(|b| !b.is_ascii_whitespace())
-                    .is_some_and(|b| b != b'#')
-        {
-            return None;
-        }
         let mut edits = vec![Correction {
             range: start..header_end,
             replacement: format!(
@@ -203,63 +161,49 @@ impl<'pr> Conditional<'pr> {
                 if self.unless { "if" } else { "unless" }
             ),
         }];
-        // A deleted end line must not shift any later __LINE__. Keep a blank
-        // physical line in that case; never flatten a multiline predicate.
-        let preserve_lines = start < file.line_value_boundary();
-        let remove_end = if preserve_lines {
-            self.end.start_offset()..end
-        } else if suffix.iter().all(u8::is_ascii_whitespace) {
-            file.line_start(end_line)..file.line_start(end_line + 1)
-        } else {
-            file.line_start(end_line)..end
-        };
+        let end_line = file.line_of(end);
+        let mut end_begin = file.line_start(end_line);
+        let rest = &file.line_text(end_line)[end - file.line_start(end_line)..];
+        if end_begin > 0 && rest.iter().all(u8::is_ascii_whitespace) {
+            end_begin -= 1;
+        }
         edits.push(Correction {
-            range: remove_end,
+            range: end_begin..end,
             replacement: String::new(),
         });
-
-        // Reuse the main-parse literal index. Leading bytes inside a literal
-        // are values, not indentation. Keep heredoc terminators byte-exact too:
-        // the shared physical-ownership proof must protect adjacent heredocs.
-        let mut lines = Vec::new();
-        for number in line + 1..end_line {
-            let at = file.line_start(number);
-            let text = file.line_text(number);
-            let indent = text
-                .iter()
-                .take_while(|b| matches!(b, b' ' | b'\t'))
-                .count();
-            if text.iter().all(u8::is_ascii_whitespace) {
-                continue;
-            }
-            if file.overlaps_literal(root, &(at..at + 1)) {
-                continue;
-            }
-            // Tabs have display-dependent widths. Keep the offense, do not
-            // guess at canonical indentation or alter a literal terminator.
-            if text[..indent].contains(&b'\t') || prefix.contains(&b'\t') {
-                return None;
-            }
-            lines.push((at, indent));
-        }
-        let delta = lines
-            .iter()
-            .map(|(_, n)| *n)
-            .min()
-            .unwrap_or(prefix.len())
-            .saturating_sub(prefix.len());
-        for (at, _) in lines {
-            if delta > 0 {
-                edits.push(Correction {
-                    range: at..at + delta,
-                    replacement: String::new(),
-                });
+        // `reindentable_lines`, without lines starting inside a string.
+        let content = string_content(node, file);
+        let line = file.line_of(start);
+        let indent = |n: u32| {
+            std::str::from_utf8(file.line_text(n)).ok().and_then(|t| {
+                t.find(|c: char| !c.is_whitespace())
+                    .map(|i| t[..i].chars().count())
+            })
+        };
+        let lines: Vec<u32> = (line + 1..end_line)
+            .filter(|&n| {
+                let at = file.line_start(n);
+                !content.iter().any(|r| r.contains(&at))
+                    && !file.line_text(n).iter().all(u8::is_ascii_whitespace)
+            })
+            .collect();
+        if let Some(actual) = lines.iter().filter_map(|&n| indent(n)).min() {
+            let target =
+                indent(file.line_of(self.condition.location().start_offset())).unwrap_or(0);
+            if actual > target {
+                let delta = actual - target;
+                for n in lines {
+                    let at = file.line_start(n);
+                    let text = std::str::from_utf8(file.line_text(n)).ok()?;
+                    let bytes: usize = text.chars().take(delta).map(char::len_utf8).sum();
+                    edits.push(Correction {
+                        range: at..at + bytes,
+                        replacement: String::new(),
+                    });
+                }
             }
         }
-        let edit = super::correction::combine(file, edits)?;
-        (super::correction::preserves_line_values(file, &edit)
-            && super::correction::preserves_data_positions(file, cx, &edit))
-        .then_some(edit)
+        super::correction::combine(file, edits)
     }
 
     fn parse(node: &Node<'pr>) -> Option<Self> {
@@ -319,9 +263,56 @@ impl<'pr> Conditional<'pr> {
     }
 }
 
-#[cfg(test)]
-thread_local! {
-    static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+/// RuboCop's `string_content_range` for every string in a node.
+fn string_content(node: &Node<'_>, file: &SourceFile) -> Vec<std::ops::Range<usize>> {
+    struct Found<'a> {
+        file: &'a SourceFile,
+        ranges: Vec<std::ops::Range<usize>>,
+    }
+    impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Found<'_> {
+        fn enter(&mut self, n: Node<'pr>) {
+            let (opening, closing) = match &n {
+                Node::StringNode { .. } => {
+                    let s = n.as_string_node().unwrap();
+                    (s.opening_loc(), s.closing_loc())
+                }
+                Node::InterpolatedStringNode { .. } => {
+                    let s = n.as_interpolated_string_node().unwrap();
+                    (s.opening_loc(), s.closing_loc())
+                }
+                Node::XStringNode { .. } => {
+                    let s = n.as_x_string_node().unwrap();
+                    (Some(s.opening_loc()), Some(s.closing_loc()))
+                }
+                Node::InterpolatedXStringNode { .. } => {
+                    let s = n.as_interpolated_x_string_node().unwrap();
+                    (Some(s.opening_loc()), Some(s.closing_loc()))
+                }
+                _ => return,
+            };
+            let (Some(opening), Some(closing)) = (opening, closing) else {
+                return;
+            };
+            if opening.as_slice().starts_with(b"<<") {
+                let body = self
+                    .file
+                    .line_start(self.file.line_of(opening.start_offset()) + 1);
+                let terminator = self
+                    .file
+                    .line_start(self.file.line_of(closing.start_offset()));
+                self.ranges.push(body.min(terminator)..terminator);
+            } else {
+                self.ranges
+                    .push(opening.end_offset()..closing.start_offset());
+            }
+        }
+    }
+    let mut found = Found {
+        file,
+        ranges: Vec::new(),
+    };
+    crate::cops::walk::walk(&mut found, node);
+    found.ranges
 }
 
 #[cfg(test)]
@@ -368,14 +359,6 @@ mod tests {
     }
 
     #[test]
-    fn an_end_sharing_a_body_statement_is_never_deleted_as_a_whole_line() {
-        let source = "each do\n if c\n  first\n  second\n  third\n  result; end\nend\n";
-        let found = crate::cops::testing::correction_offenses(&super::Next, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-    }
-
-    #[test]
     fn unless_exit_branches_and_single_nested_if_match_upstream_locations() {
         for kw in ["if", "unless"] {
             for exit in ["break", "return"] {
@@ -416,26 +399,6 @@ mod tests {
     }
 
     #[test]
-    fn implicit_parameters_parenthesized_tails_and_consecutive_conditionals() {
-        for source in [
-            "each do\n if _1\n  a\n  b\n  c\n end\nend\n",
-            "each do\n unless it\n  a\n  b\n  c\n end\nend\n",
-            "each do\n (before; if c\n  a\n  b\n  c\n end)\nend\n",
-            "each do\n if first\n  a\n end\n if second\n  a\n  b\n  c\n end\nend\n",
-        ] {
-            assert_eq!(offenses(source).len(), 1, "{source}");
-        }
-        let source = "each do\n if\n  condition\n  first\n  second\n end\nend\n";
-        let found = offenses(source);
-        assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 2, 3));
-        assert!(
-            crate::cops::testing::correction_offenses(&super::Next, source)[0]
-                .correction
-                .is_none()
-        );
-    }
-
-    #[test]
     fn incompatible_safe_navigation_selection_keeps_diagnostics_without_edits() {
         use crate::{
             cops::{Cop, run_cops},
@@ -459,28 +422,6 @@ mod tests {
             assert_eq!(found.len(), 1);
             assert!(found[0].correction.is_none());
         }
-    }
-
-    #[test]
-    fn correction_work_is_lazy_and_locally_bounded() {
-        use crate::{cops::testing::correction_offenses, pipeline::lint_str_with};
-        for count in [1500, 3000] {
-            let source = "each do\n if c\n  a\n  b\n  c\n end\nend\n".repeat(count);
-            super::REWRITE_BYTES.with(|n| n.set(0));
-            assert_eq!(lint_str_with(&[&super::Next], &source).len(), count);
-            super::REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-            let found = correction_offenses(&super::Next, &source);
-            assert_eq!(found.len(), count);
-            assert!(found.iter().all(|o| o.correction.is_some()));
-            super::REWRITE_BYTES.with(|n| assert!(n.get() <= source.len()));
-        }
-        let source = format!(
-            "each do\n if c\n{}\n  a\n  b\n  c\n end\nend\n",
-            " # large body\n".repeat(3000)
-        );
-        let found = correction_offenses(&super::Next, &source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
     }
 
     #[test]

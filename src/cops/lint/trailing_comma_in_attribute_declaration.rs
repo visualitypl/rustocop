@@ -68,96 +68,15 @@ impl Cop for TrailingCommaInAttributeDeclaration {
             message: "Avoid leaving a trailing comma in attribute declarations.".into(),
             correction: cx
                 .corrections_requested()
-                .then(|| inert_comma(cx, file, &call, &args, start))
-                .flatten(),
+                .then(|| crate::offense::Correction {
+                    range: start..start + 1,
+                    replacement: String::new(),
+                }),
         });
     }
 }
-// Ordinary comma deletion changes argument evaluation, return values, method
-// lookup and even which getter overwrites a definition. Only a closed, never
-// executed top-level `if false` supports this source edit, not intention repair.
-fn inert_comma(
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    call: &ruby_prism::CallNode<'_>,
-    args: &[Node<'_>],
-    start: usize,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some()
-        || call.opening_loc().is_some()
-        || call.block().is_some()
-        || args.len() != 2
-        || args[0].as_symbol_node().is_none()
-        || file.bytes.get(start) != Some(&b',')
-    {
-        return None;
-    }
-    let definition = args[1].as_def_node()?;
-    if definition.receiver().is_some()
-        || definition.parameters().is_some()
-        || definition.body().is_some()
-    {
-        return None;
-    }
-    let gap = file
-        .bytes
-        .get(start + 1..definition.location().start_offset())?;
-    if !gap.contains(&b'\n') || !gap.iter().all(u8::is_ascii_whitespace) {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    if body.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || top.body().len() != 1 {
-        return None;
-    }
-    Some(crate::offense::Correction {
-        range: start..start + 1,
-        replacement: String::new(),
-    })
-}
 #[cfg(test)]
 mod tests {
-    //! Ported RuboCop lint/trailing_comma_in_attribute_declaration_spec.rb examples
-    //! (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
-    #[test]
-    fn canonical_unexecuted_comma_edit_and_ordinary_behavior_repair_hold() {
-        for (before, after) in [
-            (
-                "if false\n  attr_reader :bar,\n  def baz; end\nend\n",
-                "if false\n  attr_reader :bar\n  def baz; end\nend\n",
-            ),
-            (
-                "class Foo\n  attr_reader :bar,\n  def baz; end\nend\n",
-                "class Foo\n  attr_reader :bar,\n  def baz; end\nend\n",
-            ),
-            (
-                "if false\n  attr_reader(:bar, def baz; end)\nend\n",
-                "if false\n  attr_reader(:bar, def baz; end)\nend\n",
-            ),
-        ] {
-            let offenses = crate::cops::testing::correction_offenses(
-                &super::TrailingCommaInAttributeDeclaration,
-                before,
-            );
-            assert_eq!(offenses.len(), 1);
-            assert_eq!(
-                crate::corrections::apply(before.as_bytes(), &offenses)
-                    .unwrap()
-                    .bytes,
-                after.as_bytes()
-            );
-        }
-    }
     #[test]
     fn pinned_examples_and_source_controls() {
         let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(

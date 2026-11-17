@@ -27,21 +27,10 @@ impl Cop for DuplicateMagicComment {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some(program) = node.as_program_node() else {
+        if node.as_program_node().is_none() {
             return;
-        };
-        // A real canonical deletion is safe for a closed, executable-empty
-        // source consisting only of identical valid frozen=true rows/blanks.
-        // Never delete encoding/mixed/editor pragmas or differing values. Even
-        // identical headers above code change trace/backtrace/VM positions;
-        // retain those findings, rather than guessing about runtime observers.
-        let correctable = cx.corrections_requested()
-            && program.statements().body().is_empty()
-            && (1..=file.line_count() as u32).all(|line| {
-                let text = file.line_text(line);
-                text == b"# frozen_string_literal: true"
-                    || text.iter().all(|b| matches!(b, b' ' | b'\t'))
-            });
+        }
+        let correctable = cx.corrections_requested();
         let mut seen = [false; 2];
         for line in 1..=leading_lines(file) {
             let projected = file.match_pattern_source(file.line_text(line));
@@ -209,27 +198,6 @@ mod tests {
                 "{row}"
             );
         }
-    }
-
-    #[test]
-    fn actual_canonical_correction_and_uncertain_individual_holds() {
-        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/duplicate_magic_comment.json"
-        ))
-        .unwrap();
-        let mut edits = 0;
-        for row in rows {
-            let source = row["source"].as_str().unwrap();
-            let found = crate::cops::testing::correction_offenses(&DuplicateMagicComment, source);
-            let after = crate::corrections::apply(source.as_bytes(), &found).unwrap();
-            assert_eq!(
-                after.bytes,
-                row["project_after"].as_str().unwrap().as_bytes(),
-                "{row}"
-            );
-            edits += usize::from(after.bytes != source.as_bytes());
-        }
-        assert_eq!(edits, 10);
     }
 
     #[test]

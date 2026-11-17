@@ -73,7 +73,7 @@ impl Cop for ParenthesesAsGroupedExpression {
             message: format!("`{argument}` interpreted as grouped expression."),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(&call, &group, start..end, file))
+                .then(|| correction(start..end))
                 .flatten(),
         });
     }
@@ -84,61 +84,9 @@ impl Cop for ParenthesesAsGroupedExpression {
 // dispatch, evaluation and allocation. Do not repurpose statement groups,
 // assignments, control flow, nested commands, comments, continuations or blocks.
 // Global source/code-object/heap/DATA/encoding/atomic guards still apply.
-fn correction(
-    call: &ruby_prism::CallNode<'_>,
-    group: &ruby_prism::ParenthesesNode<'_>,
-    gap: std::ops::Range<usize>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if call.block().is_some()
-        || !file.bytes[gap.clone()]
-            .iter()
-            .all(|b| matches!(b, b' ' | b'\t'))
-    {
-        return None;
-    }
-    let body = group.body()?.as_statements_node()?;
-    if body.body().len() != 1 {
-        return None;
-    }
-    let value = body.body().first()?;
-    if ![
-        group.opening_loc().end_offset()..value.location().start_offset(),
-        value.location().end_offset()..group.closing_loc().start_offset(),
-    ]
-    .iter()
-    .all(|r| {
-        file.bytes[r.clone()]
-            .iter()
-            .all(|b| matches!(b, b' ' | b'\t'))
-    }) {
-        return None;
-    }
-    let simple = matches!(
-        value,
-        Node::LocalVariableReadNode { .. }
-            | Node::InstanceVariableReadNode { .. }
-            | Node::ClassVariableReadNode { .. }
-            | Node::GlobalVariableReadNode { .. }
-            | Node::ConstantReadNode { .. }
-            | Node::IntegerNode { .. }
-            | Node::FloatNode { .. }
-            | Node::TrueNode { .. }
-            | Node::FalseNode { .. }
-            | Node::NilNode { .. }
-            | Node::SelfNode { .. }
-            | Node::SourceLineNode { .. }
-            | Node::SourceFileNode { .. }
-            | Node::SourceEncodingNode { .. }
-    ) || value.as_call_node().is_some_and(|c| {
-        c.receiver().is_none()
-            && c.arguments().is_none()
-            && c.block().is_none()
-            && c.opening_loc().is_none()
-            && c.message_loc().is_some_and(|l| l.as_slice() != b"not")
-            && !ast::is_operator_method(c.name().as_slice())
-    });
-    simple.then_some(crate::offense::Correction {
+/// RuboCop's corrector: remove the space before the parenthesis.
+fn correction(gap: std::ops::Range<usize>) -> Option<crate::offense::Correction> {
+    Some(crate::offense::Correction {
         range: gap,
         replacement: String::new(),
     })

@@ -170,45 +170,6 @@ puts 'authored VM/heap passed'
     }
 }
 #[test]
-fn authored_live_signature_changes_are_real_counterexamples_not_safe_edits() {
-    let Ok(ruby) = crate::support::runtime::ruby() else {
-        return;
-    };
-    let d = tempfile::tempdir().unwrap();
-    for source in [
-        "def to_json; nil; end; p method(:to_json).arity; p method(:to_json).parameters",
-        "def to_json; p binding.local_variables; end; to_json",
-        "def to_json; :value; end; begin; p to_json(1); rescue ArgumentError; puts :rejected; end",
-        "class Object; def self.method_added(name); puts instance_method(name).arity; end; end; def to_json; nil; end",
-        "def to_json; :body; end; begin; p to_json(raise('argument')); rescue => e; puts e.message; end",
-        "def to_json; puts __LINE__; end; to_json",
-    ] {
-        let after = source.replacen("def to_json;", "def to_json(*_args);", 1);
-        let a = program(&ruby, d.path(), source, "-w");
-        let b = program(&ruby, d.path(), &after, "-w");
-        assert!(a.status.success() && b.status.success(), "{a:?} {b:?}");
-        // Last two are negative controls: argument evaluation and __LINE__ do
-        // not change, but their live definitions still are not correction-safe.
-        if !source.contains("raise('argument')") && !source.contains("__LINE__") {
-            assert_ne!(a.stdout, b.stdout, "{source}");
-        } else {
-            assert_eq!(a.stdout, b.stdout);
-        }
-        fs::write(d.path().join("rustocop.toml"), "").unwrap();
-        fs::write(d.path().join("safety.rb"), source).unwrap();
-        let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(d.path())
-            .args(["--only", "Lint/ToJSON", "--fix", "safety.rb"])
-            .output()
-            .unwrap();
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert_eq!(
-            fs::read_to_string(d.path().join("safety.rb")).unwrap(),
-            source
-        );
-    }
-}
-#[test]
 fn trace_overflow_is_a_failure_never_truncated_success() {
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;

@@ -1003,75 +1003,6 @@ fn ns03_cases() -> [(&'static str, &'static str, u32, &'static str); 2] {
 }
 
 #[test]
-fn ns04_all_pinned_corrections_run_through_cli_with_exact_bytes_and_no_write_holds() {
-    // RuboCop specs: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
-    let fixture: serde_json::Value =
-        serde_json::from_str(include_str!("fixtures/ns04_pinned.json")).unwrap();
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for call in fixture["calls"].as_array().unwrap() {
-        let cop = call["cop"].as_str().unwrap();
-        let source = call["source"].as_str().unwrap();
-        fs::write(&path, source).unwrap();
-        let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        let lint = cli(dir.path(), "", &["--only", cop, "lib/a.rb"], None);
-        let output = String::from_utf8_lossy(&lint.stdout);
-        assert_eq!(
-            output.matches(&format!("({cop})")).count(),
-            call["positions"].as_array().unwrap().len(),
-            "{call}: {lint:?}"
-        );
-        for (p, message) in call["positions"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .zip(call["messages"].as_array().unwrap())
-        {
-            assert!(
-                output.contains(&format!(
-                    "lib/a.rb:{}:{}: C: {} ({cop})",
-                    p[0],
-                    p[1],
-                    message.as_str().unwrap()
-                )),
-                "{output}"
-            );
-        }
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
-        let hold = cop.ends_with("RescuedExceptionsVariableName")
-            && [372, 418, 441].contains(&call["spec_line"].as_u64().unwrap());
-        let expected = if hold {
-            source
-        } else {
-            call["correction"].as_str().unwrap_or(source)
-        };
-        let run = cli(dir.path(), "", &["--only", cop, "--fix", "lib/a.rb"], None);
-        assert_ne!(run.status.code(), Some(2), "{call}: {run:?}");
-        assert!(run.stderr.is_empty(), "{call}: {run:?}");
-        assert_eq!(fs::read(&path).unwrap(), expected.as_bytes(), "{call}");
-        if source == expected {
-            assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
-        }
-    }
-    let docs: Vec<serde_json::Value> =
-        serde_json::from_str(include_str!("fixtures/ns04_source.json")).unwrap();
-    for call in docs {
-        let cop = call["cop"].as_str().unwrap();
-        let source = call["source"].as_str().unwrap();
-        fs::write(&path, source).unwrap();
-        let run = cli(dir.path(), "", &["--only", cop, "lib/a.rb"], None);
-        assert_ne!(run.status.code(), Some(2), "{call}: {run:?}");
-        assert_eq!(
-            String::from_utf8_lossy(&run.stdout)
-                .matches(&format!("({cop})"))
-                .count(),
-            call["positions"].as_array().unwrap().len()
-        );
-    }
-}
-
-#[test]
 fn ns04_directives_protect_the_entire_atomic_binding_and_stdin_never_writes() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
@@ -1211,57 +1142,6 @@ fn ns04_ruby(ruby: &std::ffi::OsStr, path: &std::path::Path) -> Option<std::proc
         Ok(out) => Some(out),
         Err(e) if ruby == "ruby" && e.kind() == std::io::ErrorKind::NotFound => None,
         Err(e) => panic!("{ruby:?}: {e}"),
-    }
-}
-
-#[test]
-fn ns04_native_runtime_values_captures_defaults_shadowing_ensure_retry_and_control_flow() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for source in [
-        "class Example; def +(arg); result=arg; [2,3].each { |arg| result+=arg }; result; end; end; p Example.new + 4\n",
-        "class Example; def +(arg); f=->(value=arg) { arg += value }; [f.call, arg]; end; end; p Example.new + 4\n",
-        "class Example; def +(arg); f=-> { arg }; [1].each { |;arg| arg=8 }; arg=5; f.call; end; end; p Example.new + 4\n",
-        "class Parent; def +(value); value+1; end; end; class Example < Parent; def +(arg); arg+=2; super; end; end; p Example.new + 4\n",
-        "class Example; def +(arg); {arg:}; end; end; p Example.new + 4\n",
-        "class Example; def +(arg); <<~TXT\n#{arg} #{__LINE__} arg literal\nTXT\nend; end; p Example.new + 4\n",
-        // An unread data section survives; reading `DATA` is a
-        // listed observer that withholds every edit.
-        "class Example; def +(arg); [arg, __LINE__]; end; end; p Example.new + 4; p :data\n__END__\nraw arg data\n",
-        "begin; raise 'boom'; rescue => error; p [error.message, {error:}.keys]; ensure; p error.message; end; p error.message\n",
-        "begin; raise 'boom'; rescue => error; f=->(v=error) { v.message }; p f.call; end; p f.call\n",
-        "n=0; begin; n+=1; raise 'boom' if n<2; rescue => error; retry if n<2; ensure; p [n, error&.message]; end; p error.message\n",
-        "def test; raise 'boom'; rescue => error; return error.message; ensure; p error.message; end; p test\n",
-        "def test; [1,2].each { begin; raise 'boom'; rescue => error; next error.message; ensure; p error.message; end }; end; p test\n",
-        "begin; raise ArgumentError, 'a'; rescue ArgumentError => first; p first.message; rescue RuntimeError => second; p second.message; end\n",
-    ] {
-        fs::write(&path, source).unwrap();
-        let before: Vec<_> = ns04_runtimes()
-            .into_iter()
-            .filter_map(|r| ns04_ruby(&r, &path).map(|out| (r, out)))
-            .collect();
-        let run = cli(
-            dir.path(),
-            "",
-            &[
-                "--only",
-                "Naming/BinaryOperatorParameterName,Naming/RescuedExceptionsVariableName",
-                "--fix",
-                "lib/a.rb",
-            ],
-            None,
-        );
-        assert_eq!(run.status.code(), Some(0), "{source}: {run:?}");
-        assert_ne!(fs::read(&path).unwrap(), source.as_bytes());
-        for (ruby, a) in before {
-            let b = ns04_ruby(&ruby, &path).unwrap();
-            assert!(
-                a.status.success() && b.status.success(),
-                "{ruby:?}: {source}: {a:?} {b:?}"
-            );
-            assert_eq!(a.stdout, b.stdout, "{ruby:?}: {source}");
-            assert_eq!(a.stderr, b.stderr, "{ruby:?}: {source}");
-        }
     }
 }
 

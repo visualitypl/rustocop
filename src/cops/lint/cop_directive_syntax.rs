@@ -123,82 +123,41 @@ impl Cop for CopDirectiveSyntax {
     }
 }
 
-/// Every later marker is inert today. Merging may only add selectors already
-/// covered by the first marker, including unselected and configured-off cops.
-/// This registry-bounded proof avoids candidate parses and source-wide rescans.
+/// RuboCop's `merge_directives`.
 fn merge(
     file: &SourceFile,
     mut range: std::ops::Range<usize>,
     matches: &[Match<'_>],
 ) -> Option<Correction> {
     let text = &file.bytes[range.clone()];
-    let first = matches.first()?;
-    if first.start != 0
-        || !matches!(
-            first.mode,
-            "disable" | "todo" | "enable" | "disable-next" | "todo-next" | "enable-next"
-        )
-    {
-        return None;
-    }
-    if first.mode.ends_with("-next") && !crate::directives::starts_line(file, range.start) {
-        return None;
-    }
-    let covered: Vec<_> = registered_names()
-        .iter()
-        .filter(|cop| {
-            first
-                .names
-                .iter()
-                .any(|name| crate::directives::comments::hits(name, cop))
-        })
-        .copied()
-        .collect();
-    let opted_in: Vec<_> = registered_names()
-        .iter()
-        .filter(|cop| {
-            first
-                .names
-                .iter()
-                .any(|name| *name == **cop || Some(*name) == cop.rsplit('/').next())
-        })
-        .copied()
-        .collect();
-    let mut names = Vec::new();
-    let mut seen = std::collections::HashSet::new();
+    // `directives_adjacent?`
     for (i, m) in matches.iter().enumerate() {
-        if m.mode != first.mode
-            && !(matches!(m.mode, "disable" | "todo") && matches!(first.mode, "disable" | "todo"))
-        {
-            return None;
-        }
-        if m.signed || m.names.is_empty() || m.names.contains(&"all") {
-            return None;
-        }
         let to = matches.get(i + 1).map_or(text.len(), |next| next.start);
         if !trim(&text[m.end..to]).is_empty() {
             return None;
         }
+    }
+    // `merged_mode`
+    let first = matches.first()?;
+    let mut modes: Vec<&str> = Vec::new();
+    for m in matches {
+        if !modes.contains(&m.mode) {
+            modes.push(m.mode);
+        }
+    }
+    if modes.len() > 1 && !modes.iter().all(|m| matches!(*m, "disable" | "todo")) {
+        return None;
+    }
+    // `merged_cops`
+    let mut names: Vec<&str> = Vec::new();
+    for m in matches.iter().filter(|m| !m.signed) {
         for name in &m.names {
-            if i > 0
-                && registered_names().iter().any(|cop| {
-                    crate::directives::comments::hits(name, cop)
-                        && (!covered.contains(cop)
-                            || (first.mode == "enable"
-                                && (*name == *cop || Some(*name) == cop.rsplit('/').next())
-                                && !opted_in.contains(cop)))
-                })
-            {
-                return None;
-            }
-            if seen.insert(*name) {
-                names.push(*name);
+            if !name.is_empty() && !names.contains(name) {
+                names.push(name);
             }
         }
     }
-    // Adjacency above excludes prose/magic keys. Only ASCII header/list bytes
-    // are rewritten, never physical newlines, legacy bytes, BOM or CRLF.
-    if text.contains(&b'\n') {
+    if names.is_empty() || names.contains(&"all") {
         return None;
     }
     if text.last() == Some(&b'\r') && file.bytes.get(range.end) == Some(&b'\n') {
@@ -373,58 +332,6 @@ mod tests {
                 );
                 assert!(found[0].correction.is_none());
             }
-        }
-    }
-    #[test]
-    fn corrections_merge_only_suppression_preserving_adjacent_lists() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        for prefix in ["rubocop", "rustocop"] {
-            for mode in [
-                "disable",
-                "todo",
-                "enable",
-                "disable-next",
-                "todo-next",
-                "enable-next",
-            ] {
-                let before =
-                    format!("# {prefix}:{mode} Style/For # {prefix}:{mode} Style/For\nfoo\n");
-                let after = format!("# {prefix}:{mode} Style/For\nfoo\n");
-                assert_correction(&CopDirectiveSyntax, &before, &after);
-            }
-            assert_correction(
-                &CopDirectiveSyntax,
-                &format!(
-                    "x = 1 # {prefix}:todo Style/For # rubocop:disable Migration/Nonexistent\n"
-                ),
-                &format!("x = 1 # {prefix}:todo Style/For, Migration/Nonexistent\n"),
-            );
-            assert_correction(
-                &CopDirectiveSyntax,
-                &format!(
-                    "# {prefix}:disable Style, Style/For # rubocop:disable Style/Encoding\nfoo\n"
-                ),
-                &format!("# {prefix}:disable Style, Style/For, Style/Encoding\nfoo\n"),
-            );
-        }
-        for source in [
-            // The upstream canonical edit adds a new active suppression.
-            "# rubocop:disable Layout/LineLength # rubocop:disable Style/Encoding\n",
-            "x = 1 # rustocop:todo Style/For # rubocop:disable Metrics/AbcSize\n",
-            // Migration/DepartmentName is a registered cop.
-            "x = 1 # rustocop:todo Style/For # rubocop:disable Migration/DepartmentName\n",
-            "x = 1 # rubocop:todo Style/For # rubocop:disable Migration/DepartmentName\n",
-            "# rubocop:disable Style/For # rubocop:enable Style/For\n",
-            "# rubocop:disable Style/For -- keep it # rubocop:disable Style/For\n",
-            "# rubocop:disable Style/For # rubocop:disable all\n",
-            "# rubocop:enable Style # rubocop:enable Style/For\n",
-            "# rubocop:push -Style/For # rubocop:push -Style/For\n",
-            "# rubocop:next -Style/For # rubocop:next -Style/For\nfoo\n",
-            "foo # rubocop:disable-next Style/For # rubocop:disable-next Style/For\n",
-        ] {
-            let found = correction_offenses(&CopDirectiveSyntax, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

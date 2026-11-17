@@ -1,6 +1,6 @@
 //! `Style/RedundantRegexpArgument` — deterministic regexp arguments.
 use crate::{
-    cops::{Cop, NodeContext, ast},
+    cops::{Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -158,41 +158,6 @@ fn preferred(raw: &[u8], single_quotes: bool) -> Option<String> {
         value = result;
     }
     Some(format!("{quote}{value}{quote}"))
-}
-// String-pattern scan/sub/gsub retain match state for this narrow literal subset.
-// Other methods, backslash patterns, blocks and unknown dispatch are detection-only.
-pub(super) fn trusted_call(call: &ruby_prism::CallNode<'_>) -> bool {
-    let method = call.name().as_slice();
-    if !matches!(method, b"scan" | b"sub" | b"sub!" | b"gsub" | b"gsub!")
-        || call.block().is_some()
-        || !call
-            .receiver()
-            .and_then(|n| n.as_string_node())
-            .is_some_and(|n| n.unescaped().is_ascii())
-    {
-        return false;
-    }
-    let args = ast::call_arguments(call);
-    if args.len() != if method == b"scan" { 1 } else { 2 } {
-        return false;
-    }
-    let string = args[0].as_string_node();
-    let pattern = if let Some(r) = args[0].as_regular_expression_node() {
-        if r.opening_loc().as_slice() != b"/" || r.closing_loc().as_slice() != b"/" {
-            return false;
-        }
-        r.content_loc().as_slice()
-    } else if let Some(s) = &string {
-        s.unescaped()
-    } else {
-        return false;
-    };
-    !pattern.is_empty()
-        && pattern.iter().all(u8::is_ascii_alphanumeric)
-        && (args.len() == 1
-            || args[1]
-                .as_string_node()
-                .is_some_and(|s| s.unescaped().is_ascii() && !s.unescaped().contains(&b'\\')))
 }
 #[cfg(test)]
 mod tests {

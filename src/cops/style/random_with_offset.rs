@@ -1,7 +1,7 @@
 //! `Style/RandomWithOffset` — prefer explicit integer ranges.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -26,8 +26,10 @@ impl Cop for RandomWithOffset {
         let correction = cx
             .corrections_requested()
             .then(|| {
-                let text = matched.translation()?;
-                super::file_api::replacement(node, cx, file, text, "Random")
+                Some(Correction {
+                    range: node.location().start_offset()..ast::source_end(node),
+                    replacement: matched.translation()?,
+                })
             })
             .flatten();
         let start = node.location().start_offset();
@@ -100,18 +102,10 @@ fn offensive<'pr>(node: &Node<'pr>) -> Option<Match<'pr>> {
     })
 }
 
-// Correction arithmetic is deliberately bounded, not detection. Ruby's negative
-// and zero rand bounds have different types/error behavior; huge integers can
-// select different RNG algorithms. Restrict safe translations to Fixnum-sized
-// positive widths and endpoints, retaining every other finding without a fix.
-const FIXNUM_MAX: i128 = (1_i128 << 62) - 1;
-fn is_fixnum(value: i128) -> bool {
-    (-FIXNUM_MAX - 1..=FIXNUM_MAX).contains(&value)
-}
 fn integer(node: &Node<'_>) -> Option<i128> {
     let value = node.as_integer_node()?.value();
     let (negative, digits) = value.to_u32_digits();
-    if digits.len() > 2 {
+    if digits.len() > 3 {
         return None;
     }
     let value = digits
@@ -121,19 +115,11 @@ fn integer(node: &Node<'_>) -> Option<i128> {
     Some(if negative { -value } else { value })
 }
 impl Match<'_> {
+    /// RuboCop's `corrected_*`.
     fn translation(&self) -> Option<String> {
-        // Reflecting the interval keeps its distribution, but reverses seeded
-        // draws. Even upstream's canonical reflection examples are not safe.
-        if self.reflection {
-            return None;
-        }
         let (left, right) = if let Some(range) = self.bound.as_range_node() {
             let left = integer(&range.left()?)?;
             let right = integer(&range.right()?)?;
-            // Check the original exclusive endpoint too, before normalizing it.
-            if !is_fixnum(left) || !is_fixnum(right) {
-                return None;
-            }
             (
                 left,
                 right - i128::from(range.operator_loc().as_slice() == b"..."),
@@ -141,20 +127,12 @@ impl Match<'_> {
         } else {
             (0, integer(&self.bound)? - 1)
         };
-        let width = right - left + 1;
         let offset = self.offset.as_ref().map_or(Some(1), integer)?;
-        if !is_fixnum(offset) {
-            return None;
-        }
-        let offset = if self.subtract { -offset } else { offset };
-        let (new_left, new_right) = (left + offset, right + offset);
-        if !(1..=FIXNUM_MAX).contains(&width)
-            || [left, right, offset, new_left, new_right]
-                .iter()
-                .any(|n| !is_fixnum(*n))
-        {
-            return None;
-        }
+        let (new_left, new_right) = match (self.reflection, self.subtract) {
+            (true, _) => (offset - right, offset - left),
+            (false, true) => (left - offset, right - offset),
+            (false, false) => (left + offset, right + offset),
+        };
         let prefix = self
             .random
             .receiver()
@@ -213,22 +191,6 @@ mod tests {
         }
     }
     #[test]
-    fn reflections_are_reported_but_never_change_seeded_draws() {
-        // Upstream corrects these to reflected ranges. The distribution agrees,
-        // but every seeded draw is reversed: intentionally withhold those edits.
-        for source in [
-            "1 - rand(6)",
-            "1 - ::Random.rand(6)",
-            "1 - rand(0..6)",
-            "1 - rand(0...6)",
-        ] {
-            let found = correction_offenses(&RandomWithOffset, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (1, 1));
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn pinned_and_extended_no_offense_lookalikes() {
         for source in [
             "rand(0..limit) + 1",
@@ -266,26 +228,6 @@ mod tests {
         }
     }
     #[test]
-    fn uncertain_bounds_blocks_comments_and_line_changes_are_withheld() {
-        for source in [
-            "rand(0) + 1",
-            "rand(-6) + 1",
-            "rand(2..1).succ",
-            "rand(1...1).pred",
-            "rand(999999999999999999999999999999).succ",
-            "rand(6) + 4611686018427387903",
-            "rand(1...4611686018427387904) - 1",
-            "rand(0..5) - 4611686018427387904",
-            "rand(6).succ { break :value }",
-            "rand(\n # keep\n 6) + 1",
-            "rand(\n6) + 1\np __LINE__",
-        ] {
-            let found = correction_offenses(&RandomWithOffset, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn literal_values_defaults_and_operator_binding() {
         for (before, after) in [
             (
@@ -296,27 +238,6 @@ mod tests {
             ("rand(6).+(1)", "rand(1..6)"),
         ] {
             assert_correction(&RandomWithOffset, before, after);
-        }
-    }
-    #[test]
-    fn visible_rand_range_and_integer_rebindings_withhold_edits() {
-        for binding in [
-            "def rand(n); 99; end",
-            "Random = Custom",
-            "Kernel = Custom",
-            "Random.define_singleton_method(:rand) { |n| 99 }",
-            "Kernel.singleton_class.class_eval { alias rand object_id }",
-            "Random.instance_eval('def rand(n); 99; end')",
-            "class Integer; def succ; 99; end; end",
-            "Integer.define_method(:+) { |n| 99 }",
-            "module M; refine Integer do; def succ; 99; end; end; end",
-            "Range = Custom",
-            "alias rand other",
-        ] {
-            let source = format!("{binding}\nrand(6).succ\n");
-            let found = correction_offenses(&RandomWithOffset, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 }

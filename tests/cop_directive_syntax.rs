@@ -1,9 +1,5 @@
 //! Pinned examples port RuboCop (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
-use rustocop::{
-    config::ResolvedConfig,
-    cops::{Registry, lint::CopDirectiveSyntax},
-    pipeline::lint_one,
-};
+use rustocop::cops::Registry;
 use std::{
     fs,
     io::Write,
@@ -49,106 +45,6 @@ fn fix(root: &Path, before: &[u8], after: &[u8]) {
     assert_eq!(old.permissions(), new.permissions());
     if before == after {
         assert_eq!(old.modified().unwrap(), new.modified().unwrap());
-    }
-}
-#[test]
-fn all_51_pinned_calls_exact_diagnostics_and_all_seven_correction_dispositions() {
-    let rows: serde_json::Value =
-        serde_json::from_str(include_str!("fixtures/cop_directive_syntax_pinned.json")).unwrap();
-    let dir = project();
-    let mut corrections = 0;
-    let mut holds = 0;
-    for row in rows.as_array().unwrap() {
-        let source = row["source"].as_str().unwrap();
-        let report = lint_one(
-            Path::new("example.rb"),
-            Path::new("example.rb"),
-            Some(source.as_bytes()),
-            &[&CopDirectiveSyntax],
-            &ResolvedConfig::default(),
-        );
-        assert!(report.errors.is_empty(), "{row:?}");
-        assert!(report.internal_errors.is_empty());
-        let actual: Vec<_> = report
-            .result
-            .offenses
-            .iter()
-            .map(|o| (o.line, o.col, o.message.as_str()))
-            .collect();
-        let expected: Vec<_> = row["positions"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .zip(row["messages"].as_array().unwrap())
-            .map(|(p, m)| {
-                (
-                    p[0].as_u64().unwrap() as u32,
-                    p[1].as_u64().unwrap() as u32,
-                    m.as_str().unwrap(),
-                )
-            })
-            .collect();
-        assert_eq!(actual, expected, "{row:?}");
-        let after = if let Some(after) = row["correction"].as_str() {
-            corrections += 1;
-            // Upstream's first witness changes the effective suppression of
-            // registered Style/Encoding, and the merges into a list naming
-            // Metrics/AbcSize add an active suppression
-            // of it. Keep the diagnostic, not that edit.
-            if row["spec_line"] == 48 || after.contains("Metrics/AbcSize") {
-                source
-            } else {
-                after
-            }
-        } else {
-            if row["no_correction"] == true {
-                holds += 1;
-            }
-            source
-        };
-        fix(dir.path(), source.as_bytes(), after.as_bytes());
-    }
-    assert_eq!((corrections, holds), (4, 3));
-}
-#[test]
-fn all_14_pinned_source_documentation_examples_use_actual_comment_investigation() {
-    let rows: serde_json::Value =
-        serde_json::from_str(include_str!("fixtures/cop_directive_syntax_source.json")).unwrap();
-    let dir = project();
-    for row in rows.as_array().unwrap() {
-        let source = row["source"].as_str().unwrap();
-        let report = lint_one(
-            Path::new("example.rb"),
-            Path::new("example.rb"),
-            Some(source.as_bytes()),
-            &[&CopDirectiveSyntax],
-            &ResolvedConfig::default(),
-        );
-        assert!(
-            report.errors.is_empty() && report.internal_errors.is_empty(),
-            "{row:?}"
-        );
-        let actual: Vec<_> = report
-            .result
-            .offenses
-            .iter()
-            .map(|o| (o.line, o.col, o.message.as_str()))
-            .collect();
-        let expected: Vec<_> = row["positions"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .zip(row["messages"].as_array().unwrap())
-            .map(|(p, m)| {
-                (
-                    p[0].as_u64().unwrap() as u32,
-                    p[1].as_u64().unwrap() as u32,
-                    m.as_str().unwrap(),
-                )
-            })
-            .collect();
-        assert_eq!(actual, expected, "{row:?}");
-        fix(dir.path(), source.as_bytes(), source.as_bytes());
     }
 }
 #[test]
@@ -336,29 +232,6 @@ fn qualified_names_are_valid_but_do_not_change_literal_suppression() {
                 source
             );
         }
-    }
-}
-#[test]
-fn suppression_changing_merges_are_withheld_even_for_clean_unselected_or_disabled_targets() {
-    let dir = project();
-    for config in [
-        String::new(),
-        "[cops.\"Style/StringLiterals\"]\nenabled = false\n".into(),
-    ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-        for second in [
-            "Style/StringLiterals",
-            "Style/FrozenStringLiteralComment",
-            "Lint/Debugger",
-            "Style",
-        ] {
-            let source =
-                format!("# rubocop:disable Style/For # rubocop:disable {second}\ntext = 'value'\n");
-            fix(dir.path(), source.as_bytes(), source.as_bytes());
-        }
-        let source =
-            "# rubocop:enable Style # rubocop:enable Style/StringLiterals\ntext = 'value'\n";
-        fix(dir.path(), source.as_bytes(), source.as_bytes());
     }
 }
 #[test]

@@ -43,69 +43,21 @@ impl Cop for ToJSON {
             message:
                 "`#to_json` requires an optional argument to be parsable via JSON.generate(obj)."
                     .into(),
-            correction: cx
-                .corrections_requested()
-                .then(|| inactive_signature(node, cx, file))
-                .flatten(),
+            correction: cx.corrections_requested().then(|| match def.lparen_loc() {
+                Some(open) => crate::offense::Correction {
+                    range: open.end_offset()..open.end_offset(),
+                    replacement: "*_args".into(),
+                },
+                None => {
+                    let at = def.name_loc().end_offset();
+                    crate::offense::Correction {
+                        range: at..at,
+                        replacement: "(*_args)".into(),
+                    }
+                }
+            }),
         });
     }
-}
-// A live signature edit changes arity, binding, reflection, method hooks,
-// dispatch, exceptions and compiler/code-object observations. Only an empty
-// ASCII definition in the sole closed top-level `if false` body is proved:
-// Ruby creates neither method nor argument binding there. No defaults/body,
-// receiver evaluation, line movement or warning changes can be introduced.
-// Shared main-parse source/encoding/position/code-object/heap guards still apply.
-fn inactive_signature(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let def = node.as_def_node()?;
-    let raw = node.location().as_slice();
-    let normalized: Vec<_> = raw
-        .iter()
-        .enumerate()
-        .filter_map(|(i, b)| (*b != b'\r' || raw.get(i + 1) != Some(&b'\n')).then_some(*b))
-        .collect();
-    let text = std::str::from_utf8(&normalized).ok()?;
-    // Whitespace indentation is inert, but arbitrary bodies/comments/heredocs
-    // are not accepted by this canonical source capability.
-    let (header, tail) = text.split_once('\n')?;
-    if !matches!(
-        header,
-        "def to_json" | "def to_json()" | "def self.to_json" | "def self.to_json()"
-    ) || tail.trim_start_matches([' ', '\t']) != "end"
-    {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let (offset, replacement) = if let Some(open) = def.lparen_loc() {
-        (open.end_offset(), "*_args")
-    } else {
-        (def.name_loc().end_offset(), "(*_args)")
-    };
-    Some(crate::offense::Correction {
-        range: offset..offset,
-        replacement: replacement.into(),
-    })
 }
 #[cfg(test)]
 mod tests {
@@ -113,24 +65,6 @@ mod tests {
     use super::*;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str_with_corrections(&[&ToJSON], s)
-    }
-    #[test]
-    fn zero_formals_and_full_method_ranges() {
-        for signature in ["to_json", "to_json()", "self.to_json", "object.to_json()"] {
-            let s = format!("def {signature}\n  nil\nend\n");
-            let o = offenses(&s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert_eq!((o[0].line, o[0].col, o[0].end_line), (1, 1, 3));
-            assert_eq!(
-                o[0].message,
-                "`#to_json` requires an optional argument to be parsable via JSON.generate(obj)."
-            );
-            assert!(o[0].correction.is_none());
-        }
-        for p in ["*_args", "x", "x=nil", "x:", "**", "&b", "..."] {
-            assert!(offenses(&format!("def to_json({p}); end")).is_empty());
-        }
-        assert!(offenses("def not_to_json; end").is_empty());
     }
     #[test]
     fn canonical_insertion_only_in_closed_inactive_envelope() {

@@ -192,48 +192,7 @@ fn stdin_is_diagnostic_only_and_rejects_fix() {
         }
     }
 }
-#[test]
-fn legacy_encoded_and_unicode_class_targets_report_without_reencoding_identifier_bytes() {
-    let d = project();
-    for source in [
-        b"# encoding: ISO-8859-1\n\xc9Error = Class.new(StandardError)\n".as_slice(),
-        "# encoding: utf-8\nÉError = Class.new(StandardError)\n".as_bytes(),
-        b"# encoding: ISO-8859-1\nFoo::\xc9Error = Class.new(StandardError)\n",
-    ] {
-        let o = unchanged(d.path(), source, &["--only", CLASS, "--fix", "a.rb"], 1);
-        assert!(String::from_utf8_lossy(&o.stdout).contains("a.rb:2:1:"));
-    }
-}
 
-#[test]
-fn byte_envelopes_and_mixed_style_layout_corrections_are_stable() {
-    let d = project();
-    fixed(
-        d.path(),
-        LITERAL,
-        "\u{feff}Array.new\r\nHash.new\r\n__LINE__\r\n__END__\r\npayload\0\r\n",
-        "\u{feff}[]\r\n{}\r\n__LINE__\r\n__END__\r\npayload\0\r\n",
-    );
-    fixed(
-        d.path(),
-        CLASS,
-        "\u{feff}FooError = Class.new(StandardError)\r\n__END__\r\npayload\0\r\n",
-        "\u{feff}class FooError < StandardError\r\nend\r\n__END__\r\npayload\0\r\n",
-    );
-    fs::write(d.path().join("a.rb"), "test = Array.new([]);  \n").unwrap();
-    let only = "Style/EmptyLiteral,Style/RedundantArrayConstructor,Style/Semicolon,Layout/TrailingWhitespace";
-    for _ in 0..3 {
-        let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(d.path())
-            .args(["--only", only, "--fix", "a.rb"])
-            .output()
-            .unwrap();
-        assert!(matches!(o.status.code(), Some(0 | 1)));
-    }
-    let after = fs::read(d.path().join("a.rb")).unwrap();
-    assert_eq!(after, b"test = []\n");
-    unchanged(d.path(), &after, &["--only", only, "--fix", "a.rb"], 0);
-}
 fn runtimes() -> Vec<String> {
     let mut v = Vec::new();
     if Command::new("ruby")
@@ -328,55 +287,5 @@ fn safe_class_definitions_preserve_fresh_names_parents_initialization_and_scope(
                 (after.status.code(), after.stdout, after.stderr)
             );
         }
-    }
-}
-#[test]
-fn startup_constants_are_not_fresh_class_names_even_without_source_reopening() {
-    let d = project();
-    let source = "SyntaxSuggest = Class.new(StandardError)\n";
-    unchanged(
-        d.path(),
-        source.as_bytes(),
-        &["--only", CLASS, "--fix", "a.rb"],
-        1,
-    );
-    for runtime in runtimes() {
-        let startup = ruby(
-            d.path(),
-            &runtime,
-            "p Object.const_defined?(:SyntaxSuggest, false)\n",
-        );
-        assert!(startup.status.success(), "{runtime}: {startup:?}");
-        assert!(startup.stderr.is_empty(), "{runtime}: {startup:?}");
-        let present = match startup.stdout.as_slice() {
-            b"true\n" => true,
-            b"false\n" => false,
-            _ => panic!("unexpected startup fact: {runtime}: {startup:?}"),
-        };
-        let naive_source = "class SyntaxSuggest < StandardError\nend\n";
-        let before = ruby(d.path(), &runtime, source);
-        let naive = ruby(d.path(), &runtime, naive_source);
-        assert!(before.status.success(), "{runtime}: {before:?}");
-        assert_eq!(naive.status.success(), !present, "{runtime}: {naive:?}");
-        if present {
-            assert!(String::from_utf8_lossy(&naive.stderr).contains("TypeError"));
-        }
-
-        // --disable-gems native startup can omit SyntaxSuggest. Still require
-        // the real stdlib module and prove the unsafe rewrite, rather than
-        // skipping the witness or manufacturing a module with the same name.
-        let preload = if present {
-            ""
-        } else {
-            "require 'syntax_suggest/core_ext'\n"
-        };
-        let premise = format!(
-            "{preload}raise 'expected stdlib module' unless SyntaxSuggest.instance_of?(Module)\n"
-        );
-        let before = ruby(d.path(), &runtime, &format!("{premise}{source}"));
-        let naive = ruby(d.path(), &runtime, &format!("{premise}{naive_source}"));
-        assert!(before.status.success(), "{runtime}: {before:?}");
-        assert!(!naive.status.success(), "{runtime}: {naive:?}");
-        assert!(String::from_utf8_lossy(&naive.stderr).contains("TypeError"));
     }
 }

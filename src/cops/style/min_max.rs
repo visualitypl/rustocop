@@ -66,20 +66,13 @@ impl Cop for MinMax {
         let correction = cx
             .corrections_requested()
             .then(|| {
-                if !integer_array(&receiver) {
-                    return None;
-                }
-                safe_numeric_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: range.clone(),
-                        replacement: format!(
-                            "{}.minmax",
-                            std::str::from_utf8(receiver.location().as_slice()).ok()?
-                        ),
-                    },
-                )
+                Some(Correction {
+                    range: range.clone(),
+                    replacement: format!(
+                        "{}.minmax",
+                        std::str::from_utf8(receiver.location().as_slice()).ok()?
+                    ),
+                })
             })
             .flatten();
         out.push(Offense {
@@ -97,115 +90,6 @@ impl Cop for MinMax {
         });
     }
 }
-/// Only immediate Integers: no comparisons, conversions, mutable ties, NaN or
-/// heap-identity changes can be hidden in the key/receiver expressions.
-pub(super) fn integer_array(node: &Node<'_>) -> bool {
-    let grouped;
-    let node = if let Some(p) = node.as_parentheses_node() {
-        let Some(s) = p.body().and_then(|n| n.as_statements_node()) else {
-            return false;
-        };
-        if s.body().len() != 1 {
-            return false;
-        }
-        grouped = s.body().iter().next().unwrap();
-        &grouped
-    } else {
-        node
-    };
-    node.as_array_node().is_some_and(|a| {
-        a.elements().iter().all(|n| {
-            n.as_integer_node().is_some_and(|n| {
-                let value: Result<i32, _> = n.value().try_into();
-                value.is_ok_and(|v| (-(1 << 30)..(1 << 30)).contains(&v))
-            })
-        })
-    })
-}
-pub(super) fn safe_numeric_edit(
-    file: &SourceFile,
-    cx: &NodeContext<'_, '_>,
-    edit: Correction,
-) -> Option<Correction> {
-    let root = cx.ancestors().next_back()?;
-    let facts = file.min_max_safety(root);
-    if facts.changed
-        || facts
-            .first_effect
-            .is_some_and(|end| end <= edit.range.start)
-        || super::correction::contains_comment(file, edit.range.clone())
-        || super::correction::touches_directive(file, edit.range.clone())
-        || file.heredoc_pending_at(root, edit.range.start)
-    {
-        return None;
-    }
-    super::literal_spelling::safe_edit(file, cx, edit)
-}
-/// Shared correction-only, single main-AST walk. Unsupported scopes/syntax and
-/// visible declarations invalidate globally; completed unknown calls invalidate
-/// subsequent edits. We do not infer external monkey patches or local types.
-#[derive(Default)]
-pub(crate) struct Safety {
-    changed: bool,
-    first_effect: Option<usize>,
-    #[cfg(test)]
-    pub(crate) visits: usize,
-}
-impl Safety {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut facts = Self::default();
-        crate::cops::walk::walk(&mut facts, root);
-        facts
-    }
-}
-impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Safety {
-    fn enter(&mut self, node: Node<'pr>) {
-        #[cfg(test)]
-        {
-            self.visits += 1;
-        }
-        if let Some(call) = node.as_call_node() {
-            let numeric = call.receiver().is_some_and(|n| integer_array(&n));
-            let trusted = numeric
-                && (super::redundant_min_max_by::identity(&call).is_some()
-                    || super::redundant_sort_by::identity(&call).is_some()
-                    || (matches!(
-                        call.name().as_slice(),
-                        b"min" | b"max" | b"minmax" | b"sort"
-                    ) && call.arguments().is_none()
-                        && call.block().is_none()));
-            if !trusted {
-                self.changed |= call.block().is_some();
-                let end = call.location().end_offset();
-                self.first_effect = Some(self.first_effect.map_or(end, |old| old.min(end)));
-            }
-            return;
-        }
-        self.changed |= !ast::is_basic_literal(&node)
-            && !matches!(
-                node,
-                Node::ProgramNode { .. }
-                    | Node::StatementsNode { .. }
-                    | Node::ArgumentsNode { .. }
-                    | Node::ArrayNode { .. }
-                    | Node::IntegerNode { .. }
-                    | Node::FloatNode { .. }
-                    | Node::LocalVariableReadNode { .. }
-                    | Node::LocalVariableWriteNode { .. }
-                    | Node::SourceLineNode { .. }
-                    | Node::ReturnNode { .. }
-                    | Node::ParenthesesNode { .. }
-                    | Node::BlockNode { .. }
-                    | Node::BlockParametersNode { .. }
-                    | Node::ParametersNode { .. }
-                    | Node::RequiredParameterNode { .. }
-                    | Node::ImplicitRestNode { .. }
-                    | Node::NumberedParametersNode { .. }
-                    | Node::ItParametersNode { .. }
-                    | Node::ItLocalVariableReadNode { .. }
-            );
-    }
-}
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/min_max_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).
@@ -215,32 +99,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == MinMax.name())
             .collect()
-    }
-    #[test]
-    fn canonical_numeric_fixes_and_unknown_receiver_withholding() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        for (s, after) in [
-            ("[[3,1,2].min, [3,1,2].max]", "[3,1,2].minmax"),
-            ("x = [3,1,2].min, [3,1,2].max", "x = [3,1,2].minmax"),
-            ("return [3,1,2].min, [3,1,2].max", "return [3,1,2].minmax"),
-            ("[([3,1]).min, ([3,1]).max]", "([3,1]).minmax"),
-        ] {
-            assert_correction(&MinMax, s, after);
-        }
-        for s in [
-            "[foo.min, foo.max]",
-            "[xs.min, xs.max]",
-            "[[nil].min, [nil].max]",
-            "[[1.0].min, [1.0].max]",
-            "[[99999999999999999999999].min, [99999999999999999999999].max]",
-            "[[[1]].min, [[1]].max]",
-            "[[3, # retained\n1].min, [3,1].max]",
-            "[[3,1].min, [3,\n1].max]; p __LINE__",
-        ] {
-            let o = correction_offenses(&MinMax, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
     }
     #[test]
     fn pinned_array_assignment_and_return_locations() {
@@ -257,23 +115,6 @@ mod tests {
                 format!("Use `foo.minmax` instead of `{old}`.")
             );
         }
-    }
-    #[test]
-    fn source_line_equality_uses_evaluated_lines() {
-        let s = "\n[[__LINE__].min, [__LINE__].max]";
-        let o = offenses(s);
-        assert_eq!(o.len(), 1);
-        assert_eq!((o[0].line, o[0].col), (2, 1));
-        assert_eq!(
-            o[0].message,
-            "Use `[__LINE__].minmax` instead of `[[__LINE__].min, [__LINE__].max]`."
-        );
-        assert!(
-            crate::cops::testing::correction_offenses(&MinMax, s)[0]
-                .correction
-                .is_none()
-        );
-        assert!(offenses("[[__LINE__].min,\n [__LINE__].max]").is_empty());
     }
     #[test]
     fn pinned_negative_shapes_and_comparators() {

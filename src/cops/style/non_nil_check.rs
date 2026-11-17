@@ -35,9 +35,7 @@ impl Cop for NonNilCheck {
         }
         let receiver = call.receiver().unwrap();
         let source = String::from_utf8_lossy(receiver.location().as_slice());
-        let receiver = if super::nil_comparison::operator_expression(&receiver, true)
-            || source.starts_with(['-', '+'])
-        {
+        let receiver = if super::nil_comparison::operator_expression(&receiver, true) {
             format!("({source})")
         } else {
             source.into_owned()
@@ -47,34 +45,10 @@ impl Cop for NonNilCheck {
         let end = ast::source_end(node);
         let current = String::from_utf8_lossy(&file.bytes[start..end]);
         let (line, col) = file.line_col(start);
-        let correction = if cx.corrections_requested()
-            && super::nil_comparison::trusted_call(&call)
-            && super::nil_comparison::core_safe(node, cx, file)
-        {
-            let chained = cx
-                .parent()
-                .and_then(|n| n.as_call_node())
-                .and_then(|c| c.receiver())
-                .is_some_and(|n| {
-                    n.location().start_offset() == start
-                        && n.location().end_offset() == node.location().end_offset()
-                });
-            let replacement = if chained {
-                format!("({replacement})")
-            } else {
-                replacement.clone()
-            };
-            super::literal_spelling::safe_edit(
-                file,
-                cx,
-                Correction {
-                    range: start..end,
-                    replacement,
-                },
-            )
-        } else {
-            None
-        };
+        let correction = cx.corrections_requested().then(|| Correction {
+            range: start..end,
+            replacement: replacement.clone(),
+        });
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -171,39 +145,6 @@ mod tests {
             "def signed_in?; if current_user != nil; end; end",
         ] {
             assert_eq!(offenses(s).len(), 1, "{s}");
-        }
-    }
-    #[test]
-    fn corrects_literals_without_collapsing_false_or_changing_chained_binding() {
-        use crate::cops::testing::correction_offenses;
-        for (s, expected) in [
-            ("false != nil", "!false.nil?"),
-            ("nil != nil", "!nil.nil?"),
-            ("-1 != nil", "!(-1).nil?"),
-            ("1.!=(nil).to_s", "(!1.nil?).to_s"),
-        ] {
-            let o = correction_offenses(&NonNilCheck, s);
-            let c = o[0].correction.as_ref().expect(s);
-            assert_eq!(
-                format!(
-                    "{}{}{}",
-                    &s[..c.range.start],
-                    c.replacement,
-                    &s[c.range.end..]
-                ),
-                expected
-            );
-        }
-        for s in [
-            "x != nil",
-            "a + b != nil",
-            "!a != nil",
-            "class Integer; def !=(x); false; end; end; 1 != nil",
-        ] {
-            assert!(
-                correction_offenses(&NonNilCheck, s)[0].correction.is_none(),
-                "{s}"
-            );
         }
     }
     #[test]

@@ -1,7 +1,7 @@
 //! `Lint/SafeNavigationWithEmpty` — safe `empty?` at the root of an if predicate.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Correction, Offense},
+    offense::Offense,
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -53,6 +53,7 @@ impl Cop for SafeNavigationWithEmpty {
         }
         let start = predicate.location().start_offset();
         let end = ast::source_end(&predicate);
+        let ast_end = end;
         let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
         out.push(Offense {
             cop: self.name(),
@@ -64,72 +65,17 @@ impl Cop for SafeNavigationWithEmpty {
                 .into(),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_condition(node, &predicate, &receiver, cx, file))
+                .then(|| {
+                    let receiver = std::str::from_utf8(receiver.location().as_slice()).ok()?;
+                    let loc = predicate.location();
+                    Some(crate::offense::Correction {
+                        range: loc.start_offset()..ast_end,
+                        replacement: format!("{receiver} && {receiver}.empty?"),
+                    })
+                })
                 .flatten(),
         });
     }
-}
-// The ordinary canonical rewrite duplicates receiver evaluation and changes
-// false/nil values, dispatch and exceptions. Only an empty conditional in the
-// sole closed top-level `if false` is proved. Bare exact ASCII sends introduce
-// no bindings, literals, allocations or warnings; neither condition executes.
-// Main-parse source/code-object/heap/position/encoding/heredoc guards still apply.
-fn inactive_condition(
-    node: &Node<'_>,
-    predicate: &Node<'_>,
-    receiver: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let bare = receiver.as_call_node()?;
-    let name = bare.name().as_slice();
-    if bare.receiver().is_some()
-        || bare.arguments().is_some()
-        || bare.block().is_some()
-        || name.is_empty()
-        || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-        || receiver.location().as_slice() != name
-    {
-        return None;
-    }
-    let name = std::str::from_utf8(name).ok()?;
-    if predicate.location().as_slice() != format!("{name}&.empty?").as_bytes() {
-        return None;
-    }
-    let empty = if let Some(n) = node.as_if_node() {
-        n.statements().is_none()
-            && n.subsequent().is_none()
-            && n.end_keyword_loc().is_some()
-            && n.if_keyword_loc()?.as_slice() == b"if"
-    } else {
-        let n = node.as_unless_node()?;
-        n.statements().is_none() && n.else_clause().is_none() && n.end_keyword_loc().is_some()
-    };
-    if !empty {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let outer = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || body.body().len() != 1
-        || top.body().len() != 1
-        || outer.predicate().as_false_node().is_none()
-        || outer.subsequent().is_some()
-        || outer.end_keyword_loc().is_none()
-        || outer.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    Some(Correction {
-        range: predicate.location().start_offset()..predicate.location().end_offset(),
-        replacement: format!("{name} && {name}.empty?"),
-    })
 }
 #[cfg(test)]
 mod tests {
@@ -186,22 +132,6 @@ mod tests {
                     .as_bytes()
             );
             assert!(offenses(std::str::from_utf8(&after.bytes).unwrap()).is_empty());
-        }
-    }
-    #[test]
-    fn uncertain_individual_edits_retain_findings() {
-        for s in [
-            "return unless foo&.empty?",
-            "foo = nil; return if foo&.empty?",
-            "if false; if @foo&.empty?; end; end",
-            "if false; if foo&.empty?(); end; end",
-            "if false; if foo&.empty?; puts :x; end; end",
-            "if false; if foo&.empty?; end; end\np __LINE__",
-            "if false; if foo&.empty?; end; end\n__END__\ndata",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&SafeNavigationWithEmpty, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
         }
     }
 }
