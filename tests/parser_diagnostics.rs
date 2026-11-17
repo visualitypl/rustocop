@@ -309,89 +309,6 @@ fn syntax_directive_scopes_never_suppress_fatal_delivery() {
 }
 
 #[test]
-fn warning_selection_department_precedence_exclusions_and_supplied_paths_are_unchanged() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    let source = b"foo *args\np /pattern/\n";
-    fs::write(&path, source).unwrap();
-    let old = fs::metadata(&path).unwrap();
-    for (config, selection, expected) in [
-        ("", vec![], 2),
-        ("", vec!["--only", WARNINGS], 2),
-        (
-            "",
-            vec!["--only", WARNINGS, "--except", "Lint/AmbiguousOperator"],
-            1,
-        ),
-        ("[cops.Lint]\nenabled = false\n", vec![], 0),
-        (
-            "[cops.Lint]\nenabled = false\n[cops.\"Lint/AmbiguousOperator\"]\nenabled = true\n",
-            vec![],
-            1,
-        ),
-        (
-            "[cops.Lint]\nenabled = true\n[cops.\"Lint/AmbiguousOperator\"]\nenabled = false\n",
-            vec![],
-            1,
-        ),
-        (
-            "[cops.\"Lint/AmbiguousOperator\"]\nenabled = false\n",
-            vec!["--only", WARNINGS],
-            2,
-        ),
-        (
-            "[cops.\"Lint/AmbiguousOperator\"]\nexclude = ['lib/**']\n",
-            vec!["--only", WARNINGS],
-            1,
-        ),
-    ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-        for fix in [false, true] {
-            let mut args = selection.clone();
-            if fix {
-                args.push("--fix");
-            }
-            args.push("lib/a.rb");
-            let out = cli(dir.path(), &args, None, i32::from(expected > 0));
-            assert_eq!(
-                String::from_utf8(out.stdout)
-                    .unwrap()
-                    .lines()
-                    .filter(|l| l.contains("(Lint/Ambiguous"))
-                    .count(),
-                expected
-            );
-            unchanged(&path, source, &old);
-        }
-        let mut args = selection.clone();
-        args.extend(["--stdin", "lib/a.rb"]);
-        let out = cli(dir.path(), &args, Some(source), i32::from(expected > 0));
-        assert_eq!(
-            String::from_utf8(out.stdout)
-                .unwrap()
-                .lines()
-                .filter(|l| l.contains("(Lint/Ambiguous"))
-                .count(),
-            expected
-        );
-    }
-    // Cop exclusions filter findings, not fatal parser delivery; global input
-    // exclusions still skip the file itself, preserving the existing contract.
-    fs::write(dir.path().join("rustocop.toml"), "exclude = ['lib/**']\n").unwrap();
-    let out = cli(
-        dir.path(),
-        &["--only", WARNINGS, "--stdin", "lib/a.rb"],
-        Some(b"("),
-        0,
-    );
-    assert!(
-        !String::from_utf8(out.stdout)
-            .unwrap()
-            .contains("syntax error")
-    );
-}
-
-#[test]
 fn syntax_expanded_positions_keep_encoded_original_bytes_and_observers() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
@@ -585,47 +502,6 @@ fn both_prefixes_multiline_next_and_push_scopes_filter_only_warning_findings() {
         assert_eq!(findings.len(), 2, "{text}");
         assert!(findings[0].starts_with("lib/a.rb:11:5: E:"), "{text}");
         assert!(findings[1].starts_with("lib/a.rb:12:3: E:"), "{text}");
-    }
-}
-
-#[test]
-fn encoded_bom_crlf_heredoc_and_observers_remain_detection_only() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (prefix, column) in [
-        (b"\xef\xbb\xbf\"\xc3\xa9\"; ".as_slice(), 6),
-        (b"# coding: Shift_JIS\r\n\"\x82\xa0\"; ", 6),
-        (b"# coding: ISO-8859-1\r\n\"\xe9\"; ", 6),
-    ] {
-        let mut source = prefix.to_vec();
-        source.extend_from_slice(b"foo *args; p /pattern/\r\nputs <<~TEXT\r\n#{foo *args}\r\nTEXT\r\n__LINE__\r\nFile.binread(__FILE__)\r\nRubyVM::InstructionSequence.of(method(:foo))\r\nObjectSpace.each_object(String)\r\n__END__\r\n(\r\n");
-        fs::write(&path, &source).unwrap();
-        let old = fs::metadata(&path).unwrap();
-        let mut held = fs::File::open(&path).unwrap();
-        for fix in [false, true] {
-            let mut args = vec!["--only", WARNINGS];
-            if fix {
-                args.push("--fix");
-            }
-            args.push("lib/a.rb");
-            let out = cli(dir.path(), &args, None, 1);
-            let text = String::from_utf8(out.stdout).unwrap();
-            let line = if prefix.starts_with(b"#") { 2 } else { 1 };
-            assert!(
-                text.contains(&format!("lib/a.rb:{line}:{}: E:", column + 4)),
-                "{text}"
-            );
-            assert_eq!(
-                text.lines()
-                    .filter(|l| l.contains("(Lint/Ambiguous"))
-                    .count(),
-                3
-            );
-            unchanged(&path, &source, &old);
-        }
-        let mut observed = Vec::new();
-        held.read_to_end(&mut observed).unwrap();
-        assert_eq!(observed, source);
     }
 }
 

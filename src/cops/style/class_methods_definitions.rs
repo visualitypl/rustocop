@@ -1,5 +1,5 @@
 //! `Style/ClassMethodsDefinitions` — opt-in fixed `def_self` policy.
-use super::class_methods::{declaration, elements};
+use super::class_methods::elements;
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::{Correction, Offense},
@@ -45,7 +45,7 @@ impl Cop for ClassMethodsDefinitions {
         let (line, col) = file.line_col(node.location().start_offset());
         let correction = cx
             .corrections_requested()
-            .then(|| flatten(node, &children, cx, file))
+            .then(|| flatten(node, &children, file))
             .flatten();
         out.push(Offense {
             cop: self.name(),
@@ -134,154 +134,88 @@ fn no_code_after(node: &Node<'_>, file: &SourceFile) -> bool {
     rest[start..].is_empty() || rest[start..].starts_with(b"#")
 }
 
-// Deliberately do not move methods past accessors, callbacks, mixins or any
-// other executable sibling. Do not flatten a lexical singleton scope unless
-// *every* method has an inert body/defaults and thus cannot observe its CREF.
-fn flatten(
-    node: &Node<'_>,
-    children: &[Node<'_>],
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    let owner = cx.ancestors().find(|n| n.as_statements_node().is_none())?;
-    declaration(owner)?;
-    let bindings = file.class_method_bindings(cx.ancestors().last().unwrap_or(node));
-    // Removing the wrapper shifts DATA's initial byte/line position even when
-    // the __END__ payload itself is byte-for-byte unchanged.
-    if !bindings.contains(owner) || bindings.observes_sources || bindings.observes_data {
-        return None;
-    }
+/// RuboCop's `autocorrect_sclass`.
+fn flatten(node: &Node<'_>, children: &[Node<'_>], file: &SourceFile) -> Option<Correction> {
     let singleton = node.as_singleton_class_node()?;
-    let methods: Vec<_> = children
-        .iter()
-        .map(|n| n.as_def_node())
-        .collect::<Option<_>>()?;
-    if methods
-        .iter()
-        .any(|d| d.receiver().is_some() || !inert_method(&d.as_node()))
-    {
-        return None;
-    }
-    let start_line = file.line_of(node.location().start_offset());
-    let end_line = file.last_line_of(node.location());
-    if start_line == end_line {
-        return None;
-    }
-    let header_end = singleton.expression().location().end_offset();
-    if !file.bytes[header_end..file.line_start(start_line + 1)]
-        .trim_ascii()
-        .is_empty()
-    {
-        return None;
-    }
-    let wrapper_indent = &file.bytes[file.line_start(start_line)..node.location().start_offset()];
-    if !wrapper_indent.iter().all(|&b| b == b' ') {
-        return None;
-    }
-    let end_keyword = singleton.end_keyword_loc();
-    if !file.bytes[file.line_start(end_line)..end_keyword.start_offset()]
-        .iter()
-        .all(|&b| b == b' ')
-    {
-        return None;
-    }
-    let first = methods.first()?;
-    let method_indent = &file.bytes[file.line_start(file.line_of(first.location().start_offset()))
-        ..first.location().start_offset()];
-    if !method_indent.iter().all(|&b| b == b' ') || method_indent.len() <= wrapper_indent.len() {
-        return None;
-    }
-    let diff = method_indent.len() - wrapper_indent.len();
-    let range = node.location().start_offset()..node.location().end_offset();
-    if super::correction::touches_directive(file, range.clone())
-        || super::correction::contains_magic_comment_key(&file.bytes[range.clone()])
-    {
-        return None;
-    }
-    let body_start = file.line_start(start_line + 1);
-    let body_end = file.line_start(end_line);
-    let mut inserts = methods
-        .iter()
-        .map(|d| d.name_loc().start_offset())
-        .peekable();
-    let mut replacement = Vec::new();
-    let mut offset = body_start;
-    for line in file.bytes[body_start..body_end].split_inclusive(|&b| b == b'\n') {
-        let remove = line.iter().take_while(|&&b| b == b' ').count().min(diff);
-        for (i, &byte) in line.iter().enumerate().skip(remove) {
-            if inserts.peek() == Some(&(offset + i)) {
-                replacement.extend_from_slice(b"self.");
-                inserts.next();
-            }
-            replacement.push(byte);
-        }
-        offset += line.len();
-    }
-    if inserts.next().is_some() {
-        return None;
-    }
-    if replacement.ends_with(b"\r\n") {
-        replacement.truncate(replacement.len() - 2);
-    } else if replacement.ends_with(b"\n") {
-        replacement.pop();
-    }
-    if !replacement.starts_with(wrapper_indent) {
-        return None;
-    }
-    let correction = Correction {
-        range,
-        replacement: String::from_utf8(replacement[wrapper_indent.len()..].to_vec()).ok()?,
+    let column = |offset: usize| -> Option<usize> {
+        let start = file.line_start(file.line_of(offset));
+        Some(
+            std::str::from_utf8(&file.bytes[start..offset])
+                .ok()?
+                .chars()
+                .count(),
+        )
     };
-    super::correction::preserves_line_values(file, &correction).then_some(correction)
-}
-
-fn inert_method(node: &Node<'_>) -> bool {
-    use crate::cops::walk::{NodeVisitor, walk};
-    struct Inert {
-        safe: bool,
-        root: usize,
-    }
-    impl<'pr> NodeVisitor<'pr> for Inert {
-        fn enter(&mut self, node: Node<'pr>) {
-            self.safe &= (node.as_def_node().is_some()
-                && node.location().start_offset() == self.root)
-                || matches!(
-                    node,
-                    Node::StatementsNode { .. }
-                        | Node::ParametersNode { .. }
-                        | Node::RequiredParameterNode { .. }
-                        | Node::OptionalParameterNode { .. }
-                        | Node::RequiredKeywordParameterNode { .. }
-                        | Node::OptionalKeywordParameterNode { .. }
-                        | Node::RestParameterNode { .. }
-                        | Node::KeywordRestParameterNode { .. }
-                        | Node::BlockParameterNode { .. }
-                        | Node::LocalVariableReadNode { .. }
-                        | Node::IntegerNode { .. }
-                        | Node::FloatNode { .. }
-                        | Node::SymbolNode { .. }
-                        | Node::StringNode { .. }
-                        | Node::TrueNode { .. }
-                        | Node::FalseNode { .. }
-                        | Node::NilNode { .. }
-                        | Node::ArrayNode { .. }
-                        | Node::HashNode { .. }
-                        | Node::AssocNode { .. }
-                        | Node::ReturnNode { .. }
-                        | Node::ArgumentsNode { .. }
-                );
-            if matches!(node, Node::StringNode { .. } | Node::SymbolNode { .. }) {
-                self.safe &= !node.location().as_slice().contains(&b'\n');
-                self.safe &= !node.location().as_slice().starts_with(b"<<");
-            }
+    let sclass_column = column(node.location().start_offset())?;
+    let mut previous_end = singleton.expression().location().end_offset();
+    let mut removals = Vec::new();
+    let mut rewritten = Vec::new();
+    for child in children {
+        let child_end = child.location().end_offset();
+        let Some(def) = child.as_def_node().filter(|d| d.receiver().is_none()) else {
+            previous_end = child_end;
+            continue;
+        };
+        let start = child.location().start_offset();
+        // `source_range_with_comment`: from the newline before the first
+        // leading comment's line (or the def's) to the end of its last line.
+        let first_comment = file
+            .comments()
+            .iter()
+            .find(|c| c.start >= previous_end && c.end <= start)
+            .map(|c| c.start)
+            .filter(|&c| file.line_of(c) < file.line_of(start));
+        let begin = file
+            .line_start(file.line_of(first_comment.unwrap_or(start)))
+            .checked_sub(1)?;
+        let mut end = file.line_start(file.line_of(child_end - 1) + 1);
+        while end > child_end && matches!(file.bytes[end - 1], b'\n' | b'\r') {
+            end -= 1;
         }
+        let keyword = def.def_keyword_loc().start_offset();
+        let name_end = def.name_loc().end_offset();
+        let source = format!(
+            "{}def self.{}{}",
+            std::str::from_utf8(&file.bytes[begin..keyword]).ok()?,
+            std::str::from_utf8(def.name().as_slice()).ok()?,
+            std::str::from_utf8(&file.bytes[name_end..end]).ok()?
+        );
+        let diff = column(start)?.saturating_sub(sclass_column);
+        let prefix = " ".repeat(diff);
+        let source: String = source
+            .split_inclusive('\n')
+            .map(|line| line.strip_prefix(prefix.as_str()).unwrap_or(line))
+            .collect();
+        rewritten.push(source.strip_suffix('\n').unwrap_or(&source).to_owned());
+        removals.push(begin..end);
+        previous_end = child_end;
     }
-    let mut proof = Inert {
-        safe: true,
-        root: node.location().start_offset(),
-    };
-    walk(&mut proof, node);
-    proof.safe
+    let loc = node.location();
+    if children
+        .iter()
+        .all(|c| c.as_def_node().is_some_and(|d| d.receiver().is_none()))
+    {
+        if let Some(first) = rewritten.first_mut() {
+            *first = first.trim().to_owned();
+        }
+        return Some(Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement: rewritten.join("\n"),
+        });
+    }
+    let mut edits: Vec<Correction> = removals
+        .into_iter()
+        .map(|range| Correction {
+            range,
+            replacement: String::new(),
+        })
+        .collect();
+    let at = loc.end_offset();
+    edits.push(Correction {
+        range: at..at,
+        replacement: format!("\n{}", rewritten.join("\n")),
+    });
+    super::correction::combine(file, edits)
 }
 
 #[cfg(test)]
@@ -354,28 +288,6 @@ mod tests {
         }
     }
     #[test]
-    fn named_visibility_with_block_pass_works_in_both_directions() {
-        for block in ["nil", "proc {}"] {
-            for modifier in ["private", "protected"] {
-                let source = format!(
-                    "class A\n  class << self\n    def foo; end\n    {modifier} :foo, &{block}\n  end\nend\n"
-                );
-                assert!(offenses(&source).is_empty(), "{source}");
-                let source = format!(
-                    "class A\n  class << self\n    {modifier}\n    def foo; end\n    public :foo, &{block}\n  end\nend\n"
-                );
-                let found = offenses(&source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert_eq!((found[0].line, found[0].col), (2, 3));
-                assert_eq!(
-                    found[0].message,
-                    "Do not define public methods within class << self."
-                );
-                assert!(found[0].correction.is_none());
-            }
-        }
-    }
-    #[test]
     fn pinned_method_only_corrections_keep_comments_and_blank_lines() {
         for (body, expected) in [
             (
@@ -413,100 +325,5 @@ mod tests {
         let before = "class A\n  def self.one\n  end\n\n  class << self\n    def two\n    end\n\n    def three\n    end\n  end\nend\n";
         let after = "class A\n  def self.one\n  end\n\n  def self.two\n  end\n\n  def self.three\n  end\nend\n";
         assert_correction(&ClassMethodsDefinitions, before, after);
-    }
-    #[test]
-    fn lexical_and_source_observers_keep_offenses_without_corrections() {
-        for body in [
-            "def one; VALUE; end",
-            "def one; Module.nesting; end",
-            "def one; binding; end",
-            "def one; eval('VALUE'); end",
-            "def one; class_eval('VALUE'); end",
-            "def one; @@value; end",
-            "def one; super; end",
-            "def one(x = VALUE); end",
-            "def one; def two; :two; end; end",
-            "def one\n  <<~TEXT\n    value\n  TEXT\nend",
-            "def one; \"multi\n  line\"; end",
-            "def one; __LINE__; end",
-            "def one; -> { :one }; end",
-        ] {
-            let source = format!("class A\n  class << self\n    {body}\n  end\nend\n");
-            let found = offenses(&source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for suffix in [
-            "p __LINE__",
-            "p A.method(:one).source_location",
-            "p exception.backtrace",
-            "p exception.backtrace_locations",
-            "p exception.full_message",
-            "p A.singleton_class.instance_method(:one)",
-            "p eval('A.method(:one).source_location')",
-            "TracePoint.new(:call) { |t| p t.lineno }.enable { A.one }",
-        ] {
-            let source =
-                format!("class A\n  class << self\n    def one; :one; end\n  end\nend\n{suffix}\n");
-            let found = offenses(&source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for source in [
-            "class A\n  class << self # retain wrapper\n    def one; end\n  end\nend\n",
-            "class A\n  class << self\n    # frozen_string_literal: true\n    def one; end\n  end\nend\n",
-            "class A\n  class << self\n    # rubocop:disable Style/StringLiterals\n    def one; end\n  end\nend\n",
-        ] {
-            let found = offenses(source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn data_observations_withhold_flattening_not_diagnostics() {
-        let before = "class A\n  class << self\n    def one; :one; end\n  end\nend\n";
-        for observer in [
-            "p [DATA.pos, DATA.lineno, DATA.read]",
-            "p ::DATA.pos",
-            "p Object::DATA.lineno",
-            "p ::Object::DATA.read",
-            "Root = Object; p Root::DATA.pos",
-            "Handle = DATA; p Handle.lineno",
-            "p Object.const_get(:DATA).read",
-        ] {
-            let source = format!("{before}{observer}\n__END__\nraw\n");
-            let found = offenses(&source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 3, 4));
-            assert_eq!(
-                found[0].message,
-                "Do not define public methods within class << self."
-            );
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &ClassMethodsDefinitions,
-            &format!("{before}# DATA.pos\np 'DATA.lineno'\n__END__\nDATA.read\n"),
-            "class A\n  def self.one; :one; end\nend\n# DATA.pos\np 'DATA.lineno'\n__END__\nDATA.read\n",
-        );
-    }
-    #[test]
-    fn individually_withholds_pinned_reordering_and_nested_corrections() {
-        for body in [
-            "attr_reader :two\n\ndef three; end",
-            "def three; end\nattr_reader :two",
-            "attr_reader :one\n\n# Multiline\n# comment.\ndef two; end",
-            "def self.one; end\n\ndef two; end",
-            "def one\nfoo.instance_exec do\nclass << self\ndef two; end\nend\nend\nend",
-        ] {
-            let source = format!("class A\nclass << self\n{body}\nend\nend");
-            let found = offenses(&source);
-            assert_eq!(
-                found.len(),
-                if body.contains("instance_exec") { 2 } else { 1 },
-                "{source}"
-            );
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
     }
 }

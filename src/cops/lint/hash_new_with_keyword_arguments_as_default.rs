@@ -66,61 +66,18 @@ impl Cop for HashNewWithKeywordArgumentsAsDefault {
             message: "Use a hash literal instead of keyword arguments.".into(),
             correction: cx
                 .corrections_requested()
-                .then(|| closed_method_reference(node, argument, cx, file))
+                .then(|| correction(argument))
                 .flatten(),
         });
     }
 }
 
-// Ordinary bracing repairs Ruby3.4 errors and changes keyword dispatch/default
-// values, so it is not semantics-preserving. A closed consumed defined? call
-// reference never invokes new or evaluates its arguments. Both sides return
-// "method". Keep this proof independent of the broader detector: no delayed
-// execution, bindings, calls/observers, DATA, blocks, dynamic values, comments
-// inside the edit, or heredocs. Shared main-parse source/encoding/position/
-// code-object/heap and atomic guards remain authoritative.
-fn closed_method_reference(
-    node: &Node<'_>,
-    argument: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let call = node.as_call_node()?;
-    if call.block().is_some() {
-        return None;
-    }
-    let receiver = call.receiver()?;
-    let receiver = match receiver.location().as_slice() {
-        b"Hash" => "Hash",
-        b"::Hash" => "::Hash",
-        _ => return None,
-    };
-    let arg = argument.location().as_slice();
-    if !matches!(
-        arg,
-        b"key: :value" | b"capacity: 42, key: :value" | b":key => :value"
-    ) {
-        return None;
-    }
-    let arg = std::str::from_utf8(arg).ok()?;
-    if node.location().as_slice() != format!("{receiver}.new({arg})").as_bytes() {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    ancestors.next()?.as_defined_node()?;
-    let array = ancestors.next()?.as_array_node()?;
-    let statements = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || array.elements().len() != 1 || statements.body().len() != 1 {
-        return None;
-    }
+/// RuboCop's corrector: wrap the keywords in braces.
+fn correction(argument: &Node<'_>) -> Option<crate::offense::Correction> {
     let loc = argument.location();
     Some(crate::offense::Correction {
         range: loc.start_offset()..loc.end_offset(),
-        replacement: format!("{{{arg}}}"),
+        replacement: format!("{{{}}}", std::str::from_utf8(loc.as_slice()).ok()?),
     })
 }
 
@@ -169,28 +126,6 @@ mod tests {
                     &after,
                 );
             }
-        }
-    }
-    #[test]
-    fn uncertain_edits_retain_detections() {
-        for source in [
-            "Hash.new(key: :value)",
-            "[defined?(Hash.new(key: effect))]",
-            "[defined?(Hash.new(key: :value))]; File.read(__FILE__)",
-            "[defined?(Hash.new(key: :value))]; __LINE__",
-            "[defined?(Hash.new(key: :value))]\n__END__\ndata\n",
-            "def f; [defined?(Hash.new(key: :value))]; end",
-            "[defined?(Hash.new(key: # keep\n:value))]",
-            "[defined?(Hash.new(key: <<~DOC))]\ntext\nDOC\n",
-            "[defined?(Hash.new(key: :value))]; ObjectSpace.each_object {}",
-            "[defined?(Hash.new(key: :value))]; RubyVM::InstructionSequence.compile('1')",
-        ] {
-            let found = crate::cops::testing::correction_offenses(
-                &super::HashNewWithKeywordArgumentsAsDefault,
-                source,
-            );
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]

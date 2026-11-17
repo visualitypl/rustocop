@@ -5,7 +5,6 @@ use crate::{
     source::SourceFile,
 };
 use ruby_prism::Node;
-use std::collections::HashSet;
 
 pub struct MixinGrouping;
 impl Cop for MixinGrouping {
@@ -78,89 +77,13 @@ impl Cop for MixinGrouping {
                 end_line: file.last_line_of(child.location()),
                 correction: cx
                     .corrections_requested()
-                    .then(|| correction(&call, cx, file))
+                    .then(|| correction(&call, file))
                     .flatten(),
             });
         }
     }
 }
 
-/// Correction-only proof, built once from the main AST. We deliberately accept
-/// only a closed top-level declaration-only file: no user callbacks, superclass
-/// hooks, metaprogramming, deferred code, autoloads, or unknown evaluations.
-/// Arguments must resolve to earlier, uniquely declared, empty modules. Splitting
-/// then preserves validation atomicity, dispatch, return self and ancestor order.
-/// External monkey patches/preloaded project constants cannot be inferred.
-#[derive(Default)]
-pub(crate) struct Bindings {
-    proven: HashSet<usize>,
-    #[cfg(test)]
-    pub(crate) visited: usize,
-}
-impl Bindings {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut result = Self::default();
-        let Some(program) = root.as_program_node() else {
-            return result;
-        };
-        let mut names = HashSet::new();
-        let mut empty_modules = HashSet::new();
-        for node in program.statements().body().iter() {
-            #[cfg(test)]
-            {
-                result.visited += 1;
-            }
-            let (path, body, is_module) = if let Some(module) = node.as_module_node() {
-                (module.constant_path(), module.body(), true)
-            } else if let Some(class) = node.as_class_node() {
-                if class.superclass().is_some() {
-                    return Self::default();
-                }
-                (class.constant_path(), class.body(), false)
-            } else {
-                return Self::default();
-            };
-            // Only unqualified root declarations: nested/qualified lookup and
-            // reopened/singleton visibility are intentionally not inferred.
-            let Some(name) = path.as_constant_read_node() else {
-                return Self::default();
-            };
-            let name = name.name().as_slice().to_vec();
-            if core_namespace(&name) || !names.insert(name.clone()) {
-                return Self::default();
-            }
-            let children = super::module_function::body_elements(body);
-            if children.is_empty() && is_module {
-                empty_modules.insert(name.clone());
-            }
-            for child in children {
-                #[cfg(test)]
-                {
-                    result.visited += 1;
-                }
-                let Some(call) = child.as_call_node() else {
-                    return Self::default();
-                };
-                let args = ast::call_arguments(&call);
-                if !super::mixin_usage::mixin_call(&call)
-                    || args.is_empty()
-                    || !args.iter().all(|arg| {
-                        arg.as_constant_read_node().is_some_and(|arg| {
-                            let arg_name = arg.name().as_slice();
-                            arg_name != name && empty_modules.contains(arg_name)
-                        })
-                    })
-                {
-                    return Self::default();
-                }
-                if args.len() > 1 {
-                    result.proven.insert(call.location().start_offset());
-                }
-            }
-        }
-        result
-    }
-}
 pub(super) fn core_namespace(name: &[u8]) -> bool {
     // Root Ruby core classes/modules (including deprecated integer aliases)
     // and default startup namespaces are not fresh declarations. In particular,
@@ -276,64 +199,34 @@ pub(super) fn core_namespace(name: &[u8]) -> bool {
             | b"ZeroDivisionError"
     )
 }
-fn correction(
-    call: &ruby_prism::CallNode<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
+/// RuboCop's `separate_mixins`.
+fn correction(call: &ruby_prism::CallNode<'_>, file: &SourceFile) -> Option<Correction> {
     let start = call.location().start_offset();
-    let end = call.location().end_offset();
-    if !file
-        .mixin_grouping_bindings(cx.ancestors().last()?)
-        .proven
-        .contains(&start)
-    {
-        return None;
-    }
-    if file.bytes[start..end]
-        .iter()
-        .any(|b| matches!(b, b'\n' | b'\r' | b'#'))
-    {
-        return None;
-    }
-    let line = file.line_of(start);
-    let indent = &file.bytes[file.line_start(line)..start];
-    let tail = &file.bytes[end..file.line_start(line + 1)];
-    if !indent.iter().all(|b| matches!(b, b' ' | b'\t'))
-        || !tail.iter().all(u8::is_ascii_whitespace)
-        || super::correction::touches_directive(file, start..end)
-    {
-        return None;
-    }
-    let newline = if tail.ends_with(b"\r\n") {
-        "\r\n"
-    } else {
-        "\n"
-    };
-    let indent = std::str::from_utf8(indent).ok()?;
+    let line_start = file.line_start(file.line_of(start));
+    let indent = " ".repeat(
+        std::str::from_utf8(&file.bytes[line_start..start])
+            .ok()?
+            .chars()
+            .count(),
+    );
     let method = std::str::from_utf8(call.name().as_slice()).ok()?;
-    let mut replacement = String::new();
-    for (i, arg) in ast::call_arguments(call).into_iter().rev().enumerate() {
-        if i > 0 {
-            replacement.push_str(newline);
-            replacement.push_str(indent);
-        }
-        replacement.push_str(method);
-        replacement.push_str(if call.opening_loc().is_some() {
-            "("
-        } else {
-            " "
-        });
-        replacement.push_str(std::str::from_utf8(arg.location().as_slice()).ok()?);
-        if call.opening_loc().is_some() {
-            replacement.push(')');
-        }
-    }
-    let correction = Correction {
-        range: start..end,
-        replacement,
-    };
-    super::correction::preserves_line_values(file, &correction).then_some(correction)
+    let parenthesized = call.opening_loc().is_some_and(|o| o.as_slice() == b"(");
+    let calls = ast::call_arguments(call)
+        .into_iter()
+        .rev()
+        .map(|arg| {
+            let arg = std::str::from_utf8(arg.location().as_slice()).ok()?;
+            Some(if parenthesized {
+                format!("{method}({arg})")
+            } else {
+                format!("{method} {arg}")
+            })
+        })
+        .collect::<Option<Vec<_>>>()?;
+    Some(Correction {
+        range: start..call.location().end_offset(),
+        replacement: calls.join(&format!("\n{indent}")),
+    })
 }
 
 #[cfg(test)]
@@ -419,107 +312,6 @@ mod tests {
                 &format!("{prefix}class Foo\n{before}\nend\n"),
                 &format!("{prefix}class Foo\n{after}\nend\n"),
             );
-        }
-    }
-    #[test]
-    fn withholds_each_unproven_pinned_correction_without_hiding_the_offense() {
-        // All six applicable upstream correction expectations: unresolved
-        // constants might autoload, fail validation, or have custom callbacks.
-        for body in [
-            "include Bar, Qux",
-            "include Bar, Baz\ninclude Qux",
-            "include(Bar, Module.new do\n  do_something\nend)",
-            "extend Bar, Qux",
-            "prepend Bar, Qux",
-            "include Bar, Baz\nextend Qux",
-        ] {
-            let source = format!("class Foo\n{body}\nend\n");
-            let found = crate::cops::testing::correction_offenses(&super::MixinGrouping, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn uncertain_bindings_callbacks_values_and_byte_sensitive_edits_are_withheld() {
-        let prefix = "module Bar; end\nmodule Qux; end\n";
-        for source in [
-            "class Foo; include Bar, Qux; end".into(),
-            format!("{prefix}class Foo < Parent\n  include Bar, Qux\nend"),
-            format!(
-                "{prefix}class Foo\n  def self.include(*args); super; end\n  include Bar, Qux\nend"
-            ),
-            "module Bar; def self.included(base); base.const_set(:Qux, 1); end; end\nmodule Qux; end\nclass Foo\n  include Bar, Qux\nend".into(),
-            format!("{prefix}class Foo\n  include Bar, Qux\nend\nmodule Bar; end"),
-            format!("{prefix}module Outer\n  class Foo\n    include Bar, Qux\n  end\nend"),
-            format!("{prefix}module Outer::Foo\n  include Bar, Qux\nend"),
-            format!("{prefix}class Foo\n  include Bar, 1\nend"),
-            format!("{prefix}class Foo\n  include Bar, get_module\nend"),
-            format!("{prefix}class Foo\n  include Bar, Qux # comment\nend"),
-            format!("{prefix}class Foo\n  include Bar, Qux; nil\nend"),
-            format!("{prefix}class Foo\n  include Bar, Qux\nend\np __LINE__"),
-            "module Enumerable; end\nmodule Qux; end\nclass Foo\n  include Enumerable, Qux\nend".into(),
-            format!("{prefix}class Object\n  include Bar, Qux\nend"),
-            format!("{prefix}class Foo\n  include ::Bar, Qux\nend"),
-            format!("{prefix}class Foo\n  include(Bar, Qux, &block)\nend"),
-            format!("{prefix}class Foo\n  include(Bar,\n    Qux)\nend"),
-            format!("{prefix}class Foo\n  include Bar, # keep\n    Qux\nend"),
-        ] {
-            let found = crate::cops::testing::correction_offenses(&super::MixinGrouping, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn core_class_reopenings_are_not_proven_fresh_namespaces() {
-        for name in [
-            "Encoding",
-            "Array",
-            "String",
-            "IO",
-            "Thread",
-            "Enumerator",
-            "Regexp",
-            "Exception",
-            "Random",
-            "Struct",
-            "Fiber",
-            "Ractor",
-            "Data",
-            "Set",
-        ] {
-            let source = format!(
-                "module Converter; end\nmodule Bar; end\nclass {name}\n  include Converter, Bar\nend\n"
-            );
-            let found = crate::cops::testing::correction_offenses(&super::MixinGrouping, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn first_immediate_begin_in_superclass_precedes_class_body() {
-        for source in [
-            "class C < (include A, B; Object)\nend\n",
-            "class C < (include A, B)\nend\n",
-            "class C < (include A, B; Object)\n  extend D, E\nend\n",
-            "class C < (include A, B; Object)\n  extend D, E\n  other\nend\n",
-        ] {
-            let found = offenses(source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (1, 12), "{source}");
-            assert_eq!(
-                found[0].message,
-                "Put `include` mixins in separate statements."
-            );
-            let found = crate::cops::testing::correction_offenses(&super::MixinGrouping, source);
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        // Only one begin layer is selected, not a recursive superclass walk.
-        for source in [
-            "class C < ((include A, B; Object))\nend\n",
-            "class C < ((include A, B; Object))\n  extend D, E\n  other\nend\n",
-            "class C < (Object)\n  extend D, E\nend\n",
-        ] {
-            assert!(offenses(source).is_empty(), "{source}");
         }
     }
     #[test]

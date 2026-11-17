@@ -116,8 +116,6 @@ pub struct SourceFile {
     inheritance_constants: OnceLock<crate::cops::style::struct_inheritance::ConstantDefinitions>,
     /// Correction-only closed declaration prefix for class-method policies.
     class_method_bindings: OnceLock<crate::cops::style::class_methods::Bindings>,
-    /// Shared lazy accessor correction proof and custom attr scope index.
-    accessor_bindings: OnceLock<crate::cops::style::accessors::Bindings>,
     custom_attrs: OnceLock<crate::cops::style::accessors::CustomAttrs>,
     /// Separate correction-only proof: trivial defs are not regroupable attrs.
     trivial_accessor_bindings: OnceLock<crate::cops::style::trivial_accessors::Bindings>,
@@ -137,8 +135,6 @@ pub struct SourceFile {
     file_api_bindings: OnceLock<crate::cops::style::file_api::Bindings>,
     /// Lazy, single main-AST pass for warning/stream correction safety.
     stderr_bindings: OnceLock<crate::cops::style::stderr_puts::Bindings>,
-    /// Lazy main-AST binding evidence for regexp backreference corrections.
-    perl_backref_bindings: OnceLock<crate::cops::style::perl_backrefs::Bindings>,
     /// Main-AST lexical companion-method presence, indexed at most once.
     respond_to_missing_index:
         OnceLock<crate::cops::style::missing_respond_to_missing::CompanionIndex>,
@@ -154,9 +150,6 @@ pub struct SourceFile {
     redundant_regexp_safety: OnceLock<crate::cops::style::redundant_regexp_constructor::Safety>,
     /// Shared correction-only core-dispatch and declared-constant proof.
     boolean_predicate_safety: OnceLock<crate::cops::style::boolean_safety::Safety>,
-    /// Correction-only closed literal-expression proof for Module predicates.
-    /// Correction-only closed-declaration proof for separated mixins.
-    mixin_grouping_bindings: OnceLock<crate::cops::style::mixin_grouping::Bindings>,
     /// Detection-only conservative method return facts, built once on demand.
     predicate_method_returns: OnceLock<crate::cops::naming::predicate_method::Returns>,
     /// Lazy structural tail equality for Naming memoization detection only.
@@ -279,7 +272,6 @@ impl SourceFile {
             end_block_facts: OnceLock::new(),
             empty_class_facts: OnceLock::new(),
             constant_base_visibility: OnceLock::new(),
-            accessor_bindings: OnceLock::new(),
             custom_attrs: OnceLock::new(),
             trivial_accessor_bindings: OnceLock::new(),
             accessor_annotations: OnceLock::new(),
@@ -290,7 +282,6 @@ impl SourceFile {
             modifier_index: OnceLock::new(),
             file_api_bindings: OnceLock::new(),
             stderr_bindings: OnceLock::new(),
-            perl_backref_bindings: OnceLock::new(),
             respond_to_missing_index: OnceLock::new(),
             class_check_bindings: OnceLock::new(),
             object_then_bindings: OnceLock::new(),
@@ -298,7 +289,6 @@ impl SourceFile {
             comparable_clamp_safety: OnceLock::new(),
             redundant_regexp_safety: OnceLock::new(),
             boolean_predicate_safety: OnceLock::new(),
-            mixin_grouping_bindings: OnceLock::new(),
             predicate_method_returns: OnceLock::new(),
             memoized_name_fingerprints: OnceLock::new(),
             fetch_env_conditions: OnceLock::new(),
@@ -514,14 +504,6 @@ impl SourceFile {
             .get_or_init(|| crate::cops::style::accessors::Annotations::build(self))
     }
 
-    pub(crate) fn accessor_bindings(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::accessors::Bindings {
-        self.accessor_bindings
-            .get_or_init(|| crate::cops::style::accessors::Bindings::build(root))
-    }
-
     pub(crate) fn trivial_accessor_bindings(
         &self,
         root: &Node<'_>,
@@ -705,14 +687,6 @@ impl SourceFile {
             .get_or_init(|| crate::cops::style::stderr_puts::Bindings::build(root))
     }
 
-    pub(crate) fn perl_backref_bindings(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::perl_backrefs::Bindings {
-        self.perl_backref_bindings
-            .get_or_init(|| crate::cops::style::perl_backrefs::Bindings::build(root))
-    }
-
     pub(crate) fn respond_to_missing_index(
         &self,
         root: &Node<'_>,
@@ -720,14 +694,6 @@ impl SourceFile {
         self.respond_to_missing_index.get_or_init(|| {
             crate::cops::style::missing_respond_to_missing::CompanionIndex::build(root)
         })
-    }
-
-    pub(crate) fn mixin_grouping_bindings(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::mixin_grouping::Bindings {
-        self.mixin_grouping_bindings
-            .get_or_init(|| crate::cops::style::mixin_grouping::Bindings::build(root))
     }
 
     pub(crate) fn comparable_clamp_safety(
@@ -2541,44 +2507,6 @@ mod tests {
     }
 
     #[test]
-    fn mixin_grouping_proof_is_lazy_cached_and_bounded() {
-        use crate::cops::{run_cops_with_corrections, style::MixinGrouping};
-        let source = format!(
-            "module A; end\nmodule B; end\nclass C\n{}end\n",
-            "  include A, B\n".repeat(3000)
-        );
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let result = ruby_prism::parse(&file.bytes);
-        for corrections in [false, true, true] {
-            let mut found = Vec::new();
-            assert!(
-                run_cops_with_corrections(
-                    &[&MixinGrouping],
-                    &result,
-                    &file,
-                    &mut found,
-                    corrections
-                )
-                .is_empty()
-            );
-            assert_eq!(found.len(), 3000);
-            assert_eq!(
-                found.iter().filter(|o| o.correction.is_some()).count(),
-                if corrections { 3000 } else { 0 }
-            );
-            if !corrections {
-                assert!(file.mixin_grouping_bindings.get().is_none());
-            }
-        }
-        let index = file.mixin_grouping_bindings.get().unwrap();
-        assert_eq!(index.visited, 3003);
-        assert!(std::ptr::eq(
-            index,
-            file.mixin_grouping_bindings(&result.node())
-        ));
-    }
-
-    #[test]
     fn numeric_spellings_share_one_lazy_bounded_main_parse_proof() {
         use crate::cops::{
             run_cops_with_corrections,
@@ -3118,46 +3046,6 @@ mod tests {
                 .filter(|o| o.cop == "Style/MissingRespondToMissing")
                 .count(),
             1
-        );
-    }
-
-    #[test]
-    fn perl_backref_guards_are_lazy_cached_and_linear() {
-        use crate::cops::{run_cops_with_corrections, style::PerlBackrefs};
-        let source = "p [$1, $2, $&]\n".repeat(2000);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let result = ruby_prism::parse(&file.bytes);
-        let mut found = Vec::new();
-        assert!(
-            run_cops_with_corrections(&[&PerlBackrefs], &result, &file, &mut found, false)
-                .is_empty()
-        );
-        assert_eq!(found.len(), 6000);
-        assert!(file.perl_backref_bindings.get().is_none());
-        found.clear();
-        assert!(
-            run_cops_with_corrections(&[&PerlBackrefs], &result, &file, &mut found, true)
-                .is_empty()
-        );
-        assert_eq!(
-            found.iter().filter(|o| o.correction.is_some()).count(),
-            6000
-        );
-        let bindings = file.perl_backref_bindings.get().unwrap();
-        assert_eq!(
-            bindings.visited,
-            crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap()).len()
-        );
-        assert!(bindings.visited < 18010);
-        let pointer = std::ptr::from_ref(bindings);
-        found.clear();
-        assert!(
-            run_cops_with_corrections(&[&PerlBackrefs], &result, &file, &mut found, true)
-                .is_empty()
-        );
-        assert_eq!(
-            pointer,
-            std::ptr::from_ref(file.perl_backref_bindings.get().unwrap())
         );
     }
 
@@ -4060,63 +3948,6 @@ mod tests {
     }
 
     #[test]
-    fn data_guards_share_one_lazy_complete_bounded_proof_across_three_consumers() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions, EndlessMethod},
-            walk::{NodeVisitor, walk},
-        };
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        for observer in ["", "p DATA.pos\n", "p Object.const_get(:DATA).lineno\n"] {
-            let classes = (0..200)
-                .map(|i| {
-                    format!("class C{i}\n  class << self\n    def one; :one; end\n  end\nend\n")
-                })
-                .collect::<String>();
-            let source = format!(
-                "{classes}{}{}{observer}__END__\nDATA.read Object.const_get(:DATA)\n",
-                "def f = true if true\n".repeat(200),
-                "def g = [\n  1]\n".repeat(200),
-            );
-            let f = file(source.as_bytes());
-            let result = ruby_prism::parse(&f.bytes);
-            assert_eq!(result.errors().count(), 0);
-            f.record_comments(&result);
-            let cops: &[&dyn crate::cops::Cop] = &[
-                &ClassMethodsDefinitions,
-                &AmbiguousEndlessMethodDefinition,
-                &EndlessMethod,
-            ];
-            let mut found = Vec::new();
-            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
-            assert_eq!(found.len(), 600);
-            assert!(f.class_method_bindings.get().is_none());
-            found.clear();
-            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
-            assert_eq!(found.len(), 600);
-            assert!(
-                found
-                    .iter()
-                    .all(|o| o.correction.is_some() == observer.is_empty())
-            );
-            let proof = f.class_method_bindings.get().unwrap();
-            let mut count = Count(0);
-            walk(&mut count, &result.node());
-            assert_eq!(proof.observer_visits, count.0);
-            assert!(proof.observer_visits < 600 * 20);
-            assert_eq!(proof.visits, 400);
-            for _ in 0..600 {
-                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
-            }
-        }
-    }
-
-    #[test]
     fn empty_parameter_proofs_are_lazy_shared_and_bounded_main_ast_passes() {
         use crate::cops::{
             run_cops_with_corrections,
@@ -4868,61 +4699,6 @@ mod tests {
     }
 
     #[test]
-    fn indirect_observer_analysis_is_complete_lazy_and_shared_by_both_consumers() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions},
-            walk::{NodeVisitor, walk},
-        };
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        for (dispatch, safe) in [
-            (":to_s", true),
-            (":backtrace_locations", false),
-            ("unknown", false),
-        ] {
-            let classes = (0..500)
-                .map(|i| {
-                    format!("class C{i}\n  class << self\n    def one; :one; end\n  end\nend\n")
-                })
-                .collect::<String>();
-            let groups = format!("{}{}{}", "(".repeat(20), dispatch, ")".repeat(20));
-            let source = format!(
-                "{classes}{}{}",
-                "def f = true if true\n".repeat(500),
-                format!("items.map(&{groups})\n").repeat(500)
-            );
-            let f = file(source.as_bytes());
-            let result = ruby_prism::parse(&f.bytes);
-            assert_eq!(result.errors().count(), 0);
-            f.record_comments(&result);
-            let cops: &[&dyn crate::cops::Cop] =
-                &[&ClassMethodsDefinitions, &AmbiguousEndlessMethodDefinition];
-            let mut found = Vec::new();
-            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
-            assert_eq!(found.len(), 1000);
-            assert!(f.class_method_bindings.get().is_none());
-            found.clear();
-            assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
-            assert_eq!(found.len(), 1000);
-            assert!(found.iter().all(|o| o.correction.is_some() == safe));
-            let proof = f.class_method_bindings.get().unwrap();
-            let mut count = Count(0);
-            walk(&mut count, &result.node());
-            assert_eq!(proof.observer_visits, count.0); // complete, exactly once
-            assert!(proof.observer_visits < 500 * 150);
-            assert_eq!(proof.visits, 1000);
-            for _ in 0..1000 {
-                assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
-            }
-        }
-    }
-
-    #[test]
     fn hash_wrappers_share_one_lazy_bounded_main_parse_observer_proof() {
         use crate::cops::{
             run_cops_with_corrections,
@@ -4962,89 +4738,6 @@ mod tests {
         assert!(f.token_ranges.get().is_none());
         for _ in 0..6000 {
             assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
-        }
-    }
-
-    #[test]
-    fn accessor_proof_is_lazy_shared_and_linear_for_many_siblings() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{AccessorGrouping, Attr, BisectedAttrAccessor},
-        };
-        let source = format!(
-            "class Foo\n{}{}end\n",
-            (0..2000)
-                .map(|i| format!("attr :a{i}\n"))
-                .collect::<String>(),
-            "attr_reader :paired\nattr_writer :paired\n"
-        );
-        let f = file(source.as_bytes());
-        let result = ruby_prism::parse(&f.bytes);
-        assert_eq!(result.errors().count(), 0);
-        f.record_comments(&result);
-        let cops: &[&dyn crate::cops::Cop] = &[&AccessorGrouping, &Attr, &BisectedAttrAccessor];
-        let mut found = Vec::new();
-        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
-        assert_eq!(found.len(), 4002);
-        assert!(f.accessor_bindings.get().is_none());
-        assert_eq!(
-            f.accessor_annotations.get().unwrap().visited_lines,
-            f.code_line_count()
-        );
-        assert!(f.custom_attrs.get().unwrap().visited < 2000 * 5 + 30);
-        found.clear();
-        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
-        assert_eq!(found.len(), 4002);
-        assert_eq!(f.accessor_bindings.get().unwrap().visited, 2003);
-        let root = result.node();
-        let proof = f.accessor_bindings(&root);
-        let custom = f.custom_attrs(&root);
-        for _ in 0..1000 {
-            assert!(std::ptr::eq(proof, f.accessor_bindings(&root)));
-            assert!(std::ptr::eq(custom, f.custom_attrs(&root)));
-        }
-    }
-
-    #[test]
-    fn trivial_accessor_proof_is_lazy_separate_and_linear() {
-        use crate::cops::{run_cops_with_corrections, style::TrivialAccessors};
-        let source = format!(
-            "class Foo\n{}end\n",
-            (0..2000)
-                .map(|i| format!("def a{i}; @a{i}; end\n"))
-                .collect::<String>()
-        );
-        let f = file(source.as_bytes());
-        let parsed = ruby_prism::parse(&f.bytes);
-        f.record_comments(&parsed);
-        let mut found = Vec::new();
-        assert!(
-            run_cops_with_corrections(&[&TrivialAccessors], &parsed, &f, &mut found, false)
-                .is_empty()
-        );
-        assert_eq!(found.len(), 2000);
-        assert!(f.trivial_accessor_bindings.get().is_none());
-        assert!(f.accessor_annotations.get().is_none());
-        found.clear();
-        assert!(
-            run_cops_with_corrections(&[&TrivialAccessors], &parsed, &f, &mut found, true)
-                .is_empty()
-        );
-        assert_eq!(
-            found.iter().filter(|o| o.correction.is_some()).count(),
-            2000
-        );
-        assert_eq!(f.trivial_accessor_bindings.get().unwrap().visited, 2001);
-        assert_eq!(
-            f.accessor_annotations.get().unwrap().visited_lines,
-            f.code_line_count()
-        );
-        // Def acceptance must not leak into the existing regrouping proof.
-        assert!(f.accessor_bindings.get().is_none());
-        let root = parsed.node();
-        let proof = f.trivial_accessor_bindings(&root);
-        for _ in 0..2000 {
-            assert!(std::ptr::eq(proof, f.trivial_accessor_bindings(&root)));
         }
     }
 

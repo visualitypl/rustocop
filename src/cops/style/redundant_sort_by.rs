@@ -35,27 +35,10 @@ impl Cop for RedundantSortBy {
             return;
         };
         let (line, col) = file.line_col(selector.start_offset());
-        let correction = cx
-            .corrections_requested()
-            .then(|| {
-                // No type inference: arbitrary objects can override either method,
-                // and custom keys can observe comparison count/order and tie identity.
-                if !call
-                    .receiver()
-                    .is_some_and(|n| super::min_max::integer_array(&n))
-                {
-                    return None;
-                }
-                super::min_max::safe_numeric_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: selector.start_offset()..call.location().end_offset(),
-                        replacement: "sort".into(),
-                    },
-                )
-            })
-            .flatten();
+        let correction = cx.corrections_requested().then(|| Correction {
+            range: selector.start_offset()..call.location().end_offset(),
+            replacement: "sort".into(),
+        });
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -91,7 +74,7 @@ pub(super) fn identity(call: &CallNode<'_>) -> Option<String> {
 mod tests {
     //! Ported from RuboCop style/redundant_sort_by_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::assert_correction;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -154,28 +137,6 @@ mod tests {
             "xs.sort_by! { |x| x }",
         ] {
             assert!(offenses(s).is_empty(), "{s}");
-        }
-    }
-    #[test]
-    fn reports_but_withholds_unproven_dispatch_comparisons_and_source_changes() {
-        for s in [
-            "array.sort_by { |x| x }",
-            "sort_by { it }",
-            "[nil,1].sort_by { |x| x }",
-            "[0.0,-0.0].sort_by { it }",
-            "[Float::NAN].sort_by { it }",
-            "[[1],[1]].sort_by { it }",
-            "[999999999999999999999999].sort_by { it }",
-            "[1].sort_by { |x| x # retained\n}",
-            "[1].sort_by do |x|\n x\nend\np __LINE__",
-            "class Integer; def <=>(x); 0; end; end\n[1,2].sort_by { it }",
-            "require 'other'; [1].sort_by { it }",
-            "def f; [1].sort_by { it }; end",
-            "x=Object.new; [1].sort_by { it }",
-        ] {
-            let o = correction_offenses(&RedundantSortBy, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
         }
     }
 }

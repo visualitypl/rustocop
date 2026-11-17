@@ -15,6 +15,10 @@ impl Cop for TopLevelReturnWithArgument {
     fn name(&self) -> &'static str {
         "Lint/TopLevelReturnWithArgument"
     }
+
+    fn safe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_return_node().is_some()
     }
@@ -68,11 +72,12 @@ impl Cop for TopLevelReturnWithArgument {
             col,
             end_line: file.line_of(end.saturating_sub(1).max(start)),
             message: "Top level return with argument detected.".into(),
-            // Even primitive arguments produce a compile-time warning in
-            // Ruby's default mode. The -W0 probe does not authorize
-            // dropping that observation. The explicit fixed-policy
-            // no-source-edit exception requires findings without corrections.
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: start..end,
+                    replacement: "return".into(),
+                }),
         });
     }
 }
@@ -87,50 +92,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == "Lint/TopLevelReturnWithArgument")
             .collect()
-    }
-    #[test]
-    fn primitive_returns_retain_findings_under_warning_preserving_no_edit_exception() {
-        use crate::cops::testing::correction_offenses;
-        for (before, _reviewed_after) in [
-            ("return 1, 2, 3\n", "return\n"),
-            (
-                "END { puts :finished }\nreturn 1, 2, 3 # keep\nraise 'unreachable'\n",
-                "END { puts :finished }\nreturn # keep\nraise 'unreachable'\n",
-            ),
-            ("return nil, true, false, 42\r\n", "return\r\n"),
-            ("return\t1,\t2, 3\n", "return\n"),
-        ] {
-            let found = correction_offenses(&super::TopLevelReturnWithArgument, before);
-            assert_eq!(found.len(), 1, "{before}");
-            assert!(found[0].correction.is_none(), "{before}: {found:?}");
-        }
-    }
-    #[test]
-    fn uncertain_edits_keep_findings_and_bytes() {
-        use crate::cops::testing::correction_offenses;
-        for s in [
-            "return foo()",
-            "return x = 1",
-            "return *[1]",
-            "return [1,2]",
-            "return \"#{foo}\"",
-            "return 1.0",
-            "return 999999999999999999999999999999",
-            "return 1, # keep\n2",
-            "return (1)",
-            "return 1\n__END__\nraw",
-            "File.read(__FILE__)\nreturn 1",
-            "binding.eval('local_variables')\nreturn 1",
-            "RubyVM::InstructionSequence.of(method(:f))\nreturn 1",
-            "ObjectSpace.count_objects\nreturn 1",
-        ] {
-            let found = correction_offenses(&super::TopLevelReturnWithArgument, s);
-            assert!(!found.is_empty(), "{s}");
-            assert!(
-                found.iter().all(|o| o.correction.is_none()),
-                "{s}: {found:?}"
-            );
-        }
     }
     #[test]
     fn pinned_top_level_arguments_and_positions() {

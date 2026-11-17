@@ -46,7 +46,7 @@ impl Cop for RegexpAsCondition {
             cop: self.name(),
             severity: self.severity(),
             correction: cx.corrections_requested()
-                .then(|| inactive_bang(node, cx, file)).flatten(),
+                .then(|| correction(node, cx)).flatten(),
             message: "Do not use regexp literal as a condition. The regexp literal matches `$_` implicitly.".into(),
             line,
             col,
@@ -54,59 +54,24 @@ impl Cop for RegexpAsCondition {
         });
     }
 }
-// A bare regexp rewrite removes Ruby's -w parser warning even when inactive.
-// An immediate prefix ! has no such warning. Only a closed, unexecuted,
-// top-level branch with an empty inner if and plain ASCII pattern is proved.
-// Named captures can introduce locals under explicit =~ even when inactive;
-// exclude them. Ordinary dispatch, source and runtime observability are unproved.
-fn inactive_bang(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
+/// RuboCop's corrector: an explicit match against `$_`.
+fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Option<crate::offense::Correction> {
+    let source = std::str::from_utf8(node.location().as_slice()).ok()?;
+    if let Some(bang) = cx.parent().and_then(|p| p.as_call_node()).filter(|c| {
+        c.name().as_slice() == b"!"
+            && c.receiver()
+                .is_some_and(|r| r.location().start_offset() == node.location().start_offset())
+    }) {
+        let loc = bang.location();
+        return Some(crate::offense::Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement: format!("!({source} =~ $_)"),
+        });
     }
-    let literal = node
-        .as_match_last_line_node()
-        .map(|n| n.location())
-        .or_else(|| node.as_regular_expression_node().map(|n| n.location()))?;
-    let raw = literal.as_slice();
-    if raw.len() < 3
-        || raw[0] != b'/'
-        || raw[raw.len() - 1] != b'/'
-        || !raw[1..raw.len() - 1].iter().all(u8::is_ascii_lowercase)
-    {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let bang = ancestors.next()?.as_call_node()?;
-    if bang.location().as_slice() != [b"!".as_slice(), raw].concat() {
-        return None;
-    }
-    let inner = ancestors.next()?.as_if_node()?;
-    let body = ancestors.next()?.as_statements_node()?;
-    let outer = ancestors.next()?.as_if_node()?;
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some()
-        || inner.statements().is_some()
-        || inner.subsequent().is_some()
-        || inner.if_keyword_loc()?.as_slice() != b"if"
-        || inner.end_keyword_loc().is_none()
-        || inner.predicate().location().start_offset() != bang.location().start_offset()
-        || outer.predicate().as_false_node().is_none()
-        || outer.subsequent().is_some()
-        || outer.if_keyword_loc()?.as_slice() != b"if"
-        || outer.end_keyword_loc().is_none()
-        || body.body().len() != 1
-        || top.body().len() != 1
-    {
-        return None;
-    }
+    let loc = node.location();
     Some(crate::offense::Correction {
-        range: bang.location().start_offset()..bang.location().end_offset(),
-        replacement: format!("!({} =~ $_)", std::str::from_utf8(raw).ok()?),
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: format!("{source} =~ $_"),
     })
 }
 fn regexp(node: &Node<'_>) -> bool {

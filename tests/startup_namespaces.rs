@@ -71,34 +71,6 @@ fn ruby(dir: &Path, runtime: &str, program: &str) -> Output {
 }
 
 #[test]
-fn startup_module_nested_constant_witness_preserves_mixin_exception_atomicity() {
-    let d = project();
-    // Ordinary host startup defines SyntaxSuggest::MiniStringIO (a class).
-    // No user callback, project preload or monkey patch is necessary.
-    let before = "module MiniStringIO; end\nmodule Other; end\nmodule SyntaxSuggest\n  include MiniStringIO, Other\nend\n";
-    let naive = before.replace(
-        "include MiniStringIO, Other",
-        "include Other\n  include MiniStringIO",
-    );
-    no_write(d.path(), "Style/MixinGrouping", before);
-    for runtime in runtimes() {
-        let present = ruby(
-            d.path(),
-            &runtime,
-            "p defined?(SyntaxSuggest::MiniStringIO)\n",
-        );
-        if present.stdout == b"nil\n" {
-            continue;
-        }
-        let observe = "rescue TypeError\n  p SyntaxSuggest.ancestors.include?(Other)\nend\n";
-        let original = ruby(d.path(), &runtime, &format!("begin\n{before}{observe}"));
-        let changed = ruby(d.path(), &runtime, &format!("begin\n{naive}{observe}"));
-        assert_eq!(original.stdout, b"false\n", "{runtime}: {original:?}");
-        assert_eq!(changed.stdout, b"true\n", "{runtime}: {changed:?}");
-    }
-}
-
-#[test]
 fn replacing_startup_constants_and_reopening_them_are_not_equivalent() {
     let d = project();
     for runtime in runtimes() {

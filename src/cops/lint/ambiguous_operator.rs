@@ -75,15 +75,58 @@ impl Prefix {
     }
 }
 
+/// RuboCop's `add_parentheses` on the call taking the ambiguous argument.
+fn add_parentheses(
+    node: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let call = if node.as_call_node().is_some() {
+        node
+    } else {
+        cx.ancestors()
+            .find(|n| n.as_arguments_node().is_none() && n.as_keyword_hash_node().is_none())?
+    };
+    let (selector_end, end) = if let Some(c) = call.as_call_node() {
+        (
+            c.message_loc()?.end_offset(),
+            crate::cops::ast::source_end(call),
+        )
+    } else if let Some(s) = call.as_super_node() {
+        let end = s
+            .arguments()
+            .map_or(s.keyword_loc().end_offset(), |a| a.location().end_offset());
+        let end = s
+            .block()
+            .filter(|b| b.as_block_argument_node().is_some())
+            .map_or(end, |b| b.location().end_offset().max(end));
+        (s.keyword_loc().end_offset(), end)
+    } else {
+        let y = call.as_yield_node()?;
+        (y.keyword_loc().end_offset(), y.location().end_offset())
+    };
+    Some(crate::offense::Correction {
+        range: selector_end..end,
+        replacement: format!(
+            "({})",
+            std::str::from_utf8(file.bytes.get(selector_end + 1..end)?).ok()?
+        ),
+    })
+}
+
 impl Cop for AmbiguousOperator {
     fn name(&self) -> &'static str {
         "Lint/AmbiguousOperator"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -119,7 +162,10 @@ impl Cop for AmbiguousOperator {
         };
         let (line, col) = file.line_col(offset);
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| add_parentheses(node, cx, file))
+                .flatten(),
             cop: self.name(),
             severity: self.severity(),
             message: prefix.message(),

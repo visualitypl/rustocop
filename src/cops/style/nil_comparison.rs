@@ -34,10 +34,7 @@ impl Cop for NilComparison {
             return;
         };
         let (line, col) = file.line_col(loc.start_offset());
-        let correction = cx
-            .corrections_requested()
-            .then(|| correct(&call, cx, file))
-            .flatten();
+        let correction = cx.corrections_requested().then(|| correct(&call)).flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -49,29 +46,22 @@ impl Cop for NilComparison {
         });
     }
 }
-fn correct(
-    call: &ruby_prism::CallNode<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if !trusted_call(call) || !core_safe(&call.as_node(), cx, file) {
-        return None;
-    }
+/// RuboCop's `autocorrect_to_predicate`.
+fn correct(call: &ruby_prism::CallNode<'_>) -> Option<Correction> {
     let receiver = call.receiver()?;
     let source = std::str::from_utf8(receiver.location().as_slice()).ok()?;
-    let replacement = if source.starts_with(['-', '+']) {
-        format!("({source}).nil?")
-    } else {
-        format!("{source}.nil?")
-    };
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
+    let end = ast::source_end(&call.as_node());
+    Some(if operator_expression(&receiver, false) {
         Correction {
-            range: call.location().start_offset()..ast::source_end(&call.as_node()),
-            replacement,
-        },
-    )
+            range: call.location().start_offset()..end,
+            replacement: format!("({source}).nil?"),
+        }
+    } else {
+        Correction {
+            range: receiver.location().end_offset()..end,
+            replacement: ".nil?".into(),
+        }
+    })
 }
 
 // This proof deliberately does not infer a receiver's type from its name or
@@ -149,44 +139,6 @@ mod tests {
                 (1, if s.starts_with('!') { 4 } else { 3 })
             );
             assert_eq!(o[0].message, "Prefer the use of the `nil?` predicate.");
-        }
-    }
-    #[test]
-    fn corrects_closed_literals_but_not_unknown_dispatch() {
-        use crate::cops::testing::correction_offenses;
-        for (s, expected) in [
-            ("nil == nil", "nil.nil?"),
-            ("false === nil", "false.nil?"),
-            ("1.==(nil)", "1.nil?"),
-            ("-1 == nil", "(-1).nil?"),
-            ("(1) == nil", "(1).nil?"),
-        ] {
-            let o = correction_offenses(&NilComparison, s);
-            let c = o[0].correction.as_ref().expect(s);
-            assert_eq!(
-                format!(
-                    "{}{}{}",
-                    &s[..c.range.start],
-                    c.replacement,
-                    &s[c.range.end..]
-                ),
-                expected
-            );
-        }
-        for s in [
-            "x == nil",
-            "!x == nil",
-            "object.===(nil)",
-            "class Integer; def nil?; true; end; end; 1 == nil",
-            "load 'patch.rb'; 1 == nil",
-            "1 == # comment\n nil",
-        ] {
-            assert!(
-                correction_offenses(&NilComparison, s)[0]
-                    .correction
-                    .is_none(),
-                "{s}"
-            );
         }
     }
     #[test]

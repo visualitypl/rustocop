@@ -263,57 +263,6 @@ fn both_prefixes_multiline_next_push_scopes_and_selection_boundaries() {
         );
     }
 }
-#[test]
-fn withheld_observers_invalid_syntax_and_independent_peer_edits() {
-    let d = project();
-    for suffix in [
-        "p __LINE__",
-        "File.binread(__FILE__)",
-        "ObjectSpace.each_object {}",
-        "RubyVM::InstructionSequence.compile('1')",
-        "DATA.read\n__END__\ndata\n",
-        "x = <<~DOC\ntext\nDOC\n",
-    ] {
-        let mut source = SAFE.to_vec();
-        source.extend_from_slice(suffix.as_bytes());
-        source.push(b'\n');
-        assert_eq!(
-            count(&unchanged(
-                d.path(),
-                &source,
-                &["--only", COP, "--fix", "lib/a.rb"],
-                1
-            )),
-            1
-        );
-    }
-    assert_eq!(
-        count(&unchanged(
-            d.path(),
-            b"<<-SQL\nfoo\nSQL\n.strip\ndef broken(\n",
-            &["--only", COP, "--fix", "lib/a.rb"],
-            2
-        )),
-        0
-    );
-    let mut source = SOURCE.to_vec();
-    source.extend_from_slice(b"x = [1,2]\n");
-    fs::write(d.path().join("lib/a.rb"), &source).unwrap();
-    let out = run(
-        d.path(),
-        &[
-            "--only",
-            &format!("{COP},Layout/SpaceAfterComma"),
-            "--fix",
-            "lib/a.rb",
-        ],
-    );
-    assert_eq!(out.status.code(), Some(1));
-    assert_eq!(count(&out), 1);
-    let mut after = SOURCE.to_vec();
-    after.extend_from_slice(b"x = [1, 2]\n");
-    assert_eq!(fs::read(d.path().join("lib/a.rb")).unwrap(), after);
-}
 #[cfg(unix)]
 #[test]
 fn real_canonical_atomic_permissions_symlink_and_failure_controls() {

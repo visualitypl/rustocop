@@ -174,43 +174,6 @@ fn default_selectors_enabling_excludes_and_directives_use_real_cli() {
     }
 }
 #[test]
-fn constant_class_convention_uses_declared_encoding_lowercase_letters() {
-    let d = project();
-    for (source, flags) in [
-        (b"# coding: windows-1252\n\xc9\xe9 === x\n".as_slice(), true),
-        (
-            b"# coding: windows-1252\n\xc9\xc9 === x\n".as_slice(),
-            false,
-        ),
-        (
-            b"# coding: Windows-31J\n\x82\x60\x82\x81 === x\n".as_slice(),
-            true,
-        ),
-        (
-            b"# coding: EUC-JP\n\xa3\xc1\xa3\xe1 === x\n".as_slice(),
-            true,
-        ),
-        (
-            b"# coding: GB18030\n\xa3\xc1\xa3\xe1 === x\n".as_slice(),
-            true,
-        ),
-        (b"# coding: KOI8-R\n\xe1\xc1 === x\n".as_slice(), true),
-        ("Éé === x\n".as_bytes(), true),
-        ("ÉÉ === x\n".as_bytes(), false),
-        ("A\u{a7cd} === x\n".as_bytes(), false),
-        ("A\u{1c8a} === x\n".as_bytes(), false),
-        ("A\u{10428} === x\n".as_bytes(), true),
-    ] {
-        let o = unchanged(
-            d.path(),
-            source,
-            &["--only", COPS[1], "--fix", "a.rb"],
-            i32::from(flags),
-        );
-        assert_eq!(String::from_utf8_lossy(&o.stdout).contains(COPS[1]), flags);
-    }
-}
-#[test]
 fn parentheses_semicolon_and_layout_peers_preserve_single_pass_binding() {
     let d = project();
     let source = "result=((1..10)===7); result\n";

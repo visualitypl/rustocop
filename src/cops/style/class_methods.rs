@@ -295,13 +295,6 @@ impl Bindings {
         result.reads_source |= !result.local_constructors.proven();
         result
     }
-    /// Existing conservative execution/source-metadata observer fact. Consumers
-    /// relying on an unreachable branch also need to exclude tracing/evaluation
-    /// hooks, even when those hooks do not read the source bytes themselves.
-    pub(crate) fn observes_sources(&self) -> bool {
-        self.observes_sources
-    }
-
     /// Unconditional listed-observer hold: no reader or value-flow proof needed.
     /// DATA is an observer only when the parser found an actual data section.
     pub(crate) fn has_listed_source_observer(&self, has_data: bool) -> bool {
@@ -1861,104 +1854,6 @@ mod tests {
             let found = correction_offenses(&ClassMethods, &source);
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-
-    #[test]
-    fn indirect_observers_withhold_both_newline_consumers() {
-        use crate::cops::style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions};
-        for observer in [
-            "items.flat_map(&(:backtrace_locations))",
-            "items.flat_map(&((:\"backtrace\\x5flocations\")))",
-            "items.flat_map(&(:'backtrace'))",
-            "items.map(&(%s(full_message)))",
-            "items.map(&(:source_location))",
-            "items.map(&:backtrace_locations.to_proc)",
-            "items.map(&((:full_message).to_proc))",
-            "callback = (:backtrace).to_proc; items.map(&callback)",
-            "(:backtrace_locations).to_proc.call(error)",
-            "selector = :backtrace; items.flat_map(&selector)",
-            "items.map(&unknown)",
-            "items.map(&\"back#{suffix}\".to_sym)",
-            "def dispatch(&block); items.map(&block); end",
-            "def dispatch(&); items.map(&); end",
-            "def dispatch(...); items.map(...); end",
-            "items.map(&SELECTOR)",
-            "items.map(&nil.to_proc)",
-            "items.map(&(:backtrace; :to_s))",
-            "alias stack backtrace; error.stack",
-            "alias stack full_message; alias detail stack; error.detail",
-            "Exception.alias_method(:stack, :backtrace); error.stack",
-            "items.map(&:alias_method)",
-            "items.map(&:to_proc)",
-            "error.enum_for(:backtrace).each {}",
-            "error.to_enum(:backtrace_locations).each {}",
-        ] {
-            for (cop, prefix, line, col) in [
-                (
-                    &AmbiguousEndlessMethodDefinition as &dyn Cop,
-                    "def f = true if true\n",
-                    1,
-                    1,
-                ),
-                (
-                    &ClassMethodsDefinitions as &dyn Cop,
-                    "class A\n  class << self\n    def one; :one; end\n  end\nend\n",
-                    2,
-                    3,
-                ),
-            ] {
-                let source = format!("{prefix}{observer}\n");
-                assert_eq!(
-                    ruby_prism::parse(source.as_bytes()).errors().count(),
-                    0,
-                    "{source}"
-                );
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert_eq!((found[0].line, found[0].col), (line, col));
-                assert!(found[0].correction.is_none(), "{}: {source}", cop.name());
-            }
-        }
-    }
-
-    #[test]
-    fn compound_assignment_getters_withhold_newline_edits_not_offenses() {
-        use crate::cops::style::{AmbiguousEndlessMethodDefinition, ClassMethodsDefinitions};
-        for operator in ["||=", "&&=", "+="] {
-            for getter in [
-                "to_proc",
-                "backtrace",
-                "backtrace_locations",
-                "full_message",
-                "source_location",
-            ] {
-                for (cop, prefix, line, col) in [
-                    (
-                        &AmbiguousEndlessMethodDefinition as &dyn Cop,
-                        "def f = true if true\n",
-                        1,
-                        1,
-                    ),
-                    (
-                        &ClassMethodsDefinitions as &dyn Cop,
-                        "class A\n  class << self\n    def one; :one; end\n  end\nend\n",
-                        2,
-                        3,
-                    ),
-                ] {
-                    let source = format!("{prefix}(:backtrace.{getter} {operator} nil)\n");
-                    assert_eq!(
-                        ruby_prism::parse(source.as_bytes()).errors().count(),
-                        0,
-                        "{source}"
-                    );
-                    let found = correction_offenses(cop, &source);
-                    assert_eq!(found.len(), 1, "{source}");
-                    assert_eq!((found[0].line, found[0].col), (line, col));
-                    assert!(found[0].correction.is_none(), "{}: {source}", cop.name());
-                }
-            }
         }
     }
 

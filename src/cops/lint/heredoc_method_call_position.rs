@@ -45,15 +45,16 @@ impl Cop for HeredocMethodCallPosition {
             }
             _ => return,
         };
-        let Some(opening) = opening.filter(|l| l.as_slice().starts_with(b"<<")) else {
+        if !opening.is_some_and(|l| l.as_slice().starts_with(b"<<")) {
             return;
-        };
+        }
         let Some(closing) = closing else { return };
         // Start at the literal once, not a root/receiver rescan for every send.
         // Every upstream send in this receiver chain reports the SAME range;
         // RuboCop deduplicates it, even when the call is several lines later.
         let mut child = node;
         let mut misplaced = false;
+        let mut chain = Vec::new();
         for parent in cx.ancestors() {
             #[cfg(test)]
             RECEIVER_EDGES.with(|n| n.set(n.get() + 1));
@@ -66,6 +67,7 @@ impl Cop for HeredocMethodCallPosition {
                 break;
             }
             misplaced |= end >= closing.end_offset();
+            chain.push(parent);
             if terminal {
                 break;
             }
@@ -87,9 +89,7 @@ impl Cop for HeredocMethodCallPosition {
                     .into(),
             correction: cx
                 .corrections_requested()
-                .then(|| {
-                    closed_reference(node, opening.start_offset(), closing.end_offset(), cx, file)
-                })
+                .then(|| correction(&chain, &closing, file))
                 .flatten(),
         });
     }
@@ -139,62 +139,78 @@ fn receiver_send<'pr>(node: &Node<'pr>) -> Option<(Node<'pr>, usize, bool)> {
     })
 }
 
-// Relocating an ordinary invocation changes dispatch/exception/trace locations.
-// Only an immediate, unexecuted method query in a closed consumed top-level
-// array is proved here. No delayed scope, arguments, interpolation, commands,
-// chained calls, comments/header tails or queued heredocs enter this envelope.
-// The common main-parse boundary/source/code-object/heap/position proofs still
-// filter the actual atomic edit; no alternate parse or global safety exemption.
-fn closed_reference(
-    node: &Node<'_>,
-    start: usize,
-    close_end: usize,
-    cx: &NodeContext<'_, '_>,
+/// RuboCop's `autocorrect` for the outermost send of the receiver chain.
+fn correction(
+    chain: &[&Node<'_>],
+    closing: &ruby_prism::Location<'_>,
     file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
-    let string = node.as_string_node()?;
-    if file.data_start().is_some() || close_end.checked_sub(start)? > 4096 {
-        return None;
+    let outer = *chain.last()?;
+    let end = crate::cops::ast::source_end(outer);
+    let last_line = file.line_of(end - 1);
+    // `calls_on_multiple_lines?`
+    for n in chain {
+        let call = n.as_call_node()?;
+        if file.line_of(crate::cops::ast::source_end(n) - 1) != last_line {
+            return None;
+        }
+        let arguments = crate::cops::ast::call_arguments(&call);
+        if let (Some(first), Some(last)) = (arguments.first(), arguments.last())
+            && file.line_of(first.location().start_offset()) != file.last_line_of(last.location())
+        {
+            return None;
+        }
     }
-    let mut ancestors = cx.ancestors();
-    let call = ancestors.next()?.as_call_node()?;
-    if call.block().is_some() || call.arguments().is_some() {
-        return None;
+    let mut heredoc_end = closing.end_offset();
+    while heredoc_end > closing.start_offset()
+        && matches!(file.bytes[heredoc_end - 1], b'\n' | b'\r')
+    {
+        heredoc_end -= 1;
     }
-    let open_end = string.opening_loc()?.end_offset();
-    let end = call.location().end_offset();
-    let suffix = file.bytes.get(close_end..end)?;
-    if !matches!(
-        suffix,
-        b".strip_indent" | b".strip" | b".freeze" | b"&.strip_indent" | b"&.strip" | b"&.freeze"
-    ) {
-        return None;
+    let call_source = std::str::from_utf8(file.bytes.get(heredoc_end..end)?)
+        .ok()?
+        .trim();
+    let line = file.line_of(end);
+    let line_start = file.line_start(line);
+    let mut line_end = file.line_start(line + 1);
+    while line_end > line_start && matches!(file.bytes[line_end - 1], b'\n' | b'\r') {
+        line_end -= 1;
     }
-    let header = file
-        .bytes
-        .get(open_end..string.content_loc().start_offset())?;
-    if !matches!(header, b"\n" | b"\r\n") {
+    let line_source = std::str::from_utf8(&file.bytes[line_start..line_end])
+        .ok()?
+        .trim();
+    let range = if call_source == line_source {
+        heredoc_end..end
+    } else if format!("{call_source},") == line_source {
+        heredoc_end..end + 1
+    } else {
         return None;
+    };
+    let start = outer.location().start_offset();
+    let begin_line = file.line_of(start);
+    let mut insert_at = file.line_start(begin_line + 1);
+    while insert_at > file.line_start(begin_line)
+        && matches!(file.bytes[insert_at - 1], b'\n' | b'\r')
+    {
+        insert_at -= 1;
     }
-    ancestors.next()?.as_defined_node()?;
-    let array = ancestors.next()?.as_array_node()?;
-    let statements = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || array.elements().len() != 1 || statements.body().len() != 1 {
-        return None;
-    }
-    let envelope = file.bytes.get(start..close_end)?;
-    let retained = envelope
-        .strip_suffix(b"\r\n")
-        .or_else(|| envelope.strip_suffix(b"\n"))?;
-    let opening_len = open_end - start;
-    let mut replacement = retained[..opening_len].to_vec();
-    replacement.extend_from_slice(suffix);
-    replacement.extend_from_slice(&retained[opening_len..]);
-    Some(crate::offense::Correction {
-        range: start..end,
-        replacement: String::from_utf8(replacement).ok()?,
-    })
+    let moved = range.clone();
+    crate::cops::style::correction::combine(
+        file,
+        vec![
+            crate::offense::Correction {
+                range,
+                replacement: String::new(),
+            },
+            crate::offense::Correction {
+                range: insert_at..insert_at,
+                replacement: std::str::from_utf8(&file.bytes[moved])
+                    .ok()?
+                    .trim()
+                    .to_owned(),
+            },
+        ],
+    )
 }
 
 #[cfg(test)]

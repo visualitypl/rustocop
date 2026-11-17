@@ -32,6 +32,10 @@ impl Cop for EmptyConditionalBody {
         "Lint/EmptyConditionalBody"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn check_parse(
         &self,
         result: &ruby_prism::ParseResult<'_>,
@@ -92,7 +96,10 @@ impl Cop for EmptyConditionalBody {
             return;
         }
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| flip_orphaned_else(node, cx, file))
+                .flatten(),
             cop: self.name(),
             severity: self.severity(),
             message: format!(
@@ -116,6 +123,89 @@ impl Cop for EmptyConditionalBody {
             col,
         });
     }
+}
+
+/// RuboCop's `flip_orphaned_else`: an empty branch with an `else` becomes
+/// the inverse conditional around the else body.
+fn flip_orphaned_else(
+    node: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let (_keyword, inverse, predicate, other) = if let Some(n) = node.as_if_node() {
+        if n.if_keyword_loc()?.as_slice() != b"if" {
+            return None;
+        }
+        (
+            n.if_keyword_loc()?,
+            "unless",
+            n.predicate(),
+            n.subsequent()?.as_else_node()?,
+        )
+    } else {
+        let n = node.as_unless_node()?;
+        (n.keyword_loc(), "if", n.predicate(), n.else_clause()?)
+    };
+
+    let body = other.statements()?;
+    let else_loc = other.else_keyword_loc();
+    let start = node.location().start_offset();
+    let condition = predicate.location();
+    // `empty_if_branch?`, with parser's view of the parent.
+    let parent = cx
+        .ancestors()
+        .find(|n| !n.as_statements_node().is_some_and(|s| s.body().len() == 1));
+    let empty_if_branch = match parent {
+        None | Some(Node::ProgramNode { .. }) => false,
+        Some(p) => {
+            let branch = p
+                .as_if_node()
+                .map(|n| n.statements())
+                .or_else(|| p.as_unless_node().map(|n| n.statements()));
+            match branch {
+                None => true,
+                Some(None) => true,
+                Some(Some(s)) => {
+                    let mut it = s.body().iter();
+                    match (it.next(), it.next()) {
+                        (Some(n), None) => {
+                            n.as_if_node().is_some_and(|i| i.statements().is_none())
+                                || n.as_unless_node().is_some_and(|u| u.statements().is_none())
+                        }
+                        _ => false,
+                    }
+                }
+            }
+        }
+    };
+    let else_branch = {
+        let mut it = body.body().iter();
+        !matches!((it.next(), it.next()), (Some(n), None) if n.as_if_node().is_some() || n.as_unless_node().is_some())
+    };
+    let removed = if empty_if_branch && else_branch
+        || file.last_line_of(predicate.location()) == file.line_of(else_loc.start_offset())
+    {
+        start..else_loc.start_offset()
+    } else {
+        let end = condition.end_offset();
+        start..file.line_start(file.line_of(end.saturating_sub(1).max(start)) + 1)
+    };
+    super::super::style::correction::combine(
+        file,
+        vec![
+            crate::offense::Correction {
+                range: removed,
+                replacement: String::new(),
+            },
+            crate::offense::Correction {
+                range: else_loc.start_offset()..else_loc.end_offset(),
+                replacement: format!(
+                    "{inverse} {}",
+                    std::str::from_utf8(condition.as_slice()).ok()?
+                ),
+            },
+        ],
+    )
 }
 
 /// An `if`, `elsif` or `unless` branch, in the terms RuboCop's checks use.

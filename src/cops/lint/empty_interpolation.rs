@@ -25,6 +25,10 @@ impl Cop for EmptyInterpolation {
         "Lint/EmptyInterpolation"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_embedded_statements_node().is_some()
     }
@@ -73,7 +77,12 @@ impl Cop for EmptyInterpolation {
             file,
         );
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement: String::new(),
+                }),
             cop: self.name(),
             severity: self.severity(),
             message: "Empty interpolation detected.".to_string(),

@@ -68,19 +68,22 @@ impl Cop for Attr {
         };
         let selector = call.message_loc().unwrap();
         let (line, col) = file.line_col(selector.start_offset());
-        let correction = if cx.corrections_requested()
-            && cx
-                .ancestors()
-                .last()
-                .is_some_and(|root| file.accessor_bindings(root).contains(node))
-        {
-            Some(crate::offense::Correction {
+        let correction = cx.corrections_requested().then(|| {
+            let mut edits = vec![crate::offense::Correction {
                 range: selector.start_offset()..selector.end_offset(),
                 replacement: family.into(),
-            })
-        } else {
-            None
-        };
+            }];
+            if let [name, setter, ..] = args.as_slice()
+                && matches!(setter, Node::TrueNode { .. } | Node::FalseNode { .. })
+            {
+                edits.push(crate::offense::Correction {
+                    range: name.location().end_offset()..setter.location().end_offset(),
+                    replacement: String::new(),
+                });
+            }
+            super::correction::combine(file, edits)
+        });
+        let correction = correction.flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -174,23 +177,6 @@ mod tests {
         }
     }
     #[test]
-    fn all_standalone_pinned_corrections_are_individually_withheld() {
-        // Top-level dispatch is not Module#attr; the four boolean forms also
-        // remove a Ruby deprecation warning. Offenses remain available.
-        for source in [
-            "attr :name\n",
-            "attr :name, false\n",
-            "attr :name, true\n",
-            "attr(:name, true)\n",
-            "attr(:name, false)\n",
-            "attr :foo, :bar\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&super::Attr, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn nearest_class_or_block_controls_custom_method_exemption() {
         for source in [
             "class Foo; class Bar; def attr; end; end; attr :a; end",
@@ -218,27 +204,6 @@ mod tests {
             "class Foo; self&.class_eval { attr :a }; end",
         ] {
             assert!(offenses(source).is_empty(), "{source}");
-        }
-    }
-    #[test]
-    fn deprecated_boolean_warnings_and_dynamic_arguments_are_not_changed() {
-        for args in [
-            ":name, true",
-            ":name, false",
-            ":name, flag",
-            "name",
-            ":foo, true, :bar",
-            ":\"bad?\"",
-            "*names",
-            "\"one\"",
-            ":one, nil",
-            "123",
-            "*[:one]",
-        ] {
-            let source = format!("class Foo\n  attr({args})\nend\n");
-            let found = crate::cops::testing::correction_offenses(&super::Attr, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 }

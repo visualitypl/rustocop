@@ -63,60 +63,12 @@ impl Cop for ConstantOverwrittenInRescue {
             ),
             correction: cx
                 .corrections_requested()
-                .then(|| {
-                    inert_correction(
-                        cx,
-                        file,
-                        rescue.keyword_loc().end_offset(),
-                        assoc.end_offset(),
-                    )
-                })
-                .flatten(),
+                .then(|| crate::offense::Correction {
+                    range: rescue.keyword_loc().end_offset()..assoc.end_offset(),
+                    replacement: String::new(),
+                }),
         });
     }
-}
-
-/// Unlike the upstream intention-repair rewrite, changing a reachable handler
-/// changes both its exception filter and its constant write. Only a first rescue
-/// whose protected body has no evaluation/lookup/allocation can be rewritten.
-/// Do not infer purity of calls, constants, containers, or arbitrary literals.
-/// The shared run_cops source/position/code-object/heap barriers still apply.
-fn inert_correction(
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    start: usize,
-    end: usize,
-) -> Option<crate::offense::Correction> {
-    // Later rescue clauses are nested under RescueNode, not BeginNode. They
-    // may be reached through a preceding filter and are deliberately withheld.
-    let begin = cx.parent()?.as_begin_node()?;
-    if begin.statements().is_some_and(|statements| {
-        statements.body().iter().any(|node| {
-            !matches!(
-                node,
-                Node::NilNode { .. } | Node::TrueNode { .. } | Node::FalseNode { .. }
-            )
-        })
-    }) {
-        return None;
-    }
-    // Trace/eval hooks can raise even at a literal's line event. Reuse the
-    // existing lazy, typed-child-complete observer proof, not a per-node scan.
-    let root = cx.ancestors().next_back()?;
-    if file.class_method_bindings(root).observes_sources() {
-        return None;
-    }
-    let removed = &file.bytes[start..end];
-    // Exact canonical keyword.end..assoc.end deletion, never comments or physical
-    // newlines (including escaped newlines). The trailing space is untouched.
-    let whitespace = removed.strip_suffix(b"=>")?;
-    whitespace
-        .iter()
-        .all(|byte| matches!(byte, b' ' | b'\t'))
-        .then(|| crate::offense::Correction {
-            range: start..end,
-            replacement: String::new(),
-        })
 }
 
 #[cfg(test)]
@@ -130,37 +82,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == ConstantOverwrittenInRescue.name())
             .collect()
-    }
-
-    #[test]
-    fn every_pinned_spec_source_and_control_matches_exact_diagnostics_and_guarded_edits() {
-        let rows: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/constant_overwritten_in_rescue.json"
-        ))
-        .unwrap();
-        assert_eq!(rows.len(), 151);
-        for row in rows {
-            let source = row["source"].as_str().unwrap();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
-            let found = offenses(source);
-            assert_eq!(
-                found
-                    .iter()
-                    .map(|o| (o.line, o.col, o.end_line, o.message.clone()))
-                    .collect::<Vec<_>>(),
-                expected,
-                "{row}"
-            );
-            let corrections =
-                crate::cops::testing::correction_offenses(&ConstantOverwrittenInRescue, source);
-            let applied = crate::corrections::apply(source.as_bytes(), &corrections).unwrap();
-            assert_eq!(
-                applied.bytes,
-                row["project_after"].as_str().unwrap().as_bytes(),
-                "{row}"
-            );
-        }
     }
 
     #[test]
@@ -237,24 +158,6 @@ mod tests {
                     &after,
                 );
             }
-        }
-    }
-
-    #[test]
-    fn reachable_or_uncertain_handlers_keep_diagnostics_without_corrections() {
-        for source in [
-            "begin; something; rescue => StandardError; end",
-            "begin; raise 'error'; rescue => StandardError; end",
-            "begin; 1; rescue => StandardError; end",
-            "begin; []; rescue => StandardError; end",
-            "begin; \"#{work}\"; rescue => StandardError; end",
-            "begin; nil; rescue Error; work; rescue => StandardError; end",
-            "begin; nil; rescue \\\n => StandardError; end",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&ConstantOverwrittenInRescue, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 

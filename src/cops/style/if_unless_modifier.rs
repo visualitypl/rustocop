@@ -950,23 +950,6 @@ pub(super) fn compression_binding_safe(body: &Node<'_>, predicate: &Node<'_>) ->
             .any(|name| condition.calls.contains(name))
 }
 
-/// Shared lexical proof for expanding modifier syntax. Uses the same local
-/// assignment classification as the scope analysis; never reparse a candidate.
-pub(super) fn expansion_binding_safe(body: &Node<'_>, predicate: &Node<'_>) -> bool {
-    let mut condition = LexicalFacts::default();
-    walk(&mut condition, predicate);
-    let mut branch = LexicalFacts::default();
-    walk(&mut branch, body);
-    !condition.declarations
-        && !condition.capture
-        && !branch.capture
-        && !branch.ambiguous
-        && !branch
-            .names
-            .iter()
-            .any(|name| condition.references.contains(name))
-}
-
 #[cfg(test)]
 thread_local! { static CORRECTION_INDEX_VISITS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
 #[cfg(test)]

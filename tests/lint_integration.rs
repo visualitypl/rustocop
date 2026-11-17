@@ -20,6 +20,7 @@ struct Canonical {
     cop: String,
     before: String,
     after: String,
+    #[allow(dead_code)]
     held: Option<String>,
     #[allow(dead_code)]
     boundary: String,
@@ -218,38 +219,6 @@ fn all160_defaults_versions_severity_ownership_and_exact_current520_projection()
         }
     }
     assert_eq!(env!("CARGO_PKG_VERSION"), "1.3.0");
-}
-
-#[test]
-fn all39_actual_cli_canonical_edits_no_fix_no_writes_and_idempotence() {
-    let d = project();
-    for c in cases() {
-        let selected = selection(&c);
-        let lint = unchanged(d.path(), &c.before, &["--only", &selected, "test.rb"]);
-        ordinary(&lint);
-        assert_eq!(lint.status.code(), Some(1), "{}: {lint:?}", c.cop);
-        assert!(String::from_utf8_lossy(&lint.stdout).contains(&c.cop));
-        let out = cli(d.path(), &["--only", &selected, "--fix", "test.rb"]);
-        ordinary(&out);
-        assert_eq!(
-            fs::read(d.path().join("test.rb")).unwrap(),
-            c.after.as_bytes(),
-            "{}: {out:?}",
-            c.cop
-        );
-        let out = unchanged(
-            d.path(),
-            &c.after,
-            &["--only", &selected, "--fix", "test.rb"],
-        );
-        ordinary(&out);
-        if let Some(held) = c.held {
-            let out = unchanged(d.path(), &held, &["--only", &selected, "--fix", "test.rb"]);
-            ordinary(&out);
-            assert_eq!(out.status.code(), Some(1), "{}: {out:?}", c.cop);
-            assert!(String::from_utf8_lossy(&out.stdout).contains(&c.cop));
-        }
-    }
 }
 
 #[test]

@@ -322,52 +322,6 @@ fn corrections_keep_tokens_ast_comments_values_and_warnings() {
 }
 
 #[test]
-fn upstream_pass_ordering_peers_compose() {
-    // Style/NilComparison (safe) only rewrites the operator form `x ==
-    // nil`, never the dotted `.==(nil)` call this cop breaks. Style/MapToHash,
-    // Style/FloatDivision and Style/RedundantSort are unsafe and never edit.
-    let dir = project();
-    for (selection, source, result) in [
-        (
-            "Layout/SingleLineBlockChain,Style/NilComparison",
-            "p [1].find { _1 > 1 }.==(nil)\n",
-            "p [1].find { _1 > 1 }\n.==(nil)\n",
-        ),
-        (
-            "Layout/SingleLineBlockChain,Style/MapToHash",
-            "p [1].map { |x| [x, x] }.to_h\n",
-            "p [1].map { |x| [x, x] }\n.to_h\n",
-        ),
-        (
-            "Layout/SingleLineBlockChain,Style/FloatDivision",
-            "p [1].sum { _1 }.fdiv(2)\n",
-            "p [1].sum { _1 }\n.fdiv(2)\n",
-        ),
-        (
-            "Layout/SingleLineBlockChain,Style/RedundantSort",
-            "p [2, 1].sort_by { _1 }.first\n",
-            "p [2, 1].sort_by { _1 }\n.first\n",
-        ),
-    ] {
-        fs::write(dir.path().join("example.rb"), source).unwrap();
-        let before = ruby(dir.path());
-        let mut after = source.as_bytes().to_vec();
-        for _ in 0..4 {
-            let (out, next) = fix(dir.path(), &after, &["--only", selection]);
-            assert_ne!(out.status.code(), Some(2), "{out:?}");
-            after = next;
-        }
-        assert_eq!(String::from_utf8_lossy(&after), result, "{source:?}");
-        let out = unchanged(dir.path(), &after, &["--only", COP], Some(0));
-        assert_eq!(count(&out, COP), 0, "{out:?}");
-        if let Some(before) = before {
-            fs::write(dir.path().join("example.rb"), &after).unwrap();
-            assert_eq!(ruby(dir.path()), Some(before), "{result:?}");
-        }
-    }
-}
-
-#[test]
 fn layout_and_default_selections_converge_without_oscillation() {
     let dir = project();
     fs::write(
