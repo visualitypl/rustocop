@@ -132,32 +132,6 @@ fn config_relative_exclusions_and_keyword_directives_apply_without_writes() {
 }
 
 #[test]
-fn fix_preserves_comments_before_predicates_without_writing() {
-    let dir = project();
-    let file = dir.path().join("lib/a.rb");
-    for source in [
-        "if true\n  if # keep this explanation\n    true\n    puts :ok\n  end\nend\n",
-        "if true\n  puts :ok if # important explanation\n    true\nend\n",
-        "if true\n  puts :ok\nend if # important explanation\n  true\n",
-        "puts :ok if true if # important explanation\n  true\n",
-    ] {
-        for newline in ["\n", "\r\n"] {
-            let source = source.replace('\n', newline);
-            fs::write(&file, &source).unwrap();
-            let modified = fs::metadata(&file).unwrap().modified().unwrap();
-            run(
-                dir.path(),
-                &["--only", COP, "--fix", "lib/a.rb"],
-                Some(1),
-                1,
-            );
-            assert_eq!(fs::read(&file).unwrap(), source.as_bytes());
-            assert_eq!(fs::metadata(&file).unwrap().modified().unwrap(), modified);
-        }
-    }
-}
-
-#[test]
 fn plain_lint_preserves_bytes_and_line_values_for_control_flow() {
     let dir = project();
     let file = dir.path().join("lib/a.rb");
@@ -328,49 +302,6 @@ fn safe_fixes_obey_enablement_and_reenabled_directive_spans() {
 }
 
 #[test]
-fn unsafe_source_envelopes_stay_byte_and_mtime_identical() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for source in [
-        b"# coding: ISO-8859-1\nif a\n  if b\n    puts '\xe9'\n  end\nend\n".as_slice(),
-        b"if a\n  if b\n    return __LINE__\n  end\nend\n".as_slice(),
-        b"if a\n  if b\n    work\n  end\nend\np __LINE__\n".as_slice(),
-        b"if a\n  if b\n    DATA.read\n  end\nend\n__END__\npayload\n".as_slice(),
-        b"if a\n  if b\n    File.read(__FILE__)\n  end\nend\n".as_slice(),
-        b"if a\n  if b\n    <<~TEXT\nhello\nTEXT\n  end\nend\n".as_slice(),
-        b"if a\n  work unless b\nend\n".as_slice(),
-        b"if a\n  x = 1 if x\nend\n".as_slice(),
-    ] {
-        fs::write(&path, source).unwrap();
-        let time = fs::metadata(&path).unwrap().modified().unwrap();
-        run(
-            dir.path(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(1),
-            1,
-        );
-        assert_eq!(fs::read(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), time);
-    }
-    for (source, status) in [
-        ("if first\n", 2),
-        ("if first && second\n  work\nend\n", 0),
-        ("if first\n  work if second\nelse\n  fallback\nend\n", 0),
-    ] {
-        fs::write(&path, source).unwrap();
-        let time = fs::metadata(&path).unwrap().modified().unwrap();
-        run(
-            dir.path(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(status),
-            0,
-        );
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), time);
-    }
-}
-
-#[test]
 fn real_incompatible_peers_withhold_only_the_declaring_cop() {
     let dir = project();
     let source = "if !true\n  if second\n    work\n  end\nend\n";
@@ -401,34 +332,6 @@ fn real_incompatible_peers_withhold_only_the_declaring_cop() {
             &selected,
         );
     }
-}
-
-#[test]
-fn every_pinned_unknown_negation_correction_keeps_exact_bytes_and_mtime() {
-    // RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
-    let cases: Vec<serde_json::Value> =
-        serde_json::from_str(include_str!("fixtures/sole_nested_conditional_pinned.json")).unwrap();
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    let mut count = 0;
-    for c in cases
-        .iter()
-        .filter(|c| c["correction"].is_string() && c["source"].as_str().unwrap().contains("unless"))
-    {
-        count += 1;
-        let source = c["source"].as_str().unwrap();
-        fs::write(&path, source).unwrap();
-        let time = fs::metadata(&path).unwrap().modified().unwrap();
-        run(
-            dir.path(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            Some(1),
-            c["positions"].as_array().unwrap().len(),
-        );
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), time);
-    }
-    assert_eq!(count, 24);
 }
 
 #[test]
@@ -499,152 +402,6 @@ fn mixed_style_layout_overlap_is_atomic_deterministic_and_stabilizes() {
         fs::read_to_string(path).unwrap(),
         "if first && second\n  work(\"x\")\nend\n"
     );
-}
-
-#[test]
-fn controlled_ruby_values_scope_order_guards_rescue_and_line_observations() {
-    // Only this controlled fixture is executed, never corpus or application code.
-    let source = r#"$trace = []
-def guard(x)
-  $trace << x
-  x
-end
-def line(a)
-  if a
-    if a
-      __LINE__
-    end
-  end
-end
-def choose(a, b)
-  if guard(a)
-    if guard(b)
-      "value\ntext"
-    end
-  end
-end
-def flow(a, b)
-  begin
-    if a
-      return :early if b
-    end
-    :late
-  rescue
-    :rescued
-  ensure
-    $trace << :ensure
-  end
-end
-def precedence(a, b, c)
-  if guard(a)
-    if guard(b) and guard(c)
-      :precedence
-    end
-  end
-end
-def yielding(item, enabled)
-  if yield item
-    if guard(enabled)
-      :yielded
-    end
-  end
-end
-def exceptional(a, b)
-  if a
-    if b
-      begin
-        $trace << :work
-        raise "failure"
-      rescue RuntimeError
-        :recovered
-      ensure
-        $trace << :cleanup
-      end
-    end
-  end
-end
-def assignment(a)
-  if value = a
-    if value && other = :assigned
-      [value, other]
-    end
-  end
-end
-def scope(a)
-  if a
-    x = 1 if x
-  end
-end
-p [false, nil, true].repeated_permutation(2).map { |a, b| choose(a, b) }
-p [flow(true, true), flow(true, false), flow(false, true)]
-p [false, nil, true].repeated_permutation(3).map { |a, b, c| precedence(a, b, c) }.count(:precedence)
-p [yielding(false, true) { |x| $trace << [:yield, x]; x }, yielding(true, false) { |x| $trace << [:yield, x]; x }]
-p [exceptional(false, true), exceptional(true, false), exceptional(true, true)]
-p [assignment(false), assignment(true), scope(true), line(true)]
-p 2.times.map { |i|
-  if i == 0
-    next :skipped if true
-  end
-  if i == 1
-    break :stopped if true
-  end
-}
-class OddTruth
-  def !; $trace << :bad_dispatch; true; end
-end
-if true
-  :kept unless OddTruth.new
-end
-p $trace
-"#;
-    let dir = project();
-    let before_path = dir.path().join("before.rb");
-    fs::write(&before_path, source).unwrap();
-    let path = dir.path().join("lib/a.rb");
-    fs::write(&path, source).unwrap();
-    run(
-        dir.path(),
-        &["--only", COP, "--fix", "lib/a.rb"],
-        Some(1),
-        3,
-    );
-    let after = fs::read_to_string(&path).unwrap();
-    assert_ne!(after, source);
-    assert!(after.contains("if guard(a) && guard(b)"));
-    assert!(after.contains("x = 1 if x") && after.contains("__LINE__"));
-    let mut rubies = vec!["ruby".to_owned()];
-    if let Ok(ruby) = crate::support::runtime::ruby() {
-        rubies.push(ruby);
-    }
-    for ruby in rubies {
-        if Command::new(&ruby).arg("--version").output().is_err() {
-            continue;
-        }
-        let before = Command::new(&ruby).arg(&before_path).output().unwrap();
-        let after = Command::new(&ruby).arg(&path).output().unwrap();
-        assert!(
-            before.status.success() && after.status.success(),
-            "{before:?} {after:?}"
-        );
-        assert_eq!(before.stdout, after.stdout, "{ruby}");
-        let observed = String::from_utf8_lossy(&after.stdout);
-        assert!(
-            observed.contains("[nil, nil, nil, nil, nil, nil, nil, nil, \"value\\ntext\"]"),
-            "{observed}"
-        );
-        assert!(
-            observed.contains("[nil, nil, :recovered]")
-                && observed.contains("[:yield, false]")
-                && observed.contains("[:yield, true]"),
-            "{observed}"
-        );
-        assert!(
-            observed.contains("[:early, :late, :late]")
-                && observed.contains(":stopped")
-                && !observed.contains(":bad_dispatch"),
-            "{observed}"
-        );
-    }
 }
 
 #[test]

@@ -38,7 +38,6 @@ pub struct SourceFile {
     source_path: Option<PathBuf>,
     noncanonical_load_path: OnceLock<bool>,
     interpolation_facts: OnceLock<crate::cops::style::interpolation_safety::Facts>,
-    format_string_facts: OnceLock<crate::cops::style::format_string::Facts>,
     negative_array_index_facts: OnceLock<crate::cops::style::negative_array_index::Facts>,
     dig_calls: OnceLock<crate::cops::style::dig_chain::Facts>,
     word_array_matrices: OnceLock<std::sync::Mutex<std::collections::HashSet<usize>>>,
@@ -65,10 +64,8 @@ pub struct SourceFile {
     hash_fetch_facts: OnceLock<crate::cops::style::hash_fetch_chain::Facts>,
     hash_lookup_facts: [OnceLock<crate::cops::style::hash_lookup_method::Facts>; 2],
     super_facts: OnceLock<crate::cops::style::super_arguments::Facts>,
-    argument_rewrite_facts: OnceLock<crate::cops::style::explicit_block_argument::Facts>,
     option_hash_supers: OnceLock<crate::cops::style::option_hash::SuperIndex>,
     inverse_method_nexts: OnceLock<crate::cops::style::inverse_methods::NextIndex>,
-    negated_condition_safety: OnceLock<crate::cops::style::negated_if::Safety>,
     /// Correction-only lexical declaration/read evidence for branch swaps.
     unless_else_bindings: OnceLock<crate::cops::style::unless_else::Bindings>,
     /// Detection-only bottom-up return facts for subjectless-case branch guards.
@@ -252,7 +249,6 @@ impl SourceFile {
             ),
             number_conversion_roots: Default::default(),
             interpolation_facts: OnceLock::new(),
-            format_string_facts: OnceLock::new(),
             negative_array_index_facts: OnceLock::new(),
             dig_calls: OnceLock::new(),
             word_array_matrices: OnceLock::new(),
@@ -276,10 +272,8 @@ impl SourceFile {
             hash_fetch_facts: OnceLock::new(),
             hash_lookup_facts: std::array::from_fn(|_| OnceLock::new()),
             super_facts: OnceLock::new(),
-            argument_rewrite_facts: OnceLock::new(),
             option_hash_supers: OnceLock::new(),
             inverse_method_nexts: OnceLock::new(),
-            negated_condition_safety: OnceLock::new(),
             unless_else_bindings: OnceLock::new(),
             empty_case_return_bodies: OnceLock::new(),
             line_starts: std::sync::Arc::new(line_starts),
@@ -425,14 +419,6 @@ impl SourceFile {
     ) -> &crate::cops::style::negative_array_index::Facts {
         self.negative_array_index_facts
             .get_or_init(|| crate::cops::style::negative_array_index::Facts::build(root))
-    }
-
-    pub(crate) fn format_string_facts(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::format_string::Facts {
-        self.format_string_facts
-            .get_or_init(|| crate::cops::style::format_string::Facts::build(root))
     }
 
     pub(crate) fn interpolation_facts(
@@ -787,14 +773,6 @@ impl SourceFile {
     ) -> &crate::cops::style::unless_else::Bindings {
         self.unless_else_bindings
             .get_or_init(|| crate::cops::style::unless_else::Bindings::build(root))
-    }
-
-    pub(crate) fn negated_condition_safety(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::negated_if::Safety {
-        self.negated_condition_safety
-            .get_or_init(|| crate::cops::style::negated_if::Safety::build(root))
     }
 
     pub(crate) fn boolean_predicate_safety(
@@ -1158,14 +1136,6 @@ impl SourceFile {
     ) -> &crate::cops::style::option_hash::SuperIndex {
         self.option_hash_supers
             .get_or_init(|| crate::cops::style::option_hash::SuperIndex::of(root))
-    }
-
-    pub(crate) fn argument_rewrite_facts(
-        &self,
-        root: &ruby_prism::Node<'_>,
-    ) -> &crate::cops::style::explicit_block_argument::Facts {
-        self.argument_rewrite_facts
-            .get_or_init(|| crate::cops::style::explicit_block_argument::Facts::build(root))
     }
 
     pub(crate) fn super_facts(
@@ -1863,45 +1833,6 @@ mod tests {
     }
 
     #[test]
-    fn formatting_proof_is_lazy_cached_file_local_and_linear() {
-        use crate::cops::{
-            Cop, run_cops, run_cops_with_corrections,
-            style::FormatString,
-            walk::{self, NodeVisitor},
-        };
-        let source = "[\"%s/%s\" % [\"a\", 1], sprintf('%s', 2)]\n".repeat(1500);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&FormatString];
-        let mut out = Vec::new();
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 3000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 3000);
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        let mut count = Count(0);
-        walk::walk(&mut count, &parsed.node());
-        let facts = file.format_string_facts.get().unwrap();
-        assert_eq!(facts.visits, count.0);
-        assert!(facts.visits < 1500 * 25);
-        for _ in 0..1000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
-        }
-        let other = SourceFile::new("other.rb".into(), b"effect; '%s' % 1".to_vec());
-        assert!(other.format_string_facts.get().is_none());
-    }
-
-    #[test]
     fn decoded_literal_validity_uses_real_encoding_widths_not_column_fallbacks() {
         for (header, valid, invalid) in [
             ("UTF-8", b"\xc3\xa9".as_slice(), Some(b"\xff".as_slice())),
@@ -1926,148 +1857,6 @@ mod tests {
             if let Some(invalid) = invalid {
                 assert!(!file.valid_source_encoded_bytes(invalid), "{header}");
             }
-        }
-    }
-
-    #[test]
-    fn string_apis_share_lazy_bounded_closed_dispatch_facts() {
-        use crate::cops::{
-            Cop, run_cops, run_cops_with_corrections,
-            style::{StringMethods, Strip},
-        };
-        let source = "[\"x\".intern, :x.intern, \" x \".lstrip.rstrip, \" x \"&.rstrip&.lstrip]\n"
-            .repeat(1500);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 2] = [&StringMethods, &Strip];
-        let mut out = Vec::new();
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
-        let facts = file.format_string_facts.get().unwrap();
-        assert!(facts.visits < 1500 * 30);
-        for _ in 0..1000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
-        }
-        let other = SourceFile::new("other.rb".into(), b"effect; 'x'.intern".to_vec());
-        assert!(other.format_string_facts.get().is_none());
-    }
-
-    #[test]
-    fn unpack_first_candidates_share_lazy_bounded_closed_dispatch_facts() {
-        use crate::cops::{Cop, run_cops, run_cops_with_corrections, style::UnpackFirst};
-        let source = "['abc'.unpack('h*').first, 'abc'&.unpack('a*')&.at(0), ''.unpack('C')[0]]\n"
-            .repeat(2000);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&UnpackFirst];
-        let mut out = Vec::new();
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
-        let facts = file.format_string_facts.get().unwrap();
-        assert!(facts.visits < 2000 * 30);
-        for _ in 0..1000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
-        }
-    }
-
-    #[test]
-    fn array_join_dense_literals_reuse_one_lazy_closed_dispatch_walk() {
-        use crate::cops::{Cop, run_cops, run_cops_with_corrections, style::ArrayJoin};
-        let source = "x = [nil, [1, false], :x] * ','\n".repeat(6000);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&ArrayJoin];
-        let mut out = vec![];
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(out.iter().all(|o| o.correction.is_some()));
-        let facts = file.format_string_facts.get().unwrap();
-        assert!(facts.visits <= 6000 * 12 + 2, "{}", facts.visits);
-        for _ in 0..6000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
-        }
-    }
-
-    #[test]
-    fn array_constructor_reuses_lazy_closed_dispatch_facts_and_linear_work() {
-        use crate::cops::{
-            Cop, run_cops, run_cops_with_corrections, style::RedundantArrayConstructor,
-        };
-        let file = SourceFile::new(
-            "x.rb".into(),
-            "x = Array.new([nil, [1, false], :x])\n"
-                .repeat(6000)
-                .into_bytes(),
-        );
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&RedundantArrayConstructor];
-        let mut out = vec![];
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(out.iter().all(|o| o.correction.is_some()));
-        let facts = file.format_string_facts.get().unwrap();
-        assert!(facts.visits <= 6000 * 12 + 2, "{}", facts.visits);
-        for _ in 0..6000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
-        }
-    }
-
-    #[test]
-    fn array_constructor_string_context_holds_keep_proof_work_lazy_and_linear() {
-        use crate::cops::{
-            Cop, run_cops, run_cops_with_corrections, style::RedundantArrayConstructor,
-        };
-        let file = SourceFile::new(
-            "x.rb".into(),
-            "Array[\"x\"]; Array[?x]; Array[\"x\" \"y\"]; Array.new([?x])\n"
-                .repeat(1500)
-                .into_bytes(),
-        );
-        let parsed = crate::parser::parse(&file.bytes);
-        let cops: [&dyn Cop; 1] = [&RedundantArrayConstructor];
-        let mut out = vec![];
-        assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, false).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(file.format_string_facts.get().is_none());
-        out.clear();
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 1500);
-        let facts = file.format_string_facts.get().unwrap();
-        assert!(facts.visits <= 1500 * 25 + 2, "{}", facts.visits);
-        for _ in 0..6000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.format_string_facts(&parsed.node())
-            ));
         }
     }
 
@@ -2410,64 +2199,6 @@ mod tests {
             assert!(std::ptr::eq(facts, file.dig_calls(&parsed.node())));
         }
         assert!(file.token_ranges.get().is_none());
-    }
-
-    #[test]
-    fn negative_index_receiver_chain_classification_is_lazy_once_and_bounded() {
-        use crate::cops::{Cop, run_cops, style::NegativeArrayIndex};
-        let source = "arr.sort.reverse.rotate[arr.shuffle.sort.reverse.size - 2]\n".repeat(6000);
-        let file = SourceFile::new("x.rb".into(), source.into_bytes());
-        let parsed = crate::parser::parse(&file.bytes);
-        assert!(file.negative_array_index_facts.get().is_none());
-        let mut out = vec![];
-        let cops: [&dyn Cop; 1] = [&NegativeArrayIndex];
-        assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
-        assert_eq!(out.len(), 6000);
-        assert!(out.iter().all(|o| o.correction.is_none()));
-        let facts = file.negative_array_index_facts.get().unwrap();
-        assert!(facts.visits <= 6000 * 15 + 2, "{}", facts.visits);
-        for _ in 0..6000 {
-            assert!(std::ptr::eq(
-                facts,
-                file.negative_array_index_facts(&parsed.node())
-            ));
-        }
-        assert!(file.format_string_facts.get().is_none());
-    }
-
-    #[test]
-    fn compound_array_getters_reuse_facts_and_never_build_constructor_correction_proofs() {
-        use crate::cops::{
-            Cop, run_cops,
-            style::{NegativeArrayIndex, RedundantArrayConstructor},
-        };
-        for (cop, source) in [
-            (
-                &NegativeArrayIndex as &dyn Cop,
-                "arr[0..[arr.length - 1]] ||= rhs\n",
-            ),
-            (&RedundantArrayConstructor as &dyn Cop, "Array[0] += 1\n"),
-        ] {
-            let file = SourceFile::new("x.rb".into(), source.repeat(6000).into_bytes());
-            let parsed = crate::parser::parse(&file.bytes);
-            let mut out = vec![];
-            assert!(run_cops(&[cop], &parsed, &file, &mut out).is_empty());
-            assert_eq!(out.len(), 6000);
-            assert!(out.iter().all(|o| o.correction.is_none()));
-            assert!(file.format_string_facts.get().is_none());
-            if cop.name() == "Style/NegativeArrayIndex" {
-                let facts = file.negative_array_index_facts.get().unwrap();
-                assert!(facts.visits <= 6000 * 15 + 2, "{}", facts.visits);
-                for _ in 0..6000 {
-                    assert!(std::ptr::eq(
-                        facts,
-                        file.negative_array_index_facts(&parsed.node())
-                    ));
-                }
-            } else {
-                assert!(file.negative_array_index_facts.get().is_none());
-            }
-        }
     }
 
     fn file(bytes: &[u8]) -> SourceFile {
@@ -5498,7 +5229,6 @@ mod tests {
         assert_eq!(proof.observer_visits, count.0);
         assert!(proof.observer_visits < 6000 * 20);
         assert!(f.token_ranges.get().is_none());
-        assert!(f.format_string_facts.get().is_none());
         for _ in 0..6000 {
             assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
         }
@@ -5617,53 +5347,6 @@ mod tests {
         let proof = f.trivial_accessor_bindings(&root);
         for _ in 0..2000 {
             assert!(std::ptr::eq(proof, f.trivial_accessor_bindings(&root)));
-        }
-    }
-
-    #[test]
-    fn argument_wrapper_proofs_are_lazy_shared_and_bounded() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{ExplicitBlockArgument, KeywordArgumentsMerging},
-            walk::{NodeVisitor, walk},
-        };
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        for n in [10, 1000] {
-            let source = "def f; if block_given?; [1].each { |x| yield x }; end; end\nfoo(**{}.merge(y: 1))\n".repeat(n);
-            let f = file(source.as_bytes());
-            let parsed = crate::parser::parse(&f.bytes);
-            assert_eq!(parsed.errors().count(), 0);
-            let cops: &[&dyn crate::cops::Cop] =
-                &[&ExplicitBlockArgument, &KeywordArgumentsMerging];
-            for corrections in [false, true, true] {
-                let mut found = Vec::new();
-                assert!(
-                    run_cops_with_corrections(cops, &parsed, &f, &mut found, corrections)
-                        .is_empty()
-                );
-                assert_eq!(found.len(), 2 * n);
-                assert_eq!(
-                    found.iter().filter(|o| o.correction.is_some()).count(),
-                    if corrections { 2 * n } else { 0 }
-                );
-                if !corrections {
-                    assert!(f.argument_rewrite_facts.get().is_none());
-                    assert!(f.class_method_bindings.get().is_none());
-                }
-            }
-            let root = parsed.node();
-            let mut count = Count(0);
-            walk(&mut count, &root);
-            let proof = f.argument_rewrite_facts(&root);
-            assert_eq!(proof.visits, count.0);
-            for _ in 0..n {
-                assert!(std::ptr::eq(proof, f.argument_rewrite_facts(&root)));
-            }
         }
     }
 

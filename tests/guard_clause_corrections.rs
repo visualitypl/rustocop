@@ -1,6 +1,5 @@
 //! Pinned RuboCop guard_clause_spec.rb examples (MIT License,
 //! Copyright (c) 2012-26 Bozhidar Batsov), plus controlled safety witnesses.
-use serde::Deserialize;
 use std::{fs, path::Path, process::Command};
 
 const COP: &str = "Style/GuardClause";
@@ -36,106 +35,6 @@ fn correct(root: &Path, before: &[u8], after: &[u8], selectors: &str) {
     assert_ne!(o.status.code(), Some(2), "{o:?}");
     assert_eq!(fs::read(root.join("a.rb")).unwrap(), after, "{o:?}");
 }
-#[derive(Deserialize)]
-struct Case {
-    spec_line: u32,
-    source: String,
-    positions: Vec<(u32, u32)>,
-    messages: Vec<String>,
-    correction: Option<String>,
-    toml: String,
-}
-#[test]
-fn all_applicable_pinned_diagnostics_and_correction_calls() {
-    let cases: Vec<Case> =
-        serde_json::from_str(include_str!("fixtures/guard_clause_pinned.json")).unwrap();
-    assert_eq!(cases.len(), 77);
-    let registry = rustocop::cops::Registry::new();
-    let dir = project();
-    let (mut canonical, mut block_local, mut line_preserving, mut withheld) = (0, 0, 0, 0);
-    for c in cases {
-        fs::write(dir.path().join("rustocop.toml"), &c.toml).unwrap();
-        let config = rustocop::config::ResolvedConfig::resolve(
-            toml::from_str(&c.toml).unwrap(),
-            None,
-            &registry,
-        )
-        .unwrap();
-        let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-        let result = rustocop::pipeline::lint_one(
-            Path::new("a.rb"),
-            Path::new("a.rb"),
-            Some(c.source.as_bytes()),
-            &active,
-            &config,
-        );
-        assert!(
-            result.errors.is_empty() && result.internal_errors.is_empty(),
-            "spec {}: {result:?}",
-            c.spec_line
-        );
-        let found = result.result.offenses;
-        assert_eq!(
-            found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-            c.positions,
-            "spec {}",
-            c.spec_line
-        );
-        assert_eq!(
-            found.iter().map(|o| o.message.clone()).collect::<Vec<_>>(),
-            c.messages,
-            "spec {}",
-            c.spec_line
-        );
-        if let Some(mut after) = c.correction {
-            if (c.spec_line != 622 && after.contains("raise ")) || c.spec_line == 327 {
-                // A receiverless raise can return after overriding it. Its
-                // deferred heredoc payload also cannot simply move to a header.
-                unchanged(
-                    dir.path(),
-                    c.source.as_bytes(),
-                    &["--only", COP, "--fix", "a.rb"],
-                    1,
-                );
-                withheld += 1;
-                continue;
-            }
-            if c.source.starts_with("define_") {
-                // No core-dispatch assumption: next always exits this block.
-                after = after.replace("  return ", "  next ");
-                block_local += 1;
-            } else if c.spec_line == 622 {
-                // Preserve the deleted end's physical line, including all
-                // literal bytes; upstream removes the whole line here.
-                after = after.replace("MESSAGE\nend", "MESSAGE\n  \nend");
-                line_preserving += 1;
-            } else {
-                canonical += 1;
-            }
-            correct(dir.path(), c.source.as_bytes(), after.as_bytes(), COP);
-            unchanged(
-                dir.path(),
-                after.as_bytes(),
-                &["--only", COP, "--fix", "a.rb"],
-                0,
-            );
-        } else {
-            // Includes all four upstream expect_no_corrections logical guards
-            // as well as every applicable no-offense lookalike.
-            unchanged(
-                dir.path(),
-                c.source.as_bytes(),
-                &["--only", COP, "--fix", "a.rb"],
-                i32::from(!c.positions.is_empty()),
-            );
-        }
-    }
-    assert_eq!(
-        (canonical, block_local, line_preserving, withheld),
-        (16, 12, 1, 17)
-    );
-}
-
 #[test]
 fn fixing_obeys_config_selectors_and_reenabled_directives() {
     let d = project();
@@ -186,38 +85,6 @@ fn default_fix_is_a_single_atomic_pass_not_an_implicit_formatter_loop() {
     fs::write(d.path().join("a.rb"), before).unwrap();
     cli(d.path(), &["--fix", "--fix-passes", "1", "a.rb"], 1);
     assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), after);
-}
-
-#[test]
-fn bom_crlf_comments_literals_line_numbers_and_data_survive_exactly() {
-    let d = project();
-    for nl in ["\n", "\r\n"] {
-        for body in [
-            "__LINE__ # stay here",
-            "\"first\nlast\"",
-            "/first\nlast/",
-            "`printf 'first\nlast'`",
-            "<<~TEXT\n      payload\n    TEXT",
-            "begin\n      effect\n    rescue\n      recover\n    ensure\n      cleanup\n    end",
-        ] {
-            let source = format!("\u{feff}# encoding: UTF-8\ndef f\n  if ready? # condition\n    # branch\n    {body}\n  end # end of condition\nend\np __LINE__\n__END__\nraw\0data\n").replace('\n', nl);
-            let after = source
-                .replace("if ready?", "return unless ready?")
-                .replace("end # end of condition", " # end of condition");
-            correct(d.path(), source.as_bytes(), after.as_bytes(), COP);
-        }
-    }
-    let ascii = b"# encoding: ISO-8859-1\ndef f\n if ready?\n  value\n end\nend\n__END__\n\xff\n";
-    let after =
-        b"# encoding: ISO-8859-1\ndef f\n return unless ready?\n  value\n \nend\n__END__\n\xff\n";
-    correct(d.path(), ascii, after, COP);
-    // Replacement strings cannot represent the original non-UTF8 token/body.
-    for source in [
-        b"# encoding: ISO-8859-1\ndef f\n if ready?\n  '\xe9'\n end\nend\n".as_slice(),
-        b"# encoding: ISO-8859-1\ndef f\n if '\xe9'\n  value\n end\nend\n",
-    ] {
-        unchanged(d.path(), source, &["--only", COP, "--fix", "a.rb"], 1);
-    }
 }
 
 fn ruby_with(source: &[u8], program: &std::ffi::OsStr) -> std::process::Output {
@@ -279,59 +146,5 @@ fn controlled_return_values_effect_order_nested_guards_and_ensure_match_ruby() {
             "fixture must really correct: {source}"
         );
         assert_runtime(source.as_bytes(), &after);
-    }
-}
-
-#[test]
-fn native_34_implicit_method_block_parameters_preserve_results() {
-    let Some(native) = crate::support::runtime::ruby_os() else {
-        return;
-    };
-    let d = project();
-    for parameter in ["_1", "it"] {
-        let source = format!(
-            "class C\n define_method(:f) do\n  if {parameter}\n   42\n  end\n end\nend\np [C.new.f(false), C.new.f(true)]\n"
-        );
-        let after = source
-            .replace(
-                &format!("if {parameter}"),
-                &format!("next unless {parameter}"),
-            )
-            .replace("   42\n  end", "   42\n  ");
-        correct(d.path(), source.as_bytes(), after.as_bytes(), COP);
-        let old = ruby_with(source.as_bytes(), &native);
-        let new = ruby_with(after.as_bytes(), &native);
-        assert!(
-            old.status.success() && new.status.success(),
-            "{old:?} {new:?}"
-        );
-        assert_eq!(old.stdout, b"[nil, 42]\n");
-        assert_eq!(new.stdout, old.stdout);
-        assert_eq!(new.stderr, old.stderr);
-    }
-}
-
-#[test]
-fn overridden_raise_and_short_circuit_guards_retain_branch_effects() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let d = project();
-    for exit in [
-        "raise('oops')",
-        "fail('oops')",
-        "true || raise('oops')",
-        "false && raise('oops')",
-    ] {
-        let source = format!(
-            "def raise(*); :returned; end\nalias fail raise\ndef f(c,l)\n if c\n  {exit}\n else\n  l << :work\n end\nend\nl=[]; p [f(true,l),l]\n"
-        );
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-        assert_runtime(source.as_bytes(), source.as_bytes());
     }
 }

@@ -554,46 +554,6 @@ fn native_ruby34_syntax_only_for_every_reference_input_and_canonical_output() {
     }
 }
 #[test]
-fn incompatible_explicit_block_peer_stabilizes_in_both_selection_orders() {
-    let d = project();
-    let p = d.path().join("lib/a.rb");
-    let source = b"def f(unused)\n  if block_given?; [1].each { |x| yield x }; end\nend\n";
-    for selection in [
-        format!("{COP},Style/ExplicitBlockArgument"),
-        format!("Style/ExplicitBlockArgument,{COP}"),
-    ] {
-        fs::write(&p, source).unwrap();
-        let out = run(d.path(), &["--only", &selection, "--fix", "lib/a.rb"]);
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert_eq!(count(&out), 1);
-        let after = fs::read(&p).unwrap();
-        // Existing ExplicitBlockArgument guards withhold API/arity changes for
-        // an argument-bearing method; neither cop may force the other's edit.
-        assert_eq!(after, source);
-        unchanged(
-            d.path(),
-            &after,
-            &["--only", &selection, "--fix", "lib/a.rb"],
-            Some(1),
-        );
-        fs::write(
-            &p,
-            b"def f\n  if block_given?; [1].each { |x| yield x }; end\nend\n",
-        )
-        .unwrap();
-        let out = run(d.path(), &["--only", &selection, "--fix", "lib/a.rb"]);
-        assert_eq!(out.status.code(), Some(0), "{out:?}");
-        let after = fs::read(&p).unwrap();
-        assert!(!String::from_utf8_lossy(&after).contains("yield"));
-        unchanged(
-            d.path(),
-            &after,
-            &["--only", &selection, "--fix", "lib/a.rb"],
-            Some(0),
-        );
-    }
-}
-#[test]
 fn canonical_rename_is_real_atomic_and_idempotent_but_ordinary_binding_is_held() {
     let d = project();
     unchanged(d.path(), SAFE, &["--only", COP, "lib/a.rb"], Some(1));

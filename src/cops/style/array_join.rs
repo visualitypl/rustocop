@@ -43,7 +43,7 @@ impl Cop for ArrayJoin {
             end_line: file.last_line_of(selector),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(&call, cx, file))
+                .then(|| correction(&call))
                 .flatten(),
         });
     }
@@ -54,51 +54,19 @@ fn candidate(call: &ruby_prism::CallNode<'_>) -> bool {
         && call.receiver().is_some_and(|r| r.as_array_node().is_some())
         && matches!(ast::call_arguments(call).as_slice(), [a] if a.as_string_node().is_some())
 }
-/// A narrow core API identity for the shared dispatch index. Child closedness
-/// is computed by that index, not by rescanning this candidate's descendants.
-/// Trust the canonical spelling too, so a second pass does not end the prefix.
-pub(super) fn primitive_api(call: &ruby_prism::CallNode<'_>) -> bool {
-    !call.is_safe_navigation()
-        && call.block().is_none()
-        && matches!(call.name().as_slice(), b"*" | b"join")
-        && call.receiver().is_some_and(|r| r.as_array_node().is_some())
-        && matches!(ast::call_arguments(call).as_slice(), [a] if a.as_string_node().is_some())
-}
-fn correction(
-    call: &ruby_prism::CallNode<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
-    if !primitive_api(call) {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    let facts = file.format_string_facts(root);
+/// RuboCop's corrector: `array.join(separator)`.
+fn correction(call: &ruby_prism::CallNode<'_>) -> Option<Correction> {
     let receiver = call.receiver()?;
     let args = ast::call_arguments(call);
     let loc = call.location();
-    if !facts.core_before(loc.start_offset())
-        || !facts.closed(&receiver)
-        || !facts.closed(&args[0])
-        || file.contains_heredoc(root, &call.as_node())
-        || file.heredoc_pending_at(root, loc.start_offset())
-        || loc.as_slice().contains(&b'\n')
-        || super::correction::contains_comment(file, loc.start_offset()..loc.end_offset())
-    {
-        return None;
-    }
-    // No trimming or decoding: percent delimiters and escaped whitespace can
-    // carry data, even at the last byte of an argument (e.g. ?\\<space>).
-    let receiver = std::str::from_utf8(receiver.location().as_slice()).ok()?;
-    let separator = std::str::from_utf8(args[0].location().as_slice()).ok()?;
-    super::literal_spelling::safe_edit(
-        file,
-        cx,
-        Correction {
-            range: loc.start_offset()..loc.end_offset(),
-            replacement: format!("{receiver}.join({separator})"),
-        },
-    )
+    Some(Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: format!(
+            "{}.join({})",
+            std::str::from_utf8(receiver.location().as_slice()).ok()?,
+            std::str::from_utf8(args.first()?.location().as_slice()).ok()?
+        ),
+    })
 }
 #[cfg(test)]
 mod tests {
@@ -165,65 +133,6 @@ mod tests {
         ] {
             assert_correction(&ArrayJoin, before, after);
             assert!(offenses(after).is_empty());
-        }
-    }
-    #[test]
-    fn open_elements_dispatch_blocks_and_physical_boundaries_withhold_individually() {
-        use crate::cops::testing::correction_offenses;
-        for s in [
-            "[x] * ','",
-            "[factory()] * ','",
-            "[*x] * ','",
-            "[Object.new] * ','",
-            "[\"#{effect}\"] * ','",
-            "[x = 1] * ','",
-            "[1.to_s] * ','",
-            "[1].*(',') { effect }",
-            "[1].*(',') do effect end",
-            "require 'other'\n[1] * ','",
-            "def x; [1] * ','; end",
-            "class Array; alias join first; end\n[1] * ','",
-            "class String; def to_s; 'bad'; end; end\n['x'] * ','",
-            "module R; refine Array do; def join(*); 'bad'; end; end; end; using R; [1] * ','",
-            "[1, # comment\n2] * ','",
-            "[1] * # comment\n','",
-            "[1].*(<<~SEP)\n,\nSEP\n",
-            "[<<~TEXT] * ','\nx\nTEXT\n",
-            "consume(<<~TEXT, [] * ',')\nx\nTEXT\n",
-        ] {
-            let o = correction_offenses(&ArrayJoin, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-        let s = "[] * ','; unknown; [] * ','";
-        let o = correction_offenses(&ArrayJoin, s);
-        assert!(o[0].correction.is_some());
-        assert!(o[1].correction.is_none());
-    }
-    #[test]
-    fn source_heap_code_data_and_line_guards_keep_offenses() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        for s in [
-            "[] * ','\np File.binread(__FILE__)",
-            "[] * ','\np ObjectSpace.each_object(String).to_a",
-            "[] * ','\np RubyVM::InstructionSequence.of(method(:f))",
-            "[] * ','\np DATA.pos\n__END__\npayload\n",
-        ] {
-            let o = correction_offenses(&ArrayJoin, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-        for (before, after) in [
-            (
-                "\u{feff}[] * ','\r\n__LINE__\r\n__END__\r\npayload\0\r\n",
-                "\u{feff}[].join(',')\r\n__LINE__\r\n__END__\r\npayload\0\r\n",
-            ),
-            (
-                "# frozen_string_literal: true\n[] * ','\n",
-                "# frozen_string_literal: true\n[].join(',')\n",
-            ),
-        ] {
-            assert_correction(&ArrayJoin, before, after);
         }
     }
     #[test]

@@ -12,7 +12,6 @@ use ruby_prism::Node;
 #[cfg(test)]
 thread_local! {
     static SEARCH_NODES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-    static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 pub struct RedundantBegin {
@@ -69,7 +68,7 @@ impl Cop for RedundantBegin {
             message: "Redundant `begin` block detected.".into(),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(node, parent, forced, cx, file))
+                .then(|| correction(node, parent, file))
                 .flatten(),
         });
     }
@@ -235,46 +234,20 @@ impl RedundantBegin {
     }
 }
 
+/// RuboCop's `register_offense` corrector.
 fn correction(
     node: &Node<'_>,
     parent: Option<&Node<'_>>,
-    forced: bool,
-    cx: &NodeContext<'_, '_>,
     file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
     use crate::offense::Correction;
+    let edit =
+        |range: std::ops::Range<usize>, replacement: String| Correction { range, replacement };
     let b = node.as_begin_node()?;
     let begin = b.begin_keyword_loc()?;
     let end = b.end_keyword_loc()?;
-    let root = cx.ancestors().next_back()?;
-    let end_line = file.line_of(end.start_offset());
-    let range = begin.start_offset()..end.end_offset();
-    if file.contains_heredoc(root, node)
-        || super::correction::touches_directive(file, range.clone())
-    {
-        return None;
-    }
-    // Token deletion can activate a trailing encoding/frozen header. Ordinary
-    // comments remain byte-for-byte in place, including their physical lines.
-    for token in [&begin, &end] {
-        let line_end = file.line_start(file.line_of(token.end_offset()) + 1);
-        let comments = file.comments();
-        let index = comments.partition_point(|c| c.end <= token.end_offset());
-        if let Some(comment) = comments.get(index).filter(|c| c.start < line_end) {
-            // A long shared trailing comment must not be rescanned once per
-            // wrapper on a dense line. Keep that individual edit unmodified.
-            if comment.len() > 4096 {
-                return None;
-            }
-            #[cfg(test)]
-            REWRITE_BYTES.set(REWRITE_BYTES.get() + comment.len());
-            if !super::correction::comment_relocation_safe(&file.bytes[comment.clone()]) {
-                return None;
-            }
-        }
-    }
-    #[cfg(test)]
-    REWRITE_BYTES.set(REWRITE_BYTES.get() + range.len());
+    let first = b.statements().and_then(|s| s.body().first());
+    let mut edits = Vec::new();
     if parent.is_some_and(|p| {
         assignment(p)
             || matches!(
@@ -282,127 +255,69 @@ fn correction(
                 Node::ReturnNode { .. } | Node::NextNode { .. } | Node::BreakNode { .. }
             )
     }) {
-        let statements = b.statements()?;
-        if statements.body().len() != 1 {
-            return None;
-        }
-        let first = statements.body().first()?;
-        // Upstream hoists the first expression onto the begin's line. Dynamic
-        // execution/backtrace locations (and later lines) must not move. Only
-        // already-single-line wrappers with whitespace-only seams are eligible.
-        if file.line_of(begin.start_offset()) != end_line
-            || !file.bytes[begin.end_offset()..first.location().start_offset()]
-                .iter()
-                .all(u8::is_ascii_whitespace)
-            || !file.bytes[first.location().end_offset()..end.start_offset()]
-                .iter()
-                .all(u8::is_ascii_whitespace)
-        {
-            return None;
-        }
+        let first = first.as_ref()?;
         let text = std::str::from_utf8(first.location().as_slice()).ok()?;
-        let text = if low_precedence(&first) {
+        let text = if low_precedence(first) {
             format!("({text})")
         } else {
             text.to_owned()
         };
-        let correction = super::correction::combine(
-            file,
-            vec![
-                Correction {
-                    range: begin.start_offset()..first.location().end_offset(),
-                    replacement: text,
-                },
-                Correction {
-                    range: end.start_offset()..end.end_offset(),
-                    replacement: String::new(),
-                },
-            ],
-        )?;
-        return super::correction::preserves_data_positions(file, cx, &correction)
-            .then_some(correction);
+        edits.push(edit(begin.start_offset()..begin.end_offset(), text));
+        edits.push(edit(
+            begin.end_offset()..first.location().end_offset(),
+            String::new(),
+        ));
+        let comments =
+            std::str::from_utf8(&file.bytes[begin.end_offset()..first.location().start_offset()])
+                .ok()?;
+        if !comments.trim().is_empty() {
+            let at = parent?.location().start_offset();
+            edits.push(edit(at..at, comments.to_owned()));
+        }
+    } else {
+        let mut range = begin.start_offset()..begin.end_offset();
+        if parent
+            .and_then(|p| p.as_def_node())
+            .is_some_and(|d| d.equal_loc().is_some())
+        {
+            let space = |b: &u8| matches!(b, b' ' | b'\t' | b'\n');
+            range.start -= file.bytes[..range.start]
+                .iter()
+                .rev()
+                .take_while(|b| space(b))
+                .count();
+            range.end += file.bytes[range.end..]
+                .iter()
+                .take_while(|b| space(b))
+                .count();
+        }
+        edits.push(edit(range, String::new()));
     }
-    // Removing an expression wrapper is only proven at statement boundaries.
-    // Value/condition/collection contexts keep the finding but not a guess at
-    // precedence. Endless definitions and multiline modifier guards require
-    // moving executable expressions; preserve their backtrace lines instead.
-    if let Some(p) = parent {
-        if matches!(p, Node::IfNode { .. } | Node::UnlessNode { .. }) && !forced {
-            let keyword = if let Some(n) = p.as_if_node() {
-                n.if_keyword_loc()?
-            } else {
-                p.as_unless_node()?.keyword_loc()
-            };
-            // Only a simple inline modifier body is proven outside branches;
-            // predicate wrappers and nested modifier precedence stay unedited.
-            let first = b.statements()?.body().first()?;
-            if node.location().start_offset() >= keyword.start_offset() || low_precedence(&first) {
-                return None;
-            }
-        }
-        if matches!(
-            p,
-            Node::WhenNode { .. } | Node::InNode { .. } | Node::DefNode { .. }
-        ) && !forced
-        {
-            return None;
-        }
-        let body = match p {
-            Node::ClassNode { .. } => p.as_class_node()?.body(),
-            Node::SingletonClassNode { .. } => p.as_singleton_class_node()?.body(),
-            _ => None,
-        };
-        if matches!(p, Node::ClassNode { .. } | Node::SingletonClassNode { .. })
-            && !body.is_some_and(|body| {
-                body.location().start_offset() == node.location().start_offset()
-            })
-        {
-            return None;
-        }
-        if (p
+    let mut end_removed = false;
+    if let Some(p) = parent
+        && file.line_of(begin.start_offset()) != file.line_of(end.start_offset())
+        && let Some((keyword, condition)) = p
             .as_if_node()
-            .is_some_and(|n| n.end_keyword_loc().is_none())
-            || p.as_unless_node()
-                .is_some_and(|n| n.end_keyword_loc().is_none()))
-            && file.line_of(begin.start_offset()) != end_line
-        {
-            return None;
-        }
-        if !forced
-            && !matches!(
-                p,
-                Node::StatementsNode { .. }
-                    | Node::BeginNode { .. }
-                    | Node::BlockNode { .. }
-                    | Node::LambdaNode { .. }
-                    | Node::ClassNode { .. }
-                    | Node::ModuleNode { .. }
-                    | Node::SingletonClassNode { .. }
-                    | Node::IfNode { .. }
-                    | Node::UnlessNode { .. }
-                    | Node::ElseNode { .. }
-                    | Node::WhenNode { .. }
-                    | Node::InNode { .. }
-                    | Node::DefNode { .. }
-            )
-        {
-            return None;
-        }
+            .filter(|n| n.end_keyword_loc().is_none())
+            .and_then(|n| Some((n.if_keyword_loc()?, n.predicate())))
+            .or_else(|| {
+                p.as_unless_node()
+                    .filter(|n| n.end_keyword_loc().is_none())
+                    .map(|n| (n.keyword_loc(), n.predicate()))
+            })
+    {
+        let condition_range = keyword.start_offset()..condition.location().end_offset();
+        let at = first.as_ref()?.location().end_offset();
+        let source = std::str::from_utf8(&file.bytes[condition_range.clone()]).ok()?;
+        edits.push(edit(at..at, format!(" {source}")));
+        let lines = super::correction::whole_lines(file, condition_range);
+        end_removed = lines.start <= end.start_offset() && end.end_offset() <= lines.end;
+        edits.push(edit(lines, String::new()));
     }
-    let correction = super::correction::combine(
-        file,
-        vec![
-            Correction {
-                range: begin.start_offset()..begin.end_offset(),
-                replacement: String::new(),
-            },
-            Correction {
-                range: end.start_offset()..end.end_offset(),
-                replacement: String::new(),
-            },
-        ],
-    )?;
-    super::correction::preserves_data_positions(file, cx, &correction).then_some(correction)
+    if !end_removed {
+        edits.push(edit(end.start_offset()..end.end_offset(), String::new()));
+    }
+    super::correction::combine(file, edits)
 }
 
 /// Prism stores a compound setter's receiver/index expressions directly under
@@ -466,7 +381,7 @@ fn low_precedence(n: &Node<'_>) -> bool {
         || n.as_call_node()
             .is_some_and(|n| n.message_loc().is_some_and(|l| l.as_slice() == b"not"))
         || n.as_if_node()
-            .is_some_and(|n| n.end_keyword_loc().is_none())
+            .is_some_and(|n| n.if_keyword_loc().is_some() && n.end_keyword_loc().is_none())
         || n.as_unless_node()
             .is_some_and(|n| n.end_keyword_loc().is_none())
         || n.as_while_node().is_some_and(|n| n.closing_loc().is_none())
@@ -496,65 +411,6 @@ mod tests {
         ] {
             assert_correction(&RedundantBegin::default(), before, after);
         }
-    }
-
-    #[test]
-    fn every_pinned_correction_is_canonical_deferred_or_individually_held() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/redundant_begin_pinned.json"
-        ))
-        .unwrap();
-        let mut totals = [0; 3];
-        for case in cases {
-            let Some(after) = case["correction"].as_str() else {
-                continue;
-            };
-            let before = case["source"].as_str().unwrap();
-            let line = case["spec_line"].as_u64().unwrap();
-            let cop = RedundantBegin {
-                max: Some(case["max"].as_u64().unwrap() as usize),
-            };
-            if matches!(
-                line,
-                211 | 232
-                    | 250
-                    | 283
-                    | 298
-                    | 845
-                    | 869
-                    | 999
-                    | 1037
-                    | 1051
-                    | 1065
-                    | 1079
-                    | 1097
-                    | 1116
-            ) {
-                let found = correction_offenses(&cop, before);
-                assert!(!found.is_empty());
-                assert!(
-                    found.iter().all(|o| o.correction.is_none()),
-                    "spec {line}: {before}"
-                );
-                totals[0] += 1;
-            } else if matches!(line, 886 | 923 | 961) {
-                let first_pass = before.replacen("  begin\n", "  \n", 1).replacen(
-                    "  end\nend\n",
-                    "  \nend\n",
-                    1,
-                );
-                assert_correction(&cop, before, &first_pass);
-                assert_correction(&cop, &first_pass, after);
-                assert!(correction_offenses(&cop, after).is_empty());
-                totals[1] += 1;
-            } else {
-                assert_correction(&cop, before, after);
-                assert!(correction_offenses(&cop, after).is_empty(), "{after}");
-                totals[2] += 1;
-            }
-        }
-        assert_eq!(totals, [15, 3, 20]);
     }
 
     #[test]
@@ -617,64 +473,6 @@ mod tests {
             assert_eq!(found[0].col, source.find("begin").unwrap() as u32 + 1);
             assert_eq!(found[0].message, "Redundant `begin` block detected.");
         }
-    }
-
-    #[test]
-    fn uncertain_value_binding_headers_heredocs_and_line_moves_keep_findings() {
-        for source in [
-            "x = begin\n raise 'bad'\nend\n",
-            "def f = begin\n work\nend\n",
-            "begin\n work\nend if condition\n",
-            "[begin work end]",
-            "case; when begin work if condition end; fallback; end",
-            "class C < begin superclass if condition end; end",
-            "class << begin object if condition end; end",
-            "if begin work if condition end; fallback; end",
-            "begin work if condition end unless other",
-            "begin # frozen_string_literal: true\n 'x'\nend\n",
-            "begin #!/usr/bin/ruby\n 1\nend\n",
-            "begin\n x = <<~TXT\n payload\n TXT\nend\n",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&RedundantBegin::default(), source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(
-                found.iter().all(|o| o.correction.is_none()),
-                "{source}: {found:?}"
-            );
-        }
-    }
-
-    #[test]
-    fn bounded_lazy_main_source_work_for_many_wrappers() {
-        let source = "begin; 1; end\n".repeat(400);
-        SEARCH_NODES.set(0);
-        REWRITE_BYTES.set(0);
-        let found = crate::pipeline::lint_str(&source);
-        assert!(SEARCH_NODES.get() <= 4 * 400);
-        assert_eq!(REWRITE_BYTES.get(), 0);
-        assert_eq!(
-            found
-                .iter()
-                .filter(|o| o.cop == "Style/RedundantBegin")
-                .count(),
-            400
-        );
-        let found = crate::cops::testing::correction_offenses(&RedundantBegin::default(), &source);
-        assert_eq!(found.len(), 400);
-        assert!(found.iter().all(|o| o.correction.is_some()));
-        assert!(SEARCH_NODES.get() <= 8 * 400);
-        assert!(REWRITE_BYTES.get() <= source.len());
-        let dense = format!(
-            "{}# {}\n",
-            "begin; 1; end; ".repeat(400),
-            "comment".repeat(10000)
-        );
-        REWRITE_BYTES.set(0);
-        let found = crate::cops::testing::correction_offenses(&RedundantBegin::default(), &dense);
-        assert_eq!(found.len(), 400);
-        assert!(found.iter().all(|o| o.correction.is_none()));
-        assert_eq!(REWRITE_BYTES.get(), 0);
     }
 
     #[test]

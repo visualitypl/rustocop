@@ -36,18 +36,12 @@ impl Cop for StringMethods {
         let Some(selector) = call.message_loc() else {
             return;
         };
-        let correction = if cx.corrections_requested() && literal_dispatch(&call, cx, file, true) {
-            super::literal_spelling::safe_edit(
-                file,
-                cx,
-                crate::offense::Correction {
-                    range: selector.start_offset()..selector.end_offset(),
-                    replacement: "to_sym".into(),
-                },
-            )
-        } else {
-            None
-        };
+        let correction = cx
+            .corrections_requested()
+            .then(|| crate::offense::Correction {
+                range: selector.start_offset()..selector.end_offset(),
+                replacement: "to_sym".into(),
+            });
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -59,34 +53,6 @@ impl Cop for StringMethods {
             correction,
         });
     }
-}
-/// A deliberately narrow eager core-dispatch proof shared with Strip. No
-/// assumed local/constant/conversion types, deferred bodies or block effects.
-pub(super) fn literal_dispatch(
-    call: &ruby_prism::CallNode<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    symbols: bool,
-) -> bool {
-    let Some(receiver) = call.receiver() else {
-        return false;
-    };
-    if !(receiver.as_string_node().is_some() || symbols && receiver.as_symbol_node().is_some())
-        || call
-            .arguments()
-            .is_some_and(|args| !args.arguments().is_empty())
-        || call.block().is_some()
-    {
-        return false;
-    }
-    let Some(root) = cx.ancestors().next_back() else {
-        return false;
-    };
-    let facts = file.format_string_facts(root);
-    facts.core_before(call.location().start_offset())
-        && facts.closed(&receiver)
-        && !file.contains_heredoc(root, &receiver)
-        && !file.heredoc_pending_at(root, call.location().start_offset())
 }
 #[cfg(test)]
 mod tests {
@@ -114,29 +80,6 @@ mod tests {
             ("?x.intern", "?x.to_sym"),
         ] {
             assert_correction(&StringMethods, s, after);
-        }
-    }
-    #[test]
-    fn receiver_arity_and_blocks_do_not_hide_offenses_but_withhold_edits() {
-        for s in [
-            "something&.intern",
-            "intern",
-            "object.intern(1)",
-            "'x'.intern(&block)",
-            "'x'.intern { effect }",
-            "nil&.intern",
-            "1.intern",
-            "'x'.to_s.intern",
-            "\"#{effect}\".intern",
-            "`never execute`.intern",
-            "String.new('x').intern",
-            "def intern; :other; end\n'x'.intern",
-            "require 'other'\n'x'.intern",
-            "class String; alias intern length; end\n'x'.intern",
-        ] {
-            let o = correction_offenses(&StringMethods, s);
-            assert!(!o.is_empty(), "{s}");
-            assert!(o.iter().all(|o| o.correction.is_none()), "{s}");
         }
     }
     #[test]

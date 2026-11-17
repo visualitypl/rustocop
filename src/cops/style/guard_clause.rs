@@ -46,12 +46,9 @@ impl Cop for GuardClause {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        if let Some(mut conditional) = Conditional::of(node)
+        if let Some(conditional) = Conditional::of(node)
             && let Some(other) = conditional.other.as_ref().and_then(|n| n.as_else_node())
         {
-            conditional.statement = cx
-                .parent()
-                .is_some_and(|parent| parent.as_statements_node().is_some());
             // Prism's singleton statements and argument lists are transparent
             // in RuboCop's AST. Parentheses and multi-statement bodies are not.
             let mut ancestors = cx.ancestors().peekable();
@@ -85,25 +82,29 @@ impl Cop for GuardClause {
                         .is_some_and(|d| d.equal_loc().is_some())
             });
             if !accepted_parent && !conditional.accepted(file) {
-                let first = conditional
-                    .body
-                    .as_ref()
-                    .and_then(|s| guard_source(s, file));
-                let guard = first.map(|s| (s, conditional.keyword())).or_else(|| {
-                    other
-                        .statements()
-                        .as_ref()
-                        .and_then(|s| guard_source(s, file))
-                        .map(|s| (s, conditional.inverse()))
-                });
-                if let Some((exit, keyword)) = guard {
-                    self.report(&conditional, &exit, keyword, cx, file, out);
+                let found = |body: Option<&StatementsNode<'_>>, keyword, guard| {
+                    let body = body?;
+                    let exit = guard_source(body, file)?;
+                    let first = body.body().iter().next()?;
+                    let and_or = first.as_and_node().is_some() || first.as_or_node().is_some();
+                    Some((exit, keyword, (!and_or).then_some(guard)))
+                };
+                let guard = found(conditional.body.as_ref(), conditional.keyword(), Guard::If)
+                    .or_else(|| {
+                        found(
+                            other.statements().as_ref(),
+                            conditional.inverse(),
+                            Guard::Else,
+                        )
+                    });
+                if let Some((exit, keyword, guard)) = guard {
+                    self.report(&conditional, (&exit, keyword), guard, cx, file, out);
                 }
             }
         }
         if let Some(def) = node.as_def_node() {
             if def.equal_loc().is_none() {
-                self.check_ending_body(def.body(), false, false, cx, file, out);
+                self.check_ending_body(def.body(), cx, file, out);
             }
         } else if let Some(call) = node.as_call_node()
             && matches!(
@@ -112,7 +113,7 @@ impl Cop for GuardClause {
             )
             && let Some(block) = call.block().and_then(|b| b.as_block_node())
         {
-            self.check_ending_body(block.body(), true, false, cx, file, out);
+            self.check_ending_body(block.body(), cx, file, out);
         }
     }
 }
@@ -121,8 +122,6 @@ impl GuardClause {
     fn check_ending_body(
         &self,
         body: Option<Node<'_>>,
-        block_tail: bool,
-        covered: bool,
         cx: &NodeContext<'_, '_>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
@@ -130,51 +129,56 @@ impl GuardClause {
         let Some(tail) = body.and_then(ending_tail) else {
             return;
         };
-        let Some(mut conditional) = Conditional::of(&tail) else {
+        let Some(conditional) = Conditional::of(&tail) else {
             return;
         };
-        conditional.block_tail = block_tail;
-        conditional.covered = covered;
-        conditional.statement = true;
         if conditional.other.is_none()
             && !conditional.accepted(file)
             && file.line_of(conditional.end.start_offset())
                 > file.line_of(conditional.keyword.start_offset()) + 1
         {
-            let reported = out.len();
-            self.report(&conditional, "return", conditional.inverse(), cx, file, out);
-            self.check_ending_body(
-                conditional.body.map(|s| s.as_node()),
-                block_tail,
-                covered
-                    || out
-                        .get(reported)
-                        .is_some_and(|offense| offense.correction.is_some()),
+            self.report(
+                &conditional,
+                ("return", conditional.inverse()),
+                None,
                 cx,
                 file,
                 out,
             );
+            self.check_ending_body(conditional.body.map(|s| s.as_node()), cx, file, out);
         }
     }
 
     fn report(
         &self,
         conditional: &Conditional<'_>,
-        exit: &str,
-        keyword: &str,
+        (exit, keyword): (&str, &str),
+        guard: Option<Guard>,
         cx: &NodeContext<'_, '_>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let Some((example, _)) = self.example(conditional, exit, keyword, file) else {
+        let Some((example, long)) = self.example(conditional, exit, keyword, file) else {
             return;
         };
         let (line, col) = file.line_col(conditional.keyword.start_offset());
+        let correction = (cx.corrections_requested()
+            && (conditional.other.is_none() || guard.is_some()))
+        .then(|| {
+            rewrite(
+                conditional,
+                &example,
+                long.then_some((keyword, exit)),
+                guard,
+                file,
+            )
+        })
+        .flatten();
         out.push(Offense {
             cop: self.name(), severity: self.severity(),
             message: format!("Use a guard clause (`{example}`) instead of wrapping the code inside a conditional expression."),
             line, col, end_line: line,
-            correction: (cx.corrections_requested() && !conditional.covered).then(|| self.rewrite(conditional, cx, file)).flatten(),
+            correction,
         });
     }
 
@@ -199,225 +203,140 @@ impl GuardClause {
         }
         Some((example, long))
     }
-
-    fn rewrite(
-        &self,
-        c: &Conditional<'_>,
-        cx: &NodeContext<'_, '_>,
-        file: &SourceFile,
-    ) -> Option<Correction> {
-        #[cfg(test)]
-        REWRITE_CALLS.with(|n| n.set(n.get() + 1));
-        let start = c.keyword.start_offset();
-        let end = c.end.end_offset();
-        let root = cx.ancestors().next_back()?;
-        std::str::from_utf8(c.condition.location().as_slice()).ok()?;
-        if !c.statement
-            || cx.ancestors().any(|node| node.as_defined_node().is_some())
-            || !standalone(c, file)
-            || super::correction::contains_comment(file, start..c.condition.location().end_offset())
-            || file.heredoc_pending_at(root, start)
-            || super::correction::touches_directive(file, start..end)
-        {
-            return None;
-        }
-        let comments = file.comments();
-        let first = comments.partition_point(|comment| comment.end <= start);
-        if comments[first..]
-            .iter()
-            .take_while(|comment| comment.start < file.line_start(file.line_of(end) + 1))
-            .any(|comment| {
-                !super::correction::comment_relocation_safe(&file.bytes[comment.clone()])
-            })
-        {
-            return None;
-        }
-        let other = c.other.as_ref().and_then(|n| n.as_else_node());
-        let mut moved = None;
-        let (exit, keyword) = if let Some(other) = &other {
-            let first = c
-                .body
-                .as_ref()
-                .and_then(|b| guard_source(b, file).map(|s| (b.body().iter().next().unwrap(), s)));
-            let (guard, exit, keyword) = if let Some((guard, exit)) = first {
-                (guard, exit, c.keyword())
-            } else {
-                let body = other.statements()?;
-                let exit = guard_source(&body, file)?;
-                (body.body().iter().next()?, exit, c.inverse())
-            };
-            // Logical guards do not always exit. raise/fail are sends and can
-            // be overridden to return, in which case unwrapping executes both
-            // branches. Only syntax-level unconditional exits are proven here.
-            if !matches!(
-                guard,
-                Node::ReturnNode { .. } | Node::NextNode { .. } | Node::BreakNode { .. }
-            ) || file.contains_heredoc(root, &guard)
-                || !movable_guard(&guard, &c.condition, start, cx, file, root)
-            {
-                return None;
-            }
-            std::str::from_utf8(guard.location().as_slice()).ok()?;
-            moved = Some(guard);
-            (exit, keyword)
-        } else {
-            // next is local to a literal block even if define_method is
-            // overridden or forwarded; return could escape the caller instead.
-            (
-                (if c.block_tail { "next" } else { "return" }).into(),
-                c.inverse(),
-            )
-        };
-        let (example, long) = self.example(c, &exit, keyword, file)?;
-        let newline = newline(file, start);
-        let header = if long {
-            format!(
-                "{keyword} {}{newline}  {exit}{newline}end",
-                std::str::from_utf8(c.condition.location().as_slice()).ok()?
-            )
-        } else {
-            example
-        };
-        let mut edits = vec![
-            Correction {
-                range: start..c.condition.location().end_offset(),
-                replacement: header,
-            },
-            Correction {
-                range: c.end.start_offset()..end,
-                replacement: String::new(),
-            },
-        ];
-        if let Some(then) = c.then.as_ref() {
-            edits.push(Correction {
-                range: then.start_offset()..then.end_offset(),
-                replacement: newline.into(),
-            });
-        }
-        if let Some(other) = other {
-            let guard = moved?;
-            let loc = guard.location();
-            edits.push(Correction {
-                range: loc.start_offset()..loc.end_offset(),
-                replacement: String::new(),
-            });
-            let loc = other.else_keyword_loc();
-            edits.push(Correction {
-                range: loc.start_offset()..loc.end_offset(),
-                replacement: String::new(),
-            });
-        } else {
-            // An outer correction owns its eligible nested tail, so the one-pass
-            // overlap resolver cannot strand a canonical inner ending guard.
-            if let Some(tail) = c.body.as_ref().and_then(|b| ending_tail(b.as_node()))
-                && let Some(mut inner) = Conditional::of(&tail)
-                && inner.other.is_none()
-                && !inner.accepted(file)
-                && file.line_of(inner.end.start_offset())
-                    > file.line_of(inner.keyword.start_offset()) + 1
-            {
-                inner.block_tail = c.block_tail;
-                inner.statement = true;
-                if let Some(edit) = self.rewrite(&inner, cx, file) {
-                    edits.push(edit);
-                }
-            }
-        }
-        let edit = super::correction::combine(file, edits)?;
-        #[cfg(test)]
-        REWRITE_BYTES.with(|n| n.set(n.get() + edit.range.len()));
-        super::correction::preserves_line_values(file, &edit).then_some(edit)
-    }
 }
 
-fn newline(file: &SourceFile, offset: usize) -> &'static str {
-    let line = file.line_of(offset);
-    if file.bytes[file.line_start(line)..file.line_start(line + 1)].ends_with(b"\r\n") {
-        "\r\n"
-    } else {
-        "\n"
-    }
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Guard {
+    If,
+    Else,
 }
 
-fn movable_guard(
-    guard: &Node<'_>,
-    condition: &Node<'_>,
-    at: usize,
-    cx: &NodeContext<'_, '_>,
+/// RuboCop's `autocorrect`.
+fn rewrite(
+    c: &Conditional<'_>,
+    example: &str,
+    multiline: Option<(&str, &str)>,
+    guard: Option<Guard>,
     file: &SourceFile,
-    root: &Node<'_>,
-) -> bool {
-    use crate::cops::walk::{NodeVisitor, walk};
-    struct Facts<'a, 'cx, 'pr> {
-        file: &'a SourceFile,
-        root: &'a Node<'pr>,
-        cx: &'a NodeContext<'cx, 'pr>,
-        at: usize,
-        safe: bool,
-        condition: bool,
+) -> Option<Correction> {
+    let text = |l: &Location<'_>| std::str::from_utf8(l.as_slice()).ok().map(str::to_owned);
+    let edit =
+        |range: std::ops::Range<usize>, replacement: String| Correction { range, replacement };
+    let range = c.keyword.start_offset()..c.condition.location().end_offset();
+    let replacement = match multiline {
+        Some((keyword, exit)) => {
+            format!("{keyword} {}\n  {exit}", text(&c.condition.location())?)
+        }
+        None => example.to_owned(),
+    };
+    let mut edits = vec![edit(range.clone(), replacement)];
+    if let Some(then) = c.then.as_ref().filter(|t| t.as_slice() == b"then") {
+        edits.push(edit(then.start_offset()..then.end_offset(), "\n".into()));
     }
-    impl<'pr> NodeVisitor<'pr> for Facts<'_, '_, 'pr> {
-        fn enter(&mut self, node: Node<'pr>) {
-            #[cfg(test)]
-            REWRITE_VISITS.with(|n| n.set(n.get() + 1));
-            if matches!(
-                node,
-                Node::MatchWriteNode { .. }
-                    | Node::MatchPredicateNode { .. }
-                    | Node::MatchRequiredNode { .. }
-            ) {
-                self.safe = false;
+    let other = c.other.as_ref().and_then(|n| n.as_else_node());
+    let else_body = other.as_ref().and_then(|e| e.statements());
+    let (guard_branch, leave_branch) = if guard == Some(Guard::Else) {
+        (else_body.as_ref(), c.body.as_ref())
+    } else {
+        (c.body.as_ref(), else_body.as_ref())
+    };
+    let heredoc = guard_branch.and_then(|b| heredoc_argument(b.as_node()));
+    let heredoc_end = heredoc.as_ref().map(|closing| {
+        let s = closing.as_slice();
+        let trim = if s.ends_with(b"\r\n") {
+            2
+        } else {
+            usize::from(s.ends_with(b"\n"))
+        };
+        closing.end_offset() - trim
+    });
+    if multiline.is_some() {
+        let at = match heredoc_end {
+            Some(end) if guard.is_some() => end,
+            _ => range.end,
+        };
+        edits.push(edit(at..at, "\nend".into()));
+    }
+    let removed = match guard {
+        Some(Guard::If) => c.body.as_ref().map(|b| b.location()),
+        Some(Guard::Else) => else_body.as_ref().map(|b| b.location()),
+        None => None,
+    };
+    let whole = |l: &Location<'_>| {
+        edit(
+            super::correction::whole_lines(file, l.start_offset()..l.end_offset()),
+            String::new(),
+        )
+    };
+    if let Some(heredoc_end) = heredoc_end {
+        edits.push(whole(&c.end));
+        if let Some(other) = other {
+            if let Some(leave) = leave_branch {
+                let loc = leave.location();
+                edits.push(whole(&loc));
+                edits.push(edit(heredoc_end..heredoc_end, format!("\n{}", text(&loc)?)));
             }
-            if !self.condition {
-                self.safe &= !variables::is_local_assignment(&node)
-                    && !matches!(
-                        node,
-                        Node::SourceLineNode { .. } | Node::ImplicitNode { .. }
-                    );
-                if let Some(read) = node.as_local_variable_read_node() {
-                    self.safe &= self.file.visible_locals(self.root).declared_before(
-                        read.name().as_slice(),
-                        &node,
-                        self.cx,
-                        self.at,
-                    );
-                }
-            }
+            edits.push(whole(&other.else_keyword_loc()));
+            edits.push(whole(&removed?));
+        }
+    } else {
+        edits.push(edit(
+            c.end.start_offset()..c.end.end_offset(),
+            String::new(),
+        ));
+        if let Some(other) = other {
+            let loc = other.else_keyword_loc();
+            edits.push(edit(loc.start_offset()..loc.end_offset(), String::new()));
+            let loc = removed?;
+            edits.push(edit(loc.start_offset()..loc.end_offset(), String::new()));
         }
     }
-    let mut facts = Facts {
-        file,
-        root,
-        cx,
-        at,
-        safe: true,
-        condition: true,
+    super::correction::combine(file, edits)
+}
+
+/// RuboCop's `find_heredoc_argument`, answering the heredoc's closing.
+fn heredoc_argument<'pr>(node: Node<'pr>) -> Option<Location<'pr>> {
+    let mut node = node;
+    loop {
+        if let Some(s) = node.as_statements_node() {
+            node = s.body().iter().next()?;
+        } else if let Some(p) = node.as_parentheses_node() {
+            node = p.body()?;
+        } else {
+            break;
+        }
+    }
+    let heredoc = |opening: Option<Location<'pr>>, closing: Option<Location<'pr>>| {
+        opening
+            .filter(|o| o.as_slice().starts_with(b"<<"))
+            .and(closing)
     };
-    walk(&mut facts, condition);
-    facts.condition = false;
-    walk(&mut facts, guard);
-    facts.safe
-}
-
-#[cfg(test)]
-thread_local! {
-    static REWRITE_VISITS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-    static REWRITE_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-    static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
-}
-
-fn standalone(c: &Conditional<'_>, file: &SourceFile) -> bool {
-    let start = c.keyword.start_offset();
-    let prefix = &file.bytes[file.line_start(file.line_of(start))..start];
-    let prefix = prefix.strip_prefix(b"\xef\xbb\xbf").unwrap_or(prefix);
-    let end = c.end.end_offset();
-    let suffix = &file.line_text(file.line_of(end))[end - file.line_start(file.line_of(end))..];
-    prefix.iter().all(|b| matches!(b, b' ' | b'\t'))
-        && suffix
-            .iter()
-            .copied()
-            .find(|b| !b.is_ascii_whitespace())
-            .is_none_or(|b| b == b'#')
+    match &node {
+        Node::StringNode { .. } => {
+            let n = node.as_string_node()?;
+            return heredoc(n.opening_loc(), n.closing_loc());
+        }
+        Node::InterpolatedStringNode { .. } => {
+            let n = node.as_interpolated_string_node()?;
+            return heredoc(n.opening_loc(), n.closing_loc());
+        }
+        Node::XStringNode { .. } => {
+            let n = node.as_x_string_node()?;
+            return heredoc(Some(n.opening_loc()), Some(n.closing_loc()));
+        }
+        Node::InterpolatedXStringNode { .. } => {
+            let n = node.as_interpolated_x_string_node()?;
+            return heredoc(Some(n.opening_loc()), Some(n.closing_loc()));
+        }
+        _ => {}
+    }
+    let call = node.as_call_node()?;
+    for argument in crate::cops::ast::call_arguments(&call).into_iter().rev() {
+        if let Some(found) = heredoc_argument(argument) {
+            return Some(found);
+        }
+    }
+    heredoc_argument(call.receiver()?)
 }
 
 fn ending_tail(body: Node<'_>) -> Option<Node<'_>> {
@@ -446,9 +365,6 @@ struct Conditional<'pr> {
     body: Option<StatementsNode<'pr>>,
     other: Option<Node<'pr>>,
     unless: bool,
-    block_tail: bool,
-    covered: bool,
-    statement: bool,
 }
 
 impl<'pr> Conditional<'pr> {
@@ -462,9 +378,6 @@ impl<'pr> Conditional<'pr> {
                 body: n.statements(),
                 other: n.subsequent(),
                 unless: false,
-                block_tail: false,
-                covered: false,
-                statement: false,
             })
         } else if let Some(n) = node.as_unless_node() {
             Some(Self {
@@ -475,9 +388,6 @@ impl<'pr> Conditional<'pr> {
                 body: n.statements(),
                 other: n.else_clause().map(|e| e.as_node()),
                 unless: true,
-                block_tail: false,
-                covered: false,
-                statement: false,
             })
         } else {
             None
@@ -687,14 +597,7 @@ mod tests {
                     assert_correction(
                         &super::GuardClause::default(),
                         &format!("{signature}\n  {keyword} ready?\n    {body}\n  end\nend\n"),
-                        &format!(
-                            "{signature}\n  {} {inverse} ready?\n    {body}\n  \nend\n",
-                            if signature.starts_with("def ") {
-                                "return"
-                            } else {
-                                "next"
-                            }
-                        ),
+                        &format!("{signature}\n  return {inverse} ready?\n    {body}\n  \nend\n"),
                     );
                 }
             }
@@ -730,33 +633,6 @@ mod tests {
                     ),
                 );
             }
-        }
-    }
-
-    #[test]
-    fn modifier_binding_and_ambiguous_control_flow_edits_are_withheld() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "if ready?\n work || raise('oops')\nelse\n value\nend\n",
-            "if ready?\n raise 'oops'\nelse\n value\nend\n",
-            "if ready?\n fail 'oops'\nelse\n value\nend\n",
-            "def f\n if (text in value)\n  return value\n else\n  effect\n end\nend\n",
-            "def f\n if /(?<value>.)/ =~ text\n  return value\n else\n  effect\n end\nend\n",
-            "def f\n if ready?\n  value = 1\n else\n  return value\n end\nend\n",
-            "def f\n if ready?\n  return (value = 1)\n else\n  effect\n end\nend\n",
-            "consume(if ready?\n raise 'oops'\nelse\n value\nend)\n",
-            "def f\n consume(\n  if ready?\n   return 1\n  else\n   value\n  end\n )\nend\n",
-            "def f\n [\n  if ready?\n   return 1\n  else\n   value\n  end\n ]\nend\n",
-            "def f\n defined?(\n  if ready?\n   return 1\n  else\n   value\n  end\n )\nend\n",
-            "def f\n defined?(begin\n  if ready?\n   return 1\n  else\n   value\n  end\n end)\nend\n",
-            "def f\n if ready?\n  return __LINE__\n else\n  effect\n end\nend\n",
-        ] {
-            let out = correction_offenses(&super::GuardClause::default(), source);
-            assert!(!out.is_empty(), "{source}");
-            assert!(
-                out.iter().all(|o| o.correction.is_none()),
-                "{source}: {out:?}"
-            );
         }
     }
 
@@ -814,49 +690,6 @@ mod tests {
             &format!("if x\nelse\n  {exit}\nend\n"),
             &format!("unless x\n  {exit}\nend\n\n  \n\n"),
         );
-    }
-
-    #[test]
-    fn nested_tail_correction_is_atomic_and_sibling_safety_work_is_linear() {
-        use crate::{
-            cops::{testing::correction_offenses, variables::VISIBLE_LOCAL_BUILDS},
-            pipeline::lint_str_with,
-        };
-        let cop = super::GuardClause::default();
-        for methods in [1000, 2000] {
-            let source = (0..methods).map(|i| format!("def f{i}(value, ready)\n if ready\n  return value\n else\n  effect\n  42\n end\nend\n")).collect::<String>();
-            super::REWRITE_VISITS.with(|n| n.set(0));
-            super::REWRITE_CALLS.with(|n| n.set(0));
-            VISIBLE_LOCAL_BUILDS.with(|n| n.set(0));
-            assert_eq!(lint_str_with(&[&cop], &source).len(), methods);
-            super::REWRITE_VISITS.with(|n| assert_eq!(n.get(), 0));
-            super::REWRITE_CALLS.with(|n| assert_eq!(n.get(), 0));
-            VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 0));
-            let found = correction_offenses(&cop, &source);
-            assert_eq!(
-                found.iter().filter(|o| o.correction.is_some()).count(),
-                methods
-            );
-            super::REWRITE_VISITS.with(|n| assert_eq!(n.get(), methods * 4));
-            super::REWRITE_CALLS.with(|n| assert_eq!(n.get(), methods));
-            VISIBLE_LOCAL_BUILDS.with(|n| assert_eq!(n.get(), 1));
-        }
-        let depth = 20;
-        let source = format!(
-            "def f\n{}work\nmore_work\n{}end\n",
-            "if ready?\n".repeat(depth),
-            "end\n".repeat(depth)
-        );
-        super::REWRITE_CALLS.with(|n| n.set(0));
-        super::REWRITE_BYTES.with(|n| n.set(0));
-        let found = correction_offenses(&cop, &source);
-        assert_eq!(found.len(), depth);
-        assert_eq!(found.iter().filter(|o| o.correction.is_some()).count(), 1);
-        super::REWRITE_CALLS.with(|n| assert_eq!(n.get(), depth));
-        super::REWRITE_BYTES.with(|n| assert!(n.get() <= source.len() * depth));
-        let after = crate::corrections::apply(source.as_bytes(), &found).unwrap();
-        let after = String::from_utf8(after.bytes).unwrap();
-        assert!(lint_str_with(&[&cop], &after).is_empty());
     }
 
     #[test]

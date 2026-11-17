@@ -141,42 +141,6 @@ fn exclusions_and_directives_preserve_files() {
 }
 
 #[test]
-fn uncertain_clean_and_error_files_are_not_written() {
-    let dir = project();
-    let file = dir.path().join("lib/a.rb");
-    for (source, status, count) in [
-        ("def f\n  work if condition\nend\n", 0, 0),
-        ("def f\n  if condition\n", 2, 0),
-        (
-            "if condition\n  work || raise('error')\nelse\n  value\nend\n",
-            1,
-            1,
-        ),
-        (
-            "if condition\n  raise <<~MESSAGE\n    error\n  MESSAGE\nelse\n  work\nend\n",
-            1,
-            1,
-        ),
-        (
-            "def f\n  if condition\n    side_effect\n    return __LINE__\n  end\nensure\n  cleanup\nend\n",
-            0,
-            0,
-        ),
-    ] {
-        fs::write(&file, source).unwrap();
-        for fix in [false, true] {
-            let mut args = vec!["--only", COP];
-            if fix {
-                args.push("--fix");
-            }
-            args.push("lib/a.rb");
-            run(dir.path(), &args, status, count);
-            assert_eq!(fs::read(&file).unwrap(), source.as_bytes());
-        }
-    }
-}
-
-#[test]
 fn stdin_uses_display_path_exclusions_and_inline_directives_without_writes() {
     let dir = project();
     for (config, source, expected) in [

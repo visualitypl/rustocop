@@ -4,7 +4,7 @@ use crate::{
     offense::{Correction, Offense},
     source::SourceFile,
 };
-use ruby_prism::{CallNode, Node};
+use ruby_prism::Node;
 pub struct Sample;
 impl Cop for Sample {
     fn name(&self) -> &'static str {
@@ -189,30 +189,6 @@ fn decimal(digits: &[u32], increment: bool, negative: bool) -> String {
         let _ = write!(out, "{part:09}");
     }
     out
-}
-/// Canonical and original degenerate API spellings share closed-dispatch facts.
-pub(super) fn primitive_api(call: &CallNode<'_>) -> bool {
-    if call.block().is_some() {
-        return false;
-    }
-    if call.name().as_slice() == b"sample" {
-        return call
-            .receiver()
-            .is_some_and(|n| n.as_array_node().is_some_and(|a| a.elements().len() <= 1));
-    }
-    if call.name().as_slice() == b"shuffle" {
-        return ast::call_arguments(call).is_empty()
-            && call
-                .receiver()
-                .is_some_and(|n| n.as_array_node().is_some_and(|a| a.elements().len() <= 1));
-    }
-    matches!(
-        call.name().as_slice(),
-        b"first" | b"last" | b"at" | b"slice" | b"[]"
-    ) && call
-        .receiver()
-        .and_then(|n| n.as_call_node())
-        .is_some_and(|s| s.name().as_slice() == b"shuffle" && primitive_api(&s))
 }
 #[cfg(test)]
 mod tests {

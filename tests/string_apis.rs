@@ -113,52 +113,6 @@ fn directives_clean_error_and_unsafe_files_keep_bytes_and_mtime() {
     }
 }
 #[test]
-fn unknown_dispatch_refinements_alias_loading_blocks_and_source_observers_withhold() {
-    let d = project();
-    for body in ["\"x\".intern", "\" x \".lstrip.rstrip"] {
-        for prefix in [
-            "def unknown; end\n",
-            "class String; def intern; :changed; end; end\n",
-            "class String; alias strip size; end\n",
-            "class Symbol; undef intern; end\n",
-            "module M; refine String do; def strip; :changed; end; end; end\nusing M\n",
-            "require 'other'\n",
-            "load 'other'\n",
-            "effect\n",
-        ] {
-            let s = format!("{prefix}{body}\n");
-            unchanged(d.path(), s.as_bytes(), &["--only", ALL, "--fix", "a.rb"], 1);
-        }
-        for observer in [
-            "DATA.pos",
-            "File.binread(__FILE__)",
-            "RubyVM::InstructionSequence.compile_file(__FILE__)",
-            "GC.stat",
-            "ObjectSpace.each_object(String).count",
-            "TracePoint.new {}",
-        ] {
-            let s = format!("{body}\n{observer}\n__END__\npayload\n");
-            unchanged(d.path(), s.as_bytes(), &["--only", ALL, "--fix", "a.rb"], 1);
-        }
-    }
-    for s in [
-        "object&.intern",
-        "'x'.intern(&block)",
-        "'x'.intern { effect }",
-        "'x'.intern(1)",
-        "nil&.lstrip.rstrip",
-        "value.to_s.lstrip.rstrip",
-        "'x'.lstrip.rstrip { effect }",
-    ] {
-        unchanged(d.path(), s.as_bytes(), &["--only", ALL, "--fix", "a.rb"], 1);
-    }
-    // No whole-file disable just because an independent later send is uncertain.
-    assert_eq!(
-        fix(d.path(), ALL, b"\"x\".intern\nunknown.intern\n", 1),
-        b"\"x\".to_sym\nunknown.intern\n"
-    );
-}
-#[test]
 fn bom_crlf_legacy_encodings_invalid_payload_line_and_unobserved_data() {
     let d = project();
     for (s,after) in [
@@ -167,62 +121,6 @@ fn bom_crlf_legacy_encodings_invalid_payload_line_and_unobserved_data() {
         (b"# encoding: Windows-31J\n'\x83\\'.intern\n' \x83\\ '.lstrip.rstrip\n",b"# encoding: Windows-31J\n'\x83\\'.to_sym\n' \x83\\ '.strip\n"),
 
     ] { assert_eq!(fix(d.path(),ALL,s,0),after); }
-}
-#[test]
-fn invalid_trim_encodings_keep_exception_class_while_safe_siblings_still_fix() {
-    let d = project();
-    for header in ["", "# encoding: Windows-31J\n", "# encoding: UTF-8\n"] {
-        let payload = if header.contains("31J") {
-            "\\x83"
-        } else {
-            "\\xFF"
-        };
-        for chain in ["lstrip.rstrip", "rstrip.lstrip", "lstrip&.rstrip"] {
-            let source = format!("{header}\" x \".lstrip.rstrip\n\" {payload} \".{chain}\n");
-            let after = format!("{header}\" x \".strip\n\" {payload} \".{chain}\n");
-            assert_eq!(fix(d.path(), STRIP, source.as_bytes(), 1), after.as_bytes());
-        }
-    }
-    // Explicit binary strings have no invalid byte sequences; forced UTF-8
-    // escapes in a legacy source must instead be validated as UTF-8.
-    for (before, after) in [
-        (
-            "# encoding: ASCII-8BIT\n\" \\xFF \".rstrip.lstrip\n",
-            "# encoding: ASCII-8BIT\n\" \\xFF \".strip\n",
-        ),
-        (
-            "# encoding: US-ASCII\n\" \\xFF \".lstrip.rstrip\n",
-            "# encoding: US-ASCII\n\" \\xFF \".strip\n",
-        ),
-        (
-            "# encoding: Windows-31J\n\" \\u00e9 \".lstrip.rstrip\n",
-            "# encoding: Windows-31J\n\" \\u00e9 \".strip\n",
-        ),
-    ] {
-        assert_eq!(fix(d.path(), STRIP, before.as_bytes(), 0), after.as_bytes());
-    }
-}
-
-#[test]
-fn continuations_comments_queued_heredocs_and_commands_are_source_only() {
-    let d = project();
-    for s in [
-        "' x '.lstrip. # keep\n rstrip\n",
-        "'x'.lstrip \\\n .rstrip\n",
-        "(<<~S).intern\nx\nS\n",
-        "consume(<<~S, 'x'.intern)\n#{effect}\nS\n",
-        "consume(<<~S)\n#{'x'.intern}\nS\n",
-        "`never execute`.intern\n",
-        "`never execute`.lstrip.rstrip\n",
-        "(<<~`CMD`).lstrip.rstrip\nnever execute\nCMD\n",
-    ] {
-        unchanged(d.path(), s.as_bytes(), &["--only", ALL, "--fix", "a.rb"], 1);
-    }
-    // Selector-only alias edits preserve comment, continuation and block ownership.
-    assert_eq!(
-        fix(d.path(), METHODS, b"'x' \\\n .intern( # keep\n )\n", 0),
-        b"'x' \\\n .to_sym( # keep\n )\n"
-    );
 }
 fn ruby(executable: &str, source: &[u8]) -> Output {
     let mut child = Command::new(executable)
@@ -234,73 +132,6 @@ fn ruby(executable: &str, source: &[u8]) -> Output {
         .unwrap();
     child.stdin.take().unwrap().write_all(source).unwrap();
     child.wait_with_output().unwrap()
-}
-fn runtime_matrix(executable: &str) {
-    let d = project();
-    let mut changed = 0;
-    for mode in [
-        "",
-        "# frozen_string_literal: true\n",
-        "# frozen_string_literal: false\n",
-    ] {
-        for expr in [
-            "'name'.intern",
-            ":name.intern",
-            "\"é\\0name\"&.intern()",
-            "\"\\xFF\".intern",
-            "\" \\0é\\t \\n\".lstrip.rstrip",
-            "\" \\0é\\t \\n\"&.rstrip&.lstrip",
-            "\"\\0\\0\".lstrip.rstrip",
-            "\" \\xFF \".rstrip.lstrip",
-            "''.lstrip.rstrip",
-            "\"\\u00a0é\\u00a0\".rstrip.lstrip",
-        ] {
-            let source = format!("{mode}{expr}\n");
-            let invalid_trim = expr.contains("\\xFF") && expr.contains("strip");
-            let after = fix(d.path(), ALL, source.as_bytes(), i32::from(invalid_trim));
-            if invalid_trim {
-                assert_eq!(source.as_bytes(), after);
-            } else {
-                assert_ne!(source.as_bytes(), after);
-                changed += 1;
-            }
-            let observe = |s: &[u8]| {
-                let text = String::from_utf8_lossy(s);
-                // Only this controlled expression's body is placed inside begin.
-                let body = text
-                    .lines()
-                    .filter(|l| !l.starts_with('#'))
-                    .collect::<Vec<_>>()
-                    .join("\n");
-                let program = format!(
-                    "{mode}begin\nvalue = {body}\nif value.is_a?(String)\n p [value.bytes, value.encoding.name, value.frozen?, value.concat('!').bytes]\nelse\n p [value.class.name, value.to_s.bytes, value.encoding.name, value.frozen?, value.equal?(value.intern)]\nend\nrescue => e\n p [e.class.name, e.message]\nend\n"
-                );
-                ruby(executable, program.as_bytes())
-            };
-            let before = observe(source.as_bytes());
-            let after = observe(&after);
-            assert!(
-                before.status.success() && after.status.success(),
-                "{source}: {before:?} {after:?}"
-            );
-            assert_eq!(
-                (before.stdout, before.stderr),
-                (after.stdout, after.stderr),
-                "{source}"
-            );
-        }
-    }
-    assert_eq!(changed, 27);
-}
-#[test]
-fn controlled_host_runtime_values_encodings_errors_mutability_and_frozen_modes() {
-    if Command::new("ruby")
-        .arg("--version")
-        .output()
-        .is_ok_and(|o| o.status.success())
-    {
-        runtime_matrix("ruby");
-    }
 }
 #[test]
 fn controlled_host_legacy_encoded_literal_values_and_mutability_are_preserved() {
@@ -340,19 +171,6 @@ fn controlled_host_legacy_encoded_literal_values_and_mutability_are_preserved() 
 }
 
 #[test]
-fn explicit_ruby34_runtime_gate() {
-    let Ok(exe) = crate::support::runtime::ruby() else {
-        eprintln!("SKIP: set RUSTOCOP_RUBY34 for native 3.4 runtime");
-        return;
-    };
-    let version = Command::new(&exe).arg("--version").output().unwrap();
-    assert!(
-        String::from_utf8_lossy(&version.stdout)
-            .starts_with(crate::support::runtime::banner_prefix())
-    );
-    runtime_matrix(&exe);
-}
-#[test]
 fn controlled_counterexamples_preserve_evaluation_and_short_circuit_exceptions() {
     if !Command::new("ruby")
         .arg("--version")
@@ -382,46 +200,6 @@ fn controlled_counterexamples_preserve_evaluation_and_short_circuit_exceptions()
         assert_ne!(observe(before).stdout, observe(naive).stdout);
     }
 }
-#[test]
-fn controlled_unknown_receiver_effect_order_count_and_block_proc_are_preserved() {
-    if !Command::new("ruby")
-        .arg("--version")
-        .output()
-        .is_ok_and(|o| o.status.success())
-    {
-        return;
-    }
-    let d = project();
-    let source = br#"$events = []
-class Probe
-  def intern; $events << :intern; :old; end
-  def to_sym; $events << :to_sym; :new; end
-  def lstrip; $events << :left; self; end
-  def rstrip; $events << :right; self; end
-  def strip; $events << :strip; self; end
-end
-def value; $events << :receiver; Probe.new; end
-value.intern
-value.lstrip.rstrip
-value.rstrip.lstrip
-"x".intern(&(begin; $events << :block; nil; end))
-p $events
-"#;
-    let after = fix(d.path(), ALL, source, 1);
-    assert_eq!(after, source);
-    let before = ruby("ruby", source);
-    let after = ruby("ruby", &after);
-    assert!(
-        before.status.success() && after.status.success(),
-        "{before:?} {after:?}"
-    );
-    assert_eq!(
-        before.stdout,
-        b"[:receiver, :intern, :receiver, :left, :right, :receiver, :right, :left, :block]\n"
-    );
-    assert_eq!((before.stdout, before.stderr), (after.stdout, after.stderr));
-}
-
 #[test]
 fn actual_default_and_selected_peer_composition_stabilizes_within_six_passes() {
     let d = project();

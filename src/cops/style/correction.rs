@@ -126,6 +126,12 @@ pub(crate) fn combine(file: &SourceFile, mut edits: Vec<Correction>) -> Option<C
     })
 }
 
+/// RuboCop's `range_by_whole_lines(range, include_final_newline: true)`.
+pub(crate) fn whole_lines(file: &SourceFile, r: std::ops::Range<usize>) -> std::ops::Range<usize> {
+    file.line_start(file.line_of(r.start))
+        ..file.line_start(file.line_of(r.end.saturating_sub(1).max(r.start)) + 1)
+}
+
 /// RuboCop's `Util#to_string_literal`: single quotes, unless the value
 /// needs an escape that only double quotes can spell (`inspect` then).
 pub(crate) fn to_string_literal(value: &[u8], file: &SourceFile) -> Option<String> {

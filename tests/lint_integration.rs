@@ -433,21 +433,6 @@ fn fatal_syntax_and_fixed_path_exclusion_survive_force_and_fix() {
 }
 
 #[test]
-fn incompatible_lint_style_pair_both_orders_retains_uncertain_api_changes() {
-    let d = project();
-    let source =
-        "def sample(unused)\n  if block_given?; [1].each { |value| yield value }; end\nend\n";
-    for only in [
-        "Lint/UnusedMethodArgument,Style/ExplicitBlockArgument",
-        "Style/ExplicitBlockArgument,Lint/UnusedMethodArgument",
-    ] {
-        let out = unchanged(d.path(), source, &["--only", only, "--fix", "test.rb"]);
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert!(String::from_utf8_lossy(&out.stdout).contains("Lint/UnusedMethodArgument"));
-    }
-}
-
-#[test]
 fn explicit_lint_style_layout_naming_security_composition_has_exact_output() {
     let d = project();
     let source =

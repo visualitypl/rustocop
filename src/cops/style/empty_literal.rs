@@ -188,11 +188,6 @@ fn candidate(call: &CallNode<'_>) -> Option<Kind> {
         _ => None,
     }
 }
-/// Also used by the shared eager core-dispatch index. No arbitrary similarly
-/// named method, passed block, or user expression is treated as a core API.
-pub(super) fn primitive_api(call: &CallNode<'_>) -> bool {
-    candidate(call).is_some() && call.block().is_none()
-}
 /// RuboCop's corrector. A hash that is the first argument of a call
 /// without parentheses gets them, with the other arguments: `{}` there
 /// would be a block.

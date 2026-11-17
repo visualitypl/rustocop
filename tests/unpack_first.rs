@@ -128,80 +128,6 @@ fn config_excludes_strict_settings_and_directive_forms() {
     }
 }
 #[test]
-fn individual_dispatch_full_unpack_and_observer_hazards_preserve_bytes_mtime() {
-    let d = project();
-    let body = "\"abc\".unpack(\"h*\").first\n";
-    for prefix in [
-        "def unrelated; end\n",
-        "class String; def unpack1(*); :changed; end; end\n",
-        "class Array; alias first last; end\n",
-        "class Array; private :at; end\n",
-        "module M; refine String do; def unpack1(*); :changed; end; end; end\nusing M\n",
-        "require 'other'\n",
-        "load 'other'\n",
-        "effect\n",
-    ] {
-        let source = format!("{prefix}{body}");
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-    }
-    for observer in [
-        "DATA.pos",
-        "File.binread(__FILE__)",
-        "RubyVM::InstructionSequence.compile_file(__FILE__)",
-        "GC.stat",
-        "ObjectSpace.each_object(Array).count",
-        "TracePoint.new {}",
-    ] {
-        let source = format!("{body}{observer}\n__END__\npayload\n");
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-    }
-    for source in [
-        "nil&.unpack('h*').first\n",
-        "'abc'.unpack('h*').first { effect }\n",
-        "'abc'.unpack('h*?').first\n",
-        "\"a\\xFF\".unpack('U*').first\n",
-        "'abc'.unpack('p').first\n",
-        "'abc'.unpack('P').at(0)\n",
-        "'abc'.unpack(format).first\n",
-        "'abc'.unpack('h*', offset: effect).first\n",
-        "'abc'.unpack('h*', &block).first\n",
-        "'abc'.unpack('h*') { effect }.first\n",
-    ] {
-        // p/P are never run, including in the runtime helpers below.
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            if source.contains("offset:") || source.contains("&block") || source.contains("}.") {
-                0
-            } else {
-                1
-            },
-        );
-    }
-    assert_eq!(
-        fix(
-            d.path(),
-            format!("{body}unknown.unpack(format).first\n").as_bytes(),
-            1
-        ),
-        b"\"abc\".unpack1(\"h*\")\nunknown.unpack(format).first\n"
-    );
-    for (source, status) in [(b"'abc'.unpack1('h*')\n".as_slice(), 0), (b"broken(\n", 2)] {
-        unchanged(d.path(), source, &["--only", COP, "--fix", "a.rb"], status);
-    }
-}
-#[test]
 fn bom_crlf_encoding_frozen_line_and_data_bytes_survive() {
     let d = project();
     for (source, after) in [
@@ -261,27 +187,6 @@ fn controlled_legacy_source_bytes_keep_result_encoding_and_mutability() {
         let b = observe(&after);
         assert!(a.status.success() && b.status.success(), "{a:?} {b:?}");
         assert_eq!((a.stdout, a.stderr), (b.stdout, b.stderr));
-    }
-}
-#[test]
-fn command_heredoc_comment_and_continuation_boundaries_are_source_only() {
-    let d = project();
-    for source in [
-        "`never execute`.unpack('h*').first\n",
-        "(<<~`CMD`).unpack('h*').first\nnever execute\nCMD\n",
-        "(<<~S).unpack('h*').first\nabc\nS\n",
-        "'abc'.unpack(<<~S).first\nh*\nS\n",
-        "consume(<<~S, 'abc'.unpack('h*').first)\n#{effect}\nS\n",
-        "consume(<<~S)\n#{'abc'.unpack('h*').first}\nS\n",
-        "'abc'.unpack('h*'). # keep\n first\n",
-        "'abc'.unpack('h*') \\\n .first\n",
-    ] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
     }
 }
 fn ruby(exe: &str, source: &[u8]) -> Output {
@@ -364,61 +269,6 @@ fn explicit_native_ruby34_runtime_gate() {
     ] {
         assert_ne!(observe(a).stdout, observe(b).stdout);
     }
-}
-#[test]
-fn controlled_full_unpack_errors_and_effects_explain_withheld_edits() {
-    if !Command::new("ruby")
-        .arg("--version")
-        .output()
-        .is_ok_and(|o| o.status.success())
-    {
-        return;
-    }
-    let observe = |s: &str| {
-        ruby("ruby", format!("begin; p(begin; {s}; end); rescue => e; p [e.class.name, (e.name if e.respond_to?(:name))]; end").as_bytes())
-    };
-    for (before, naive) in [
-        ("'abc'.unpack('CX9').first", "'abc'.unpack1('CX9')"),
-        ("\"a\\xFF\".unpack('U*').first", "\"a\\xFF\".unpack1('U*')"),
-        ("nil&.unpack('h*').first", "nil&.unpack1('h*')"),
-        (
-            "class Array; def first; :custom; end; end; 'abc'.unpack('h*').first",
-            "class Array; def first; :custom; end; end; 'abc'.unpack1('h*')",
-        ),
-    ] {
-        assert_ne!(observe(before).stdout, observe(naive).stdout, "{before}");
-    }
-    let d = project();
-    let source = br#"$events = []
-class Probe
-  def unpack(format); $events << [:unpack, format]; [:old]; end
-  def unpack1(format); $events << [:unpack1, format]; :new; end
-end
-def value; $events << :receiver; Probe.new; end
-def format; $events << :format; 'C'; end
-value.unpack(format).first
-begin
-  'abc'.unpack('C') { |v| $events << [:block, v] }.first
-rescue NoMethodError => e
-  $events << e.name
-end
-p $events
-"#;
-    let after = fix(d.path(), source, 1);
-    assert_eq!(after, source);
-    let a = ruby("ruby", source);
-    let b = ruby("ruby", &after);
-    // The block-form unpack returns nil; preserve receiver/argument/block
-    // effects and the rescued first exception, not just the final value.
-    assert!(a.status.success() && b.status.success(), "{a:?} {b:?}");
-    assert_eq!(
-        a.stdout,
-        b"[:receiver, :format, [:unpack, \"C\"], [:block, 97], :first]\n"
-    );
-    assert_eq!(
-        (a.status.code(), a.stdout, a.stderr),
-        (b.status.code(), b.stdout, b.stderr)
-    );
 }
 #[test]
 fn selected_peers_and_actual_defaults_stabilize_in_six_explicit_passes() {

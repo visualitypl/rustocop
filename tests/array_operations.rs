@@ -153,69 +153,6 @@ fn both_directive_prefixes_disable_enable_and_uncorrectable_bytes_mtime() {
     }
 }
 #[test]
-fn actual_canonical_single_pass_and_safe_sibling_withholding() {
-    let d = project();
-    let s = "x = %w[a b] * \",\"\narr.concat([item])\narr.intersect?([item])\n";
-    fs::write(d.path().join("a.rb"), s).unwrap();
-    let selected =
-        "Style/ArrayJoin,Style/ArrayIntersectWithSingleElement,Style/ConcatArrayLiterals";
-    cli(d.path(), &["--only", selected, "--fix", "a.rb"], 1);
-    let expected = "x = %w[a b].join(\",\")\narr.concat([item])\narr.intersect?([item])\n";
-    assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), expected);
-    unchanged(
-        d.path(),
-        expected.as_bytes(),
-        &["--only", selected, "--fix", "a.rb"],
-        1,
-    );
-    unchanged(
-        d.path(),
-        b"[x] * ','\n",
-        &["--only", JOIN, "--fix", "a.rb"],
-        1,
-    );
-    fs::write(d.path().join("a.rb"), "%w[a b] * \",\"\n").unwrap();
-    cli(d.path(), &["--only", JOIN, "--fix", "a.rb"], 0);
-    unchanged(
-        d.path(),
-        b"%w[a b].join(\",\")\n",
-        &["--only", JOIN, "--fix", "a.rb"],
-        0,
-    );
-}
-#[test]
-fn encoding_heredoc_observer_and_command_sources_not_executed() {
-    let d = project();
-    for (name, source) in [
-        (
-            JOIN,
-            b"# encoding: ISO-8859-1\n%w[\xe9 a\\ b] * ','\n".as_slice(),
-        ),
-        (JOIN, b"# encoding: Windows-31J\n%w[\x83\\ a] * ','\n"),
-        (JOIN, b"[`never execute`] * ','\n"),
-        (JOIN, b"[<<~TEXT] * ','\nx\nTEXT\n"),
-        (JOIN, b"[] * ','\np File.binread(__FILE__)\n"),
-        (JOIN, b"[] * ','\np DATA.pos\n__END__\npayload\n"),
-        (
-            "Style/ConcatArrayLiterals",
-            b"# encoding: ISO-8859-1\na.concat(%w[\xe9 a\\ b])\n",
-        ),
-        (
-            "Style/ArrayIntersectWithSingleElement",
-            b"# encoding: Windows-31J\na.intersect?(%w[\x83\\])\n",
-        ),
-    ] {
-        unchanged(d.path(), source, &["--only", name, "--fix", "a.rb"], 1);
-    }
-    let before = b"\xef\xbb\xbf%w[a b] * \",\"\r\n__LINE__\r\n__END__\r\npayload\0\r\n";
-    fs::write(d.path().join("a.rb"), before).unwrap();
-    cli(d.path(), &["--only", JOIN, "--fix", "a.rb"], 0);
-    assert_eq!(
-        fs::read(d.path().join("a.rb")).unwrap(),
-        b"\xef\xbb\xbf%w[a b].join(\",\")\r\n__LINE__\r\n__END__\r\npayload\0\r\n"
-    );
-}
-#[test]
 fn dense_candidates_complete_in_one_pass_without_quadratic_source_scans() {
     let d = project();
     for (name, s, safe) in COPS {
