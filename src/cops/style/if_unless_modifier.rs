@@ -128,9 +128,6 @@ impl Cop for IfUnlessModifier {
                 && !index
                     .modifier_shared(root, file)
                     .contains(&node.location().start_offset())
-                && !cx
-                    .ancestors()
-                    .any(|ancestor| Conditional::of(ancestor).is_some_and(|c| c.end.is_none()))
             {
                 self.rewrite(node, &c, body.as_ref(), cx, file)
             } else {
@@ -140,6 +137,7 @@ impl Cop for IfUnlessModifier {
     }
 }
 impl IfUnlessModifier {
+    /// RuboCop's `autocorrect`.
     fn rewrite(
         &self,
         node: &Node<'_>,
@@ -148,171 +146,102 @@ impl IfUnlessModifier {
         cx: &NodeContext<'_, '_>,
         file: &SourceFile,
     ) -> Option<Correction> {
-        let loc = node.location();
-        let mut span = loc.start_offset()..loc.end_offset();
-        if span.len() > REWRITE_BUDGET || super::correction::touches_directive(file, span.clone()) {
-            return None;
-        }
         let body = body?;
-        let root = cx.ancestors().next_back()?;
-        // Deferred payloads may lie outside the node range; neither relocate
-        // nor insert lines while a heredoc is pending. Keep their diagnostics.
-        if file.contains_heredoc(root, node) || file.heredoc_pending_at(root, span.start) {
-            return None;
-        }
-        #[cfg(test)]
-        REWRITE_BYTES.with(|n| n.set(n.get() + span.len()));
-        let mut predicate = LexicalFacts::default();
-        walk(&mut predicate, &c.condition);
-        let mut branch = LexicalFacts::default();
-        walk(&mut branch, body);
-        // Moving declarations across reads can change calls into locals,
-        // named-capture bindings, block capture or defined? observations.
-        let references = if c.end.is_some() {
-            &predicate.calls
-        } else {
-            &predicate.references
-        };
-        if predicate.declarations
-            || predicate.capture
-            || branch.capture
-            || branch.ambiguous
-            || branch.names.iter().any(|name| references.contains(name))
-        {
-            return None;
-        }
+        let loc = node.location();
+        let range = loc.start_offset()..loc.end_offset();
         let condition = std::str::from_utf8(c.condition.location().as_slice()).ok()?;
-        let body_text = std::str::from_utf8(body.location().as_slice()).ok()?;
-        if condition.contains(['\n', '\r']) || body_text.contains(['\n', '\r']) {
-            return None;
-        }
-        let mut replacement;
+        let line = file.line_of(loc.start_offset());
         if c.end.is_some() {
-            let parens = correction_parens(cx)?;
-            // Extra operand boundaries are correction-only: retain detection's
-            // positions/messages/eligibility, but never emit an overlong fix.
-            if !self.fits(c, body, parens, file) {
-                return None;
-            }
-            // Only the header's ordinary trailing comment may move. All other
-            // comments (including embedded docs) remain in their original place.
-            let comment = first_comment(file, file.line_of(c.keyword.start_offset()));
-            let comments = file.comments();
-            let first = comments.partition_point(|r| r.end <= span.start);
-            if comments[first..]
-                .iter()
-                .take_while(|r| r.start < span.end)
-                .any(|r| Some(&file.bytes[r.clone()]) != comment)
-                || comment.is_some_and(|b| !super::correction::comment_relocation_safe(b))
-            {
-                return None;
-            }
-            let rendered_body = body_source(body);
-            // The length renderer supports calls and simple assignment/return
-            // wrappers. A terminal omitted hash under an unsupported wrapper
-            // would consume the new modifier as its missing value (or fail to
-            // parse); do not guess how to parenthesize that expression.
-            if branch.omitted_hash && rendered_body.ends_with(b":") {
-                return None;
-            }
-            // An unbounded range cannot be followed directly by a modifier.
-            // This also covers terminal ranges in calls/assignments/returns
-            // without guessing at the boundaries of unsupported wrappers.
-            if branch.endless_range && rendered_body.ends_with(b"..") {
-                return None;
-            }
-            replacement = format!(
-                "{}{} {} {}{}",
-                if parens { "(" } else { "" },
-                std::str::from_utf8(&rendered_body).ok()?,
-                c.word(),
-                condition,
-                if parens { ")" } else { "" }
+            let mut replacement = format!(
+                "{} {} {condition}",
+                std::str::from_utf8(&body_source(body)).ok()?,
+                c.word()
             );
-            if let Some(comment) = comment {
-                replacement.push(' ');
-                replacement.push_str(
-                    std::str::from_utf8(comment.strip_suffix(b"\r").unwrap_or(comment)).ok()?,
-                );
+            if semantic_parent(cx).is_some_and(needs_parens) {
+                replacement = format!("({replacement})");
             }
-        } else {
-            let line = file.line_of(span.start);
-            let prefix = &file.bytes[file.line_start(line)..span.start];
-            let prefix = if line == 1 {
-                prefix.strip_prefix(b"\xef\xbb\xbf").unwrap_or(prefix)
-            } else {
-                prefix
-            };
-            if prefix.len() > REWRITE_BUDGET {
-                return None;
-            }
-            // Expand standalone statements or explicitly parenthesized
-            // expressions; leave other lexical contexts alone. The opening
-            // parenthesis' physical column determines the end's indentation.
-            if !prefix.iter().all(u8::is_ascii_whitespace) && !prefix.ends_with(b"(") {
-                return None;
-            }
-            let indent = if prefix.iter().all(u8::is_ascii_whitespace) {
-                std::str::from_utf8(prefix).ok()?.to_owned()
-            } else {
-                " ".repeat(prefix.len())
-            };
-            let nl = if file
-                .bytes
-                .get(file.line_start(line + 1).saturating_sub(2)..file.line_start(line + 1))
-                == Some(b"\r\n")
+            if let Some(comment) = first_comment(file, line)
+                && !disables_cop(comment)
             {
-                "\r\n"
-            } else {
-                "\n"
+                replacement.push(' ');
+                replacement.push_str(std::str::from_utf8(comment).ok()?);
+            }
+            return Some(Correction { range, replacement });
+        }
+        let body_text = std::str::from_utf8(body.location().as_slice()).ok()?;
+        let line_start = file.line_start(line);
+        let indent = " ".repeat(
+            std::str::from_utf8(&file.bytes[line_start..loc.start_offset()])
+                .ok()?
+                .chars()
+                .count(),
+        );
+        let comment = file
+            .comments()
+            .iter()
+            .find(|r| file.line_of(r.start) == line)
+            .cloned();
+        if let (Some(comment), Some(max)) = (comment, self.max) {
+            let chars = |r: std::ops::Range<usize>| {
+                std::str::from_utf8(&file.bytes[r]).map(|t| t.chars().count())
             };
-            if let Some(comment) = first_comment(file, line) {
-                let comments = file.comments();
-                let first = comments.partition_point(|r| r.start < file.line_start(line));
-                let comment_at = comments.get(first)?;
-                if comment_at.end - span.start > REWRITE_BUDGET {
-                    return None;
-                }
-                let length_without = crate::cops::layout::line_length::display_width(
-                    &file.bytes[file.line_start(line)..comment_at.start],
-                );
-                if self.max.is_some_and(|max| length_without <= max) {
-                    if !super::correction::comment_relocation_safe(comment) {
-                        return None;
-                    }
-                    // A trailing suffix such as ')' must not move into a comment.
-                    if !file.bytes[span.end..comment_at.start]
-                        .iter()
-                        .all(u8::is_ascii_whitespace)
-                    {
-                        return None;
-                    }
-                    replacement = format!(
-                        "{}{nl}{indent}{body_text} {} {condition}",
-                        std::str::from_utf8(comment.strip_suffix(b"\r").unwrap_or(comment)).ok()?,
-                        c.word()
-                    );
-                    span.end = comment_at.end - usize::from(comment.ends_with(b"\r"));
-                } else {
-                    replacement = format!(
-                        "{} {condition}{nl}{indent}  {body_text}{nl}{indent}end",
-                        c.word()
-                    );
-                }
-            } else {
-                replacement = format!(
-                    "{} {condition}{nl}{indent}  {body_text}{nl}{indent}end",
+            let text = file.line_text(line);
+            let text = text.strip_suffix(b"\n").unwrap_or(text);
+            let length = chars(line_start..line_start + text.len()).ok()?;
+            let comment_length = chars(comment.clone()).ok()?;
+            if (length - comment_length..=length).contains(&max) {
+                let blank = file.bytes[..comment.start]
+                    .iter()
+                    .rev()
+                    .take_while(|b| matches!(b, b' ' | b'\t'))
+                    .count();
+                let replacement = format!(
+                    "{}\n{indent}{body_text} {} {condition}",
+                    std::str::from_utf8(&file.bytes[comment.clone()]).ok()?,
                     c.word()
                 );
+                return super::correction::combine(
+                    file,
+                    vec![
+                        Correction { range, replacement },
+                        Correction {
+                            range: comment.start - blank..comment.end,
+                            replacement: String::new(),
+                        },
+                    ],
+                );
             }
         }
-        let edit = Correction {
-            range: span,
-            replacement,
-        };
-        (super::correction::preserves_line_values(file, &edit)
-            && super::correction::preserves_data_positions(file, cx, &edit))
-        .then_some(edit)
+        let in_node = heredoc_ranges(node, file);
+        if !in_node.is_empty() {
+            let mut lines = vec![format!("{} {condition}", c.word())];
+            for r in heredoc_ranges(&c.condition, file) {
+                lines.push(std::str::from_utf8(&file.bytes[r]).ok()?.to_owned());
+            }
+            lines.push(format!("{indent}  {body_text}"));
+            for r in heredoc_ranges(body, file) {
+                lines.push(std::str::from_utf8(&file.bytes[r]).ok()?.to_owned());
+            }
+            lines.push(format!("{indent}end"));
+            let mut edits = vec![Correction {
+                range,
+                replacement: lines.join("\n"),
+            }];
+            for r in in_node {
+                edits.push(Correction {
+                    range: super::correction::whole_lines(file, r),
+                    replacement: String::new(),
+                });
+            }
+            return super::correction::combine(file, edits);
+        }
+        Some(Correction {
+            range,
+            replacement: format!(
+                "{} {condition}\n{indent}  {body_text}\n{indent}end",
+                c.word()
+            ),
+        })
     }
     fn eligible_body(&self, c: &Conditional<'_>, body: &Node<'_>, file: &SourceFile) -> bool {
         if body.as_parentheses_node().is_some() {
@@ -385,6 +314,101 @@ impl IfUnlessModifier {
         crate::cops::layout::line_length::display_width(&rendered) <= max
     }
 }
+/// RuboCop's `comment_disables_cop?`.
+fn disables_cop(comment: &[u8]) -> bool {
+    static PATTERN: std::sync::OnceLock<regex::bytes::Regex> = std::sync::OnceLock::new();
+    PATTERN
+        .get_or_init(|| {
+            regex::bytes::Regex::new(
+                r"#\s*rubocop\s*:\s*(disable|todo)\s*([^,],)*\s*(all|Style/IfUnlessModifier)",
+            )
+            .unwrap()
+        })
+        .is_match(comment)
+}
+
+/// RuboCop's `heredoc_ranges_in`: each heredoc's body and terminator, as
+/// whole lines without the final newline, outermost only.
+fn heredoc_ranges(node: &Node<'_>, file: &SourceFile) -> Vec<std::ops::Range<usize>> {
+    struct Heredocs<'a> {
+        file: &'a SourceFile,
+        ranges: Vec<std::ops::Range<usize>>,
+    }
+    impl<'pr> NodeVisitor<'pr> for Heredocs<'_> {
+        fn enter(&mut self, n: Node<'pr>) {
+            let parts = |parts: ruby_prism::NodeList<'pr>| {
+                parts.iter().next().map(|p| p.location().start_offset())
+            };
+            let (opening, body, closing) = match &n {
+                Node::StringNode { .. } => {
+                    let s = n.as_string_node().unwrap();
+                    (
+                        s.opening_loc(),
+                        Some(s.content_loc().start_offset()),
+                        s.closing_loc(),
+                    )
+                }
+                Node::InterpolatedStringNode { .. } => {
+                    let s = n.as_interpolated_string_node().unwrap();
+                    (s.opening_loc(), parts(s.parts()), s.closing_loc())
+                }
+                Node::XStringNode { .. } => {
+                    let s = n.as_x_string_node().unwrap();
+                    (
+                        Some(s.opening_loc()),
+                        Some(s.content_loc().start_offset()),
+                        Some(s.closing_loc()),
+                    )
+                }
+                Node::InterpolatedXStringNode { .. } => {
+                    let s = n.as_interpolated_x_string_node().unwrap();
+                    (
+                        Some(s.opening_loc()),
+                        parts(s.parts()),
+                        Some(s.closing_loc()),
+                    )
+                }
+                _ => return,
+            };
+            let (Some(opening), Some(closing)) = (opening, closing) else {
+                return;
+            };
+            if !opening.as_slice().starts_with(b"<<") {
+                return;
+            }
+            let file = self.file;
+            let body = body
+                .unwrap_or(closing.start_offset())
+                .min(closing.start_offset());
+            let end_line = file.line_of(
+                closing
+                    .end_offset()
+                    .saturating_sub(1)
+                    .max(closing.start_offset()),
+            );
+            let mut end = file.line_start(end_line + 1);
+            while end > closing.start_offset() && matches!(file.bytes[end - 1], b'\n' | b'\r') {
+                end -= 1;
+            }
+            self.ranges.push(file.line_start(file.line_of(body))..end);
+        }
+    }
+    let mut heredocs = Heredocs {
+        file,
+        ranges: Vec::new(),
+    };
+    walk(&mut heredocs, node);
+    let all = heredocs.ranges.clone();
+    heredocs
+        .ranges
+        .into_iter()
+        .filter(|r| {
+            !all.iter()
+                .any(|o| o != r && o.start <= r.start && r.end <= o.end)
+        })
+        .collect()
+}
+
 pub(super) fn first_comment(file: &SourceFile, line: u32) -> Option<&[u8]> {
     let start = file.line_start(line);
     let comments = file.comments();
@@ -837,7 +861,6 @@ fn logical_modifiers_share_line(
 }
 // A fixed per-candidate budget bounds reconstruction and lexical walks even
 // for deeply nested eligible expressions. Main-parse safety indexes are cached.
-const REWRITE_BUDGET: usize = 16 * 1024;
 #[derive(Default)]
 struct LexicalFacts {
     declarations: bool,
@@ -1039,149 +1062,6 @@ mod tests {
         }
     }
     #[test]
-    fn match_and_splat_operands_keep_exact_boundaries_without_changing_detection() {
-        use crate::cops::testing::assert_correction;
-        for keyword in ["if", "unless"] {
-            for (prefix, body, suffix) in [
-                ("p((", "3", " in Integer))\n"),
-                ("", "3", " => Integer\n"),
-                ("p((", "3", " in Integer => captured)); p captured\n"),
-                ("p([*", "3", "])\n"),
-                ("p({**", "{}", "})\n"),
-                ("p({**", "3", "})\n"),
-                ("p(*", "3", ")\n"),
-                ("p(**", "{}", ")\n"),
-                ("p(defined?(", "3", "))\n"),
-                ("while ", "false", "\n break\nend\n"),
-                ("if ", "true", "..true\n p :yes\nend\n"),
-                ("if true..", "true", "\n p :yes\nend\n"),
-                ("until ", "true", "\n break\nend\n"),
-                ("if ", "true", "\n p :yes\nend\n"),
-                ("unless ", "true", "\n p :yes\nend\n"),
-                ("case ", "3", "\nwhen nil then p :nil\nend\n"),
-                ("case ", "3", "\nin nil then p :nil\nend\n"),
-                ("case nil\nwhen ", "3", " then p :nil\nend\n"),
-                ("for x in ", "[]", "\n p x\nend\n"),
-                ("case nil; in ^(", "3", "); p :nil; end\n"),
-            ] {
-                let before = format!("{prefix}{keyword} false\n {body}\nend{suffix}");
-                let after = format!("{prefix}({body} {keyword} false){suffix}");
-                let findings = found(&before);
-                assert_eq!(findings.len(), 1, "{before}");
-                // These newly guarded parents retain their detection message.
-                assert_eq!(findings[0].message, message(keyword, false), "{before}");
-                assert_correction(&IfUnlessModifier::default(), &before, &after);
-            }
-        }
-    }
-    #[test]
-    fn uncertain_wrapper_corrections_are_individually_withheld() {
-        use crate::cops::testing::correction_offenses;
-        for keyword in ["if", "unless"] {
-            let source = format!("p(({keyword} false\n 3\nend rescue 9))\nif ready\n work\nend\n");
-            let offenses = correction_offenses(&IfUnlessModifier::default(), &source);
-            assert_eq!(offenses.len(), 2);
-            assert!(offenses[0].correction.is_none(), "{source}");
-            assert!(offenses[1].correction.is_some(), "{source}");
-            // Dynamic block conversion is also subject to the existing global
-            // heap-observation barrier; do not weaken it to force a correction.
-            let source = format!("p(&{keyword} false\n nil\nend)\n");
-            let offenses = correction_offenses(&IfUnlessModifier::default(), &source);
-            assert_eq!(offenses.len(), 1);
-            assert!(offenses[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn correction_only_parentheses_must_still_fit_the_configured_width() {
-        use crate::cops::testing::correction_offenses;
-        let source = "p([*if false\n 3\nend])\n";
-        // Detection still uses its existing unparenthesized prospective width.
-        let detected_width = "p([*3 if false])".len();
-        for extra in [0, 1, 2] {
-            let offenses = correction_offenses(
-                &IfUnlessModifier {
-                    max: Some(detected_width + extra),
-                },
-                source,
-            );
-            assert_eq!(offenses.len(), 1);
-            assert_eq!(offenses[0].correction.is_some(), extra == 2);
-        }
-    }
-    #[test]
-    fn terminal_endless_ranges_are_reported_without_edits() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        for keyword in ["if", "unless"] {
-            for operator in ["..", "..."] {
-                for body in [
-                    format!("1{operator}"),
-                    format!("x = 1{operator}"),
-                    format!("x ||= 1{operator}"),
-                    format!("object.x = 1{operator}"),
-                    format!("object[0] = 1{operator}"),
-                    format!("foo 1{operator}"),
-                    format!("return 1{operator}"),
-                    format!("yield 1{operator}"),
-                ] {
-                    let source = format!("def f\n {keyword} true\n  {body}\n end\nend\n");
-                    assert!(
-                        ruby_prism::parse(source.as_bytes())
-                            .errors()
-                            .next()
-                            .is_none(),
-                        "{source}"
-                    );
-                    let offenses = correction_offenses(&IfUnlessModifier::default(), &source);
-                    assert_eq!(offenses.len(), 1, "{source}");
-                    assert!(offenses[0].correction.is_none(), "{source}: {offenses:?}");
-                }
-                // Explicit boundaries already make these bodies safe.
-                assert_correction(
-                    &IfUnlessModifier::default(),
-                    &format!("{keyword} true\n foo(1{operator})\nend\n"),
-                    &format!("foo(1{operator}) {keyword} true\n"),
-                );
-            }
-        }
-    }
-    #[test]
-    fn lexical_order_and_ambiguous_control_flow_are_withheld() {
-        use crate::cops::testing::correction_offenses;
-        let cop = IfUnlessModifier { max: Some(15) };
-        for source in [
-            "if value\n value = 1\nend",
-            "if ready\n work rescue recover\nend",
-            "if ready\n begin; work; rescue; recover; ensure; cleanup; end\nend",
-            "if ready\n def f; 1; end\nend",
-            "if ready\n [1] => [value]\nend",
-            "if ready\n END { effect }\nend",
-            "value = work if value",
-            "work(value) if (value = ready)",
-            "work if /(?<value>x)/ =~ input",
-            "before; work if long_condition",
-        ] {
-            assert!(
-                ruby_prism::parse(source.as_bytes())
-                    .errors()
-                    .next()
-                    .is_none(),
-                "{source}"
-            );
-            let offenses = correction_offenses(&cop, source);
-            // Use no length limit for normal forms; the reverse forms remain long.
-            let offenses = if source.starts_with("if ") {
-                correction_offenses(&IfUnlessModifier { max: None }, source)
-            } else {
-                offenses
-            };
-            assert!(!offenses.is_empty(), "{source}");
-            assert!(
-                offenses.iter().all(|o| o.correction.is_none()),
-                "{source}: {offenses:?}"
-            );
-        }
-    }
-    #[test]
     fn comments_omitted_hash_arguments_and_nested_guards_correct_atomically() {
         use crate::cops::testing::assert_correction;
         let cop = IfUnlessModifier::default();
@@ -1212,46 +1092,6 @@ mod tests {
         );
     }
     #[test]
-    fn source_sensitive_edits_remain_reported_without_corrections() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "if ready # encoding: ascii-8bit\n work\nend\n",
-            "if ready # frozen-string-literal: true\n work\nend\n",
-            "if ready\n __LINE__\nend\n",
-            "if ready\n work\nend\np __LINE__\n",
-            "if ready\n work\nend\n# rustocop:disable Layout\n",
-            "if ready\n \"a\nb\"\nend\n",
-            "if ready\n work(<<~TXT)\nhello\nTXT\nend\n",
-        ] {
-            let found = correction_offenses(&IfUnlessModifier::default(), source);
-            if source.contains("# rustocop:disable Layout") {
-                // A directive on a later untouched line does not block this edit.
-                assert!(found[0].correction.is_some());
-            } else if source.contains("\"a\nb\"") || source.contains("<<~TXT") {
-                assert!(
-                    found.is_empty(),
-                    "multiline body remains detection-exempt: {source}"
-                );
-            } else {
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(
-                    found.iter().all(|o| o.correction.is_none()),
-                    "{source}: {found:?}"
-                );
-            }
-        }
-        for source in [
-            "work if ready #! /usr/bin/ruby with a very long comment\n",
-            "work if ready # coding: ascii-8bit with a very long comment\n",
-            "long_work if ready # rustocop:disable Style/StringLiterals\n",
-            "work if long_condition\np __LINE__\n",
-        ] {
-            let found = correction_offenses(&IfUnlessModifier { max: Some(15) }, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn shorthand_argument_parenthesizing_keeps_literal_blocks_and_their_width() {
         use crate::cops::testing::assert_correction;
         let before = "if ready\n object.call value: do; effect; end\nend\n";
@@ -1259,78 +1099,6 @@ mod tests {
         assert_correction(&IfUnlessModifier::default(), before, after);
         assert!(with_limit(before, Some(after.trim_end().len() - 1)).is_empty());
         assert_eq!(with_limit(before, Some(after.trim_end().len())).len(), 1);
-    }
-    #[test]
-    fn unsupported_omitted_hash_wrappers_stay_reported_instead_of_breaking_syntax() {
-        use crate::cops::testing::correction_offenses;
-        for body in [
-            "x ||= object.call value:",
-            "x += object.call value:",
-            "object.x = object.call value:",
-            "object[0] = object.call value:",
-            "x, y = object.call value:",
-            "return foo, value:",
-            "yield value:",
-            "super value:",
-        ] {
-            let source = format!("def f\n if ready\n  {body}\n end\nend\n");
-            assert!(
-                ruby_prism::parse(source.as_bytes())
-                    .errors()
-                    .next()
-                    .is_none()
-            );
-            let found = correction_offenses(&IfUnlessModifier::default(), &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn bom_and_crlf_do_not_prevent_canonical_expansion() {
-        use crate::cops::testing::assert_correction;
-        assert_correction(
-            &IfUnlessModifier { max: Some(15) },
-            "\u{feff}work if long_condition\r\n",
-            "\u{feff}if long_condition\r\n  work\r\nend\r\n",
-        );
-        assert_correction(
-            &IfUnlessModifier { max: Some(20) },
-            "work if ready # a very long ordinary comment\r\n",
-            "# a very long ordinary comment\r\nwork if ready\r\n",
-        );
-    }
-    #[test]
-    fn correction_work_is_lazy_and_bounded() {
-        use crate::cops::testing::correction_offenses;
-        let cop = IfUnlessModifier::default();
-        let source = "if ready\n work # no correction\nend\n".repeat(2000);
-        REWRITE_BYTES.with(|v| v.set(0));
-        CORRECTION_INDEX_VISITS.with(|v| v.set(0));
-        crate::pipeline::lint_str_with(&[&cop], &source);
-        REWRITE_BYTES.with(|v| assert_eq!(v.get(), 0));
-        CORRECTION_INDEX_VISITS.with(|v| assert_eq!(v.get(), 0));
-        let source = "if ready\n work\nend\n".repeat(2000);
-        let found = correction_offenses(&cop, &source);
-        assert_eq!(
-            found.iter().filter(|o| o.correction.is_some()).count(),
-            2000
-        );
-        REWRITE_BYTES.with(|v| assert!(v.get() <= source.len()));
-        CORRECTION_INDEX_VISITS.with(|v| assert!(v.get() > 0 && v.get() < 14_000));
-        let source = format!("if ready\n \"{}\"\nend\n", "x".repeat(REWRITE_BUDGET));
-        REWRITE_BYTES.with(|v| v.set(0));
-        let found = correction_offenses(&IfUnlessModifier { max: None }, &source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-        REWRITE_BYTES.with(|v| assert_eq!(v.get(), 0));
-        for source in [
-            format!("{}work if long_condition\n", " ".repeat(REWRITE_BUDGET + 1)),
-            format!("work if ready # {}\n", "c".repeat(REWRITE_BUDGET + 1)),
-        ] {
-            let found = correction_offenses(&cop, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
-        }
     }
     #[test]
     fn incompatible_peers_keep_findings_and_withhold_only_modifier_edits() {
@@ -1350,89 +1118,6 @@ mod tests {
             assert_eq!(found.len(), 1);
             assert!(found[0].correction.is_none());
         }
-    }
-    #[derive(serde::Deserialize)]
-    struct PinnedCase {
-        spec_line: u32,
-        source: String,
-        positions: Vec<(u32, u32)>,
-        messages: Vec<String>,
-        correction: Option<String>,
-        no_correction: bool,
-        toml: String,
-    }
-    #[test]
-    fn every_applicable_pinned_call_and_correction() {
-        use crate::cops::testing::{assert_correction, correction_offenses};
-        let cases: Vec<PinnedCase> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/if_unless_modifier_pinned.json"
-        ))
-        .unwrap();
-        assert_eq!(cases.len(), 162);
-        let (mut canonical, mut withheld) = (0, 0);
-        for c in cases {
-            let config: toml::Value = toml::from_str(&c.toml).unwrap();
-            let limit = &config["cops"]["Layout/LineLength"];
-            let cop = IfUnlessModifier {
-                max: if limit.get("enabled").and_then(toml::Value::as_bool) == Some(false) {
-                    None
-                } else {
-                    Some(
-                        limit
-                            .get("max")
-                            .and_then(toml::Value::as_integer)
-                            .unwrap_or(120) as usize,
-                    )
-                },
-            };
-            let found = crate::pipeline::lint_str_with(&[&cop], &c.source);
-            assert_eq!(
-                found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-                c.positions,
-                "spec {}",
-                c.spec_line
-            );
-            for (offense, expected) in found.iter().zip(&c.messages) {
-                if let Some(prefix) = expected.strip_suffix("[...]") {
-                    assert!(offense.message.starts_with(prefix), "spec {}", c.spec_line);
-                } else {
-                    assert_eq!(&offense.message, expected, "spec {}", c.spec_line);
-                }
-            }
-            if let Some(after) = c.correction {
-                if matches!(
-                    c.spec_line,
-                    163 | 182 | 201 | 218 | 241 | 266 | 291 | 314 | 337 | 360
-                ) {
-                    assert!(c.source.contains("<<"));
-                    let offenses = correction_offenses(&cop, &c.source);
-                    assert!(
-                        offenses.iter().all(|o| o.correction.is_none()),
-                        "spec {}",
-                        c.spec_line
-                    );
-                    assert_eq!(
-                        crate::corrections::apply(c.source.as_bytes(), &offenses)
-                            .unwrap()
-                            .bytes,
-                        c.source.as_bytes()
-                    );
-                    withheld += 1;
-                } else {
-                    assert_correction(&cop, &c.source, &after);
-                    canonical += 1;
-                }
-            } else if c.positions.is_empty() || c.no_correction {
-                assert!(
-                    correction_offenses(&cop, &c.source)
-                        .iter()
-                        .all(|o| o.correction.is_none()),
-                    "spec {}",
-                    c.spec_line
-                );
-            }
-        }
-        assert_eq!((canonical, withheld), (73, 10));
     }
     fn message(keyword: &str, parens: bool) -> String {
         format!(

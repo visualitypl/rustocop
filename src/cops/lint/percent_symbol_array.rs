@@ -1,5 +1,4 @@
 //! `Lint/PercentSymbolArray` — suspicious colon/comma-bearing percent symbols.
-//! Approved fixed-policy no-edit exception: removing payload changes values.
 use crate::{
     cops::{Cop, NodeContext},
     offense::Offense,
@@ -12,6 +11,9 @@ impl Cop for PercentSymbolArray {
     fn name(&self) -> &'static str {
         "Lint/PercentSymbolArray"
     }
+    fn safe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_array_node().is_some()
     }
@@ -19,7 +21,7 @@ impl Cop for PercentSymbolArray {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -66,9 +68,37 @@ impl Cop for PercentSymbolArray {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| correction(&array, file))
+                .flatten(),
         });
     }
+}
+
+/// RuboCop's corrector: each element loses a trailing `,` and a leading `:`.
+fn correction(
+    array: &ruby_prism::ArrayNode<'_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let mut edits = Vec::new();
+    for child in array.elements().iter() {
+        let loc = child.location();
+        let text = loc.as_slice();
+        if text.ends_with(b",") {
+            edits.push(crate::offense::Correction {
+                range: loc.end_offset() - 1..loc.end_offset(),
+                replacement: String::new(),
+            });
+        }
+        if text.starts_with(b":") {
+            edits.push(crate::offense::Correction {
+                range: loc.start_offset()..loc.start_offset() + 1,
+                replacement: String::new(),
+            });
+        }
+    }
+    super::super::style::correction::combine(file, edits)
 }
 
 #[cfg(test)]

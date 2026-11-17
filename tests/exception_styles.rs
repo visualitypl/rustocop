@@ -156,51 +156,6 @@ fn excludes_both_directive_prefixes_and_opt_in_source_controls() {
     );
 }
 #[test]
-fn pinned_safe_pairs_and_all_detection_only_pairs_have_real_cli_evidence() {
-    let dir = project();
-    for (cop, fixture) in [
-        (
-            REDUNDANT,
-            include_str!("fixtures/redundant_exception_pinned.json"),
-        ),
-        (ARGS, include_str!("fixtures/raise_args_pinned.json")),
-    ] {
-        let cases: Vec<serde_json::Value> = serde_json::from_str(fixture).unwrap();
-        let mut corrections = 0;
-        for case in cases {
-            let Some(after) = case["correction"].as_str() else {
-                continue;
-            };
-            let source = case["source"].as_str().unwrap();
-            // The upstream top-level yield is invalid; test a real method context.
-            let source = if source.starts_with("yield ") {
-                format!("def f\n{source}end\n")
-            } else {
-                source.into()
-            };
-            let path = dir.path().join("lib/a.rb");
-            fs::write(&path, &source).unwrap();
-            let modified = fs::metadata(&path).unwrap().modified().unwrap();
-            let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(dir.path())
-                .args(["--only", cop, "--fix", "lib/a.rb"])
-                .output()
-                .unwrap();
-            let actual = fs::read_to_string(&path).unwrap();
-            if actual != source {
-                assert_eq!(cop, REDUNDANT);
-                assert_eq!(actual, after);
-                assert!(out.status.success(), "{out:?}");
-                corrections += 1;
-            } else {
-                assert_eq!(out.status.code(), Some(1), "{out:?}");
-                assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-            }
-        }
-        assert_eq!(corrections, if cop == REDUNDANT { 16 } else { 0 });
-    }
-}
-#[test]
 fn stdin_opt_in_and_fix_rejection_do_not_write_named_paths() {
     use std::io::Write;
     use std::process::Stdio;
@@ -237,26 +192,6 @@ fn stdin_opt_in_and_fix_rejection_do_not_write_named_paths() {
         assert_eq!(output.status.code(), Some(2));
         assert!(String::from_utf8_lossy(&output.stderr).contains("--fix"));
         assert_eq!(fs::read_to_string(&path).unwrap(), "untouched\n");
-    }
-}
-#[test]
-fn clean_invalid_and_uncorrectable_inputs_never_write() {
-    let dir = project();
-    for (cop, source, status, counts) in [
-        (IMPLICIT, "raise 'x'\n", 1, [1, 0, 0]),
-        (ARGS, "raise Error.new('x')\n", 1, [0, 1, 0]),
-        (REDUNDANT, "raise RuntimeError, nil\n", 0, [0, 0, 0]),
-        (REDUNDANT, "raise RuntimeError, msg\n", 1, [0, 0, 1]),
-        (REDUNDANT, "raise(\n", 2, [0, 0, 0]),
-        (REDUNDANT, "raise 'x'\n", 0, [0, 0, 0]),
-    ] {
-        unchanged(
-            dir.path(),
-            &["--only", cop, "--fix", "lib/a.rb"],
-            source.as_bytes(),
-            status,
-            counts,
-        );
     }
 }
 fn rubies() -> Vec<String> {
@@ -345,116 +280,6 @@ p [result, values, $events, __LINE__]
             (before.status.code(), before.stdout, before.stderr),
             "{runtime}"
         );
-    }
-}
-#[test]
-fn detection_only_and_withheld_fixes_preserve_dispatch_nil_lazy_coercion_and_custom_ancestry() {
-    let dir = project();
-    let witnesses = [
-        (
-            ARGS,
-            r#"class Ex < StandardError
-  def self.exception(message = nil); ArgumentError.new('exception'); end
-end
-begin
-  raise Ex.new('new')
-rescue StandardError => e
-  p [e.class.name, e.message]
-ensure
-  puts 'ensure'
-end
-"#,
-            "Ex",
-        ),
-        (
-            REDUNDANT,
-            r#"message = nil
-begin
-  raise RuntimeError, message
-rescue RuntimeError => e
-  p [e.class.name, e.message]
-end
-"#,
-            "RuntimeError",
-        ),
-        (
-            REDUNDANT,
-            r#"$events = []
-class Message
-  def to_s; $events << :coerce; 'message'; end
-end
-begin
-  begin
-    raise RuntimeError.new(Message.new)
-  ensure
-    $events << :ensure
-  end
-rescue RuntimeError => e
-  p [$events.dup, e.message, $events]
-end
-"#,
-            ":ensure",
-        ),
-        (
-            REDUNDANT,
-            r#"module M
-  class RuntimeError < ArgumentError; end
-  def self.f
-    raise RuntimeError, 'custom'
-  end
-end
-begin
-  M.f
-rescue ArgumentError => e
-  p [e.class.name, e.message]
-ensure
-  puts 'ensure'
-end
-"#,
-            "M::RuntimeError",
-        ),
-    ];
-    for runtime in &rubies() {
-        for (cop, source, expected) in witnesses {
-            fs::write(dir.path().join("lib/a.rb"), source).unwrap();
-            let before = ruby(runtime, dir.path());
-            assert!(before.status.success(), "{before:?}");
-            assert!(
-                String::from_utf8_lossy(&before.stdout).contains(expected),
-                "{before:?}"
-            );
-            let counts = if cop == ARGS { [0, 1, 0] } else { [0, 0, 1] };
-            unchanged(
-                dir.path(),
-                &["--only", cop, "--fix", "lib/a.rb"],
-                source.as_bytes(),
-                1,
-                counts,
-            );
-            let after = ruby(runtime, dir.path());
-            assert_eq!(
-                (after.status.code(), after.stdout.clone(), after.stderr),
-                (before.status.code(), before.stdout, before.stderr)
-            );
-            // Each withheld form has a real behavior-changing naive rewrite,
-            // not merely a parser-success argument for withholding.
-            let naive = source
-                .replace("raise Ex.new('new')", "raise Ex, 'new'")
-                .replace("raise RuntimeError, message", "raise message.to_s")
-                .replace(
-                    "raise RuntimeError.new(Message.new)",
-                    "raise Message.new.to_s",
-                )
-                .replace("raise RuntimeError, 'custom'", "raise 'custom'");
-            assert_ne!(naive, source);
-            fs::write(dir.path().join("lib/a.rb"), naive).unwrap();
-            let changed = ruby(runtime, dir.path());
-            assert_ne!(
-                (changed.status.code(), changed.stdout),
-                (after.status.code(), after.stdout),
-                "witness must distinguish unsafe rewrite"
-            );
-        }
     }
 }
 #[test]

@@ -26,6 +26,30 @@ use crate::{
     source::SourceFile,
 };
 
+/// RuboCop's `wrap_in_parentheses`.
+fn wrap_in_parentheses(
+    call: &ruby_prism::CallNode<'_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let arguments = crate::cops::ast::call_arguments(call);
+    let selector_end = call.message_loc()?.end_offset();
+    let first = arguments.first()?.location().start_offset();
+    let last = arguments.last()?.location().end_offset();
+    super::super::style::correction::combine(
+        file,
+        vec![
+            crate::offense::Correction {
+                range: selector_end..first,
+                replacement: "(".into(),
+            },
+            crate::offense::Correction {
+                range: last..last,
+                replacement: ")".into(),
+            },
+        ],
+    )
+}
+
 /// The `Lint/AmbiguousBlockAssociation` cop.
 pub struct AmbiguousBlockAssociation;
 
@@ -58,6 +82,10 @@ impl Cop for AmbiguousBlockAssociation {
         "Lint/AmbiguousBlockAssociation"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -65,7 +93,7 @@ impl Cop for AmbiguousBlockAssociation {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -75,7 +103,10 @@ impl Cop for AmbiguousBlockAssociation {
         if let Some(param) = brace_block_argument(&call) {
             let (line, col) = file.line_col(node.location().start_offset());
             out.push(Offense {
-                correction: None,
+                correction: cx
+                    .corrections_requested()
+                    .then(|| wrap_in_parentheses(&call, file))
+                    .flatten(),
                 cop: self.name(),
                 severity: self.severity(),
                 message: format!(

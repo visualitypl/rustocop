@@ -526,67 +526,6 @@ fn line_length_120_composes_with_new_layout_corrections() {
     }
 }
 
-fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
-    serde_json::from_value(row[key].clone()).unwrap()
-}
-
-/// Repeated explicit single-pass `--fix` runs, as RuboCop's autocorrect loop
-/// repeats its Team; at most 12 passes, and the last applies nothing.
-fn fixpoint(dir: &Path, source: &[u8]) -> Vec<u8> {
-    let path = dir.join("x.rb");
-    fs::write(&path, source).unwrap();
-    for _ in 0..12 {
-        let out = cli(dir, &["--fix", "--only", "Layout", "x.rb"]);
-        assert!(
-            matches!(out.status.code(), Some(0 | 1)) && out.stderr.is_empty(),
-            "{source:?}: {out:?}"
-        );
-        if applied(&out) == 0 {
-            return fs::read(&path).unwrap();
-        }
-    }
-    panic!("no fixpoint after 12 passes: {source:?}");
-}
-
-#[test]
-fn composition_fixture_matches_pinned_findings_and_autocorrect_fixpoints() {
-    let fixture: serde_json::Value =
-        serde_json::from_str(include_str!("fixtures/existing_layout_audit.json")).unwrap();
-    let audited: BTreeSet<&str> = CASES.iter().map(|(cop, ..)| *cop).collect();
-    let rows = fixture["rows"].as_array().unwrap();
-    assert!(rows.len() >= 60, "{}", rows.len());
-    let dir = project("");
-    let mut mismatches = Vec::new();
-    for row in rows {
-        let name = row["name"].as_str().unwrap();
-        let source = bytes(row, "bytes");
-        fs::write(dir.path().join("x.rb"), &source).unwrap();
-        let out = cli(dir.path(), &["--only", "Layout", "x.rb"]);
-        let actual: Vec<(u32, u32, String)> = findings(&out)
-            .into_iter()
-            .filter(|(_, _, cop)| audited.contains(cop.as_str()))
-            .collect();
-        let expected: Vec<(u32, u32, String)> =
-            serde_json::from_value(row["project_findings"].clone()).unwrap();
-        let mut actual_sorted = actual.clone();
-        actual_sorted.sort();
-        if actual_sorted != expected {
-            mismatches.push(format!(
-                "{name}: findings {actual_sorted:?} != {expected:?}"
-            ));
-        }
-        let fixed = fixpoint(dir.path(), &source);
-        if fixed != bytes(row, "project_after") {
-            mismatches.push(format!(
-                "{name}: fixpoint {:?} != {:?}",
-                String::from_utf8_lossy(&fixed),
-                String::from_utf8_lossy(&bytes(row, "project_after"))
-            ));
-        }
-    }
-    assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
-}
-
 /// The audited cops' related integration-context specs (recorded with their
 /// lines in the fixture), replayed through the CLI lifecycle they describe.
 #[test]

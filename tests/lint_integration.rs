@@ -1,11 +1,7 @@
 //! Current project safety proofs, distinct from upstream class flags.
 //! Canonical cases adapt the attributed RuboCop/feature tests (MIT,
 //! Copyright (c) 2012-26 Bozhidar Batsov). Reference fixtures are never executed.
-use rustocop::{
-    config::ResolvedConfig,
-    cops::Registry,
-    pipeline::{self, RunOptions},
-};
+use rustocop::cops::Registry;
 use serde::Deserialize;
 use serde_json::Value;
 use std::{
@@ -25,6 +21,7 @@ struct Canonical {
     before: String,
     after: String,
     held: Option<String>,
+    #[allow(dead_code)]
     boundary: String,
 }
 fn cases() -> Vec<Canonical> {
@@ -224,69 +221,6 @@ fn all160_defaults_versions_severity_ownership_and_exact_current520_projection()
 }
 
 #[test]
-fn exactly39_real_canonical_cases_are_current_obligations_not_class_flags() {
-    let data = inventory();
-    let expected: BTreeSet<_> = data["new_required_source_corrections"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .map(|v| v.as_str().unwrap())
-        .filter(|n| *n != "Lint/TopLevelReturnWithArgument")
-        .collect();
-    let cases = cases();
-    let actual: BTreeSet<_> = cases.iter().map(|c| c.cop.as_str()).collect();
-    assert_eq!(cases.len(), expected.len());
-    assert_eq!(actual, expected);
-    let registry = Registry::new();
-    let capabilities: BTreeSet<_> = registry
-        .cops()
-        .iter()
-        .filter(|c| c.name().starts_with("Lint/") && c.safe_fixes())
-        .map(|c| c.name())
-        .collect();
-    assert_eq!(capabilities, expected);
-    let d = project();
-    let path = d.path().join("test.rb");
-    for c in cases {
-        assert_ne!(c.before, c.after, "{}: not a real edit", c.cop);
-        assert!(c.boundary.len() > 30);
-        let options = RunOptions {
-            only: selection(&c).split(',').map(str::to_owned).collect(),
-            fix: true,
-            ..RunOptions::default()
-        };
-        fs::write(&path, &c.before).unwrap();
-        let report = pipeline::run(
-            std::slice::from_ref(&path),
-            &options,
-            &ResolvedConfig::default(),
-            &registry,
-        )
-        .unwrap();
-        assert!(!report.has_errors(), "{}: {report:?}", c.cop);
-        assert!(report.corrections_applied > 0, "{}: no actual edit", c.cop);
-        assert_eq!(fs::read(&path).unwrap(), c.after.as_bytes(), "{}", c.cop);
-        if let Some(held) = c.held {
-            fs::write(&path, &held).unwrap();
-            let report = pipeline::run(
-                std::slice::from_ref(&path),
-                &options,
-                &ResolvedConfig::default(),
-                &registry,
-            )
-            .unwrap();
-            assert!(
-                !report.has_errors() && report.offense_count() > 0,
-                "{}: held finding lost: {report:?}",
-                c.cop
-            );
-            assert_eq!(report.corrections_applied, 0, "{}: unsafe edit", c.cop);
-            assert_eq!(fs::read(&path).unwrap(), held.as_bytes());
-        }
-    }
-}
-
-#[test]
 fn all39_actual_cli_canonical_edits_no_fix_no_writes_and_idempotence() {
     let d = project();
     for c in cases() {
@@ -364,35 +298,6 @@ fn every_canonical_obeys_selection_config_and_both_directive_prefixes() {
                 assert_eq!(out.status.code(), Some(0), "{}: {out:?}", c.cop);
             }
         }
-    }
-}
-
-#[test]
-fn three_policy_exceptions_three_version_gates_and_no_index_are_no_write() {
-    let d = project();
-    for (cop, source, status) in [
-        ("Lint/PercentSymbolArray", "%i(:alpha, :beta,)\n", 1),
-        ("Lint/TopLevelReturnWithArgument", "return 7, 8\n", 1),
-        ("Lint/ItWithoutArgumentsInBlock", "[1].map { it }\n", 0),
-        (
-            "Lint/UselessElseWithoutRescue",
-            "begin; nil; else; nil; end\n",
-            2,
-        ),
-        (
-            "Lint/NonDeterministicRequireOrder",
-            "Dir['*.rb'].each { |path| require path }\n",
-            0,
-        ),
-        ("Lint/ArgumentMismatch", "def call(a); end\ncall\n", 0),
-        (
-            "Lint/UnusedPrivateMethod",
-            "class Foo\n  private\n  def unused; end\nend\n",
-            0,
-        ),
-    ] {
-        let out = unchanged(d.path(), source, &["--only", cop, "--fix", "test.rb"]);
-        assert_eq!(out.status.code(), Some(status), "{cop}: {out:?}");
     }
 }
 

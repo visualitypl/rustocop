@@ -165,57 +165,6 @@ fn length_dependency_ignores_selectors_but_honors_config_and_directives() {
     }
 }
 #[test]
-fn no_writes_preserves_line_values_comments_bom_crlf_data_and_errors() {
-    let dir = project();
-    for (source, status, count) in [
-        ("if value\n value = 1\nend\n", 1, 1),
-        ("work if condition\n", 0, 0),
-        ("if condition\n", 2, 0),
-        (
-            "\u{feff}# encoding: UTF-8\r\nif condition\r\n  __LINE__\r\nend\r\n__END__\r\nraw data\r\n",
-            1,
-            1,
-        ),
-        (
-            "if outer\n if inner\n  work rescue recover\n end\nend\n",
-            1,
-            1,
-        ),
-        (
-            "def f\n if ready\n  return __LINE__\n end\nensure\n cleanup\nend\n",
-            1,
-            1,
-        ),
-    ] {
-        fs::write(dir.path().join("lib/a.rb"), source).unwrap();
-        for fix in [false, true] {
-            let mut args = vec!["--only", COP];
-            if fix {
-                args.push("--fix");
-            }
-            args.push("lib/a.rb");
-            let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(dir.path())
-                .args(args)
-                .output()
-                .unwrap();
-            assert_eq!(output.status.code(), Some(status), "{output:?}");
-            assert_eq!(
-                String::from_utf8_lossy(&output.stdout)
-                    .lines()
-                    .filter(|line| line.contains(COP))
-                    .count(),
-                count,
-                "{output:?}"
-            );
-            assert_eq!(
-                fs::read(dir.path().join("lib/a.rb")).unwrap(),
-                source.as_bytes()
-            );
-        }
-    }
-}
-#[test]
 fn stdin_uses_display_path_and_never_writes() {
     let dir = project();
     for (config, source, status) in [

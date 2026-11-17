@@ -31,7 +31,7 @@ pub(crate) mod comments;
 mod scopes;
 pub(crate) mod syntax;
 pub use scopes::Directives;
-pub(crate) use scopes::{redundant_enables, source_opts_in};
+pub(crate) use scopes::source_opts_in;
 #[cfg(test)]
 mod scope_tests;
 

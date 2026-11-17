@@ -6,7 +6,7 @@ use crate::{
     cops::{Cop, NodeContext},
     directives::{
         self,
-        comments::{DirectiveComment, hits, registered_names, suppression_records},
+        comments::{hits, registered_names, suppression_records},
         syntax,
     },
     offense::{Correction, Offense},
@@ -47,25 +47,9 @@ impl Cop for RedundantCopEnableDirective {
             counts.disable(cop);
         }
         let mut depth = 0usize;
-        let mut proof = HashMap::new();
-        let attachments = cx
-            .corrections_requested()
-            .then(|| directives::comment_attachments(file));
-        let mut temporary = HashSet::new();
         for d in file.directive_records() {
             if file.bytes[d.range.start] != b'#' {
                 continue;
-            }
-            if let Some(a) = &attachments
-                && d.standalone
-                && matches!(
-                    d.mode,
-                    "disable-next" | "todo-next" | "enable-next" | "next"
-                )
-                && d.has_cops()
-                && let Some(&code) = a.get(&d.line)
-            {
-                temporary.insert(code);
             }
             if d.mode == "push" {
                 depth += 1;
@@ -85,9 +69,9 @@ impl Cop for RedundantCopEnableDirective {
                     d.range.start + m.start,
                     d.range.start + m.end,
                     "Unnecessary `rubocop:pop` without a matching `rubocop:push`.".into(),
-                    cx.corrections_requested()
-                        .then(|| removal(file, d, &[], true, attachments.as_ref(), &temporary))
-                        .flatten(),
+                    cx.corrections_requested().then(|| {
+                        whole_removal(file, d.range.start + m.start, d.range.start + m.end, None)
+                    }),
                     out,
                 );
                 continue;
@@ -123,6 +107,13 @@ impl Cop for RedundantCopEnableDirective {
             // Attribute expanded identities after pairing the whole list:
             // explicitly named cops override their department regardless of
             // which selector produced the redundant occurrence.
+            // RuboCop's `directive.match?`: every cop the directive names,
+            // departments expanded, is redundant.
+            let all = redundant.contains("all")
+                || d.names
+                    .iter()
+                    .flat_map(|raw| expand(raw))
+                    .all(|name| redundant.contains(name));
             let selectors: HashSet<_> = d.names.iter().map(String::as_str).collect();
             let redundant: HashSet<_> = redundant
                 .into_iter()
@@ -157,51 +148,6 @@ impl Cop for RedundantCopEnableDirective {
                     (name, start)
                 })
                 .collect();
-            let all = d.names.iter().all(|n| redundant.contains(n));
-            let safe =
-                cx.corrections_requested()
-                    && d.names
-                        .iter()
-                        .filter(|n| redundant.contains(*n))
-                        .all(|name| {
-                            // A first explicit source opt-in is never expendable merely
-                            // because this run selected no offenses (or forced --only).
-                            !file.directive_disabled().iter().any(|cop| {
-                                name == cop || Some(name.as_str()) == cop.rsplit('/').next()
-                            }) && registered_names()
-                                .iter()
-                                .filter(|cop| hits(name, cop))
-                                .filter(|cop| {
-                                    !file.directive_disabled().iter().any(|n| n == **cop)
-                                        || mobilized.contains(*cop)
-                                })
-                                .all(|cop| {
-                                    proof
-                                        .entry(*cop)
-                                        .or_insert_with(|| directives::redundant_enables(file, cop))
-                                        .contains(&d.line)
-                                })
-                        });
-            let redundant_ranges: Vec<_> = tokens
-                .iter()
-                .filter(|(n, _)| redundant.contains(n.as_str()))
-                .map(|(n, start)| (*start, *start + n.len()))
-                .collect();
-            let edit = safe
-                .then(|| {
-                    removal(
-                        file,
-                        d,
-                        &redundant_ranges,
-                        all,
-                        attachments.as_ref(),
-                        &temporary,
-                    )
-                })
-                .flatten();
-            // One atomic list edit belongs to the first diagnostic. Other
-            // findings remain; no overlapping/partial selector removals.
-            let mut edit = edit;
             let mut seen = HashSet::new();
             for (name, start) in tokens {
                 if !redundant.contains(name) || !seen.insert(name) {
@@ -215,7 +161,18 @@ impl Cop for RedundantCopEnableDirective {
                         "Unnecessary enabling of {}.",
                         if name == "all" { "all cops" } else { name }
                     ),
-                    edit.take(),
+                    cx.corrections_requested().then(|| {
+                        if all {
+                            whole_removal(
+                                file,
+                                d.range.start + m.start,
+                                d.range.start + m.end,
+                                Some(d.range.end),
+                            )
+                        } else {
+                            comma_removal(file, d.range.clone(), name)
+                        }
+                    }),
                     out,
                 );
             }
@@ -302,104 +259,68 @@ fn expand(name: &str) -> Vec<&str> {
         vec![name]
     }
 }
-fn removal(
+/// `range_with_surrounding_space(directive.range_with_reason, side: :right)`.
+fn whole_removal(
     file: &SourceFile,
-    d: &DirectiveComment,
-    redundant: &[(usize, usize)],
-    all: bool,
-    attachments: Option<&HashMap<u32, u32>>,
-    temporary: &HashSet<u32>,
-) -> Option<Correction> {
-    let text = &file.bytes[d.range.clone()];
-    let matches = syntax::matches(text);
-    let m = matches.first()?;
-    let tail = text[m.end..].trim_ascii();
-    // Preserve prose, magic keys, malformed/stacked markers and block comments.
-    if m.start != 0
-        || matches.len() != 1
-        || text.contains(&b'\n')
-        || m.signed
-        || (d.mode == "pop" && !m.names.is_empty())
-        || (!tail.is_empty() && !tail.starts_with(b"--"))
-        || crate::cops::style::correction::contains_magic_comment_key(text)
+    start: usize,
+    end: usize,
+    comment_end: Option<usize>,
+) -> Correction {
+    let mut end = end;
+    if let Some(comment_end) = comment_end
+        && file.bytes[end..comment_end]
+            .trim_ascii_start()
+            .starts_with(b"--")
     {
-        return None;
+        end = comment_end;
     }
-    if all {
-        if attachments
-            .and_then(|a| a.get(&d.line))
-            .is_some_and(|code| temporary.contains(code))
-        {
-            return None;
-        }
-        let mut range = d.range.clone();
-        if text.last() == Some(&b'\r') && file.bytes.get(range.end) == Some(&b'\n') {
-            range.end -= 1;
-        }
-        // Only delete physical lines at EOF: subsequent executable line and
-        // backtrace positions must not move. Else preserve an empty line.
-        if file.bytes[range.end..]
-            .iter()
-            .all(|b| matches!(b, b'\r' | b'\n'))
-            && d.standalone
-        {
-            range.end = file.bytes.len();
-            let start = file.line_start(d.line);
-            if file.bytes[start..range.start]
-                .iter()
-                .all(u8::is_ascii_whitespace)
-            {
-                range.start = start;
-            }
-        }
-        return Some(Correction {
-            range,
-            replacement: String::new(),
-        });
+    while matches!(file.bytes.get(end), Some(b' ' | b'\t')) {
+        end += 1;
     }
-    // Remove contiguous runs, not independent names sharing a comma. Keep
-    // precisely one separator between surviving tokens, with its original
-    // spacing; never reconstruct a reason or arbitrary legacy-encoded bytes.
-    let removed: HashSet<_> = redundant.iter().map(|&(start, _)| start).collect();
-    let tokens: Vec<_> = m
-        .names
-        .iter()
-        .map(|name| {
-            let start = name.as_ptr() as usize - text.as_ptr() as usize;
-            (start, start + name.len())
-        })
-        .collect();
-    let mut edits = Vec::new();
-    let mut i = 0;
-    while i < tokens.len() {
-        if !removed.contains(&tokens[i].0) {
-            i += 1;
-            continue;
-        }
-        let first = i;
-        while i < tokens.len() && removed.contains(&tokens[i].0) {
-            i += 1;
-        }
-        let (start, end) = if first == 0 {
-            (tokens[first].0, tokens.get(i)?.0)
-        } else {
-            let prev = tokens[first - 1].1;
-            let comma = text[prev..tokens[first].0]
-                .iter()
-                .position(|b| *b == b',')?;
-            let mut end = tokens[i - 1].1;
-            while end < m.end && text[end].is_ascii_whitespace() {
-                end += 1;
-            }
-            (prev + comma, end)
-        };
-        edits.push(Correction {
-            range: d.range.start + start..d.range.start + end,
-            replacement: String::new(),
-        });
+    while file.bytes.get(end) == Some(&b'\n') {
+        end += 1;
     }
-    crate::cops::style::correction::combine(file, edits)
+    Correction {
+        range: start..end,
+        replacement: String::new(),
+    }
 }
+
+/// RuboCop's `range_with_comma`.
+fn comma_removal(file: &SourceFile, comment: std::ops::Range<usize>, name: &str) -> Correction {
+    let text = &file.bytes[comment.clone()];
+    let word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+    let found = (0..text.len()).find(|&i| {
+        text[i..].starts_with(name.as_bytes())
+            && !text.get(i + name.len()).is_some_and(|&b| word(b))
+    });
+    let remove = |range| Correction {
+        range,
+        replacement: String::new(),
+    };
+    let Some(mut begin) = found else {
+        return remove(comment);
+    };
+    let mut end = begin + name.len();
+    while begin > 0 && matches!(text[begin - 1], b' ' | b'\t') {
+        begin -= 1;
+    }
+    while matches!(text.get(end), Some(b' ' | b'\t')) {
+        end += 1;
+    }
+    let start = comment.start;
+    if begin > 0 && text[begin - 1] == b',' {
+        remove(start + begin - 1..start + end)
+    } else if text.get(end) == Some(&b',') {
+        if text.get(end + 1) != Some(&b' ') {
+            begin += 1;
+        }
+        remove(start + begin..start + end + 1)
+    } else {
+        remove(comment)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/redundant_cop_enable_directive_spec.rb
@@ -450,36 +371,6 @@ mod tests {
                         .collect::<Vec<_>>(),
                     "{source}"
                 );
-            }
-        }
-    }
-    #[test]
-    fn explicit_cop_overrides_department_for_both_selector_orders() {
-        for prefix in ["rubocop", "rustocop"] {
-            for (selectors, col) in [
-                ("Layout/LineLength, Layout", 18),
-                ("Layout, Layout/LineLength", 26),
-            ] {
-                let source =
-                    format!("# {prefix}:disable Layout\n# {prefix}:enable {selectors}\nfoo\n");
-                let found = offenses(&source);
-                assert_eq!(found.len(), 1, "{source}: {found:?}");
-                assert_eq!(
-                    (found[0].line, found[0].col),
-                    (2, col + prefix.len() as u32 - 7)
-                );
-                assert_eq!(
-                    found[0].message,
-                    "Unnecessary enabling of Layout/LineLength."
-                );
-                // Pairing redundancy alone does not prove that removing the
-                // explicit selector preserves the effective suppression state.
-                let found = crate::cops::testing::correction_offenses(
-                    &RedundantCopEnableDirective,
-                    &source,
-                );
-                assert_eq!(found.len(), 1);
-                assert!(found[0].correction.is_none());
             }
         }
     }
@@ -555,58 +446,6 @@ mod tests {
             ),
         ] {
             assert_correction(&RedundantCopEnableDirective, before, after);
-        }
-    }
-    #[test]
-    fn findings_survive_uncertain_effective_state_removals() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "# rubocop:disable Layout/LineLength\n# rubocop:enable Layout\n",
-            "# rubocop:push -Layout/LineLength\n# rubocop:enable Layout/LineLength\n",
-            "# rubocop:disable-next Style/For\n# rubocop:enable Layout/LineLength\nfoo\n",
-            "# rubocop:enable Layout/LineLength -- coding: ascii\n",
-            "# rubocop:enable Layout/LineLength # rubocop:enable Style/For\n",
-        ] {
-            let found = correction_offenses(&RedundantCopEnableDirective, source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(
-                found.iter().all(|o| o.correction.is_none()),
-                "{source}: {found:?}"
-            );
-        }
-    }
-    #[test]
-    fn adjacent_list_removals_keep_one_valid_separator() {
-        use crate::cops::testing::assert_correction;
-        for (list, expected) in [
-            (
-                "Lint/EmptyBlock, Style/RedundantSelf, Layout/LineLength",
-                "Layout/LineLength",
-            ),
-            (
-                "Layout/LineLength, Lint/EmptyBlock, Style/RedundantSelf",
-                "Layout/LineLength",
-            ),
-            (
-                "Lint/EmptyBlock, Layout/LineLength, Style/RedundantSelf",
-                "Layout/LineLength",
-            ),
-            (
-                "Lint/EmptyBlock,Style/RedundantSelf,Layout/LineLength",
-                "Layout/LineLength",
-            ),
-            (
-                "Layout/LineLength,Lint/EmptyBlock,Style/RedundantSelf",
-                "Layout/LineLength",
-            ),
-        ] {
-            let before = format!(
-                "# rubocop:disable Layout/LineLength\n# rubocop:enable {list} -- retained\n"
-            );
-            let after = format!(
-                "# rubocop:disable Layout/LineLength\n# rubocop:enable {expected} -- retained\n"
-            );
-            assert_correction(&RedundantCopEnableDirective, &before, &after);
         }
     }
     #[test]

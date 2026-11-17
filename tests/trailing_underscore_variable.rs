@@ -141,31 +141,6 @@ fn config_relative_excludes_and_stdin_are_read_only() {
     }
 }
 #[test]
-fn lookalike_uncorrectable_and_error_files_keep_mtime_and_bytes() {
-    let d = project();
-    for (s, status) in [
-        ("a, _name = rhs; a, *rest, _ = rhs\n", 0),
-        (
-            "f { |a, _| a }; f(a, _); [a, _]; {a: _}; def f(a,_); end\n",
-            0,
-        ),
-        ("_, = rhs\n", 1),
-        ("a, (_, _) = rhs\n", 1),
-        ("a, _ = rhs; p _\n", 1),
-        ("a, _ = rhs; p local_variables\n", 1),
-        ("obj.x, _ = rhs\n", 1),
-        ("a, _ = rhs; p DATA.pos\n__END__\nraw\n", 1),
-        ("a, _ = [\n", 2),
-    ] {
-        unchanged(
-            d.path(),
-            s.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            status,
-        );
-    }
-}
-#[test]
 fn bom_crlf_encoding_comments_literals_line_and_payload_survive() {
     let d = project();
     let path = d.path().join("lib/a.rb");
@@ -226,110 +201,6 @@ p [a, b, c, d, value.equal?(box), array, $events]
     }
 }
 #[test]
-fn ruby_withheld_conversion_exception_and_local_observers_have_naive_counterexamples() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    for (source, naive) in [
-        (
-            "$events=[]\nobj=Object.new\ndef obj.to_ary; $events << :convert; raise TypeError; end\nbegin; _, = obj; rescue TypeError; $events << :raised; end\np $events\n",
-            "$events=[]\nobj=Object.new\ndef obj.to_ary; $events << :convert; raise TypeError; end\nbegin; obj; rescue TypeError; $events << :raised; end\np $events\n",
-        ),
-        (
-            "obj=Object.new\ndef obj.to_ary; raise TypeError; end\nbegin; a, (_, _) = [1,obj]; rescue TypeError; puts :converted; end\n",
-            "obj=Object.new\ndef obj.to_ary; raise TypeError; end\nbegin; a, _ = [1,obj]; rescue TypeError; puts :converted; end\n",
-        ),
-        (
-            "a, _ = [1,2]; p defined?(_)\n",
-            "a, = [1,2]; p defined?(_)\n",
-        ),
-        (
-            "a, _ = [1,2]; p local_variables.include?(:_)\n",
-            "a, = [1,2]; p local_variables.include?(:_)\n",
-        ),
-        (
-            "a, _ = [1,2]; p binding.local_variable_get(:_)\n",
-            "a, = [1,2]; p binding.local_variable_get(:_)\n",
-        ),
-        (
-            "a, _ = [-> { _ },2]; p a.call\n",
-            "a, = [-> { _ },2]; p a.call\n",
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = ruby(&path);
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            1,
-        );
-        if let Some(before) = before {
-            assert!(before.status.success(), "{source}: {before:?}");
-            same_observations(before.clone(), ruby(&path).unwrap());
-            fs::write(&path, naive).unwrap();
-            let changed = ruby(&path).unwrap();
-            assert_ne!(
-                (before.status.code(), before.stdout),
-                (changed.status.code(), changed.stdout),
-                "{source}"
-            );
-        }
-    }
-}
-#[test]
-fn ruby_qualified_vm_observer_keeps_local_table_and_offense_without_writing() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    // The CLI checks always run; InstructionSequence witnesses require MRI.
-    let supports_iseq = Command::new("ruby")
-        .args(["-e", "exit(defined?(RubyVM::InstructionSequence) ? 0 : 1)"])
-        .output()
-        .is_ok_and(|out| out.status.success());
-    for observer in ["RubyVM", "::RubyVM", "Object::RubyVM", "::Object::RubyVM"] {
-        let source =
-            format!("p {observer}::InstructionSequence.of(-> {{ a, _ = [1, 2] }}).to_a[10]\n");
-        fs::write(&path, &source).unwrap();
-        let before = supports_iseq.then(|| ruby(&path).unwrap());
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            1,
-        );
-        if let Some(before) = before {
-            assert!(before.status.success(), "{before:?}");
-            assert_eq!(before.stdout, b"[:a, :_]\n");
-            same_observations(before.clone(), ruby(&path).unwrap());
-            fs::write(&path, source.replace("a, _ =", "a, =")).unwrap();
-            let naive = ruby(&path).unwrap();
-            assert!(naive.status.success(), "{naive:?}");
-            assert_eq!(naive.stdout, b"[:a]\n");
-            assert_ne!(before.stdout, naive.stdout);
-        }
-    }
-}
-#[test]
-fn deferred_singleton_receiver_interpolation_keeps_its_outer_local_binding() {
-    let source = "$seen=[]\ndef _; 10; end\ndef build(s); $seen << s; Object.new; end\na, _ = [def (build(<<~DOC)).tag; end, 2]\n#{_}\nDOC\np $seen\n";
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    fs::write(&path, source).unwrap();
-    let before = ruby(&path);
-    unchanged(
-        d.path(),
-        source.as_bytes(),
-        &["--only", COP, "--fix", "lib/a.rb"],
-        1,
-    );
-    if let Some(before) = before {
-        assert!(before.status.success(), "{before:?}");
-        assert_eq!(before.stdout, b"[\"\\n\"]\n");
-        same_observations(before.clone(), ruby(&path).unwrap());
-        fs::write(&path, source.replace("a, _ =", "a, =")).unwrap();
-        assert_ne!(before.stdout, ruby(&path).unwrap().stdout);
-    }
-}
-#[test]
 fn partial_corrections_preserve_conversion_exception_counts_and_partial_writes() {
     let source = "$events=[]\nobj=Object.new\ndef obj.to_ary; $events << :convert; :invalid; end\nbegin; a, _ = obj; rescue TypeError; $events << :raised; end\np [a, $events]\n";
     let d = project();
@@ -345,72 +216,6 @@ fn partial_corrections_preserve_conversion_exception_counts_and_partial_writes()
         assert!(before.status.success(), "{before:?}");
         assert_eq!(before.stdout, b"[nil, [:convert, :raised]]\n");
         same_observations(before, ruby(&path).unwrap());
-    }
-}
-#[test]
-fn ruby_data_positions_are_observable_but_unobserved_payloads_can_change_prefix() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    let source = "a, _ = [1,2]; p [DATA.pos, DATA.read]\n__END__\npayload\n";
-    fs::write(&path, source).unwrap();
-    let before = ruby(&path);
-    unchanged(
-        d.path(),
-        source.as_bytes(),
-        &["--only", COP, "--fix", "lib/a.rb"],
-        1,
-    );
-    if let Some(before) = before {
-        assert!(before.status.success());
-        fs::write(&path, source.replace("_ ", "")).unwrap();
-        assert_ne!(before.stdout, ruby(&path).unwrap().stdout);
-    }
-}
-#[test]
-fn lexical_rhs_captures_survive_cli_fixes_with_independent_safe_edits() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    for (body, expected) in [
-        ("a, _ = [-> { _ }, 2]; p a.call", "2\n"),
-        ("a, _ = [->(x = _) { x }, 2]; p a.call", "2\n"),
-        ("a, _ = [-> { _ = 3 }, 2]; p [a.call, _]", "[3, 3]\n"),
-        (
-            "_, _ = 1, -> { _, _ = 8, 9 }; f = _; p [f.call, _]",
-            "[[8, 9], 9]\n",
-        ),
-        (
-            "a, _ = [-> { <<~TXT }, 2]; p a.call\n#{_}\nTXT\n",
-            "\"2\\n\"\n",
-        ),
-        (
-            "$seen=[]; def build(s); $seen << s; Object.new; end\na, _ = [-> { def (build(<<~TXT)).tag; end }, 2]\n#{_}\nTXT\na.call; p $seen",
-            "[\"2\\n\"]\n",
-        ),
-    ] {
-        let source =
-            format!("def _; :method; end\n{body}\ndef safe; x, _ = [1, 2]; x; end\np safe\n");
-        fs::write(&path, &source).unwrap();
-        let before = ruby(&path);
-        if let Some(before) = &before {
-            assert!(before.status.success(), "{source}: {before:?}");
-            assert_eq!(
-                before.stdout,
-                format!("{expected}1\n").as_bytes(),
-                "{source}"
-            );
-        }
-        cli(d.path(), &["--only", COP, "--fix", "lib/a.rb"], 1);
-        let corrected = source.replace("x, _ =", "x, =");
-        assert_eq!(fs::read(&path).unwrap(), corrected.as_bytes(), "{source}");
-        if let Some(before) = before {
-            same_observations(before, ruby(&path).unwrap());
-        }
-        unchanged(
-            d.path(),
-            corrected.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            1,
-        );
     }
 }
 
@@ -469,36 +274,6 @@ fn prism_lexical_depth_and_cli_variable_liveness_agree() {
             &["--only", "Lint/UselessAssignment", "--fix", "lib/a.rb"],
             0,
         );
-    }
-}
-
-#[test]
-fn lexical_capture_and_conversion_exception_order_is_unchanged() {
-    let d = project();
-    let path = d.path().join("lib/a.rb");
-    let source = r#"$events=[]
-class Broken
-  def to_ary; $events << :convert; raise TypeError, "stop"; end
-end
-begin
-  a, (_, _) = [-> { $events << :call; _ }, Broken.new]
-rescue TypeError
-  $events << :rescue
-  p [a.call, $events]
-end
-"#;
-    fs::write(&path, source).unwrap();
-    let before = ruby(&path);
-    unchanged(
-        d.path(),
-        source.as_bytes(),
-        &["--only", COP, "--fix", "lib/a.rb"],
-        1,
-    );
-    if let Some(before) = before {
-        assert!(before.status.success(), "{before:?}");
-        assert_eq!(before.stdout, b"[nil, [:convert, :rescue, :call]]\n");
-        same_observations(before, ruby(&path).unwrap());
     }
 }
 

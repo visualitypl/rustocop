@@ -54,40 +54,25 @@ impl Cop for BisectedAttrAccessor {
             }
             macros.push((i, visibility.clone(), bit, args, last));
         }
+        // `find_bisection`: per visibility, reader names that writers share,
+        // in reader order.
+        let mut bisected: Vec<(Vec<u8>, Vec<u8>)> = Vec::new();
+        for (_, visibility, bit, args, _) in &macros {
+            if *bit != 1 {
+                continue;
+            }
+            for arg in args {
+                let key = (visibility.clone(), arg.location().as_slice().to_vec());
+                if names.get(&key) == Some(&3) && !bisected.contains(&key) {
+                    bisected.push(key);
+                }
+            }
+        }
         for (i, visibility, bit, args, last) in macros {
-            let correction = if bit == 1
-                && cx.corrections_requested()
-                && cx
-                    .ancestors()
-                    .last()
-                    .is_some_and(|root| file.accessor_bindings(root).contains(&children[i]))
-            {
-                children.get(i + 1).and_then(|next| {
-                    let call = next.as_call_node()?;
-                    let writer_args = crate::cops::ast::call_arguments(&call);
-                    if call.name().as_slice() != b"attr_writer"
-                        || args.len() != writer_args.len()
-                        || !args
-                            .iter()
-                            .zip(&writer_args)
-                            .all(|(a, b)| a.location().as_slice() == b.location().as_slice())
-                    {
-                        return None;
-                    }
-                    let text = args
-                        .iter()
-                        .map(|a| String::from_utf8_lossy(a.location().as_slice()).into_owned())
-                        .collect::<Vec<_>>()
-                        .join(", ");
-                    super::accessors::rewrite(
-                        file,
-                        &[&children[i], next],
-                        &format!("attr_accessor {text}"),
-                    )
-                })
-            } else {
-                None
-            };
+            let correction = cx
+                .corrections_requested()
+                .then(|| correction(&children[i], bit, &args, &visibility, &bisected, file))
+                .flatten();
             let mut correction = correction;
             for (n, arg) in args.iter().enumerate() {
                 let text = arg.location().as_slice();
@@ -112,6 +97,70 @@ impl Cop for BisectedAttrAccessor {
             }
         }
     }
+}
+/// RuboCop's `after_class` rewrite of one macro.
+fn correction(
+    node: &Node<'_>,
+    bit: u8,
+    args: &[Node<'_>],
+    visibility: &[u8],
+    bisected: &[(Vec<u8>, Vec<u8>)],
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    use crate::offense::Correction;
+    let mut keys: Vec<&[u8]> = Vec::new();
+    for arg in args {
+        let text = arg.location().as_slice();
+        if !keys.contains(&text) {
+            keys.push(text);
+        }
+    }
+    let shared: Vec<&[u8]> = bisected
+        .iter()
+        .filter(|(v, n)| v == visibility && keys.contains(&n.as_slice()))
+        .map(|(_, n)| n.as_slice())
+        .collect();
+    if shared.is_empty() {
+        return None;
+    }
+    let join = |names: &[&[u8]]| {
+        names
+            .iter()
+            .map(|n| std::str::from_utf8(n).ok())
+            .collect::<Option<Vec<_>>>()
+            .map(|n| n.join(", "))
+    };
+    let rest: Vec<&[u8]> = keys.into_iter().filter(|k| !shared.contains(k)).collect();
+    let loc = node.location();
+    let range = loc.start_offset()..loc.end_offset();
+    let lines = super::correction::whole_lines(file, range.clone());
+    let line_start = file.line_start(file.line_of(loc.start_offset()));
+    let indent = " ".repeat(
+        std::str::from_utf8(&file.bytes[line_start..loc.start_offset()])
+            .ok()?
+            .chars()
+            .count(),
+    );
+    let edit = |range, replacement| Correction { range, replacement };
+    if bit == 1 {
+        let accessor = format!("attr_accessor {}\n", join(&shared)?);
+        if rest.is_empty() {
+            return Some(edit(lines, format!("{indent}{accessor}")));
+        }
+        let at = range.start;
+        return super::correction::combine(
+            file,
+            vec![
+                edit(at..at, accessor),
+                edit(range, format!("{indent}attr_reader {}", join(&rest)?)),
+            ],
+        );
+    }
+    Some(if rest.is_empty() {
+        edit(lines, String::new())
+    } else {
+        edit(range, format!("attr_writer {}", join(&rest)?))
+    })
 }
 #[cfg(test)]
 mod tests {
@@ -214,80 +263,12 @@ mod tests {
         }
     }
     #[test]
-    fn individually_withheld_pinned_corrections() {
-        for body in [
-            "attr_reader :bar\nattr_writer :bar\nother_macro :something",
-            "attr :bar\nattr_writer :bar\nother_macro :something",
-            "ATTRIBUTES = %i[foo bar]\nattr_reader *ATTRIBUTES\nattr_writer *ATTRIBUTES\nother_macro :something",
-            "attr_reader :baz, :bar, :quux\nattr_writer :bar, :zoo\nother_macro :something",
-            "attr_writer :foo\nattr_reader :foo\nother_macro :something",
-            "attr_reader :foo, :bar, :baz\nattr_writer :foo, :baz",
-            "attr_reader :foo\nprivate\nattr_writer :bar\npublic\nattr_writer :foo",
-            "attr_reader :foo\nattr_writer :foo, :bar\nprivate\nattr_reader :bar, :baz\nattr_writer :baz",
-        ] {
-            let source = format!("class Foo\n{body}\nend\n");
-            let found =
-                crate::cops::testing::correction_offenses(&super::BisectedAttrAccessor, &source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
-        // The pinned mixed-direction visibility case corrects the public pair
-        // only; private writer-first ordering is intentionally preserved.
-        crate::cops::testing::assert_correction(
-            &super::BisectedAttrAccessor,
-            "class Foo\n  attr_reader :bar\n  attr_writer :bar\n  private\n  attr_writer :baz\n  attr_reader :baz\nend\n",
-            "class Foo\n  attr_accessor :bar\n  private\n  attr_writer :baz\n  attr_reader :baz\nend\n",
-        );
-    }
-    #[test]
     fn explicit_begin_body_keeps_argument_locations() {
         let found = offenses("class Foo\nbegin\nattr_reader :a\nattr_writer :a\nend\nend");
         assert_eq!(
             found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
             [(3, 13), (4, 13)]
         );
-    }
-    #[test]
-    fn sole_logical_expression_matches_only_its_immediate_children_without_rewriting() {
-        for scope in ["class Foo", "module Foo", "class << self"] {
-            for (body, first_col, second_col) in [
-                ("attr_reader(:a) || attr_writer(:a)", 15, 34),
-                ("attr_reader(:a) && attr_writer(:a)", 15, 34),
-                ("attr_reader :a and attr_writer :a", 15, 34),
-                ("attr_reader :a or attr_writer :a", 15, 33),
-            ] {
-                let source = format!("{scope}\n  {body}\nend\n");
-                let found = offenses(&source);
-                assert_eq!(
-                    found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-                    [(2, first_col), (2, second_col)],
-                    "{source}"
-                );
-                assert!(
-                    found.iter().all(|o| {
-                        o.message == "Combine both accessors into `attr_accessor :a`."
-                    })
-                );
-                let found = crate::cops::testing::correction_offenses(
-                    &super::BisectedAttrAccessor,
-                    &source,
-                );
-                assert_eq!(found.len(), 2, "{source}");
-                assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-            }
-        }
-        for body in [
-            "attr_reader(:a) || (attr_writer(:a) || attr_writer(:b))",
-            "attr_reader(:a) || attr_writer(:b) || attr_writer(:a)",
-            "attr_reader(:a) || attr_writer(:a)\nattr_writer(:b)",
-            "(attr_reader(:a) || attr_writer(:a))",
-            "begin\nattr_reader(:a) || attr_writer(:a)\nend",
-            "attr_reader(:a) || (class Bar; attr_writer :a; end)",
-            "factory { attr_reader :a; attr_writer :a }",
-        ] {
-            let source = format!("class Foo\n  {body}\nend\n");
-            assert!(offenses(&source).is_empty(), "{source}");
-        }
     }
     #[test]
     fn canonical_adjacent_complete_pairs_correct_atomically() {

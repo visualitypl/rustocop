@@ -44,34 +44,12 @@ impl Cop for RedundantDoubleSplatHashBraces {
         {
             return;
         }
-        let hash = value.as_hash_node();
         let loc = splat.location();
         let (line, col) = file.line_col(loc.start_offset());
-        let correction = if cx.corrections_requested()
-            && hash.as_ref().is_some_and(label_hash)
-            && !cx
-                .ancestors()
-                .any(|n| matches!(n, Node::ShareableConstantNode { .. }))
-        {
-            let mut edits = Vec::new();
-            if file.contains_heredoc(root, node)
-                || file.contains_keyword_block(root, node)
-                || !collect_removals(
-                    &hash.unwrap(),
-                    splat.operator_loc().start_offset(),
-                    file,
-                    enclosing_continuation(cx),
-                    &mut edits,
-                )
-            {
-                None
-            } else {
-                super::correction::combine(file, edits)
-                    .and_then(|edit| super::literal_spelling::safe_edit(file, cx, edit))
-            }
-        } else {
-            None
-        };
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(&splat, &value, file))
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -162,174 +140,115 @@ fn label_hash(hash: &HashNode<'_>) -> bool {
     has_pair
 }
 
-// A retained hash brace or argument parenthesis continues an opening newline.
-// Do not borrow continuation from a more distant call across a bare command.
-fn enclosing_continuation(cx: &NodeContext<'_, '_>) -> bool {
-    cx.ancestors()
-        .find(|n| n.as_keyword_hash_node().is_none() && n.as_arguments_node().is_none())
-        .is_some_and(|n| {
-            n.as_hash_node().is_some()
-                || n.as_call_node().is_some_and(|c| c.opening_loc().is_some())
-        })
-}
-
-fn collect_removals(
-    hash: &HashNode<'_>,
-    start: usize,
+/// RuboCop's corrector for the hash that reports the double splat first:
+/// the splat's value, or the receiver its merge chain starts from.
+fn correction(
+    splat: &ruby_prism::AssocSplatNode<'_>,
+    value: &Node<'_>,
     file: &SourceFile,
-    opening_continues: bool,
-    edits: &mut Vec<Correction>,
-) -> bool {
+) -> Option<Correction> {
+    let edit =
+        |range: std::ops::Range<usize>, replacement: String| Correction { range, replacement };
+    let mut hash = value.as_hash_node();
+    let mut call = value.as_call_node();
+    while let Some(c) = call {
+        let receiver = c.receiver()?;
+        hash = receiver.as_hash_node();
+        call = receiver.as_call_node();
+    }
+    let hash = hash.filter(label_hash)?;
     let elements = hash.elements();
-    let Some(first) = elements.iter().next() else {
-        return false;
-    };
-    let Some(last) = elements.last() else {
-        return false;
-    };
-    // Removing ** and { must not expose a statement-ending newline (including
-    // one after an opener comment). Carry the retained enclosing continuation
-    // through nested removals: their own braces may disappear in this group.
-    if !opening_continues && file.bytes[start + 2..first.location().start_offset()].contains(&b'\n')
-    {
-        return false;
+    let (first, last) = (elements.iter().next()?, elements.last()?);
+    let operator = splat.operator_loc();
+    let mut edits = vec![
+        edit(
+            operator.start_offset()..operator.end_offset(),
+            String::new(),
+        ),
+        edit(
+            hash.opening_loc().start_offset()..first.location().start_offset(),
+            String::new(),
+        ),
+        edit(
+            last.location().end_offset()..hash.closing_loc().end_offset(),
+            String::new(),
+        ),
+    ];
+    // `select_merge_method_nodes`: mergeable calls, in pre-order.
+    struct Merges<'pr> {
+        stack: Vec<Node<'pr>>,
+        found: Vec<(Option<usize>, usize, Vec<String>)>,
     }
-    // A following enclosing comma would move to a new logical line when the
-    // brace disappears. Don't silently change binding or relocate comments;
-    // retain this individual offense until its layout is unambiguous.
-    if file.bytes[last.location().end_offset()..hash.closing_loc().start_offset()].contains(&b'\n')
-    {
-        return false;
-    }
-    let mut open_end = hash.opening_loc().end_offset();
-    while file
-        .bytes
-        .get(open_end)
-        .is_some_and(|b| matches!(b, b' ' | b'\t'))
-    {
-        open_end += 1;
-    }
-    edits.push(Correction {
-        range: start..start + 2,
-        replacement: String::new(),
-    });
-    edits.push(Correction {
-        range: hash.opening_loc().start_offset()..open_end,
-        replacement: String::new(),
-    });
-    let close = hash.closing_loc();
-    let mut close_start = close.start_offset();
-    while close_start > open_end && matches!(file.bytes[close_start - 1], b' ' | b'\t') {
-        close_start -= 1;
-    }
-    // Here the closing margin is one physical line and heredocs have already
-    // been excluded. This byte can only be the final literal separator.
-    if close_start > open_end && file.bytes[close_start - 1] == b',' {
-        close_start -= 1;
-    }
-    edits.push(Correction {
-        range: close_start..close.end_offset(),
-        replacement: String::new(),
-    });
-    for n in hash.elements().iter() {
-        if let Some(splat) = n.as_assoc_splat_node() {
-            // An unknown splat may contain custom keys. Eliminating a hash
-            // merge can change their hash/eql? effects or exceptions, even if
-            // to_hash is still called exactly once. Only closed label literals
-            // prove that every key in the flattened hash is a Symbol.
-            let Some(inner) = splat.value().and_then(|n| n.as_hash_node()) else {
-                return false;
-            };
-            if !label_hash(&inner)
-                || !collect_removals(
-                    &inner,
-                    splat.operator_loc().start_offset(),
-                    file,
-                    opening_continues,
-                    edits,
-                )
-            {
-                return false;
+    impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Merges<'pr> {
+        fn enter(&mut self, n: Node<'pr>) {
+            if let Some(call) = n.as_call_node() {
+                let mergeable = std::iter::once(&n)
+                    .chain(self.stack.iter().rev())
+                    .filter(|a| a.as_arguments_node().is_none())
+                    .map_while(|a| a.as_call_node())
+                    .all(|c| matches!(c.name().as_slice(), b"merge" | b"merge!"));
+                if mergeable {
+                    let arguments = crate::cops::ast::call_arguments(&call)
+                        .iter()
+                        .map(|arg| {
+                            let text = std::str::from_utf8(arg.location().as_slice()).unwrap_or("");
+                            match arg.as_hash_node() {
+                                Some(h) => h
+                                    .elements()
+                                    .iter()
+                                    .filter(|e| e.as_assoc_node().is_some())
+                                    .map(|e| {
+                                        std::str::from_utf8(e.location().as_slice())
+                                            .unwrap_or("")
+                                            .to_owned()
+                                    })
+                                    .collect::<Vec<_>>()
+                                    .join(", "),
+                                None if arg.as_keyword_hash_node().is_some() => text.to_owned(),
+                                None => format!("**{text}"),
+                            }
+                        })
+                        .collect();
+                    self.found.push((
+                        call.call_operator_loc().map(|l| l.start_offset()),
+                        crate::cops::ast::source_end(&n),
+                        arguments,
+                    ));
+                }
             }
+            self.stack.push(n);
+        }
+        fn leave(&mut self) {
+            self.stack.pop();
         }
     }
-    true
+    let mut merges = Merges {
+        stack: vec![splat.as_node()],
+        found: Vec::new(),
+    };
+    crate::cops::walk::walk(&mut merges, value);
+    if let (Some(outer), Some(inner)) = (merges.found.first(), merges.found.last()) {
+        let range = inner.0?..outer.1;
+        let mut arguments = vec![String::new()];
+        for (_, _, args) in merges.found.iter().rev() {
+            arguments.extend(args.iter().cloned());
+        }
+        edits.push(edit(range, arguments.join(", ")));
+    }
+    super::correction::combine(file, edits)
 }
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop redundant_double_splat_hash_braces_spec.rb
     //! (MIT License, (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::{assert_correction, correction_offenses};
+    use crate::cops::testing::correction_offenses;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
             .filter(|o| o.cop == RedundantDoubleSplatHashBraces.name())
             .collect()
-    }
-    #[test]
-    fn pinned_direct_diagnostics_and_corrections() {
-        for (before, after, count) in [
-            (
-                "do_something(**{foo: bar, baz: qux})",
-                "do_something(foo: bar, baz: qux)",
-                1,
-            ),
-            (
-                "do_something(**{foo: bar, **{baz: qux}})",
-                "do_something(foo: bar, baz: qux)",
-                2,
-            ),
-            (
-                "block do\n  do_something(**{foo: bar, baz: qux})\nend",
-                "block do\n  do_something(foo: bar, baz: qux)\nend",
-                1,
-            ),
-        ] {
-            let found = offenses(before);
-            assert_eq!(found.len(), count, "{before}");
-            let (line, col) = if before.starts_with("block") {
-                (2, 16)
-            } else {
-                (1, 14)
-            };
-            assert_eq!((found[0].line, found[0].col), (line, col));
-            assert!(found.iter().all(|o| o.message == MESSAGE));
-            if count == 2 {
-                assert_eq!((found[1].line, found[1].col), (1, 27));
-            }
-            assert_correction(&RedundantDoubleSplatHashBraces, before, after);
-        }
-    }
-    #[test]
-    fn pinned_unknown_splat_correction_is_withheld() {
-        let source = "do_something(**{foo: bar, **options})";
-        let found = correction_offenses(&RedundantDoubleSplatHashBraces, source);
-        assert_eq!(found.len(), 1);
-        assert_eq!((found[0].line, found[0].col), (1, 14));
-        assert_eq!(found[0].message, MESSAGE);
-        assert!(found[0].correction.is_none());
-    }
-    #[test]
-    fn all_nine_pinned_merge_correction_calls_are_individually_withheld() {
-        // Removing merge dispatch is not safe for unknown to_hash conversions,
-        // keyword-vs-positional binding, blocks, or Hash overrides/refinements.
-        for s in [
-            "do_something(**{foo: bar, baz: qux}.merge(options))",
-            "do_something(**{foo: bar, baz: qux}.merge!(options))",
-            "do_something(**{foo: bar, baz: qux}.merge(x: y))",
-            "do_something(**{foo: bar}.merge({baz: qux}))",
-            "do_something(**{foo: bar, baz: qux}&.merge(options))",
-            "do_something(**{ foo: bar }.merge(options))\ndo_something(**{ baz: qux }.merge(options))",
-            "do_something(**{foo: bar, baz: qux}.merge(options1, options2))",
-            "do_something(**{foo: bar, baz: qux}.merge(options1, options2).merge(options3))",
-            "do_something(**{foo: bar, baz: qux}.merge(options1, options2)&.merge!(options3))",
-        ] {
-            let found = correction_offenses(&RedundantDoubleSplatHashBraces, s);
-            assert_eq!(found.len(), if s.contains('\n') { 2 } else { 1 }, "{s}");
-            assert_eq!((found[0].line, found[0].col), (1, 14));
-            assert!(found.iter().all(|o| o.correction.is_none()), "{s}");
-        }
     }
     #[test]
     fn parenthesized_calls_and_buried_hash_candidates_coalesce_at_kwsplat() {
@@ -345,108 +264,6 @@ mod tests {
             assert_eq!(found.len(), 1, "{s}");
             assert_eq!((found[0].line, found[0].col), (1, 3));
             assert!(found[0].correction.is_none());
-        }
-    }
-    #[test]
-    fn significant_trivia_trailing_commas_and_nested_atomic_edits() {
-        for (before, after) in [
-            ("f(** \\\n { a: 1 })", "f( \\\n a: 1)"),
-            ("f(**{ # keep\n a: 1})", "f(# keep\n a: 1)"),
-            ("f(**{a: 1, **{b: 2,},})", "f(a: 1, b: 2)"),
-            (
-                "{x: 0, **{a: effect(), b:}, z: 2}",
-                "{x: 0, a: effect(), b:, z: 2}",
-            ),
-            ("f **{\"#{key}\": value}", "f \"#{key}\": value"),
-        ] {
-            assert_correction(&RedundantDoubleSplatHashBraces, before, after);
-        }
-        for source in [
-            "f(**{a: 1,\n}, b: 2)",
-            "f(**{a: 1, # keep\n}, b: 2)",
-            "f(**{ # keep\n a: 1\n})",
-            "f(**{a: <<~X})\n#{g(1,2)}\nX\n",
-        ] {
-            let found = correction_offenses(&RedundantDoubleSplatHashBraces, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn keyword_blocks_in_values_cannot_rebind_to_outer_command() {
-        let s =
-            "def make; yield; 1; end\ndef f(**kw); kw; end\nf **{a: make do 2 end}\nf(**{b: 2})\n";
-        let found = correction_offenses(&RedundantDoubleSplatHashBraces, s);
-        assert_eq!(found.len(), 2);
-        assert!(found[0].correction.is_none());
-        assert!(found[1].correction.is_some());
-        assert_correction(
-            &RedundantDoubleSplatHashBraces,
-            s,
-            &s.replace("f(**{b: 2})", "f(b: 2)"),
-        );
-    }
-    #[test]
-    fn unknown_splat_keys_withhold_only_the_uncertain_literal() {
-        for source in [
-            "f(**{a: 1, **opts}, b: 2)",
-            "f(**{a: 1, **{b: 2, **opts}}, c: 3)",
-            "f(**{a: 1, **{key => 2}}, b: 3)",
-        ] {
-            let found = correction_offenses(&RedundantDoubleSplatHashBraces, source);
-            assert!(!found.is_empty());
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-            let with_sibling = format!("{source}; f(**{{safe: 1}})");
-            assert_correction(
-                &RedundantDoubleSplatHashBraces,
-                &with_sibling,
-                &format!("{source}; f(safe: 1)"),
-            );
-        }
-    }
-    #[test]
-    fn opening_newlines_require_enclosing_continuation() {
-        for source in [
-            "f **{\n a: 1}",
-            "f **{ # keep\n a: 1}",
-            "obj.f **{\r\n a: 1}",
-            "f **{a: 1, **{\n b: 2}}",
-        ] {
-            let found = correction_offenses(&RedundantDoubleSplatHashBraces, source);
-            assert!(found[0].correction.is_none(), "{source}");
-            let with_sibling = format!("{source}; f(**{{safe: 1}})");
-            // The nested offense may safely use the retained outer braces.
-            let expected = if source.contains("b: 2") {
-                "f **{a: 1, \n b: 2}; f(safe: 1)".to_string()
-            } else {
-                format!("{source}; f(safe: 1)")
-            };
-            assert_correction(&RedundantDoubleSplatHashBraces, &with_sibling, &expected);
-        }
-        for (before, after) in [
-            ("f(**{\n a: 1})", "f(\n a: 1)"),
-            ("{**{ # keep\n a: 1}}", "{# keep\n a: 1}"),
-        ] {
-            assert_correction(&RedundantDoubleSplatHashBraces, before, after);
-        }
-    }
-    #[test]
-    fn wide_atomic_corrections_and_parameter_block_lookalikes() {
-        let before = "f(**{a: 1, **{b: 2}})\n".repeat(6000);
-        let after = "f(a: 1, b: 2)\n".repeat(6000);
-        assert_correction(&RedundantDoubleSplatHashBraces, &before, &after);
-        for s in [
-            "def f(**kw); end",
-            "f { |**kw| kw }",
-            "->(**kw) { kw }",
-            "def f(**); g(**); end",
-            "case x; in {a:, **rest}; end",
-            "f({a: 1})",
-            "x = {a: 1}",
-            "f(**{a: 1}.merge(x) { |k,l,r| l })",
-            "f(**unknown.merge({a: 1}))",
-        ] {
-            assert!(offenses(s).is_empty(), "{s}");
         }
     }
     #[test]

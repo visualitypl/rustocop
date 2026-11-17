@@ -34,6 +34,11 @@ impl Cop for TrailingWhitespace {
         if node.as_program_node().is_none() {
             return;
         }
+        let heredocs = if cx.corrections_requested() {
+            heredocs(node)
+        } else {
+            Vec::new()
+        };
         for line in 1..=file.code_line_count() as u32 {
             let text = file.line_text(line);
             let start = trailing_start(text, file.encoding());
@@ -43,18 +48,10 @@ impl Cop for TrailingWhitespace {
             let range = file.line_start(line) + start..file.line_start(line) + text.len();
             let (_, col) = file.line_col(range.start);
             out.push(Offense {
-                correction: (cx.corrections_requested()
-                    && !file.overlaps_literal(node, &range)
-                    // A parseable edit must not turn an identifier into the
-                    // __END__ marker, silently moving later code into data.
-                    && text[..start].strip_prefix(b"\xef\xbb\xbf").unwrap_or(&text[..start]) != b"__END__"
-                    // Non-ASCII blanks are valid Ruby identifier bytes, not
-                    // lexical whitespace. Only remove them inside comments.
-                    && (text[start..].is_ascii() || in_comment(file, &range)))
-                .then(|| Correction {
-                    range,
-                    replacement: String::new(),
-                }),
+                correction: cx
+                    .corrections_requested()
+                    .then(|| correction(file, line, range, &heredocs))
+                    .flatten(),
                 cop: self.name(),
                 severity: self.severity(),
                 message: "Trailing whitespace detected.".into(),
@@ -66,10 +63,129 @@ impl Cop for TrailingWhitespace {
     }
 }
 
-fn in_comment(file: &SourceFile, range: &std::ops::Range<usize>) -> bool {
-    let comments = file.comments();
-    let index = comments.partition_point(|comment| comment.start <= range.start);
-    index > 0 && comments[index - 1].end >= range.end
+/// A heredoc's body (from its first byte to the terminator) and whether it
+/// is static (`<<~'X'`).
+struct Heredoc {
+    body: std::ops::Range<usize>,
+    lines: std::ops::Range<u32>,
+    stat: bool,
+}
+
+fn heredocs(root: &Node<'_>) -> Vec<(std::ops::Range<usize>, bool)> {
+    struct Found(Vec<(std::ops::Range<usize>, bool)>);
+    impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Found {
+        fn enter(&mut self, n: Node<'pr>) {
+            let first = |parts: ruby_prism::NodeList<'pr>| {
+                parts.iter().next().map(|p| p.location().start_offset())
+            };
+            let (opening, body, closing) = match &n {
+                Node::StringNode { .. } => {
+                    let s = n.as_string_node().unwrap();
+                    (
+                        s.opening_loc(),
+                        Some(s.content_loc().start_offset()),
+                        s.closing_loc(),
+                    )
+                }
+                Node::InterpolatedStringNode { .. } => {
+                    let s = n.as_interpolated_string_node().unwrap();
+                    (s.opening_loc(), first(s.parts()), s.closing_loc())
+                }
+                Node::XStringNode { .. } => {
+                    let s = n.as_x_string_node().unwrap();
+                    (
+                        Some(s.opening_loc()),
+                        Some(s.content_loc().start_offset()),
+                        Some(s.closing_loc()),
+                    )
+                }
+                Node::InterpolatedXStringNode { .. } => {
+                    let s = n.as_interpolated_x_string_node().unwrap();
+                    (
+                        Some(s.opening_loc()),
+                        first(s.parts()),
+                        Some(s.closing_loc()),
+                    )
+                }
+                _ => return,
+            };
+            if let (Some(opening), Some(closing)) = (opening, closing)
+                && opening.as_slice().starts_with(b"<<")
+            {
+                let end = closing.start_offset();
+                let body = body.unwrap_or(end).min(end);
+                self.0.push((body..end, opening.as_slice().ends_with(b"'")));
+            }
+        }
+    }
+    let mut found = Found(Vec::new());
+    crate::cops::walk::walk(&mut found, root);
+    found.0
+}
+
+/// RuboCop's corrector: remove the blanks, except inside a heredoc body.
+fn correction(
+    file: &SourceFile,
+    line: u32,
+    range: std::ops::Range<usize>,
+    heredocs: &[(std::ops::Range<usize>, bool)],
+) -> Option<Correction> {
+    let remove = |range| {
+        Some(Correction {
+            range,
+            replacement: String::new(),
+        })
+    };
+    let heredoc = heredocs
+        .iter()
+        .map(|(body, stat)| Heredoc {
+            body: body.clone(),
+            lines: file.line_of(body.start)..file.line_of(body.end),
+            stat: *stat,
+        })
+        .find(|h| h.lines.contains(&line));
+    let Some(heredoc) = heredoc else {
+        return remove(range);
+    };
+    let body = std::str::from_utf8(&file.bytes[heredoc.body.clone()]).ok()?;
+    // RuboCop's `indent_level`.
+    let level = body
+        .split_inclusive('\n')
+        .filter_map(|l| {
+            let indent = l.len() - l.trim_start().len();
+            (indent < l.len()).then(|| l[..indent].chars().count())
+        })
+        .min()
+        .unwrap_or(0);
+    let line_start = file.line_start(line);
+    let whitespace_only = range.start == line_start
+        && line_start > 0
+        && file.bytes[line_start - 1] == b'\n'
+        && file.bytes.get(range.end) == Some(&b'\n');
+    let blanks = std::str::from_utf8(&file.bytes[range.clone()]).ok()?;
+    if whitespace_only && blanks.chars().count() <= level {
+        return remove(range);
+    }
+    if heredoc.stat {
+        return None;
+    }
+    let start = if whitespace_only {
+        range.start
+            + blanks
+                .chars()
+                .take(level)
+                .map(char::len_utf8)
+                .sum::<usize>()
+    } else {
+        range.start
+    };
+    Some(Correction {
+        range: start..range.end,
+        replacement: format!(
+            "#{{'{}'}}",
+            std::str::from_utf8(&file.bytes[start..range.end]).ok()?
+        ),
+    })
 }
 
 // Ruby/Onigmo's [[:blank:]], not Rust's broader Unicode whitespace class.
@@ -154,134 +270,6 @@ mod tests {
         ] {
             assert_correction(&TrailingWhitespace, before, after);
         }
-    }
-
-    #[test]
-    fn literal_values_are_reported_but_never_trimmed() {
-        for source in [
-            "x = 'a  \nb' \n",
-            "x = \"a  \nb\" \n",
-            "x = /a  \nb/ \n",
-            "x = %q(a  \nb) \n",
-            "x = %Q(a  \nb) \n",
-            "x = %r(a  \nb) \n",
-            "x = %w(a\\  \nb) \n",
-            "x = %W(a\\  \nb) \n",
-            "x = %i(a\\  \nb) \n",
-            "x = %I(a\\  \nb) \n",
-            "x = %x(a  \nb) \n",
-            "x = :\"a  \nb\" \n",
-        ] {
-            assert_eq!(offenses(source).len(), 2, "{source:?}");
-            assert_correction(
-                &TrailingWhitespace,
-                source,
-                &format!("{}\n", source.trim_end()),
-            );
-        }
-    }
-
-    #[test]
-    fn whitespace_percent_delimiters_are_never_trimmed() {
-        for delimiter in [" ", "\t"] {
-            for kind in ["q", "Q", "r", "s", "x", ""] {
-                for content in ["a", "a#{1}"] {
-                    let literal = format!("x = %{kind}{delimiter}\n{content}{delimiter}\n");
-                    let before = format!("{literal}puts :ok \n");
-                    let after = format!("{literal}puts :ok\n");
-                    assert_eq!(offenses(&before).len(), 3, "{before:?}");
-                    assert_correction(&TrailingWhitespace, &before, &after);
-                }
-            }
-            let source = format!("if %r{delimiter}\na{delimiter}\n  puts :ok\nend\n");
-            assert_correction(&TrailingWhitespace, &source, &source);
-        }
-    }
-
-    #[test]
-    fn all_heredoc_forms_retain_body_bytes() {
-        for prefix in ["<<", "<<-", "<<~"] {
-            for quote in ["", "'", "\"", "`"] {
-                let before = format!("x = {prefix}{quote}H{quote} \n  Hi   \n \t\nH\nx = 0\t\n");
-                let after = format!("x = {prefix}{quote}H{quote}\n  Hi   \n \t\nH\nx = 0\n");
-                let found = offenses(&before);
-                assert_eq!(
-                    found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-                    [
-                        (1, (before.lines().next().unwrap().len()) as u32),
-                        (2, 5),
-                        (3, 1),
-                        (5, 6)
-                    ]
-                );
-                assert_correction(&TrailingWhitespace, &before, &after);
-            }
-        }
-    }
-
-    #[test]
-    fn interpolation_code_is_fixable_but_literal_text_is_not() {
-        for (before, after) in [
-            (
-                "x = \"text  \n#{  \n  1  \n}tail  \n\" \n",
-                "x = \"text  \n#{\n  1\n}tail  \n\"\n",
-            ),
-            (
-                "x = <<~H \n  text  \n  #{  \n    \"nested  \ntext\"  \n  }tail  \nH\n",
-                "x = <<~H\n  text  \n  #{\n    \"nested  \ntext\"\n  }tail  \nH\n",
-            ),
-        ] {
-            assert_correction(&TrailingWhitespace, before, after);
-        }
-    }
-
-    #[test]
-    fn unicode_blanks_in_tokens_are_not_safe_deletions() {
-        for source in [
-            "x = :a\u{3000}\n",
-            "identifier\u{a0}\n",
-            "x = :a\u{3000} \n",
-        ] {
-            assert_eq!(offenses(source).len(), 1);
-            assert_correction(&TrailingWhitespace, source, source);
-        }
-        assert_correction(&TrailingWhitespace, "# comment\u{3000}\n", "# comment\n");
-    }
-
-    #[test]
-    fn preserves_end_data_and_handles_documentation_lookalikes() {
-        for (before, after, positions) in [
-            (
-                "x = 0\t\n \n__END__\nx = 0\t\n",
-                "x = 0\n\n__END__\nx = 0\t\n",
-                vec![(1, 6), (2, 1)],
-            ),
-            (
-                "x = 0\t\n=begin\n__END__\n=end\nx = 0\t\n",
-                "x = 0\n=begin\n__END__\n=end\nx = 0\n",
-                vec![(1, 6), (5, 6)],
-            ),
-            (
-                "x1 = <<H \n__END__\nx2 = 0\t\nH\nx3 = 0\t\n",
-                "x1 = <<H\n__END__\nx2 = 0\t\nH\nx3 = 0\n",
-                vec![(1, 9), (3, 7), (5, 7)],
-            ),
-            (
-                "x1 = <<H \n=begin  \n__END__\n=end\nx2 = 0\t\nH\nx3 = 0\t\n",
-                "x1 = <<H\n=begin  \n__END__\n=end\nx2 = 0\t\nH\nx3 = 0\n",
-                vec![(1, 9), (2, 7), (5, 7), (7, 7)],
-            ),
-        ] {
-            assert_eq!(
-                offenses(before)
-                    .iter()
-                    .map(|o| (o.line, o.col))
-                    .collect::<Vec<_>>(),
-                positions
-            );
-            assert_correction(&TrailingWhitespace, before, after);
-        }
-        assert!(offenses("__END__\n \t\n").is_empty());
     }
 
     #[test]
@@ -400,36 +388,6 @@ mod tests {
                 assert_correction(&TrailingWhitespace, &before, &after);
             }
         }
-    }
-
-    #[test]
-    fn multiple_and_nested_heredocs_keep_their_values() {
-        for (before, after) in [
-            (
-                "x = [<<~A, <<~B] \n  a  \nA\n  b  \nB\n",
-                "x = [<<~A, <<~B]\n  a  \nA\n  b  \nB\n",
-            ),
-            (
-                "x = <<~A \n  #{<<~B}  \n    b  \n  B\n  a  \nA\n",
-                "x = <<~A\n  #{<<~B}  \n    b  \n  B\n  a  \nA\n",
-            ),
-        ] {
-            assert_correction(&TrailingWhitespace, before, after);
-        }
-    }
-
-    #[test]
-    fn never_creates_a_data_marker() {
-        for source in [
-            "__END__ \nputs :ok\n",
-            "\u{feff}__END__\t\r\nputs :ok\r\n",
-            "__END__ \t",
-        ] {
-            assert_eq!(offenses(source).len(), 1);
-            assert_correction(&TrailingWhitespace, source, source);
-        }
-        // An indented identifier is not a data marker.
-        assert_correction(&TrailingWhitespace, "  __END__ \n", "  __END__\n");
     }
 
     #[test]

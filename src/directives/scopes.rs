@@ -336,53 +336,6 @@ pub(crate) fn source_opts_in<'a>(
     })
 }
 
-/// Permanent enables whose removal leaves the effective open state unchanged.
-/// Next-statement scopes restore that state; push/pop must snapshot it even
-/// when their arguments target another cop. This proof is separate from the
-/// upstream pairing counters used for diagnostics.
-pub(crate) fn redundant_enables(file: &SourceFile, cop: &str) -> HashSet<u32> {
-    let mut disabled = file.directive_disabled().iter().any(|n| n == cop);
-    let mut stack = Vec::new();
-    let mut redundant = HashSet::new();
-    for d in file.directive_records() {
-        if file.bytes[d.range.start] != b'#' {
-            continue;
-        }
-        match d.mode {
-            "pop" => {
-                if let Some(saved) = stack.pop() {
-                    disabled = saved;
-                }
-            }
-            "push" => {
-                stack.push(disabled);
-                let first = d.signed.first().map(|&(plus, _)| plus);
-                for plus in first.into_iter().chain(first.map(|p| !p)) {
-                    if d.signed
-                        .iter()
-                        .any(|(p, n)| *p == plus && signed_hits(n, cop))
-                    {
-                        disabled = !plus;
-                    }
-                }
-            }
-            "disable" | "todo" | "enable"
-                if d.standalone
-                    && !d.embedded
-                    && d.signed.is_empty()
-                    && d.names.iter().any(|n| comments::hits(n, cop)) =>
-            {
-                if d.mode == "enable" && !disabled {
-                    redundant.insert(d.line);
-                }
-                disabled = d.mode != "enable";
-            }
-            _ => {}
-        }
-    }
-    redundant
-}
-
 fn is_next(mode: &str) -> bool {
     matches!(mode, "disable-next" | "todo-next" | "enable-next" | "next")
 }

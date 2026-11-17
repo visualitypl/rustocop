@@ -19,7 +19,6 @@ use settings::{Setting, Values};
 
 pub mod ast;
 pub mod bundler;
-pub(crate) mod code_object_safety;
 pub mod depth;
 pub mod gemspec;
 pub mod layout;

@@ -154,25 +154,6 @@ fn stdin_reports_each_cop_without_writing_display_paths() {
 }
 
 #[test]
-fn errors_clean_and_uncertain_offenses_do_not_write() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, status) in [
-        ("def foo()=1\ndef bar()end\n", 0),
-        ("alias_method :ala, :bala\n", 1),
-        ("included { alias :ala :bala }\n", 1),
-        ("def foo( # retain\n)\nend\n", 1),
-        ("def foo() bar\nend\n", 1),
-        ("def self::foo(\n", 2),
-    ] {
-        fs::write(&path, source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", ONLY, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
-#[test]
 fn token_edits_preserve_bom_crlf_encoding_data_and_explicit_lines() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
@@ -226,70 +207,6 @@ fn controlled_ruby_alias_target_visibility_order_and_values() {
         0,
     );
 }
-#[test]
-fn controlled_ruby_alias_preserves_enclosing_declaration_eval_result() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    for scope in ["class", "module"] {
-        for aliases in [
-            "alias_method :renamed, :original",
-            "alias_method :earlier, :original; alias_method :renamed, :earlier",
-        ] {
-            let dir = project();
-            let path = dir.path().join("lib/a.rb");
-            let source = format!("{scope} Fresh; def original; 42; end; {aliases}; end\n");
-            fs::write(&path, &source).unwrap();
-            let harness = "p eval(File.read(ARGV[0]), TOPLEVEL_BINDING, ARGV[0])";
-            let before = ruby(dir.path(), harness);
-            assert!(before.status.success(), "{before:?}");
-            assert_eq!(before.stdout, b":renamed\n");
-            let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(dir.path())
-                .args(["--only", "Style/Alias", "--fix", "lib/a.rb"])
-                .output()
-                .unwrap();
-            let after = ruby(dir.path(), harness);
-            assert!(after.status.success(), "{after:?}");
-            assert_eq!(before.stdout, after.stdout, "{source}");
-            assert_eq!(before.stderr, after.stderr);
-            assert_eq!(output.status.code(), Some(1), "{output:?}");
-            assert_eq!(
-                fs::read_to_string(&path).unwrap(),
-                source.replace("alias_method :earlier, :original", "alias earlier original")
-            );
-        }
-    }
-}
-#[test]
-fn controlled_ruby_quoted_operator_and_keyword_alias_identities() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let source = "class Fresh\n  def original; [42, __LINE__]; end\n  alias_method :\"@type\", :original\n  alias_method :\"foo bar\", :original\n  alias_method :[], :original\n  alias_method :if, :original\n  alias :\"escaped\\x5fname\" :original\n  alias :+@ :original\nend\n";
-    let fixed = source
-        .replace(
-            "alias_method :\"@type\", :original",
-            "alias :\"@type\" original",
-        )
-        .replace(
-            "alias_method :\"foo bar\", :original",
-            "alias :\"foo bar\" original",
-        )
-        .replace("alias_method :[], :original", "alias [] original")
-        .replace("alias_method :if, :original", "alias if original")
-        .replace(
-            "alias :\"escaped\\x5fname\" :original",
-            "alias escaped_name original",
-        )
-        .replace("alias :+@ :original", "alias +@ original");
-    runtime_case(
-        source,
-        "load ARGV[0]; p [:original, :\"@type\", :\"foo bar\", :[], :if, :escaped_name, :+@].map { |name| [name, Fresh.new.send(name), Fresh.instance_method(name).original_name] }",
-        &fixed,
-        0,
-    );
-}
 
 #[test]
 fn controlled_ruby_definition_binding_evaluation_flow_and_literals() {
@@ -325,34 +242,6 @@ p [$object[:key], $object + 3]
         .replace("value()", "value")
         .replace("text()", "text");
     runtime_case(source, "load ARGV[0]", &fixed, 0);
-}
-#[test]
-fn controlled_ruby_uncertain_alias_dispatch_eval_and_return_values_are_preserved() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let source = r#"$events = []
-class Fresh
-  def original; :original; end
-  def self.method_added(name); $events << name; end
-  def self.alias_method(*args); $events << [:custom, args]; super; end
-  private
-  NAME = alias_method :assigned, :original
-  alias_method :renamed, :original
-end
-class Base
-  def original; :base; end
-end
-class Derived < Base
-  def original; :derived; end
-  def self.install
-    class_eval { alias renamed original }
-  end
-end
-Derived.install
-p [Fresh::NAME, Fresh.new.send(:renamed), Fresh.private_instance_methods(false), Derived.new.renamed, $events]
-"#;
-    runtime_case(source, "load ARGV[0]", source, 1);
 }
 #[test]
 fn mixed_style_layout_composition_stabilizes_within_four_explicit_passes() {

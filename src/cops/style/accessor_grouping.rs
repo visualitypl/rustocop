@@ -45,28 +45,35 @@ impl Cop for AccessorGrouping {
             if indexes.len() < 2 {
                 continue;
             }
-            let correction = if cx.corrections_requested()
-                && indexes.windows(2).all(|w| w[1] == w[0] + 1)
-                && cx.ancestors().last().is_some_and(|root| {
-                    file.accessor_bindings(root).contains(&children[indexes[0]])
-                }) {
-                let nodes: Vec<_> = indexes.iter().map(|i| &children[*i]).collect();
-                let mut names = Vec::new();
-                for child in &nodes {
-                    for arg in crate::cops::ast::call_arguments(&child.as_call_node().unwrap()) {
-                        let text = String::from_utf8_lossy(arg.location().as_slice()).into_owned();
+            let mut names: Vec<&[u8]> = Vec::new();
+            for i in &indexes {
+                for arg in crate::cops::ast::call_arguments(&children[*i].as_call_node().unwrap()) {
+                    let text =
+                        &file.bytes[arg.location().start_offset()..arg.location().end_offset()];
+                    if !names.contains(&text) {
                         names.push(text);
                     }
                 }
-                super::accessors::rewrite(
-                    file,
-                    &nodes,
-                    &format!("{} {}", String::from_utf8_lossy(&family), names.join(", ")),
-                )
-            } else {
-                None
+            }
+            let grouped = format!(
+                "{} {}",
+                String::from_utf8_lossy(&family),
+                names
+                    .iter()
+                    .map(|n| String::from_utf8_lossy(n))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            );
+            // RuboCop's `skip_for_grouping?`.
+            let skip = |i: usize| {
+                children[i + 1..].iter().any(|n| {
+                    matches!(
+                        n,
+                        Node::ConstantWriteNode { .. } | Node::ConstantPathWriteNode { .. }
+                    )
+                }) && indexes.iter().any(|&j| j > i)
             };
-            for (n, i) in indexes.into_iter().enumerate() {
+            for (n, &i) in indexes.iter().enumerate() {
                 let child = &children[i];
                 let (line, col) = file.line_col(child.location().start_offset());
                 out.push(Offense {
@@ -79,7 +86,26 @@ impl Cop for AccessorGrouping {
                     line,
                     col,
                     end_line: file.last_line_of(child.location()),
-                    correction: if n == 0 { correction.clone() } else { None },
+                    correction: cx.corrections_requested().then(|| {
+                        let loc = child.location();
+                        if !skip(i) && (n == 0 || skip(indexes[0])) {
+                            return crate::offense::Correction {
+                                range: loc.start_offset()..loc.end_offset(),
+                                replacement: grouped.clone(),
+                            };
+                        }
+                        let mut start = loc.start_offset();
+                        while start > 0 && matches!(file.bytes[start - 1], b' ' | b'\t') {
+                            start -= 1;
+                        }
+                        while start > 0 && file.bytes[start - 1] == b'\n' {
+                            start -= 1;
+                        }
+                        crate::offense::Correction {
+                            range: start..loc.end_offset(),
+                            replacement: String::new(),
+                        }
+                    }),
                 });
             }
         }
@@ -146,28 +172,6 @@ mod tests {
         }
     }
     #[test]
-    fn generated_singleton_overrides_do_not_prove_core_dispatch_or_callbacks() {
-        for name in [
-            "method_added",
-            "singleton_method_added",
-            "attr",
-            "attr_reader",
-            "attr_writer",
-            "attr_accessor",
-            "private",
-            "protected",
-            "public",
-        ] {
-            let source = format!(
-                "class Foo\n  class << self\n    attr_reader :{name}\n  end\n  attr_reader :one\n  attr_reader :two\nend\n"
-            );
-            let found =
-                crate::cops::testing::correction_offenses(&super::AccessorGrouping, &source);
-            assert_eq!(found.len(), 2, "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
-    }
-    #[test]
     fn all_attribute_families_class_module_eigenclass_and_arguments() {
         for scope in ["class Foo", "module Foo", "class << self"] {
             for family in ["attr", "attr_reader", "attr_writer", "attr_accessor"] {
@@ -209,27 +213,6 @@ mod tests {
         }
     }
     #[test]
-    fn individually_withheld_pinned_grouping_rewrites_keep_offenses() {
-        for body in [
-            // Mixed macro, visibility/order changes, annotations, definitions,
-            // duplicate warnings, trailing docs, splats/constants, and constants.
-            "attr_reader :bar1\nattr_reader :bar2\nattr_accessor :quux\nattr_reader :bar3, :bar4\nother_macro :zoo",
-            "attr_reader :bar1\nattr_reader :bar2\nprotected\nattr_accessor :quux\nprivate\nattr_reader :baz1, :baz2\nattr_writer :baz3\nattr_reader :baz4\npublic\nattr_reader :bar3\nother_macro :zoo",
-            "extend T::Sig\nsig { returns(Integer) }\nattr_reader :one\n\nattr_reader :two, :three\n\nattr_reader :four",
-            "def foo; end\nattr_reader :one\ndef bar; end\nattr_reader :two",
-            "attr_reader :one\nattr_reader :two\nattr_reader :one",
-            "attr_reader :one # comment #: String\nattr_reader :two, :three",
-            "attr_reader :one\nOTHER_ATTRS = %i[two three].freeze\nattr_reader(*OTHER_ATTRS)",
-            "attr_reader :one\nattr_reader :bar\nOTHER_ATTRS = %i[two three].freeze",
-        ] {
-            let source = format!("class Foo\n{body}\nend\n");
-            let found =
-                crate::cops::testing::correction_offenses(&super::AccessorGrouping, &source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
-    }
-    #[test]
     fn one_explicit_begin_layer_is_a_direct_body_but_not_rescue_or_nested_begins() {
         let found = offenses("class Foo\nbegin\nattr_reader :a\nattr_reader :b\nend\nend");
         assert_eq!(
@@ -255,61 +238,6 @@ mod tests {
         ] {
             let source = format!("class Foo\n{previous}\nattr_reader :b\nattr_reader :c\nend\n");
             assert_eq!(offenses(&source).len(), count, "{source}");
-        }
-    }
-    #[test]
-    fn redefinition_warnings_including_reopened_eigenclasses_prevent_grouping() {
-        for body in [
-            "attr_reader :one\nattr_reader :two\nattr_reader :one",
-            "attr_reader :one\nattr_reader :\"one\"",
-            "attr_accessor :existing\nattr_reader :existing\nattr_reader :one\nattr_reader :two",
-            "class << self\nattr_reader :existing\nend\nclass << self\nattr_reader :existing\nattr_reader :one\nattr_reader :two\nend",
-        ] {
-            let source = format!("class Foo\n{body}\nend\n");
-            let found =
-                crate::cops::testing::correction_offenses(&super::AccessorGrouping, &source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
-    }
-    #[test]
-    fn sole_logical_expression_matches_only_its_immediate_children_without_rewriting() {
-        for scope in ["class Foo", "module Foo", "class << self"] {
-            for (body, second_col) in [
-                ("attr_reader :a and attr_reader :b", 22),
-                ("attr_reader :a or attr_reader :b", 21),
-                ("attr_reader(:a) && attr_reader(:b)", 22),
-                ("attr_reader(:a) || attr_reader(:b)", 22),
-            ] {
-                let source = format!("{scope}\n  {body}\nend\n");
-                let found = offenses(&source);
-                assert_eq!(
-                    found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-                    [(2, 3), (2, second_col)],
-                    "{source}"
-                );
-                assert!(
-                    found
-                        .iter()
-                        .all(|o| { o.message == "Group together all `attr_reader` attributes." })
-                );
-                let found =
-                    crate::cops::testing::correction_offenses(&super::AccessorGrouping, &source);
-                assert_eq!(found.len(), 2, "{source}");
-                assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-            }
-        }
-        for body in [
-            "attr_reader(:a) && (attr_reader(:b) && attr_reader(:c))",
-            "attr_reader(:a) && attr_reader(:b) && attr_reader(:c)",
-            "attr_reader(:a) && attr_reader(:b)\nattr_reader(:c)",
-            "(attr_reader(:a) && attr_reader(:b))",
-            "begin\nattr_reader(:a) && attr_reader(:b)\nend",
-            "attr_reader(:a) && (class Bar; attr_reader :b; end)",
-            "factory { attr_reader :a; attr_reader :b }",
-        ] {
-            let source = format!("class Foo\n  {body}\nend\n");
-            assert!(offenses(&source).is_empty(), "{source}");
         }
     }
     #[test]

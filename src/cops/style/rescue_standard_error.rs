@@ -42,30 +42,14 @@ impl Cop for RescueStandardError {
             message: "Avoid rescuing without specifying an error class.".into(),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(cx, file, keyword.end_offset()))
+                .then(|| correction(keyword.end_offset()))
                 .flatten(),
         });
     }
 }
 
-fn correction(
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    offset: usize,
-) -> Option<crate::offense::Correction> {
-    let root = cx.ancestors().next_back()?;
-    // An implicit rescue uses the VM's StandardError, whereas an explicit
-    // unqualified constant is lexically resolved. Reopened/inherited namespaces
-    // and source-wide binding mutations are not proof of identical lookup.
-    if cx.ancestors().any(|n| {
-        matches!(
-            n,
-            Node::ClassNode { .. } | Node::ModuleNode { .. } | Node::SingletonClassNode { .. }
-        )
-    }) || file.exception_safety(root).changed()
-    {
-        return None;
-    }
+/// RuboCop's corrector for the explicit style.
+fn correction(offset: usize) -> Option<crate::offense::Correction> {
     Some(crate::offense::Correction {
         range: offset..offset,
         replacement: " StandardError".into(),
@@ -138,25 +122,6 @@ mod tests {
             ),
         ] {
             assert_correction(&RescueStandardError, before, after);
-        }
-    }
-
-    #[test]
-    fn uncertain_constant_bindings_keep_every_offense_without_edits() {
-        for source in [
-            "module Existing; begin; rescue; end; end",
-            "class Existing; def f; work; rescue; end; end",
-            "class Existing < Base; def f; work; rescue; end; end",
-            "class << object; def f; work; rescue; end; end",
-            "StandardError = Exception; begin; rescue; end",
-            "Object.const_set(:StandardError, Exception); begin; rescue; end",
-            "require 'changes'; begin; rescue; end",
-            "autoload :StandardError, 'errors'; begin; rescue; end",
-            "def change; Object.const_set(:StandardError, Exception); end; begin; rescue; end",
-        ] {
-            let found = correction_offenses(&RescueStandardError, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
 

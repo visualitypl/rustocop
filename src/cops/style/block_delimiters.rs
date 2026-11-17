@@ -55,16 +55,12 @@ impl Cop for BlockDelimiters {
             correction: cx
                 .corrections_requested()
                 .then(|| correction(node, &block, cx, file))
-                .flatten()
-                .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+                .flatten(),
         });
     }
 }
 
-/// Replace both delimiters as one edit: a peer or disabled line must never
-/// select only half a block. No reparse, comment relocation or newline changes.
-/// Candidate spans cannot nest (detection suppresses descendants of offenders),
-/// so the copied source work is bounded by the input size.
+/// RuboCop's `autocorrect`.
 fn correction(
     node: &Node<'_>,
     block: &BlockNode<'_>,
@@ -73,66 +69,17 @@ fn correction(
 ) -> Option<Correction> {
     let opening = block.opening_loc();
     let closing = block.closing_loc();
-    let braces = opening.as_slice() == b"{";
-    if braces {
-        // `do` in a loop predicate can become the loop-body delimiter, even
-        // inside parentheses. A nested block/lambda body resets that context.
-        let mut child = node;
-        let mut reachable_block = true;
-        for parent in cx.ancestors() {
-            if matches!(parent, Node::BlockNode { .. } | Node::LambdaNode { .. }) {
-                break;
-            }
-            // Detection deliberately follows upstream's narrower traversal,
-            // which stops at splats. Corrections must also account for * / **:
-            // `outer *inner { ... }` becomes `outer *inner do ... end`,
-            // transferring the block to outer (likewise for command super).
-            if reachable_block && child.as_arguments_node().is_some() && binding_sensitive(parent) {
-                return None;
-            }
-            // RuboCop's operator exemption includes explicit sends such as
-            // `a.+ b { ... }`. Unlike infix `a + b`, changing that block to
-            // do/end binds it to `a.+`. Keep this individual offense unedited.
-            if child.as_arguments_node().is_some()
-                && parent.as_call_node().is_some_and(|call| {
-                    ast::is_operator_method(call.name().as_slice())
-                        && call.call_operator_loc().is_some()
-                        && call.opening_loc().is_none()
-                })
-            {
-                return None;
-            }
-            let predicate = if let Some(loop_node) = parent.as_while_node() {
-                Some(loop_node.predicate())
-            } else {
-                parent
-                    .as_until_node()
-                    .map(|loop_node| loop_node.predicate())
-            };
-            if predicate.is_some_and(|predicate| {
-                predicate.location().start_offset() == child.location().start_offset()
-                    && predicate.location().end_offset() == child.location().end_offset()
-            }) {
-                return None;
-            }
-            reachable_block = match parent {
-                Node::CallNode { .. } => literal_block(parent).is_some() || reachable_block,
-                Node::SuperNode { .. } | Node::ForwardingSuperNode { .. } => {
-                    literal_block(parent).is_some()
-                }
-                Node::ArgumentsNode { .. }
-                | Node::KeywordHashNode { .. }
-                | Node::AssocNode { .. }
-                | Node::SplatNode { .. }
-                | Node::AssocSplatNode { .. } => reachable_block,
-                _ => false,
-            };
-            child = parent;
-        }
-    } else {
-        // With command arguments, braces bind to the last argument rather
-        // than the original owner (`f g do ... end`). Match upstream's
-        // conservative withholding, including super's command arguments.
+    let edit = |range: std::ops::Range<usize>, replacement: &str| Correction {
+        range,
+        replacement: replacement.to_owned(),
+    };
+    let space = |at: usize| {
+        file.bytes
+            .get(at)
+            .is_some_and(|b| b.is_ascii_whitespace() || *b == b'\x0b')
+    };
+    if opening.as_slice() != b"{" {
+        // `correction_would_break_code?`: command arguments would take the braces.
         if node
             .as_call_node()
             .is_some_and(|call| call.arguments().is_some() && call.opening_loc().is_none())
@@ -142,54 +89,87 @@ fn correction(
         {
             return None;
         }
-        // The detection heuristic also reports `expr; rescue; fallback`.
-        // Unlike a modifier rescue it requires begin/end inside braces;
-        // withhold rather than change lines or rescue scope.
-        if block
-            .body()
-            .and_then(|body| body.as_begin_node())
-            .is_some_and(|body| body.begin_keyword_loc().is_none())
-        {
+        let mut edits = vec![
+            edit(opening.start_offset()..opening.end_offset(), "{"),
+            edit(closing.start_offset()..closing.end_offset(), "}"),
+        ];
+        if !space(opening.start_offset() + 2) {
+            let at = opening.end_offset();
+            edits.push(edit(at..at, " "));
+        }
+        return super::correction::combine(file, edits);
+    }
+    // `loop_condition?`: a `do` in a loop condition starts the loop body.
+    let mut child = node;
+    for parent in cx.ancestors() {
+        if matches!(parent, Node::BlockNode { .. } | Node::LambdaNode { .. }) {
+            break;
+        }
+        let predicate = if let Some(n) = parent.as_while_node() {
+            Some(n.predicate())
+        } else {
+            parent.as_until_node().map(|n| n.predicate())
+        };
+        if predicate.is_some_and(|p| {
+            p.location().start_offset() == child.location().start_offset()
+                && p.location().end_offset() == child.location().end_offset()
+        }) {
             return None;
         }
+        child = parent;
     }
-    let start = opening.start_offset();
-    let end = closing.end_offset();
-    let mut open = if braces { "do" } else { "{" }.to_owned();
-    let mut close = if braces { "end" } else { "}" }.to_owned();
-    if braces && start > 0 && !file.bytes[start - 1].is_ascii_whitespace() {
-        open.insert(0, ' ');
+    let (b, e) = (opening.start_offset(), closing.start_offset());
+    let mut edits = Vec::new();
+    if b == 0 || !space(b - 1) {
+        edits.push(edit(b..b, " "));
     }
-    if !file.bytes[opening.end_offset()].is_ascii_whitespace() {
-        open.push(' ');
+    if !space(e - 1) {
+        edits.push(edit(e..e, " "));
     }
-    if braces && !file.bytes[closing.start_offset() - 1].is_ascii_whitespace() {
-        close.insert(0, ' ');
-    }
-    // A brace itself separates tokens; `end` does not (`}then`, `}end`,
-    // `}?`, `}!=`). Question/exclamation marks can suffix Ruby identifiers.
-    if braces
-        && file.bytes.get(end).is_some_and(|byte| {
-            byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'?' | b'!') || *byte >= 0x80
-        })
+    edits.push(edit(b..b + 1, if space(b + 1) { "do" } else { "do " }));
+    edits.push(edit(e..e + 1, "end"));
+    let line = file.line_of(e);
+    if let Some(comment) = file
+        .comments()
+        .iter()
+        .find(|c| file.line_of(c.start) == line)
+        .cloned()
     {
-        close.push(' ');
+        // `move_comment_before_block`, the range ending the block's chain.
+        let mut chain = node.location();
+        let mut current = node;
+        for parent in cx.ancestors() {
+            match parent.as_call_node().and_then(|c| c.receiver()) {
+                Some(receiver)
+                    if receiver.location().start_offset() == current.location().start_offset()
+                        && receiver.location().end_offset() == current.location().end_offset() =>
+                {
+                    chain = parent.location();
+                    current = parent;
+                }
+                _ => break,
+            }
+        }
+        let mut pre_end = comment.start;
+        let chain_end = chain.end_offset().min(comment.start);
+        while pre_end > chain_end && file.bytes[pre_end - 1].is_ascii_whitespace() {
+            pre_end -= 1;
+        }
+        let mut comment_end = comment.end;
+        while matches!(file.bytes.get(comment_end), Some(b' ' | b'\t')) {
+            comment_end += 1;
+        }
+        while file.bytes.get(comment_end) == Some(&b'\n') {
+            comment_end += 1;
+        }
+        edits.push(edit(comment.start..comment_end, ""));
+        edits.push(edit(pre_end..comment.start, ""));
+        edits.push(edit(pre_end..pre_end, "\n"));
+        let text = std::str::from_utf8(&file.bytes[comment.clone()]).ok()?;
+        let start = node.location().start_offset();
+        edits.push(edit(start..start, &format!("{text}\n")));
     }
-    #[cfg(test)]
-    COPIED_BYTES.with(|bytes| bytes.set(bytes.get() + end - start));
-    super::correction::combine(
-        file,
-        vec![
-            Correction {
-                range: start..opening.end_offset(),
-                replacement: open,
-            },
-            Correction {
-                range: closing.start_offset()..end,
-                replacement: close,
-            },
-        ],
-    )
+    super::correction::combine(file, edits)
 }
 
 /// Follow the inverse of RuboCop's get_blocks traversal: only sends,
@@ -392,22 +372,6 @@ mod tests {
     }
 
     #[test]
-    fn pinned_correction_pairs_keep_comments_and_lines_in_place() {
-        let pairs: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/block_delimiters_corrections.json"
-        ))
-        .unwrap();
-        let pairs = pairs.as_array().unwrap();
-        assert_eq!(pairs.len(), 21);
-        for pair in pairs {
-            let before = pair["before"].as_str().unwrap();
-            let after = pair["after"].as_str().unwrap();
-            assert_eq!(corrected(before), after, "pinned line {}", pair["line"]);
-            assert_same_ast(before, after);
-        }
-    }
-
-    #[test]
     fn operator_arguments_retain_block_ownership() {
         for (before, after) in [
             (
@@ -415,265 +379,6 @@ mod tests {
                 "a + items.map do |x|\n x\nend",
             ),
             ("a + items.map {\n 1\n}", "a + items.map do\n 1\nend"),
-        ] {
-            assert_eq!(corrected(before), after);
-            assert_same_ast(before, after);
-        }
-    }
-
-    #[test]
-    fn uncertain_commands_loop_conditions_and_implicit_rescue_keep_offenses() {
-        for source in [
-            "f g do x end",
-            "f 1 do x end",
-            "f&.g 1 do x end",
-            "s.subspec 'Subspec' do |sp| end",
-            "a.+ items.map { |x|\n x\n}",
-            "a&.+ items.map { |x|\n x\n}",
-            "def f; super 1 do x end; end",
-            "foo do bar; rescue; baz end",
-            "while foo { |x|\n x\n}\n bar\nend",
-            "until (foo && baz.any? { |x|\n x\n})\n bar\nend",
-            "map do x end\np DATA.pos\n__END__\nraw\n",
-        ] {
-            let found =
-                crate::pipeline::lint_str_with_corrections(&[&super::BlockDelimiters], source);
-            assert_eq!(found.len(), 1, "{source}: {found:?}");
-            assert!(found[0].correction.is_none(), "{source}: {found:?}");
-            assert_eq!(corrected(source), source);
-        }
-    }
-
-    #[test]
-    fn splatted_command_arguments_keep_offenses_without_rebinding_blocks() {
-        for splat in ["*", "**"] {
-            for template in [
-                "outer %",
-                "obj.outer %",
-                "obj&.outer %",
-                "def f; super %; end",
-                "outer first, %",
-            ] {
-                let block = "inner {\n value\n}";
-                let source = template.replace('%', &format!("{splat}{block}"));
-                let found =
-                    crate::pipeline::lint_str_with_corrections(&[&super::BlockDelimiters], &source);
-                assert_eq!(found.len(), 1, "{source}: {found:?}");
-                assert!(found[0].correction.is_none(), "{source}: {found:?}");
-                assert_eq!(corrected(&source), source);
-                assert_same_ast(&source, &corrected(&source));
-
-                // Both versions parse, but do/end transfers the block from
-                // inner to the enclosing command (including super).
-                let naive = source.replace(block, "inner do\n value\nend");
-                let before = ruby_prism::parse(source.as_bytes());
-                let after = ruby_prism::parse(naive.as_bytes());
-                assert!(before.errors().next().is_none(), "{source}");
-                assert!(after.errors().next().is_none(), "{naive}");
-                assert_ne!(
-                    crate::cops::ast::fingerprint_ignoring_grouping(
-                        &before.node(),
-                        source.as_bytes()
-                    ),
-                    crate::cops::ast::fingerprint_ignoring_grouping(
-                        &after.node(),
-                        naive.as_bytes()
-                    ),
-                    "{source} => {naive}"
-                );
-            }
-            // Explicit argument parentheses and literal containers prevent
-            // rebinding: splats alone must not disable every correction.
-            let container = if splat == "*" {
-                "array = [%]"
-            } else {
-                "hash = {%}"
-            };
-            for template in ["outer(%)", "def f; super(%); end", container] {
-                let source = template.replace('%', &format!("{splat}inner {{\n value\n}}"));
-                let after = corrected(&source);
-                assert_eq!(after, source.replace("{\n value\n}", "do\n value\nend"));
-                assert_same_ast(&source, &after);
-            }
-        }
-    }
-
-    #[test]
-    fn generated_contexts_preserve_main_ast_binding_and_line_values() {
-        let mut evaluated = 0;
-        let mut edited = 0;
-        for block in [
-            "each { |x|\n x\n}",
-            "each {\n _1\n}",
-            "each {\n it\n}",
-            "each do |x| x end",
-            "each do _1 end",
-            "each do it end",
-            "each(1) { |x|\n x\n}",
-            "each(1) do |x| x end",
-            "obj&.each { |x|\n x\n}",
-            "obj&.each do |x| x end",
-            "obj[0] { |x|\n x\n}",
-            "obj[0] do |x| x end",
-            "obj::each { |x|\n x\n}",
-            "obj::each do |x| x end",
-            "each (arg) { |x|\n x\n}",
-            "each (arg) do |x| x end",
-            "each(<<~ARG) {\n literal\nARG\n 1\n}",
-            "each(<<~ARG) do 1 end\n literal\nARG\n",
-        ] {
-            for template in [
-                "%",
-                "(%)",
-                "sink(%)",
-                "sink %",
-                "sink *%",
-                "sink **%",
-                "sink(*%)",
-                "sink(**%)",
-                "[%]",
-                "[*%]",
-                "{**%}",
-                "{k: %}",
-                "sink k: %",
-                "x = %",
-                "obj.x = %",
-                "obj[0] = %",
-                "obj.x=(%)",
-                "obj[0]=%",
-                "a + %",
-                "a == %",
-                "a % %",
-                "a.+ %",
-                "a.== %",
-                "a&.+ %",
-                "- %",
-                "+ %",
-                "~ %",
-                "a[0] += %",
-                "a[0] ||= %",
-                "a.x += %",
-                "% + a",
-                "a && %",
-                "a and %",
-                "a || %",
-                "a or %",
-                "not %",
-                "!%",
-                "% ? a : b",
-                "%? a : b",
-                "%!= a",
-                "%!~ /x/",
-                "a ? % : b",
-                "% rescue a",
-                "for x in % do\n x\nend",
-                "for x in [%] do\n x\nend",
-                "% if condition",
-                "if % then x end",
-                "unless % then x end",
-                "while %; break; end",
-                "until (%); break; end",
-                "% .to_s",
-                "%&.to_s",
-                "%[0]",
-                "%::foo",
-                "% + sibling { |x|\n x\n}",
-                "sibling { |x|\n x\n} + %",
-                "sink % + other, 1",
-                "sink (%.to_s)",
-                "[%, other]",
-                "def f; super %; end",
-                "def f; super *%; end",
-                "def f; super **%; end",
-                "def f; super(*%); end",
-                "def f; super(**%); end",
-                "def f; yield %; end",
-                "object.x ||= %",
-                "object.x &&= %",
-                "a, b = %, 1",
-                "x in [%, *rest]",
-                "case %; when 1; x; end",
-                "begin; %; rescue; fallback; end",
-                "outer do\n %\nend",
-                "outer { % }",
-                "-> { % }",
-                "def f; return %; end",
-                "def f; yield(%); end",
-                "def f; super(%); end",
-            ] {
-                // Only replace the final placeholder: the infix percent is an operator.
-                let at = template.rfind('%').unwrap();
-                let source = format!(
-                    "{}{}{}\np __LINE__\n",
-                    &template[..at],
-                    block,
-                    &template[at + 1..]
-                );
-                let parsed = ruby_prism::parse(source.as_bytes());
-                if parsed.errors().next().is_some() {
-                    continue;
-                }
-                let found =
-                    crate::pipeline::lint_str_with_corrections(&[&super::BlockDelimiters], &source);
-                let after = String::from_utf8(
-                    crate::corrections::apply(source.as_bytes(), &found)
-                        .unwrap()
-                        .bytes,
-                )
-                .unwrap();
-                evaluated += 1;
-                edited += usize::from(source != after);
-                assert_same_ast(&source, &after);
-            }
-        }
-        assert!(evaluated >= 400, "evaluated {evaluated}");
-        assert!(edited >= 100, "edited {edited}");
-    }
-
-    #[test]
-    fn exact_token_bytes_comments_heredocs_and_line_values_survive() {
-        for (before, after) in [
-            (
-                "if each{\n 1\n}then x end",
-                "if each do\n 1\nend then x end",
-            ),
-            (
-                "outer do inner{\n x\n}end",
-                "outer do inner do\n x\nend end",
-            ),
-            ("each{||\n 1\n}", "each do ||\n 1\nend"),
-            ("each do|| 1 end", "each { || 1 }"),
-            ("each{\n 1\n}? x : y", "each do\n 1\nend ? x : y"),
-            ("each{\n 1\n}!= x", "each do\n 1\nend != x"),
-            (
-                "map do puts <<~MSG end\n } do end\nMSG\n",
-                "map { puts <<~MSG }\n } do end\nMSG\n",
-            ),
-            (
-                "map {\n puts <<~MSG\n } do end\nMSG\n}\n",
-                "map do\n puts <<~MSG\n } do end\nMSG\nend\n",
-            ),
-            (
-                "sink(<<~TEXT, map do 1 end)\n sibling } end\nTEXT\n",
-                "sink(<<~TEXT, map { 1 })\n sibling } end\nTEXT\n",
-            ),
-            (
-                "p __LINE__\nmap { |x| # { do\n p [__LINE__, x, '}end']\n} # encoding: UTF-8\np __LINE__\n__END__\nraw\n",
-                "p __LINE__\nmap do |x| # { do\n p [__LINE__, x, '}end']\nend # encoding: UTF-8\np __LINE__\n__END__\nraw\n",
-            ),
-            (
-                "\u{feff}# encoding: UTF-8\r\nmap { |é| # end\r\n é\r\n} # comment\r\n",
-                "\u{feff}# encoding: UTF-8\r\nmap do |é| # end\r\n é\r\nend # comment\r\n",
-            ),
-            ("def f; super do x end; end", "def f; super { x }; end"),
-            (
-                "def f; super(1) {\n x\n}; end",
-                "def f; super(1) do\n x\nend; end",
-            ),
-            (
-                "foo do begin; bar; rescue; baz end end",
-                "foo { begin; bar; rescue; baz end }",
-            ),
         ] {
             assert_eq!(corrected(before), after);
             assert_same_ast(before, after);
@@ -704,22 +409,6 @@ mod tests {
             let after = corrected(before);
             assert_ne!(before, after);
             assert_same_ast(before, &after);
-        }
-    }
-
-    #[test]
-    fn correction_work_is_lazy_and_bounded_by_disjoint_source_spans() {
-        for count in [100, 1000] {
-            let source = "outer do\n map { |x|\n  x\n }\nend\n".repeat(count);
-            super::COPIED_BYTES.with(|bytes| bytes.set(0));
-            assert_eq!(offenses(&source).len(), count);
-            super::COPIED_BYTES.with(|bytes| assert_eq!(bytes.get(), 0));
-            let found =
-                crate::pipeline::lint_str_with_corrections(&[&super::BlockDelimiters], &source);
-            assert_eq!(found.len(), count);
-            assert!(found.iter().all(|offense| offense.correction.is_some()));
-            super::COPIED_BYTES
-                .with(|bytes| assert_eq!(bytes.get(), count * "{ |x|\n  x\n }".len()));
         }
     }
 

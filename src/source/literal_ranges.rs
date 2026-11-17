@@ -109,7 +109,6 @@ pub(super) struct PunctuationRanges {
     pub heredoc_subtrees: HashSet<(usize, usize)>,
     /// Removing a surrounding hash delimiter must not rebind a do/end block.
     /// Exact subtree ownership, collected in this same shared token walk.
-    pub keyword_block_subtrees: HashSet<(usize, usize)>,
     /// Sorted real opener offsets, including heredocs owned by sibling nodes.
     pub heredoc_openings: Vec<usize>,
     pub heredocs: Vec<Heredoc>,
@@ -130,7 +129,6 @@ fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> Punct
         embedded_ends: HashMap::new(),
         definition_ends: HashMap::new(),
         heredoc_subtrees: HashSet::new(),
-        keyword_block_subtrees: HashSet::new(),
         heredoc_openings: Vec::new(),
         heredocs: Vec::new(),
     };
@@ -176,7 +174,6 @@ fn collect_inner(file: &SourceFile, root: &Node<'_>, punctuation: bool) -> Punct
         percent_array_separators: collector.percent_array_separators,
         definition_ends: collector.definition_ends,
         heredoc_subtrees: collector.heredoc_subtrees,
-        keyword_block_subtrees: collector.keyword_block_subtrees,
         heredoc_openings: collector.heredoc_openings,
         heredocs: collector.heredocs,
     }
@@ -204,7 +201,6 @@ struct Collector<'a, 'pr> {
     embedded_ends: HashMap<usize, usize>,
     definition_ends: HashMap<usize, usize>,
     heredoc_subtrees: HashSet<(usize, usize)>,
-    keyword_block_subtrees: HashSet<(usize, usize)>,
     heredoc_openings: Vec<usize>,
     heredocs: Vec<Heredoc>,
 }
@@ -215,7 +211,6 @@ struct SubtreeExtent {
     embedded_start: Option<usize>,
     definition_start: Option<usize>,
     has_heredoc: bool,
-    has_keyword_block: bool,
 }
 
 impl<'pr> Collector<'_, 'pr> {
@@ -410,9 +405,6 @@ impl<'pr> NodeVisitor<'pr> for Collector<'_, 'pr> {
                 ))
             .then(|| location.start_offset()),
             has_heredoc: false,
-            has_keyword_block: node
-                .as_block_node()
-                .is_some_and(|b| b.opening_loc().as_slice() == b"do"),
         });
         match node {
             Node::StringNode { .. } => {
@@ -586,13 +578,9 @@ impl<'pr> NodeVisitor<'pr> for Collector<'_, 'pr> {
         if extent.has_heredoc {
             self.heredoc_subtrees.insert(extent.location);
         }
-        if extent.has_keyword_block {
-            self.keyword_block_subtrees.insert(extent.location);
-        }
         if let Some(parent) = self.extents.last_mut() {
             parent.end = parent.end.max(extent.end);
             parent.has_heredoc |= extent.has_heredoc;
-            parent.has_keyword_block |= extent.has_keyword_block;
         }
     }
 }

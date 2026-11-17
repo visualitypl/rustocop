@@ -85,156 +85,87 @@ fn report(
         .into(),
         correction: cx
             .corrections_requested()
-            .then(|| correction(node, message, compact, cx, file))
+            .then(|| correction(node, message, compact))
             .flatten(),
     });
 }
-// Removing a lazy non-String message changes coercion timing, and a dynamic
-// message may be nil (whose default message is the exception class name).
-// Correct only actual String literals; interpolations can run arbitrary code.
+/// RuboCop's corrector.
 fn correction(
     node: &Node<'_>,
     message: &Node<'_>,
     compact: bool,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
-    message.as_string_node()?;
     let call = node.as_call_node()?;
-    if call.block().is_some() {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    // Reopened lexical namespaces and inherited constants may resolve to a
-    // different RuntimeError even with no declaration in this source file.
-    if cx.ancestors().any(|ancestor| {
-        matches!(
-            ancestor,
-            Node::ClassNode { .. } | Node::ModuleNode { .. } | Node::SingletonClassNode { .. }
-        )
-    }) || file.exception_safety(root).changed
-        || file.contains_heredoc(root, message)
-    {
-        return None;
-    }
+    let source = message_source(message)?;
     let args = ast::call_arguments(&call);
-    let range = if compact {
-        args[0].location().start_offset()..args[0].location().end_offset()
+    if compact {
+        let new = args.first()?.location();
+        return Some(crate::offense::Correction {
+            range: new.start_offset()..new.end_offset(),
+            replacement: source,
+        });
+    }
+    let command = std::str::from_utf8(call.name().as_slice()).ok()?;
+    let parenthesized = call.opening_loc().is_some_and(|o| o.as_slice() == b"(");
+    let arg = if parenthesized {
+        format!("({source})")
     } else {
-        args[0].location().start_offset()..message.location().end_offset()
+        format!(" {source}")
     };
-    if super::correction::contains_comment(file, range.clone()) {
-        return None;
-    }
-    let text = std::str::from_utf8(message.location().as_slice()).ok()?;
-    let correction = crate::offense::Correction {
-        range,
-        replacement: text.into(),
-    };
-    // Keeping all physical newlines protects backtraces, rescue/ensure source
-    // locations, __LINE__, CRLF and neighboring directives without reparsing.
-    let old = &file.bytes[correction.range.clone()];
-    (memchr::memchr_iter(b'\n', old).count() == memchr::memchr_iter(b'\n', text.as_bytes()).count())
-        .then_some(correction)
+    let loc = node.location();
+    Some(crate::offense::Correction {
+        range: loc.start_offset()..ast::source_end(node),
+        replacement: format!("{command}{arg}"),
+    })
 }
 
-/// One lazy complete main-AST binding walk, shared by every candidate.
-#[derive(Default)]
-pub(crate) struct Safety {
-    changed: bool,
-    #[cfg(test)]
-    pub(crate) visits: usize,
+/// RuboCop's `message_source`.
+fn message_source(message: &Node<'_>) -> Option<String> {
+    let source = std::str::from_utf8(message.location().as_slice()).ok()?;
+    let string = matches!(
+        message,
+        Node::StringNode { .. }
+            | Node::InterpolatedStringNode { .. }
+            | Node::XStringNode { .. }
+            | Node::InterpolatedXStringNode { .. }
+            | Node::SourceFileNode { .. }
+    );
+    Some(if string {
+        source.to_owned()
+    } else if require_parentheses(message) {
+        format!("({source}).to_s")
+    } else {
+        format!("{source}.to_s")
+    })
 }
-impl Safety {
-    /// Whether exception constant/method binding may have changed in this source.
-    pub(crate) fn changed(&self) -> bool {
-        self.changed
-    }
 
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut facts = Self::default();
-        crate::cops::walk::walk(&mut facts, root);
-        facts
+fn require_parentheses(message: &Node<'_>) -> bool {
+    if let Some(call) = message.as_call_node()
+        && !call.block().is_some_and(|b| b.as_block_node().is_some())
+    {
+        let name = call.name().as_slice();
+        return name != b"[]"
+            && (ast::is_operator_method(name)
+                || (!ast::call_arguments(&call).is_empty()
+                    && !call.opening_loc().is_some_and(|o| o.as_slice() == b"(")));
     }
-}
-impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Safety {
-    fn enter(&mut self, node: Node<'pr>) {
-        #[cfg(test)]
-        {
-            self.visits += 1;
-        }
-        self.changed |= matches!(
-            node,
-            Node::ConstantWriteNode { .. }
-                | Node::ConstantPathWriteNode { .. }
-                | Node::ConstantAndWriteNode { .. }
-                | Node::ConstantOrWriteNode { .. }
-                | Node::ConstantOperatorWriteNode { .. }
-                | Node::ConstantPathAndWriteNode { .. }
-                | Node::ConstantPathOrWriteNode { .. }
-                | Node::ConstantPathOperatorWriteNode { .. }
-                | Node::ConstantTargetNode { .. }
-                | Node::ConstantPathTargetNode { .. }
-                | Node::AliasMethodNode { .. }
-                | Node::UndefNode { .. }
-        );
-        if let Some(class) = node.as_class_node() {
-            self.changed |= class.superclass().is_some();
-            self.changed |= ast::const_name(&class.constant_path()).is_none_or(|name| {
-                name.split("::").any(|part| {
-                    matches!(
-                        part,
-                        "RuntimeError"
-                            | "Exception"
-                            | "StandardError"
-                            | "Object"
-                            | "BasicObject"
-                            | "Class"
-                            | "Module"
-                            | "String"
-                    )
-                })
-            });
-        }
-        if let Some(module) = node.as_module_node() {
-            self.changed |= ast::const_name(&module.constant_path()).is_none_or(|name| {
-                name.split("::")
-                    .any(|part| matches!(part, "RuntimeError" | "Kernel" | "Object"))
-            });
-        }
-        if let Some(def) = node.as_def_node() {
-            self.changed |= matches!(
-                def.name().as_slice(),
-                b"raise"
-                    | b"fail"
-                    | b"new"
-                    | b"exception"
-                    | b"initialize"
-                    | b"to_s"
-                    | b"const_missing"
-                    | b"method_missing"
-                    | b"inherited"
-            );
-        }
-        if let Some(call) = node.as_call_node() {
-            self.changed |= crate::cops::code_object_safety::mutation(call.name().as_slice())
-                || matches!(
-                    call.name().as_slice(),
-                    b"eval"
-                        | b"class_eval"
-                        | b"module_eval"
-                        | b"instance_eval"
-                        | b"send"
-                        | b"__send__"
-                        | b"public_send"
-                        | b"method"
-                        | b"public_method"
-                        | b"instance_method"
-                        | b"singleton_method"
-                        | b"to_proc"
-                );
-        }
-    }
+    !(matches!(
+        message,
+        Node::IntegerNode { .. }
+            | Node::FloatNode { .. }
+            | Node::RationalNode { .. }
+            | Node::ImaginaryNode { .. }
+            | Node::SymbolNode { .. }
+            | Node::SourceLineNode { .. }
+            | Node::TrueNode { .. }
+            | Node::FalseNode { .. }
+            | Node::NilNode { .. }
+            | Node::ConstantReadNode { .. }
+            | Node::ConstantPathNode { .. }
+            | Node::SelfNode { .. }
+            | Node::ParenthesesNode { .. }
+            | Node::ArrayNode { .. }
+    ) || ast::is_variable(message))
 }
 
 #[cfg(test)]
@@ -268,69 +199,6 @@ mod tests {
                     crate::cops::testing::assert_correction(&RedundantException, &before, &after);
                 }
             }
-        }
-    }
-    #[test]
-    fn non_string_interpolation_blocks_comments_and_newlines_remain_unedited() {
-        for source in [
-            "raise RuntimeError, Object.new",
-            "raise RuntimeError.new(Object.new)",
-            "raise RuntimeError, msg",
-            "raise RuntimeError.new(a || b)",
-            "raise RuntimeError, 1 + 2",
-            "raise RuntimeError.new(foo.bar baz)",
-            "raise RuntimeError, !foo",
-            "raise RuntimeError, foo[1]",
-            "raise RuntimeError, `command`",
-            "raise RuntimeError, \"#{message}\"",
-            "raise RuntimeError, 'x' do; break :result; end",
-            "raise(RuntimeError, # retained\n'x')",
-            "raise RuntimeError.new(\n'x'\n)",
-            "raise RuntimeError, <<~MSG\n  hi\nMSG\n",
-        ] {
-            let found = correction_offenses(&RedundantException, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn binding_mutations_anywhere_withhold_only_the_edit() {
-        for binding in [
-            "RuntimeError = ArgumentError",
-            "module M; RuntimeError = ArgumentError; end",
-            "class RuntimeError; end",
-            "class Exception; end",
-            "module Kernel; end",
-            "def raise(*a); a; end",
-            "def self.fail(*a); a; end",
-            "def RuntimeError.new(*a); super; end",
-            "def RuntimeError.exception(*a); super; end",
-            "alias custom raise",
-            "Object.const_set(:RuntimeError, ArgumentError)",
-            "RuntimeError.class_eval('def initialize(*a); super; end')",
-            "RuntimeError.singleton_class.define_method(:exception) { |*a| ArgumentError.new }",
-            "module M; refine Exception do; def to_s; 'changed'; end; end; end",
-            "class A < Unknown; end",
-            "require 'changes'",
-            "public_send(:changes)",
-        ] {
-            let source = format!("{binding}\nraise RuntimeError, 'x'\n");
-            let found = correction_offenses(&RedundantException, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn reopened_lexical_and_inherited_namespaces_are_not_constant_resolution_proofs() {
-        for source in [
-            "module Existing; raise RuntimeError, 'x'; end",
-            "class Existing; def f; raise RuntimeError.new('x'); end; end",
-            "class Existing < Base; raise RuntimeError, 'x'; end",
-            "class << object; raise RuntimeError, 'x'; end",
-        ] {
-            let found = correction_offenses(&RedundantException, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
     }
     #[test]
@@ -383,41 +251,6 @@ mod tests {
         ] {
             crate::cops::testing::assert_correction(&RedundantException, before, after);
         }
-    }
-    #[test]
-    fn every_pinned_correction_is_canonical_or_an_individual_safety_hold() {
-        let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
-            "../../../tests/fixtures/redundant_exception_pinned.json"
-        ))
-        .unwrap();
-        let (mut fixed, mut withheld) = (0, 0);
-        for case in cases {
-            let Some(after) = case["correction"].as_str() else {
-                continue;
-            };
-            let before = case["source"].as_str().unwrap();
-            let offenses = correction_offenses(&RedundantException, before);
-            assert_eq!(offenses.len(), 1);
-            if offenses[0].correction.is_some() {
-                crate::cops::testing::assert_correction(&RedundantException, before, after);
-                fixed += 1;
-            } else {
-                assert!(
-                    before.contains("#{message}")
-                        || before.contains("`command`")
-                        || before.contains("Object.new")
-                        || before.contains("variable")
-                        || before.contains("1 + 2")
-                        || before.contains("a || b")
-                        || before.contains("foo.bar baz")
-                        || before.contains("!foo")
-                        || before.contains("foo[1]"),
-                    "unexplained hold: {before}"
-                );
-                withheld += 1;
-            }
-        }
-        assert_eq!((fixed, withheld), (16, 11));
     }
     #[test]
     fn all_applicable_pinned_diagnostics() {

@@ -1,9 +1,6 @@
 //! `Style/IfWithSemicolon` — semicolon-delimited conditional headers.
 use crate::{
-    cops::{
-        Cop, NodeContext, ast, variables,
-        walk::{NodeVisitor, walk},
-    },
+    cops::{Cop, NodeContext, ast, variables},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -62,7 +59,7 @@ impl Cop for IfWithSemicolon {
             end_line: file.last_line_of(loc),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(node, &parts, cx, file))
+                .then(|| correction(node, &parts, cx))
                 .flatten(),
         });
     }
@@ -154,113 +151,46 @@ fn nested_else(p: &Parts<'_>) -> bool {
                 .any(|n| n.as_if_node().is_some() || n.as_unless_node().is_some())
     })
 }
-const REWRITE_BUDGET: usize = 16 * 1024;
 fn text<'pr>(node: &Node<'pr>) -> Option<&'pr str> {
     std::str::from_utf8(node.location().as_slice()).ok()
 }
-fn correction(
-    node: &Node<'_>,
-    p: &Parts<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
+/// RuboCop's `autocorrect`.
+fn correction(node: &Node<'_>, p: &Parts<'_>, cx: &NodeContext<'_, '_>) -> Option<Correction> {
     let loc = node.location();
-    let range = loc.start_offset()..loc.end_offset();
-    if range.len() > REWRITE_BUDGET || super::correction::touches_directive(file, range.clone()) {
-        return None;
-    }
-    let lines = file.line_start(file.line_of(range.start))
-        ..file.line_start(file.line_of(range.end.saturating_sub(1)) + 1);
-    if super::correction::contains_comment(file, lines) {
-        return None;
-    }
-    let root = cx.ancestors().next_back()?;
-    if file.contains_heredoc(root, node) || file.heredoc_pending_at(root, range.start) {
-        return None;
-    }
-    #[cfg(test)]
-    REWRITE_BYTES.with(|n| n.set(n.get() + range.len()));
     let newline_only = newline(p.body.as_ref())
         || newline(p.other_body().as_ref())
         || special(p.body.as_ref())
-        || special(p.other_body().as_ref())
-        || nested_else(p);
-    let end = file.line_start(file.line_of(p.semi) + 1);
-    let nl = if file.bytes.get(end.saturating_sub(2)..end) == Some(b"\r\n") {
-        "\r\n"
-    } else {
-        "\n"
-    };
-    let edit = if newline_only {
-        Correction {
+        || special(p.other_body().as_ref());
+    if newline_only {
+        return Some(Correction {
             range: p.semi..p.semi + 1,
-            replacement: nl.to_owned(),
-        }
+            replacement: "\n".into(),
+        });
+    }
+    let replacement = if else_is_conditional(node) {
+        elsif_replacement(node)?
     } else {
-        struct Hazards {
-            reorder: bool,
-            unsafe_edit: bool,
-        }
-        impl<'pr> NodeVisitor<'pr> for Hazards {
-            fn enter(&mut self, n: Node<'pr>) {
-                self.unsafe_edit |= matches!(
-                    n,
-                    Node::BreakNode { .. }
-                        | Node::NextNode { .. }
-                        | Node::RetryNode { .. }
-                        | Node::RedoNode { .. }
-                        | Node::DefNode { .. }
-                        | Node::ClassNode { .. }
-                        | Node::ModuleNode { .. }
-                        | Node::SingletonClassNode { .. }
-                ) || (self.reorder
-                    && (variables::is_local_assignment(&n)
-                        || matches!(
-                            n,
-                            Node::MatchWriteNode { .. }
-                                | Node::MatchPredicateNode { .. }
-                                | Node::MatchRequiredNode { .. }
-                        )))
-                    || n.as_call_node()
-                        .is_some_and(|c| c.block().is_some_and(|b| b.as_block_node().is_some()));
-            }
-        }
-        let mut hazards = Hazards {
-            reorder: p.unless,
-            unsafe_edit: false,
-        };
-        walk(&mut hazards, node);
-        if hazards.unsafe_edit {
-            return None;
-        }
-        let replacement = if p.other.as_ref().is_some_and(|n| n.as_if_node().is_some()) {
-            elsif_replacement(p, nl)?
+        let condition = if assignment(&p.predicate) {
+            format!("({})", text(&p.predicate)?)
         } else {
-            let condition = if assignment(&p.predicate) {
-                format!("({})", text(&p.predicate)?)
-            } else {
-                operand(&p.predicate)?
-            };
-            let mut yes = branch(p.body.as_ref())?;
-            let mut no = branch(p.other_body().as_ref())?;
-            if p.unless {
-                std::mem::swap(&mut yes, &mut no);
-            }
-            let ternary = format!("{condition} ? {yes} : {no}");
-            if operand_parent(node, cx) {
-                format!("({ternary})")
-            } else {
-                ternary
-            }
+            operand(&p.predicate)?
         };
-        if text(node)?.contains("__LINE__") && text(node)?.contains('\n') {
-            return None;
+        let mut yes = branch(p.body.as_ref())?;
+        let mut no = branch(p.other_body().as_ref())?;
+        if p.unless {
+            std::mem::swap(&mut yes, &mut no);
         }
-        Correction { range, replacement }
+        let ternary = format!("{condition} ? {yes} : {no}");
+        if operand_parent(node, cx) {
+            format!("({ternary})")
+        } else {
+            ternary
+        }
     };
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit))
-    .then_some(edit)
+    Some(Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement,
+    })
 }
 fn branch(body: Option<&StatementsNode<'_>>) -> Option<String> {
     match body.and_then(|s| s.body().iter().next()) {
@@ -300,10 +230,11 @@ fn assignment(n: &Node<'_>) -> bool {
                 | Node::IndexOperatorWriteNode { .. }
                 | Node::MultiWriteNode { .. }
         )
-        || n.as_call_node().is_some_and(|c| c.equal_loc().is_some())
 }
+/// RuboCop's `require_argument_parentheses?`.
 fn command(call: &ruby_prism::CallNode<'_>) -> bool {
-    call.opening_loc().is_none()
+    !call.block().is_some_and(|b| b.as_block_node().is_some())
+        && call.opening_loc().is_none()
         && (call.arguments().is_some()
             || call
                 .block()
@@ -312,7 +243,6 @@ fn command(call: &ruby_prism::CallNode<'_>) -> bool {
             call.name().as_slice(),
             b"+" | b"-" | b"*" | b"/" | b"%" | b"**" | b"[]" | b"[]="
         )
-        && call.equal_loc().is_none()
 }
 fn lower(n: &Node<'_>) -> bool {
     matches!(
@@ -324,11 +254,8 @@ fn lower(n: &Node<'_>) -> bool {
             | Node::UntilNode { .. }
             | Node::MatchPredicateNode { .. }
             | Node::MatchRequiredNode { .. }
-    ) || n
-        .as_and_node()
-        .is_some_and(|n| n.operator_loc().as_slice() == b"and")
-        || n.as_or_node()
-            .is_some_and(|n| n.operator_loc().as_slice() == b"or")
+    ) || n.as_and_node().is_some()
+        || n.as_or_node().is_some()
         || n.as_call_node().is_some_and(|c| {
             c.name().as_slice() == b"!"
                 && (c.message_loc().is_some_and(|l| l.as_slice() == b"not")
@@ -352,12 +279,10 @@ fn operand(n: &Node<'_>) -> Option<String> {
         && command(&c)
     {
         let first = ast::call_arguments(&c).into_iter().next()?;
-        let start = first.location().start_offset() - n.location().start_offset();
-        return Some(format!(
-            "{}({})",
-            source[..start].trim_end(),
-            &source[start..]
-        ));
+        let base = n.location().start_offset();
+        let start = first.location().start_offset() - base;
+        let selector = c.message_loc()?.end_offset() - base;
+        return Some(format!("{}({})", &source[..selector], &source[start..]));
     }
     Some(source.to_owned())
 }
@@ -374,10 +299,7 @@ fn operand_parent(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
         };
         parent = n;
     }
-    if parent.as_and_node().is_some()
-        || parent.as_or_node().is_some()
-        || parent.as_range_node().is_some()
-    {
+    if parent.as_and_node().is_some() || parent.as_or_node().is_some() {
         return true;
     }
     parent.as_call_node().is_some_and(|c| {
@@ -390,32 +312,68 @@ fn operand_parent(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
                 && !matches!(c.name().as_slice(), b"[]" | b"[]="))
     })
 }
-fn elsif_replacement(p: &Parts<'_>, nl: &str) -> Option<String> {
-    let body = |b: Option<&StatementsNode<'_>>| -> Option<String> {
-        Some(
-            b.map(|s| std::str::from_utf8(s.location().as_slice()).map(str::to_owned))
-                .transpose()
-                .ok()?
-                .unwrap_or_default(),
-        )
-    };
-    let mut result = format!(
-        "if {}{nl}  {}{nl}",
-        text(&p.predicate)?,
-        body(p.body.as_ref())?
-    );
-    let mut next = p.other.as_ref().and_then(|n| n.as_if_node());
-    while let Some(n) = next {
-        result.push_str(&format!(
-            "elsif {}{nl}  {}{nl}",
-            text(&n.predicate())?,
-            body(n.statements().as_ref())?
-        ));
-        let other = n.subsequent();
-        if let Some(e) = other.as_ref().and_then(|n| n.as_else_node()) {
-            result.push_str(&format!("else{nl}  {}{nl}", body(e.statements().as_ref())?));
+/// A conditional's parts as rubocop-ast sees them: the else branch is
+/// another conditional when it is one (an `elsif`, or an else body that is a
+/// lone `if`/`unless`).
+enum Else<'pr> {
+    Conditional(Node<'pr>),
+    Body(StatementsNode<'pr>),
+}
+fn parts<'pr>(
+    n: &Node<'pr>,
+) -> Option<(Node<'pr>, Option<StatementsNode<'pr>>, Option<Else<'pr>>)> {
+    let lone = |body: StatementsNode<'pr>| {
+        let mut nodes = body.body().iter();
+        match (nodes.next(), nodes.next()) {
+            (Some(n), None) if n.as_if_node().is_some() || n.as_unless_node().is_some() => {
+                Else::Conditional(n)
+            }
+            _ => Else::Body(body),
         }
-        next = other.and_then(|n| n.as_if_node());
+    };
+    if let Some(c) = n.as_if_node() {
+        let other = c.subsequent().and_then(|o| {
+            if o.as_if_node().is_some() {
+                Some(Else::Conditional(o))
+            } else {
+                o.as_else_node()?.statements().map(lone)
+            }
+        });
+        return Some((c.predicate(), c.statements(), other));
+    }
+    let c = n.as_unless_node()?;
+    let other = c.else_clause().and_then(|e| e.statements()).map(lone);
+    Some((c.predicate(), c.statements(), other))
+}
+fn else_is_conditional(node: &Node<'_>) -> bool {
+    matches!(parts(node), Some((_, _, Some(Else::Conditional(_)))))
+}
+/// RuboCop's `correct_elsif` and `build_else_branch`.
+fn elsif_replacement(node: &Node<'_>) -> Option<String> {
+    let body = |b: Option<&StatementsNode<'_>>| -> Option<String> {
+        b.map_or(Some(String::new()), |s| {
+            std::str::from_utf8(s.location().as_slice())
+                .ok()
+                .map(str::to_owned)
+        })
+    };
+    let (predicate, statements, mut other) = parts(node)?;
+    let mut result = format!(
+        "if {}\n  {}\n",
+        text(&predicate)?,
+        body(statements.as_ref())?
+    );
+    while let Some(Else::Conditional(n)) = other {
+        let (predicate, statements, next) = parts(&n)?;
+        result.push_str(&format!(
+            "elsif {}\n  {}\n",
+            text(&predicate)?,
+            body(statements.as_ref())?
+        ));
+        if let Some(Else::Body(b)) = &next {
+            result.push_str(&format!("else\n  {}\n", body(Some(b))?));
+        }
+        other = next;
     }
     result.push_str("end");
     Some(result)
@@ -440,51 +398,6 @@ mod tests {
                 crate::pipeline::lint_str_with(&[&IfWithSemicolon], s).is_empty(),
                 "{s}"
             );
-        }
-    }
-    #[test]
-    fn escaped_header_continuation_and_nested_else_association() {
-        let source = "if ready \\\n; work end\n";
-        let found = crate::pipeline::lint_str_with(&[&IfWithSemicolon], source);
-        assert!(found.is_empty());
-        let source = "if outer; yes else unless inner; no else other end end\n";
-        let found = crate::cops::testing::correction_offenses(&IfWithSemicolon, source);
-        assert_eq!(found.len(), 1);
-        assert_eq!(
-            found[0].message,
-            "Do not use `if outer;` - use `if/else` instead."
-        );
-        crate::cops::testing::assert_correction(
-            &IfWithSemicolon,
-            source,
-            "if outer\n yes else unless inner; no else other end end\n",
-        );
-    }
-    #[test]
-    fn range_endpoints_keep_ternary_grouping() {
-        for operator in ["..", "..."] {
-            for condition in ["true", "false"] {
-                let before = format!("if {condition}; 2 else 3 end");
-                let after = format!("({condition} ? 2 : 3)");
-                for (before, after) in [
-                    (
-                        format!("{before}{operator}5"),
-                        format!("{after}{operator}5"),
-                    ),
-                    (
-                        format!("1{operator}{before}"),
-                        format!("1{operator}{after}"),
-                    ),
-                    (format!("{operator}{before}"), format!("{operator}{after}")),
-                    (format!("{before}{operator}"), format!("{after}{operator}")),
-                ] {
-                    crate::cops::testing::assert_correction(
-                        &IfWithSemicolon,
-                        &format!("p({before})\n"),
-                        &format!("p({after})\n"),
-                    );
-                }
-            }
         }
     }
     #[test]
@@ -518,34 +431,6 @@ mod tests {
         }
     }
     #[test]
-    fn crlf_elsif_copies_multiline_literal_bytes_without_transcoding_newlines() {
-        crate::cops::testing::assert_correction(
-            &IfWithSemicolon,
-            "if a; \"x\r\ny\" elsif b; \"z\" end\r\n",
-            "if a\r\n  \"x\r\ny\"\r\nelsif b\r\n  \"z\"\r\nend\r\n",
-        );
-    }
-    #[test]
-    fn block_pass_only_commands_keep_argument_binding() {
-        // Opaque block dispatch retains the shared source-observer barrier.
-        let found = crate::cops::testing::correction_offenses(
-            &IfWithSemicolon,
-            "block = nil; other = nil\nif cond; foo &block else bar &other end\n",
-        );
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-        crate::cops::testing::assert_correction(
-            &IfWithSemicolon,
-            "if cond; foo &:to_s else bar &:to_i end\n",
-            "cond ? foo(&:to_s) : bar(&:to_i)\n",
-        );
-        crate::cops::testing::assert_correction(
-            &IfWithSemicolon,
-            "if foo &:to_s; run end\n",
-            "foo(&:to_s) ? run : nil\n",
-        );
-    }
-    #[test]
     fn complex_assignment_conditions_keep_the_assigned_value() {
         for condition in [
             "@value ||= false",
@@ -558,61 +443,6 @@ mod tests {
             let after = format!("({condition}) ? :yes : :no\n");
             crate::cops::testing::assert_correction(&IfWithSemicolon, &before, &after);
         }
-    }
-    #[test]
-    fn individually_withholds_ambiguous_and_source_sensitive_edits() {
-        for s in [
-            "unless ready; x = 1 else x end\n",
-            "unless ready; /(?<x>a)/ =~ value else x end\n",
-            "loop { if ready; break value end }\n",
-            "loop { if ready; next value end }\n",
-            "if ready; work # keep association\nelse\n more\nend\n",
-            "if ready; work; more end\np __LINE__\n",
-            "if ready; DATA.pos else 0 end\n__END__\npayload\n",
-            "if ready; <<~TEXT else 0 end\nbody\nTEXT\n",
-            "if ready; work end # rubocop:disable Style/StringLiterals\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&IfWithSemicolon, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
-        }
-    }
-    #[test]
-    fn safe_source_envelopes_keep_literals_lines_and_payload() {
-        crate::cops::testing::assert_correction(
-            &IfWithSemicolon,
-            "\u{feff}# encoding: UTF-8\r\nif ready; \"é\\nvalue\" else :none end\r\np __LINE__\r\n__END__\r\nraw\r\n",
-            "\u{feff}# encoding: UTF-8\r\nready ? \"é\\nvalue\" : :none\r\np __LINE__\r\n__END__\r\nraw\r\n",
-        );
-        crate::cops::testing::assert_correction(
-            &IfWithSemicolon,
-            "if ready; work; more end\r\n",
-            "if ready\r\n work; more end\r\n",
-        );
-    }
-    #[test]
-    fn source_work_is_lazy_and_bounded() {
-        let s = "if ready; work else other end\n".repeat(3000);
-        REWRITE_BYTES.with(|n| n.set(0));
-        assert_eq!(
-            crate::pipeline::lint_str_with(&[&IfWithSemicolon], &s).len(),
-            3000
-        );
-        REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
-        assert!(
-            crate::cops::testing::correction_offenses(&IfWithSemicolon, &s)
-                .iter()
-                .all(|o| o.correction.is_some())
-        );
-        REWRITE_BYTES.with(|n| assert!(n.get() <= s.len()));
-        let s = format!("if ready; {} end\n", "work;".repeat(5000));
-        REWRITE_BYTES.with(|n| n.set(0));
-        assert!(
-            crate::cops::testing::correction_offenses(&IfWithSemicolon, &s)[0]
-                .correction
-                .is_none()
-        );
-        REWRITE_BYTES.with(|n| assert_eq!(n.get(), 0));
     }
     #[test]
     fn all_pinned_corrections() {
