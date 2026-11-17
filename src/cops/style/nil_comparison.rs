@@ -64,31 +64,6 @@ fn correct(call: &ruby_prism::CallNode<'_>) -> Option<Correction> {
     })
 }
 
-// This proof deliberately does not infer a receiver's type from its name or
-// assume that user-defined ==, ===, != and nil? are interchangeable.
-pub(super) fn trusted_call(call: &ruby_prism::CallNode<'_>) -> bool {
-    matches!(call.name().as_slice(), b"==" | b"===" | b"!=")
-        && compares_nil(call)
-        && call.block().is_none()
-        && call
-            .receiver()
-            .and_then(super::even_odd::single_group)
-            .is_some_and(|n| super::case_equality::immediate(&n))
-}
-pub(super) fn core_safe(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> bool {
-    let Some(root) = cx.ancestors().next_back() else {
-        return false;
-    };
-    let facts = file.boolean_predicate_safety(root);
-    let range = node.location().start_offset()..node.location().end_offset();
-    !facts.core_changed
-        && facts.before_effects(range.start)
-        && !super::correction::contains_comment(file, range.clone())
-        && !super::correction::touches_directive(file, range.clone())
-        && !file.bytes[range.clone()].contains(&b'\n')
-        && !file.heredoc_pending_at(root, range.start)
-}
-
 pub(super) fn compares_nil(call: &ruby_prism::CallNode<'_>) -> bool {
     !call.is_safe_navigation()
         && call.receiver().is_some()

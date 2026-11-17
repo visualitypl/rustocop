@@ -52,7 +52,18 @@ impl Cop for IdentityComparison {
             message: format!("Use `{bang}equal?` instead of `{op}` when comparing `object_id`."),
             correction: cx
                 .corrections_requested()
-                .then(|| inactive_comparison(node, &lhs, rhs, bang, op, cx, file))
+                .then(|| {
+                    let text = |n: &Node<'_>| -> Option<String> {
+                        let receiver = n.as_call_node()?.receiver()?;
+                        std::str::from_utf8(receiver.location().as_slice())
+                            .ok()
+                            .map(str::to_owned)
+                    };
+                    Some(crate::offense::Correction {
+                        range: start..end,
+                        replacement: format!("{bang}{}.equal?({})", text(&lhs)?, text(rhs)?),
+                    })
+                })
                 .flatten(),
         });
     }
@@ -67,69 +78,6 @@ fn object_id(node: &Node<'_>) -> bool {
             && call.receiver().is_some()
             && call.arguments().is_none()
             && call.block().is_none()
-    })
-}
-
-// Ordinary rewriting drops object_id/Integer comparison dispatch, changes the
-// lifetime of receiver references, and changes evaluation order. Do not infer
-// builtin methods or global types. Only one immediate, statically unexecuted
-// comparison in an otherwise closed top-level `if false` is proved here.
-// Bare call receivers avoid local bindings, literals/void warnings, heredocs,
-// definitions and compiler side effects even in dead code. Exact spellings
-// preserve comments and precedence. Shared main-parse encoding/source/runtime/
-// position/code-object/heap guards and atomic validation remain authoritative.
-fn inactive_comparison(
-    node: &Node<'_>,
-    lhs: &Node<'_>,
-    rhs: &Node<'_>,
-    bang: &str,
-    op: &str,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    if file.data_start().is_some() {
-        return None;
-    }
-    let bare_receiver = |n: &Node<'_>| {
-        let receiver = n.as_call_node()?.receiver()?;
-        let call = receiver.as_call_node()?;
-        let name = call.name().as_slice();
-        if call.receiver().is_some()
-            || call.arguments().is_some()
-            || call.block().is_some()
-            || name.is_empty()
-            || !name.iter().all(|b| b.is_ascii_alphabetic() || *b == b'_')
-            || receiver.location().as_slice() != name
-        {
-            return None;
-        }
-        std::str::from_utf8(name).ok().map(str::to_owned)
-    };
-    let left = bare_receiver(lhs)?;
-    let right = bare_receiver(rhs)?;
-    if node.location().as_slice() != format!("{left}.object_id {op} {right}.object_id").as_bytes() {
-        return None;
-    }
-    let mut ancestors = cx.ancestors();
-    let body = ancestors.next()?.as_statements_node()?;
-    let conditional = ancestors.next()?.as_if_node()?;
-    if body.body().len() != 1
-        || conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let top = ancestors.next()?.as_statements_node()?;
-    ancestors.next()?.as_program_node()?;
-    if ancestors.next().is_some() || top.body().len() != 1 {
-        return None;
-    }
-    let loc = node.location();
-    Some(crate::offense::Correction {
-        range: loc.start_offset()..loc.end_offset(),
-        replacement: format!("{bang}{left}.equal?({right})"),
     })
 }
 

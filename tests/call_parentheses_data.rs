@@ -23,24 +23,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "x = identity(identity(1))\n",
     ),
 ];
-const REFERENCES: [(&str, &str); 13] = [
-    ("", "DATA"),
-    ("", "(DATA ||= nil)"),
-    ("", "::DATA"),
-    ("", "Object::DATA"),
-    ("", "::Object::DATA"),
-    ("Root = Object\n", "Root::DATA"),
-    ("Root = Object\n", "Root::Object::DATA"),
-    ("Handle = DATA\n", "Handle"),
-    ("handle = ::DATA\n", "handle"),
-    ("", "Object.const_get(:DATA)"),
-    ("", "::Object.const_get('DATA')"),
-    ("Root = Object\n", "Root.const_get(:DATA)"),
-    (
-        "class << Object; alias_method :lookup_data, :const_get; end\n",
-        "Object.lookup_data(:DATA)",
-    ),
-];
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -57,20 +39,6 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     assert_eq!(out.status.code(), Some(status), "{args:?}: {out:?}");
     assert!(out.stderr.is_empty(), "{out:?}");
     out
-}
-fn unchanged(dir: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
-    let path = dir.join("lib/a.rb");
-    fs::write(&path, source).unwrap();
-    let modified = fs::metadata(&path).unwrap().modified().unwrap();
-    let out = cli(dir, args, status);
-    assert_eq!(fs::read(&path).unwrap(), source);
-    assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    out
-}
-fn observed(candidate: &str, setup: &str, reference: &str, selector: &str) -> String {
-    format!(
-        "{PRELUDE}{candidate}{setup}p [{reference}.{selector}, {reference}.lineno, {reference}.read]\n__END__\nraw\n"
-    )
 }
 fn ruby_available() -> bool {
     Command::new("ruby")
@@ -121,29 +89,6 @@ fn no_data_and_inert_spellings_still_correct_exactly_and_stabilize() {
                 cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 0);
                 assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
             }
-        }
-    }
-}
-
-#[test]
-fn forwarding_and_super_data_safeguards_cover_the_same_acquisitions() {
-    let dir = project();
-    for (cop, candidate) in [
-        (
-            "Style/ArgumentsForwarding",
-            "def f(*args, **kwargs, &block); identity(*args, **kwargs, &block); end\n",
-        ),
-        ("Style/SuperArguments", "def f(a); super(a); end\n"),
-        ("Style/SuperWithArgsParentheses", "def f(a); super a; end\n"),
-    ] {
-        for (setup, reference) in REFERENCES {
-            let source = observed(candidate, setup, reference, "method(:tell).call");
-            unchanged(
-                dir.path(),
-                source.as_bytes(),
-                &["--only", cop, "--fix", "lib/a.rb"],
-                1,
-            );
         }
     }
 }

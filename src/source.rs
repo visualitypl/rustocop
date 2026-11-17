@@ -74,10 +74,6 @@ pub struct SourceFile {
     block_chain_facts: OnceLock<crate::cops::style::multiline_block_chain::Facts>,
     block_param_facts: OnceLock<crate::cops::style::single_line_block_params::Facts>,
     it_parameter_facts: OnceLock<crate::cops::style::it_block_parameter::Facts>,
-    /// Correction-only one-shot END registration and lexical-binding proof.
-    end_block_facts: OnceLock<crate::cops::style::end_block::Facts>,
-    /// Root-prefix visibility proof, collected once only when fixing.
-    constant_base_visibility: OnceLock<crate::cops::style::redundant_constant_base::Visibility>,
     /// Correction-only closed eager Kernel.lambda lookup proof.
     lambda_facts: OnceLock<crate::cops::style::lambda::Facts>,
     /// Correction-only closed eager Proc constant and Kernel.proc lookup proof.
@@ -114,8 +110,6 @@ pub struct SourceFile {
     /// Correction-only closed declaration prefix for class-method policies.
     class_method_bindings: OnceLock<crate::cops::style::class_methods::Bindings>,
     custom_attrs: OnceLock<crate::cops::style::accessors::CustomAttrs>,
-    /// Separate correction-only proof: trivial defs are not regroupable attrs.
-    trivial_accessor_bindings: OnceLock<crate::cops::style::trivial_accessors::Bindings>,
     accessor_annotations: OnceLock<crate::cops::style::accessors::Annotations>,
     /// MutableConstant's fixed magic policy, indexed once rather than per write.
     mutable_constant_magic: OnceLock<crate::cops::style::mutable_constant::MagicState>,
@@ -139,8 +133,6 @@ pub struct SourceFile {
     object_then_bindings: OnceLock<crate::cops::style::object_then::Bindings>,
     /// Correction-only closed eager core proof for literal conditional clamps.
     comparable_clamp_safety: OnceLock<crate::cops::style::comparable_clamp::Safety>,
-    /// Shared correction-only core-dispatch and declared-constant proof.
-    boolean_predicate_safety: OnceLock<crate::cops::style::boolean_safety::Safety>,
     /// Detection-only conservative method return facts, built once on demand.
     predicate_method_returns: OnceLock<crate::cops::naming::predicate_method::Returns>,
     /// Lazy structural tail equality for Naming memoization detection only.
@@ -259,10 +251,7 @@ impl SourceFile {
             preceding_following: OnceLock::new(),
             inheritance_constants: OnceLock::new(),
             class_method_bindings: OnceLock::new(),
-            end_block_facts: OnceLock::new(),
-            constant_base_visibility: OnceLock::new(),
             custom_attrs: OnceLock::new(),
-            trivial_accessor_bindings: OnceLock::new(),
             accessor_annotations: OnceLock::new(),
             mutable_constant_magic: OnceLock::new(),
             documentation_comments: OnceLock::new(),
@@ -274,7 +263,6 @@ impl SourceFile {
             class_check_bindings: OnceLock::new(),
             object_then_bindings: OnceLock::new(),
             comparable_clamp_safety: OnceLock::new(),
-            boolean_predicate_safety: OnceLock::new(),
             predicate_method_returns: OnceLock::new(),
             memoized_name_fingerprints: OnceLock::new(),
             fetch_env_conditions: OnceLock::new(),
@@ -447,19 +435,6 @@ impl SourceFile {
             .get_or_init(|| crate::cops::style::lambda::Facts::build(root))
     }
 
-    pub(crate) fn constant_base_visibility(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::redundant_constant_base::Visibility {
-        self.constant_base_visibility
-            .get_or_init(|| crate::cops::style::redundant_constant_base::Visibility::build(root))
-    }
-
-    pub(crate) fn end_block_facts(&self, root: &Node<'_>) -> &crate::cops::style::end_block::Facts {
-        self.end_block_facts
-            .get_or_init(|| crate::cops::style::end_block::Facts::build(root))
-    }
-
     pub(crate) fn inheritance_constants(
         &self,
         root: &Node<'_>,
@@ -480,14 +455,6 @@ impl SourceFile {
     pub(crate) fn accessor_annotations(&self) -> &crate::cops::style::accessors::Annotations {
         self.accessor_annotations
             .get_or_init(|| crate::cops::style::accessors::Annotations::build(self))
-    }
-
-    pub(crate) fn trivial_accessor_bindings(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::trivial_accessors::Bindings {
-        self.trivial_accessor_bindings
-            .get_or_init(|| crate::cops::style::trivial_accessors::Bindings::build(root))
     }
 
     pub(crate) fn custom_attrs(
@@ -688,14 +655,6 @@ impl SourceFile {
     ) -> &crate::cops::style::unless_else::Bindings {
         self.unless_else_bindings
             .get_or_init(|| crate::cops::style::unless_else::Bindings::build(root))
-    }
-
-    pub(crate) fn boolean_predicate_safety(
-        &self,
-        root: &Node<'_>,
-    ) -> &crate::cops::style::boolean_safety::Safety {
-        self.boolean_predicate_safety
-            .get_or_init(|| crate::cops::style::boolean_safety::Safety::build(root))
     }
 
     pub(crate) fn object_then_bindings(
@@ -2107,40 +2066,6 @@ mod tests {
     }
 
     #[test]
-    fn end_alignment_many_offenses_share_lazy_literal_safety_from_the_main_parse() {
-        use crate::cops::{layout::EndAlignment, run_cops_with_corrections};
-
-        let source = "value = if true\n  \"literal\"\nend\n".repeat(2000);
-        let f = file(source.as_bytes());
-        let result = ruby_prism::parse(&f.bytes);
-        assert_eq!(result.errors().count(), 0);
-        f.record_comments(&result);
-        f.record_encoding(&result);
-        let mut found = Vec::new();
-        assert!(
-            run_cops_with_corrections(&[&EndAlignment], &result, &f, &mut found, false).is_empty()
-        );
-        assert_eq!(found.len(), 2000);
-        assert!(found.iter().all(|o| o.correction.is_none()));
-        assert!(f.literal_ranges.get().is_none());
-        found.clear();
-        assert!(
-            run_cops_with_corrections(&[&EndAlignment], &result, &f, &mut found, true).is_empty()
-        );
-        assert_eq!(found.len(), 2000);
-        assert!(found.iter().all(|o| o.correction.is_some()));
-        let ranges = f.literal_ranges.get().unwrap();
-        assert_eq!(ranges.len(), 2000);
-        let pointer = ranges.as_ptr();
-        found.clear();
-        assert!(
-            run_cops_with_corrections(&[&EndAlignment], &result, &f, &mut found, true).is_empty()
-        );
-        assert_eq!(found.len(), 2000);
-        assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), pointer);
-    }
-
-    #[test]
     fn alignment_consumers_share_the_existing_lazy_safety_walk_and_whole_interiors() {
         use crate::cops::{
             layout::{
@@ -2453,61 +2378,6 @@ mod tests {
         let found = correction_offenses(&FileNull, &source);
         assert_eq!(found.len(), 2000);
         assert!(found.iter().all(|o| o.correction.is_none()));
-    }
-
-    #[test]
-    fn numeric_spellings_share_one_lazy_bounded_main_parse_proof() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{FloatDivision, NumericLiteralPrefix, NumericLiterals},
-        };
-        for observer in [
-            "",
-            "p File.binread(__FILE__)\n",
-            "p DATA.pos\n__END__\npayload\n",
-        ] {
-            let source = format!(
-                "{}{observer}",
-                "01234; 12345; a.to_f / b.to_f\n".repeat(2000)
-            );
-            let file = SourceFile::new("x.rb".into(), source.into_bytes());
-            let result = ruby_prism::parse(&file.bytes);
-            assert_eq!(result.errors().count(), 0);
-            let cops: &[&dyn crate::cops::Cop] =
-                &[&FloatDivision, &NumericLiteralPrefix, &NumericLiterals];
-            for corrections in [false, true, true] {
-                let mut found = vec![];
-                assert!(
-                    run_cops_with_corrections(cops, &result, &file, &mut found, corrections)
-                        .is_empty()
-                );
-                assert_eq!(found.len(), 6000);
-                assert_eq!(
-                    found.iter().filter(|o| o.correction.is_some()).count(),
-                    if corrections && observer.is_empty() {
-                        4000
-                    } else {
-                        0
-                    }
-                );
-                if !corrections {
-                    assert!(file.class_method_bindings.get().is_none());
-                }
-            }
-            let proof = file.class_method_bindings.get().unwrap();
-            assert_eq!(
-                proof.observer_visits,
-                crate::cops::testing::preorder_kinds(std::str::from_utf8(&file.bytes).unwrap())
-                    .len()
-            );
-            assert!(proof.observer_visits < 50000);
-            assert!(std::ptr::eq(
-                proof,
-                file.class_method_bindings(&result.node())
-            ));
-            assert!(file.token_ranges.get().is_none());
-            assert!(file.literal_ranges.get().is_none());
-        }
     }
 
     #[test]
@@ -4373,106 +4243,6 @@ mod tests {
         }
     }
 
-    #[test]
-    fn hash_wrappers_share_one_lazy_bounded_main_parse_observer_proof() {
-        use crate::cops::{
-            run_cops_with_corrections,
-            style::{HashAsLastArrayItem, HashConversion},
-            walk::{NodeVisitor, walk},
-        };
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        let source = "[a: 1, b: 2]\nHash[Hash[ary]]\n".repeat(6000);
-        let f = file(source.as_bytes());
-        let result = crate::parser::parse(&f.bytes);
-        assert_eq!(result.errors().count(), 0);
-        f.record_comments(&result);
-        f.record_data_start(&result);
-        let cops: &[&dyn crate::cops::Cop] = &[&HashAsLastArrayItem, &HashConversion];
-        let mut found = Vec::new();
-        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, false).is_empty());
-        assert_eq!(found.len(), 12000);
-        assert!(f.class_method_bindings.get().is_none());
-        assert!(f.token_ranges.get().is_none());
-        found.clear();
-        assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
-        assert_eq!(found.len(), 12000);
-        assert_eq!(
-            found.iter().filter(|o| o.correction.is_some()).count(),
-            6000
-        );
-        let proof = f.class_method_bindings.get().unwrap();
-        let mut count = Count(0);
-        walk(&mut count, &result.node());
-        assert_eq!(proof.observer_visits, count.0);
-        assert!(proof.observer_visits < 6000 * 20);
-        assert!(f.token_ranges.get().is_none());
-        for _ in 0..6000 {
-            assert!(std::ptr::eq(proof, f.class_method_bindings(&result.node())));
-        }
-    }
-
-    #[test]
-    fn remaining_redundancy_work_is_local_and_newline_safety_proof_is_lazy_and_shared() {
-        use crate::cops::{
-            Cop, run_cops_with_corrections,
-            style::{EmptyMethod, RedundantConstantBase, RedundantFetchBlock},
-            walk::{NodeVisitor, walk},
-        };
-        struct Count(usize);
-        impl<'pr> NodeVisitor<'pr> for Count {
-            fn enter(&mut self, _: ruby_prism::Node<'pr>) {
-                self.0 += 1;
-            }
-        }
-        for n in [10, 2000] {
-            let source = "def f(a = 1)\nend\n::A\nh.fetch(:key) { false }\n".repeat(n);
-            let f = file(source.as_bytes());
-            let parsed = crate::parser::parse(&f.bytes);
-            assert_eq!(parsed.errors().count(), 0);
-            let method = EmptyMethod::default();
-            let cops: &[&dyn Cop] = &[
-                &method,
-                &RedundantConstantBase::default(),
-                &RedundantFetchBlock,
-            ];
-            for fixes in [false, true, true] {
-                let mut found = Vec::new();
-                assert!(run_cops_with_corrections(cops, &parsed, &f, &mut found, fixes).is_empty());
-                assert_eq!(found.len(), 3 * n);
-                assert_eq!(
-                    found.iter().filter(|o| o.correction.is_some()).count(),
-                    if fixes { 2 * n } else { 0 }
-                );
-                assert!(
-                    found
-                        .iter()
-                        .filter_map(|o| o.correction.as_ref())
-                        .all(|c| c.range.len() < 30 && c.replacement.len() < 30)
-                );
-                if !fixes {
-                    assert!(f.class_method_bindings.get().is_none());
-                    assert!(f.constant_base_visibility.get().is_none());
-                }
-            }
-            let root = parsed.node();
-            let mut count = Count(0);
-            walk(&mut count, &root);
-            let proof = f.class_method_bindings(&root);
-            let visibility = f.constant_base_visibility.get().unwrap();
-            assert_eq!(proof.observer_visits, count.0);
-            assert_eq!(visibility.visits, count.0);
-            for _ in 0..n {
-                assert!(std::ptr::eq(proof, f.class_method_bindings(&root)));
-                assert!(std::ptr::eq(visibility, f.constant_base_visibility(&root)));
-            }
-        }
-    }
-
     // Independent pre-index implementation, not another cache-based path.
     fn prefix_position(f: &SourceFile, offset: usize) -> (u32, u32) {
         let offset = offset.min(f.bytes.len());
@@ -4918,33 +4688,6 @@ mod tests {
                 "{} visits for {count}",
                 CALL_ARGUMENT_VISITS.get()
             );
-        }
-    }
-
-    #[test]
-    fn end_block_proof_is_lazy_cached_and_linear_across_many_hooks() {
-        use crate::cops::style::EndBlock;
-        for count in [1, 100, 1000] {
-            let source = "END { :work }\n".repeat(count);
-            let f = file(source.as_bytes());
-            let parsed = crate::parser::parse(&f.bytes);
-            assert_eq!(parsed.errors().count(), 0);
-            let mut found = Vec::new();
-            for cops in [&[][..], &[&EndBlock as &dyn crate::cops::Cop][..]] {
-                crate::cops::run_cops_with_corrections(cops, &parsed, &f, &mut found, false);
-                assert!(f.end_block_facts.get().is_none());
-                assert!(f.class_method_bindings.get().is_none());
-            }
-            found.clear();
-            crate::cops::run_cops_with_corrections(&[&EndBlock], &parsed, &f, &mut found, true);
-            assert_eq!(found.len(), count);
-            assert!(found.iter().all(|o| o.correction.is_some()));
-            let facts = f.end_block_facts.get().unwrap();
-            assert!(facts.visits <= count * 4 + 2, "{}", facts.visits);
-            assert!(std::ptr::eq(facts, f.end_block_facts(&parsed.node())));
-            found.clear();
-            crate::cops::run_cops_with_corrections(&[&EndBlock], &parsed, &f, &mut found, true);
-            assert!(std::ptr::eq(facts, f.end_block_facts(&parsed.node())));
         }
     }
 

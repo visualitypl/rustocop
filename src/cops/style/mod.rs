@@ -30,7 +30,6 @@ mod bisected_attr_accessor;
 mod bitwise_predicate;
 mod block_comments;
 mod block_delimiters;
-pub(crate) mod boolean_safety;
 pub(crate) mod case_equality;
 mod case_like_if;
 mod character_literal;

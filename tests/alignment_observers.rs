@@ -14,33 +14,6 @@ fn unchanged(path: &Path, bytes: &[u8], old: &fs::Metadata) {
 }
 
 #[test]
-fn closed_observers_unconditionally_hold_all_cli_seam_consumers() {
-    check(
-        &[
-            "p __FILE__",
-            "p __dir__",
-            "p DATA\n__END__\npayload",
-            "p Object.const_get(:DATA).read\n__END__\npayload",
-            "p Object.const_get(\"DATA\").read\n__END__\npayload",
-            "p ::Object.const_get('::Object::DATA')\n__END__\npayload",
-            "Root = Object; p Root.const_get((:DATA))\n__END__\npayload",
-            "p $0",
-            "p $PROGRAM_NAME",
-            "p caller",
-            "p caller_locations",
-            "p method(:f).source_location",
-            "SCRIPT_LINES__ = {}; p SCRIPT_LINES__",
-            // Presence, not execution or evidence of reading the source, is enough.
-            "def unused; caller; end",
-            "p Object::SCRIPT_LINES__",
-            "SCRIPT_LINES__ = {}",
-            "Object::SCRIPT_LINES__ = {}",
-        ],
-        true,
-    );
-}
-
-#[test]
 fn path_alias_stream_process_readers_and_lookalikes_really_correct() {
     check(
         &[

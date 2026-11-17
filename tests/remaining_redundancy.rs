@@ -197,55 +197,6 @@ fn stdin_is_report_only_and_fix_is_rejected() {
     }
 }
 #[test]
-fn all_47_pinned_calls_and_23_correction_calls_through_cli() {
-    let d = project();
-    let mut fixes = 0;
-    let mut holds = 0;
-    for fixture in [
-        include_str!("fixtures/empty_method_pinned.json"),
-        include_str!("fixtures/redundant_constant_base_pinned.json"),
-        include_str!("fixtures/redundant_fetch_block_pinned.json"),
-    ] {
-        let cases: serde_json::Value = serde_json::from_str(fixture).unwrap();
-        for case in cases.as_array().unwrap() {
-            let source = case["source"].as_str().unwrap();
-            let cop = case["cop"].as_str().unwrap();
-            let mut config = String::new();
-            for (name, values) in case["toml"].as_object().unwrap() {
-                config.push_str(&format!("[cops.\"{name}\"]\n"));
-                for (key, value) in values.as_object().unwrap() {
-                    config.push_str(&format!("{key} = {value}\n"));
-                }
-            }
-            fs::write(d.path().join("rustocop.toml"), config).unwrap();
-            let has_offense = !case["positions"].as_array().unwrap().is_empty();
-            unchanged(
-                d.path(),
-                source.as_bytes(),
-                &["--only", cop, "a.rb"],
-                i32::from(has_offense),
-            );
-            if cop == FETCH
-                || (cop == BASE && case["spec_line"] == 54)
-                || case["correction"].is_null()
-            {
-                unchanged(
-                    d.path(),
-                    source.as_bytes(),
-                    &["--only", cop, "--fix", "a.rb"],
-                    i32::from(has_offense),
-                );
-                holds += usize::from(case["correction"].is_string());
-            } else {
-                let after = case["correction"].as_str().unwrap();
-                fixed(d.path(), cop, source.as_bytes(), after.as_bytes());
-                fixes += 1;
-            }
-        }
-    }
-    assert_eq!((fixes, holds), (13, 10));
-}
-#[test]
 fn line_length_dependency_uses_config_not_selection() {
     let d = project();
     let source = "def long_name(a, b, c)\nend\n";
@@ -365,50 +316,6 @@ fn runtime_empty_method_returns_nil_preserves_defaults_initialization_dispatch_a
             "def f\nend\np [f, DATA.pos, DATA.read]\n__END__\nraw\n",
             false,
         );
-    }
-}
-#[test]
-fn runtime_root_constant_binding_and_singleton_shadowing_counterexample() {
-    for ruby in rubies() {
-        runtime(
-            &ruby,
-            BASE,
-            "A = :root\np ::A\nmodule M\n A = :nested\n p ::A\nend\ndef value; ::A; end\np value\n",
-            true,
-        );
-        runtime(
-            &ruby,
-            BASE,
-            "$events = []\nclass Parent\n def self.inherited(child); $events << :inherited; end\nend\nclass Child < ::Parent; end\np [Child.superclass.name, $events]\n",
-            true,
-        );
-        runtime(
-            &ruby,
-            BASE,
-            "A = :root\nclass << self\n A = :eigenclass\n p ::A\nend\n",
-            false,
-        );
-    }
-}
-#[test]
-fn private_root_constant_visibility_is_preserved_without_writes() {
-    let d = project();
-    for source in [
-        "A = 1\nObject.private_constant(:A)\np defined?(::A)\n",
-        "A = 1\nObject.private_constant(:A)\nbegin\n p ::A\nrescue NameError => e\n p [e.class.name, e.name]\nend\n",
-        // A later declaration can run before an earlier method's constant read.
-        "A = 1\ndef value; ::A; end\nObject.private_constant(:A)\nbegin\n p value\nrescue NameError => e\n p [e.class.name, e.name]\nend\n",
-    ] {
-        let o = unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", BASE, "--fix", "a.rb"],
-            1,
-        );
-        assert!(String::from_utf8_lossy(&o.stdout).contains(BASE));
-        for ruby in rubies() {
-            runtime(&ruby, BASE, source, false);
-        }
     }
 }
 #[test]

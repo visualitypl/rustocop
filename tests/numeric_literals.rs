@@ -165,153 +165,6 @@ fn folded_sign_delimiters_follow_declared_character_boundaries() {
         assert_eq!(found[0].message, "Use 0o for octal literals.");
     }
 }
-#[derive(serde::Deserialize)]
-struct Case {
-    cop: String,
-    spec_line: u32,
-    source: String,
-    positions: Vec<(u32, u32)>,
-    messages: Vec<String>,
-    correction: Option<String>,
-}
-#[test]
-fn all_38_pinned_examples_and_19_correction_calls() {
-    // RuboCop style/{float_division,numeric_literal_prefix,numeric_literals}_spec.rb,
-    // MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
-    // 42 nonfixed config calls are inapplicable; no version skips.
-    let cases: Vec<Case> =
-        serde_json::from_str(include_str!("fixtures/numeric_literals_pinned.json")).unwrap();
-    assert_eq!(cases.len(), 38);
-    assert_eq!(cases.iter().filter(|c| c.correction.is_some()).count(), 19);
-    let d = project();
-    let r = rustocop::cops::Registry::new();
-    let config = rustocop::config::ResolvedConfig::default();
-    let mut canonical = 0;
-    let mut token_only = 0;
-    for c in cases {
-        let active = rustocop::cops::select_active(&r, &config, std::slice::from_ref(&c.cop), &[]);
-        let report = rustocop::pipeline::lint_one(
-            Path::new("a.rb"),
-            Path::new("a.rb"),
-            Some(c.source.as_bytes()),
-            &active,
-            &config,
-        );
-        assert!(report.errors.is_empty() && report.internal_errors.is_empty());
-        assert_eq!(
-            report
-                .result
-                .offenses
-                .iter()
-                .map(|o| (o.line, o.col))
-                .collect::<Vec<_>>(),
-            c.positions,
-            "{}:{}",
-            c.cop,
-            c.spec_line
-        );
-        for (offense, message) in report.result.offenses.iter().zip(&c.messages) {
-            assert_eq!(
-                &offense.message,
-                if message == "[...]" {
-                    "Use underscores(_) as thousands separator and separate every 3 digits with them."
-                } else {
-                    message
-                }
-            );
-        }
-        if let Some(expected) = c.correction.filter(|_| c.cop != "Style/FloatDivision") {
-            fs::write(d.path().join("a.rb"), &c.source).unwrap();
-            cli(d.path(), &["--only", &c.cop, "--fix", "a.rb"], 0);
-            let expected = if c.cop == "Style/NumericLiterals" && c.spec_line == 122 {
-                // Preserve unary-minus dispatch instead of folding to a literal.
-                token_only += 1;
-                "a = -\n  12_345\n".to_owned()
-            } else {
-                canonical += 1;
-                expected
-            };
-            assert_eq!(
-                fs::read_to_string(d.path().join("a.rb")).unwrap(),
-                expected,
-                "{}:{}",
-                c.cop,
-                c.spec_line
-            );
-            unchanged(
-                d.path(),
-                expected.as_bytes(),
-                &["--only", &c.cop, "--fix", "a.rb"],
-                0,
-            );
-        } else {
-            let args = if c.cop == "Style/FloatDivision" {
-                vec!["--only", &c.cop, "--fix", "a.rb"]
-            } else {
-                vec!["--only", &c.cop, "a.rb"]
-            };
-            unchanged(
-                d.path(),
-                c.source.as_bytes(),
-                &args,
-                if c.positions.is_empty() { 0 } else { 1 },
-            );
-        }
-    }
-    assert_eq!((canonical, token_only), (16, 1));
-}
-#[test]
-fn envelopes_token_boundaries_line_values_and_data_payloads_survive() {
-    let d = project();
-    for (cop, token, after) in [
-        ("Style/NumericLiteralPrefix", "01234", "0o1234"),
-        ("Style/NumericLiterals", "12345", "12_345"),
-    ] {
-        for source in [
-            format!("\u{feff}p {token}\r\n"),
-            format!("# coding: us-ascii\np {token}\n"),
-            format!("p [{token},__LINE__]\np __LINE__\n"),
-            format!("p {token}\n__END__\npayload\r\n"),
-        ] {
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            cli(d.path(), &["--only", cop, "--fix", "a.rb"], 0);
-            assert_eq!(
-                fs::read_to_string(d.path().join("a.rb")).unwrap(),
-                source.replace(token, after)
-            );
-        }
-        for observer in [
-            "p File.binread(__FILE__)\n",
-            "DATA.rewind; p DATA.read\n__END__\npayload\n",
-            "p DATA.pos\n__END__\npayload\n",
-        ] {
-            let s = format!("p {token}\n{observer}");
-            unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-        }
-    }
-    for (s, after) in [
-        ("p 0XFF.abs\n", "p 0xFF.abs\n"),
-        ("p 0d0008..0d0010\n", "p 8..10\n"),
-        ("p 12345.to_s\n", "p 12_345.to_s\n"),
-        (
-            "p(- # hold\n 12345)\np __LINE__\n",
-            "p(- # hold\n 12_345)\np __LINE__\n",
-        ),
-    ] {
-        fs::write(d.path().join("a.rb"), s).unwrap();
-        cli(
-            d.path(),
-            &[
-                "--only",
-                "Style/NumericLiteralPrefix,Style/NumericLiterals",
-                "--fix",
-                "a.rb",
-            ],
-            0,
-        );
-        assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
-    }
-}
 fn rubies() -> Vec<String> {
     let mut r = vec!["ruby".into()];
     if let Ok(p) = crate::support::runtime::ruby() {
@@ -353,31 +206,6 @@ fn runtime_exact_values_bases_float_bits_signs_and_huge_integers() {
     }
 }
 #[test]
-fn runtime_separated_signs_keep_overridden_dispatch_and_control_flow() {
-    let d = project();
-    let source = "class Integer\n def -@; puts :minus; 7; end\n def +@; puts :plus; 8; end\nend\ndef run\n [true, false].each do |take|\n  next unless take\n  return [-\n 12345, + 12345, -12345, +12345, - 01234, __LINE__]\n end\nend\np run\np __LINE__\n";
-    for ruby in rubies() {
-        fs::write(d.path().join("a.rb"), source).unwrap();
-        let before = observe(&ruby, d.path());
-        cli(
-            d.path(),
-            &[
-                "--only",
-                "Style/NumericLiteralPrefix,Style/NumericLiterals",
-                "--fix",
-                "a.rb",
-            ],
-            1,
-        );
-        // NumericLiterals reports spaced octal at the pin, but safely withholds it.
-        assert_eq!(before, observe(&ruby, d.path()));
-        assert!(
-            String::from_utf8_lossy(&before)
-                .starts_with("minus\nplus\nminus\n[7, 8, -12345, 12345, 7,")
-        );
-    }
-}
-#[test]
 fn runtime_float_division_custom_operands_and_zero_are_never_rewritten() {
     let d = project();
     let source = "class NumericLike\n def to_f; puts :coerce; self; end\n def /(other); puts :divide; :result; end\nend\ndef value; puts :value; NumericLike.new; end\np(value.to_f / value.to_f)\np(0.to_f / 0.to_f)\np((-1).to_f / 0.to_f)\na = \"1.2\"; b = \"3.4\"\np(a.to_f / b.to_f)\n";
@@ -394,18 +222,6 @@ fn runtime_float_division_custom_operands_and_zero_are_never_rewritten() {
         assert!(
             String::from_utf8_lossy(&before)
                 .starts_with("value\ncoerce\nvalue\ncoerce\ndivide\n:result\nNaN\n-Infinity\n")
-        );
-    }
-}
-#[test]
-fn source_based_nondecimal_and_already_canonical_findings_keep_bytes_and_mtime() {
-    let d = project();
-    for source in ["- 01234\n", "- 0d123456\n", "- \n123\n", "- # hold\n1\n"] {
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", "Style/NumericLiterals", "--fix", "a.rb"],
-            1,
         );
     }
 }

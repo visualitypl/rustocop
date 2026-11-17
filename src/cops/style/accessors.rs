@@ -4,7 +4,6 @@ use crate::{
         ast,
         walk::{NodeVisitor, walk},
     },
-    offense::Correction,
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -205,52 +204,4 @@ impl CustomAttrs {
     pub(super) fn contains(&self, node: &Node<'_>) -> bool {
         self.scopes.contains(&node.location().start_offset())
     }
-}
-
-/// Whole-line atomic rewrites never detach docs/comments, normalize encodings,
-/// touch inline siblings/directives, or change a later explicit __LINE__.
-pub(super) fn rewrite(file: &SourceFile, nodes: &[&Node<'_>], text: &str) -> Option<Correction> {
-    let first = nodes.first()?.location();
-    let last = nodes.last()?.location();
-    let start_line = file.line_of(first.start_offset());
-    let last_end = last.end_offset();
-    let end_line = file.last_line_of(last);
-    if start_line > 1
-        && file
-            .accessor_annotations()
-            .comment_lines
-            .contains(&(start_line - 1))
-    {
-        return None;
-    }
-    let start = file.line_start(start_line);
-    let end = file.line_start(end_line + 1);
-    let indent = &file.bytes[start..first.start_offset()];
-    if !indent.iter().all(|b| matches!(b, b' ' | b'\t')) {
-        return None;
-    }
-    let tail = &file.bytes[last_end..end];
-    if !tail.iter().all(u8::is_ascii_whitespace)
-        || super::correction::touches_directive(file, start..end)
-    {
-        return None;
-    }
-    let comments = file.comments();
-    let first_comment = comments.partition_point(|c| c.end <= start);
-    if comments.get(first_comment).is_some_and(|c| c.start < end) {
-        return None;
-    }
-    let newline = if tail.ends_with(b"\r\n") {
-        "\r\n"
-    } else if tail.ends_with(b"\n") {
-        "\n"
-    } else {
-        ""
-    };
-    let indent = std::str::from_utf8(indent).ok()?;
-    let correction = Correction {
-        range: start..end,
-        replacement: format!("{indent}{text}{newline}"),
-    };
-    super::correction::preserves_line_values(file, &correction).then_some(correction)
 }

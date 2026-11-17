@@ -8,10 +8,7 @@
 //! recorded in the pinned RuboCop reference run (each source and
 //! corrected SHA-256 was checked against it when the rows were ported).
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    pipeline::lint_str_with,
-};
+use crate::{cops::testing::correction_offenses, pipeline::lint_str_with};
 
 const COP: &str = "Layout/FirstHashElementLineBreak";
 
@@ -36,95 +33,6 @@ fn fixed(source: &str) -> String {
     let offenses = correction_offenses(&FirstHashElementLineBreak, source);
     let applied = crate::corrections::apply(source.as_bytes(), &offenses).unwrap();
     String::from_utf8(applied.bytes).unwrap()
-}
-
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&FirstHashElementLineBreak, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
-/// `(spec line, source, findings, single-pass correction)`; an empty
-/// correction means the source is accepted.
-type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
-
-const PINNED: &[Pinned] = &[
-    (
-        5,
-        "a = { a: 1,\n      b: 2 }\n",
-        &[(1, 7)],
-        "a = { \na: 1,\n      b: 2 }\n",
-    ),
-    // The shared seam holds this edit (see `HELD`).
-    (
-        19,
-        "method({ foo: 1,\n         bar: 2 })\n",
-        &[(1, 10)],
-        "method({ \nfoo: 1,\n         bar: 2 })\n",
-    ),
-    (
-        33,
-        "{ foo: {\n  bar: 2,\n} }\n",
-        &[(1, 3)],
-        "{ \nfoo: {\n  bar: 2,\n} }\n",
-    ),
-    (49, "method(\n  foo: 1,\n  bar: 2)\n", &[], ""),
-    (57, "method foo: 1,\n bar: 2\n", &[], ""),
-    (65, "method(foo: 1,\n  bar: 2)\n", &[], ""),
-    (72, "b = {\n  a: 1,\n  b: 2 }\n", &[], ""),
-    // `AllowMultilineFinalElement: true`, replayed at the fixed `false`.
-    (
-        83,
-        "h = {a: b, c: {\n  d: e\n}}\n",
-        &[(1, 6)],
-        "h = {\na: b, c: {\n  d: e\n}}\n",
-    ),
-    (
-        91,
-        "h = {a: {\n  b: c\n}}\n",
-        &[(1, 6)],
-        "h = {\na: {\n  b: c\n}}\n",
-    ),
-    (
-        99,
-        "h = {a: b, c: {\n  d: e,\n}, f: g}\n",
-        &[(1, 6)],
-        "h = {\na: b, c: {\n  d: e,\n}, f: g}\n",
-    ),
-    (
-        115,
-        "h = {a: b, c: d,\ne: f}\n",
-        &[(1, 6)],
-        "h = {\na: b, c: d,\ne: f}\n",
-    ),
-];
-
-/// Pinned corrections withheld by the shared correction boundary, finding
-/// kept: a receiverless `method(<dynamic>)` is a possible `source_location`
-/// acquisition for the listed-observer and code-object barriers (as
-/// `object.method(argument)`).
-const HELD: &[u32] = &[19];
-
-#[test]
-fn pinned_examples_replay_the_fixed_results() {
-    assert_eq!(PINNED.len(), 11);
-    for &(line, source, expected, after) in PINNED {
-        assert_eq!(positions(source), expected, "spec line {line}");
-        if HELD.contains(&line) {
-            held(source);
-            // Without the reflective selector the same edit is applied.
-            let renamed = source.replace("method(", "meth(");
-            assert_eq!(fixed(&renamed), after.replace("method(", "meth("));
-        } else if expected.is_empty() {
-            assert!(
-                correction_offenses(&FirstHashElementLineBreak, source).is_empty(),
-                "spec line {line}"
-            );
-        } else {
-            assert_correction(&FirstHashElementLineBreak, source, after);
-        }
-    }
 }
 
 #[test]

@@ -57,7 +57,7 @@ pub(crate) fn method_uses_parens(file: &SourceFile, node_start: usize, first: us
     prefix.ends_with(b"(")
 }
 
-/// Report `element` with `message`, offering the guarded line-break insertion
+/// Report `element` with `message`, offering the line-break insertion
 /// before it when corrections are requested.
 pub(crate) fn report(
     cop: &dyn Cop,
@@ -69,13 +69,8 @@ pub(crate) fn report(
 ) {
     let location = element.location();
     let start = location.start_offset();
-    let observed = || {
-        cx.ancestors().next_back().is_none_or(|root| {
-            file.class_method_bindings(root)
-                .has_listed_source_observer(file.data_start().is_some())
-        })
-    };
-    let correction = (cx.corrections_requested() && !observed()).then(|| Correction {
+    // RuboCop's `EmptyLineCorrector.insert_before`.
+    let correction = cx.corrections_requested().then(|| Correction {
         range: start..start,
         replacement: "\n".to_owned(),
     });

@@ -36,7 +36,7 @@ impl Cop for Not {
         let (line, col) = file.line_col(loc.start_offset());
         let correction = cx
             .corrections_requested()
-            .then(|| correct(&call, cx, file))
+            .then(|| correct(&call, file))
             .flatten();
         out.push(Offense {
             cop: self.name(),
@@ -60,99 +60,63 @@ fn opposite(name: &[u8]) -> Option<&'static str> {
         _ => return None,
     })
 }
-fn small_integer(node: &Node<'_>) -> bool {
-    node.as_integer_node().is_some()
-        && super::even_odd::integer(node, None)
-            .is_some_and(|n| (-(1 << 30)..(1 << 30)).contains(&n))
-}
-fn correct(
-    call: &ruby_prism::CallNode<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<Correction> {
+/// RuboCop's corrector.
+fn correct(call: &ruby_prism::CallNode<'_>, file: &SourceFile) -> Option<Correction> {
     let loc = call.message_loc()?;
     let receiver = call.receiver()?;
-    let root = cx.ancestors().next_back()?;
-    let end = call
-        .opening_loc()
-        .map_or(receiver.location().start_offset(), |l| l.start_offset());
-    let gap = loc.end_offset()..end;
-    if file.bytes[gap.clone()].contains(&b'\n')
-        || super::correction::contains_comment(file, gap)
-        || file.contains_heredoc(root, &call.as_node())
-        || file.heredoc_pending_at(root, loc.start_offset())
-    {
-        return None;
+    // `range_with_surrounding_space(selector, side: :right)`
+    let mut end = loc.end_offset();
+    while matches!(file.bytes.get(end), Some(b' ' | b'\t')) {
+        end += 1;
     }
-    let mut edits = Vec::new();
-    let grouped = call.opening_loc().is_some();
-    if !grouped
-        && let Some(child) = receiver.as_call_node()
+    while file.bytes.get(end) == Some(&b'\n') {
+        end += 1;
+    }
+    let range = loc.start_offset()..end;
+    let edit = |range: std::ops::Range<usize>, replacement: &str| Correction {
+        range,
+        replacement: replacement.into(),
+    };
+    if let Some(child) = receiver.as_call_node().filter(|c| !c.is_safe_navigation())
         && let Some(inverse) = opposite(child.name().as_slice())
     {
-        // Replacing !(x < y) by x >= y is not valid for arbitrary dispatch,
-        // nonboolean operator results, NaN, or partial-order values.
-        let args = ast::call_arguments(&child);
-        if child.is_safe_navigation()
-            || child.block().is_some()
-            || !child.receiver().is_some_and(|n| small_integer(&n))
-            || !matches!(args.as_slice(), [rhs] if small_integer(rhs))
-            || !super::nil_comparison::core_safe(&call.as_node(), cx, file)
-        {
-            return None;
-        }
         let selector = child.message_loc()?;
-        // An enclosing `not` can simultaneously become `!`. Retain the
-        // comparison's grouping so that tighter prefix negation cannot capture
-        // just its left operand after this `not` disappears.
-        let nested = cx.parent().and_then(|n| n.as_call_node()).is_some_and(|p| {
-            p.name().as_slice() == b"!"
-                && p.call_operator_loc().is_none()
-                && p.opening_loc().is_none()
-        });
-        edits.push(Correction {
-            range: loc.start_offset()..end,
-            replacement: if nested { "(" } else { "" }.into(),
-        });
-        edits.push(Correction {
-            range: selector.start_offset()..selector.end_offset(),
-            replacement: inverse.into(),
-        });
-        if nested {
-            let end = call.location().end_offset();
-            edits.push(Correction {
-                range: end..end,
-                replacement: ")".into(),
-            });
-        }
-    } else {
-        let parens = !grouped && requires_parens(&receiver);
-        edits.push(Correction {
-            range: loc.start_offset()..end,
-            replacement: if parens { "!(" } else { "!" }.into(),
-        });
-        if parens {
-            let end = call.location().end_offset();
-            edits.push(Correction {
-                range: end..end,
-                replacement: ")".into(),
-            });
-        }
+        return super::correction::combine(
+            file,
+            vec![
+                edit(range, ""),
+                edit(selector.start_offset()..selector.end_offset(), inverse),
+            ],
+        );
     }
-    let edit = super::correction::combine(file, edits)?;
-    super::literal_spelling::safe_edit(file, cx, edit)
+    if requires_parens(&receiver) {
+        let end = call.location().end_offset();
+        return super::correction::combine(file, vec![edit(range, "!("), edit(end..end, ")")]);
+    }
+    Some(edit(range, "!"))
 }
+/// RuboCop's `requires_parens?`.
 fn requires_parens(node: &Node<'_>) -> bool {
-    if let Some(call) = node.as_call_node() {
-        return call.equal_loc().is_some()
-            || (ast::is_operator_method(call.name().as_slice())
-                && !matches!(
-                    call.name().as_slice(),
-                    b"[]" | b"[]=" | b"!" | b"+@" | b"-@"
-                ));
+    if let Some(call) = node.as_call_node()
+        && !call.is_safe_navigation()
+        && ast::is_operator_method(call.name().as_slice())
+    {
+        let selector_first = call
+            .message_loc()
+            .is_some_and(|m| m.start_offset() == node.location().start_offset());
+        // `binary_operation?`, or a unary `~`.
+        return !selector_first || call.name().as_slice() == b"~";
     }
-    matches!(node, Node::MatchPredicateNode { .. })
-        || super::nil_comparison::operator_expression(node, false)
+    matches!(
+        node,
+        Node::AndNode { .. }
+            | Node::OrNode { .. }
+            | Node::RangeNode { .. }
+            | Node::FlipFlopNode { .. }
+    ) || node
+        .as_if_node()
+        .is_some_and(|n| n.if_keyword_loc().is_none())
+        || super::redundant_parentheses::is_assignment(node)
 }
 #[cfg(test)]
 mod tests {
@@ -176,46 +140,6 @@ mod tests {
             assert_eq!(o.len(), 1);
             assert_eq!((o[0].line, o[0].col), (1, col));
             assert_eq!(o[0].message, "Use `!` instead of `not`.");
-        }
-    }
-    #[test]
-    fn corrections_preserve_operand_binding_and_physical_lines() {
-        use crate::cops::testing::correction_offenses;
-        for (s, expected) in [
-            ("not test", "!test"),
-            ("not(test)", "!(test)"),
-            ("not(x < y)", "!(x < y)"),
-            ("not a >> b", "!(a >> b)"),
-            ("not a && b", "!(a && b)"),
-            ("not a || b", "!(a || b)"),
-            ("not a ? b : c", "!(a ? b : c)"),
-            ("x if not 1..5", "x if !(1..5)"),
-            ("x if not a = 5", "x if !(a = 5)"),
-            ("x = (not ~a)", "x = (!(~a))"),
-            ("not (~a).zero?", "!(~a).zero?"),
-            ("not foo 1", "!foo 1"),
-            ("not 1 < 2", "1 >= 2"),
-        ] {
-            let o = correction_offenses(&Not, s);
-            let c = o[0].correction.as_ref().expect(s);
-            assert_eq!(
-                format!(
-                    "{}{}{}",
-                    &s[..c.range.start],
-                    c.replacement,
-                    &s[c.range.end..]
-                ),
-                expected
-            );
-        }
-        for s in [
-            "not x < y",
-            "not x == y",
-            "not # comment\n x",
-            "not\n x",
-            "not <<~TEXT\n hi\nTEXT\n",
-        ] {
-            assert!(correction_offenses(&Not, s)[0].correction.is_none(), "{s}");
         }
     }
     #[test]

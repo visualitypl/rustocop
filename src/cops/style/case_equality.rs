@@ -4,66 +4,8 @@ use crate::{
     offense::{Correction, Offense},
     source::SourceFile,
 };
-use ruby_prism::{CallNode, Node};
+use ruby_prism::Node;
 pub struct CaseEquality;
-// These are closed immediate values, not inferred types for arbitrary expressions.
-pub(super) fn immediate(n: &Node<'_>) -> bool {
-    matches!(
-        n,
-        Node::NilNode { .. } | Node::TrueNode { .. } | Node::FalseNode { .. }
-    ) || small_integer(n)
-        || n.as_array_node().is_some_and(|a| a.elements().is_empty())
-}
-fn small_integer(n: &Node<'_>) -> bool {
-    super::even_odd::integer(n, None).is_some_and(|i| (-(1 << 30)..(1 << 30)).contains(&i))
-        && n.as_integer_node().is_some()
-}
-pub(super) fn core_class(n: &Node<'_>) -> bool {
-    ast::is_global_const(
-        n,
-        &["Array", "Integer", "NilClass", "TrueClass", "FalseClass"],
-    )
-}
-fn integer_range(n: &Node<'_>) -> bool {
-    let Some(p) = n.as_parentheses_node() else {
-        return false;
-    };
-    let Some(inner) = super::even_odd::single_group(p.as_node()) else {
-        return false;
-    };
-    inner.as_range_node().is_some_and(|r| {
-        r.left().is_some_and(|n| small_integer(&n)) && r.right().is_some_and(|n| small_integer(&n))
-    })
-}
-fn literal_candidate(call: &CallNode<'_>) -> bool {
-    let args = ast::call_arguments(call);
-    let [rhs] = args.as_slice() else { return false };
-    call.name().as_slice() == b"==="
-        && !call.is_safe_navigation()
-        && call.block().is_none()
-        && call.receiver().is_some_and(|lhs| {
-            (core_class(&lhs) && immediate(rhs)) || (integer_range(&lhs) && small_integer(rhs))
-        })
-}
-pub(super) fn trusted_call(call: &CallNode<'_>) -> bool {
-    if literal_candidate(call) {
-        return true;
-    }
-    let args = ast::call_arguments(call);
-    let [arg] = args.as_slice() else { return false };
-    !call.is_safe_navigation()
-        && call.block().is_none()
-        && call.receiver().is_some_and(|lhs| {
-            let lhs = super::even_odd::single_group(lhs);
-            lhs.is_some_and(|lhs| match call.name().as_slice() {
-                b"is_a?" => immediate(&lhs) && core_class(arg),
-                b"include?" => {
-                    call.receiver().is_some_and(|lhs| integer_range(&lhs)) && small_integer(arg)
-                }
-                _ => false,
-            })
-        })
-}
 /// RuboCop's `replacement`.
 fn correct(node: &Node<'_>) -> Option<Correction> {
     let call = node.as_call_node()?;

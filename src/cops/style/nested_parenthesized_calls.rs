@@ -91,9 +91,36 @@ impl Cop for NestedParenthesizedCalls {
             end_line: file.line_of(end - 1),
             correction: cx
                 .corrections_requested()
-                .then(|| super::method_call_with_args_parentheses::correction(node, end, file))
-                .flatten()
-                .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+                .then(|| {
+                    // RuboCop's `autocorrect`: the whitespace (and line
+                    // continuations) before the first argument become `(`.
+                    let first = args.first()?.location().start_offset();
+                    let last = args.last()?.location().end_offset();
+                    let mut open = first;
+                    loop {
+                        if open >= 2 && &file.bytes[open - 2..open] == b"\\\n" {
+                            open -= 2;
+                        } else if open > 0 && file.bytes[open - 1].is_ascii_whitespace() {
+                            open -= 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    super::correction::combine(
+                        file,
+                        vec![
+                            crate::offense::Correction {
+                                range: open..first,
+                                replacement: "(".into(),
+                            },
+                            crate::offense::Correction {
+                                range: last..last,
+                                replacement: ")".into(),
+                            },
+                        ],
+                    )
+                })
+                .flatten(),
         });
     }
 }
@@ -130,39 +157,6 @@ mod tests {
             "puts(compute(something))\n",
         );
     }
-    #[test]
-    fn pinned_single_multiple_and_navigation_argument_corrections() {
-        for (before, after, source) in [
-            (
-                "puts(receiver&.compute something)",
-                "puts(receiver&.compute(something))",
-                "receiver&.compute something",
-            ),
-            (
-                "puts(compute first, second)",
-                "puts(compute(first, second))",
-                "compute first, second",
-            ),
-            (
-                "puts(nex \\\n       5)",
-                "puts(nex(\\\n       5))",
-                "nex \\\n       5",
-            ),
-        ] {
-            let found = offenses(before);
-            assert_eq!(found.len(), 1, "{before}");
-            assert_eq!((found[0].line, found[0].col), (1, 6));
-            assert_eq!(
-                found[0].message,
-                format!(
-                    "Add parentheses to nested method call `{}`.",
-                    single_line(source.as_bytes())
-                )
-            );
-            assert_correction(&NestedParenthesizedCalls, before, after);
-        }
-    }
-
     #[test]
     fn fixed_allowlist_requires_one_argument_on_both_calls() {
         for name in ALLOWED {

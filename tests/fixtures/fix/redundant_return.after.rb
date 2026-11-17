@@ -7,4 +7,4 @@ def func
     nil # comment
   end
 end
--> { [*something] }
+-> { something }

@@ -128,61 +128,82 @@ impl<'pr> Regexp<'pr> {
 // Corrections touch only direct static text, never interpolation expressions.
 // The atomic envelope costs at most the literal's size; nesting is bounded by
 // the pipeline's fixed 64-node AST-depth limit. No per-node parse or file scan.
+/// RuboCop's corrector: delimiters, inner slashes and escaped delimiters.
 fn correction(
     regexp: &Regexp<'_>,
     slashes: bool,
     cx: &NodeContext<'_, '_>,
     file: &SourceFile,
 ) -> Option<Correction> {
+    let _ = cx;
     let opening = &regexp.opening;
     let closing = &regexp.closing;
-    let used = *opening.as_slice().last()?;
-    if !slashes && (opening.as_slice().len() != 3 || !used.is_ascii_punctuation() || used == b'\\')
-    {
-        return None; // physical-newline/whitespace/backslash delimiters lack a lexical proof
-    }
+    let edit =
+        |range: std::ops::Range<usize>, replacement: String| Correction { range, replacement };
+    let (new_open, new_close) = if slashes { ("%r{", "}") } else { ("/", "/") };
     let mut edits = vec![
-        Correction {
-            range: opening.start_offset()..opening.end_offset(),
-            replacement: if slashes { "%r{" } else { "/" }.into(),
-        },
-        Correction {
-            range: closing.start_offset()..closing.start_offset() + 1,
-            replacement: if slashes { "}" } else { "/" }.into(),
-        },
+        edit(
+            opening.start_offset()..opening.end_offset(),
+            new_open.into(),
+        ),
+        edit(
+            closing.start_offset()..closing.start_offset() + 1,
+            new_close.into(),
+        ),
     ];
-    let unescape = !slashes && !b"/$*+.?^|()[]{}<>".contains(&used);
+    // `correct_inner_slashes`
+    let inner = |open: &[u8]| {
+        if matches!(open, b"/" | b"%r/") {
+            &b"\\/"[..]
+        } else {
+            &b"/"[..]
+        }
+    };
+    let pattern = inner(opening.as_slice());
+    let replacement = std::str::from_utf8(inner(new_open.as_bytes())).ok()?;
+    // `correct_escaped_delimiters`
+    let delimiter = (!slashes)
+        .then(|| opening.as_slice().last().copied())
+        .flatten()
+        .filter(|d: &u8| *d != b'/' && !b"$*+.?^|()[]{}<>".contains(d));
+    let extended = closing.as_slice()[1..].contains(&b'x');
     for loc in &regexp.fragments {
-        // Whole envelopes containing non-UTF-8 bytes cannot be represented by
-        // Correction. Do not reinterpret legacy multibyte trail bytes as syntax.
-        let text = std::str::from_utf8(loc.as_slice()).ok()?;
-        let bytes = text.as_bytes();
-        let mut i = 0;
-        while i + 1 < bytes.len() {
-            if bytes[i] != b'\\' {
-                i += 1;
-                continue;
-            }
-            let next = bytes[i + 1];
-            if (slashes && next == b'/') || (unescape && next == used) {
-                // Hash-delimiter rewrites can change Regexp#source; removing
-                // an escaped @ after # can introduce #@ / #@@ interpolation,
-                // even in extended-mode comments. Keep the offense, not the edit.
-                if (used == b'#' && bytes.get(i + 2).is_some_and(|b| b"{@$".contains(b)))
-                    || (used == b'@' && i > 0 && bytes[i - 1] == b'#')
-                {
-                    return None;
+        let text = loc.as_slice();
+        let base = loc.start_offset();
+        let mut at = 0;
+        while let Some(found) = text
+            .get(at..)
+            .and_then(|t| t.windows(pattern.len()).position(|w| w == pattern))
+        {
+            let index = at + found;
+            edits.push(edit(
+                base + index..base + index + pattern.len(),
+                replacement.into(),
+            ));
+            at = index + 1;
+        }
+        if let Some(delimiter) = delimiter {
+            let mut index = 0;
+            while let Some(found) = text
+                .get(index..)
+                .and_then(|t| t.iter().position(|b| *b == b'\\'))
+            {
+                index += found;
+                if text.get(index + 1) == Some(&delimiter) {
+                    let next = text.get(index + 2);
+                    let replacement =
+                        if delimiter == b'#' && next.is_some_and(|b| b"{@$".contains(b)) {
+                            if extended { "#\\" } else { "\\#" }.to_owned()
+                        } else {
+                            char::from(delimiter).to_string()
+                        };
+                    edits.push(edit(base + index..base + index + 2, replacement));
                 }
-                edits.push(Correction {
-                    range: loc.start_offset() + i..loc.start_offset() + i + 2,
-                    replacement: char::from(next).to_string(),
-                });
+                index += 2;
             }
-            i += 2;
         }
     }
-    let edit = super::correction::combine(file, edits)?;
-    super::literal_spelling::safe_edit(file, cx, edit)
+    super::correction::combine(file, edits)
 }
 fn static_fragments(parts: ruby_prism::NodeList<'_>) -> Vec<Location<'_>> {
     parts

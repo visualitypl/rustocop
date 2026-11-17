@@ -38,10 +38,6 @@ impl Cop for UnusedMethodArgument {
             return;
         };
         let analysis = ScopeAnalysis::for_underscore_variables(&program, file);
-        let canonical = cx
-            .corrections_requested()
-            .then(|| canonical_parameter(node, file))
-            .flatten();
         // Yield in ANY body descendant exempts &block, including nested defs.
         // Propagate subtree facts once on exit, not a root/body scan per argument.
         let mut yields = Yields::default();
@@ -95,55 +91,50 @@ impl Cop for UnusedMethodArgument {
                     col,
                     end_line: line,
                     message,
-                    correction: canonical
-                        .clone()
-                        .filter(|r| r.start == variable.declaration_range.start)
-                        .map(|range| crate::offense::Correction {
-                            range,
-                            replacement: "_foo".into(),
-                        }),
+                    correction: cx
+                        .corrections_requested()
+                        .then(|| correction(variable, file))
+                        .flatten(),
                 });
             }
         }
     }
 }
-// Live renames change reflection/binding, keyword APIs, defaults and compiler
-// observations. Prove only the inventoried positional spelling in this sole
-// closed, top-level inactive envelope. No method object is created, no callback
-// runs and there are no defaults, captures, assignments or name collisions.
-// The existing main-parse observer/encoding/position guards remain mandatory.
-fn canonical_parameter(node: &Node<'_>, file: &SourceFile) -> Option<std::ops::Range<usize>> {
-    if file.data_start().is_some() {
-        return None;
+/// RuboCop's `UnusedArgCorrector`.
+fn correction(
+    variable: &crate::cops::variables::Variable<'_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let start = variable.declaration_range.start;
+    match variable.declaration {
+        Declaration::Parameter(ParameterKind::RequiredKeyword | ParameterKind::OptionalKeyword) => {
+            None
+        }
+        Declaration::Parameter(ParameterKind::Block) => {
+            let mut begin = start;
+            while begin > 0 && file.bytes[begin - 1] != b'&' {
+                begin -= 1;
+            }
+            begin = begin.checked_sub(1)?;
+            while begin > 0 && matches!(file.bytes[begin - 1], b' ' | b'\t') {
+                begin -= 1;
+            }
+            while begin > 0 && file.bytes[begin - 1] == b'\n' {
+                begin -= 1;
+            }
+            while begin > 0 && file.bytes[begin - 1] == b',' {
+                begin -= 1;
+            }
+            Some(crate::offense::Correction {
+                range: begin..start + variable.name.len(),
+                replacement: String::new(),
+            })
+        }
+        _ => Some(crate::offense::Correction {
+            range: start..start + variable.name.len(),
+            replacement: format!("_{}", std::str::from_utf8(variable.name).ok()?),
+        }),
     }
-    let top = node.as_program_node()?.statements().body();
-    if top.len() != 1 {
-        return None;
-    }
-    let conditional = top.iter().next()?.as_if_node()?;
-    if conditional.predicate().as_false_node().is_none()
-        || conditional.subsequent().is_some()
-        || conditional.end_keyword_loc().is_none()
-        || conditional.if_keyword_loc()?.as_slice() != b"if"
-    {
-        return None;
-    }
-    let body = conditional.statements()?.body();
-    if body.len() != 1 {
-        return None;
-    }
-    let def = body.iter().next()?;
-    let raw = def.location().as_slice();
-    let normalized: Vec<_> = raw
-        .iter()
-        .enumerate()
-        .filter_map(|(i, b)| (*b != b'\r' || raw.get(i + 1) != Some(&b'\n')).then_some(*b))
-        .collect();
-    if normalized != b"def some_method(foo, bar)\n  puts bar\nend" {
-        return None;
-    }
-    let start = def.location().start_offset() + 16;
-    Some(start..start + 3)
 }
 fn reference_name(name: &[u8], file: &SourceFile) -> String {
     file.match_pattern_source(name)

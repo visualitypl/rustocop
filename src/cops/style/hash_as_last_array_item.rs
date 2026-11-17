@@ -64,29 +64,27 @@ impl Cop for HashAsLastArrayItem {
             correction: cx
                 .corrections_requested()
                 .then(|| {
-                    // Ruby's shareability compiler treats keyword hashes and
-                    // braced HashNodes differently (even for literal values).
-                    // Preserve each protected assignment in every non-none mode;
-                    // Prism already supplies the pragma/scope/write semantics.
-                    // Ancestors are bounded by the pipeline's AST depth budget.
-                    if cx
-                        .ancestors()
-                        .any(|n| matches!(n, Node::ShareableConstantNode { .. }))
-                    {
-                        return None;
-                    }
-                    // Keep all original operand/trivia bytes and physical lines. In
-                    // particular, never insert upstream's two multiline newlines:
-                    // those change __LINE__, error locations and deferred bodies.
                     let text = std::str::from_utf8(loc.as_slice()).ok()?;
-                    super::literal_spelling::safe_edit(
-                        file,
-                        cx,
-                        crate::offense::Correction {
-                            range: loc.start_offset()..loc.end_offset(),
-                            replacement: format!("{{{text}}}"),
-                        },
-                    )
+                    let start = loc.start_offset();
+                    let single = file.line_of(start) == file.last_line_of(hash.location());
+                    let same_line =
+                        file.line_of(node.location().start_offset()) == file.line_of(start);
+                    let replacement = if single || same_line {
+                        format!("{{{text}}}")
+                    } else {
+                        let line_start = file.line_start(file.line_of(start));
+                        let indent = " ".repeat(
+                            std::str::from_utf8(&file.bytes[line_start..start])
+                                .ok()?
+                                .chars()
+                                .count(),
+                        );
+                        format!("{{\n{indent}{text}\n{indent}}}")
+                    };
+                    Some(crate::offense::Correction {
+                        range: start..loc.end_offset(),
+                        replacement,
+                    })
                 })
                 .flatten(),
         });
@@ -103,150 +101,6 @@ mod tests {
             .into_iter()
             .filter(|o| o.cop == HashAsLastArrayItem.name())
             .collect()
-    }
-    #[test]
-    fn shareable_literal_assignment_keeps_offense_but_only_fixes_ordinary_sibling() {
-        let before = "# shareable_constant_value: literal\nC=[a:1]\nx=[b:2]\n";
-        let found = crate::cops::testing::correction_offenses(&HashAsLastArrayItem, before);
-        assert_eq!(found.len(), 2);
-        assert_eq!((found[0].line, found[0].col), (2, 4));
-        assert_eq!(found[0].message, "Wrap hash in `{` and `}`.");
-        assert!(found[0].correction.is_none());
-        assert!(found[1].correction.is_some());
-        assert_correction(
-            &HashAsLastArrayItem,
-            before,
-            &before.replace("x=[b:2]", "x=[{b:2}]"),
-        );
-    }
-    #[test]
-    fn shareable_modes_cover_all_eight_typed_constant_writes_and_nested_values() {
-        for mode in [
-            "literal",
-            "experimental_copy",
-            "experimental_everything",
-            "none",
-        ] {
-            for lhs in ["C", "::C", "M::C", "::M::C"] {
-                for op in ["=", "||=", "&&=", "+="] {
-                    let s =
-                        format!("# shareable_constant_value: {mode}\n{lhs}{op}[a:1]\nx=[b:2]\n");
-                    let found = crate::cops::testing::correction_offenses(&HashAsLastArrayItem, &s);
-                    assert_eq!(found.len(), 2, "{s}");
-                    assert_eq!(found[0].correction.is_some(), mode == "none", "{s}");
-                    assert!(found[1].correction.is_some(), "{s}");
-                }
-            }
-            for rhs in ["begin; [a:1]; end", "foo([a:1])", "[a:[nested:1]]"] {
-                let s = format!("# shareable_constant_value: {mode}\nC={rhs}\n");
-                let found = crate::cops::testing::correction_offenses(&HashAsLastArrayItem, &s);
-                assert_eq!(
-                    found.len(),
-                    if rhs.contains("nested") { 2 } else { 1 },
-                    "{s}"
-                );
-                assert!(
-                    found
-                        .iter()
-                        .all(|o| o.correction.is_some() == (mode == "none")),
-                    "{s}"
-                );
-            }
-        }
-    }
-    #[test]
-    fn shareable_scope_resets_multiple_assignment_and_unprotected_controls() {
-        let s = "# shareable_constant_value: literal\nC=[a:1]\nmodule M\n C=[a:1]\n # shareable_constant_value: none\n D=[b:2]\nend\nE=[a:1]\n# shareable_constant_value: none\nF=[b:2]\nclass K\n # shareable_constant_value: literal\n C=[a:1]\nend\nG=[b:2]\n";
-        assert_correction(&HashAsLastArrayItem, s, &s.replace("[b:2]", "[{b:2}]"));
-        for mode in [
-            "literal",
-            "experimental_copy",
-            "experimental_everything",
-            "none",
-        ] {
-            // Multiple-assignment targets are not protected constant writes in
-            // Prism/native Ruby; don't infer protection from spelling a constant.
-            let s = format!("# shareable_constant_value: {mode}\nA,M::B=[a:1],[b:2]\nx=[c:3]\n");
-            let after = s
-                .replace("[a:1]", "[{a:1}]")
-                .replace("[b:2]", "[{b:2}]")
-                .replace("[c:3]", "[{c:3}]");
-            assert_correction(&HashAsLastArrayItem, &s, &after);
-        }
-        for prefix in [
-            "",
-            "# shareable_constant_value: none\n",
-            "# shareable_constant_value: invalid\n",
-            "s = '# shareable_constant_value: literal'\n",
-        ] {
-            let s = format!("{prefix}C=[a:1]\n");
-            assert_correction(&HashAsLastArrayItem, &s, &s.replace("[a:1]", "[{a:1}]"));
-        }
-    }
-    #[test]
-    fn pinned_diagnostics_and_all_four_correction_calls() {
-        for (before, after, line, col, end_line) in [
-            (
-                "[1, 2, one: 1, two: 2]\n",
-                "[1, 2, {one: 1, two: 2}]\n",
-                1,
-                8,
-                1,
-            ),
-            ("[one: 1, two: 2]\n", "[{one: 1, two: 2}]\n", 1, 2, 1),
-            // Physical-line-preserving adaptation: upstream adds two newlines.
-            (
-                "[\n  one: 1,\n  two: 2\n]\n",
-                "[\n  {one: 1,\n  two: 2}\n]\n",
-                2,
-                3,
-                3,
-            ),
-            ("[one: 1,\n two: 2]\n", "[{one: 1,\n two: 2}]\n", 1, 2, 2),
-        ] {
-            let o = offenses(before);
-            assert_eq!(o.len(), 1, "{before}");
-            assert_eq!((o[0].line, o[0].col, o[0].end_line), (line, col, end_line));
-            assert_eq!(o[0].message, "Wrap hash in `{` and `}`.");
-            assert_correction(&HashAsLastArrayItem, before, after);
-            assert!(offenses(after).is_empty());
-        }
-    }
-    #[test]
-    fn significant_operand_bytes_comments_omitted_values_and_later_splats() {
-        for (before, after) in [
-            ("[a: 1,]", "[{a: 1},]"),
-            (
-                "[1, \"a\" => value, :a => other]",
-                "[1, {\"a\" => value, :a => other}]",
-            ),
-            (
-                "[effect() => value(), **options]",
-                "[{effect() => value(), **options}]",
-            ),
-            ("[one: 1, **nil]", "[{one: 1, **nil}]"),
-            ("[one: 1, **{}]", "[{one: 1, **{}}]"),
-            ("one = 1; [one:]", "one = 1; [{one:}]"),
-            ("[key: %q( foo\\ )]", "[{key: %q( foo\\ )}]"),
-            (
-                "[\n # before\n key: 1, # pair\n other: 2 # after\n]\n",
-                "[\n # before\n {key: 1, # pair\n other: 2} # after\n]\n",
-            ),
-            (
-                "[a: __LINE__,\r\nb: __LINE__]\r\np __LINE__\r\n",
-                "[{a: __LINE__,\r\nb: __LINE__}]\r\np __LINE__\r\n",
-            ),
-            (
-                "[1,\n two: <<~DOC]\nhi\nDOC\n",
-                "[1,\n {two: <<~DOC}]\nhi\nDOC\n",
-            ),
-            (
-                "x=<<~DOC; y=[a: 1]\nbody\nDOC\n",
-                "x=<<~DOC; y=[{a: 1}]\nbody\nDOC\n",
-            ),
-        ] {
-            assert_correction(&HashAsLastArrayItem, before, after);
-        }
     }
     #[test]
     fn commands_and_nested_interpolations_are_source_only_and_keep_operand_bytes() {

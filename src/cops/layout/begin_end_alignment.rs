@@ -3,7 +3,7 @@
 
 use ruby_prism::Node;
 
-use super::alignment::{display_column, end_indentation, misaligned_end, start_line_range};
+use super::alignment::{display_column, misaligned_end, start_line_range};
 use crate::{
     cops::{Cop, NodeContext},
     offense::Offense,
@@ -46,14 +46,10 @@ impl Cop for BeginEndAlignment {
             return;
         };
         let (line, col) = file.line_col(end.start_offset());
-        let correction = cx
-            .corrections_requested()
-            .then(|| {
-                let root = cx.ancestors().next_back().unwrap_or(node);
-                let indentation = " ".repeat(display_column(file, anchor.start));
-                end_indentation(file, root, end.start_offset(), &indentation)
-            })
-            .flatten();
+        let correction = cx.corrections_requested().then(|| {
+            let indentation = " ".repeat(display_column(file, anchor.start));
+            super::alignment::align_end(file, end.start_offset(), &indentation)
+        });
         out.push(Offense {
             correction,
             cop: self.name(),
@@ -211,60 +207,6 @@ mod tests {
             "BEGIN {\n  }\n",
         ] {
             assert!(offenses(source).is_empty(), "{source}");
-        }
-    }
-
-    #[test]
-    fn inline_ends_are_reported_but_never_moved_to_a_new_line() {
-        for before in ["begin\n  foo end\n", "x = begin\n  1; end\n"] {
-            let found = correction_offenses(&BeginEndAlignment, before);
-            assert_eq!(found.len(), 1, "{before}");
-            assert!(found[0].correction.is_none());
-        }
-    }
-
-    #[test]
-    fn bom_crlf_tabs_and_literals_preserve_every_other_byte() {
-        for (before, after) in [
-            ("\u{feff}begin\r\n  end", "\u{feff}begin\r\nend"),
-            ("x = begin # é\r\n\t end\r\n", "x = begin # é\r\nend\r\n"),
-            ("  x = begin\nend\n", "  x = begin\n  end\n"),
-            (
-                "x = \"#{begin\n  1\n   end}\"\n",
-                "x = \"#{begin\n  1\n   end}\"\n",
-            ),
-            (
-                "x = <<~H\n  #{begin\n    1\n      end}\nH\n",
-                "x = <<~H\n  #{begin\n    1\n      end}\nH\n",
-            ),
-        ] {
-            assert_eq!(offenses(before).len(), 1, "{before}");
-            assert_correction(&BeginEndAlignment, before, after);
-        }
-    }
-
-    #[test]
-    fn closed_observers_hold_the_edit_but_keep_the_finding() {
-        for tail in [
-            "p __FILE__",
-            "p __dir__",
-            "p $0",
-            "p $PROGRAM_NAME",
-            "p caller",
-            "p caller_locations",
-            "p method(:f).source_location",
-            "SCRIPT_LINES__ = {}",
-            "p DATA.read\n__END__\nx",
-        ] {
-            let source = format!("x = begin\n  1\n  end\n{tail}\n");
-            let found = correction_offenses(&BeginEndAlignment, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for tail in ["p File.read('example.rb')", "p STDIN.read", "p DATA"] {
-            let before = format!("x = begin\n  1\n  end\n{tail}\n");
-            let after = format!("x = begin\n  1\nend\n{tail}\n");
-            assert_correction(&BeginEndAlignment, &before, &after);
         }
     }
 

@@ -11,10 +11,7 @@
 //! the pinned RuboCop reference run (each source and corrected SHA-256
 //! was checked against it when the rows were ported).
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    pipeline::lint_str_with,
-};
+use crate::{cops::testing::correction_offenses, pipeline::lint_str_with};
 
 const COP: &str = "Layout/FirstArrayElementLineBreak";
 
@@ -39,114 +36,6 @@ fn fixed(source: &str) -> String {
     let offenses = correction_offenses(&FirstArrayElementLineBreak, source);
     let applied = crate::corrections::apply(source.as_bytes(), &offenses).unwrap();
     String::from_utf8(applied.bytes).unwrap()
-}
-
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&FirstArrayElementLineBreak, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
-/// `(spec line, source, findings, single-pass correction)`; an empty
-/// correction means the source is accepted.
-type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
-
-const PINNED: &[Pinned] = &[
-    (137, "b = [\n  :a,\n  :b]\n", &[], ""),
-    (
-        6,
-        "a = [:a,\n     :b]\n",
-        &[(1, 6)],
-        "a = [\n:a,\n     :b]\n",
-    ),
-    (24, "%w(a b\n   c d)\n", &[(1, 4)], "%w(\na b\n   c d)\n"),
-    // The shared seam holds this edit (see `HELD`).
-    (
-        40,
-        "method([:foo,\n        :bar])\n",
-        &[(1, 9)],
-        "method([\n:foo,\n        :bar])\n",
-    ),
-    (94, "a, b,\nc =\n1, 2,\n3\n", &[], ""),
-    (
-        59,
-        "a, b,\nc = 1,\n2, 3\n",
-        &[(2, 5)],
-        "a, b,\nc = \n1,\n2, 3\n",
-    ),
-    (77, "a\n.c = 1,\n2, 3\n", &[(2, 6)], "a\n.c = \n1,\n2, 3\n"),
-    // `AllowImplicitArrayLiterals: true`, replayed at the fixed `false`.
-    (127, "a, b,\nc =\n1, 2,\n3\n", &[], ""),
-    (
-        108,
-        "a, b,\nc = 1,\n2, 3\n",
-        &[(2, 5)],
-        "a, b,\nc = \n1,\n2, 3\n",
-    ),
-    (118, "a\n.c = 1,\n2, 3\n", &[(2, 6)], "a\n.c = \n1,\n2, 3\n"),
-    // `AllowMultilineFinalElement: true`, replayed at the fixed `false`.
-    (
-        148,
-        "[a, b, {\n  c: d\n}]\n",
-        &[(1, 2)],
-        "[\na, b, {\n  c: d\n}]\n",
-    ),
-    (156, "[{\n  a: b\n}]\n", &[(1, 2)], "[\n{\n  a: b\n}]\n"),
-    (
-        164,
-        "[a, {\n  b: c\n}, d]\n",
-        &[(1, 2)],
-        "[\na, {\n  b: c\n}, d]\n",
-    ),
-    (180, "[a, b,\nc]\n", &[(1, 2)], "[\na, b,\nc]\n"),
-    // The `compact` bracket style, replayed at the fixed `no_space`.
-    (
-        204,
-        "[[:a, :b],\n [:c, :d]]\n",
-        &[(1, 2)],
-        "[\n[:a, :b],\n [:c, :d]]\n",
-    ),
-    (211, "[:a,\n [:c, :d]]\n", &[(1, 2)], "[\n:a,\n [:c, :d]]\n"),
-    (
-        219,
-        "x = [1, 2],\n  [3, 4]\n",
-        &[(1, 5)],
-        "x = \n[1, 2],\n  [3, 4]\n",
-    ),
-    (
-        237,
-        "[[:a, :b],\n [:c, :d]]\n",
-        &[(1, 2)],
-        "[\n[:a, :b],\n [:c, :d]]\n",
-    ),
-];
-
-/// Pinned corrections withheld by the shared correction boundary, finding
-/// kept: a receiverless `method(<dynamic>)` is a possible `source_location`
-/// acquisition for the listed-observer and code-object barriers (as
-/// `object.method(argument)`).
-const HELD: &[u32] = &[40];
-
-#[test]
-fn pinned_examples_replay_the_fixed_results() {
-    assert_eq!(PINNED.len(), 18);
-    for &(line, source, expected, after) in PINNED {
-        assert_eq!(positions(source), expected, "spec line {line}");
-        if HELD.contains(&line) {
-            held(source);
-            // Without the reflective selector the same edit is applied.
-            let renamed = source.replace("method(", "meth(");
-            assert_eq!(fixed(&renamed), after.replace("method(", "meth("));
-        } else if expected.is_empty() {
-            assert!(
-                correction_offenses(&FirstArrayElementLineBreak, source).is_empty(),
-                "spec line {line}"
-            );
-        } else {
-            assert_correction(&FirstArrayElementLineBreak, source, after);
-        }
-    }
 }
 
 #[test]

@@ -80,6 +80,27 @@ pub(super) fn start_line_range(file: &SourceFile, offset: usize) -> Range<usize>
     start + first..start + last.max(first)
 }
 
+/// RuboCop's `AlignmentCorrector.align_end`: the whitespace before `end`
+/// becomes `indentation`, or `end` moves to its own, indented line.
+pub(super) fn align_end(file: &SourceFile, end: usize, indentation: &str) -> Correction {
+    let line = file.line_of(end);
+    let mut start = file.line_start(line);
+    if line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf") {
+        start = start.max(3);
+    }
+    if file.bytes[start..end].iter().all(u8::is_ascii_whitespace) {
+        Correction {
+            range: start..end,
+            replacement: indentation.to_owned(),
+        }
+    } else {
+        Correction {
+            range: end..end,
+            replacement: format!("\n{indentation}"),
+        }
+    }
+}
+
 /// Port of `AlignmentCorrector.align_end` for a closing keyword (`end` or
 /// `}`) that begins its line: the bytes between the line start and `end` are
 /// replaced by `indentation`. Like `Layout/EndAlignment`, no newline is ever

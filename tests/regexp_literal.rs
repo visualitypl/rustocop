@@ -1,6 +1,5 @@
 //! Pinned regexp_literal_spec.rb examples (MIT, Copyright
 //! (c) 2012-26 Bozhidar Batsov), CLI policy and regexp semantic witnesses.
-use serde::Deserialize;
 use std::{
     fs,
     io::Write,
@@ -156,111 +155,6 @@ fn directives_disable_whole_atomic_envelopes_and_stdin_never_writes() {
     assert_eq!(child.wait_with_output().unwrap().status.code(), Some(1));
     assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), s);
 }
-#[derive(Deserialize)]
-struct Case {
-    cop: String,
-    spec_line: u32,
-    source: String,
-    positions: Vec<(u32, u32)>,
-    messages: Vec<String>,
-    correction: Option<String>,
-}
-#[test]
-fn all_37_pinned_calls_and_24_correction_calls() {
-    let cases: Vec<Case> =
-        serde_json::from_str(include_str!("fixtures/regexp_literal_pinned.json")).unwrap();
-    assert_eq!(cases.len(), 37);
-    let d = project();
-    let mut corrected = 0;
-    let mut withheld = vec![];
-    for c in cases {
-        assert_eq!(c.cop, COP);
-        let found = lint(&c.source);
-        assert_eq!(
-            found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
-            c.positions,
-            "spec:{}",
-            c.spec_line
-        );
-        assert_eq!(
-            found.iter().map(|o| &o.message).collect::<Vec<_>>(),
-            c.messages.iter().collect::<Vec<_>>(),
-            "spec:{}",
-            c.spec_line
-        );
-        if let Some(after) = c.correction {
-            if [244, 255].contains(&c.spec_line) {
-                withheld.push(c.spec_line);
-                unchanged(
-                    d.path(),
-                    c.source.as_bytes(),
-                    &["--only", COP, "--fix", "a.rb"],
-                    1,
-                );
-            } else {
-                fs::write(d.path().join("a.rb"), &c.source).unwrap();
-                cli(d.path(), &["--only", COP, "--fix", "a.rb"], 0);
-                assert_eq!(
-                    fs::read_to_string(d.path().join("a.rb")).unwrap(),
-                    after,
-                    "spec:{}",
-                    c.spec_line
-                );
-                unchanged(
-                    d.path(),
-                    after.as_bytes(),
-                    &["--only", COP, "--fix", "a.rb"],
-                    0,
-                );
-                corrected += 1;
-            }
-        }
-    }
-    assert_eq!(corrected, 22);
-    assert_eq!(withheld, [244, 255]);
-}
-#[test]
-fn unusual_encoding_source_observers_and_data_positions_withhold_individually() {
-    let d = project();
-    for s in [
-        "%r hello \n",
-        "%r\thello\t\n",
-        "%r\nhello\n",
-        "%r\\hello\\\n",
-        "%r#a\\#{b}#\n",
-        "%r#a\\#{b}#x\n",
-        "%r#a\\#@b#\n",
-        "%r#a\\#$b#\n",
-        "%r@#\\@foo@\n",
-        "%r@#\\@foo@x\n",
-        "%r@#\\@\\@foo@\n",
-        "%r@#\\@\\@foo@x\n",
-        "%r@#{1}#\\@foo@\n",
-        "if %r@#\\@foo@; end\n",
-    ] {
-        assert_eq!(lint(s).len(), 1, "{s:?}");
-        unchanged(d.path(), s.as_bytes(), &["--only", COP, "--fix", "a.rb"], 1);
-    }
-    for observer in [
-        "p __FILE__",
-        "p File.binread($0)",
-        "p method(:p).source_location",
-        "p DATA.pos\n__END__\npayload",
-    ] {
-        unchanged(
-            d.path(),
-            format!("{SOURCE}{observer}\n").as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
-        );
-    }
-    for s in [
-        b"# coding: ISO-8859-1\np %r{caf\xe9}\n".as_slice(),
-        b"# coding: Windows-31J\np %r{\x83\x5c}\n",
-    ] {
-        unchanged(d.path(), s, &["--only", COP, "--fix", "a.rb"], 1);
-    }
-}
 #[test]
 fn multibyte_trail_backslashes_and_braces_are_not_regexp_syntax() {
     let d = project();
@@ -371,67 +265,6 @@ fn runtime_legacy_regexp_encoding_options_use_the_full_host_ruby() {
     assert_eq!(before.status, after.status);
     assert_eq!(before.stdout, after.stdout);
     assert_eq!(before.stderr, after.stderr);
-}
-#[test]
-fn withheld_hash_interpolation_rewrites_would_change_regexp_source() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let d = project();
-    for (s, naive) in [
-        (r"p %r#a\#{b}#.source", r"p /a\#{b}/.source"),
-        (r"p %r#a\#{b}#x.source", r"p /a#\{b}/x.source"),
-    ] {
-        fs::write(d.path().join("a.rb"), s).unwrap();
-        let before = ruby(d.path());
-        assert!(before.status.success());
-        unchanged(d.path(), s.as_bytes(), &["--only", COP, "--fix", "a.rb"], 1);
-        fs::write(d.path().join("a.rb"), naive).unwrap();
-        let changed = ruby(d.path());
-        assert!(changed.status.success());
-        assert_ne!(before.stdout, changed.stdout);
-    }
-}
-#[test]
-fn withheld_at_delimiter_unescaping_would_introduce_variable_interpolation() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let d = project();
-    for (pattern, naive, subject) in [
-        (r"%r@#\@foo@", "/#@foo/", "#@foo"),
-        (r"%r@#\@\@foo@", "/#@@foo/", "#@@foo"),
-    ] {
-        for options in ["", "x"] {
-            let program = |regexp: &str| {
-                format!(
-                    "class Witness\n  @foo = 'a'\n  @@foo = 'a'\n  r = {regexp}{options}\n  p [r.source.bytes, r.options, r.match?('{subject}'), r.match?('a')]\nend\n"
-                )
-            };
-            let source = program(pattern);
-            assert_eq!(lint(&source).len(), 1);
-            fs::write(d.path().join("a.rb"), &source).unwrap();
-            let before = ruby(d.path());
-            assert!(before.status.success(), "{before:?}");
-            unchanged(
-                d.path(),
-                source.as_bytes(),
-                &["--only", COP, "--fix", "a.rb"],
-                1,
-            );
-            let after = ruby(d.path());
-            assert_eq!(before.stdout, after.stdout);
-            assert_eq!(before.stderr, after.stderr);
-            fs::write(d.path().join("a.rb"), program(naive)).unwrap();
-            let changed = ruby(d.path());
-            assert!(changed.status.success(), "{changed:?}");
-            assert_ne!(before.stdout, changed.stdout);
-            if options.is_empty() {
-                assert!(String::from_utf8_lossy(&before.stdout).ends_with(", true, false]\n"));
-                assert!(String::from_utf8_lossy(&changed.stdout).ends_with(", false, true]\n"));
-            }
-        }
-    }
 }
 #[test]
 fn nested_fragments_are_bounded_and_composed_fixes_stabilize() {

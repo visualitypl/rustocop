@@ -5,7 +5,6 @@ use crate::{
     source::SourceFile,
 };
 use ruby_prism::{DefNode, Node};
-use std::collections::HashSet;
 pub struct TrivialAccessors;
 impl Cop for TrivialAccessors {
     fn name(&self) -> &'static str {
@@ -35,16 +34,13 @@ impl Cop for TrivialAccessors {
             return;
         }
         let (line, col) = file.line_col(def.def_keyword_loc().start_offset());
-        let correction = if cx.corrections_requested()
-            && cx.ancestors().last().is_some_and(|root| {
-                file.trivial_accessor_bindings(root)
-                    .proven
-                    .contains(&node.location().start_offset())
-            }) {
-            replacement(node, &def, kind, file)
-        } else {
-            None
-        };
+        let in_call = cx
+            .ancestors()
+            .find(|n| n.as_arguments_node().is_none())
+            .is_some_and(|n| n.as_call_node().is_some());
+        let correction = (cx.corrections_requested() && !in_call)
+            .then(|| replacement(node, &def, kind, file))
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -147,136 +143,7 @@ fn exempt_scope(cx: &NodeContext<'_, '_>) -> bool {
     false
 }
 
-/// A separate proof: accepting defs here must never broaden the older attr
-/// regrouping proof (method metadata/definition order have different hazards).
-/// Only discarded, fresh root classes with no source observers, inheritance,
-/// callbacks, reopening, calls or consumed definition values qualify. External
-/// preloads/monkey patches are outside this source-only proof boundary.
-#[derive(Default)]
-pub(crate) struct Bindings {
-    proven: HashSet<usize>,
-    #[cfg(test)]
-    pub(crate) visited: usize,
-}
-impl Bindings {
-    pub(crate) fn build(root: &Node<'_>) -> Self {
-        let mut result = Self::default();
-        let Some(program) = root.as_program_node() else {
-            return result;
-        };
-        let mut classes = HashSet::new();
-        for node in program.statements().body().iter() {
-            #[cfg(test)]
-            {
-                result.visited += 1;
-            }
-            let Some(class) = node.as_class_node() else {
-                return Self::default();
-            };
-            let Some(name) = class.constant_path().as_constant_read_node() else {
-                return Self::default();
-            };
-            if class.superclass().is_some()
-                || super::mixin_grouping::core_namespace(name.name().as_slice())
-                || !classes.insert(name.name().as_slice().to_vec())
-                || !result.body(class.body(), 0, &mut Vec::new())
-            {
-                return Self::default();
-            }
-        }
-        result
-    }
-    fn body(
-        &mut self,
-        body: Option<Node<'_>>,
-        depth: usize,
-        defined: &mut Vec<HashSet<Vec<u8>>>,
-    ) -> bool {
-        while defined.len() <= depth + 1 {
-            defined.push(HashSet::new());
-        }
-        let Some(body) = body else {
-            return true;
-        };
-        let Some(statements) = body.as_statements_node() else {
-            return false;
-        };
-        for node in statements.body().iter() {
-            #[cfg(test)]
-            {
-                self.visited += 1;
-            }
-            if let Some(class) = node.as_singleton_class_node() {
-                if class.expression().as_self_node().is_none()
-                    || !self.body(class.body(), depth + 1, defined)
-                {
-                    return false;
-                }
-            } else if let Some(def) = node.as_def_node() {
-                if kind(&def).is_none()
-                    || def.receiver().is_some_and(|r| r.as_self_node().is_none())
-                {
-                    return false;
-                }
-                let name = def.name().as_slice();
-                let base = name.strip_suffix(b"=").unwrap_or(name);
-                let level = depth + usize::from(def.receiver().is_some());
-                if !valid_name(base) || !defined[level].insert(name.to_vec()) {
-                    return false;
-                }
-                self.proven.insert(node.location().start_offset());
-            } else if let Some(call) = node.as_call_node() {
-                if super::accessors::visibility(&call).is_some() {
-                    continue;
-                }
-                if !super::accessors::family(&call) || call.block().is_some() {
-                    return false;
-                }
-                for arg in crate::cops::ast::call_arguments(&call) {
-                    let Some(symbol) = arg.as_symbol_node() else {
-                        return false;
-                    };
-                    let name = symbol.unescaped();
-                    if !valid_name(name) {
-                        return false;
-                    }
-                    if call.name().as_slice() != b"attr_writer"
-                        && !defined[depth].insert(name.to_vec())
-                    {
-                        return false;
-                    }
-                    if matches!(call.name().as_slice(), b"attr_writer" | b"attr_accessor") {
-                        let mut setter = name.to_vec();
-                        setter.push(b'=');
-                        if !defined[depth].insert(setter) {
-                            return false;
-                        }
-                    }
-                }
-            } else {
-                return false;
-            }
-        }
-        true
-    }
-}
-fn valid_name(name: &[u8]) -> bool {
-    !name.is_empty()
-        && (name[0].is_ascii_alphabetic() || name[0] == b'_')
-        && name.iter().all(|b| b.is_ascii_alphanumeric() || *b == b'_')
-        && !matches!(
-            name,
-            b"method_added"
-                | b"singleton_method_added"
-                | b"attr"
-                | b"attr_reader"
-                | b"attr_writer"
-                | b"attr_accessor"
-                | b"private"
-                | b"protected"
-                | b"public"
-        )
-}
+/// RuboCop's `autocorrect_instance` and `autocorrect_class`.
 fn replacement(
     node: &Node<'_>,
     def: &DefNode<'_>,
@@ -284,34 +151,31 @@ fn replacement(
     file: &SourceFile,
 ) -> Option<crate::offense::Correction> {
     let name = def.name().as_slice();
-    // Detection follows upstream's normalization, but attr_reader would replace
-    // a zero-argument setter with a differently named method.
-    if kind == "reader" && name.ends_with(b"=") {
+    if name.ends_with(b"?") {
         return None;
     }
     let name = std::str::from_utf8(name.strip_suffix(b"=").unwrap_or(name)).ok()?;
     let attr = format!("attr_{kind} :{name}");
-    let text = if def.receiver().is_some() {
-        let start = node.location().start_offset();
-        let line = file.line_of(start);
-        let indent = &file.bytes[file.line_start(line)..start];
-        // Reject inline siblings before decoding/copying a potentially enormous
-        // shared physical-line prefix for each singleton def.
-        if !indent.iter().all(|b| matches!(b, b' ' | b'\t')) {
-            return None;
+    let loc = node.location();
+    let text = match def.receiver() {
+        None => attr,
+        Some(receiver) if receiver.as_self_node().is_some() => {
+            let start = loc.start_offset();
+            let line_start = file.line_start(file.line_of(start));
+            let indent = " ".repeat(
+                std::str::from_utf8(&file.bytes[line_start..start])
+                    .ok()?
+                    .chars()
+                    .count(),
+            );
+            format!("class << self\n{indent}  {attr}\n{indent}end")
         }
-        let indent = std::str::from_utf8(indent).ok()?;
-        let newline =
-            if file.bytes[file.line_start(line)..file.line_start(line + 1)].ends_with(b"\r\n") {
-                "\r\n"
-            } else {
-                "\n"
-            };
-        format!("class << self{newline}{indent}  {attr}{newline}{indent}end")
-    } else {
-        attr
+        Some(_) => return None,
     };
-    super::accessors::rewrite(file, &[node], &text)
+    Some(crate::offense::Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: text,
+    })
 }
 
 #[cfg(test)]
@@ -350,31 +214,6 @@ mod tests {
         }
         let found = offenses("class Foo\n  private def foo\n    @foo\n  end\nend\n");
         assert_eq!((found[0].line, found[0].col), (2, 11));
-    }
-    #[test]
-    fn setter_shaped_readers_report_but_never_change_method_identity() {
-        for method in [
-            "def foo=; @foo; end",
-            "def foo=(); @foo; end",
-            "def self.foo=; @foo; end",
-            "def self.foo=(); @foo; end",
-        ] {
-            let source = format!("class Foo\n  {method}\nend\n");
-            let found = offenses(&source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (2, 3, 2));
-            assert_eq!(
-                found[0].message,
-                "Use `attr_reader` to define trivial reader methods."
-            );
-            let found =
-                crate::cops::testing::correction_offenses(&super::TrivialAccessors, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for method in ["def foo=; @other; end", "def foo=(val); @foo; end"] {
-            assert!(offenses(&format!("class Foo\n  {method}\nend\n")).is_empty());
-        }
     }
     #[test]
     fn nontrivial_parameters_names_and_allowed_methods() {
@@ -461,30 +300,6 @@ mod tests {
             "class Foo\n  private\n  def foo; @foo; end\n  attr_writer :foo\n  public\n  def self.bar; @bar; end\n  class << self\n    protected\n    def baz; @baz; end\n  end\nend\n",
             "class Foo\n  private\n  attr_reader :foo\n  attr_writer :foo\n  public\n  class << self\n    attr_reader :bar\n  end\n  class << self\n    protected\n    attr_reader :baz\n  end\nend\n",
         );
-    }
-    #[test]
-    fn many_inline_singleton_definitions_never_copy_their_shared_line_prefix() {
-        let source = format!(
-            "class Foo; {}; end",
-            (0..2000)
-                .map(|i| format!("def self.a{i}; @a{i}; end"))
-                .collect::<Vec<_>>()
-                .join("; ")
-        );
-        let found = crate::cops::testing::correction_offenses(&super::TrivialAccessors, &source);
-        assert_eq!(found.len(), 2000);
-        assert!(found.iter().all(|o| o.correction.is_none()));
-    }
-    #[test]
-    fn uncertain_pinned_eval_and_visibility_modifier_corrections_withheld() {
-        for source in [
-            "class Foo\n  private def foo\n    @foo\n  end\nend\n",
-            "something.instance_eval do\n  class << @blah\n    begin\n      def bar\n        @bar\n      end\n    end\n  end\nend\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&super::TrivialAccessors, source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
-        }
     }
     #[test]
     fn module_eval_class_and_top_level_scopes() {

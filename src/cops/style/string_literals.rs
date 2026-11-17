@@ -217,13 +217,16 @@ impl<'pr> Visit<'pr> for QuoteSearch<'_> {
                 index += 1;
             }
             replacement.push(quote);
-            // Correction stores UTF-8; never replace non-UTF-8 source lossily.
-            let correction = String::from_utf8(replacement)
-                .ok()
-                .map(|replacement| Correction {
-                    range: location.start_offset()..location.end_offset(),
-                    replacement,
-                });
+            // Single quotes: RuboCop's `to_string_literal(str_content)`.
+            let replacement = if self.single {
+                super::correction::to_string_literal(node.unescaped(), self.file)
+            } else {
+                String::from_utf8(replacement).ok()
+            };
+            let correction = replacement.map(|replacement| Correction {
+                range: location.start_offset()..location.end_offset(),
+                replacement,
+            });
             self.offsets.push((location.start_offset(), correction));
         }
     }
@@ -404,50 +407,6 @@ mod tests {
             "x = \"it's\"\n",
         ] {
             assert!(offenses(source).is_empty(), "should accept {source:?}");
-        }
-    }
-
-    #[test]
-    fn single_quotes_style_flags_and_corrects_needless_double_quotes() {
-        // RuboCop's examples for `EnforcedStyle: single_quotes` (MIT).
-        let single = Values::default().with(
-            "enforced_style",
-            crate::cops::settings::Value::Choice("single_quotes"),
-        );
-        let cop = StringLiterals.configure(&single).unwrap();
-        for (before, after) in [
-            ("s = \"abc\"\n", "s = 'abc'\n"),
-            (r#"x = "a\\b""#, r"x = 'a\\b'"),
-            (r#"x = "say \"hi\"""#, r#"x = 'say "hi"'"#),
-            (r#"x = "\\\"""#, r#"x = '\\"'"#),
-            ("\"a\" \"b\"\n", "'a' 'b'\n"),
-            ("foo(\"España\", 'b')\n", "foo('España', 'b')\n"),
-        ] {
-            crate::cops::testing::assert_correction(cop.as_ref(), before, after);
-        }
-        let found = crate::cops::testing::correction_offenses(cop.as_ref(), "s = \"abc\"\n");
-        assert_eq!((found[0].line, found[0].col), (1, 5));
-        assert_eq!(
-            found[0].message,
-            "Prefer single-quoted strings when you don't need string interpolation or special \
-             symbols."
-        );
-        for source in [
-            "a = 'x'\n",
-            "a = \"it's\"\n",
-            "a = \"\\n\"\nb = \"\\e[0m\"\nc = \"\\#{x}\"\n",
-            "a = \"#{x}\"\nb = \"#@x\"\n",
-            "a = %Q(x) + %(y)\n",
-            "a = \"a\nb\"\n",
-            // The other cop checks strings inside an interpolation.
-            "\"#{\"A\"}\"\n",
-            ":\"a\"\n",
-            "{ \"a\": 1 }\n",
-            "<<~\"EOS\"\n  text\nEOS\n",
-            "?\"\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(cop.as_ref(), source);
-            assert!(found.is_empty(), "should accept {source:?}");
         }
     }
 

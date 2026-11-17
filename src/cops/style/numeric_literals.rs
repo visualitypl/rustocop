@@ -51,6 +51,10 @@ impl Cop for NumericLiterals {
             return;
         }
         let (line, col) = file.line_col(loc.start_offset());
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(&loc))
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -60,51 +64,56 @@ impl Cop for NumericLiterals {
             message:
                 "Use underscores(_) as thousands separator and separate every 3 digits with them."
                     .into(),
-            correction: cx
-                .corrections_requested()
-                .then(|| correction(node, cx, file))
-                .flatten(),
+            correction,
         });
     }
 }
-fn correction(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-) -> Option<crate::offense::Correction> {
-    // Group only the actual token. Folding a separated `- 12345` into
-    // `-12_345` would remove an observable Integer#-@ dispatch in Ruby.
-    let loc = node.location();
-    let source = loc.as_slice();
-    let sign = usize::from(matches!(source.first(), Some(b'+' | b'-')));
-    let end = source
+/// RuboCop's `format_number`.
+fn correction(loc: &ruby_prism::Location<'_>) -> Option<crate::offense::Correction> {
+    let source: Vec<u8> = loc
+        .as_slice()
+        .iter()
+        .copied()
+        .filter(|b| !b.is_ascii_whitespace() && *b != 0x0b)
+        .collect();
+    let split = source
         .iter()
         .position(|b| matches!(b, b'.' | b'e' | b'E'))
         .unwrap_or(source.len());
-    let int = &source[sign..end];
-    // A spaced unary-minus can make upstream inspect a nondecimal payload.
-    // Keep that offense, but don't interpret a base or reserialize its value.
-    if int.starts_with(b"0") || !int.iter().all(|b| b.is_ascii_digit() || *b == b'_') {
+    let (int_part, rest) = source.split_at(split);
+    let (negative, digits) = match int_part.split_first() {
+        Some((b'-', d)) => (true, d),
+        Some((b'+', d)) => (false, d),
+        _ => (false, int_part),
+    };
+    if digits.is_empty()
+        || digits.starts_with(b"_")
+        || digits.ends_with(b"_")
+        || !digits.iter().all(|b| b.is_ascii_digit() || *b == b'_')
+    {
         return None;
     }
-    let digits: Vec<_> = int.iter().copied().filter(|&b| b != b'_').collect();
-    let mut replacement = String::with_capacity(digits.len() + digits.len() / 3);
+    let digits: Vec<u8> = digits.iter().copied().filter(|&b| b != b'_').collect();
+    let first = digits
+        .iter()
+        .position(|&b| b != b'0')
+        .unwrap_or(digits.len() - 1);
+    let digits = &digits[first..];
+    let mut formatted = String::new();
+    if negative && digits != b"0" {
+        formatted.push('-');
+    }
     for (i, b) in digits.iter().enumerate() {
         if i > 0 && (digits.len() - i).is_multiple_of(3) {
-            replacement.push('_');
+            formatted.push('_');
         }
-        replacement.push(char::from(*b));
+        formatted.push(char::from(*b));
     }
-    if replacement.as_bytes() == int {
-        // Only folding the unary operator could remove this source-based
-        // offense on an already canonical short token; never emit a no-op.
-        return None;
-    }
-    let edit = crate::offense::Correction {
-        range: loc.start_offset() + sign..loc.start_offset() + end,
-        replacement,
-    };
-    super::literal_spelling::safe_edit(file, cx, edit)
+    formatted.push_str(std::str::from_utf8(rest).ok()?);
+    Some(crate::offense::Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: formatted,
+    })
 }
 
 #[cfg(test)]
@@ -174,39 +183,6 @@ mod tests {
         }
     }
     #[test]
-    fn source_based_detection_keeps_comments_bases_and_nested_signs_distinct() {
-        for (source, col, after) in [
-            ("- 12345", 1, "- 12_345"),
-            ("+ 12345", 3, "+ 12_345"),
-            ("- -12345", 1, "- -12_345"),
-            ("- +12345", 1, "- +12_345"),
-            ("- # hold\n12345", 1, "- # hold\n12_345"),
-        ] {
-            let found = offenses(source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col), (1, col));
-            assert_correction(&NumericLiterals, source, after);
-        }
-        // The pinned integer-part split sees the e in a folded sign's comment.
-        assert!(offenses("- # keep\n12345").is_empty());
-        for s in ["- 01234", "- 0d123456", "- 0XABC12345"] {
-            let found = crate::cops::testing::correction_offenses(&NumericLiterals, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found[0].correction.is_none(), "{s}");
-        }
-    }
-    #[test]
-    fn physical_line_anchors_count_folded_source_but_do_not_fold_dispatch() {
-        for s in ["- \n123", "- # hold\n1", "- # hold\n0"] {
-            let found = offenses(s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert_eq!((found[0].line, found[0].col), (1, 1));
-            let found = crate::cops::testing::correction_offenses(&NumericLiterals, s);
-            assert!(found[0].correction.is_none(), "{s}");
-        }
-        assert!(offenses("-\n123").is_empty());
-    }
-    #[test]
     fn minimum_digits_counts_normalized_source_characters() {
         for source in ["-#é\n1\n", "-\r\n123\n"] {
             assert!(offenses(source).is_empty(), "{source:?}");
@@ -217,13 +193,5 @@ mod tests {
             assert_eq!(found.len(), 1, "{source:?}");
             assert_eq!((found[0].line, found[0].col), (1, 1));
         }
-    }
-    #[test]
-    fn separated_minus_has_pinned_detection_but_preserves_operator_dispatch() {
-        let s = "a = -\n  12345\n";
-        let found = offenses(s);
-        assert_eq!(found.len(), 1);
-        assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 5, 2));
-        assert_correction(&NumericLiterals, s, "a = -\n  12_345\n");
     }
 }

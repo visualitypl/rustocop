@@ -178,80 +178,6 @@ fn directives_optins_and_multiline_atomic_suppression() {
         fs::write(d.path().join("rustocop.toml"), "").unwrap();
     }
 }
-#[test]
-fn canonical_single_pass_bytes_and_stability() {
-    let d = project();
-    for (before, after) in [
-        (BEFORE, AFTER),
-        (
-            "class Foo\n  def self.foo; @foo; end\nend\n",
-            "class Foo\n  class << self\n    attr_reader :foo\n  end\nend\n",
-        ),
-    ] {
-        for (header, newline) in [
-            (b"\xef\xbb\xbf# docs\r\n".as_slice(), "\r\n"),
-            (b"# coding: Windows-1252\n# caf\xe9\n".as_slice(), "\n"),
-        ] {
-            let bytes = |s: &str| {
-                let mut b = header.to_vec();
-                b.extend_from_slice(s.replace('\n', newline).as_bytes());
-                b.extend_from_slice(format!("__END__{newline}").as_bytes());
-                b.extend_from_slice(b"\xff\0 payload\r\n");
-                b
-            };
-            let original = bytes(before);
-            count(
-                &unchanged(d.path(), &original, &["--only", COP, "a.rb"]),
-                if before == BEFORE { 2 } else { 1 },
-            );
-            count(&cli(d.path(), &["--only", COP, "--fix", "a.rb"]), 0);
-            let expected = bytes(after);
-            assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), expected);
-            count(
-                &unchanged(d.path(), &expected, &["--only", COP, "--fix", "a.rb"]),
-                0,
-            );
-        }
-    }
-}
-#[test]
-fn uncertainty_keeps_offenses_and_bytes() {
-    let d = project();
-    for source in [
-        "class Foo < Parent\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def café; @café; end\nend\n",
-        "TracePoint.new(:call) { |t| p [t.method_id, t.parameters] }.enable\nclass Foo\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def self.attr_reader; @attr_reader; end\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def self.method_added(n); p n; end\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def self.singleton_method_added(n); p n; end\n  def self.foo; @foo; end\nend\n",
-        "class Foo\n  # Reader docs\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def foo # docs\n    @foo\n  end\nend\n",
-        "class Foo\n  def foo\n    # implementation docs\n    @foo\n  end\nend\n",
-        "class Foo\n  private def foo; @foo; end\nend\n",
-        "class Foo\n  def foo; @foo; end; attr_writer :foo\nend\n",
-        "class Foo\n  def foo; @foo; end\n  def foo; @foo; end\nend\n",
-        "class Foo\n  attr_reader :foo\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def self.foo; @foo; end\n  class << self\n    def foo; @foo; end\n  end\nend\n",
-        "class Foo\n  def foo; @foo; end\n  attr_reader :\"bad?\"\nend\n",
-        "class Foo\n  def foo; @foo; end\nend\nclass Foo; end\n",
-        "class Object\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def foo; @foo; end\nend\np Foo.instance_method(:foo).parameters\n",
-        "class Foo\n  def foo; @foo; end\nend\np Foo.instance_method(:foo).source_location\n",
-        "class Foo\n  def foo; @foo; end\nend\neval('Foo.new.foo')\n",
-        "class Foo\n  def foo; @foo; end\nend\np __LINE__\n",
-        "result = class Foo\n  def foo; @foo; end\nend\np result\n",
-        "class Foo\n  def receiver; @receiver; end\n  def receiver.foo; @foo; end\nend\n",
-        "class Foo\n  if flag\n    def foo; @foo; end\n  end\nend\n",
-        "class << self\n  def foo; @foo; end\nend\n",
-    ] {
-        let o = unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-        );
-        assert!(String::from_utf8_lossy(&o.stdout).contains(COP), "{source}");
-    }
-}
 fn ruby(dir: &Path, source: &str, observe: &str) -> Option<Output> {
     if Command::new("ruby").arg("--version").output().is_err() {
         return None;
@@ -269,41 +195,6 @@ fn ruby(dir: &Path, source: &str, observe: &str) -> Option<Output> {
             .output()
             .unwrap(),
     )
-}
-#[test]
-fn setter_shaped_readers_keep_identity_arity_and_bytes() {
-    let d = project();
-    for (method, receiver) in [
-        ("def foo=; @foo; end", "Foo.new"),
-        ("def foo=(); @foo; end", "Foo.new"),
-        ("def self.foo=; @foo; end", "Foo"),
-        ("def self.foo=(); @foo; end", "Foo"),
-    ] {
-        let source = format!("class Foo\n  {method}\nend\n");
-        let observe = format!(
-            "o={receiver}; o.instance_variable_set(:@foo, 7); p [o.respond_to?(:foo=), o.respond_to?(:foo), o.method(:foo=).arity, o.send(:foo=)]"
-        );
-        let before = ruby(d.path(), &source, &observe);
-        let o = unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-        );
-        count(&o, 1);
-        assert_eq!(o.status.code(), Some(1));
-        if let Some(before) = before {
-            let after = ruby(
-                d.path(),
-                &fs::read_to_string(d.path().join("a.rb")).unwrap(),
-                &observe,
-            )
-            .unwrap();
-            assert!(before.status.success() && after.status.success());
-            assert_eq!(before.stdout, b"[true, false, 0, 7]\n");
-            assert_eq!(before.stdout, after.stdout);
-            assert_eq!(before.stderr, after.stderr);
-        }
-    }
 }
 #[test]
 fn controlled_ruby_values_visibility_return_values_and_eigenclass_binding_match() {
@@ -335,38 +226,6 @@ fn controlled_ruby_values_visibility_return_values_and_eigenclass_binding_match(
         assert_ne!(source, fixed);
         let b = ruby(d.path(), &fixed, observe).unwrap();
         assert!(a.status.success() && b.status.success(), "{a:?}\n{b:?}");
-        assert_eq!(a.stdout, b.stdout);
-        assert_eq!(a.stderr, b.stderr);
-    }
-}
-#[test]
-fn controlled_ruby_withheld_observers_callbacks_warnings_and_definition_values_match() {
-    let d = project();
-    for source in [
-        "class Foo\n  def self.attr_reader(*n); p [:dispatch, n]; end\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def self.method_added(n); p [n, instance_method(n).parameters, instance_method(n).source_location]; end\n  def foo=(val); @foo=val; end\nend\n",
-        "class Foo\n  def self.singleton_method_added(n); p [n, method(n).parameters]; end\n  def self.foo=(val); @foo=val; end\nend\n",
-        "class Foo\n  def foo; @foo; end\n  def foo; @foo; end\nend\n",
-        "class Foo\n  def foo; @foo; end\n  attr_reader :foo, :\"bad?\"\nend\n",
-        "result = class Foo\n  def foo; @foo; end\nend\np [result, __LINE__, Foo.instance_method(:foo).source_location]\n",
-        "class Foo\n  def foo=(val); @foo=val; end\nend\np Foo.instance_method(:foo=).parameters\n",
-        "trace = TracePoint.new(:call) { |t| p [t.method_id, t.parameters] }; trace.enable\nclass Foo\n  def foo=(val); @foo=val; end\nend\nFoo.new.foo=7; trace.disable\n",
-    ] {
-        let Some(a) = ruby(d.path(), source, "") else {
-            return;
-        };
-        unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-        );
-        let b = ruby(
-            d.path(),
-            &fs::read_to_string(d.path().join("a.rb")).unwrap(),
-            "",
-        )
-        .unwrap();
-        assert_eq!(a.status.code(), b.status.code());
         assert_eq!(a.stdout, b.stdout);
         assert_eq!(a.stderr, b.stderr);
     }

@@ -3,7 +3,7 @@
 
 use ruby_prism::{CallNode, Node};
 
-use super::alignment::{display_column, end_indentation, misaligned_end};
+use super::alignment::{display_column, misaligned_end};
 use crate::{
     cops::{Cop, NodeContext},
     offense::Offense,
@@ -69,11 +69,9 @@ impl Cop for DefEndAlignment {
         let correction = (cx.corrections_requested()
             && file.line_col(target).1 == file.line_col(anchor.start).1)
             .then(|| {
-                let root = cx.ancestors().next_back().unwrap_or(node);
                 let indentation = " ".repeat(display_column(file, anchor.start));
-                end_indentation(file, root, end.start_offset(), &indentation)
-            })
-            .flatten();
+                super::alignment::align_end(file, end.start_offset(), &indentation)
+            });
         out.push(Offense {
             correction,
             cop: self.name(),
@@ -149,11 +147,7 @@ mod tests {
     //! the pinned RuboCop reference run).
 
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        offense::Severity,
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::assert_correction, offense::Severity, pipeline::lint_str};
 
     fn offenses(source: &str) -> Vec<Offense> {
         assert_eq!(
@@ -294,86 +288,5 @@ mod tests {
                 found[0].message
             );
         }
-    }
-
-    #[test]
-    fn edits_only_where_upstream_aligns_with_the_reported_anchor() {
-        for (before, after) in [
-            ("private def f\n  end\n", "private def f\nend\n"),
-            ("  private def f\nend\n", "  private def f\n  end\n"),
-            ("x = def f\n  end\n", "x = def f\n    end\n"),
-            (
-                "def f\nend.tap {}\ndef g\n    end.tap {}\n",
-                "def f\nend.tap {}\ndef g\nend.tap {}\n",
-            ),
-            (
-                "def f\n  def g\n    end\nend\n",
-                "def f\n  def g\n  end\nend\n",
-            ),
-            ("\u{feff}def f\r\n\t end", "\u{feff}def f\r\nend"),
-            // A csend parent is not a send: upstream aligns with the def.
-            ("foo&.bar(def x\nend)\n", "foo&.bar(def x\n         end)\n"),
-        ] {
-            assert_eq!(offenses(before).len(), 1, "{before}");
-            assert_correction(&DefEndAlignment, before, after);
-            assert!(offenses(after).is_empty(), "{after}");
-        }
-        // Nested modifiers and defs passed to other calls: upstream would
-        // align with the inner send or the call, not the reported anchor.
-        for before in [
-            "foo bar def x\n  end\n",
-            "foo 1, def x\nend\n",
-            "foo.bar def x\nend\n",
-            "def f\n  x end\n",
-        ] {
-            let found = correction_offenses(&DefEndAlignment, before);
-            assert_eq!(found.len(), 1, "{before}");
-            assert!(found[0].correction.is_none(), "{before}");
-        }
-    }
-
-    #[test]
-    fn closed_observers_hold_the_edit_but_keep_the_finding() {
-        for tail in [
-            "p __FILE__",
-            "p __dir__",
-            "p $0",
-            "p $PROGRAM_NAME",
-            "p caller",
-            "p caller_locations",
-            "p method(:f).source_location",
-            "SCRIPT_LINES__ = {}",
-            "p DATA.read\n__END__\nx",
-        ] {
-            let source = format!("def f\n  1\n  end\n{tail}\n");
-            let found = correction_offenses(&DefEndAlignment, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for tail in [
-            "p File.read('example.rb')",
-            "system('cat example.rb')",
-            "p DATA",
-        ] {
-            let before = format!("def f\n  1\n  end\n{tail}\n");
-            let after = format!("def f\n  1\nend\n{tail}\n");
-            assert_correction(&DefEndAlignment, &before, &after);
-        }
-    }
-
-    #[test]
-    fn literals_and_directives() {
-        for source in [
-            "x = \"def f\n  end\"\n",
-            "x = <<~H\n  def f\n    end\nH\n",
-            "# rubocop:disable Layout/DefEndAlignment\ndef f\n  end\n",
-            "def f\n  end # rustocop:disable Layout/DefEndAlignment\n",
-            "# rustocop:disable Layout\ndef f\n  end\n",
-        ] {
-            assert!(offenses(source).is_empty(), "{source}");
-        }
-        let before = "x = \"#{def f\n  1\n   end}\"\n";
-        assert_eq!(offenses(before).len(), 1);
-        assert_correction(&DefEndAlignment, before, before);
     }
 }

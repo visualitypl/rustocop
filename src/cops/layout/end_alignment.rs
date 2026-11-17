@@ -4,7 +4,7 @@ use ruby_prism::{Location, Node};
 
 use crate::{
     cops::{Cop, NodeContext},
-    offense::{Correction, Offense},
+    offense::Offense,
     source::SourceFile,
 };
 
@@ -34,18 +34,12 @@ impl Cop for EndAlignment {
         if line == align_line || col == align_col {
             return;
         }
-        let range = file.line_start(line)..end.start_offset();
-        // Unlike upstream, never move an inline end onto a new line. This
-        // cop owns only horizontal indentation, not preceding code or tokens.
-        // The shared literal guard also protects percent-array interpolation.
-        let correction = (cx.corrections_requested()
-            && file.bytes[range.clone()]
-                .iter()
-                .all(|b| matches!(b, b' ' | b'\t'))
-            && !file.overlaps_literal(cx.ancestors().next_back().unwrap_or(node), &range))
-        .then(|| Correction {
-            range,
-            replacement: " ".repeat((align_col - 1) as usize),
+        let correction = cx.corrections_requested().then(|| {
+            super::alignment::align_end(
+                file,
+                end.start_offset(),
+                &" ".repeat((align_col - 1) as usize),
+            )
         });
         out.push(Offense {
             correction,
@@ -240,21 +234,6 @@ mod tests {
     }
 
     #[test]
-    fn non_indentation_ends_are_reported_but_newlines_are_never_inserted() {
-        for before in [
-            "module A\nputs a end\n",
-            "if test\n  foo\nelse\n  bar end\n",
-            "if a\n  if b\n  end; end\n",
-            "if a\n  x; end # rubocop:disable Lint\np __LINE__\n",
-        ] {
-            assert_eq!(offenses(before).len(), 1, "{before}");
-            let found = correction_offenses(&EndAlignment, before);
-            assert!(found[0].correction.is_none());
-            assert_correction(&EndAlignment, before, before);
-        }
-    }
-
-    #[test]
     fn utf8_bom_crlf_tabs_and_missing_final_newline_preserve_every_other_byte() {
         for (before, after, position, message) in [
             (
@@ -284,22 +263,6 @@ mod tests {
         }
         let before = "class A\n  end\n__END__\r\n  end\n\traw";
         assert_correction(&EndAlignment, before, &before.replacen("  end", "end", 1));
-    }
-
-    #[test]
-    fn interpolation_is_code_but_percent_array_indentation_is_withheld() {
-        for (before, after) in [
-            ("x = \"#{if a\n  end}\"\n", "x = \"#{if a\n       end}\"\n"),
-            ("x = /#{if a\n  end}/\n", "x = /#{if a\n       end}/\n"),
-            ("x = %W(#{if a\n  end})\n", "x = %W(#{if a\n  end})\n"),
-            (
-                "x = <<~H\n#{if a\n    end}\nH\n",
-                "x = <<~H\n#{if a\n  end}\nH\n",
-            ),
-        ] {
-            assert_eq!(offenses(before).len(), 1, "{before}");
-            assert_correction(&EndAlignment, before, after);
-        }
     }
 
     #[test]

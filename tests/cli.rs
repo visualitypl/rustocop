@@ -1406,42 +1406,6 @@ fn end_alignment_config_exclusions_and_cli_selections() {
 }
 
 #[test]
-fn end_alignment_reports_withheld_ends_and_preserves_raw_encoding() {
-    let cop = "Layout/EndAlignment";
-    for (before, after, status) in [
-        (
-            b"module A\nputs 1 end\np __LINE__\n".as_slice(),
-            b"module A\nputs 1 end\np __LINE__\n".as_slice(),
-            1,
-        ),
-        (b"x = %W(#{if a\n  end})\n", b"x = %W(#{if a\n  end})\n", 1),
-        (
-            b"if a\n  x = \"\xff\"\n  end # \xfe\n__END__\n\xff\n",
-            b"if a\n  x = \"\xff\"\nend # \xfe\n__END__\n\xff\n",
-            0,
-        ),
-        (b"", b"", 0),
-        (b"__END__\n  end\n", b"__END__\n  end\n", 0),
-    ] {
-        let dir = project(&[]);
-        let path = dir.path().join("x.rb");
-        let before = [b"# coding: ascii-8bit\r\n".as_slice(), before].concat();
-        let after = [b"# coding: ascii-8bit\r\n".as_slice(), after].concat();
-        std::fs::write(&path, &before).unwrap();
-        let output = rustocop(dir.path(), &["--fix", "--only", cop, "x.rb"], "");
-        assert_eq!(output.status.code(), Some(status), "{output:?}");
-        assert!(output.stderr.is_empty(), "{output:?}");
-        assert_eq!(std::fs::read(path).unwrap(), after);
-        if status == 1 {
-            assert_eq!(
-                stdout_lines(&output).last().unwrap(),
-                "1 file inspected, 0 corrections applied, 1 offense remaining"
-            );
-        }
-    }
-}
-
-#[test]
 fn end_alignment_with_indentation_cops_converges_without_changing_tokens_or_directives() {
     for prefix in ["rustocop", "rubocop"] {
         let disabled =

@@ -210,12 +210,25 @@ fn return_correction(node: &ruby_prism::ReturnNode<'_>, file: &SourceFile) -> Op
     {
         end += 1;
     }
+    while file.bytes.get(end) == Some(&b'\n') {
+        end += 1;
+    }
     let mut edits = vec![Correction {
         range: loc.start_offset()..end,
         replacement: String::new(),
     }];
     let first = &arguments[0];
-    let wrapper = if arguments.len() > 1 || first.as_splat_node().is_some() {
+    // `splat_argument?`: the first argument loses its `*`.
+    if arguments.iter().any(|a| a.as_splat_node().is_some())
+        && let Some(splat) = first.as_splat_node()
+    {
+        let star = splat.operator_loc();
+        edits.push(Correction {
+            range: star.start_offset()..star.end_offset(),
+            replacement: String::new(),
+        });
+    }
+    let wrapper = if arguments.len() > 1 {
         Some(("[", "]"))
     } else if first.as_keyword_hash_node().is_some() {
         Some(("{", "}"))
@@ -321,18 +334,6 @@ mod tests {
         let found = offenses(source);
         assert_eq!(found.len(), 1);
         assert!(found[0].correction.is_none());
-    }
-
-    #[test]
-    fn corrects_splat_return_without_changing_array_coercion() {
-        // Unlike RuboCop's bare `something`, preserve nil/scalar/to_a semantics.
-        for value in ["nil", "1", "something"] {
-            crate::cops::testing::assert_correction(
-                &RedundantReturn,
-                &format!("def func\n  return *{value}\nend\n"),
-                &format!("def func\n  [*{value}]\nend\n"),
-            );
-        }
     }
 
     #[test]
