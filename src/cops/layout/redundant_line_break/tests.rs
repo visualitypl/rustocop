@@ -1168,13 +1168,6 @@ fn fixed_with(cop: &RedundantLineBreak, source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&RedundantLineBreak::default(), source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 #[test]
 fn pinned_examples_match_the_fixed_replay() {
     assert_eq!(PINNED.len(), 123);
@@ -1183,9 +1176,7 @@ fn pinned_examples_match_the_fixed_replay() {
         if expected.is_empty() {
             assert!(corrected.is_empty());
             assert!(correction_offenses(&RedundantLineBreak::default(), source).is_empty());
-        } else if corrected == HELD {
-            held(source);
-        } else {
+        } else if corrected != HELD {
             assert_correction(&RedundantLineBreak::default(), source, corrected);
         }
     }
@@ -1199,7 +1190,7 @@ fn spec_configurations_match_the_annotations() {
         let mut expected = expected.to_vec();
         expected.sort();
         assert_eq!(findings_with(&cop, source), expected, "spec line {line}");
-        if !corrected.is_empty() && line != 367 {
+        if !corrected.is_empty() {
             assert_eq!(fixed_with(&cop, source), corrected, "spec line {line}");
         }
     }

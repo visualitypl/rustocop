@@ -51,7 +51,6 @@ use crate::{
         Cop, NodeContext,
         ast::fingerprint_folding_strings,
         reparse::{self, Equivalence},
-        style::correction::touches_directive,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -469,14 +468,6 @@ impl<'pr> Walker<'_, 'pr> {
     }
 
     fn correction(&self, range: &Range<usize>, joined: Vec<u8>) -> Option<Correction> {
-        let file = self.file;
-        let source = &file.bytes[range.clone()];
-        if introduces_concatenation(source)
-            || memchr::memmem::find(source, b"__LINE__").is_some()
-            || touches_directive(file, range.clone())
-        {
-            return None;
-        }
         Some(Correction {
             range: range.clone(),
             replacement: String::from_utf8(joined).ok()?,
@@ -912,15 +903,6 @@ fn strip(bytes: &[u8]) -> &[u8] {
         .rposition(|b| !white(b))
         .map_or(start, |e| e + 1);
     &bytes[start..end]
-}
-
-/// Whether `to_single_line` turns a split string into a `+` call.
-fn introduces_concatenation(source: &[u8]) -> bool {
-    let plus = |open, close, with: &[u8]| {
-        let joined = quote_join(source, open, close, with);
-        joined.len() != source.len() || joined != source
-    };
-    plus(b'"', b'\'', b"\" + '") || plus(b'\'', b'"', b"' + \"")
 }
 
 /// `preprocess_reparsed_source`: `\b__LINE__\b` becomes `__LINE0__`.
