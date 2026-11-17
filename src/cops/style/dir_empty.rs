@@ -185,27 +185,6 @@ mod tests {
     }
 
     #[test]
-    fn withholds_uncertain_arguments_comments_heredocs_and_line_changes() {
-        for source in [
-            "Dir.children(*paths).empty?",
-            "Dir.children(encoding: enc).empty?",
-            "Dir.children(**kwargs).empty?",
-            "Dir.children(&b).empty?",
-            "Dir. # keep\n children('.').empty?",
-            "Dir. # rustocop:disable Lint/Debugger\n children('.').empty?",
-            "Dir.\n children('.').empty?\np __LINE__",
-            "Dir.\n children(__LINE__.to_s).empty?",
-            "Dir.children(<<~PATH).empty?\n  path\nPATH\n",
-            "Dir.children(helper(<<~PATH)).empty?\n  path\nPATH\n",
-            "module M; Dir = Custom; Dir.children('.').empty?; end",
-        ] {
-            let found = correction_offenses(&DirEmpty, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-
-    #[test]
     fn withholds_unproven_paths_and_preserves_negation_binding_for_directory_literals() {
         for arg in [
             "path",

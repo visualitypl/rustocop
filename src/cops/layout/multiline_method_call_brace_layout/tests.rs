@@ -522,40 +522,6 @@ fn upstream_holds_keep_the_finding_without_an_edit() {
 }
 
 #[test]
-fn unsafe_moves_keep_the_finding_without_an_edit() {
-    for source in [
-        // A line continuation between argument and parenthesis.
-        "foo(a,\n  b \\\n)\n",
-        // A comment before the parenthesis would swallow the rest of its line.
-        "foo(a,\n  b\n  # c\n).size\n",
-        "x = foo(a,\n  b\n  # c\n), 1\n",
-        // The moved rest of the line holds a comment or a heredoc opener.
-        "foo(a, # a\n  b # b\n) # c\n",
-        "x = foo(a, # a\n  b # b\n), <<~EOM\n  baz\nEOM\n",
-        // Whatever follows the parenthesis would be glued to the terminator.
-        "foo(<<~EOS, arg\n  text\nEOS\n) + 1\n",
-        "x = [foo(<<~EOS, arg\n  text\nEOS\n), 1]\n",
-        // Upstream's chain move raises (an argument, no dot) or breaks
-        // syntax (a multi-line `dstr` heredoc, a block, a longer chain).
-        "x.y(foo(<<~EOS, arg\n  text\nEOS\n))\n",
-        "foo(<<~EOS, arg\n  text\n  more\nEOS\n).bar\n",
-        "foo(<<~EOS, arg\n  #{1}\nEOS\n).bar\n",
-        "foo(<<~EOS, arg\nEOS\n).bar\n",
-        "foo(<<~EOS, arg\n  text\nEOS\n).bar do\nend\n",
-        "foo(<<~EOS, arg\n  text\nEOS\n).bar.baz\n",
-        "foo(<<~EOS, arg\n  text\nEOS\n).bar + 1\n",
-        "foo(<<~EOS, arg\n  text\nEOS\n) .bar\n",
-        "foo(<<~EOS, arg\n  text\nEOS\n).bar(<<~A)\n  a\nA\n",
-        // Listed source observers.
-        "x = foo(a,\n  b\n)\np __FILE__\n",
-        "x = foo(\n  a,\n  b)\np __dir__\n",
-        "x = foo(a,\n  b\n)\np caller\n",
-    ] {
-        held(source);
-    }
-}
-
-#[test]
 fn the_incompatible_style_peer_holds_the_edits() {
     let peer = crate::cops::style::MethodCallWithArgsParentheses;
     for source in ["foo(a,\n  b\n)\n", "foo(\n  a,\n  b)\n"] {

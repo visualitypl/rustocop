@@ -339,34 +339,6 @@ fn comparator_evaluation_nil_nan_unordered_identity_and_reversed_bounds_are_unch
     }
 }
 #[test]
-fn source_envelopes_comments_line_data_and_encodings() {
-    let d = project();
-    for s in [
-        "if 2 < 1\n 1 # keep\nelsif 3 < 2\n 3\nelse\n 2\nend\n",
-        "if 2 < 1\n 1\nelsif 3 < 2\n 3\nelse\n 2\nend\np __LINE__\n",
-        "p DATA.pos\nif 2 < 1; 1; elsif 3 < 2; 3; else; 2; end\n__END__\npayload\n",
-        "if 2 < 3; 3; elsif 1 < 2; 1; else; 2; end\n",
-        "if 2.0 < 1.0; 1.0; elsif 3.0 < 2.0; 3.0; else; 2.0; end\n",
-    ] {
-        unchanged(d.path(), s.as_bytes(), &["--only", COP, "--fix", "a.rb"], 1);
-    }
-    for header in [
-        b"\xef\xbb\xbf# encoding: UTF-8\r\n".as_slice(),
-        b"# encoding: ISO-8859-1\r\n# caf\xe9\r\n",
-    ] {
-        let suffix = b"p __LINE__\r\n__END__\r\nraw\0\r\n";
-        let mut s = header.to_vec();
-        s.extend(SOURCE.replace('\n', "\r\n").as_bytes());
-        s.extend(suffix);
-        let mut expected = header.to_vec();
-        expected.extend(b"2.clamp(1, 3)\r\n");
-        expected.extend(suffix);
-        fs::write(d.path().join("a.rb"), s).unwrap();
-        cli(d.path(), &["--only", COP, "--fix", "a.rb"], 0);
-        assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), expected);
-    }
-}
-#[test]
 fn style_layout_and_independent_safe_siblings_stabilize() {
     let d = project();
     let s = format!("a = {SOURCE}b = {SOURCE}p [a,b,'ok']\n");

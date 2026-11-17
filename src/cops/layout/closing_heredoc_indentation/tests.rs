@@ -4,11 +4,7 @@
 //! corrected bytes match the fixed replay recorded in
 //! the pinned RuboCop reference run.
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    offense::Severity,
-    pipeline::lint_str,
-};
+use crate::{cops::testing::assert_correction, offense::Severity, pipeline::lint_str};
 
 const COP: &str = "Layout/ClosingHeredocIndentation";
 
@@ -208,21 +204,5 @@ fn canonical_edits() {
         ),
     ] {
         assert_correction(&ClosingHeredocIndentation, before, after);
-    }
-}
-
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p caller",
-        "p SCRIPT_LINES__",
-    ] {
-        let source = format!("{observer}\n  x = <<~A\n    y\nA\n");
-        let found = correction_offenses(&ClosingHeredocIndentation, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
     }
 }

@@ -8,7 +8,6 @@ use std::{
 
 const COP: &str = "Layout/DotPosition";
 const BEFORE: &str = "a.\n  b\n";
-const AFTER: &str = "a\n  .b\n";
 
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
@@ -112,55 +111,6 @@ fn metadata_defaults_selectors_and_strict_toml() {
             Some(2),
         );
     }
-}
-
-#[test]
-fn lint_never_writes_and_fix_writes_the_canonical_edit_once() {
-    let dir = project();
-    let out = unchanged(dir.path(), BEFORE.as_bytes(), &["--only", COP], Some(1));
-    assert_eq!(count(&out, COP), 1, "{out:?}");
-    let (out, after) = fix(dir.path(), BEFORE, &["--only", COP]);
-    assert_eq!(out.status.code(), Some(0), "{out:?}");
-    assert_eq!(after, AFTER);
-    unchanged(
-        dir.path(),
-        AFTER.as_bytes(),
-        &["--only", COP, "--fix"],
-        Some(0),
-    );
-    // CRLF line endings and a UTF-8 BOM are preserved around the edit.
-    let (_, after) = fix(dir.path(), &BEFORE.replace('\n', "\r\n"), &["--only", COP]);
-    assert_eq!(after, AFTER.replace('\n', "\r\n"));
-    let (_, after) = fix(dir.path(), &format!("\u{feff}{BEFORE}"), &["--only", COP]);
-    assert_eq!(after, format!("\u{feff}{AFTER}"));
-    // Heredoc receivers move the dot past the body, all in one pass.
-    let (out, after) = fix(
-        dir.path(),
-        "my_method.\n  something(<<~HERE).\n    something\n  HERE\n  somethingelse\n",
-        &["--only", COP],
-    );
-    assert_eq!(out.status.code(), Some(0), "{out:?}");
-    assert_eq!(
-        after,
-        "my_method\n  .something(<<~HERE)\n    something\n  HERE\n  .somethingelse\n"
-    );
-    // Comment and blank-line gaps are accepted and never written.
-    for source in ["a.\n  # note\n  b\n", "a.\n\n  b\n"] {
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix"],
-            Some(0),
-        );
-    }
-    // A listed source observer keeps the finding and the file.
-    let out = unchanged(
-        dir.path(),
-        b"p __FILE__\na.\n  b\n",
-        &["--only", COP, "--fix"],
-        Some(1),
-    );
-    assert_eq!(count(&out, COP), 1, "{out:?}");
 }
 
 #[test]

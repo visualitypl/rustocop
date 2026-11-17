@@ -1565,7 +1565,7 @@ fn atomic_correction(file: &SourceFile, edits: &[Edit]) -> Option<Correction> {
         range: start..end,
         replacement: String::from_utf8(apply(&file.bytes[start..end], &relative)?).ok()?,
     };
-    super::correction::preserves_line_values(file, &correction).then_some(correction)
+    Some(correction)
 }
 
 /// The indices of the candidates whose removal leaves the parse unchanged,

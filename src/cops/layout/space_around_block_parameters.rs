@@ -40,7 +40,6 @@ use std::ops::Range;
 
 use ruby_prism::Node;
 
-use super::space_after_colon::observed;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -260,7 +259,7 @@ impl Cop for SpaceAroundBlockParameters {
             check_arg(bytes, arg, &mut found);
         }
 
-        let correct = cx.corrections_requested() && !observed(cx, file);
+        let correct = cx.corrections_requested();
         for finding in &found {
             let nested = found.iter().any(|other| {
                 !other.insertion

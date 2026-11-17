@@ -67,14 +67,10 @@ impl Cop for EmptyHeredoc {
                 }
                 let tail =
                     std::str::from_utf8(&file.bytes[opening.end_offset()..closing_start]).ok()?;
-                super::literal_spelling::safe_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: start..end,
-                        replacement: format!("{}{tail}", empty_string(self.single_quotes)),
-                    },
-                )
+                Some(Correction {
+                    range: start..end,
+                    replacement: format!("{}{tail}", empty_string(self.single_quotes)),
+                })
             })
             .flatten();
         let (line, col) = file.line_col(start);

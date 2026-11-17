@@ -8,10 +8,7 @@
 //! examples (`:ruby32, unsupported_on: :prism`) are top-level `next`, a Ruby
 //! 3.4 syntax error here: `top_level_next_is_a_syntax_error` accounts for them.
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    pipeline::lint_str,
-};
+use crate::{cops::testing::assert_correction, pipeline::lint_str};
 
 const COP: &str = "Layout/MultilineOperationIndentation";
 
@@ -833,41 +830,5 @@ fn operators_keywords_and_contexts() {
         "a +\n  b\n",
     ] {
         assert!(findings(source).is_empty(), "{source}");
-    }
-}
-
-#[test]
-fn crlf_bom_literals_and_observers() {
-    assert_correction(
-        &MultilineOperationIndentation,
-        "a +\r\nb\r\n",
-        "a +\r\n  b\r\n",
-    );
-    assert_correction(
-        &MultilineOperationIndentation,
-        "\u{feff}a +\nb\n",
-        "\u{feff}a +\n  b\n",
-    );
-    // A heredoc operand keeps its body bytes.
-    assert_correction(
-        &MultilineOperationIndentation,
-        "a +\n<<~E\n  body\nE\n",
-        "a +\n  <<~E\n  body\nE\n",
-    );
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\npayload",
-    ] {
-        let source = format!("a +\nb\n{observer}\n");
-        let found = correction_offenses(&MultilineOperationIndentation, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
     }
 }

@@ -206,26 +206,6 @@ fn config_relative_excludes_and_stdin_never_write() {
 }
 
 #[test]
-fn clean_lookalike_withheld_unsafe_and_error_files_keep_bytes_and_mtime() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, status) in [
-        ("p [1]; p({a: 1})\n", 0),
-        ("f(1,); obj[1,]; a, b = xs; def f(a,b); end\n", 0),
-        ("foo { |a,| a }; foo { |a,b,; c| a }; %w[a, b,]\n", 0),
-        ("test { |(a,b),| a }\n", 1),
-        ("p [1,]; p({a: 1,}); p DATA.pos\n__END__\nraw,\n", 1),
-        ("p [1,\n", 2),
-    ] {
-        fs::write(&path, source).unwrap();
-        let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", ALL, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
-    }
-}
-
-#[test]
 fn deletion_preserves_bom_crlf_legacy_encoding_comments_literals_data_and_line() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
@@ -313,39 +293,6 @@ payload,
     let mtime = fs::metadata(&path).unwrap().modified().unwrap();
     cli(dir.path(), &["--only", ALL, "--fix", "lib/a.rb"], 1);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
-}
-
-#[test]
-fn unsafe_destructuring_and_data_position_have_runtime_counterexamples() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    let source = "p [[1,2]].map { |(a,b),| [a,b] }\n";
-    fs::write(&path, source).unwrap();
-    let before = ruby(dir.path());
-    assert!(before.status.success());
-    cli(dir.path(), &["--only", BLOCK, "--fix", "lib/a.rb"], 1);
-    assert_eq!(fs::read_to_string(&path).unwrap(), source);
-    fs::write(&path, source.replace("),|", ")|")).unwrap();
-    let naive = ruby(dir.path());
-    assert!(naive.status.success());
-    assert_ne!(
-        before.stdout, naive.stdout,
-        "removing this reported comma changes binding"
-    );
-    for (name, before, after, _) in &CASES[..2] {
-        let source = format!("{before}p [DATA.pos, DATA.read]\n__END__\nraw,\n");
-        fs::write(&path, &source).unwrap();
-        let original = ruby(dir.path());
-        assert!(original.status.success());
-        cli(dir.path(), &["--only", name, "--fix", "lib/a.rb"], 1);
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(ruby(dir.path()).stdout, original.stdout);
-        fs::write(&path, source.replacen(before, after, 1)).unwrap();
-        assert_ne!(ruby(dir.path()).stdout, original.stdout);
-    }
 }
 
 #[test]

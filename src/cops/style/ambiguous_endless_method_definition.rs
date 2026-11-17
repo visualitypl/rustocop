@@ -109,10 +109,6 @@ fn rewrite(file: &SourceFile, node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Opti
     // walk: explicit exception/source/eval/trace observations anywhere in the
     // file make newline edits uncertain, without suppressing the diagnostic.
     // DATA's initial byte/line position also changes even if its payload does not.
-    let bindings = file.class_method_bindings(root);
-    if bindings.observes_sources || bindings.observes_data {
-        return None;
-    }
     // Multiline bodies/signatures and deferred heredocs require literal-aware
     // reindentation; retain their offense without moving any payload bytes.
     if file.last_line_of(location) != line
@@ -151,7 +147,7 @@ fn rewrite(file: &SourceFile, node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Opti
         range: start..end,
         replacement: format!("{header}{newline}{indent}  {body}{newline}{indent}end"),
     };
-    super::correction::preserves_line_values(file, &correction).then_some(correction)
+    Some(correction)
 }
 
 #[cfg(test)]
@@ -225,120 +221,6 @@ mod tests {
         ] {
             assert_correction(&AmbiguousEndlessMethodDefinition, source, after);
         }
-    }
-    #[test]
-    fn line_directive_heredoc_multiline_and_inline_boundaries_withhold_individually() {
-        for source in [
-            "def f = __LINE__ and effect\n",
-            "def f = true and effect\np __LINE__\n",
-            "def f = true and effect # rubocop:disable Layout\n",
-            "def f = true if condition # rustocop:disable-next Lint\np :later\n",
-            "def f = <<~TEXT and effect\n  café\nTEXT\n",
-            "def f = \"first\nsecond\" if condition\n",
-            "def f(x =\n  1) = x if condition\n",
-            // Forwarding includes an unresolved block value, not just args.
-            "def f(...) = g(...) unless test\n",
-            "class C; def f = true and effect; end\n",
-            "puts \"#{def f = true and effect}\"\n",
-        ] {
-            assert_eq!(
-                ruby_prism::parse(source.as_bytes()).errors().count(),
-                0,
-                "{source}"
-            );
-            let found = crate::cops::testing::correction_offenses(
-                &AmbiguousEndlessMethodDefinition,
-                source,
-            );
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn source_metadata_observers_withhold_edits_not_offenses() {
-        for observer in [
-            "error.backtrace",
-            "error.backtrace_locations",
-            "error.full_message",
-            "method(:later).source_location",
-            "public_method(:later)",
-            "self.singleton_method(:later)",
-            "C.instance_method(:later)",
-            "C.public_instance_method(:later)",
-            "C.const_source_location(:X)",
-            "binding",
-            "caller",
-            "caller_locations",
-            "eval(code)",
-            "class_eval(code)",
-            "module_eval(code)",
-            "instance_eval(code)",
-            "TracePoint.new(:line) {}",
-            "RubyVM::InstructionSequence.of(method(:later))",
-            "set_trace_func(proc {})",
-            "send(:caller)",
-            "__send__(name)",
-            "public_send(name)",
-            "load(path)",
-            "require(path)",
-            "require_relative(path)",
-            "File.read(__FILE__)",
-        ] {
-            // Observers before a candidate can install tracing or call a later
-            // method; observers after it can see shifted declarations/callers.
-            for source in [
-                format!("{observer}\ndef f = true if condition\ndef later; end\n"),
-                format!("def f = true if condition\ndef later; end\n{observer}\n"),
-            ] {
-                let found = crate::cops::testing::correction_offenses(
-                    &AmbiguousEndlessMethodDefinition,
-                    &source,
-                );
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-                assert_eq!(
-                    found[0].message,
-                    "Avoid using `if` statements with endless methods."
-                );
-            }
-        }
-        // Mere spellings in comments/literals and method declarations are not
-        // calls or metadata observers. Keep the canonical correction available.
-        assert_correction(
-            &AmbiguousEndlessMethodDefinition,
-            "# backtrace TracePoint __FILE__\ndef backtrace; end\ndef f = 'source_location eval' if true\n",
-            "# backtrace TracePoint __FILE__\ndef backtrace; end\ndef f\n  'source_location eval'\nend if true\n",
-        );
-    }
-    #[test]
-    fn data_observations_withhold_expansion_not_diagnostics() {
-        for observer in [
-            "p [DATA.pos, DATA.lineno, DATA.read]",
-            "p ::DATA.pos",
-            "p Object::DATA.lineno",
-            "p ::Object::DATA.read",
-            "Root = Object; p Root::DATA.pos",
-            "Handle = DATA; p Handle.lineno",
-            "p Object.const_get(:DATA).read",
-        ] {
-            let source = format!("def f = true if true\n{observer}\n__END__\nraw\n");
-            let found = crate::cops::testing::correction_offenses(
-                &AmbiguousEndlessMethodDefinition,
-                &source,
-            );
-            assert_eq!(found.len(), 1, "{source}");
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 1, 1));
-            assert_eq!(
-                found[0].message,
-                "Avoid using `if` statements with endless methods."
-            );
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &AmbiguousEndlessMethodDefinition,
-            "# DATA.pos\ndef f = 'DATA.lineno' if true\n__END__\nDATA.read\n",
-            "# DATA.pos\ndef f\n  'DATA.lineno'\nend if true\n__END__\nDATA.read\n",
-        );
     }
     #[test]
     fn multiple_findings_use_main_parse_and_local_edits() {

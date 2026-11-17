@@ -188,25 +188,3 @@ fn runs_inside_an_interpolation_keep_the_finding_without_an_edit() {
     assert_eq!(findings("x = %I(#{a  + 1})\n"), [(1, 11)]);
     held("x = %I(#{a  + 1})\n");
 }
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:p).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("x = %w(a  b)\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceInsideArrayPercentLiteral,
-        "x = %w(a  b)\np File.read('example.rb')\n",
-        "x = %w(a b)\np File.read('example.rb')\n",
-    );
-}

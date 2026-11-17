@@ -332,30 +332,3 @@ fn uncorrectable_shapes_keep_the_finding() {
         assert!(found[0].correction.is_none(), "{source:?}");
     }
 }
-
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p SCRIPT_LINES__",
-    ] {
-        let source = format!("  # a\n{observer}\n");
-        let found = correction_offenses(&CommentIndentation, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-    let data = "  # a\np DATA.read\n__END__\nx\n";
-    assert!(
-        correction_offenses(&CommentIndentation, data)[0]
-            .correction
-            .is_none()
-    );
-    assert_correction(
-        &CommentIndentation,
-        "  # a\np File.read('example.rb')\n",
-        "# a\np File.read('example.rb')\n",
-    );
-}

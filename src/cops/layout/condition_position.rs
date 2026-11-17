@@ -47,16 +47,7 @@ impl Cop for ConditionPosition {
         }
         let correction = cx
             .corrections_requested()
-            .then(|| {
-                let root = cx.ancestors().last().unwrap_or(node);
-                if file
-                    .class_method_bindings(root)
-                    .has_listed_source_observer(file.data_start().is_some())
-                {
-                    return None;
-                }
-                correction(&conditional, file)
-            })
+            .then(|| correction(&conditional, file))
             .flatten();
         let (line, col) = file.line_col(condition.start_offset());
         out.push(Offense {

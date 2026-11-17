@@ -370,9 +370,6 @@ pub(super) fn line_break_after(
         || heredocs
             .iter()
             .any(|h| h.body.start == next && h.opening.start < at)
-        || file
-            .class_method_bindings(root)
-            .has_listed_source_observer(file.data_start().is_some())
     {
         return None;
     }

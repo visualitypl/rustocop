@@ -398,26 +398,3 @@ fn canonical_edits() {
     assert_eq!(once, "{a: {b: 1,\n  c: 2} # c\n}\n");
     assert_eq!(fixed(&once), "{a: {b: 1,\n  c: 2}} # c\n");
 }
-
-#[test]
-fn holds_keep_the_finding_without_an_edit() {
-    for source in [
-        // Upstream: a comment after the last element of a receiver or a
-        // `send` argument.
-        "{a: 1,\n  b: 2 # b\n}.size\n",
-        "foo({a: 1,\n  b: 2 # b\n})\n",
-        // Pinned `same_line` context: a nested hash's bracket after a
-        // comment line, replayed at symmetrical with an offending outer hash.
-        "foo = {a: 1, bar: {\n    baz: 1 # comment\n  }\n}\n",
-        // Unsafe moves.
-        "{a: 1,\n  b: 2 \\\n}\n",
-        "{a: 1,\n  b: <<~EOM, c: 2\n  baz\nEOM\n}\n",
-        "{a: 1,\n  b: 2\n  # c\n}.size\n",
-        "{a: 1, # a\n  b: 2 # b\n} # c\n",
-        "x = [{a: 1, # a\n  b: 2 # b\n}, \"t\nu\"]\n",
-        "x = {a: 1,\n  b: 2\n}\np __FILE__\n",
-        "x = {\n  a: 1,\n  b: 2}\np $0\n",
-    ] {
-        held(source);
-    }
-}

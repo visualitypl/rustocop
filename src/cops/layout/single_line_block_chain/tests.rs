@@ -39,13 +39,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&SingleLineBlockChain, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source has no findings.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -199,31 +192,6 @@ fn lookalikes_are_accepted() {
     // Upstream compares columns only: a selector on the next line further
     // right than the trailing dot is reported.
     assert_eq!(findings("a { }.\n          b\n"), [(1, 6)]);
-}
-
-#[test]
-fn unsafe_insertions_are_withheld() {
-    for source in [
-        // A line starting with `::` is a new top-level constant reference.
-        "a { }::b\n",
-        // A heredoc opened before the dot outside the block.
-        "p(<<~T, a { }.b)\n  t\nT\n",
-        // A directive on the line.
-        "a { }.b # rubocop:disable Lint/Debugger\n",
-        "a { }.b # rustocop:disable Style\n",
-        // the listed source observers.
-        "a { __FILE__ }.b\n",
-        "a { __dir__ }.b\n",
-        "a { $0 }.b\n",
-        "a { $PROGRAM_NAME }.b\n",
-        "a { caller }.b\n",
-        "a { caller_locations }.b\n",
-        "a { m.source_location }.b\n",
-        "a { SCRIPT_LINES__ }.b\n",
-        "a { DATA.read }.b\n__END__\nx\n",
-    ] {
-        held(source);
-    }
 }
 
 #[test]

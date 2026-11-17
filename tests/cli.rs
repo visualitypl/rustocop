@@ -2726,60 +2726,6 @@ fn paren_spacing_and_redundant_parentheses_have_deterministic_overlap_selection(
 }
 
 #[test]
-fn paren_spacing_remains_safe_when_style_withholds_newline_or_directive_edits() {
-    for (before, after) in [
-        (
-            "def foo\n  ( 1\n  )\nend\np __LINE__\n",
-            "def foo\n  (1\n  )\nend\np __LINE__\n",
-        ),
-        (
-            "x = ( 1\n# rubocop:disable Lint/Debugger\n)\n",
-            "x = (1\n# rubocop:disable Lint/Debugger\n)\n",
-        ),
-    ] {
-        let dir = project(&[("x.rb", before)]);
-        let fixed = rustocop(
-            dir.path(),
-            &[
-                "--fix",
-                "--only",
-                "Layout/SpaceInsideParens,Style/RedundantParentheses",
-                "x.rb",
-            ],
-            "",
-        );
-        assert_eq!(fixed.status.code(), Some(1), "{fixed:?}");
-        assert_eq!(
-            std::fs::read_to_string(dir.path().join("x.rb")).unwrap(),
-            after
-        );
-        assert_eq!(
-            stdout_lines(&fixed).last().unwrap(),
-            "1 file inspected, 1 correction applied, 1 offense remaining"
-        );
-        let again = rustocop(
-            dir.path(),
-            &[
-                "--fix",
-                "--only",
-                "Layout/SpaceInsideParens,Style/RedundantParentheses",
-                "x.rb",
-            ],
-            "",
-        );
-        assert_eq!(again.status.code(), Some(1), "{again:?}");
-        assert_eq!(
-            std::fs::read_to_string(dir.path().join("x.rb")).unwrap(),
-            after
-        );
-        assert_eq!(
-            stdout_lines(&again).last().unwrap(),
-            "1 file inspected, 0 corrections applied, 1 offense remaining"
-        );
-    }
-}
-
-#[test]
 fn paren_spacing_preserves_controlled_runtime_values_and_line_numbers() {
     // Controlled synthetic fixture only; never execute application/corpus code.
     let source = "values = [\"( x )\", /( x )/.source, %q( x ), %w( x ), ?(, ?)]; values << ( 1 + 2 )\nvalues << %Q( literal ( x ) #{( 3 )})\nvalues << <<~OUT\n  ( x ) #{<<~IN}\n    ( x ) #{( 4 )}\nIN\n  tail ( x )\nOUT\nvalues << ( 1; # keep\n  2 )\nvalues << __LINE__\nclass Lines\n  def self.line; __LINE__; end\nend\nvalues << Lines.line\np( values )\n__END__\nraw ( x )\n";

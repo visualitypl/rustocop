@@ -170,35 +170,3 @@ impl Cop for ExpandPathArguments {
 fn quote(path: &str) -> String {
     format!("'{}'", path.replace('\\', "\\\\").replace('\'', "\\'"))
 }
-
-#[cfg(test)]
-mod tests {
-    //! Examples ported from RuboCop's style/expand_path_arguments_spec.rb
-    //! (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
-    //!
-    //! Every target names `__FILE__`, a listed source observer,
-    //! so every edit is withheld and the finding stays
-    //! (`assert_listed_hold`).
-    use super::*;
-    use crate::cops::testing::correction_offenses;
-
-    #[test]
-    fn uncertain_paths_and_source_sensitive_changes_remain_reported() {
-        for source in [
-            "File.expand_path('lib', __FILE__)",
-            "File.expand_path('/absolute', __FILE__)",
-            "File.expand_path('~user', __FILE__)",
-            "__dir__ = :custom; File.expand_path('..', __FILE__)",
-            "def __dir__; :custom; end; Pathname(__FILE__).parent.expand_path",
-            "File.expand_path( # comment\n '..', __FILE__)",
-            "File.expand_path('..', __FILE__) { effect }",
-            "File.expand_path(\n '..', __FILE__)\np __LINE__",
-            "File.expand_path(<<~PATH, __FILE__)\n..\nPATH\n",
-            "Pathname.new(__FILE__).parent. # retain\n expand_path",
-        ] {
-            let found = correction_offenses(&ExpandPathArguments, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-}

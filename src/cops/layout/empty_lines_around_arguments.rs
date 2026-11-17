@@ -47,7 +47,6 @@ impl Cop for EmptyLinesAroundArguments {
                 return;
             }
         }
-        let start = out.len();
         for at in send.arguments.iter().copied().chain(send.closing) {
             let Some(line) = blank_run_line(file, at) else {
                 continue;
@@ -62,7 +61,6 @@ impl Cop for EmptyLinesAroundArguments {
                 col: 1,
             });
         }
-        super::body_padding::hold_for_listed_observers(cx, file, &mut out[start..]);
     }
 }
 

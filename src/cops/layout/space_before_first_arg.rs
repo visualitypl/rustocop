@@ -146,17 +146,10 @@ impl Cop for SpaceBeforeFirstArg {
                 .iter()
                 .all(|b| matches!(b, b' ' | b'\t'))
         };
-        let observed = || {
-            cx.ancestors().next_back().is_none_or(|root| {
-                file.class_method_bindings(root)
-                    .has_listed_source_observer(file.data_start().is_some())
-            })
-        };
-        let correction =
-            (editable && cx.corrections_requested() && !observed()).then(|| Correction {
-                range: gap..start,
-                replacement: " ".into(),
-            });
+        let correction = (editable && cx.corrections_requested()).then(|| Correction {
+            range: gap..start,
+            replacement: " ".into(),
+        });
         let (line, col) = file.line_col(gap);
         out.push(Offense {
             correction,

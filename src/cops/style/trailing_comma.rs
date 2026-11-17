@@ -49,13 +49,10 @@ pub(super) fn check_literal(
         line,
         col,
         end_line: line,
-        correction: cx
-            .corrections_requested()
-            .then(|| Correction {
-                range: offset..offset + 1,
-                replacement: String::new(),
-            })
-            .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+        correction: cx.corrections_requested().then(|| Correction {
+            range: offset..offset + 1,
+            replacement: String::new(),
+        }),
     });
 }
 
@@ -63,38 +60,8 @@ pub(super) fn check_literal(
 mod tests {
     use crate::cops::{
         style::{TrailingCommaInArrayLiteral, TrailingCommaInHashLiteral},
-        testing::{assert_correction, correction_offenses},
+        testing::correction_offenses,
     };
-
-    #[test]
-    fn data_observations_keep_both_literal_offenses_without_edits() {
-        for read in [
-            "DATA.pos",
-            "::DATA",
-            "Object.const_get(:DATA)",
-            "DATA.method(:pos).call",
-        ] {
-            let source = format!("p [1,]; p({{a: 1,}})\np {read}\n__END__\npayload\n");
-            for cop in [
-                &TrailingCommaInArrayLiteral as &dyn crate::cops::Cop,
-                &TrailingCommaInHashLiteral,
-            ] {
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-            }
-        }
-        assert_correction(
-            &TrailingCommaInArrayLiteral,
-            "p [1,]\np __LINE__\n__END__\npayload,\n",
-            "p [1]\np __LINE__\n__END__\npayload,\n",
-        );
-        assert_correction(
-            &TrailingCommaInHashLiteral,
-            "p({a: 1,})\np __LINE__\n__END__\npayload,\n",
-            "p({a: 1})\np __LINE__\n__END__\npayload,\n",
-        );
-    }
 
     #[test]
     fn fixed_ruby_34_binding_and_decoded_literal_shapes_are_unchanged() {

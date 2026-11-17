@@ -312,46 +312,6 @@ fn crlf_bom_legacy_encodings_and_data_keep_every_other_byte() {
 }
 
 #[test]
-fn closed_observers_holds_and_errors_never_write() {
-    let d = project();
-    for source in [
-        // The closed observer list holds the edit.
-        "# rubocop:disable Alias\np __FILE__\n",
-        "# rubocop:disable Alias\np __dir__\n",
-        "# rubocop:disable Alias\np $0, $PROGRAM_NAME\n",
-        "# rubocop:disable Alias\np caller, caller_locations\n",
-        "# rubocop:disable Alias\np method(:p).source_location\n",
-        "# rubocop:disable Alias\np SCRIPT_LINES__\n",
-        "# rubocop:disable Alias\np DATA.read\n__END__\npayload\n",
-        // The qualified name would change what is suppressed or opted in.
-        "# rubocop:disable MultipleComparison\nx = 1\n",
-        "# rubocop:disable SelfAssignment\nx = 1\n",
-        "# rubocop:disable alias\nx = 1\n",
-        "# rubocop:disable line_length\nx = 1\n",
-        "# rubocop:enable frozenStringLiteralComment\nx = 1\n",
-        // Nothing to qualify.
-        "# rubocop:disable Foo\nx = 1\n",
-        "# rubocop:disable Test\nx = 1\n",
-        "# rubocop:disable \tAlias\nx = 1\n",
-    ] {
-        let out = unchanged(
-            d.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "lib/a.rb"],
-            1,
-        );
-        assert_eq!(found(&out).len(), 1, "{source}: {out:?}");
-    }
-    // A parse error reports no cop finding and writes nothing.
-    unchanged(
-        d.path(),
-        b"# rubocop:disable Alias\ndef broken(\n",
-        &["--only", COP, "--fix", "lib/a.rb"],
-        2,
-    );
-}
-
-#[test]
 fn qualified_names_suppress_exactly_what_they_did() {
     let d = project();
     let before = "# rubocop:disable Semicolon\nfoo; bar\n# rubocop:enable Semicolon\nfoo; bar\n# rubocop:disable-next Semicolon\nfoo; bar\n";

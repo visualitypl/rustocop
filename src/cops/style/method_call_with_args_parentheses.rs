@@ -64,8 +64,7 @@ impl Cop for MethodCallWithArgsParentheses {
             correction: cx
                 .corrections_requested()
                 .then(|| correction(node, end, file))
-                .flatten()
-                .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+                .flatten(),
         });
     }
 }

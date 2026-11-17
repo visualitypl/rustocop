@@ -225,12 +225,6 @@ fn correction(
         ranges.push(range);
     }
     let (start, end) = (ranges.first()?.start, ranges.last()?.end);
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        return None;
-    }
     let mut replacement = Vec::new();
     let mut cursor = start;
     for (range, (_, delta)) in ranges.iter().zip(&edits) {
@@ -439,24 +433,6 @@ mod tests {
             "x = {a: {c: 1,\n   d: 2},\n  b: 3}\n",
             "x = {a: {c: 1,\n         d: 2},\n     b: 3}\n",
             &[(2, 4, 2, KEYS), (3, 3, 3, KEYS)],
-        );
-    }
-    #[test]
-    fn corrections_hold_for_closed_observers_and_literal_interiors() {
-        for source in [
-            "h = {\n  a: 1,\n   b: 2\n}\np __FILE__\n",
-            "h = {\n  a: 1,\n   b: 2\n}\np DATA.read\n__END__\nx\n",
-            "x = <<~T\n  #{ {a: 1,\n       b: 2} }\nT\n",
-        ] {
-            let found = correction_offenses(&HashAlignment, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        // Readers outside the closed observer list do not hold the edit.
-        check(
-            "h = {\n  a: 1,\n   b: 2\n}\np File.read('h.rb')\n",
-            "h = {\n  a: 1,\n  b: 2\n}\np File.read('h.rb')\n",
-            &[(3, 4, 3, KEYS)],
         );
     }
     #[test]

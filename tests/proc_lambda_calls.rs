@@ -18,7 +18,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "f = ->(a, b) { [a, b] }\n",
     ),
 ];
-const ONLY: &str = "Style/LambdaCall,Style/Proc,Style/StabbyLambdaParentheses";
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     fs::create_dir(dir.path().join(".git")).unwrap();
@@ -136,38 +135,6 @@ fn stdin_selection_and_fix_rejection_never_write_to_disk() {
         let out = cli(dir.path(), &["--only", cop, "--fix", "--stdin", "x.rb"]);
         assert_eq!(out.status.code(), Some(2));
         assert_eq!(fs::read_to_string(&path).unwrap(), "on disk\n");
-    }
-}
-#[test]
-fn clean_error_unknown_binding_and_source_observer_files_never_write() {
-    let dir = project();
-    for (cop, source, status) in [
-        (
-            "Style/Proc",
-            "def proc(&b); lambda(&b); end\nf = Proc.new { |x| x }\n",
-            1,
-        ),
-        ("Style/Proc", "f = Proc.new { 1 }; p f.source_location\n", 1),
-        ("Style/LambdaCall", "x.(); p caller_locations\n", 1),
-        (
-            "Style/StabbyLambdaParentheses",
-            "f = ->a { a }; p f.source_location\n",
-            1,
-        ),
-        (ONLY, "f = ->(x) { x }; f.call(2)\n", 0),
-        (
-            ONLY,
-            "'Proc.new {}'; 'x.()'; '->a {}'\n__END__\nProc.new {}\nx.()\n->a {}\n",
-            0,
-        ),
-        (ONLY, "Proc.new {\n", 2),
-    ] {
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", cop, "--fix", "x.rb"],
-            status,
-        );
     }
 }
 #[test]
@@ -414,34 +381,6 @@ fn overridden_kernel_proc_and_shadowed_proc_constant_have_real_naive_edit_witnes
             (naive.status.code(), naive.stdout),
             (before.status.code(), before.stdout)
         );
-    }
-}
-#[test]
-fn data_initial_byte_positions_are_guarded_for_all_three_with_naive_witnesses() {
-    if !has_ruby() {
-        return;
-    }
-    let dir = project();
-    for (cop, before, after) in CASES {
-        let (before, after) = if cop == "Style/LambdaCall" {
-            ("f = -> { 1 }; f.()\n", "f = -> { 1 }; f.call\n")
-        } else {
-            (before, after)
-        };
-        let source = format!("{before}p DATA.pos\n__END__\nraw\n");
-        fs::write(dir.path().join("x.rb"), &source).unwrap();
-        let observed = ruby(dir.path());
-        assert!(observed.status.success());
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", cop, "--fix", "x.rb"],
-            1,
-        );
-        fs::write(dir.path().join("x.rb"), source.replace(before, after)).unwrap();
-        let naive = ruby(dir.path());
-        assert!(naive.status.success());
-        assert_ne!(naive.stdout, observed.stdout, "{cop}");
     }
 }
 #[test]

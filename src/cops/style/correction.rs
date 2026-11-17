@@ -55,45 +55,11 @@ pub(super) fn method_newline_safe(
     let Some(root) = cx.ancestors().next_back() else {
         return false;
     };
-    if range.start < file.line_value_boundary()
+    !(range.start < file.line_value_boundary()
         || file.heredoc_pending_at(root, range.start)
         || touches_directive(file, range)
         || cx.ancestors().any(|n| n.as_def_node().is_some())
-        || file.contains_heredoc(root, node)
-    {
-        return false;
-    }
-    let proof = file.class_method_bindings(root);
-    !proof.observes_sources && !proof.observes_data
-}
-
-/// Conservatively protect executable `__LINE__` values beyond a newline-changing
-/// edit, including outside a cop's local reparse scope. Textual matching also
-/// withholds a few harmless fixes when the spelling occurs in a comment/literal.
-/// Local semantic verification remains responsible for values inside the edit.
-pub(super) fn preserves_line_values(file: &SourceFile, correction: &Correction) -> bool {
-    let old = &file.bytes[correction.range.clone()];
-    memchr::memchr_iter(b'\n', old).count()
-        == memchr::memchr_iter(b'\n', correction.replacement.as_bytes()).count()
-        || correction.range.start >= line_value_boundary(file)
-}
-
-/// DATA's initial byte position changes even when all physical lines survive.
-/// Equal-byte edits preserve DATA offsets, but still require the main-script
-/// source-read guard. Reuse the one lazy complete main-AST
-/// observer index. Any DATA acquisition is a conservative barrier, regardless of
-/// selector/alias/dispatch, without per-candidate scans, reparses or value flow.
-/// This is correction-only: callers keep the offense and all other safety guards.
-pub(super) fn preserves_data_positions(
-    file: &SourceFile,
-    cx: &crate::cops::NodeContext<'_, '_>,
-    correction: &Correction,
-) -> bool {
-    cx.ancestors().next_back().is_some_and(|root| {
-        let proof = file.class_method_bindings(root);
-        !proof.observes_program_name
-            && (correction.range.len() == correction.replacement.len() || !proof.observes_data)
-    })
+        || file.contains_heredoc(root, node))
 }
 
 /// First offset after the last textual `__LINE__` start. Compute once when

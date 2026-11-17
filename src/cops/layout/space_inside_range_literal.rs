@@ -31,7 +31,7 @@ use std::ops::Range;
 
 use ruby_prism::Node;
 
-use super::{space_after_colon::observed, space_after_colon::ruby_space};
+use super::space_after_colon::ruby_space;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -143,7 +143,6 @@ impl Cop for SpaceInsideRangeLiteral {
             .corrections_requested()
             .then(|| edit_range(file, &range))
             .flatten()
-            .filter(|_| !observed(cx, file))
             .map(|range| Correction {
                 range,
                 replacement: if operator.as_slice() == b"..." {

@@ -498,19 +498,3 @@ fn canonical_relocation_preserves_bytes_and_values() {
         assert_correction(&HeredocArgumentClosingParenthesis, before, after);
     }
 }
-
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p caller",
-        "p SCRIPT_LINES__",
-    ] {
-        let source = format!("foo(<<~A\n  x\nA\n)\n{observer}\n");
-        let found = correction_offenses(&HeredocArgumentClosingParenthesis, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-}

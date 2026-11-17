@@ -890,31 +890,6 @@ fn bom_crlf_and_whitespace_preserve_every_other_byte() {
 }
 
 #[test]
-fn closed_observers_hold_the_edit_but_keep_the_finding() {
-    for tail in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        let source = format!("foo do\n  1\n  end\n{tail}\n");
-        let found = correction_offenses(&BlockAlignment, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-    for tail in ["p File.read('example.rb')", "p `cat example.rb`", "p DATA"] {
-        let before = format!("foo do\n  1\n  end\n{tail}\n");
-        let after = format!("foo do\n  1\nend\n{tail}\n");
-        assert_correction(&BlockAlignment, &before, &after);
-    }
-}
-
-#[test]
 fn both_directive_spellings_disable_the_finding() {
     for prefix in ["rustocop", "rubocop"] {
         for target in ["Layout/BlockAlignment", "Layout", "all"] {

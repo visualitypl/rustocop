@@ -353,23 +353,6 @@ mod tests {
         );
     }
     #[test]
-    fn uncertain_body_moves_keep_offenses_and_withhold_atomic_edits() {
-        for source in [
-            "class C; <<~TXT\npayload\nTXT\nend\n",
-            "class C; foo\nend\np __LINE__\n",
-            "class C; foo # rubocop:disable Layout\nend\n",
-            "class C; foo # rustocop:disable Layout\nend\n",
-            "class C; foo # frozen_string_literal: true\nend\n",
-            "x = class C; foo\nend\n",
-            "class C; foo\nend\np errors.map(&:backtrace)\n",
-            "class C; foo\nend\np DATA.pos\n__END__\nraw\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&TrailingBodyOnClass, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn shebang_comments_are_not_relocated() {
         let module = crate::cops::style::TrailingBodyOnModule;
         let method = crate::cops::style::TrailingBodyOnMethodDefinition;

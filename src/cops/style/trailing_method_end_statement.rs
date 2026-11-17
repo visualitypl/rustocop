@@ -248,23 +248,6 @@ mod tests {
         }
     }
     #[test]
-    fn uncertain_newlines_keep_each_offense_without_an_edit() {
-        for source in [
-            "def f\n <<~TXT; end\npayload\nTXT\n",
-            "def f\n 1 end\np __LINE__\n",
-            "def f\n 1 end # rubocop:disable Layout\n",
-            "def f\n 1 end # rustocop:disable Layout\n",
-            "def outer\n def inner\n 1 end\nend\n",
-            "def f\n 1 end\np errors.map(&:full_message)\n",
-            "def f\n 1 end\np Object.const_get(:DATA).pos\n__END__\nraw\n",
-        ] {
-            let found =
-                crate::cops::testing::correction_offenses(&TrailingMethodEndStatement, source);
-            assert!(!found.is_empty(), "{source}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-        }
-    }
-    #[test]
     fn accepts_empty_single_line_endless_and_separate_ends() {
         for source in [
             "def no_op; end",

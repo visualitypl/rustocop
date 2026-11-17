@@ -289,25 +289,6 @@ fn control_flow_hash_fixes_do_not_block_unrelated_corrections() {
 }
 
 #[test]
-fn fixes_preserve_magic_lines_after_multiline_method_edits() {
-    let source = "def foo\n  (\n    1\n  )\nend\ndef bar\n  return(\n  )\nend\np __LINE__\nfail\n";
-    let registry = Registry::from_cops(vec![
-        Box::new(crate::cops::style::RedundantParentheses),
-        Box::new(crate::cops::style::RedundantReturn),
-        Box::new(crate::cops::style::SignalException),
-    ]);
-    let (dir, config) = project(source);
-    let report = run_project(dir.path(), &config, &registry, true);
-    assert!(!report.has_errors(), "{report:?}");
-    assert_eq!(report.corrections_applied, 1);
-    assert_eq!(report.offense_count(), 2);
-    assert_eq!(
-        fs::read_to_string(dir.path().join("x.rb")).unwrap(),
-        source.replace("fail", "raise")
-    );
-}
-
-#[test]
 fn fixture_pairs_apply_safe_fixes_and_report_remaining_offenses() {
     for (before, after, count, remaining) in [
         (

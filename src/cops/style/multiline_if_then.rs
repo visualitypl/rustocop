@@ -154,14 +154,11 @@ pub(super) fn remove_then(
     };
     let root = cx.ancestors().next_back()?;
     if super::correction::touches_directive(file, edit.range.clone())
-        || file.class_method_bindings(root).observes_sources
         || (file.bytes[edit.range.clone()].contains(&b'\n') && file.heredoc_pending_at(root, start))
     {
         return None;
     }
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit))
-    .then_some(edit)
+    Some(edit)
 }
 #[cfg(test)]
 thread_local! { static REMOVE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
@@ -207,44 +204,6 @@ mod tests {
         let found = crate::cops::testing::correction_offenses(&MultilineIfThen, source);
         assert_eq!(found.len(), 1);
         assert!(found[0].correction.is_none());
-    }
-    #[test]
-    fn source_guards_and_later_safe_siblings() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "if cond\nthen\nend\np __LINE__\n",
-            "if cond then\n DATA.pos\nend\n__END__\npayload\n",
-            "if cond then\n method(:f).source_location\nend\n",
-        ] {
-            let found = correction_offenses(&MultilineIfThen, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &MultilineIfThen,
-            "if cond # rubocop:disable Lint/Debugger\n then\nend\n",
-            "if cond # rubocop:disable Lint/Debugger\n\nend\n",
-        );
-        assert_correction(
-            &MultilineIfThen,
-            "if cond \x0b then\nend\n",
-            "if cond\nend\n",
-        );
-        assert_correction(
-            &MultilineIfThen,
-            "if cond then\n p __LINE__\nend\n",
-            "if cond\n p __LINE__\nend\n",
-        );
-        assert_correction(
-            &MultilineIfThen,
-            "p __LINE__\nif cond\nthen\nend\n",
-            "p __LINE__\nif cond\nend\n",
-        );
-        assert_correction(
-            &MultilineIfThen,
-            "\u{feff}# coding: utf-8\r\nunless cond then # note\r\n \"é\"\r\nend\r\n__END__\r\npayload\x00\r\n",
-            "\u{feff}# coding: utf-8\r\nunless cond # note\r\n \"é\"\r\nend\r\n__END__\r\npayload\x00\r\n",
-        );
     }
     #[test]
     fn whitespace_work_is_lazy_bounded_and_disjoint() {

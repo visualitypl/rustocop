@@ -21,7 +21,7 @@
 //! backslash, whose continuation would join the next line instead.
 use std::ops::Range;
 
-use super::space_before_comment::{bom_end, listed_observer, sign_sensitive};
+use super::space_before_comment::{bom_end, sign_sensitive};
 use crate::{
     cops::Cop,
     offense::{Correction, Offense},
@@ -88,13 +88,10 @@ impl Cop for EmptyComment {
             .filter(|comment| !inline(file, comment))
             .map(|comment| comment.line)
             .collect();
-        let mut observed = None;
         for chunk in chunks {
             for comment in chunk {
                 out.push(Offense {
-                    correction: correction(file, result, comment, &removable).filter(|_| {
-                        !*observed.get_or_insert_with(|| listed_observer(file, result))
-                    }),
+                    correction: correction(file, result, comment, &removable),
                     cop: self.name(),
                     severity: self.severity(),
                     message: "Source code comment is empty.".into(),

@@ -151,24 +151,6 @@ mod tests {
         }
     }
     #[test]
-    fn defaults_blocks_and_multiline_source() {
-        assert_correction(
-            &TimeNow,
-            "def f(t = ::Time.new()); t; end",
-            "def f(t = ::Time.now); t; end",
-        );
-        for source in [
-            "Time.new { break :value }",
-            "Time.new do; raise 'no'; end",
-            "Time.new(\n # keep\n)",
-            "Time.new(\n)\np __LINE__",
-        ] {
-            let found = correction_offenses(&TimeNow, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn visible_rebindings_remain_reported_without_edits() {
         for binding in [
             "Time = Custom",

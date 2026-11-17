@@ -68,7 +68,7 @@ impl Cop for RedundantInterpolationUnfreeze {
                     });
                 }
                 let edit = super::correction::combine(file, edits)?;
-                super::literal_spelling::safe_edit(file, cx, edit)
+                Some(edit)
             })
             .flatten();
         out.push(Offense {

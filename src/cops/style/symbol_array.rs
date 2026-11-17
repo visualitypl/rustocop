@@ -71,14 +71,10 @@ impl Cop for SymbolArray {
                 if super::correction::contains_comment(file, loc.start_offset()..loc.end_offset()) {
                     return None;
                 }
-                super::literal_spelling::safe_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: loc.start_offset()..loc.end_offset(),
-                        replacement,
-                    },
-                )
+                Some(Correction {
+                    range: loc.start_offset()..loc.end_offset(),
+                    replacement,
+                })
             })
         } else {
             None

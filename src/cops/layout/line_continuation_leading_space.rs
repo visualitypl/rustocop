@@ -182,7 +182,7 @@ impl Cop for LineContinuationLeadingSpace {
 
 fn correction(
     file: &SourceFile,
-    cx: &NodeContext<'_, '_>,
+    _cx: &NodeContext<'_, '_>,
     parts: &[Node<'_>],
     one: usize,
     two: usize,
@@ -202,13 +202,6 @@ fn correction(
         closes == (closing..closing + 1) && opens == (opening..opening + 1)
     };
     if !consecutive || file.bytes[blanks.clone()].contains(&b'\n') {
-        return None;
-    }
-    let root = cx.ancestors().last()?;
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
         return None;
     }
     let mut replacement = file.bytes[blanks.clone()].to_vec();

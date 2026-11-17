@@ -5,11 +5,7 @@
 //! defaults; findings, messages and single-pass corrected bytes match the
 //! fixed replay recorded in the pinned RuboCop reference run.
 use super::*;
-use crate::{
-    cops::testing::{assert_correction, correction_offenses},
-    offense::Severity,
-    pipeline::lint_str,
-};
+use crate::{cops::testing::assert_correction, offense::Severity, pipeline::lint_str};
 
 const COP: &str = "Layout/HeredocIndentation";
 
@@ -610,37 +606,6 @@ fn canonical_edits_keep_values_crlf_and_other_bytes() {
         }
         assert_correction(&HeredocIndentation, before, after);
     }
-}
-
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "p SCRIPT_LINES__",
-    ] {
-        let source = format!("{observer}\nx = <<~A\nfoo\nA\n");
-        let found = correction_offenses(&HeredocIndentation, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-    let data = "p DATA.read\nx = <<~A\nfoo\nA\n__END__\nx\n";
-    assert!(
-        correction_offenses(&HeredocIndentation, data)[0]
-            .correction
-            .is_none()
-    );
-    // A program reading its own path is out of scope.
-    assert_correction(
-        &HeredocIndentation,
-        "p File.read('example.rb')\nx = <<~A\nfoo\nA\n",
-        "p File.read('example.rb')\nx = <<~A\n  foo\nA\n",
-    );
 }
 
 #[test]

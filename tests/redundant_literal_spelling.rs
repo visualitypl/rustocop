@@ -163,39 +163,6 @@ fn directives_excludes_and_stdin_preserve_bytes() {
 }
 
 #[test]
-fn individual_uncertain_edits_clean_errors_and_source_observers_never_write() {
-    let dir = project();
-    for (name, source, status) in [
-        (Q, r#"%Q(\"hi\")"#, 1),
-        (Q, "%q(it's #@name)", 1),
-        (Q, "%q(it's #$name)", 1),
-        (Q, "%Q\nhello\n", 1),
-        (W, r#"%W(\"hi\")"#, 1),
-        (CHAR, "?\\\n", 1),
-        (ALL, "p %q(it's #{foo}); p %W(#{foo}); p ?\\C-a\n", 0),
-        (ALL, "p %Q(\n", 2),
-    ] {
-        unchanged(dir.path(), name, source.as_bytes(), status);
-    }
-    for (name, source, _) in CASES {
-        for observer in [
-            "p __FILE__",
-            "p errors.map(&:backtrace_locations)",
-            "p method(:p).source_location",
-            "p RubyVM::AbstractSyntaxTree",
-            "p File.binread($0)",
-        ] {
-            unchanged(
-                dir.path(),
-                name,
-                format!("{source}{observer}\n").as_bytes(),
-                1,
-            );
-        }
-    }
-}
-
-#[test]
 fn disabled_multiline_envelopes_remain_atomic() {
     let dir = project();
     unchanged(

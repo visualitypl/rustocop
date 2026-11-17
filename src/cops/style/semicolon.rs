@@ -596,7 +596,7 @@ impl Layout {
             });
         }
         let correction = super::correction::combine(file, edits)?;
-        super::correction::preserves_line_values(file, &correction).then_some(correction)
+        Some(correction)
     }
 
     /// A string or command literal: one token, or a heredoc's opening, body

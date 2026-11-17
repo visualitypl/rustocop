@@ -43,7 +43,6 @@ impl Cop for EmptyLinesAroundExceptionHandlingKeywords {
         let owner_line = file.line_of(owner_start);
         let end_line = end.map(|end| file.line_of(end.start_offset()));
         let mut lines: Vec<u32> = Vec::new();
-        let start = out.len();
         for keyword in keywords {
             let line = file.line_of(keyword.start_offset());
             if line == owner_line {
@@ -75,7 +74,6 @@ impl Cop for EmptyLinesAroundExceptionHandlingKeywords {
                 });
             }
         }
-        super::body_padding::hold_for_listed_observers(cx, file, &mut out[start..]);
     }
 }
 

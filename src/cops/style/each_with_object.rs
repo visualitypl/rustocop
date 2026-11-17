@@ -1,7 +1,5 @@
 //! `Style/EachWithObject` — mutable accumulators returned by inject/reduce.
-use super::correction::{
-    combine, contains_comment, preserves_data_positions, preserves_line_values, touches_directive,
-};
+use super::correction::{combine, contains_comment, touches_directive};
 use crate::{
     cops::{
         Cop, NodeContext, ast,
@@ -126,7 +124,6 @@ impl Cop for EachWithObject {
                         file,
                         call.location().start_offset()..call.location().end_offset(),
                     )
-                    || file.class_method_bindings(root).observes_sources
                 {
                     return None;
                 }
@@ -203,8 +200,7 @@ impl Cop for EachWithObject {
                     });
                 }
                 let edit = combine(file, edits)?;
-                (preserves_line_values(file, &edit) && preserves_data_positions(file, cx, &edit))
-                    .then_some(edit)
+                Some(edit)
             })
             .flatten();
         out.push(Offense {
@@ -613,22 +609,5 @@ mod tests {
         assert!(offenses(s).is_empty());
         let s = "[1].reduce({}) { |a,e| puts <<~TEXT; a }\n#{a[e] = e}\nTEXT\n";
         assert_eq!(offenses(s).len(), 1);
-    }
-    #[test]
-    fn uncertain_dispatch_control_flow_and_source_changes_keep_offenses() {
-        for s in [
-            "lazy.reduce({}) { |a,e| a[e]=e; a }",
-            "[].reduce(make_object) { |a,e| a }",
-            "[].reduce({}) { |a,e| next nil if e; a }",
-            "[].reduce({}) { |a,e| break :done if e; a }",
-            "[].reduce({}) { |a,e| binding; a }",
-            "[].reduce({}) { |a,e| a # comment\n}",
-            "[].reduce({}) do |a,e|\n a\nend\np __LINE__",
-            "class Array; private; def each_with_object(x); end; end\n[].reduce({}) { |a,e| a }",
-        ] {
-            let o = correction_offenses(&EachWithObject, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
     }
 }

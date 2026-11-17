@@ -231,14 +231,8 @@ fn correction<'pr>(
     heredoc: &Heredoc<'pr>,
     finding: &Finding,
     file: &SourceFile,
-    root: &Node<'pr>,
+    _root: &Node<'pr>,
 ) -> Option<Correction> {
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        return None;
-    }
     let mut subtree = Subtree::default();
     walk(&mut subtree, node);
     if subtree.multiline_interpolation {

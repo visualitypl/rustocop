@@ -215,25 +215,3 @@ fn a_line_continuation_keeps_the_finding_without_an_edit() {
     let found = lint_str_with(&[&SpaceInLambdaLiteral], source);
     assert_eq!((found[0].line, found[0].end_line), (1, 2));
 }
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("f = -> (a) {{ a }}\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceInLambdaLiteral,
-        "f = -> (a) { a }\np File.read('example.rb')\n",
-        "f = ->(a) { a }\np File.read('example.rb')\n",
-    );
-}

@@ -41,15 +41,11 @@ impl Cop for StabbyLambdaParentheses {
         let correction = cx
             .corrections_requested()
             .then(|| {
-                let root = cx.ancestors().next_back()?;
-                if file.class_method_bindings(root).observes_sources {
-                    return None;
-                }
                 let edit = Correction {
                     range: loc.start_offset()..loc.end_offset(),
                     replacement: format!("({})", std::str::from_utf8(loc.as_slice()).ok()?),
                 };
-                super::correction::preserves_data_positions(file, cx, &edit).then_some(edit)
+                Some(edit)
             })
             .flatten();
         out.push(Offense {

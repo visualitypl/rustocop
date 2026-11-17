@@ -1,7 +1,5 @@
 //! `Style/RedundantPercentQ` — use ordinary quotes when percent-q is redundant.
-use super::literal_spelling::{
-    character_heads, double_quotes_required, safe_edit, single_quoted_bytes,
-};
+use super::literal_spelling::{character_heads, double_quotes_required, single_quoted_bytes};
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -121,7 +119,7 @@ impl Cop for RedundantPercentQ {
                         },
                     ],
                 )?;
-                safe_edit(file, cx, edit)
+                Some(edit)
             })
             .flatten();
         let (line, col) = file.line_col(opening.start_offset());

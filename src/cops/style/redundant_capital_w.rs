@@ -1,5 +1,5 @@
 //! `Style/RedundantCapitalW` — use noninterpolating word arrays when possible.
-use super::literal_spelling::{character_heads, double_quotes_required, safe_edit};
+use super::literal_spelling::{character_heads, double_quotes_required};
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -80,14 +80,10 @@ impl Cop for RedundantCapitalW {
                         return None;
                     }
                 }
-                safe_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: opening.start_offset() + 1..opening.start_offset() + 2,
-                        replacement: "w".into(),
-                    },
-                )
+                Some(Correction {
+                    range: opening.start_offset() + 1..opening.start_offset() + 2,
+                    replacement: "w".into(),
+                })
             })
             .flatten();
         let (line, col) = file.line_col(opening.start_offset());

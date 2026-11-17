@@ -1,5 +1,5 @@
 //! Local spelling proofs shared by the short string/word literal cops.
-use crate::{cops::NodeContext, offense::Correction, source::SourceFile};
+use crate::source::SourceFile;
 
 /// Inspect syntax only at character starts from the main parse's encoding.
 /// In Windows-31J, for example, a character's trailing byte can be `\\`.
@@ -52,22 +52,4 @@ pub(super) fn single_quoted_bytes(raw: &[u8]) -> Option<Vec<u8>> {
         i += 1;
     }
     Some(result)
-}
-
-/// No new per-node scans/reparses: observer/DATA facts are lazy main-AST caches.
-pub(super) fn safe_edit(
-    file: &SourceFile,
-    cx: &NodeContext<'_, '_>,
-    edit: Correction,
-) -> Option<Correction> {
-    let root = cx.ancestors().next_back()?;
-    // Physical heredoc boundaries are proved centrally over all cop candidates,
-    // not here: source-oriented and adjacent peer edits must share the proof.
-    if file.class_method_bindings(root).observes_sources
-        || !super::correction::preserves_data_positions(file, cx, &edit)
-        || !super::correction::preserves_line_values(file, &edit)
-    {
-        return None;
-    }
-    Some(edit)
 }

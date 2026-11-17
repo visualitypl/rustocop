@@ -20,7 +20,6 @@
 //! for the listed source observers.
 use ruby_prism::{Location, Node};
 
-use super::space_after_colon::observed;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -139,11 +138,10 @@ impl Cop for SpaceAroundMethodCallOperator {
             {
                 continue;
             }
-            let correction =
-                (cx.corrections_requested() && !observed(cx, file)).then(|| Correction {
-                    range: start..end,
-                    replacement: String::new(),
-                });
+            let correction = (cx.corrections_requested()).then(|| Correction {
+                range: start..end,
+                replacement: String::new(),
+            });
             let (line, col) = file.line_col(start);
             out.push(Offense {
                 correction,

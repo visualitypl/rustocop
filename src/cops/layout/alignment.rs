@@ -127,9 +127,6 @@ pub(super) fn end_indentation(
         || file.bytes[range.clone()] == *indentation.as_bytes()
         || file.literal_interior_at(root, start)
         || file.overlaps_literal(root, &range)
-        || file
-            .class_method_bindings(root)
-            .has_listed_source_observer(file.data_start().is_some())
     {
         return None;
     }
@@ -178,12 +175,6 @@ pub(super) fn shift_lines(
     let start = file.line_start(first);
     // Reuse the existing lazy observer walk, but not older families' broader
     // source-reader proofs. Listed observers hold even without a raw read.
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        return None;
-    }
     let comments = file.comments();
     let index = comments.partition_point(|c| c.end <= start);
     if comments[index..]
@@ -257,42 +248,8 @@ mod tests {
     use crate::cops::{
         Cop,
         layout::{AccessModifierIndentation, ArgumentAlignment, AssignmentIndentation},
-        testing::{assert_correction, correction_offenses},
+        testing::assert_correction,
     };
-
-    #[test]
-    fn closed_observers_hold_every_consumer_without_requiring_a_reader() {
-        for (cop, stem) in [
-            (&AssignmentIndentation as &dyn Cop, "value =\n1\n"),
-            (
-                &AccessModifierIndentation,
-                "class C\nprivate\n  def f; end\nend\n",
-            ),
-            (&ArgumentAlignment, "def f(*v); v; end\nf(1,\n2)\n"),
-        ] {
-            for observer in [
-                "p __FILE__",
-                "p __dir__",
-                "p $0",
-                "p $PROGRAM_NAME",
-                "p caller",
-                "p caller_locations",
-                "p method(:f).source_location",
-                "SCRIPT_LINES__ = {}; p SCRIPT_LINES__",
-                "p DATA\n__END__\npayload",
-                "p Object.const_get(:DATA).read\n__END__\npayload",
-                "p Object.const_get(\"DATA\").read\n__END__\npayload",
-                "p ::Object.const_get('::Object::DATA')\n__END__\npayload",
-                "Root = Object; p Root.const_get((:DATA))\n__END__\npayload",
-            ] {
-                let source = format!("{stem}{observer}\n");
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{}: {source}", cop.name());
-                assert!(found[0].correction.is_none(), "{}: {source}", cop.name());
-                assert_correction(cop, &source, &source);
-            }
-        }
-    }
 
     #[test]
     fn out_of_scope_readers_and_observer_lookalikes_allow_every_consumer() {

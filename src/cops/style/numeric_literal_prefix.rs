@@ -63,17 +63,12 @@ impl Cop for NumericLiteralPrefix {
             message: (*message).into(),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(node, cx, file, kind))
+                .then(|| correction(node, kind))
                 .flatten(),
         });
     }
 }
-fn correction(
-    node: &Node<'_>,
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    kind: usize,
-) -> Option<crate::offense::Correction> {
+fn correction(node: &Node<'_>, kind: usize) -> Option<crate::offense::Correction> {
     // Edit only the unsigned numeric token, not an intervening unary send,
     // comment, sign or newline. No value approximation or integer-size limit.
     let token = node.location();
@@ -96,7 +91,7 @@ fn correction(
         range: token.start_offset() + sign..token.end_offset(),
         replacement: format!("{prefix}{}", String::from_utf8_lossy(digits)),
     };
-    super::literal_spelling::safe_edit(file, cx, edit)
+    Some(edit)
 }
 #[cfg(test)]
 mod tests {

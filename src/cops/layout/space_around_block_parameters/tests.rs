@@ -518,25 +518,3 @@ fn a_shadow_local_semicolon_is_reported_without_an_edit() {
     assert_eq!(findings(source), expected(&[(1, 6, BEFORE)]));
     held(source);
 }
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("f {{ | a,  b|a }}\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceAroundBlockParameters::default(),
-        "f { | a|a }\np File.read('example.rb')\n",
-        "f { |a| a }\np File.read('example.rb')\n",
-    );
-}

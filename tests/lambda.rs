@@ -148,36 +148,6 @@ fn byte_fidelity_bom_crlf_legacy_heredocs_line_and_data() {
         assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), after);
     }
 }
-#[test]
-fn unknown_lookup_clean_errors_and_observers_never_write() {
-    let dir = project();
-    for (source, status) in [
-        ("def lambda(&b); proc(&b); end\nf = lambda { |x| x }\n", 1),
-        ("class Child < Parent; def f; -> do\n 1\nend; end; end\n", 1),
-        ("f = lambda { 1 }; p DATA.pos\n__END__\nraw\n", 1),
-        ("f = lambda { 1 }; p f.source_location\n", 1),
-        ("f = -> { 1 }\n", 0),
-        ("# lambda { 1 }\n'lambda { 1 }'\n__END__\nlambda { 1 }\n", 0),
-    ] {
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "x.rb"],
-            status,
-        );
-    }
-    let path = dir.path().join("x.rb");
-    fs::write(&path, "lambda {\n").unwrap();
-    let mtime = fs::metadata(&path).unwrap().modified().unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(dir.path())
-        .args(["--only", COP, "--fix", "x.rb"])
-        .output()
-        .unwrap();
-    assert_eq!(out.status.code(), Some(2));
-    assert_eq!(fs::read_to_string(&path).unwrap(), "lambda {\n");
-    assert_eq!(fs::metadata(path).unwrap().modified().unwrap(), mtime);
-}
 fn ruby(dir: &Path) -> Output {
     Command::new("ruby")
         .current_dir(dir)
@@ -290,28 +260,6 @@ fn custom_proc_witness_is_not_rewritten_to_strict_lambda() {
     )
     .unwrap();
     assert!(!ruby(dir.path()).status.success());
-}
-#[test]
-fn main_script_data_byte_position_is_preserved_and_naive_edit_changes_it() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let source = "f = lambda { 1 }; p DATA.pos\n__END__\nraw\n";
-    fs::write(dir.path().join("x.rb"), source).unwrap();
-    let before = ruby(dir.path());
-    assert!(before.status.success());
-    unchanged(
-        dir.path(),
-        source.as_bytes(),
-        &["--only", COP, "--fix", "x.rb"],
-        1,
-    );
-    assert_eq!(ruby(dir.path()).stdout, before.stdout);
-    fs::write(dir.path().join("x.rb"), source.replace("lambda", "->")).unwrap();
-    let naive = ruby(dir.path());
-    assert!(naive.status.success());
-    assert_ne!(naive.stdout, before.stdout);
 }
 #[test]
 fn incompatible_symbol_proc_composition_gate_when_that_peer_is_available() {

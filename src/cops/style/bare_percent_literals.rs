@@ -56,11 +56,6 @@ impl Cop for BarePercentLiterals {
                     {
                         return None;
                     }
-                    let root = cx.ancestors().next_back()?;
-                    let proof = file.class_method_bindings(root);
-                    if proof.observes_sources || proof.observes_data {
-                        return None;
-                    }
                     Some(Correction {
                         range: start + 1..start + 2,
                         replacement: String::new(),

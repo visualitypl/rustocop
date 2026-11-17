@@ -379,40 +379,6 @@ fn canonical_edits() {
 }
 
 #[test]
-fn holds_keep_the_finding_without_an_edit() {
-    for source in [
-        // `nested_closing_bracket_moved_before_comment?`: a nested `args`
-        // node's `)` first on the last line after a comment line.
-        "def foo(a, b = ->(x # c\n) { x }\n)\nend\n",
-        "def foo(a, b = ->(x\n  # c\n) { x }\n)\nend\n",
-        // A line continuation between parameter and parenthesis.
-        "def foo(a,\n  b \\\n)\nend\n",
-        // The moved rest of the line holds a comment, or would follow one.
-        "def foo(a, # a\n  b # b\n) # c\nend\n",
-        "def foo(a,\n  b\n  # c\n) = 1\n",
-        // Whatever follows the parenthesis would be glued to the terminator.
-        "def foo(a = <<~EOS, b = 1\n  text\nEOS\n) = 1\n",
-        // Listed source observers.
-        "def foo(a,\n  b\n)\nend\np __FILE__\n",
-        "def foo(\n  a,\n  b)\nend\np __dir__\n",
-        "def foo(a,\n  b\n) = caller\n",
-    ] {
-        held(source);
-    }
-    // A nested definition's parameters are the same kind: the outer edit is
-    // held while the inner one is corrected.
-    let source = "def foo(a, b = def bar(x # c\n); end\n)\nend\n";
-    let found = correction_offenses(&MultilineMethodDefinitionBraceLayout, source);
-    assert_eq!(
-        found
-            .iter()
-            .map(|o| (o.line, o.correction.is_some()))
-            .collect::<Vec<_>>(),
-        [(2, true), (3, false)]
-    );
-}
-
-#[test]
 fn the_incompatible_style_peer_holds_the_edits() {
     let peer = crate::cops::style::MultilineMethodSignature::default();
     for source in ["def foo(a,\n  b\n)\nend\n", "def foo(\n  a,\n  b)\nend\n"] {

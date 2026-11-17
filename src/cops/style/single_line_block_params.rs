@@ -65,10 +65,6 @@ impl Cop for SingleLineBlockParams {
                 .corrections_requested()
                 .then(|| {
                     let root = cx.ancestors().next_back()?;
-                    let proof = file.class_method_bindings(root);
-                    if proof.observes_sources || proof.observes_data {
-                        return None;
-                    }
                     file.block_param_facts(root)
                         .edits
                         .get(&parameters.location().start_offset())

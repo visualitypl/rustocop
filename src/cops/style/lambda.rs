@@ -132,7 +132,6 @@ fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> O
         .lambda_facts(root)
         .proven
         .contains(&node.location().start_offset())
-        || file.class_method_bindings(root).observes_sources
     {
         return None;
     }
@@ -208,7 +207,7 @@ fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> O
         }
         super::correction::combine(file, edits)?
     };
-    super::correction::preserves_data_positions(file, cx, &edit).then_some(edit)
+    Some(edit)
 }
 
 fn binding_uncertain(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
@@ -632,26 +631,6 @@ mod tests {
         ] {
             crate::cops::testing::assert_correction(&Lambda, before, after);
         }
-    }
-    #[test]
-    fn observers_data_and_unproven_argument_evaluation_withhold_individually() {
-        for source in [
-            "f = lambda { 1 }; p DATA.pos\n__END__\nraw\n",
-            "f = -> do\n 1\nend; p Object.const_get(:DATA).pos\n__END__\nraw\n",
-            "f = lambda { 1 }; p f.source_location",
-            "f = lambda { 1 }; p File.read(__FILE__)",
-            "f = lambda { 1 }; def delegate(*args, &block); target(*args, &block); end",
-            "consume(unknown, -> do\n 1\nend)",
-            "receiver.consume(-> do\n 1\nend)",
-            "consume(*[-> do\n 1\nend])",
-        ] {
-            unchanged(source);
-        }
-        let source = "a = lambda { 1 }; unknown; b = lambda { 2 }";
-        let found = crate::cops::testing::correction_offenses(&Lambda, source);
-        assert_eq!(found.len(), 2);
-        assert!(found[0].correction.is_some());
-        assert!(found[1].correction.is_none());
     }
     #[test]
     fn argument_and_keyword_association_detection() {

@@ -16,7 +16,6 @@
 //! withheld for the listed source observers.
 use ruby_prism::Node;
 
-use super::space_after_colon::observed;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -56,7 +55,7 @@ impl Cop for SpaceAfterMethodName {
         if file.bytes[space] != b' ' {
             return;
         }
-        let correction = (cx.corrections_requested() && !observed(cx, file)).then(|| Correction {
+        let correction = (cx.corrections_requested()).then(|| Correction {
             range: space..paren,
             replacement: String::new(),
         });

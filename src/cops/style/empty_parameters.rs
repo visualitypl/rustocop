@@ -82,7 +82,7 @@ fn correction(
         range,
         replacement: if separator { " " } else { "" }.into(),
     };
-    super::correction::preserves_data_positions(file, cx, &edit).then_some(edit)
+    Some(edit)
 }
 
 /// One complete main-AST pass shared by both consumers. Unbound `it` reads in
@@ -349,24 +349,6 @@ mod tests {
             assert_eq!((found[0].line, found[0].col), position);
             assert_eq!(found[0].end_line, end_line);
             assert_eq!(found[0].message, message);
-        }
-    }
-
-    #[test]
-    fn data_position_observers_withhold_length_changes_not_payload_only() {
-        for (cop, prefix, _) in cases() {
-            for observer in [
-                "DATA.pos",
-                "IO.const_get(:DATA) rescue DATA.pos",
-                "Object.const_get(:DATA).tell",
-                "DATA.method(:pos).call",
-                "[DATA].map(&:pos)",
-            ] {
-                let source = format!("{prefix} 1 }}\np {observer}\n__END__\npayload\n");
-                let found = correction_offenses(cop, &source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-            }
         }
     }
 }

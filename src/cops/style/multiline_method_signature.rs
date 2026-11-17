@@ -298,42 +298,6 @@ mod tests {
         assert_eq!(lint_str_with(&[cop.as_ref()], &source).len(), 1);
     }
     #[test]
-    fn comments_directives_heredocs_line_values_and_observers_withhold_only_edits() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "def f(a, # explanation\n b)\nend\n",
-            "def f(a,\n b) # rustocop:disable Layout\nend\n",
-            "def f(a = __LINE__,\n b = 2)\nend\n",
-            "def f(a,\n b)\nend\np __LINE__\n",
-            "def f(a,\n b)\n <<~S\npayload\nS\nend\n",
-            "def f(\n a = <<~S)\npayload\nS\nend\n",
-            "def f(...\n)\n target(...)\nend\n",
-            "def (\n Object.new\n).f(a,\n b)\nend\n",
-        ] {
-            assert_eq!(
-                ruby_prism::parse(source.as_bytes()).errors().count(),
-                0,
-                "{source}"
-            );
-            let found = correction_offenses(&MultilineMethodSignature::default(), source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for observer in [
-            "p method(:f).source_location",
-            "p errors.map(&:full_message)",
-            "p caller",
-            "obj.public_send(selector)",
-            "p DATA.pos",
-            "p Object.const_get(:DATA).lineno",
-        ] {
-            let source = format!("def f(a,\n b)\nend\n{observer}\n__END__\nraw\n");
-            let found = correction_offenses(&MultilineMethodSignature::default(), &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{observer}");
-        }
-    }
-    #[test]
     fn pinned_lookalikes_and_multiline_defaults() {
         for source in [
             "def foo(bar, baz)\nend",

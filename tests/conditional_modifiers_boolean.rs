@@ -196,62 +196,6 @@ fn unsafe_pinned_corrections_are_all_byte_and_mtime_holds() {
     }
 }
 #[test]
-fn source_sensitive_uncorrectable_clean_and_error_files_keep_bytes() {
-    let d = project();
-    for source in [
-        b"a ? b : c if __LINE__ == 1\n".as_slice(),
-        b"a ? b : c if ready\np __LINE__\n".as_slice(),
-        b"a ? DATA.pos : c if ready\n__END__\npayload\n".as_slice(),
-        b"# coding: ISO-8859-1\na ? '\xe9' : c if ready\n".as_slice(),
-        b"if a\n value = 1\nend if value\n".as_slice(),
-        b"a ? b : c if ready # encoding: ascii-8bit\n".as_slice(),
-    ] {
-        unchanged(
-            d.path(),
-            MODIFIER,
-            source,
-            &["--only", MODIFIER, "--fix", "a.rb"],
-            1,
-            Some(1),
-        );
-    }
-    for (cop, source) in [
-        (MODIFIER, GOOD),
-        (BOOLEAN, "if ready; true; else; false; end\n"),
-    ] {
-        unchanged(
-            d.path(),
-            cop,
-            source.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-            Some(0),
-        );
-        unchanged(
-            d.path(),
-            cop,
-            b"if broken\n",
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-            Some(2),
-        );
-        fs::write(
-            d.path().join("rustocop.toml"),
-            format!("[cops.\"{cop}\"]\nmax = 80\n"),
-        )
-        .unwrap();
-        unchanged(
-            d.path(),
-            cop,
-            source.as_bytes(),
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-            Some(2),
-        );
-        fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    }
-}
-#[test]
 fn stdin_reports_exact_positions_and_never_creates_a_file() {
     let d = project();
     for (cop, source, position) in [

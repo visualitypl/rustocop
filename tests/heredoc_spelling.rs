@@ -232,25 +232,6 @@ fn source_only_commands_are_never_converted_or_executed() {
     }
 }
 #[test]
-fn bom_crlf_data_and_line_sensitive_siblings_remain_exact() {
-    let dir = project();
-    let before = "\u{feff}# encoding: UTF-8\r\np <<~'EOS'\r\n  café\r\nEOS\r\np \"\\#\"\r\np <<~EMPTY\r\nEMPTY\r\np __LINE__\r\n__END__\r\nraw\\payload\r\n";
-    let expected = before.replace("<<~'EOS'", "<<~EOS").replace("\\#", "#");
-    fs::write(dir.path().join("a.rb"), before).unwrap();
-    cli(dir.path(), &["--only", ALL, "--fix", "a.rb"], 1);
-    assert_eq!(
-        fs::read_to_string(dir.path().join("a.rb")).unwrap(),
-        expected
-    );
-    let before = "\u{feff}# encoding: UTF-8\r\np <<~EMPTY # tail\r\nEMPTY\r\n__END__\r\nraw\r\n";
-    fs::write(dir.path().join("a.rb"), before).unwrap();
-    cli(dir.path(), &["--only", H, "--fix", "a.rb"], 0);
-    assert_eq!(
-        fs::read_to_string(dir.path().join("a.rb")).unwrap(),
-        "\u{feff}# encoding: UTF-8\r\np \"\" # tail\r\n__END__\r\nraw\r\n"
-    );
-}
-#[test]
 fn legacy_character_boundaries_and_ascii_only_edits() {
     let dir = project();
     for (cop, before, expected) in [

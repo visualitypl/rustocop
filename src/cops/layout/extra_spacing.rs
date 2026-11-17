@@ -76,7 +76,6 @@ impl Cop for ExtraSpacing {
         }
         let tokens = file.parser_tokens();
         let mut investigation = Investigation::new(file, &root, tokens);
-        let mut observed = None;
         for pair in tokens.windows(2) {
             let (first, second) = (&pair[0], &pair[1]);
             if second.is_newline() || first.line != second.line {
@@ -93,12 +92,7 @@ impl Cop for ExtraSpacing {
             let blank = file.bytes[start..end]
                 .iter()
                 .all(|b| matches!(b, b' ' | b'\t' | b'\x0b' | b'\x0c'));
-            let correction = (blank
-                && !*observed.get_or_insert_with(|| {
-                    file.class_method_bindings(&root)
-                        .has_listed_source_observer(result.data_loc().is_some())
-                }))
-            .then(|| Correction {
+            let correction = blank.then(|| Correction {
                 range: start..end,
                 replacement: String::new(),
             });

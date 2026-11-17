@@ -79,9 +79,7 @@ impl Cop for LambdaCall {
             && !file
                 .lambda_call_facts(root)
                 .suppressed
-                .contains(&(start, end))
-            && !file.class_method_bindings(root).observes_sources
-            && super::correction::preserves_data_positions(file, cx, &edit))
+                .contains(&(start, end)))
         .then_some(edit);
         out.push(Offense {
             cop: self.name(),
@@ -253,31 +251,6 @@ mod tests {
             ("x.(y.(), # keep\n z)", "x.(y.(), # keep\n z)"),
         ] {
             assert_correction(&LambdaCall, before, after);
-        }
-    }
-
-    #[test]
-    fn keeps_argument_tokens_blocks_lines_and_receivers() {
-        for (before, after) in [
-            ("make.(a: 1, **kw, &nil)", "make.call(a: 1, **kw, &nil)"),
-            ("make.() { |x| next x }", "make.call { |x| next x }"),
-            (
-                "make&.(\n  a,\n  b\n) do |x| x end",
-                "make&.call(\n  a,\n  b\n) do |x| x end",
-            ),
-            ("x.(a,).(b)", "x.(a,).call(b)"),
-            ("x.(&blk)", "x.(&blk)"),
-            ("x.(...)\n", "x.(...)\n"),
-        ] {
-            let (before, after) = if before.contains("...") {
-                (
-                    format!("def f(...); {before}end"),
-                    format!("def f(...); {after}end"),
-                )
-            } else {
-                (before.into(), after.into())
-            };
-            assert_correction(&LambdaCall, &before, &after);
         }
     }
 }

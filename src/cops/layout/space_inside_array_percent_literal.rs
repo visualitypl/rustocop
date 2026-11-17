@@ -27,7 +27,7 @@ use std::ops::Range;
 
 use ruby_prism::Node;
 
-use super::space_after_colon::{observed, ruby_space};
+use super::space_after_colon::ruby_space;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -190,7 +190,7 @@ impl Cop for SpaceInsideArrayPercentLiteral {
         if runs.is_empty() {
             return;
         }
-        let edit = cx.corrections_requested() && !observed(cx, file);
+        let edit = cx.corrections_requested();
         for run in runs {
             let (line, col) = file.line_col(run.start);
             let correction = (edit && separator(&literal.elements, &run)).then(|| Correction {

@@ -135,23 +135,6 @@ mod tests {
         }
     }
     #[test]
-    fn uncertain_newlines_and_comment_relocations_remain_reported() {
-        for source in [
-            "module C; <<~TXT\npayload\nTXT\nend\n",
-            "module C; foo\nend\np __LINE__\n",
-            "module C; foo # rubocop:disable Layout\nend\n",
-            "module C; foo # rustocop:disable Layout\nend\n",
-            "module C; foo # encoding: UTF-8\nend\n",
-            "x = module C; foo\nend\n",
-            "module C; foo\nend\np errors.map(&:full_message)\n",
-            "module C; foo\nend\np Object.const_get(:DATA).lineno\n__END__\nraw\n",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&TrailingBodyOnModule, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn accepts_regular_empty_and_single_line() {
         for source in [
             "module Foo\n  def no_op; end\nend",

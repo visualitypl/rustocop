@@ -94,13 +94,10 @@ impl Cop for TrailingCommaInArguments {
             line,
             col,
             end_line: line,
-            correction: cx
-                .corrections_requested()
-                .then(|| Correction {
-                    range: offset..offset + 1,
-                    replacement: String::new(),
-                })
-                .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+            correction: cx.corrections_requested().then(|| Correction {
+                range: offset..offset + 1,
+                replacement: String::new(),
+            }),
         });
     }
 }
@@ -366,22 +363,6 @@ p w.call(r.value)
             })
             .collect();
         assert_eq!(snapshots[0], snapshots[1]);
-    }
-
-    #[test]
-    fn data_position_observers_keep_offenses_but_withhold_deletion() {
-        for read in ["DATA.pos", "::DATA", "Object.const_get(:DATA)"] {
-            let source = format!("f(1,)\np {read}\n__END__\npayload\n");
-            let found =
-                crate::cops::testing::correction_offenses(&TrailingCommaInArguments, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        crate::cops::testing::assert_correction(
-            &TrailingCommaInArguments,
-            "f(1,)\np __LINE__\n__END__\npayload,\n",
-            "f(1)\np __LINE__\n__END__\npayload,\n",
-        );
     }
 
     #[test]

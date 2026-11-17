@@ -694,25 +694,3 @@ fn every_offense_of_a_file_is_corrected_in_one_pass() {
         "if a then \"b\" end\nx = 1 if a\nfoo(1) do|y|end\n",
     );
 }
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("x = 1if a\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceAroundKeyword,
-        "x = 1if a\np File.read('example.rb')\n",
-        "x = 1 if a\np File.read('example.rb')\n",
-    );
-}

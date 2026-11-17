@@ -206,27 +206,3 @@ fn send_shapes_and_ranges() {
         expect(source, &expected, after);
     }
 }
-
-#[test]
-fn listed_source_observers_hold_every_correction() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:p).source_location",
-        "p SCRIPT_LINES__",
-        "p DATA.read\n__END__\nx",
-    ] {
-        let source = format!("foo(\n\n  bar,\n\n  baz)\n{observer}\n");
-        assert_eq!(findings(&source).len(), 2, "{source:?}");
-        assert_correction(&EmptyLinesAroundArguments, &source, &source);
-    }
-    assert_correction(
-        &EmptyLinesAroundArguments,
-        "foo(\n\n  bar)\np DATA\n",
-        "foo(\n  bar)\np DATA\n",
-    );
-}

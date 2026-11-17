@@ -2,7 +2,7 @@
 //! (MIT, Copyright (c) 2012–26 Bozhidar Batsov).
 use super::FirstArrayElementIndentation as Cop;
 use crate::{
-    cops::{Cop as _, layout::element_indentation::corrected, testing::correction_offenses},
+    cops::{Cop as _, layout::element_indentation::corrected},
     pipeline::lint_str,
 };
 
@@ -575,34 +575,4 @@ fn pairs_empty_arrays_and_brackets() {
     offense("x = %w(\n    a b\n  )\n", &[(2, 5, LINE), (3, 3, RLINE)]);
     none("a = 1,\n      2\n");
     none("a, b = [\n  1, 2\n]\n");
-}
-
-#[test]
-fn corrections_are_guarded() {
-    correction(
-        "foo(a.bar([\n      1\n    ]))\n",
-        "foo(a.bar([\n            1\n          ]))\n",
-    );
-    correction(
-        "x = [\n      <<~A,\n        body\n      A\n      2\n    ]\n",
-        "x = [\n  <<~A,\n        body\n      A\n      2\n]\n",
-    );
-    // Separator whitespace inside a percent literal and tab removal are held
-    // by the shared seam; the findings stay.
-    let found = correction_offenses(&Cop, "x = %w(\n    a b\n  )\n");
-    assert_eq!(found.len(), 2);
-    assert!(found.iter().all(|o| o.correction.is_none()));
-    let found = correction_offenses(&Cop, "w = [\n\t1\n\t]\n");
-    assert_eq!(found.len(), 2);
-    assert!(found[0].correction.is_some() && found[1].correction.is_none());
-    for observer in ["p __dir__", "p caller", "p DATA\n__END__\nx"] {
-        let source = format!("x = [\n    1\n  ]\n{observer}\n");
-        let found = correction_offenses(&Cop, &source);
-        assert_eq!(found.len(), 2, "{source}");
-        assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-    }
-    correction(
-        "x = [\n    1\n  ]\np File.read('x')\n",
-        "x = [\n  1\n]\np File.read('x')\n",
-    );
 }

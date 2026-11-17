@@ -48,16 +48,7 @@ impl Cop for DotPosition {
         }
         let correction = cx
             .corrections_requested()
-            .then(|| {
-                let root = cx.ancestors().last().unwrap_or(node);
-                if file
-                    .class_method_bindings(root)
-                    .has_listed_source_observer(file.data_start().is_some())
-                {
-                    return None;
-                }
-                move_dot_before_selector(&call, file)
-            })
+            .then(|| move_dot_before_selector(&call, file))
             .flatten();
         let dot_start = call.dot.start_offset();
         let (line, col) = file.line_col(dot_start);

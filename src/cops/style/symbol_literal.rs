@@ -73,14 +73,10 @@ impl Cop for SymbolLiteral {
                     }) {
                         return None;
                     }
-                    super::literal_spelling::safe_edit(
-                        file,
-                        cx,
-                        Correction {
-                            range: loc.start_offset()..loc.end_offset(),
-                            replacement: format!(":{}", std::str::from_utf8(bytes).ok()?),
-                        },
-                    )
+                    Some(Correction {
+                        range: loc.start_offset()..loc.end_offset(),
+                        replacement: format!(":{}", std::str::from_utf8(bytes).ok()?),
+                    })
                 })
                 .flatten(),
         });

@@ -231,12 +231,7 @@ fn correction(
     file: &SourceFile,
 ) -> Option<Correction> {
     let root = cx.ancestors().next_back()?;
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-        || comment_in(file, offense_range)
-        || touches_directive(file, offense_range.clone())
-    {
+    if comment_in(file, offense_range) || touches_directive(file, offense_range.clone()) {
         return None;
     }
     let closing_line_start = file.line_start(file.line_of(block.closing.start));

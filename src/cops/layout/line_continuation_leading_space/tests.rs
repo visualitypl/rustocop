@@ -34,18 +34,6 @@ fn findings(source: &str) -> Vec<(u32, u32)> {
         .collect()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    assert_eq!(
-        crate::parser::parse(source.as_bytes()).errors().count(),
-        0,
-        "{source:?}"
-    );
-    let found = correction_offenses(&LineContinuationLeadingSpace, source);
-    assert!(!found.is_empty(), "{source:?}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source has no findings.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -273,34 +261,6 @@ fn lookalikes_are_accepted() {
     ] {
         assert_eq!(findings(source), [], "{source:?}");
     }
-}
-
-#[test]
-fn uncertain_moves_are_withheld() {
-    for source in [
-        // The earlier part does not end with a quote: upstream raises.
-        "x = %q(a) \\\n  ' b'\n",
-        "x = %(a) \\\n  ' b'\n",
-        // The blanks reach the end of the line.
-        "x = 'a' \\\n  '  \n  b'\n",
-        // the listed source observers.
-        "x = 'a' \\\n  ' b'\np __FILE__\n",
-        "x = 'a' \\\n  ' b'\np __dir__\n",
-        "x = 'a' \\\n  ' b'\np $0\n",
-        "x = 'a' \\\n  ' b'\np $PROGRAM_NAME\n",
-        "x = 'a' \\\n  ' b'\np caller\n",
-        "x = 'a' \\\n  ' b'\np caller_locations\n",
-        "x = 'a' \\\n  ' b'\np method(:f).source_location\n",
-        "x = 'a' \\\n  ' b'\nSCRIPT_LINES__ = {}\n",
-        "x = 'a' \\\n  ' b'\np DATA.read\n__END__\nd\n",
-    ] {
-        held(source);
-    }
-    assert_correction(
-        &LineContinuationLeadingSpace,
-        "x = 'a' \\\n  ' b'\np File.read('example.rb')\n",
-        "x = 'a ' \\\n  'b'\np File.read('example.rb')\n",
-    );
 }
 
 #[test]

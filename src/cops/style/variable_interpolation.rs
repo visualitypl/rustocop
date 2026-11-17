@@ -45,17 +45,10 @@ impl Cop for VariableInterpolation {
             correction: cx
                 .corrections_requested()
                 .then(|| {
-                    super::literal_spelling::safe_edit(
-                        file,
-                        cx,
-                        Correction {
-                            range: loc.start_offset()..loc.end_offset(),
-                            replacement: format!(
-                                "{{{}}}",
-                                std::str::from_utf8(loc.as_slice()).ok()?
-                            ),
-                        },
-                    )
+                    Some(Correction {
+                        range: loc.start_offset()..loc.end_offset(),
+                        replacement: format!("{{{}}}", std::str::from_utf8(loc.as_slice()).ok()?),
+                    })
                 })
                 .flatten(),
         });

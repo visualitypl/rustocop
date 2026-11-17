@@ -40,7 +40,6 @@ impl Cop for CommentIndentation {
             |data| file.line_of(data.start_offset()).saturating_sub(1),
         );
         let lines = Lines { file };
-        let mut held = None;
         for (index, comment) in comments.iter().enumerate() {
             let line = file.line_of(comment.start);
             if !lines.own_line(line) {
@@ -64,15 +63,7 @@ impl Cop for CommentIndentation {
                 }
             }
             let delta = correct as isize - column as isize;
-            let observed = *held.get_or_insert_with(|| {
-                file.class_method_bindings(&result.node())
-                    .has_listed_source_observer(result.data_loc().is_some())
-            });
-            let correction = if observed {
-                None
-            } else {
-                correction(file, &result.node(), &comments, index, &lines, delta)
-            };
+            let correction = correction(file, &result.node(), &comments, index, &lines, delta);
             let (line, _) = file.line_col(comment.start);
             out.push(Offense {
                 correction,

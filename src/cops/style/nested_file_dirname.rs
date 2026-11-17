@@ -104,42 +104,6 @@ mod tests {
     use crate::{cops::testing::assert_correction, pipeline::lint_str};
 
     #[test]
-    fn preserves_levels_arguments_blocks_bindings_and_source() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "File.dirname(File.dirname(path, 2))",
-            "File.dirname(File.dirname(path), level())",
-            "File.dirname(File.dirname(*paths))",
-            "File.dirname(File.dirname(path), &block)",
-            "File.dirname(File.dirname(path)) { effect }",
-            "File.dirname( # retain\n File.dirname(path))",
-            "File.dirname(\n File.dirname(path))\np __LINE__",
-            "File.dirname(File.dirname(<<~PATH))\n  path\nPATH\n",
-            "module M; File = Custom; File.dirname(File.dirname(path)); end",
-            "File.define_singleton_method(:dirname) { |x| x }; File.dirname(File.dirname(path))",
-        ] {
-            let found = correction_offenses(&NestedFileDirname, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &NestedFileDirname,
-            "::File.dirname(File.dirname(path))",
-            "::File.dirname(path, 2)",
-        );
-        assert_correction(
-            &NestedFileDirname,
-            "File.dirname(File.dirname(make_path arg))",
-            "File.dirname((make_path arg), 2)",
-        );
-        assert_correction(
-            &NestedFileDirname,
-            "\u{feff}# encoding: UTF-8\r\nFile.dirname(File.dirname(\"a/b/c\"))\r\np __LINE__\r\n__END__\r\nraw\r\n",
-            "\u{feff}# encoding: UTF-8\r\nFile.dirname(\"a/b/c\", 2)\r\np __LINE__\r\n__END__\r\nraw\r\n",
-        );
-    }
-
-    #[test]
     fn pinned_diagnostics_and_corrections() {
         for (expression, level) in [
             ("File.dirname(path)", 2),

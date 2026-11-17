@@ -421,53 +421,6 @@ mod tests {
         }
     }
     #[test]
-    fn newline_uncertainties_keep_offenses_without_partial_edits() {
-        use crate::cops::testing::correction_offenses;
-        for cop in [
-            SingleLineMethods::default(),
-            SingleLineMethods { endless: false },
-        ] {
-            for source in [
-                "def f; __LINE__; end\n",
-                "def f; body; end\np __LINE__\n",
-                "def f; body; end # rubocop:disable Layout\n",
-                "def f; body; end # rustocop:enable Layout\n",
-                "def f; <<~S; end\n  payload\nS\n",
-                "def f(x=<<~S); body; end\n  payload\nS\n",
-                "consume(def f; body; end)\n",
-                "def f; body; end; other\n",
-            ] {
-                let found = correction_offenses(&cop, source);
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
-            }
-            for observer in [
-                "p method(:later).source_location",
-                "p caller_locations",
-                "p errors.map(&:full_message)",
-                "p obj.send(selector)",
-                "p DATA.pos",
-                "p Object.const_get(:DATA).lineno",
-                "p DATA.read",
-                "def passthrough(...); target(...); end",
-            ] {
-                let source =
-                    format!("def f; body; end\ndef later; end\n{observer}\n__END__\nraw\n");
-                let found = correction_offenses(&cop, &source);
-                assert!(found.iter().any(|o| o.line == 1));
-                assert!(found.iter().all(|o| o.correction.is_none()), "{observer}");
-            }
-        }
-        // A trailing magic comment may stay put on an endless conversion, but
-        // cannot be promoted into the file's magic header by multiline expansion.
-        let source = "def f; body; end # frozen_string_literal: true\n";
-        assert!(
-            correction_offenses(&SingleLineMethods { endless: false }, source)[0]
-                .correction
-                .is_none()
-        );
-    }
-    #[test]
     fn multiline_body_literals_and_comments_are_never_reindented_or_split() {
         assert_correction(
             &SingleLineMethods { endless: false },

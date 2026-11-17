@@ -16,7 +16,7 @@
 //! observers (the shared position barrier holds a later `__LINE__`), inside a
 //! `=begin` block comment, and when line 1 is a shebang and line 2 spells
 //! `coding`, which would move off the line where Ruby reads the encoding.
-use super::space_before_comment::{bom_end, listed_observer};
+use super::space_before_comment::bom_end;
 use crate::{
     cops::{Cop, style::magic_comment::MagicComment},
     offense::{Correction, Offense},
@@ -64,9 +64,7 @@ impl Cop for EmptyLineAfterMagicComment {
             return;
         }
         let at = file.line_start(next);
-        let held = file.bytes[magic.clone()].starts_with(b"=begin")
-            || moves_encoding(file, next)
-            || listed_observer(file, result);
+        let held = file.bytes[magic.clone()].starts_with(b"=begin") || moves_encoding(file, next);
         let newline = if file.bytes[..at].ends_with(b"\r\n") {
             "\r\n"
         } else {

@@ -200,7 +200,7 @@ fn return_correction(node: &ruby_prism::ReturnNode<'_>, file: &SourceFile) -> Op
             range: loc.start_offset()..loc.end_offset(),
             replacement: "nil".into(),
         };
-        return super::correction::preserves_line_values(file, &correction).then_some(correction);
+        return Some(correction);
     }
     let mut end = node.keyword_loc().end_offset();
     while file

@@ -225,29 +225,4 @@ mod tests {
             "\u{feff}# encoding: UTF-8\r\nx = YAML.safe_load_file(File::NULL, fallback: 'empty', aliases: true) # keep\r\np __LINE__\r\n__END__\r\nraw\r\n",
         );
     }
-    #[test]
-    fn uncertain_file_contents_filename_metadata_and_keyword_evaluation_are_not_rewritten() {
-        for source in [
-            "YAML.load(File.read(path))",
-            "YAML.safe_load(File.read('file.yml'))",
-            "YAML.parse(File.read('file.yml'))",
-            "YAML.load(File.read('file.yml'), filename: nil)",
-            "YAML.safe_load(File.read('file.yml'), permitted_classes: [Regexp, Symbol], aliases: true)",
-            "YAML.load(File.read(File::NULL), fallback: compute)",
-            "YAML.load(File.read(File::NULL), **options)",
-            "YAML.load(File.read(File::NULL), *options)",
-            "YAML.load(File.read(File::NULL), positional)",
-            "YAML.load(File.read(File::NULL), &block)",
-            "YAML.load(File.read(File::NULL)) { side_effect }",
-            "YAML.parse(File.read(File::NULL), fallback: 'changed')",
-            "YAML.parse(File.read(File::NULL), filename: nil)",
-            "YAML.load(File.read(File::NULL), unknown: true)",
-            "YAML.load( # keep\n File.read(File::NULL))",
-            "YAML.load(\n File.read(File::NULL))\np __LINE__\n",
-        ] {
-            let found = correction_offenses(&YAMLFileRead, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
 }

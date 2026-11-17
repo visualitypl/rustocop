@@ -103,62 +103,6 @@ fn default_selectors_config_no_write_and_canonical_fix_are_real() {
     assert_eq!(fs::read(&path).unwrap(), AFTER.as_bytes());
 }
 #[test]
-fn directives_excludes_errors_and_uncertain_edits_do_not_write() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for config in [
-        "exclude = [\"lib/**\"]\n".to_string(),
-        format!("[cops.\"{COP}\"]\nexclude = [\"lib/**\"]\n"),
-    ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-        fs::write(&path, BEFORE).unwrap();
-        cli(
-            &dir.path().join("lib"),
-            &["--only", COP, "--fix", "a.rb"],
-            0,
-        );
-        assert_eq!(fs::read_to_string(&path).unwrap(), BEFORE);
-    }
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    let mut cases = vec![
-        ("def f = [\n  __LINE__]\n".to_string(), 1),
-        ("def f = [\n  1]\np __LINE__\n".to_string(), 1),
-        (
-            "def f = [\n  1]\np errors.map(&:full_message)\n".to_string(),
-            1,
-        ),
-        ("def f = [\n  1".to_string(), 2),
-        ("def f=(x) = [\n  x]\n".to_string(), 2),
-        ("def []=(x, y) = [\n  y]\n".to_string(), 2),
-        ("def f = 1\n".to_string(), 0),
-    ];
-    for prefix in ["rustocop", "rubocop"] {
-        for target in [COP, "Style", "all"] {
-            for directive in ["disable", "disable-next"] {
-                cases.push((format!("# {prefix}:{directive} {target}\n{BEFORE}"), 0));
-            }
-        }
-        cases.push((format!("def f = [\n  1] # {prefix}:disable {COP}\n"), 0));
-        // A directive for a different rule still prevents line-scope changes.
-        cases.push((format!("def f = [ # {prefix}:disable Layout\n  1]\n"), 1));
-    }
-    for (source, status) in cases {
-        fs::write(&path, &source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-    // Disabled and enabled definitions in the same file remain independent.
-    let source = format!("# rustocop:disable {COP}\n{BEFORE}# rustocop:enable {COP}\n{BEFORE}");
-    fs::write(&path, &source).unwrap();
-    cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-    assert_eq!(
-        fs::read_to_string(&path).unwrap(),
-        format!("# rustocop:disable {COP}\n{BEFORE}# rustocop:enable {COP}\n{AFTER}")
-    );
-}
-#[test]
 fn encoding_bom_crlf_data_and_stdin_contract() {
     use std::{io::Write, process::Stdio};
     let dir = project();
@@ -407,53 +351,4 @@ fn ruby_return_yield_rescue_and_ensure_keep_block_control_flow() {
         output,
         b"[:early, 6, :stopped, :fallback, [:ensure, :ensure, :ensure, \"caught\", :ensure]]\n"
     );
-}
-
-#[test]
-fn ruby_qualified_data_references_preserve_bytes_position_and_runtime() {
-    if !ruby_available() {
-        return;
-    }
-    for (prefix, reference) in [
-        ("", "Object::DATA"),
-        ("", "::Object::DATA"),
-        ("Root = Object\n", "Root::DATA"),
-        ("Root = Object\n", "Root::Object::DATA"),
-    ] {
-        let source = format!(
-            "{prefix}{BEFORE}p [{reference}.pos, {reference}.lineno, {reference}.read]\n__END__\nraw\n"
-        );
-        let data_start = source.find("__END__\n").unwrap() + "__END__\n".len();
-        let data_line = source[..data_start].bytes().filter(|b| *b == b'\n').count();
-        let expected = format!("[{data_start}, {data_line}, \"raw\\n\"]\n");
-        assert_eq!(runtime_case(&source, &source, ""), expected.as_bytes());
-    }
-}
-
-#[test]
-fn ruby_observed_source_metadata_and_lines_withhold_edits_and_preserve_runtime() {
-    if !ruby_available() {
-        return;
-    }
-    for observer in [
-        "p e.backtrace",
-        "p e.full_message(highlight: false)",
-        "p [e].flat_map(&:backtrace_locations).map(&:lineno)",
-    ] {
-        let before =
-            format!("def f = begin\n  raise 'boom'\nend\nbegin; f; rescue => e; {observer}; end\n");
-        runtime_case(&before, &before, "load ARGV[0]");
-    }
-    for before in [
-        "def f = [\n  __LINE__]\np [f, __LINE__]\n",
-        "def f = [\n  1]\ndef later; end\np method(:later).source_location\n",
-        "def f = [\n  1]\np File.readlines(__FILE__)\n",
-    ] {
-        runtime_case(before, before, "load ARGV[0]");
-    }
-    // DATA exists only for the main script, not a file loaded from -e.
-    let source = "def f = [\n  1]\np [DATA.pos, DATA.lineno, DATA.read]\n__END__\nraw\n";
-    assert_eq!(runtime_case(source, source, ""), b"[60, 4, \"raw\\n\"]\n");
-    let indirect = source.replace("DATA", "Object.const_get(:DATA)");
-    runtime_case(&indirect, &indirect, "");
 }

@@ -458,59 +458,6 @@ mod tests {
         }
     }
     #[test]
-    fn binding_mutations_and_uncertain_key_syntax_keep_the_offense_without_edits() {
-        for binding in [
-            "ENV = Custom",
-            "module M; ENV = Custom; end",
-            "Object.const_set(:ENV, custom)",
-            "def ENV.fetch(*args); :changed; end",
-            "def fetch(*args); :changed; end",
-            "ENV.define_singleton_method(:[]) { |k| 'changed' }",
-            "ENV.singleton_class.alias_method(:fetch, :[])",
-            "ENV.instance_eval('def fetch(*args); 123; end')",
-            "ENV.instance_eval { def fetch(*args); 123; end }",
-            "ENV.singleton_class.class_exec(:fetch) { |n| define_method(n) { 123 } }",
-            "module M; refine ENV.singleton_class do; def fetch(*args); 123; end; end; end",
-            "alias fetch object_id",
-            "undef fetch",
-            "define_method(name) { 123 }",
-        ] {
-            let source = format!("{binding}\nENV['X']\n");
-            let found = correction_offenses(&FetchEnvVar, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for source in [
-            "ENV[key value]",
-            "ENV[*keys]",
-            "ENV[x: 1]",
-            "ENV['X'] { side_effect }",
-            "ENV[ # keep\n 'X']",
-            "ENV[<<~KEY]\nX\nKEY\n",
-            "ENV[helper(<<~KEY)]\nX\nKEY\n",
-            "ENV[\n 'X'\n]\np __LINE__\n",
-            "ENV[\n 'X'\n] # rustocop:disable Lint/Debugger\n",
-        ] {
-            let found = correction_offenses(&FetchEnvVar, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for binding in [
-            "def other; 123; end",
-            "ENV['X'] = 'value'",
-            "ENV.delete('X')",
-            "# ENV = Custom",
-            "'def fetch; end'",
-        ] {
-            let source = format!("{binding}\nENV['X']\n");
-            assert_correction(
-                &FetchEnvVar,
-                &source,
-                &source.replace("ENV['X']\n", "ENV.fetch('X', nil)\n"),
-            );
-        }
-    }
-    #[test]
     fn literal_spelling_dynamic_keys_and_source_bytes_are_preserved() {
         for key in [
             "'X'",

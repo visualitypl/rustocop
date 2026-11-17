@@ -389,38 +389,6 @@ mod tests {
     }
 
     #[test]
-    fn closed_observers_hold_the_edit_but_keep_the_finding() {
-        for tail in [
-            "p __FILE__",
-            "p __dir__",
-            "p $0",
-            "p $PROGRAM_NAME",
-            "p caller",
-            "p caller_locations",
-            "p method(:f).source_location",
-            "SCRIPT_LINES__ = {}",
-            "p DATA.read\n__END__\nx",
-        ] {
-            let source = format!("case x\n  when 1\nend\n{tail}\n");
-            let found = correction_offenses(&CaseIndentation, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        for tail in [
-            "p File.read('example.rb')",
-            "p STDIN.read",
-            "p DATA",
-            "system('cat x.rb')",
-        ] {
-            assert_correction(
-                &CaseIndentation,
-                &format!("case x\n  when 1\nend\n{tail}\n"),
-                &format!("case x\nwhen 1\nend\n{tail}\n"),
-            );
-        }
-    }
-
-    #[test]
     fn both_directive_spellings_disable_the_finding() {
         for prefix in ["rustocop", "rubocop"] {
             for target in ["Layout/CaseIndentation", "Layout", "all"] {

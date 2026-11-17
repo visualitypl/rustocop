@@ -343,31 +343,6 @@ fn columns_count_characters_and_skip_the_bom() {
 }
 
 #[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "__FILE__",
-        "__dir__",
-        "$0",
-        "$PROGRAM_NAME",
-        "caller",
-        "caller_locations",
-        "method(:a).source_location",
-        "SCRIPT_LINES__",
-    ] {
-        let source = format!("x = {observer}\na.\n  b\n");
-        let found = correction_offenses(&DotPosition, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-    let data = "a.\n  b\nDATA.read\n__END__\nx\n";
-    let found = correction_offenses(&DotPosition, data);
-    assert_eq!(found.len(), 1);
-    assert!(found[0].correction.is_none());
-    // DATA without a data section is not an observer.
-    assert_eq!(fixed("a.\n  b\nDATA\n"), "a\n  .b\nDATA\n");
-}
-
-#[test]
 fn findings_only_without_requested_corrections() {
     let offenses: Vec<_> = lint_str("a.\n  b\n")
         .into_iter()

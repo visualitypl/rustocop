@@ -68,10 +68,6 @@ impl Cop for PercentQLiterals {
             correction: cx
                 .corrections_requested()
                 .then(|| {
-                    let root = cx.ancestors().next_back()?;
-                    if file.class_method_bindings(root).observes_sources {
-                        return None;
-                    }
                     Some(Correction {
                         range: start + 1..start + 2,
                         replacement: "q".into(),

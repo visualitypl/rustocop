@@ -120,7 +120,6 @@ impl Cop for LineContinuationSpacing {
             .last()
             .map_or(file.line_count() as u32, |token| token.line);
         let ignored = ignored_ranges(file, &result.node());
-        let mut observed = None;
         for range in candidates {
             let (line, col) = file.line_col(range.start);
             if line > last_line {
@@ -133,10 +132,7 @@ impl Cop for LineContinuationSpacing {
             let correction = (!(insertion
                 && (range.start == file.line_start(line)
                     || !insertion_safe(file, file.bytes[range.start - 1])))
-                && !file.overlaps_literal(&result.node(), &range)
-                && !*observed.get_or_insert_with(|| {
-                    super::space_before_comment::listed_observer(file, result)
-                }))
+                && !file.overlaps_literal(&result.node(), &range))
             .then(|| Correction {
                 range: range.clone(),
                 replacement: " \\".into(),

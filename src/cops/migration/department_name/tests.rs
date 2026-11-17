@@ -457,33 +457,6 @@ fn edits_only_the_name_bytes_of_crlf_bom_and_legacy_encodings() {
 }
 
 #[test]
-fn closed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:p).source_location",
-        "p SCRIPT_LINES__",
-    ] {
-        let source = format!("# rubocop:disable Alias\n{observer}\n");
-        assert_held(&source, &[(1, 19)]);
-    }
-    assert_held(
-        "# rubocop:disable Alias\np DATA.read\n__END__\n# rubocop:disable Alias\n",
-        &[(1, 19)],
-    );
-    // An ordinary program is corrected.
-    assert_correction(
-        &DepartmentName,
-        "# rubocop:disable Alias\np 1\n",
-        "# rubocop:disable Style/Alias\np 1\n",
-    );
-}
-
-#[test]
 fn qualification_preserves_suppression_and_opt_in_exactly() {
     // The edit is emitted only when the qualified name selects the same
     // registered cops as the original token, for suppression and opt-in.

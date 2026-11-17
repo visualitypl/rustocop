@@ -28,31 +28,6 @@ pub(super) fn check(
     }
 }
 
-/// The closed observer hold for the body cops added in v1.0
-/// (`begin` and block bodies): withhold the corrections of `found`, keeping
-/// the findings, when the file holds a listed source observer. The accepted
-/// class, module and method body cops keep their earlier guards unchanged.
-pub(super) fn hold_for_listed_observers(
-    cx: &NodeContext<'_, '_>,
-    file: &SourceFile,
-    found: &mut [Offense],
-) {
-    if found.iter().all(|o| o.correction.is_none()) {
-        return;
-    }
-    let Some(root) = cx.ancestors().next_back() else {
-        return;
-    };
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        for offense in found {
-            offense.correction = None;
-        }
-    }
-}
-
 pub(super) fn report(
     cop: &dyn Cop,
     kind: &str,

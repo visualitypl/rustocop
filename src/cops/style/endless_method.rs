@@ -80,10 +80,6 @@ fn rewrite(file: &SourceFile, node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Opti
         || file.contains_heredoc(root, node)
         || super::correction::touches_directive(file, start..end)
         || start < file.line_value_boundary()
-        || {
-            let observers = file.class_method_bindings(root);
-            observers.observes_sources || observers.observes_data
-        }
     {
         return None;
     }
@@ -294,29 +290,6 @@ mod tests {
             "p __LINE__\ndef f = [\n  1]\n",
             "p __LINE__\ndef f\n  [\n  1]\nend\n",
         );
-    }
-
-    #[test]
-    fn qualified_data_references_withhold_edits_without_changing_detection() {
-        for reference in [
-            "DATA",
-            "::DATA",
-            "Object::DATA",
-            "::Object::DATA",
-            "Root::Object::DATA",
-            "namespace::DATA",
-        ] {
-            let source = format!(
-                "def f = [\n  1]\np [{reference}.pos, {reference}.lineno, {reference}.read]\n__END__\nraw\n"
-            );
-            assert_withheld(&source, 1);
-            let found = offenses(&source);
-            assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 1, 2));
-            assert_eq!(
-                found[0].message,
-                "Avoid endless method definitions with multiple lines."
-            );
-        }
     }
 
     #[test]

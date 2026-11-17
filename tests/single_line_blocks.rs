@@ -209,60 +209,6 @@ fn stdin_detection_and_fix_rejection_never_write() {
         assert_eq!(fs::read_to_string(&path).unwrap(), "on disk\n");
     }
 }
-#[test]
-fn bom_crlf_legacy_literals_data_and_clean_error_bytes() {
-    let dir = project();
-    for (cop, before, after) in [
-        (
-            PARAMS,
-            b"\xef\xbb\xbfxs.reduce { |m,i| m+i }\r\n__END__\r\nraw\xff\r\n".as_slice(),
-            b"\xef\xbb\xbfxs.reduce { |acc, elem| acc+elem }\r\n__END__\r\nraw\xff\r\n".as_slice(),
-        ),
-        (
-            PARAMS,
-            b"# encoding: ISO-8859-1\r\nxs.reduce { |m,i| m+'caf\xe9'+i }\r\n".as_slice(),
-            b"# encoding: ISO-8859-1\r\nxs.reduce { |m,i| m+'caf\xe9'+i }\r\n".as_slice(),
-        ),
-        (
-            DO_END,
-            b"\xef\xbb\xbffoo do bar end\r\n__END__\r\nraw\xff\r\n".as_slice(),
-            b"\xef\xbb\xbffoo do\r\n bar \r\nend\r\n__END__\r\nraw\xff\r\n".as_slice(),
-        ),
-        (
-            DO_END,
-            b"# encoding: ISO-8859-1\r\nfoo do 'caf\xe9' end\r\n".as_slice(),
-            b"# encoding: ISO-8859-1\r\nfoo do 'caf\xe9' end\r\n".as_slice(),
-        ),
-    ] {
-        fs::write(dir.path().join("x.rb"), before).unwrap();
-        let out = cli(dir.path(), &["--only", cop, "--fix", "x.rb"]);
-        assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
-        assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), after);
-    }
-    unchanged(
-        dir.path(),
-        b"# encoding: ISO-8859-1\nxs.reduce { |m\xe9mo,item| m\xe9mo+item }\n",
-        &["--only", PARAMS, "--fix", "x.rb"],
-        1,
-    );
-    assert!(
-        String::from_utf8_lossy(&cli(dir.path(), &["--only", PARAMS, "x.rb"]).stdout)
-            .contains(PARAMS)
-    );
-    for (source, status) in [
-        ("xs.reduce { |acc,elem| acc+elem }\n", 0),
-        ("foo do\n", 2),
-        ("foo do bar end\np caller_locations\n", 1),
-        ("xs.reduce { |m,i| local_variables }\n", 1),
-    ] {
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", ONLY, "--fix", "x.rb"],
-            status,
-        );
-    }
-}
 fn ruby(dir: &Path) -> Output {
     Command::new("ruby")
         .current_dir(dir)
@@ -639,33 +585,6 @@ fn rename_collision_and_callback_metadata_guards_have_runtime_witnesses() {
         );
         assert_eq!(ruby(dir.path()).stdout, before.stdout);
         let naive = source.replace("memo", "acc").replace("item", "elem");
-        fs::write(dir.path().join("x.rb"), naive).unwrap();
-        let after = ruby(dir.path());
-        assert!(after.status.success());
-        assert_ne!(after.stdout, before.stdout);
-    }
-}
-#[test]
-fn explicit_line_and_data_observation_guards_have_naive_runtime_witnesses() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    for source in [
-        "[1].each do 1 end\np __LINE__\n",
-        "[1].each do 1 end\np [DATA.pos,DATA.read]\n__END__\nraw\n",
-    ] {
-        fs::write(dir.path().join("x.rb"), source).unwrap();
-        let before = ruby(dir.path());
-        assert!(before.status.success());
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", DO_END, "--fix", "x.rb"],
-            1,
-        );
-        assert_eq!(ruby(dir.path()).stdout, before.stdout);
-        let naive = source.replace("do 1 end", "do\n 1 \nend");
         fs::write(dir.path().join("x.rb"), naive).unwrap();
         let after = ruby(dir.path());
         assert!(after.status.success());

@@ -280,12 +280,6 @@ fn correction(
         edits.push(edit);
     }
     let (first, last) = (edits.first()?.0.start, edits.last()?.0.end);
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        return None;
-    }
     let mut replacement = Vec::new();
     let mut cursor = first;
     for (range, spaces) in edits {

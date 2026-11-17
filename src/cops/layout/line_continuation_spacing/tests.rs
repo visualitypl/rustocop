@@ -244,30 +244,6 @@ fn space_sensitive_insertions_are_withheld() {
 }
 
 #[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("x = 1\\\n  + 2\n{observer}\n"));
-        held(&format!("x = 1  \\\n  + 2\n{observer}\n"));
-    }
-    // Out-of-scope readers do not hold the edit.
-    assert_correction(
-        &LineContinuationSpacing,
-        "x = 1\\\n  + 2\np File.read('example.rb')\n",
-        "x = 1 \\\n  + 2\np File.read('example.rb')\n",
-    );
-}
-
-#[test]
 fn every_offense_of_a_file_is_corrected_in_one_pass() {
     let source = "x = 1\\\n  + 2  \\\n  + 3\\\n  + 4\n";
     assert_eq!(findings(source), [(1, 6), (2, 6), (3, 6)]);

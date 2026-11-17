@@ -31,12 +31,6 @@ pub(super) fn sign_sensitive(byte: u8) -> bool {
     matches!(byte, b'+' | b'-' | b'*' | b'&' | b':')
 }
 
-/// The closed list of source observers holds every edit.
-pub(super) fn listed_observer(file: &SourceFile, result: &ruby_prism::ParseResult<'_>) -> bool {
-    file.class_method_bindings(&result.node())
-        .has_listed_source_observer(result.data_loc().is_some())
-}
-
 /// The end of a leading UTF-8 BOM, which is not a token.
 pub(super) fn bom_end(file: &SourceFile) -> usize {
     if file.bytes.starts_with(UTF8_BOM) {
@@ -62,7 +56,6 @@ impl Cop for SpaceBeforeComment {
         out: &mut Vec<Offense>,
     ) {
         let bom = bom_end(file);
-        let mut observed = None;
         for comment in result.comments() {
             let start = comment.location().start_offset();
             // `=begin` documents start their line; only `#` comments can
@@ -81,9 +74,7 @@ impl Cop for SpaceBeforeComment {
             }
             let (line, col) = file.line_col(start);
             out.push(Offense {
-                correction: (!sign_sensitive(before)
-                    && !*observed.get_or_insert_with(|| listed_observer(file, result)))
-                .then(|| Correction {
+                correction: (!sign_sensitive(before)).then(|| Correction {
                     range: start..start,
                     replacement: " ".into(),
                 }),

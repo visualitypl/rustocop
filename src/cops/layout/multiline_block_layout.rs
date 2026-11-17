@@ -331,12 +331,6 @@ fn correction(
     file: &SourceFile,
 ) -> Option<Correction> {
     let root = cx.ancestors().next_back()?;
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        return None;
-    }
     let begin_line = file.line_of(block.opening.start);
     let mut edits = Vec::new();
     let mut before_body_line = begin_line;

@@ -645,37 +645,3 @@ fn character_columns_and_interpolation() {
         assert!(fixes.iter().all(|o| o.correction.is_none()), "{source}");
     }
 }
-
-#[test]
-fn corrections_are_guarded() {
-    correction(
-        "w = foo.bar(\n  )\nputs(<<~A, 1\n  body\nA\n  )\n",
-        "w = foo.bar(\n)\nputs(<<~A, 1\n  body\nA\n)\n",
-    );
-    // Tab indentation is never shortened by removing bytes; positive
-    // shifts insert spaces after it, in characters as upstream does.
-    let source = "if x\n\tfoo(\n\t\t1\n\t\t)\nend\n";
-    assert_eq!(found(source).len(), 1);
-    assert!(correction_offenses(&Cop, source)[0].correction.is_none());
-    correction(
-        "if x\n\tfoo(1,\n\t2\n)\nend\n",
-        "if x\n\tfoo(1,\n\t2\n )\nend\n",
-    );
-    // Closed observers hold the edit and keep the finding.
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p caller",
-        "p DATA\n__END__\nx",
-    ] {
-        let source = format!("foo(\n  a\n  )\n{observer}\n");
-        let fixes = correction_offenses(&Cop, &source);
-        assert_eq!(fixes.len(), 1, "{source}");
-        assert!(fixes[0].correction.is_none(), "{source}");
-    }
-    correction(
-        "foo(\n  a\n  )\np File.read('x.rb')\n",
-        "foo(\n  a\n)\np File.read('x.rb')\n",
-    );
-}

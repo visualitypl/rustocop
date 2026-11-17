@@ -127,14 +127,6 @@ impl Cop for DepartmentName {
         if node.as_program_node().is_none() {
             return;
         }
-        // The closed list of source observers holds every edit.
-        let mut observed = None;
-        let mut listed_observer = || {
-            *observed.get_or_insert_with(|| {
-                file.class_method_bindings(node)
-                    .has_listed_source_observer(file.data_start().is_some())
-            })
-        };
         for range in file.comments() {
             let text = &file.bytes[range.clone()];
             let Some(header) = header_len(text) else {
@@ -170,7 +162,6 @@ impl Cop for DepartmentName {
                             .corrections_requested()
                             .then(|| qualify(&file.bytes[start..end]))
                             .flatten()
-                            .filter(|_| !listed_observer())
                             .map(|replacement| Correction {
                                 range: start..end,
                                 replacement,

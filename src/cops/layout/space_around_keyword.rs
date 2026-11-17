@@ -52,10 +52,7 @@ use std::ops::Range;
 
 use ruby_prism::{Location, Node};
 
-use super::{
-    space_after_colon::{observed, ruby_space},
-    space_before_comment::bom_end,
-};
+use super::{space_after_colon::ruby_space, space_before_comment::bom_end};
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -458,13 +455,11 @@ impl Cop for SpaceAroundKeyword {
                 Side::Before => range.start,
                 Side::After => range.end,
             };
-            let correction = (cx.corrections_requested()
-                && insertion_safe(file, &range, side)
-                && !observed(cx, file))
-            .then(|| Correction {
-                range: at..at,
-                replacement: " ".into(),
-            });
+            let correction = (cx.corrections_requested() && insertion_safe(file, &range, side))
+                .then(|| Correction {
+                    range: at..at,
+                    replacement: " ".into(),
+                });
             let (line, col) = file.line_col(range.start);
             out.push(Offense {
                 correction,

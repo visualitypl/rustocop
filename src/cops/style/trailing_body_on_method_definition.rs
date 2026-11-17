@@ -150,26 +150,6 @@ mod tests {
         }
     }
     #[test]
-    fn uncertain_newlines_retain_each_offense_without_an_edit() {
-        for source in [
-            "def f; <<~TXT\npayload\nTXT\nend\n",
-            "def f; 1\nend\np __LINE__\n",
-            "def f; __LINE__\nend\n",
-            "def f; 1 # rubocop:disable Layout\nend\n",
-            "def f; 1 # rustocop:disable Layout\nend\n",
-            "def f; 1 # frozen_string_literal: true\nend\n",
-            "def outer\n def inner; 1\n end\nend\n",
-            "def f; 1\nend\np errors.map(&:full_message)\n",
-            "def f; 1\nend\np Object.const_get(:DATA).pos\n__END__\nraw\n",
-            "x = def f; 1\nend\n",
-            "foo;def f; 1 # docs\nend\n",
-        ] {
-            let found = correction_offenses(&TrailingBodyOnMethodDefinition, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn sibling_deferred_heredocs_withhold_newlines_but_keep_the_offense() {
         for opener in [
             "<<TXT",

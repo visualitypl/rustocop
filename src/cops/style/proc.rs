@@ -32,7 +32,6 @@ impl Cop for Proc {
                 let root = cx.ancestors().next_back()?;
                 let range = start..end;
                 if !file.proc_facts(root).proven.contains(&start)
-                    || file.class_method_bindings(root).observes_sources
                     || super::correction::contains_comment(file, range.clone())
                     || file.bytes[range.clone()]
                         .iter()
@@ -49,7 +48,7 @@ impl Cop for Proc {
                     range,
                     replacement: if tight_do { "proc " } else { "proc" }.into(),
                 };
-                super::correction::preserves_data_positions(file, cx, &edit).then_some(edit)
+                Some(edit)
             })
             .flatten();
         out.push(Offense {

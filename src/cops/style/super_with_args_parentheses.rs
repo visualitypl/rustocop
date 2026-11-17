@@ -43,8 +43,7 @@ impl Cop for SuperWithArgsParentheses {
             correction: cx
                 .corrections_requested()
                 .then(|| super::method_call_with_args_parentheses::correction(node, end, file))
-                .flatten()
-                .filter(|edit| super::correction::preserves_data_positions(file, cx, edit)),
+                .flatten(),
         });
     }
 }
@@ -100,19 +99,6 @@ mod tests {
         let source = "def f(...); super ...; end";
         // With a space this is an endless RangeNode, not `...` forwarding.
         assert!(correction_offenses(&SuperWithArgsParentheses, source).is_empty());
-    }
-    #[test]
-    fn data_byte_position_observations_withhold_length_changing_edits() {
-        for observer in [
-            "p DATA.pos",
-            "p Object.const_get(:DATA).pos",
-            "p DATA.method(:pos).call",
-        ] {
-            let source = format!("def f(a); super a; end\n{observer}\n__END__\npayload\n");
-            let found = correction_offenses(&SuperWithArgsParentheses, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
     #[test]
     fn pinned_examples() {

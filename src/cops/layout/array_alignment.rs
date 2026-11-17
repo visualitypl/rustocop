@@ -290,18 +290,6 @@ mod tests {
         assert_correction(&ArrayAlignment, "[a,\n\u{b}b]\n", "[a,\n\u{b} b]\n");
     }
     #[test]
-    fn closed_source_observers_hold_and_other_readers_do_not() {
-        let source = "x = [1,\n  2]\np __FILE__\n";
-        let found = correction_offenses(&ArrayAlignment, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-        assert_correction(
-            &ArrayAlignment,
-            "x = [1,\n  2]\np File.read('x.rb')\n",
-            "x = [1,\n     2]\np File.read('x.rb')\n",
-        );
-    }
-    #[test]
     fn wide_and_deep_arrays_measure_only_the_enclosing_path() {
         let wide = format!("x = [\n{}]\n", "  [1,\n    2],\n".repeat(3000));
         let found = correction_offenses(&ArrayAlignment, &wide);

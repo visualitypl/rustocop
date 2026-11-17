@@ -343,18 +343,3 @@ fn corrected_directives_keep_their_meaning_in_both_spellings() {
         }
     }
 }
-
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p caller",
-        "p SCRIPT_LINES__",
-    ] {
-        let found = correction_offenses(&LeadingCommentSpace, &format!("#a\n{observer}\n"));
-        assert_eq!(found.len(), 1, "{observer}");
-        assert!(found[0].correction.is_none(), "{observer}");
-    }
-}

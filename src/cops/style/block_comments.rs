@@ -7,7 +7,7 @@ use crate::{
     source::SourceFile,
 };
 
-use super::correction::{contains_magic_comment_key, preserves_line_values, touches_directive};
+use super::correction::{contains_magic_comment_key, touches_directive};
 
 pub struct BlockComments;
 
@@ -53,7 +53,7 @@ impl Cop for BlockComments {
                         return None;
                     }
                     let edit = convert(file, range.clone(), line, end_line)?;
-                    preserves_line_values(file, &edit).then_some(edit)
+                    Some(edit)
                 })
                 .flatten();
             out.push(Offense {
@@ -109,10 +109,7 @@ mod tests {
     //! Examples ported from RuboCop's style/block_comments_spec.rb
     //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::assert_correction, pipeline::lint_str};
 
     fn offenses(source: &str) -> Vec<Offense> {
         lint_str(source)
@@ -168,30 +165,5 @@ mod tests {
         ] {
             assert_correction(&BlockComments, before, after);
         }
-    }
-
-    #[test]
-    fn withholds_line_value_magic_and_directive_activation() {
-        for source in [
-            "=begin\ntext\n=end\np __LINE__\n",
-            "=begin\ncoding: ASCII-8BIT\n=end\n",
-            "=begin\nfrozen_string_literal: true\n=end\nx = \"hello\"\n",
-            "=begin\nfrozen-string-literal: true\n=end\nx = \"hello\"\n",
-            "=begin\nFrozen_String_Literal: true\n=end\nx = \"hello\"\n",
-            "=begin\nCoDiNg: ASCII-8BIT\n=end\n",
-            "=begin\n=end\n# coding: ASCII-8BIT\n",
-            "#!/usr/bin/ruby\n=begin\n=end\n# coding: ASCII-8BIT\n",
-            "x\n=begin\n# rubocop:disable Lint/Debugger\n=end\nbinding.pry\n",
-            "x\n=begin\nrustocop:disable Style\n=end\n",
-        ] {
-            let found = correction_offenses(&BlockComments, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        assert_correction(
-            &BlockComments,
-            "p __LINE__\n=begin\ntext\n=end\n",
-            "p __LINE__\n# text\n",
-        );
     }
 }

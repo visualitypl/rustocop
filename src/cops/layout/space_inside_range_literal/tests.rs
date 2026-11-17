@@ -188,25 +188,3 @@ fn uncertain_joins_keep_the_finding_without_an_edit() {
         "x = 0...# c\n  10\n",
     );
 }
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:p).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("x = 1 .. 2\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceInsideRangeLiteral,
-        "x = 1 .. 2\np File.read('example.rb')\n",
-        "x = 1..2\np File.read('example.rb')\n",
-    );
-}

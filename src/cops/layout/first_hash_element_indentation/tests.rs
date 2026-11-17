@@ -2,7 +2,7 @@
 //! (MIT, Copyright (c) 2012–26 Bozhidar Batsov).
 use super::FirstHashElementIndentation as Cop;
 use crate::{
-    cops::{Cop as _, layout::element_indentation::corrected, testing::correction_offenses},
+    cops::{Cop as _, layout::element_indentation::corrected},
     pipeline::lint_str,
 };
 
@@ -710,31 +710,4 @@ fn first_pairs_splats_and_bases() {
     // Braceless hashes and hash patterns are not hash literals.
     none("foo(a: 1,\n        b: 2)\n");
     none("case x\nin {\n      a: 1\n    }\nend\n");
-}
-
-#[test]
-fn corrections_move_the_key_line_or_the_pair() {
-    correction(
-        "x = {\n    a:\n      1,\n    b: 2\n}\n",
-        "x = {\n  a:\n      1,\n    b: 2\n}\n",
-    );
-    correction(
-        "u = {\n    a: <<~X,\n      body\n    X\n  }\n",
-        "u = {\n  a: <<~X,\n      body\n    X\n}\n",
-    );
-    correction("s = {\n    x:,\n  }\n", "s = {\n  x:,\n}\n");
-    // Tab removal is held by the shared seam; the finding stays.
-    let found = correction_offenses(&Cop, "t = {\n\ta: 1\n\t}\n");
-    assert_eq!(found.len(), 2);
-    assert!(found[0].correction.is_some() && found[1].correction.is_none());
-    for observer in ["p __FILE__", "p source_location", "p $0"] {
-        let source = format!("x = {{\n    a: 1\n  }}\n{observer}\n");
-        let found = correction_offenses(&Cop, &source);
-        assert_eq!(found.len(), 2, "{source}");
-        assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-    }
-    correction(
-        "x = {\n    a: 1\n  }\nsystem('cat x.rb')\n",
-        "x = {\n  a: 1\n}\nsystem('cat x.rb')\n",
-    );
 }

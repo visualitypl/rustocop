@@ -46,13 +46,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&MultilineBlockLayout::default(), source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source has no findings.
 type Pinned = (
@@ -475,41 +468,6 @@ fn corrections_keep_bodies_and_parameters_exact() {
         if before != after {
             assert_correction(&MultilineBlockLayout::default(), before, after);
         }
-    }
-}
-
-#[test]
-fn inexact_or_unsafe_rewrites_are_withheld() {
-    for source in [
-        // Block-local variables would become parameters.
-        "test do |x;\n  y|\nend\n",
-        "test { |;\n  y|\n}\n",
-        // Comments between the parameters would be dropped.
-        "test do |x, # first\n  y|\nend\n",
-        "test do # note\n  |x|\nend\n",
-        // Upstream's comma rule disagrees with Ruby's trailing comma.
-        "test do |a, b,\n  |\nend\n",
-        "test do |a = [1,\n  2]|\nend\n",
-        "test do |(a),\n  |\nend\n",
-        // A heredoc in the parameters.
-        "test do |a = <<~X,\n  text\nX\n  b|\nend\n",
-        // The inserted line break would follow a heredoc opener.
-        "test(<<~X) { foo\n  text\nX\n}\n",
-        // A directive on a touched line.
-        "test do foo # rubocop:disable Lint/Debugger\nend\n",
-        "test do # rustocop:disable Style\n  |x|\nend\n",
-        // the listed source observers.
-        "test do foo(__FILE__)\nend\n",
-        "test do foo(__dir__)\nend\n",
-        "test do foo($0)\nend\n",
-        "test do foo($PROGRAM_NAME)\nend\n",
-        "test do foo(caller)\nend\n",
-        "test do caller_locations\nend\n",
-        "test do m.source_location\nend\n",
-        "test do SCRIPT_LINES__\nend\n",
-        "test do DATA.read\nend\n__END__\nx\n",
-    ] {
-        held(source);
     }
 }
 

@@ -1,5 +1,5 @@
 //! `Style/EachForSimpleLoop` — fixed-count, parameterless range iteration.
-use super::correction::{contains_comment, preserves_data_positions, preserves_line_values};
+use super::correction::contains_comment;
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::{Correction, Offense},
@@ -77,7 +77,6 @@ impl Cop for EachForSimpleLoop {
                 }
                 let root = cx.ancestors().next_back()?;
                 if file.each_with_object_facts(root).custom_dispatch
-                    || file.class_method_bindings(root).observes_sources
                     || contains_comment(file, start..end)
                 {
                     return None;
@@ -96,8 +95,7 @@ impl Cop for EachForSimpleLoop {
                     range: start..end,
                     replacement,
                 };
-                (preserves_line_values(file, &edit) && preserves_data_positions(file, cx, &edit))
-                    .then_some(edit)
+                Some(edit)
             })
             .flatten();
         let (line, col) = file.line_col(start);
@@ -190,22 +188,6 @@ mod tests {
             "(0.0..3).each {}",
         ] {
             assert!(offenses(s).is_empty(), "{s}");
-        }
-    }
-    #[test]
-    fn return_value_and_source_sensitive_edits_are_withheld_not_hidden() {
-        for s in [
-            "x = (0..3).each {}",
-            "p((0..3).each {})",
-            "def m; (0..3).each {}; end",
-            "(0..3).each {}.inspect",
-            "(0..\n3).each {}; p __LINE__",
-            "(0..3).each {}; p DATA.pos\n__END__\nraw",
-            "class Integer; def times; end; end\n(0..3).each {}",
-        ] {
-            let o = correction_offenses(&EachForSimpleLoop, s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
         }
     }
     #[test]

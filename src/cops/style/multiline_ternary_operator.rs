@@ -146,7 +146,6 @@ fn rewrite(
     let root = cx.ancestors().next_back()?;
     if file.contains_heredoc(root, node)
         || file.heredoc_pending_at(root, range.start)
-        || file.class_method_bindings(root).observes_sources
         || file.bytes[range.clone()]
             .windows(8)
             .any(|s| s == b"__LINE__")
@@ -206,10 +205,7 @@ fn rewrite(
         range.start = start;
     }
     let edit = Correction { range, replacement };
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit)
-        && !super::correction::touches_directive(file, edit.range.clone()))
-    .then_some(edit)
+    (!super::correction::touches_directive(file, edit.range.clone())).then_some(edit)
 }
 #[cfg(test)]
 thread_local! { static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
@@ -269,26 +265,6 @@ mod tests {
             "consume(true.. ?\n false : 2)\n",
             "consume(true.. ? false : 2)\n",
         );
-    }
-    #[test]
-    fn sensitive_source_edits_remain_diagnosed() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "cond ?\n __LINE__ : no\n",
-            "cond ?\n yes : no\np __LINE__\n",
-            "cond ?\n DATA.pos : no\n__END__\npayload\n",
-            "cond ?\n method(:f).source_location : no\n",
-            "a = cond ? # coding: utf-8\n yes : no\n",
-            "a = cond ? # frozen_string_literal: true\n yes : no\n",
-            "a = cond ?\n # rubocop:disable Lint/Debugger\n yes : no\n",
-            "a = cond ? (yes # internal\n) : no\n",
-            "a = cond ? <<~TEXT :\n literal\nTEXT\n no\n",
-            "consume(cond ? # do not lift past an argument evaluation\n yes : no)\n",
-        ] {
-            let found = correction_offenses(&MultilineTernaryOperator, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
     }
     #[test]
     fn literal_interiors_comments_and_crlf_are_verbatim() {

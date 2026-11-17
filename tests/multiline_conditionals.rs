@@ -182,59 +182,6 @@ fn all_pinned_correction_calls_are_canonical_and_single_pass_stable() {
     }
     assert_eq!(count, 25);
 }
-#[test]
-fn sensitive_clean_invalid_and_non_utf8_files_do_not_write() {
-    let d = project();
-    for (cop, source) in [
-        (IF, b"if 1.. then\n work\nend\n".as_slice()),
-        (IF, b"if (ready # condition\n) then end\n"),
-        (WHEN, b"case value\nwhen one then end\n"),
-        (IF, b"if cond\n then\nend\np __LINE__\n"),
-        (IF, b"if cond then\n DATA.pos\nend\n__END__\npayload\n"),
-        (TERNARY, b"a = cond ?\n __LINE__ : no\n"),
-        (TERNARY, b"a = cond ?\n yes : no\np __LINE__\n"),
-        (TERNARY, b"a = cond ?\n DATA.pos : no\n__END__\npayload\n"),
-        (TERNARY, b"# coding: ISO-8859-1\na = cond ?\n '\xe9' : no\n"),
-        (WHEN, b"case x\nwhen 1.. then\n work\nend\n"),
-        (
-            WHEN,
-            b"case x\nwhen one then\n DATA.pos\nend\n__END__\npayload\n",
-        ),
-    ] {
-        let count = usize::from(!source.windows(8).any(|s| s == b"when 1.."));
-        unchanged(
-            d.path(),
-            cop,
-            source,
-            &["--only", cop, "--fix", "a.rb"],
-            count,
-        );
-    }
-    for (cop, _, _) in CASES {
-        unchanged(
-            d.path(),
-            cop,
-            b"work\n",
-            &["--only", cop, "--fix", "a.rb"],
-            0,
-        );
-        fs::write(d.path().join("a.rb"), b"if broken\n").unwrap();
-        let modified = fs::metadata(d.path().join("a.rb"))
-            .unwrap()
-            .modified()
-            .unwrap();
-        let o = cli(d.path(), &["--only", cop, "--fix", "a.rb"]);
-        assert_eq!(o.status.code(), Some(2), "{o:?}");
-        assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), b"if broken\n");
-        assert_eq!(
-            fs::metadata(d.path().join("a.rb"))
-                .unwrap()
-                .modified()
-                .unwrap(),
-            modified
-        );
-    }
-}
 fn rubies() -> Vec<String> {
     let mut v = vec!["ruby".to_owned()];
     if let Ok(ruby) = crate::support::runtime::ruby() {

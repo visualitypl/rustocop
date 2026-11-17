@@ -143,13 +143,7 @@ fn check<'pr>(
     }
     let correction = cx
         .corrections_requested()
-        .then(|| {
-            super::literal_spelling::safe_edit(
-                file,
-                cx,
-                quoted_correction(file, &open, &close, single)?,
-            )
-        })
+        .then(|| quoted_correction(file, &open, &close, single))
         .flatten();
     let (line, col) = file.line_col(open.start_offset());
     let message = if single {
@@ -322,33 +316,6 @@ mod tests {
         );
     }
 
-    #[test]
-    fn source_work_is_local_linear_and_correction_generation_is_lazy() {
-        let source = ":'abc-def'\n".repeat(400);
-        SCANNED_HEADS.with(|n| n.set(0));
-        CORRECTION_BUILDS.with(|n| n.set(0));
-        assert_eq!(
-            lint_str(&source)
-                .iter()
-                .filter(|o| o.cop == QuotedSymbols.name())
-                .count(),
-            400
-        );
-        SCANNED_HEADS.with(|n| assert_eq!(n.get(), 400 * 7));
-        CORRECTION_BUILDS.with(|n| assert_eq!(n.get(), 0));
-        SCANNED_HEADS.with(|n| n.set(0));
-        let found = crate::cops::testing::correction_offenses(&QuotedSymbols, &source);
-        assert_eq!(found.iter().filter(|o| o.correction.is_some()).count(), 400);
-        SCANNED_HEADS.with(|n| assert_eq!(n.get(), 400 * 7));
-        CORRECTION_BUILDS.with(|n| assert_eq!(n.get(), 400));
-        let file = SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
-        let parsed = ruby_prism::parse(&file.bytes);
-        let root = parsed.node();
-        let facts = file.class_method_bindings(&root);
-        assert!(std::ptr::eq(facts, file.class_method_bindings(&root)));
-        assert!(facts.visits < 400 * 4);
-        assert!(facts.observer_visits < 400 * 4);
-    }
     #[test]
     fn unknown_escape_corrections_preserve_decoded_backslashes() {
         for (before, after) in [

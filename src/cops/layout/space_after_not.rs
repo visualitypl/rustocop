@@ -18,7 +18,7 @@
 //! listed source observers.
 use ruby_prism::Node;
 
-use super::space_after_colon::{observed, ruby_space};
+use super::space_after_colon::ruby_space;
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::{Correction, Offense},
@@ -100,8 +100,7 @@ impl Cop for SpaceAfterNot {
         let gap = selector.end_offset()..operand;
         let correction = (cx.corrections_requested()
             && blank_gap(&file.bytes[gap.clone()])
-            && !matches!(file.bytes[operand], b'~' | b'=')
-            && !observed(cx, file))
+            && !matches!(file.bytes[operand], b'~' | b'='))
         .then(|| Correction {
             range: gap,
             replacement: String::new(),

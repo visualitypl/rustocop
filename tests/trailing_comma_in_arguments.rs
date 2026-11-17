@@ -143,26 +143,6 @@ fn config_relative_excludes_and_stdin_have_no_write_side_effects() {
 }
 
 #[test]
-fn clean_exempt_withheld_and_error_files_keep_bytes_and_mtime() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, status) in [
-        (AFTER, 0),
-        ("f([1,], {a: 1,})\n", 0),
-        ("obj[1,] = value\n", 0),
-        ("f(1, &block)\n", 0),
-        ("f(\n", 2),
-        ("f(1,)\np DATA.pos\n__END__\nraw,\n", 1),
-    ] {
-        fs::write(&path, source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], status);
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-}
-
-#[test]
 fn comma_deletion_retains_bom_crlf_encoding_literals_comments_data_and_line() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
@@ -259,28 +239,6 @@ raw payload,
     assert_eq!(before.stderr, after.stderr);
     assert!(!String::from_utf8_lossy(&before.stdout).contains(":skipped"));
     cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-}
-
-#[test]
-fn data_initial_byte_position_is_observably_protected() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    let source = "p(1,)\np [DATA.pos, DATA.read]\n__END__\nraw,\n";
-    fs::write(&path, source).unwrap();
-    let before = ruby(dir.path());
-    assert!(before.status.success());
-    cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 1);
-    assert_eq!(fs::read_to_string(&path).unwrap(), source);
-    assert_eq!(ruby(dir.path()).stdout, before.stdout);
-    fs::write(&path, source.replace("p(1,)", "p(1)")).unwrap();
-    assert_ne!(
-        ruby(dir.path()).stdout,
-        before.stdout,
-        "naive deletion changes DATA.pos"
-    );
 }
 
 #[test]

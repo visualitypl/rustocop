@@ -27,7 +27,6 @@
 //! observers hold every edit.
 use ruby_prism::Node;
 
-use super::space_after_colon::observed;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -97,7 +96,7 @@ impl Cop for SpaceInsideStringInterpolation {
             .rev()
             .take_while(|b| blank(**b))
             .count();
-        let edit = cx.corrections_requested() && !observed(cx, file);
+        let edit = cx.corrections_requested();
         for range in [open..open + left, close - right..close] {
             if range.is_empty() {
                 continue;

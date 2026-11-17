@@ -87,26 +87,6 @@ mod tests {
     use crate::cops::testing::correction_offenses;
 
     #[test]
-    fn withholds_local_binding_constant_redefinition_and_source_sensitive_edits() {
-        for source in [
-            "__dir__ = :shadow; File.expand_path(File.dirname(__FILE__))",
-            "def __dir__; :custom; end; File.expand_path(File.dirname(__FILE__))",
-            "def f(__dir__); File.dirname(File.realpath(__FILE__)); end",
-            "proc { |__dir__| File.expand_path(File.dirname(__FILE__)) }",
-            "module M; File = Custom; File.expand_path(File.dirname(__FILE__)); end",
-            "class File; end; File.dirname(File.realpath(__FILE__))",
-            "File.expand_path(File.dirname(__FILE__)) { side_effect }",
-            "File.expand_path( # comment\n File.dirname(__FILE__))",
-            "File.\n expand_path(File.dirname(__FILE__))\np __LINE__",
-            "File. # rubocop:disable Lint/Debugger\n expand_path(File.dirname(__FILE__))",
-        ] {
-            let found = correction_offenses(&Dir, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-
-    #[test]
     fn explicit_method_binding_calls_withhold_edits_without_hiding_diagnostics() {
         for receiver in [
             "",

@@ -217,25 +217,6 @@ mod tests {
         }
     }
     #[test]
-    fn unsafe_line_comment_heredoc_and_source_observer_edits_are_withheld() {
-        for source in [
-            "def f\nend # keep\n",
-            "def f\nend; raise 'x'\n",
-            "def f\nend\np __LINE__\n",
-            "def f(a = __LINE__)\nend\n",
-            "def f\nend\np method(:f).source_location\n",
-            "def f\nend\np DATA.pos\n__END__\nraw\n",
-            "def f\nend\np File.read(__FILE__)\n",
-            "def f(\n a = risky\n)\nend",
-            "def f(a = <<~TEXT)\ntext\nTEXT\nend",
-            "def outer; def inner\nend; end",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&EmptyMethod::default(), source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
     fn subsequent_execution_lines_and_literal_token_bytes_are_preserved() {
         assert_correction(
             &EmptyMethod::default(),

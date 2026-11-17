@@ -39,12 +39,6 @@ fn findings(source: &str) -> Vec<(u32, u32, &'static str)> {
     found
 }
 
-fn held(source: &str) {
-    let found = correction_offenses(&SpaceBeforeBlockBraces, source);
-    assert!(!found.is_empty(), "{source:?}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source has no findings.
 type Pinned = (
@@ -250,26 +244,4 @@ fn upstream_incompatible_companions_take_precedence_only_when_they_edit() {
     ));
     // SymbolProc is detection-only here: it never edits, so never defers.
     assert!(brace_edit(&SymbolProc, "a.map{ |x| x.to_s }\n"));
-}
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("a{{ 1 }}\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceBeforeBlockBraces,
-        "a{ 1 }\np File.read('example.rb')\n",
-        "a { 1 }\np File.read('example.rb')\n",
-    );
 }

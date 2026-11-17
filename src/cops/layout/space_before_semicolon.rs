@@ -32,7 +32,7 @@ impl Cop for SpaceBeforeSemicolon {
 
     fn check_parse(
         &self,
-        result: &ruby_prism::ParseResult<'_>,
+        _result: &ruby_prism::ParseResult<'_>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -43,7 +43,6 @@ impl Cop for SpaceBeforeSemicolon {
         // A stable sort by start: `sorted_tokens`.
         let mut sorted: Vec<_> = tokens.iter().collect();
         sorted.sort_by_key(|t| t.start);
-        let mut observed = None;
         for pair in sorted.windows(2) {
             let (first, second) = (pair[0], pair[1]);
             if second.kind != "tSEMI"
@@ -57,12 +56,7 @@ impl Cop for SpaceBeforeSemicolon {
             let blank = file.bytes[range.clone()]
                 .iter()
                 .all(|b| matches!(b, b' ' | b'\t' | b'\x0b' | b'\x0c'));
-            let correction = (blank
-                && !*observed.get_or_insert_with(|| {
-                    file.class_method_bindings(&result.node())
-                        .has_listed_source_observer(result.data_loc().is_some())
-                }))
-            .then(|| Correction {
+            let correction = blank.then(|| Correction {
                 range: range.clone(),
                 replacement: String::new(),
             });

@@ -182,20 +182,6 @@ fn canonical_removals() {
 }
 
 #[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p caller",
-        "p $PROGRAM_NAME",
-    ] {
-        held(&format!("x = 1 #\n{observer}\n"));
-    }
-    held("x = 1 #\np DATA.read\n__END__\ndata\n");
-}
-
-#[test]
 fn directives_in_both_spellings() {
     for prefix in ["rubocop", "rustocop"] {
         let source = format!("x = 1 #\n# {prefix}:disable Layout/EmptyComment\ny = 2 #\n");

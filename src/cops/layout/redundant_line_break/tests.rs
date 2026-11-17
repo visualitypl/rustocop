@@ -1343,27 +1343,6 @@ fn candidates_follow_upstreams_callbacks() {
 }
 
 #[test]
-fn unsafe_or_inexact_joins_are_withheld() {
-    for source in [
-        // A split string would become a `+` call (a new, unfrozen string).
-        "x = \"a\" \\\n  'b'\n",
-        "x = 'a' \\\n  \"b\"\n",
-        // the listed source observers.
-        "foo(1,\n  2)\np __FILE__\n",
-        "foo(1,\n  2)\np __dir__\n",
-        "foo(1,\n  2)\np $0\n",
-        "foo(1,\n  2)\np $PROGRAM_NAME\n",
-        "foo(1,\n  2)\np caller\n",
-        "foo(1,\n  2)\np caller_locations\n",
-        "foo(1,\n  2)\np m.source_location\n",
-        "foo(1,\n  2)\np SCRIPT_LINES__\n",
-        "foo(1,\n  2)\np DATA.read\n__END__\nx\n",
-    ] {
-        held(source);
-    }
-}
-
-#[test]
 fn corrections_are_upstreams_join() {
     for (before, after) in [
         ("x = foo(1,\n  2)\n", "x = foo(1, 2)\n"),

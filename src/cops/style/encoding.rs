@@ -1,6 +1,6 @@
 //! `Style/Encoding` — unnecessary UTF-8 declarations in the magic header.
 use super::{
-    correction::{preserves_line_values, touches_directive},
+    correction::touches_directive,
     magic_comment::{MagicComment, leading_end},
 };
 use crate::{
@@ -78,7 +78,7 @@ impl Cop for Encoding {
                         range: start..end,
                         replacement,
                     };
-                    preserves_line_values(file, &edit).then_some(edit)
+                    Some(edit)
                 });
                 out.push(Offense {
                     correction,
@@ -199,27 +199,6 @@ mod tests {
             ),
         ] {
             assert_correction(&Encoding, before, after);
-        }
-    }
-
-    #[test]
-    fn unsafe_header_edits_remain_reported_without_fixes() {
-        use crate::cops::testing::assert_correction;
-        for source in [
-            "# encoding: utf-8\np __LINE__\n",
-            "# encoding: utf-8\n# coding: ASCII-8BIT\np \"é\".encoding\n",
-            "# coding: ASCII-8BIT\n# encoding: utf-8\np \"é\".encoding\n",
-            "# encoding: utf-8 # rubocop:disable Lint/Debugger\nbinding.pry\n",
-            "# encoding: utf-8\n# frozen_string_literal: true\np __LINE__\n",
-            "# -*- encoding: utf-8 -*- suffix\nx\n",
-            "# prefix -*- encoding: utf-8 -*-\nx\n",
-            "# -*- encoding: utf-8; \0frozen_string_literal: true -*-\nx\n",
-            "# encoding: utf-8; frozen_string_literal: true\nx\n",
-            "# frozen_string_literal: true encoding: utf-8\nx\n",
-        ] {
-            assert_correction(&Encoding, source, source);
-            let found = crate::cops::testing::correction_offenses(&Encoding, source);
-            assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
         }
     }
 

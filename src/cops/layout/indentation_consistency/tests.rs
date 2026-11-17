@@ -454,33 +454,6 @@ fn literal_text_is_never_shifted() {
     assert!(found[0].correction.is_none());
 }
 
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:f).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\npayload",
-    ] {
-        let source = format!("def f\n  a\n   b\nend\n{observer}\n");
-        let found = correction_offenses(&IndentationConsistency, &source);
-        assert_eq!(found.len(), 1, "{source}");
-        assert!(found[0].correction.is_none(), "{source}");
-    }
-    // Out-of-scope readers do not hold it.
-    let source = "def f\n  a\n   b\nend\np File.read('example.rb')\n";
-    assert_correction(
-        &IndentationConsistency,
-        source,
-        "def f\n  a\n  b\nend\np File.read('example.rb')\n",
-    );
-}
-
 /// In a class, module or singleton class body, `Layout/IndentationWidth`
 /// realigns every member to the keyword column plus two. When the base is not
 /// indented past the keyword, realigning an item that is already there would

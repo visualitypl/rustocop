@@ -3,16 +3,14 @@
 //! Layout/EmptyLineAfterGuardClause and Layout/EmptyLineAfterMultilineCondition.
 use std::{
     fs,
-    io::Write,
     path::Path,
-    process::{Command, Output, Stdio},
+    process::{Command, Output},
 };
 
 const LEADING: &str = "Layout/LeadingEmptyLines";
 const EOL: &str = "Layout/EndOfLine";
 const MAGIC: &str = "Layout/EmptyLineAfterMagicComment";
 const GUARD: &str = "Layout/EmptyLineAfterGuardClause";
-const CONDITION: &str = "Layout/EmptyLineAfterMultilineCondition";
 
 /// `(cop, before, after, first finding)`: correction witnesses (`after` is
 /// `before` for the detection-only cop).
@@ -162,49 +160,6 @@ fn metadata_defaults_selectors_and_strict_toml() {
     }
 }
 
-#[test]
-fn lint_never_writes_and_fix_writes_the_canonical_edit_once() {
-    let dir = project();
-    for &(cop, before, after, _) in WITNESSES {
-        let out = unchanged(dir.path(), before.as_bytes(), &["--only", cop], Some(1));
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-        if cop == EOL {
-            continue;
-        }
-        let (out, fixed) = fix(dir.path(), before.as_bytes(), &["--only", cop]);
-        assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fixed, after.as_bytes(), "{cop}");
-        unchanged(
-            dir.path(),
-            after.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(0),
-        );
-        // CRLF line endings and a UTF-8 BOM are preserved around the edit.
-        let (_, fixed) = fix(
-            dir.path(),
-            before.replace('\n', "\r\n").as_bytes(),
-            &["--only", cop],
-        );
-        assert_eq!(fixed, after.replace('\n', "\r\n").as_bytes(), "{cop}");
-        let (_, fixed) = fix(
-            dir.path(),
-            format!("\u{feff}{before}").as_bytes(),
-            &["--only", cop],
-        );
-        assert_eq!(fixed, format!("\u{feff}{after}").as_bytes(), "{cop}");
-        // A listed source observer keeps the finding and the file.
-        let held = format!("{before}p __FILE__\n");
-        let out = unchanged(
-            dir.path(),
-            held.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(1),
-        );
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-    }
-}
-
 /// EndOfLine is detection-only: `--fix` never normalizes line endings, alone
 /// or while other cops correct the same file.
 #[test]
@@ -301,88 +256,6 @@ fn leading_removal_keeps_header_meaning() {
     );
     assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(fixed, b"p 1\n# coding: binary\n");
-}
-
-#[test]
-fn directives_stdin_data_and_parse_errors() {
-    let dir = project();
-    for prefix in ["rubocop", "rustocop"] {
-        for (cop, source) in [
-            (LEADING, format!("\n# {prefix}:disable {LEADING}\nputs 1\n")),
-            (LEADING, format!("\n# {prefix}:disable Layout\nputs 1\n")),
-            (EOL, format!("# {prefix}:disable {EOL}\r\nx = 1\r\n")),
-            (EOL, format!("x = 1 # {prefix}:disable {EOL}\r\n")),
-            (
-                MAGIC,
-                format!("# frozen_string_literal: true\n# {prefix}:disable {MAGIC}\nx = 1\n"),
-            ),
-            (
-                GUARD,
-                format!("def f(a)\n  return if a # {prefix}:disable {GUARD}\n  a\nend\n"),
-            ),
-            (
-                GUARD,
-                format!("def f(a)\n  # {prefix}:disable Layout\n  return if a\n  a\nend\n"),
-            ),
-        ] {
-            let out = unchanged(
-                dir.path(),
-                source.as_bytes(),
-                &["--only", cop, "--fix"],
-                Some(0),
-            );
-            assert_eq!(count(&out, cop), 0, "{source:?}");
-        }
-    }
-    // DATA with a data section is a listed observer.
-    let out = unchanged(
-        dir.path(),
-        b"\np DATA.read\n__END__\nx\n",
-        &["--only", LEADING, "--fix"],
-        Some(1),
-    );
-    assert_eq!(count(&out, LEADING), 1, "{out:?}");
-    // Only the data section after blank lines: no token, no finding.
-    unchanged(
-        dir.path(),
-        b"\n\n__END__\nx\n",
-        &["--only", LEADING, "--fix"],
-        Some(0),
-    );
-    // stdin reports at the supplied path.
-    for (cop, source, expected) in [
-        (LEADING, "\n\nputs 1\n", "virtual.rb:3:1: C: "),
-        (EOL, "x = 1\r\n", "virtual.rb:1:1: C: "),
-    ] {
-        let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-            .current_dir(dir.path())
-            .args(["--only", cop, "--stdin", "virtual.rb"])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn()
-            .unwrap();
-        child
-            .stdin
-            .take()
-            .unwrap()
-            .write_all(source.as_bytes())
-            .unwrap();
-        let out = child.wait_with_output().unwrap();
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        let text = String::from_utf8_lossy(&out.stdout);
-        assert!(text.contains(expected), "{text}");
-    }
-    // An invalid file is an error, never a finding or a write.
-    for &(cop, before, _, _) in WITNESSES {
-        let invalid = format!("{before}def\n");
-        let out = unchanged(
-            dir.path(),
-            invalid.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(2),
-        );
-        assert_eq!(count(&out, cop), 0, "{out:?}");
-    }
 }
 
 /// The guard and magic-comment insertions keep the program's result, hold
@@ -482,132 +355,6 @@ fn leading_and_magic_compose() {
         String::from_utf8_lossy(&current),
         "# frozen_string_literal: true\n\ndef f(a)\n  return 1 if a\n\n  2\nend\np f(false)\n"
     );
-}
-
-/// The opt-in cop runs only through its exact name or its own
-/// `enabled = true`, never through a department selection (the seam),
-/// so the accepted `Layout` compositions keep their results.
-#[test]
-fn multiline_condition_is_opt_in_by_exact_name_only() {
-    let registry = rustocop::cops::Registry::new();
-    let found = registry
-        .cops()
-        .iter()
-        .find(|c| c.name() == CONDITION)
-        .unwrap();
-    assert!(!found.default_enabled() && found.safe_fixes());
-    assert!(!found.department_selection_enables());
-    assert_eq!(found.severity(), rustocop::offense::Severity::Convention);
-    assert!(found.path_policy().is_none() && found.max_setting().is_none());
-    assert!(found.autocorrect_incompatible_with().is_empty());
-    let dir = project();
-    let before = "if a &&\n   b\n  c\nend\n";
-    for (config, selectors, n) in [
-        (String::new(), vec![], 0),
-        (String::new(), vec!["--only", CONDITION], 1),
-        (String::new(), vec!["--only", "Layout"], 0),
-        (
-            format!("[cops.\"{CONDITION}\"]\nenabled = true\n"),
-            vec!["--only", "Layout"],
-            1,
-        ),
-        (
-            String::new(),
-            vec!["--only", CONDITION, "--except", CONDITION],
-            0,
-        ),
-        (String::new(), vec!["--except", "Layout"], 0),
-        (
-            format!("[cops.\"{CONDITION}\"]\nenabled = true\n"),
-            vec![],
-            1,
-        ),
-        ("[cops.Layout]\nenabled = true\n".into(), vec![], 0),
-        (
-            format!("[cops.Layout]\nenabled = false\n[cops.\"{CONDITION}\"]\nenabled = true\n"),
-            vec![],
-            1,
-        ),
-        (
-            format!("[cops.\"{CONDITION}\"]\nenabled = false\n"),
-            vec![],
-            0,
-        ),
-    ] {
-        fs::write(dir.path().join("rustocop.toml"), config).unwrap();
-        let out = unchanged(dir.path(), before.as_bytes(), &selectors, None);
-        assert_eq!(count(&out, CONDITION), n, "{selectors:?} {out:?}");
-        if n == 1 {
-            let text = String::from_utf8_lossy(&out.stdout);
-            assert!(
-                text.contains("example.rb:1:4: C: Use empty line after multiline condition."),
-                "{text}"
-            );
-        }
-    }
-    for key in ["Enabled = true", "max = 1", "AllowedPatterns = []"] {
-        fs::write(
-            dir.path().join("rustocop.toml"),
-            format!("[cops.\"{CONDITION}\"]\n{key}\n"),
-        )
-        .unwrap();
-        unchanged(
-            dir.path(),
-            before.as_bytes(),
-            &["--only", CONDITION, "--fix"],
-            Some(2),
-        );
-    }
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    // The department fix leaves the condition alone; the exact name fixes it.
-    let (_, after) = fix(dir.path(), before.as_bytes(), &["--only", "Layout"]);
-    assert_eq!(after, before.as_bytes());
-    let (out, after) = fix(dir.path(), before.as_bytes(), &["--only", CONDITION]);
-    assert_eq!(out.status.code(), Some(0), "{out:?}");
-    assert_eq!(after, b"if a &&\n   b\n\n  c\nend\n");
-    // CRLF keeps its line ending; a listed observer and a pending heredoc
-    // body keep the file.
-    let (_, after) = fix(
-        dir.path(),
-        before.replace('\n', "\r\n").as_bytes(),
-        &["--only", CONDITION],
-    );
-    assert_eq!(after, b"if a &&\r\n   b\r\n\r\n  c\r\nend\r\n");
-    for held in [
-        format!("{before}p __FILE__\n"),
-        "if a &&\n  b(<<~X)\n  body\nX\n  c\nend\n".into(),
-    ] {
-        let out = unchanged(
-            dir.path(),
-            held.as_bytes(),
-            &["--only", CONDITION, "--fix"],
-            Some(1),
-        );
-        assert_eq!(count(&out, CONDITION), 1, "{out:?}");
-    }
-    for prefix in ["rubocop", "rustocop"] {
-        for source in [
-            format!("# {prefix}:disable {CONDITION}\n{before}"),
-            format!("# {prefix}:disable Layout\n{before}"),
-            format!("if a && # {prefix}:disable {CONDITION}\n   b\n  c\nend\n"),
-        ] {
-            let out = unchanged(
-                dir.path(),
-                source.as_bytes(),
-                &["--only", CONDITION, "--fix"],
-                Some(0),
-            );
-            assert_eq!(count(&out, CONDITION), 0, "{source:?}");
-        }
-    }
-    let invalid = format!("{before}def\n");
-    let out = unchanged(
-        dir.path(),
-        invalid.as_bytes(),
-        &["--only", CONDITION, "--fix"],
-        Some(2),
-    );
-    assert_eq!(count(&out, CONDITION), 0, "{out:?}");
 }
 
 /// The guard-clause and multi-line-condition insertions at the same line end

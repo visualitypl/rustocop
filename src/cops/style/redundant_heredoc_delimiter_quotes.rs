@@ -81,14 +81,10 @@ impl Cop for RedundantHeredocDelimiterQuotes {
                 .first()
                 .is_some_and(|b| b.is_ascii_alphabetic() || *b == b'_')
         {
-            super::literal_spelling::safe_edit(
-                file,
-                cx,
-                Correction {
-                    range: opening.start_offset()..opening.end_offset(),
-                    replacement: replacement.clone(),
-                },
-            )
+            Some(Correction {
+                range: opening.start_offset()..opening.end_offset(),
+                replacement: replacement.clone(),
+            })
         } else {
             None
         };

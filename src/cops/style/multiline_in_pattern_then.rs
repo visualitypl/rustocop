@@ -136,20 +136,6 @@ mod tests {
     }
 
     #[test]
-    fn empty_inline_branch_and_data_source_observers_report_without_edits() {
-        for source in [
-            "case x\nin a then end\n",
-            "case x\nin a then\n DATA.pos\nend\n__END__\npayload\n",
-            "case x\nin a then # rubocop:disable Lint/Debugger\n work\nend\n",
-            "case x\nin a then\n work\nend\np File.read(__FILE__)\n",
-        ] {
-            let found = correction_offenses(&MultilineInPatternThen, source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-
-    #[test]
     fn whitespace_deletion_is_lazy_disjoint_and_individually_capped() {
         let source = "case value\nin [x, y] then\n work(x, y)\nend\n".repeat(6000);
         let found = crate::pipeline::lint_str_with(&[&MultilineInPatternThen], &source);

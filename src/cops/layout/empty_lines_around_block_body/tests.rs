@@ -329,28 +329,3 @@ fn guarded_removals() {
         assert!(findings(source).is_empty(), "{source:?}");
     }
 }
-
-#[test]
-fn listed_source_observers_hold_every_correction() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:p).source_location",
-        "p SCRIPT_LINES__",
-        "p DATA.read\n__END__\nx",
-    ] {
-        let source = format!("foo do |x|\n\n  bar\n\nend\n{observer}\n");
-        assert_eq!(findings(&source).len(), 2, "{source:?}");
-        assert_correction(&EmptyLinesAroundBlockBody, &source, &source);
-    }
-    // `DATA` without a data section is not a listed observer.
-    assert_correction(
-        &EmptyLinesAroundBlockBody,
-        "foo do |x|\n\n  bar\nend\np DATA\n",
-        "foo do |x|\n  bar\nend\np DATA\n",
-    );
-}

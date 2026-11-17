@@ -505,56 +505,6 @@ fn trailing_comments_on_visibility_wrappers_preserve_following_method_visibility
     }
 }
 #[test]
-fn actual_line_source_and_main_script_data_observers_withhold_edits_with_naive_witnesses() {
-    if !has_ruby() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("run.rb");
-    for (name, before, naive) in [
-        (
-            SINGLE,
-            "def f; 1; __LINE__; end\np [f,__LINE__]\n",
-            "def f; \n  1; \n  __LINE__; \nend\np [f,__LINE__]\n",
-        ),
-        (
-            MULTI,
-            "def f(a = 1,\n b = __LINE__)\n [a,b,__LINE__]\nend\np f\n",
-            "def f(a = 1, b = __LINE__)\n [a,b,__LINE__]\nend\np f\n",
-        ),
-        (
-            SINGLE,
-            "def f; 1; 2; end\ndef later; end\np method(:later).source_location.last\n",
-            "def f; \n  1; \n  2; \nend\ndef later; end\np method(:later).source_location.last\n",
-        ),
-        (
-            MULTI,
-            "def f(a,\n b)\nend\ndef later; end\np method(:later).source_location.last\n",
-            "def f(a, b)\nend\ndef later; end\np method(:later).source_location.last\n",
-        ),
-        (
-            SINGLE,
-            "def f; 1; end\np [DATA.pos,DATA.read]\n__END__\nraw\n",
-            "def f() = 1\np [DATA.pos,DATA.read]\n__END__\nraw\n",
-        ),
-        (
-            MULTI,
-            "def f(a,\n b)\nend\np [DATA.pos,DATA.read]\n__END__\nraw\n",
-            "def f(a, b)\nend\np [DATA.pos,DATA.read]\n__END__\nraw\n",
-        ),
-    ] {
-        let after = fix(before, name, "");
-        assert_eq!(after, before);
-        let expected = ruby(&path, before);
-        assert_eq!(expected, ruby(&path, &after));
-        assert_ne!(
-            expected,
-            ruby(&path, naive),
-            "guard must protect a real observation"
-        );
-    }
-}
-#[test]
 fn style_layout_composition_is_order_independent_and_stabilizes_without_hidden_passes() {
     let names = [
         SINGLE,

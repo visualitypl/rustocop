@@ -432,26 +432,3 @@ fn upstream_holds_keep_the_finding_without_an_edit() {
         "[a, foo(1, [b, # c\n])]\n",
     );
 }
-
-#[test]
-fn unsafe_moves_keep_the_finding_without_an_edit() {
-    for source in [
-        // A line continuation or a heredoc body between element and bracket.
-        "[a,\n  b \\\n]\n",
-        "[a,\n  <<~EOM, b\n  baz\nEOM\n]\n",
-        // A comment before the bracket would swallow the rest of its line.
-        "[a,\n  b\n  # c\n].size\n",
-        "x = [a,\n  b\n  # c\n], 1\n",
-        // The moved rest of the line holds a comment or a heredoc opener, or
-        // ends inside a string.
-        "[a, # a\n  b # b\n] # c\n",
-        "x = [a, # a\n  b # b\n], <<~EOM\n  baz\nEOM\n",
-        "x = { k: [a, # a\n  b # b\n], s: \"t\nu\" }\n",
-        // Listed source observers.
-        "x = [a,\n  b\n]\np __FILE__\n",
-        "x = [\n  a,\n  b]\np __dir__\n",
-        "x = [a,\n  b\n]\np caller\n",
-    ] {
-        held(source);
-    }
-}

@@ -57,7 +57,6 @@ impl Cop for LeadingCommentSpace {
         let mut at_line: HashMap<u32, usize> = HashMap::new();
         // Starts of the comments reported so far (`current_offense_locations`).
         let mut reported: HashSet<usize> = HashSet::new();
-        let mut observed = None;
         for comment in result.comments() {
             let location = comment.location();
             let start = location.start_offset();
@@ -82,10 +81,7 @@ impl Cop for LeadingCommentSpace {
             reported.insert(start);
             let (line, col) = file.line_col(start);
             out.push(Offense {
-                correction: (!*observed.get_or_insert_with(|| {
-                    super::space_before_comment::listed_observer(file, result)
-                }))
-                .then(|| Correction {
+                correction: Some(Correction {
                     range: start + 1..start + 1,
                     replacement: " ".into(),
                 }),

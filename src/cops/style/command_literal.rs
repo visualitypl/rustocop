@@ -92,7 +92,7 @@ impl Cop for CommandLiteral {
                             },
                         ],
                     )?;
-                    super::literal_spelling::safe_edit(file, cx, edit)
+                    Some(edit)
                 })
                 .flatten(),
         });

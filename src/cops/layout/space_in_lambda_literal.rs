@@ -20,7 +20,7 @@
 //! observers.
 use ruby_prism::Node;
 
-use super::{space_after_colon::observed, space_around_block_parameters::arguments};
+use super::space_around_block_parameters::arguments;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -71,11 +71,10 @@ impl Cop for SpaceInLambdaLiteral {
         let blank = file.bytes[start..end]
             .iter()
             .all(|b| matches!(b, b' ' | b'\t'));
-        let correction =
-            (blank && cx.corrections_requested() && !observed(cx, file)).then(|| Correction {
-                range: start..end,
-                replacement: String::new(),
-            });
+        let correction = (blank && cx.corrections_requested()).then(|| Correction {
+            range: start..end,
+            replacement: String::new(),
+        });
         let (line, col) = file.line_col(start);
         let (end_line, _) = file.line_col(end);
         out.push(Offense {

@@ -70,13 +70,6 @@ impl Cop for MultilineAssignmentLayout {
         let correction = cx
             .corrections_requested()
             .then(|| {
-                let root = cx.ancestors().last().unwrap_or(node);
-                if file
-                    .class_method_bindings(root)
-                    .has_listed_source_observer(file.data_start().is_some())
-                {
-                    return None;
-                }
                 // `insert_after(node.loc.operator, "\n")`
                 let end = operator.end_offset();
                 Some(Correction {

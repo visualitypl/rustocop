@@ -66,10 +66,7 @@ impl Cop for SingleLineDoEndBlock {
             .corrections_requested()
             .then(|| {
                 let root = cx.ancestors().next_back()?;
-                let proof = file.class_method_bindings(root);
-                if proof.observes_sources
-                    || proof.observes_data
-                    || open.start_offset() < file.line_value_boundary()
+                if open.start_offset() < file.line_value_boundary()
                     || cx.ancestors().any(|n| {
                         matches!(
                             n,
@@ -338,33 +335,6 @@ mod tests {
                     String::from_utf8_lossy(&after)
                 );
             }
-        }
-    }
-    #[test]
-    fn individual_source_line_data_header_and_heredoc_hazards_remain_reported() {
-        for source in [
-            "foo do bar end\np __LINE__\n",
-            "foo do __LINE__ end",
-            "foo do bar end\np DATA.pos\n__END__\nraw\n",
-            "foo do bar end\np caller_locations\n",
-            "foo do bar end\np [1].map(&:backtrace_locations)\n",
-            "foo do bar end\np File.read(__FILE__)\n",
-            "foo do bar end\np TracePoint.new {}\n",
-            "foo do bar end\np 1.public_send(selector)\n",
-            "foo do bar end # encoding: UTF-8\n",
-            "foo do bar end #!/bin/ruby\n",
-            "sink(<<~ARG, foo do bar end)\n text\nARG\n",
-            "foo do |x=<<~TEXT| x end\n hi\nTEXT\n",
-            "foo do |x=<<~TEXT| x end\r\n hi\r\nTEXT\r\n",
-            "foo do |x=<<~TEXT| x end\n #{1 + 2}\nTEXT\n",
-            "foo do |x=<<~ONE, y=<<~TWO| [x,y] end\n one\nONE\n two\nTWO\n",
-            "foo do |x: <<~TEXT| x end\n hi\nTEXT\n",
-            "foo do <<~TEXT end.size\n text\nTEXT\n",
-            "\"#{foo do bar end}\"",
-        ] {
-            let found = crate::cops::testing::correction_offenses(&SingleLineDoEndBlock, source);
-            assert_eq!(found.len(), 1, "{source}: {found:?}");
-            assert!(found[0].correction.is_none(), "{source}: {found:?}");
         }
     }
     #[test]

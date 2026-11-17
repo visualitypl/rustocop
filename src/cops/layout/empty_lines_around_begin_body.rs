@@ -38,7 +38,6 @@ impl Cop for EmptyLinesAroundBeginBody {
         let Some(keyword) = begin.begin_keyword_loc() else {
             return;
         };
-        let start = out.len();
         super::body_padding::check(
             self,
             "`begin`",
@@ -50,7 +49,6 @@ impl Cop for EmptyLinesAroundBeginBody {
             file,
             out,
         );
-        super::body_padding::hold_for_listed_observers(cx, file, &mut out[start..]);
     }
 }
 

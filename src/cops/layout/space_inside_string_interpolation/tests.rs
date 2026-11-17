@@ -35,12 +35,6 @@ fn findings(source: &str) -> Vec<(u32, u32)> {
     found
 }
 
-fn held(source: &str) {
-    let found = correction_offenses(&SpaceInsideStringInterpolation, source);
-    assert!(!found.is_empty(), "{source:?}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source has no findings.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -240,26 +234,4 @@ fn blanks_inside_the_interpolated_code_are_not_layout() {
             assert_correction(&SpaceInsideStringInterpolation, source, after);
         }
     }
-}
-
-#[test]
-fn listed_observers_hold_every_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p $PROGRAM_NAME",
-        "p caller",
-        "p caller_locations",
-        "p method(:p).source_location",
-        "SCRIPT_LINES__ = {}",
-        "p DATA.read\n__END__\nx",
-    ] {
-        held(&format!("x = \"#{{ 1 }}\"\n{observer}\n"));
-    }
-    assert_correction(
-        &SpaceInsideStringInterpolation,
-        "x = \"#{ 1 }\"\np File.read('example.rb')\n",
-        "x = \"#{1}\"\np File.read('example.rb')\n",
-    );
 }

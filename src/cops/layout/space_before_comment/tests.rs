@@ -140,17 +140,3 @@ fn directives_in_both_spellings_disable_the_finding_on_its_line() {
         assert_eq!(positions(&source), [(2, 2)], "{source:?}");
     }
 }
-
-#[test]
-fn listed_source_observers_hold_the_edit() {
-    for observer in [
-        "p __FILE__",
-        "p __dir__",
-        "p $0",
-        "p caller_locations",
-        "p $PROGRAM_NAME",
-    ] {
-        held(&format!("x = 1#c\n{observer}\n"));
-    }
-    held("x = 1#c\np DATA.read\n__END__\ndata\n");
-}

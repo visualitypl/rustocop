@@ -67,12 +67,7 @@ impl Cop for HeredocArgumentClosingParenthesis {
             return;
         }
         let correction = if cx.corrections_requested() {
-            let root = ancestors.last().copied().unwrap_or(node);
-            (!file
-                .class_method_bindings(root)
-                .has_listed_source_observer(file.data_start().is_some()))
-            .then(|| correction(outermost, &close, file))
-            .flatten()
+            correction(outermost, &close, file)
         } else {
             None
         };

@@ -241,12 +241,6 @@ fn correction<'pr>(
     root: &Node<'pr>,
     closing_same: bool,
 ) -> Option<Correction> {
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-    {
-        return None;
-    }
     let brace = literal.closing.clone()?;
     // `correct_same_line_brace`.
     if closing_same {

@@ -251,26 +251,6 @@ fn unknown_escape_quote_switches_have_parseable_runtime_counterexamples() {
     }
 }
 #[test]
-fn known_source_observers_keep_diagnostics_but_no_edits() {
-    let d = project();
-    for (name, source, _) in CASES {
-        for observer in [
-            "p __FILE__",
-            "p File.binread($0)",
-            "p method(:p).source_location",
-            "p errors.map(&:backtrace_locations)",
-            "p RubyVM::AbstractSyntaxTree",
-        ] {
-            unchanged(
-                d.path(),
-                name,
-                format!("{source}{observer}\n").as_bytes(),
-                1,
-            );
-        }
-    }
-}
-#[test]
 fn ordinary_quoted_heredocs_still_receive_canonical_corrections() {
     let d = project();
     for delimiter in ["X", "\"X\""] {

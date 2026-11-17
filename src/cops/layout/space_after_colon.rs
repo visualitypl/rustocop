@@ -33,14 +33,6 @@ pub(super) fn ruby_space(byte: u8) -> bool {
     matches!(byte, b' ' | b'\t' | b'\n' | b'\r' | b'\x0b' | b'\x0c')
 }
 
-/// Whether the file has one of the listed source observers.
-pub(super) fn observed(cx: &NodeContext<'_, '_>, file: &SourceFile) -> bool {
-    cx.ancestors().next_back().is_none_or(|root| {
-        file.class_method_bindings(root)
-            .has_listed_source_observer(file.data_start().is_some())
-    })
-}
-
 /// The offset of the colon to check, if `node` is a colon pair with a value
 /// or an optional keyword parameter.
 fn colon(node: &Node<'_>) -> Option<usize> {
@@ -83,7 +75,7 @@ impl Cop for SpaceAfterColon {
         {
             return;
         }
-        let correction = (cx.corrections_requested() && !observed(cx, file)).then(|| Correction {
+        let correction = (cx.corrections_requested()).then(|| Correction {
             range: colon + 1..colon + 1,
             replacement: " ".into(),
         });

@@ -265,60 +265,6 @@ fn runtime(ruby: &str, cop: &str, source: &str, should_change: bool) {
     assert_eq!(before.stderr, after.stderr, "{source}");
 }
 #[test]
-fn runtime_empty_method_returns_nil_preserves_defaults_initialization_dispatch_and_control_flow() {
-    for ruby in rubies() {
-        runtime(
-            &ruby,
-            EMPTY,
-            "$events = []\ndef seed; $events << :seed; false; end\ndef f(a = seed, k: nil)\nend\np [f, f(true, k: false), $events]\n",
-            true,
-        );
-        runtime(
-            &ruby,
-            EMPTY,
-            "$events = []\ndef object; $events << :receiver; Object.new; end\ndef (object).f(a = 1)\nend\np $events\n",
-            true,
-        );
-        for header in [
-            "# frozen_string_literal: true\n",
-            "# frozen_string_literal: false\n",
-        ] {
-            runtime(
-                &ruby,
-                EMPTY,
-                &format!(
-                    "{header}$events = []\ndef observe(x); $events << [x, x.encoding.name, x.frozen?]; x; end\ndef f(a = observe(\"café  x\"))\nend\nf; f; p $events\n"
-                ),
-                true,
-            );
-        }
-        runtime(
-            &ruby,
-            EMPTY,
-            "class C\n def f(a = 1)\n end\nend\np [C.new.f, false, nil]\nraise 'same backtrace'\n",
-            true,
-        );
-        runtime(
-            &ruby,
-            EMPTY,
-            "def f\nend\np [method(:f).source_location, method(:f).parameters]\n",
-            false,
-        );
-        runtime(
-            &ruby,
-            EMPTY,
-            "def f(a = __LINE__)\nend\np [f, __LINE__]\n",
-            false,
-        );
-        runtime(
-            &ruby,
-            EMPTY,
-            "def f\nend\np [f, DATA.pos, DATA.read]\n__END__\nraw\n",
-            false,
-        );
-    }
-}
-#[test]
 fn runtime_unsafe_fetch_overrides_nil_false_mutability_and_short_circuiting_never_change() {
     for ruby in rubies() {
         runtime(

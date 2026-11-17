@@ -135,14 +135,10 @@ impl Cop for RedundantStringEscape {
                 // deleting both individually redundant slashes is unsafe.
                 && !(matches!(b, b'{' | b'$' | b'@') && at > 0 && file.bytes[at-1] == b'#' && !(b == b'{' && escaped_hash == Some(at-1)))
             {
-                super::literal_spelling::safe_edit(
-                    file,
-                    cx,
-                    Correction {
-                        range: at..next,
-                        replacement: String::new(),
-                    },
-                )
+                Some(Correction {
+                    range: at..next,
+                    replacement: String::new(),
+                })
             } else {
                 None
             };

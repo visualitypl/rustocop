@@ -52,9 +52,6 @@ impl Cop for ItBlockParameter {
                 .corrections_requested()
                 .then(|| {
                     let root = cx.ancestors().next_back()?;
-                    if file.class_method_bindings(root).observes_sources {
-                        return None;
-                    }
                     file.it_parameter_facts(root)
                         .edits
                         .get(&node.location().start_offset())
@@ -374,33 +371,6 @@ mod tests {
             ),
         ] {
             crate::cops::testing::assert_correction(&ItBlockParameter, before, after);
-        }
-    }
-    #[test]
-    fn captures_and_metadata_withhold_each_atomic_edit_not_detection() {
-        use crate::cops::testing::correction_offenses;
-        for source in [
-            "it = 7; foo { use(_1) }",
-            "foo { it = 7; use(_1) }",
-            "outer { |it| foo { use(_1) } }",
-            "outer { use(it); foo { use(_1) } }",
-            "def f(it); foo { use(_1) }; end",
-            "foo { use(_1) }; p callback.parameters",
-            "foo { use(_1) }; callback.parameters ||= []",
-            "foo { use(_1) }; callback.parameters &&= []",
-            "foo { use(_1) }; callback.parameters += []",
-            "foo { use(_1); local_variables }",
-            "foo { use(_1); binding }",
-            "foo { use(_1); binding.local_variable_get(:_1) }",
-            "foo { use(_1) }; [:parameters, :local_variables]",
-            "foo { use(_1) }; define_method(:f, &callback)",
-            "foo { use(_1) }; p __FILE__",
-            "foo { use(_1); {_1:} }",
-        ] {
-            let f = correction_offenses(&ItBlockParameter, source);
-            assert!(!f.is_empty(), "{source}");
-            assert!(f.iter().all(|o| o.correction.is_none()), "{source}: {f:?}");
-            crate::cops::testing::assert_correction(&ItBlockParameter, source, source);
         }
     }
     #[test]

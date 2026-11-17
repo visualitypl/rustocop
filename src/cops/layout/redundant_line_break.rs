@@ -471,10 +471,7 @@ impl<'pr> Walker<'_, 'pr> {
     fn correction(&self, range: &Range<usize>, joined: Vec<u8>) -> Option<Correction> {
         let file = self.file;
         let source = &file.bytes[range.clone()];
-        if file
-            .class_method_bindings(self.root)
-            .has_listed_source_observer(file.data_start().is_some())
-            || introduces_concatenation(source)
+        if introduces_concatenation(source)
             || memchr::memmem::find(source, b"__LINE__").is_some()
             || touches_directive(file, range.clone())
         {

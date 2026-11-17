@@ -212,44 +212,6 @@ fn legacy_notes_and_non_utf8_document_bytes_are_not_transcoded() {
 }
 
 #[test]
-fn uncertain_edits_and_parse_errors_never_write() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for source in [
-        "=begin\ntext\n=end\np __LINE__\n",
-        "=begin\ncoding: ASCII-8BIT\n=end\np \"é\".encoding\n",
-        "=begin\nfrozen_string_literal: true\n=end\np \"a\".frozen?\n",
-        "=begin\n=end\n# coding: ASCII-8BIT\np \"é\".encoding\n",
-        "=begin\n# rubocop:disable Lint/Debugger\n=end\nbinding.pry\n",
-        "# TODO coding: ASCII-8BIT\n",
-        "# HACK:\n",
-    ] {
-        fs::write(&path, source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(
-            dir.path(),
-            &[
-                "--only",
-                "Style/BlockComments,Style/CommentAnnotation",
-                "--fix",
-                "lib/a.rb",
-            ],
-            1,
-        );
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-    let source = "# todo something\ndef broken(\n";
-    fs::write(&path, source).unwrap();
-    cli(
-        dir.path(),
-        &["--only", "Style/CommentAnnotation", "--fix", "lib/a.rb"],
-        2,
-    );
-    assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-}
-
-#[test]
 fn controlled_ruby_observations_preserve_values_encodings_frozen_state_and_data() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;

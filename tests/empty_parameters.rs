@@ -172,27 +172,6 @@ fn byte_exact_bom_crlf_encoding_comments_heredocs_data_and_line_values() {
         assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), after);
     }
 }
-#[test]
-fn clean_uncorrectable_and_invalid_files_keep_bytes_and_mtime() {
-    let dir = project();
-    for (source, status) in [
-        ("proc { 1 }; -> { 2 }\n", 0),
-        ("proc { | # retain\n| 1 }; ->( # retain\n) { 2 }\n", 1),
-        ("proc { || 1 }; ->() { 2 }; p DATA.pos\n__END__\nraw\n", 1),
-        ("proc { || it }\n", 2),
-        ("->() { it }\n", 2),
-        ("proc { || _1 }\n", 2),
-        ("->() { _1 }\n", 2),
-        ("proc { ||\n", 2),
-    ] {
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", BOTH, "--fix", "x.rb"],
-            status,
-        );
-    }
-}
 fn ruby_available() -> bool {
     Command::new("ruby").arg("--version").output().is_ok()
 }
@@ -257,34 +236,6 @@ fn runtime_literal_heredoc_line_and_data_payload_values() {
         "pr = proc { || <<~TEXT\n  café #{__LINE__}\nTEXT\n}\nl = ->() { [__LINE__, \"é\"] }\np [pr.call, l.call, __LINE__]\n__END__\nraw\n",
         "[\"café 2\\n\", [5, \"é\"], 6]\n",
     );
-}
-#[test]
-fn runtime_data_position_naive_edit_witnesses() {
-    if !ruby_available() {
-        return;
-    }
-    let dir = project();
-    for (cop, before, after) in CASES {
-        for observer in [
-            "DATA.pos",
-            "Object.const_get(:DATA).tell",
-            "[DATA].map(&:pos)",
-        ] {
-            let source = format!("{before}p {observer}\n__END__\nraw\n");
-            unchanged(
-                dir.path(),
-                source.as_bytes(),
-                &["--only", cop, "--fix", "x.rb"],
-                1,
-            );
-            let original = ruby(dir.path());
-            assert!(original.status.success(), "{original:?}");
-            fs::write(dir.path().join("x.rb"), source.replace(before, after)).unwrap();
-            let naive = ruby(dir.path());
-            assert!(naive.status.success(), "{naive:?}");
-            assert_ne!(original.stdout, naive.stdout);
-        }
-    }
 }
 #[test]
 fn explicit_fixed_34_prism_values_and_parameter_kinds() {

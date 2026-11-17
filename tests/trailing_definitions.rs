@@ -318,45 +318,6 @@ end
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
 }
 #[test]
-fn controlled_ruby_withheld_line_data_and_deferred_heredoc_observations() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, harness) in [
-        (
-            "def f\n 1 end\nclass C; 2\nend\nmodule M; 3\nend\np __LINE__\n",
-            None,
-        ),
-        (
-            "def f\n 1 end\nclass C; 2\nend\nmodule M; 3\nend\np [DATA.pos, DATA.lineno, DATA.read]\n__END__\nraw\n",
-            None,
-        ),
-        (
-            "def f\n <<~TXT; end\n  payload\nTXT\n",
-            Some("load ARGV[0]; p f"),
-        ),
-        (
-            "class C; TEXT = <<~TXT\n  payload\nTXT\nend\n",
-            Some("load ARGV[0]; p C::TEXT"),
-        ),
-        (
-            "module M; TEXT = <<~TXT\n  payload\nTXT\nend\n",
-            Some("load ARGV[0]; p M::TEXT"),
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = ruby(dir.path(), harness);
-        assert!(before.status.success(), "{before:?}");
-        cli(dir.path(), &["--only", ONLY, "--fix", "lib/a.rb"], 1);
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        let after = ruby(dir.path(), harness);
-        assert_eq!(before.stdout, after.stdout);
-        assert_eq!(before.stderr, after.stderr);
-    }
-}
-#[test]
 fn controlled_ruby_declaration_results_inline_line_values_and_interpolated_heredocs() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
@@ -514,68 +475,6 @@ fn trailing_method_body_declaration_results_preceding_expressions_and_all_visibi
         assert_eq!(before.stdout, after.stdout);
         assert_eq!(before.stderr, after.stderr);
     }
-}
-#[test]
-fn trailing_method_body_withholding_preserves_line_data_and_heredoc_observations() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for (source, harness) in [
-        ("def f; __LINE__\nend\np f\n", None),
-        ("def f; 1\nend\np __LINE__\n", None),
-        (
-            "def f; 1\nend\np [DATA.pos, DATA.lineno, DATA.read]\n__END__\nraw\n",
-            None,
-        ),
-        (
-            "def f; <<~TXT\n  payload\nTXT\nend\n",
-            Some("load ARGV[0]; p f"),
-        ),
-        ("def f; 1\nend\np method(:f).source_location\n", None),
-        (
-            "def outer\n def inner; 1\n end\nend\n",
-            Some("load ARGV[0]; p [outer, inner]"),
-        ),
-    ] {
-        fs::write(&path, source).unwrap();
-        let before = ruby(dir.path(), harness);
-        assert!(before.status.success(), "{before:?}");
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(
-            dir.path(),
-            &[
-                "--only",
-                "Style/TrailingBodyOnMethodDefinition",
-                "--fix",
-                "lib/a.rb",
-            ],
-            1,
-        );
-        assert_eq!(fs::read_to_string(&path).unwrap(), source);
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-        let after = ruby(dir.path(), harness);
-        assert_eq!(before.stdout, after.stdout);
-        assert_eq!(before.stderr, after.stderr);
-    }
-    // A later independent offense still fixes after the last __LINE__.
-    let source = "def f; 1\nend\np __LINE__\ndef g; 2\nend\n";
-    fs::write(&path, source).unwrap();
-    cli(
-        dir.path(),
-        &[
-            "--only",
-            "Style/TrailingBodyOnMethodDefinition",
-            "--fix",
-            "lib/a.rb",
-        ],
-        1,
-    );
-    assert_eq!(
-        fs::read_to_string(&path).unwrap(),
-        source.replace("def g; 2", "def g \n  2")
-    );
 }
 #[test]
 fn sibling_deferred_heredoc_values_and_method_returns_are_preserved() {

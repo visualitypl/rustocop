@@ -169,11 +169,7 @@ fn correction(
             return None;
         }
         let indent = std::str::from_utf8(indent).ok()?;
-        return finish(
-            file,
-            cx,
-            edit(range(loc), expand_then(inner, indent, file)?),
-        );
+        return Some(edit(range(loc), expand_then(inner, indent, file)?));
     } else {
         let header = keyword.start_offset()..predicate.location().end_offset();
         let end = range(inner.end_keyword_loc()?);
@@ -214,12 +210,7 @@ fn correction(
         }
         edits.push(edit(whole_lines(file, end), ""));
     }
-    finish(file, cx, super::correction::combine(file, edits)?)
-}
-fn finish(file: &SourceFile, cx: &NodeContext<'_, '_>, edit: Correction) -> Option<Correction> {
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit))
-    .then_some(edit)
+    super::correction::combine(file, edits)
 }
 fn expand_then(inner: &IfNode<'_>, indent: &str, file: &SourceFile) -> Option<String> {
     let keyword = inner.if_keyword_loc()?;

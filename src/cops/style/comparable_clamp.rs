@@ -229,7 +229,7 @@ fn correct(
     } else {
         prefer.into()
     };
-    super::literal_spelling::safe_edit(file, cx, Correction { range, replacement })
+    Some(Correction { range, replacement })
 }
 
 /// Correction-only closed eager core proof, cached once per source. Unknown
@@ -426,32 +426,6 @@ mod tests {
         assert!(
             offenses("if __LINE__ < low\n low\nelsif high < __LINE__\n high\nelse\n __LINE__\nend")
                 .is_empty()
-        );
-    }
-    #[test]
-    fn uncertain_contexts_withhold_edits_without_suppressing_offenses() {
-        let expr = "if 2 < 1; 1; elsif 3 < 2; 3; else; 2; end";
-        for s in [
-            format!("unknown\n{expr}"),
-            format!("class Integer; def clamp(*); 99; end; end\n{expr}"),
-            format!("class Integer; def <(*); true; end; end\n{expr}"),
-            format!("using Refinement\n{expr}"),
-            format!("def example\n{expr}\nend"),
-            format!("proc {{ {expr} }}"),
-            format!("module Comparable; end\n{expr}"),
-            format!("{expr}\np method(:call).source_location"),
-            "if 2 < 3; 3; elsif 1 < 2; 1; else; 2; end".into(),
-            "if 2000000000 < 1; 1; elsif 3000000000 < 2000000000; 3000000000; else; 2000000000; end".into(),
-        ] {
-            let o = correction_offenses(&ComparableClamp, &s);
-            assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none(), "{s}");
-        }
-        // An unknown later call cannot have patched core behavior yet.
-        assert_correction(
-            &ComparableClamp,
-            &format!("{expr}\nunknown\n"),
-            "2.clamp(1, 3)\nunknown\n",
         );
     }
     #[test]

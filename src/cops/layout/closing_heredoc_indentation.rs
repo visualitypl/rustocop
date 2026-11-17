@@ -72,11 +72,7 @@ impl Cop for ClosingHeredocIndentation {
         );
         let start = file.line_start(closing_number);
         let correction = if cx.corrections_requested() {
-            let root = ancestors.last().copied().unwrap_or(node);
-            (!file
-                .class_method_bindings(root)
-                .has_listed_source_observer(file.data_start().is_some()))
-            .then(|| Correction {
+            Some(Correction {
                 range: start..start + closing,
                 replacement: " ".repeat(opening),
             })

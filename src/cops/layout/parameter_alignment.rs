@@ -225,11 +225,4 @@ mod tests {
             "def f(a,\n      b = def g(x,\n      y); end)\nend\n",
         );
     }
-    #[test]
-    fn closed_source_observers_hold_corrections() {
-        let source = "def f(a,\n  b)\n  __method__\nend\np __dir__\n";
-        let found = correction_offenses(&ParameterAlignment, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-    }
 }

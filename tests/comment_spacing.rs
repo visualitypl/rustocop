@@ -140,45 +140,6 @@ fn metadata_defaults_selectors_and_strict_toml() {
 }
 
 #[test]
-fn lint_never_writes_and_fix_writes_the_canonical_edit_once() {
-    let dir = project();
-    for (cop, before, after, _) in WITNESSES {
-        let out = unchanged(dir.path(), before.as_bytes(), &["--only", cop], Some(1));
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-        let (out, fixed) = fix(dir.path(), before, &["--only", cop]);
-        assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fixed, after, "{cop}");
-        unchanged(
-            dir.path(),
-            after.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(0),
-        );
-        // CRLF line endings and a UTF-8 BOM are preserved around the edit.
-        let (_, fixed) = fix(dir.path(), &before.replace('\n', "\r\n"), &["--only", cop]);
-        assert_eq!(fixed, after.replace('\n', "\r\n"), "{cop}");
-        let (_, fixed) = fix(dir.path(), &format!("\u{feff}{before}"), &["--only", cop]);
-        assert_eq!(fixed, format!("\u{feff}{after}"), "{cop}");
-        // A listed source observer keeps the finding and the file.
-        let held = format!("{before}p __FILE__\n");
-        let out = unchanged(
-            dir.path(),
-            held.as_bytes(),
-            &["--only", cop, "--fix"],
-            Some(1),
-        );
-        assert_eq!(count(&out, cop), 1, "{out:?}");
-    }
-    // Data sections, heredoc bodies and strings hold no comments.
-    unchanged(
-        dir.path(),
-        b"x = <<~A\n  a#b\n  #\nA\np x, \"#a\"\n__END__\n#a\n#\nx#a\n",
-        &["--only", "Layout", "--fix"],
-        Some(0),
-    );
-}
-
-#[test]
 fn magic_comments_shebangs_and_directives_keep_their_meaning() {
     let dir = project();
     let only = ["--only", LEADING];

@@ -93,10 +93,6 @@ impl Cop for PercentLiteralDelimiters {
                 if source.len() != prefix_len + 1 || matches!(used, b'\n' | b'\r') {
                     return None;
                 }
-                let root = cx.ancestors().next_back()?;
-                if file.class_method_bindings(root).observes_sources {
-                    return None;
-                }
                 let delimiter_start = opening.end_offset() - 1;
                 // A Q->q edit is proven against the OLD delimiters. If those
                 // delimiters consume escapes, changing both case and delimiters

@@ -39,7 +39,6 @@ impl Cop for EmptyLinesAroundBlockBody {
         if let Some(parameters) = parameters.as_ref().and_then(explicit_parameters) {
             first = first.max(file.last_line_of(parameters));
         }
-        let start = out.len();
         super::body_padding::check(
             self,
             "block",
@@ -48,7 +47,6 @@ impl Cop for EmptyLinesAroundBlockBody {
             file,
             out,
         );
-        super::body_padding::hold_for_listed_observers(cx, file, &mut out[start..]);
     }
 }
 

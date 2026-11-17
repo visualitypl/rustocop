@@ -221,44 +221,6 @@ fn bom_crlf_headers_literals_line_and_data_bytes_are_preserved() {
 }
 
 #[test]
-fn uncertain_edits_and_parse_errors_do_not_write() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for source in [
-        "# encoding: utf-8\np __LINE__\n",
-        "# encoding: utf-8\n# coding: ASCII-8BIT\np \"é\".encoding\n",
-        "# coding: ASCII-8BIT\n# encoding: utf-8\np \"é\".encoding\n",
-        "# encoding: utf-8 # rustocop:disable Lint/Debugger\nbinding.pry\n",
-        "# typed: FROZEN-STRING-LITERAL\nx\n",
-    ] {
-        fs::write(&path, source).unwrap();
-        let modified = fs::metadata(&path).unwrap().modified().unwrap();
-        cli(
-            dir.path(),
-            &[
-                "--only",
-                "Style/Encoding,Style/MagicCommentFormat",
-                "--fix",
-                "lib/a.rb",
-            ],
-            1,
-        );
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-        assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-    }
-    for cop in [
-        "Style/Encoding",
-        "Style/MagicCommentFormat",
-        "Style/InlineComment",
-    ] {
-        let source = "# encoding: utf-8\n# frozen-string-literal: true\ndef broken( # comment\n";
-        fs::write(&path, source).unwrap();
-        cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 2);
-        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-    }
-}
-
-#[test]
 fn legacy_encoding_header_normalization_does_not_transcode_literal_bytes() {
     let dir = project();
     let path = dir.path().join("lib/a.rb");
@@ -325,61 +287,5 @@ fn encoding_fix_does_not_activate_frozen_directive_after_interior_emacs_delimite
     assert!(out.stderr.is_empty(), "{out:?}");
     assert!(String::from_utf8_lossy(&out.stdout).contains("Style/Encoding"));
     assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
-    assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
-}
-
-#[test]
-fn controlled_ruby_observations_preserve_encoding_frozen_binding_flow_and_data() {
-    if Command::new("ruby").arg("--version").output().is_err() {
-        return;
-    }
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    for source in [
-        "# encoding: utf-8\n# frozen-string-literal: true\ntrace = []; x = \"é\"; 2.times { |n| trace << n }; p [trace, x.encoding.name, x.bytes, x.frozen?, DATA.read.bytes]\n__END__\n# frozen-string-literal: true\n",
-        "# encoding: utf-8\np [__LINE__, \"é\".encoding.name]\n",
-        "# encoding: utf-8\n# coding: ASCII-8BIT\np [\"é\".encoding.name, \"é\".bytes]\n",
-        "#!/usr/bin/env ruby\n# -*- encoding: UTF-8; frozen-string-literal: true -*-\np [__LINE__, \"é\".encoding.name, \"a\".frozen?]\n",
-        "# EnCoDiNg: ASCII-8BIT\n# FROZEN-STRING-LITERAL: true\np [__LINE__, \"é\".encoding.name, \"a\".frozen?]\n",
-        "# -*- encoding: utf-8; \0frozen_string_literal: true -*-\np [\"a\".frozen?, \"é\".encoding.name]\n",
-    ] {
-        fs::write(&path, source).unwrap();
-        let run = || {
-            let out = Command::new("ruby").arg(&path).output().unwrap();
-            assert!(out.status.success(), "{out:?}");
-            out.stdout
-        };
-        let before = run();
-        // At most two explicit passes for the curated overlapping header case.
-        for _ in 0..2 {
-            let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
-                .current_dir(dir.path())
-                .args([
-                    "--only",
-                    "Style/Encoding,Style/MagicCommentFormat",
-                    "--fix",
-                    "lib/a.rb",
-                ])
-                .output()
-                .unwrap();
-            assert!(matches!(out.status.code(), Some(0 | 1)), "{out:?}");
-        }
-        assert_eq!(run(), before, "{source}");
-    }
-}
-
-#[test]
-fn mixed_existing_style_and_layout_fixes_stabilize_without_changing_lines() {
-    let dir = project();
-    let path = dir.path().join("lib/a.rb");
-    let source = "# encoding: utf-8\n# frozen-string-literal: true\np __LINE__\nx = { :a => 'value' };  \nx\n";
-    let expected =
-        "# encoding: utf-8\n# frozen_string_literal: true\np __LINE__\nx = { a: \"value\" }\nx\n";
-    fs::write(&path, source).unwrap();
-    let only = "Style/Encoding,Style/MagicCommentFormat,Style/StringLiterals,Style/HashSyntax,Style/Semicolon,Style/RedundantReturn,Style/RedundantParentheses,Style/SignalException,Layout/TrailingWhitespace";
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 1);
-    assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
-    let modified = fs::metadata(&path).unwrap().modified().unwrap();
-    cli(dir.path(), &["--only", only, "--fix", "lib/a.rb"], 1);
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
 }

@@ -14,7 +14,7 @@
 //! `Layout/EmptyLines`), could move that line into lines 1-2, where Ruby
 //! reads the shebang switches and the source encoding. An executable
 //! `__LINE__` after the edit is held by the shared position barrier.
-use super::space_before_comment::{blank, bom_end, listed_observer};
+use super::space_before_comment::{blank, bom_end};
 use crate::{
     cops::Cop,
     offense::{Correction, Offense},
@@ -36,7 +36,7 @@ impl Cop for LeadingEmptyLines {
 
     fn check_parse(
         &self,
-        result: &ruby_prism::ParseResult<'_>,
+        _result: &ruby_prism::ParseResult<'_>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -47,11 +47,10 @@ impl Cop for LeadingEmptyLines {
         if line == 1 {
             return;
         }
-        let correction =
-            (!moves_header(file, token) && !listed_observer(file, result)).then(|| Correction {
-                range: bom_end(file)..token,
-                replacement: String::new(),
-            });
+        let correction = (!moves_header(file, token)).then(|| Correction {
+            range: bom_end(file)..token,
+            replacement: String::new(),
+        });
         out.push(Offense {
             correction,
             cop: self.name(),

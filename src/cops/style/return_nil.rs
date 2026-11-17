@@ -116,7 +116,7 @@ fn iterator_exit(cx: &NodeContext<'_, '_>) -> bool {
     false
 }
 
-fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> Option<Correction> {
+fn correction(node: &Node<'_>, _cx: &NodeContext<'_, '_>, file: &SourceFile) -> Option<Correction> {
     let loc = node.location();
     let range = loc.start_offset()..loc.end_offset();
     // Removing embedded comments or physical lines changes directives, rescue
@@ -134,7 +134,7 @@ fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> O
         range,
         replacement: "return".into(),
     };
-    super::correction::preserves_data_positions(file, cx, &correction).then_some(correction)
+    Some(correction)
 }
 
 #[cfg(test)]

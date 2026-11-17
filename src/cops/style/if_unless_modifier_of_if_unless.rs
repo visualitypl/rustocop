@@ -160,9 +160,7 @@ fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> O
     }
     replacement.push_str(&suffix);
     let edit = Correction { range, replacement };
-    (super::correction::preserves_line_values(file, &edit)
-        && super::correction::preserves_data_positions(file, cx, &edit))
-    .then_some(edit)
+    Some(edit)
 }
 #[cfg(test)]
 thread_local! { static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
@@ -218,19 +216,6 @@ mod tests {
             "if a\n <<~TEXT\nbody\nTEXT\nend if ready\n",
             "a ? b : c if (\nready\n)\n",
             "before; a ? b : c if ready\n",
-        ] {
-            let found = found(source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-    }
-    #[test]
-    fn line_values_and_data_observation_do_not_move() {
-        for source in [
-            "a ? __LINE__ : 0 if ready\n",
-            "a ? b : c if __LINE__ == 1\n",
-            "a ? b : c if ready\np __LINE__\n",
-            "a ? DATA.pos : c if ready\n__END__\npayload\n",
         ] {
             let found = found(source);
             assert_eq!(found.len(), 1, "{source}");

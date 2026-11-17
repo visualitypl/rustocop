@@ -26,7 +26,6 @@
 //! it would withhold the edit whenever either companion is merely active.
 use ruby_prism::Node;
 
-use super::space_after_colon::observed;
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -69,7 +68,7 @@ impl Cop for SpaceBeforeBlockBraces {
         if brace == 0 || matches!(file.bytes[brace - 1], b' ' | b'\t' | b'\n') {
             return;
         }
-        let correction = (cx.corrections_requested() && !observed(cx, file)).then(|| Correction {
+        let correction = (cx.corrections_requested()).then(|| Correction {
             range: brace..brace,
             replacement: " ".into(),
         });

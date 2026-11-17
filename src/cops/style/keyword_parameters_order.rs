@@ -141,23 +141,13 @@ fn correction(
         .filter(|b| **b == b'\n')
         .count()
         != edit.replacement.bytes().filter(|b| *b == b'\n').count();
-    let proof = file.class_method_bindings(root);
-    if proof.observes_program_name
-        || (edit.range.len() != edit.replacement.len() && proof.observes_data)
-    {
-        return None;
-    }
-    if changes_lines {
-        let proof = file.class_method_bindings(root);
-        if edit.range.start < file.line_value_boundary()
-            || proof.observes_sources
-            || proof.observes_data
+    if changes_lines
+        && (edit.range.start < file.line_value_boundary()
             || super::correction::touches_directive(file, edit.range.clone())
             || file.contains_heredoc(root, node)
-            || file.heredoc_pending_at(root, edit.range.start)
-        {
-            return None;
-        }
+            || file.heredoc_pending_at(root, edit.range.start))
+    {
+        return None;
     }
     Some(edit)
 }
@@ -236,24 +226,6 @@ mod tests {
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
         }
-    }
-    #[test]
-    fn multiline_newline_guards_are_individual_not_detection_gates() {
-        for suffix in [
-            "p __LINE__",
-            "p caller",
-            "p DATA.pos",
-            "p errors.map(&:backtrace)",
-        ] {
-            let source = format!("def f(a: 1,\n b:); end\n{suffix}\n");
-            let found = correction_offenses(&KeywordParametersOrder, &source);
-            assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        // Unrelated nested definitions do not need to forward the outer signature.
-        // Conservatively withholding is permitted when the complete subtree has super.
-        let source = "def f(a: 1,\n b:); __LINE__; end";
-        assert_correction(&KeywordParametersOrder, source, source);
     }
     #[test]
     fn pinned_canonical_corrections() {

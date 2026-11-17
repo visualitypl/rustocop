@@ -75,10 +75,7 @@ mod tests {
     //! Ported from RuboCop first_parameter_indentation_spec.rb at 97f30c4
     //! (MIT, Copyright (c) 2012–26 Bozhidar Batsov).
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::assert_correction, pipeline::lint_str};
     const MSG: &str = "Use 2 spaces for indentation in method args, relative to the start of the line where the left parenthesis is.";
     fn positions(source: &str) -> Vec<(u32, u32, u32)> {
         let found: Vec<_> = lint_str(source)
@@ -158,12 +155,5 @@ mod tests {
         ] {
             assert!(positions(source).is_empty(), "{source}");
         }
-    }
-    #[test]
-    fn closed_source_observers_hold_corrections() {
-        let source = "def foo(\na)\nend\np caller\n";
-        let found = correction_offenses(&FirstParameterIndentation, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
     }
 }

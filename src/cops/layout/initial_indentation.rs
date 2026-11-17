@@ -45,10 +45,7 @@ impl Cop for InitialIndentation {
         if line == 1 && bytes.starts_with(BOM) {
             col += 1;
         }
-        let correction = (!file
-            .class_method_bindings(&result.node())
-            .has_listed_source_observer(result.data_loc().is_some()))
-        .then(|| Correction {
+        let correction = Some(Correction {
             range: token - blanks..token,
             replacement: String::new(),
         });
@@ -100,11 +97,7 @@ mod tests {
     //! messages and single-pass corrected bytes match the fixed replay recorded
     //! in the pinned RuboCop reference run.
     use super::*;
-    use crate::{
-        cops::testing::{assert_correction, correction_offenses},
-        offense::Severity,
-        pipeline::lint_str,
-    };
+    use crate::{cops::testing::assert_correction, offense::Severity, pipeline::lint_str};
 
     const MSG: &str = "Indentation of first line in file detected.";
 
@@ -175,26 +168,5 @@ mod tests {
             );
             assert_correction(&InitialIndentation, source, after);
         }
-    }
-
-    #[test]
-    fn listed_source_observers_hold_the_edit() {
-        for observer in [
-            "p __FILE__",
-            "p $0",
-            "p caller_locations",
-            "p SCRIPT_LINES__",
-        ] {
-            let source = format!("  x = 1\n{observer}\n");
-            let found = correction_offenses(&InitialIndentation, &source);
-            assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
-        }
-        let data = "  p DATA.read\n__END__\nx\n";
-        assert!(
-            correction_offenses(&InitialIndentation, data)[0]
-                .correction
-                .is_none()
-        );
     }
 }

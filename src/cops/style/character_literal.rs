@@ -56,7 +56,7 @@ impl Cop for CharacterLiteral {
                     range: loc.start_offset()..loc.end_offset(),
                     replacement: format!("{quote}{body}{quote}"),
                 };
-                super::literal_spelling::safe_edit(file, cx, correction)
+                Some(correction)
             })
             .flatten();
         let (line, col) = file.line_col(loc.start_offset());

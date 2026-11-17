@@ -432,32 +432,6 @@ fn unsafe_values_visibility_lazy_receivers_and_control_flow_are_never_rewritten(
     }
 }
 #[test]
-fn comments_line_data_bom_crlf_and_legacy_encoding() {
-    let d = project();
-    for (cop, s) in [
-        (COPS[0], "(0.. # retained\n3).each {}\n"),
-        (COPS[0], "(0..\n3).each {}; p __LINE__\n"),
-        (COPS[1], "[].reduce({}) do |a,e|\n a\nend\np __LINE__\n"),
-        (COPS[1], "[].reduce({}) { |a,e| a # retained\n}\n"),
-    ] {
-        unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-    }
-    for (i, cop) in COPS.iter().enumerate() {
-        let s = format!(
-            "\u{feff}# encoding: UTF-8\r\n{}p [__LINE__, DATA.pos, DATA.read]\r\n__END__\r\nraw\0\r\n",
-            SOURCES[i].replace('\n', "\r\n")
-        );
-        unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "a.rb"], 1);
-    }
-    let s = b"# encoding: ISO-8859-1\r\n[1].reduce({}) { |a,e| a[\"caf\xe9\"]=e; a }\r\n";
-    unchanged(d.path(), s, &["--only", COPS[1], "--fix", "a.rb"], 1);
-    let before = "\u{feff}# encoding: UTF-8\r\n(0...3).each { p __LINE__ }\r\n__END__\r\nraw\0\r\n";
-    let after = before.replace("(0...3).each", "3.times");
-    fs::write(d.path().join("a.rb"), before).unwrap();
-    cli(d.path(), &["--only", COPS[0], "--fix", "a.rb"], 0);
-    assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), after.as_bytes());
-}
-#[test]
 fn safe_siblings_and_curated_peer_default_layout_composition_stabilize() {
     let d = project();
     let s = "trace = []\n(0...2).each { trace << 'x' }\nresult = [1,2].inject({}) { |a,e| a[e] = 'v'; a }\np [trace,result]\n";

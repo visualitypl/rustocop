@@ -214,10 +214,7 @@ impl Cop for SingleLineBlockChain {
 }
 
 fn correction(send: &Send<'_>, root: &Node<'_>, file: &SourceFile) -> Option<Correction> {
-    if file
-        .class_method_bindings(root)
-        .has_listed_source_observer(file.data_start().is_some())
-        || file.bytes[send.dot.clone()] == *b"::"
+    if file.bytes[send.dot.clone()] == *b"::"
         || file.heredoc_pending_at(root, send.dot.start)
         || touches_directive(file, send.dot.clone())
     {

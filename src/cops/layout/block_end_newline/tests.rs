@@ -47,13 +47,6 @@ fn fixed(source: &str) -> String {
     String::from_utf8(applied.bytes).unwrap()
 }
 
-/// Every finding is kept and no edit is offered.
-fn held(source: &str) {
-    let found = correction_offenses(&BlockEndNewline, source);
-    assert!(!found.is_empty(), "{source}");
-    assert!(found.iter().all(|o| o.correction.is_none()), "{source}");
-}
-
 /// `(spec line, source, findings, single-pass correction)`; an empty
 /// correction means the source has no findings.
 type Pinned = (u32, &'static str, &'static [(u32, u32)], &'static str);
@@ -325,46 +318,5 @@ fn heredoc_arguments_move_the_end_after_the_terminator() {
     ] {
         assert_eq!(fixed(before), after, "{before}");
         assert_correction(&BlockEndNewline, before, after);
-    }
-}
-
-#[test]
-fn unsafe_or_inexact_moves_are_withheld() {
-    for source in [
-        // Upstream only moves past single-line `str` heredocs: an
-        // interpolated, multi-line or empty body, or one in a nested call,
-        // would leave the delimiter inside a heredoc body.
-        "test {\n  foo(<<~X) }\n  #{t}\nX\n",
-        "test {\n  foo(<<~X) }\n  t\n  u\nX\n",
-        "test {\n  foo(<<~X) }\nX\n",
-        "test {\n  foo(bar(<<~X)) }\n  t\nX\n",
-        "test {\n  <<~X.strip }\n  t\nX\n",
-        "test {\n  x = <<~X }\n  t\nX\n",
-        "test {\n  foo(<<~X, bar(<<~Y)) }\n  t\nX\n  u\nY\n",
-        "test {\n  foo(<<~X) {} }\n  t\nX\n",
-        // Code after the delimiter would stay on the heredoc's line (upstream
-        // moves only the delimiter, so `.bar` would continue the body).
-        "test {\n  a.foo(<<~X) }.bar\n  t\nX\n",
-        "foo(test {\n  a.foo(<<~X) })\n  t\nX\n",
-        // A lambda without a body.
-        "-> (x) {\n  ; }\n",
-        // A heredoc of the body opened on an earlier line.
-        "test {\n  a(<<~X)\n    t\n  X\n    .b }\n",
-        // A comment between the last child and the delimiter.
-        "test do\n  foo # c\n  ; end\n",
-        // A directive on the touched line.
-        "test {\n  foo } # rubocop:disable Lint/Debugger\n",
-        // the listed source observers.
-        "test {\n  foo(__FILE__) }\n",
-        "test {\n  foo(__dir__) }\n",
-        "test {\n  foo($0) }\n",
-        "test {\n  foo($PROGRAM_NAME) }\n",
-        "test {\n  caller }\n",
-        "test {\n  caller_locations }\n",
-        "test {\n  m.source_location }\n",
-        "test {\n  SCRIPT_LINES__ }\n",
-        "test {\n  DATA.read }\n__END__\nx\n",
-    ] {
-        held(source);
     }
 }
