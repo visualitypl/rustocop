@@ -1,7 +1,7 @@
-//! `Style/DoubleNegation` — fixed `allowed_in_returns`, unsafe detection-only.
+//! `Style/DoubleNegation` — fixed `allowed_in_returns`; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ pub struct DoubleNegation;
 impl Cop for DoubleNegation {
     fn name(&self) -> &'static str {
         "Style/DoubleNegation"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -49,6 +52,23 @@ impl Cop for DoubleNegation {
         if allowed_in_returns(node, cx, file) {
             return;
         }
+        // Remove the outer `!` and append `.nil?` to the send.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let end = crate::cops::bundler::ordered_gem_node::send_end(&outer);
+                Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (
+                            selector.start_offset()..selector.end_offset(),
+                            String::new(),
+                        ),
+                        (end..end, ".nil?".into()),
+                    ],
+                )
+            })
+            .flatten();
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -57,7 +77,7 @@ impl Cop for DoubleNegation {
             col,
             end_line: line,
             message: "Avoid the use of double negation (`!!`).".into(),
-            correction: None,
+            correction,
         });
     }
 }

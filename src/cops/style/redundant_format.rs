@@ -195,6 +195,21 @@ fn argument_value(node: &Node<'_>, file: &SourceFile) -> Result<Option<Value>, R
     })
 }
 
+/// `Integer#to_s` of an integer literal.
+pub(crate) fn integer_to_s(node: &Node<'_>) -> String {
+    match integer(node) {
+        Value::Int(n) => n.to_string(),
+        Value::Big(negative, text) if negative => format!("-{text}"),
+        Value::Big(_, text) => text,
+        _ => unreachable!("integer() returns Int or Big"),
+    }
+}
+
+/// `Float#to_s`.
+pub(crate) fn float_to_s(f: f64) -> String {
+    sprintf::float_to_s(f)
+}
+
 fn integer(node: &Node<'_>) -> Value {
     let value = node.as_integer_node().unwrap().value();
     let (negative, digits) = value.to_u32_digits();

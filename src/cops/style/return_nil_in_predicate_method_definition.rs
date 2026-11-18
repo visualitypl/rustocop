@@ -1,9 +1,9 @@
 //! `Style/ReturnNilInPredicateMethodDefinition` — predicate nil returns.
-//! Upstream's nil-to-false correction is unsafe: detection only.
+//! Upstream's nil-to-false correction is unsafe.
 use super::return_nil::nil_argument;
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -15,6 +15,9 @@ pub struct ReturnNilInPredicateMethodDefinition;
 impl Cop for ReturnNilInPredicateMethodDefinition {
     fn name(&self) -> &'static str {
         "Style/ReturnNilInPredicateMethodDefinition"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     /// Upstream's Style/AndOr lists this cop as autocorrect-incompatible
     /// and runs first.
@@ -50,6 +53,17 @@ impl Cop for ReturnNilInPredicateMethodDefinition {
         if !explicit && !implicit {
             return;
         }
+        let correction = cx.corrections_requested().then(|| Correction {
+            range: node.location().start_offset()..node.location().end_offset(),
+            replacement: if implicit {
+                "false"
+            } else if requires_parentheses(cx) {
+                "(return false)"
+            } else {
+                "return false"
+            }
+            .into(),
+        });
         let (line, col) = file.line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -58,8 +72,45 @@ impl Cop for ReturnNilInPredicateMethodDefinition {
             col,
             end_line: file.last_line_of(node.location()),
             message: "Return `false` instead of `nil` in predicate methods.".into(),
-            correction: None,
+            correction,
         });
+    }
+}
+
+/// `requires_parentheses?`: the parser parent is `&&`/`||` or a ternary.
+/// A single-statement list and a ternary's `else` are not parser nodes.
+fn requires_parentheses(cx: &NodeContext<'_, '_>) -> bool {
+    let parent = cx.ancestors().find(|n| match n {
+        Node::StatementsNode { .. } => n.as_statements_node().unwrap().body().len() > 1,
+        Node::ElseNode { .. } => false,
+        _ => true,
+    });
+    match parent {
+        Some(Node::AndNode { .. }) => {
+            parent
+                .unwrap()
+                .as_and_node()
+                .unwrap()
+                .operator_loc()
+                .as_slice()
+                == b"&&"
+        }
+        Some(Node::OrNode { .. }) => {
+            parent
+                .unwrap()
+                .as_or_node()
+                .unwrap()
+                .operator_loc()
+                .as_slice()
+                == b"||"
+        }
+        Some(Node::IfNode { .. }) => parent
+            .unwrap()
+            .as_if_node()
+            .unwrap()
+            .if_keyword_loc()
+            .is_none(),
+        _ => false,
     }
 }
 
@@ -135,7 +186,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn all_pinned_examples_and_unsafe_corrections_are_detection_only() {
+    fn all_pinned_examples_and_their_unsafe_corrections() {
         let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
             "../../../tests/fixtures/return_nil_in_predicate_method_definition_pinned.json"
         ))
@@ -158,7 +209,17 @@ mod tests {
             }
             let with_fixes = correction_offenses(&ReturnNilInPredicateMethodDefinition, source);
             assert_eq!(with_fixes.len(), found.len());
-            assert!(with_fixes.iter().all(|o| o.correction.is_none()));
+            assert!(with_fixes.iter().all(|o| o.correction.is_some()));
+            if let Some(expected) = case["correction"].as_str() {
+                assert_eq!(
+                    crate::cops::testing::fix_until_stable(
+                        &ReturnNilInPredicateMethodDefinition,
+                        source
+                    ),
+                    expected,
+                    "{source}"
+                );
+            }
         }
     }
     #[test]
@@ -216,7 +277,7 @@ mod tests {
             assert!(
                 correction_offenses(&ReturnNilInPredicateMethodDefinition, &source)
                     .iter()
-                    .all(|o| o.correction.is_none())
+                    .all(|o| o.correction.is_some())
             );
         }
         for body in [

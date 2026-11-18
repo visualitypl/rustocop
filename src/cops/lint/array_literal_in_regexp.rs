@@ -1,7 +1,7 @@
 //! `Lint/ArrayLiteralInRegexp` — direct array-valued regexp interpolations.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ pub struct ArrayLiteralInRegexp;
 impl Cop for ArrayLiteralInRegexp {
     fn name(&self) -> &'static str {
         "Lint/ArrayLiteralInRegexp"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_embedded_statements_node().is_some()
@@ -43,15 +46,28 @@ impl Cop for ArrayLiteralInRegexp {
         };
         let mut character_class = true;
         let mut literal = true;
+        let mut values = Vec::new();
         for element in array.elements().iter() {
-            match single_character(&element, file) {
-                Some(single) => character_class &= single,
+            match literal_value(&element, file) {
+                Some((single, value)) => {
+                    character_class &= single;
+                    values.push(regexp_escape(&value));
+                }
                 None => {
                     literal = false;
                     break;
                 }
             }
         }
+        // Each value's `to_s`, escaped, as a character class or alternation.
+        let correction = (literal && cx.corrections_requested()).then(|| Correction {
+            range: node.location().start_offset()..node.location().end_offset(),
+            replacement: if character_class {
+                format!("[{}]", values.concat())
+            } else {
+                format!("(?:{})", values.join("|"))
+            },
+        });
         let category = if !literal {
             "alternation or a character class"
         } else if character_class {
@@ -67,7 +83,7 @@ impl Cop for ArrayLiteralInRegexp {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction,
         });
     }
 }
@@ -75,18 +91,30 @@ impl Cop for ArrayLiteralInRegexp {
 // Only the pinned str/sym/int/float/true/false/nil types, not constant flow,
 // grouping, calls, nested arrays or rational/imaginary literals. Float#to_s
 // always has more than one character; integer spelling is irrelevant (0x1).
-fn single_character(node: &Node<'_>, file: &SourceFile) -> Option<bool> {
+/// Whether the value's `to_s` is one character, and that `to_s` (rubocop-ast's
+/// `value`, or the source of `true`, `false` and `nil`).
+fn literal_value(node: &Node<'_>, file: &SourceFile) -> Option<(bool, String)> {
     match node {
         Node::IntegerNode { .. } => {
             let value = node.as_integer_node().unwrap().value();
             let (negative, words) = value.to_u32_digits();
-            Some(words.len() == 1 && (words[0] == 0 || (!negative && words[0] < 10)))
+            Some((
+                words.len() == 1 && (words[0] == 0 || (!negative && words[0] < 10)),
+                crate::cops::style::redundant_format::integer_to_s(node),
+            ))
         }
-        Node::FloatNode { .. }
-        | Node::TrueNode { .. }
-        | Node::FalseNode { .. }
-        | Node::NilNode { .. } => Some(false),
-        Node::SourceLineNode { .. } => Some(file.line_of(node.location().start_offset()) < 10),
+        Node::FloatNode { .. } => Some((
+            false,
+            crate::cops::style::redundant_format::float_to_s(node.as_float_node().unwrap().value()),
+        )),
+        Node::TrueNode { .. } | Node::FalseNode { .. } | Node::NilNode { .. } => Some((
+            false,
+            String::from_utf8_lossy(node.location().as_slice()).into_owned(),
+        )),
+        Node::SourceLineNode { .. } => {
+            let line = file.line_of(node.location().start_offset());
+            Some((line < 10, line.to_string()))
+        }
         Node::StringNode { .. } => {
             let s = node.as_string_node().unwrap();
             let opening = s.opening_loc();
@@ -114,7 +142,10 @@ fn single_character(node: &Node<'_>, file: &SourceFile) -> Option<bool> {
             {
                 return None;
             }
-            Some(character_count(&parts[0], file) == 1)
+            Some((
+                character_count(&parts[0], file) == 1,
+                String::from_utf8_lossy(&parts[0]).into_owned(),
+            ))
         }
         Node::InterpolatedStringNode { .. } => {
             let s = node.as_interpolated_string_node().unwrap();
@@ -145,7 +176,12 @@ fn single_character(node: &Node<'_>, file: &SourceFile) -> Option<bool> {
                     }
                 }
             }
-            (children.len() == 1).then(|| character_count(&children[0], file) == 1)
+            (children.len() == 1).then(|| {
+                (
+                    character_count(&children[0], file) == 1,
+                    String::from_utf8_lossy(&children[0]).into_owned(),
+                )
+            })
         }
         Node::SymbolNode { .. } => {
             let s = node.as_symbol_node().unwrap();
@@ -169,19 +205,47 @@ fn single_character(node: &Node<'_>, file: &SourceFile) -> Option<bool> {
                 single,
                 file,
             );
-            (parts.len() == 1).then(|| character_count(&parts[0], file) == 1)
+            (parts.len() == 1).then(|| {
+                (
+                    character_count(&parts[0], file) == 1,
+                    String::from_utf8_lossy(&parts[0]).into_owned(),
+                )
+            })
         }
-        Node::SourceFileNode { .. } => Some(
-            file.source_path()
-                .as_os_str()
-                .as_encoded_bytes()
-                .utf8_chunks()
-                .map(|c| c.valid().chars().count() + c.invalid().len())
-                .sum::<usize>()
-                == 1,
-        ),
+        Node::SourceFileNode { .. } => {
+            let path = file.source_path().as_os_str().as_encoded_bytes();
+            Some((
+                path.utf8_chunks()
+                    .map(|c| c.valid().chars().count() + c.invalid().len())
+                    .sum::<usize>()
+                    == 1,
+                String::from_utf8_lossy(path).into_owned(),
+            ))
+        }
         _ => None,
     }
+}
+
+/// Ruby's `Regexp.escape`.
+fn regexp_escape(value: &str) -> String {
+    let mut out = String::new();
+    for c in value.chars() {
+        match c {
+            '\n' => out.push_str("\\n"),
+            '\t' => out.push_str("\\t"),
+            '\r' => out.push_str("\\r"),
+            '\x0c' => out.push_str("\\f"),
+            '\x0b' => out.push_str("\\v"),
+            ' ' => out.push_str("\\ "),
+            '[' | ']' | '{' | '}' | '(' | ')' | '|' | '-' | '*' | '.' | '\\' | '?' | '+' | '^'
+            | '$' | '#' => {
+                out.push('\\');
+                out.push(c);
+            }
+            c => out.push(c),
+        }
+    }
+    out
 }
 // These cops retain the reference buffer's leading BOM character in columns.
 // Reuse the accepted encoding projection without changing prior cop policies.

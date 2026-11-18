@@ -201,6 +201,15 @@ pub fn space_right(source: &[u8], mut pos: usize) -> usize {
     pos
 }
 
+/// RuboCop's `range_with_surrounding_space(side: :right, newlines: false)`
+/// end: spaces and tabs only.
+pub fn space_right_blank(source: &[u8], mut pos: usize) -> usize {
+    while matches!(source.get(pos), Some(b' ' | b'\t')) {
+        pos += 1;
+    }
+    pos
+}
+
 /// RuboCop's `range_with_surrounding_space(side: :left)` start: spaces and
 /// tabs, then line breaks, before `pos`.
 pub fn space_left(source: &[u8], mut pos: usize) -> usize {

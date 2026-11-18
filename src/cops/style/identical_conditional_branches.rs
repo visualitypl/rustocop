@@ -1,12 +1,12 @@
 //! `Style/IdenticalConditionalBranches` — common branch heads and tails.
-//! Detection only: hoisting can reorder effects and change return values.
+//! Unsafe correction: hoisting can reorder effects and change return values.
 
 use crate::{
     cops::{
         Cop, NodeContext, ast,
         walk::{NodeVisitor, walk},
     },
-    offense::{Offense, single_line},
+    offense::{Correction, Offense, single_line},
     source::SourceFile,
 };
 use ruby_prism::{Node, StatementsNode};
@@ -19,6 +19,9 @@ thread_local! {
 impl Cop for IdenticalConditionalBranches {
     fn name(&self) -> &'static str {
         "Style/IdenticalConditionalBranches"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -34,12 +37,28 @@ impl Cop for IdenticalConditionalBranches {
             return;
         };
         let tails: Vec<_> = edges.iter().map(|b| &b.1).collect();
-        let emit = |expressions: &[&Node<'_>], out: &mut Vec<Offense>| {
+        // Upstream's correctors remove each reported expression; the first
+        // also inserts it before (heads) or after (tails) the conditional.
+        // One correction per offense: the first offense carries the group.
+        let correctable = cx.corrections_requested()
+            && !node
+                .as_if_node()
+                .map(|n| n.then_keyword_loc())
+                .or_else(|| node.as_unless_node().map(|n| n.then_keyword_loc()))
+                .is_some_and(|then| then.is_some());
+        let emit = |expressions: &[&Node<'_>], after: bool, out: &mut Vec<Offense>| {
             let mut seen = file.identical_branch_edges().lock().unwrap();
+            let first = out.len();
+            let mut edits = Vec::new();
+            let mut lead = None;
             for expression in expressions {
                 let loc = expression.location();
                 if !seen.insert((loc.start_offset(), loc.end_offset())) {
                     continue;
+                }
+                if correctable {
+                    edits.push((removal_range(expression, file), String::new()));
+                    lead.get_or_insert(*expression);
                 }
                 let (line, col) = file.line_col(loc.start_offset());
                 out.push(Offense {
@@ -55,9 +74,13 @@ impl Cop for IdenticalConditionalBranches {
                     correction: None,
                 });
             }
+            if let (Some(offense), Some(expression)) = (out.get_mut(first), lead) {
+                edits.extend(insertion(node, cx.parent(), expression, after, file));
+                offense.correction = Correction::from_edits(&file.bytes, edits);
+            }
         };
         if duplicated(&tails, condition.as_ref(), file) {
-            emit(&tails, out);
+            emit(&tails, true, out);
         }
         // Hoisting a sole branch head can discard a consumed return value.
         if edges.iter().any(|b| b.2) && last_child_of_parent(node, cx) {
@@ -73,7 +96,88 @@ impl Cop for IdenticalConditionalBranches {
         {
             return;
         }
-        emit(&heads, out);
+        emit(&heads, false, out);
+    }
+}
+
+/// Upstream's `removal_range`: the expression's whole lines when it is alone
+/// on them, else the expression with an adjacent `;` separator, else with
+/// the spaces after it.
+fn removal_range(expression: &Node<'_>, file: &SourceFile) -> std::ops::Range<usize> {
+    let loc = expression.location();
+    let range = loc.start_offset()..loc.end_offset();
+    let lines = super::correction::whole_lines(file, range.clone());
+    let strip = |b: &u8| b.is_ascii_whitespace() || *b == 0 || *b == 0x0b;
+    let text = &file.bytes[lines.clone()];
+    let start = text.iter().position(|b| !strip(b)).unwrap_or(text.len());
+    let end = text
+        .iter()
+        .rposition(|b| !strip(b))
+        .map_or(start, |i| i + 1);
+    if &text[start..end] == loc.as_slice() {
+        return lines;
+    }
+    let bytes = &file.bytes;
+    let blank = |b: &u8| matches!(b, b' ' | b'\t');
+    let mut after = range.end;
+    while bytes.get(after).is_some_and(blank) {
+        after += 1;
+    }
+    if bytes.get(after) == Some(&b';') {
+        after += 1;
+        while bytes.get(after).is_some_and(blank) {
+            after += 1;
+        }
+        return range.start..after;
+    }
+    let mut before = range.start;
+    while before > 0 && blank(&bytes[before - 1]) {
+        before -= 1;
+    }
+    if before > 0 && bytes[before - 1] == b';' {
+        before -= 1;
+        while before > 0 && blank(&bytes[before - 1]) {
+            before -= 1;
+        }
+        return before..range.end;
+    }
+    range.start..crate::offense::space_right_blank(bytes, range.end)
+}
+
+/// `correct_assignment` / `correct_no_assignment`.
+fn insertion(
+    node: &Node<'_>,
+    parent: Option<&Node<'_>>,
+    expression: &Node<'_>,
+    after: bool,
+    file: &SourceFile,
+) -> Vec<(std::ops::Range<usize>, String)> {
+    let text = String::from_utf8_lossy(expression.location().as_slice()).into_owned();
+    let column = |offset: usize| " ".repeat(file.line_col(offset).1 as usize - 1);
+    let (start, end) = (node.location().start_offset(), node.location().end_offset());
+    match parent.filter(|p| super::and_or::is_assignment(p)) {
+        Some(parent) => {
+            let parent_start = parent.location().start_offset();
+            let indentation = column(parent_start);
+            if after {
+                let assignment =
+                    String::from_utf8_lossy(&file.bytes[parent_start..start]).into_owned();
+                vec![
+                    (parent_start..start, String::new()),
+                    (end..end, format!("\n{indentation}{assignment}{text}")),
+                ]
+            } else {
+                vec![(parent_start..parent_start, format!("{text}\n{indentation}"))]
+            }
+        }
+        None => {
+            let indentation = column(start);
+            if after {
+                vec![(end..end, format!("\n{indentation}{text}"))]
+            } else {
+                vec![(start..start, format!("{text}\n{indentation}"))]
+            }
+        }
     }
 }
 

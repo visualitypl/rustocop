@@ -220,7 +220,7 @@ fn correct_other(node: &Node<'_>, last: bool, edits: &mut Edits) {
 
 /// rubocop-ast's `assignment?`: variable, constant, multiple and shorthand
 /// assignments (a setter call is a send).
-fn is_assignment(node: &Node<'_>) -> bool {
+pub(crate) fn is_assignment(node: &Node<'_>) -> bool {
     matches!(
         node,
         Node::LocalVariableWriteNode { .. }

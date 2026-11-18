@@ -1,7 +1,7 @@
 //! `Lint/UselessTimes` — literal Integer#times calls yielding at most once.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,10 +10,13 @@ impl Cop for UselessTimes {
     fn name(&self) -> &'static str {
         "Lint/UselessTimes"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -77,6 +80,10 @@ impl Cop for UselessTimes {
         } else {
             return;
         };
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(node, cx, &count, file))
+            .flatten();
         let (line, col) = super::array_literal_in_regexp::reference_line_col(
             node.location().start_offset(),
             file,
@@ -90,10 +97,217 @@ impl Cop for UselessTimes {
             // assignment getters stop at the selector, excluding the RHS.
             end_line,
             message: format!("Useless call to `{count}.times` detected."),
-            correction: None,
+            correction,
         });
     }
 }
+/// Upstream's `autocorrect`, skipped unless the call starts its line and its
+/// parent is not a send: a count below one removes the call's lines, a
+/// block pass becomes the method name, and a reducible block its body.
+fn correction(
+    node: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    count: &str,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let start = node.location().start_offset();
+    let line_start = file.line_start(file.line_of(start));
+    if !file.bytes[line_start..start]
+        .iter()
+        .all(u8::is_ascii_whitespace)
+    {
+        return None;
+    }
+    if cx
+        .ancestors()
+        .find(|n| n.as_arguments_node().is_none())
+        .and_then(|p| p.as_call_node())
+        .is_some_and(|p| !p.is_safe_navigation())
+    {
+        return None;
+    }
+    // A compound write's getter send ends at its selector.
+    let (end, call) = match node.as_call_node() {
+        Some(call) => (node.location().end_offset(), Some(call)),
+        None => {
+            let end = match node {
+                Node::CallOperatorWriteNode { .. } => {
+                    node.as_call_operator_write_node()?.message_loc()?
+                }
+                Node::CallOrWriteNode { .. } => node.as_call_or_write_node()?.message_loc()?,
+                _ => node.as_call_and_write_node()?.message_loc()?,
+            };
+            (end.end_offset(), None)
+        }
+    };
+    let block = call.as_ref().and_then(|c| c.block());
+    let literal = block.as_ref().and_then(|b| b.as_block_node());
+    if count.starts_with('-')
+        || count == "0"
+        || literal.as_ref().is_some_and(|b| b.body().is_none())
+    {
+        return Some(Correction {
+            range: super::super::style::correction::whole_lines(file, start..end),
+            replacement: String::new(),
+        });
+    }
+    if let Some(pass) = block.as_ref().and_then(|b| b.as_block_argument_node()) {
+        let symbol = pass.expression()?;
+        return Some(Correction {
+            range: start..end,
+            replacement: String::from_utf8_lossy(symbol.as_symbol_node()?.unescaped()).into_owned(),
+        });
+    }
+    let literal = literal?;
+    let body = literal.body()?;
+    // reducible_to_body?: at most one argument, a plain one, not reassigned,
+    // and no `next`/`break`/`redo` bound to this block.
+    let argument = match literal.parameters() {
+        None => None,
+        // Upstream corrects only `block_type?`, not numbered/`it` blocks.
+        Some(p) => match p.as_block_parameters_node()?.parameters() {
+            None => None,
+            Some(list) => {
+                let total = list.requireds().len()
+                    + list.optionals().len()
+                    + list.posts().len()
+                    + usize::from(list.rest().is_some())
+                    + list.keywords().len()
+                    + usize::from(list.keyword_rest().is_some())
+                    + usize::from(list.block().is_some());
+                if total > 1 {
+                    return None;
+                }
+                let required = list.requireds().iter().next();
+                match required
+                    .as_ref()
+                    .and_then(|r| r.as_required_parameter_node())
+                {
+                    Some(r) if total == 1 => Some(r.name().as_slice().to_vec()),
+                    _ if total == 1 => return None,
+                    _ => None,
+                }
+            }
+        },
+    };
+    if orphans_loop_control(&body) || argument.as_ref().is_some_and(|name| reassigns(&body, name)) {
+        return None;
+    }
+    let mut source = String::from_utf8_lossy(body.location().as_slice()).into_owned();
+    if let Some(name) = &argument {
+        source = replace_word(&source, &String::from_utf8_lossy(name), "0");
+    }
+    // fix_indentation: drop the characters between the block's and the
+    // body's columns from every later nonempty line.
+    let column = |offset: usize| file.line_col(offset).1 as usize - 1;
+    let (from, to) = (column(start), column(body.location().start_offset()));
+    let mut lines = source.split('\n').map(str::to_owned).collect::<Vec<_>>();
+    for line in lines.iter_mut().skip(1) {
+        if line.is_empty() {
+            continue;
+        }
+        let chars: Vec<char> = line.chars().collect();
+        if from > chars.len() {
+            return None; // upstream raises IndexError
+        }
+        *line = chars[..from]
+            .iter()
+            .chain(chars[to.min(chars.len()).max(from)..].iter())
+            .collect();
+    }
+    Some(Correction {
+        range: start..end,
+        replacement: lines.join("\n"),
+    })
+}
+
+/// `source.gsub(/\b#{name}\b/, replacement)`.
+fn replace_word(source: &str, name: &str, replacement: &str) -> String {
+    let word = |c: Option<char>| c.is_some_and(|c| c.is_alphanumeric() || c == '_');
+    let mut out = String::new();
+    let mut rest = source;
+    while let Some(i) = rest.find(name) {
+        let before = if i > 0 {
+            rest[..i].chars().last()
+        } else {
+            out.chars().last()
+        };
+        let after = rest[i + name.len()..].chars().next();
+        out.push_str(&rest[..i]);
+        if !word(before) && !word(after) {
+            out.push_str(replacement);
+        } else {
+            out.push_str(name);
+        }
+        rest = &rest[i + name.len()..];
+    }
+    out.push_str(rest);
+    out
+}
+
+/// `block_reassigns_arg?`: upstream's `(lvasgn %)` has one child, so it
+/// matches only childless targets (multiple assignment, `for`, `rescue =>`),
+/// not a plain `i = value`.
+fn reassigns(body: &Node<'_>, name: &[u8]) -> bool {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Finder<'a>(&'a [u8], bool);
+    impl<'pr> NodeVisitor<'pr> for Finder<'_> {
+        fn enter(&mut self, node: Node<'pr>) {
+            if let Some(t) = node.as_local_variable_target_node() {
+                self.1 |= t.name().as_slice() == self.0;
+            }
+        }
+    }
+    let mut finder = Finder(name, false);
+    walk(&mut finder, body);
+    finder.1
+}
+
+/// `orphans_loop_control_keyword?`: a `next`, `break` or `redo` not inside a
+/// nested block or loop.
+fn orphans_loop_control(body: &Node<'_>) -> bool {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Finder {
+        depth: usize,
+        found: bool,
+        stack: Vec<bool>,
+    }
+    impl<'pr> NodeVisitor<'pr> for Finder {
+        fn enter(&mut self, node: Node<'pr>) {
+            if self.depth == 0
+                && matches!(
+                    node,
+                    Node::NextNode { .. } | Node::BreakNode { .. } | Node::RedoNode { .. }
+                )
+            {
+                self.found = true;
+            }
+            let scope = matches!(
+                node,
+                Node::BlockNode { .. }
+                    | Node::LambdaNode { .. }
+                    | Node::WhileNode { .. }
+                    | Node::UntilNode { .. }
+                    | Node::ForNode { .. }
+            );
+            self.depth += usize::from(scope);
+            self.stack.push(scope);
+        }
+        fn leave(&mut self) {
+            if self.stack.pop() == Some(true) {
+                self.depth -= 1;
+            }
+        }
+    }
+    let mut finder = Finder {
+        depth: 0,
+        found: false,
+        stack: Vec::new(),
+    };
+    walk(&mut finder, body);
+    finder.found
+}
+
 // Prism represents empty quoted symbols as SymbolNode too. The pinned
 // parser translator composes zero parts into dsym, one into sym, and multiple
 // physical string parts into dsym. A nonempty Unicode escape such as \\u{}

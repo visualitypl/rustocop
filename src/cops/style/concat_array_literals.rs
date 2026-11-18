@@ -1,7 +1,7 @@
-//! `Style/ConcatArrayLiterals` — detection only (unsafe mutation/dispatch).
+//! `Style/ConcatArrayLiterals` — unsafe correction (mutation/dispatch).
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Offense, single_line},
+    offense::{Correction, Offense, single_line},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ impl Cop for ConcatArrayLiterals {
     fn name(&self) -> &'static str {
         "Style/ConcatArrayLiterals"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for ConcatArrayLiterals {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -34,37 +37,71 @@ impl Cop for ConcatArrayLiterals {
         let Some(selector) = call.message_loc() else {
             return;
         };
-        let end = ast::source_end(node);
+        let end = crate::cops::bundler::ordered_gem_node::send_end(&call);
         let current = single_line(&file.bytes[selector.start_offset()..end]);
         let mut elements = Vec::new();
         let mut dynamic = false;
-        for arg in args {
+        let mut percent_any = false;
+        for arg in &args {
             let array = arg.as_array_node().unwrap();
             let percent = array
                 .opening_loc()
                 .is_some_and(|l| l.as_slice().starts_with(b"%"));
+            percent_any |= percent;
             for element in array.elements().iter() {
                 if percent {
                     if let Some(s) = element.as_string_node() {
-                        elements.push(inspect(s.unescaped(), false));
+                        let mut out = Vec::new();
+                        crate::cops::lint::duplicate_match_pattern::inspect_source(
+                            s.unescaped(),
+                            file,
+                            &mut out,
+                        );
+                        elements.push(String::from_utf8_lossy(&out).into_owned());
                     } else if let Some(s) = element.as_symbol_node() {
-                        elements.push(inspect(s.unescaped(), true));
+                        let out = crate::cops::lint::symbol_conversion::inspect_symbol(
+                            s.unescaped(),
+                            file,
+                            false,
+                        );
+                        elements.push(String::from_utf8_lossy(&out).into_owned());
                     } else {
                         dynamic = true;
                     }
                 } else {
-                    elements.push(single_line(element.location().as_slice()));
+                    elements
+                        .push(String::from_utf8_lossy(element.location().as_slice()).into_owned());
                 }
             }
         }
+        let prefer = format!("push({})", elements.join(", "));
+        let correction = if !cx.corrections_requested() || (percent_any && dynamic) {
+            None
+        } else if percent_any
+            || args
+                .iter()
+                .any(|a| a.as_array_node().unwrap().elements().is_empty())
+        {
+            // rebuild_call, unless a comment inside would be lost.
+            let comment = file
+                .comments()
+                .iter()
+                .any(|c| selector.start_offset() <= c.start && c.end <= end);
+            (!comment).then(|| Correction {
+                range: selector.start_offset()..end,
+                replacement: prefer.clone(),
+            })
+        } else {
+            remove_brackets(&call, &args, &selector, end, file)
+        };
         let message = if dynamic {
             format!(
                 "Use `push` with elements as arguments without array brackets instead of `{current}`."
             )
         } else {
             format!(
-                "Use `push({})` instead of `{current}`.",
-                elements.join(", ")
+                "Use `{}` instead of `{current}`.",
+                single_line(prefer.as_bytes())
             )
         };
         let (line, col) = file.line_col(selector.start_offset());
@@ -75,45 +112,51 @@ impl Cop for ConcatArrayLiterals {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
-// Diagnostic spelling only, NEVER used to construct an edit. Decode percent
-// elements from the main AST rather than treating escaped delimiters as Ruby.
-fn inspect(bytes: &[u8], symbol: bool) -> String {
-    if symbol
-        && bytes
-            .first()
-            .is_some_and(|b| b.is_ascii_alphabetic() || *b == b'_')
-        && bytes
-            .iter()
-            .all(|b| b.is_ascii_alphanumeric() || b"_!?=".contains(b))
-    {
-        return format!(":{}", String::from_utf8_lossy(bytes));
-    }
-    let mut s = if symbol {
-        ":\"".to_string()
-    } else {
-        "\"".to_string()
-    };
-    for c in String::from_utf8_lossy(bytes).chars() {
-        match c {
-            '\n' => s.push_str("\\n"),
-            '\r' => s.push_str("\\r"),
-            '\t' => s.push_str("\\t"),
-            '\\' => s.push_str("\\\\"),
-            '"' => s.push_str("\\\""),
-            '#' => s.push_str("\\#"),
-            c if c.is_control() => {
-                use std::fmt::Write;
-                let _ = write!(s, "\\u{{{:x}}}", u32::from(c));
-            }
-            c => s.push(c),
+/// Upstream's `remove_brackets`: `concat` becomes `push` and the brackets
+/// go, unless something other than commas and whitespace precedes a `]`.
+fn remove_brackets(
+    call: &ruby_prism::CallNode<'_>,
+    args: &[Node<'_>],
+    selector: &ruby_prism::Location<'_>,
+    end: usize,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    let mut edits = Vec::new();
+    for (index, arg) in args.iter().enumerate() {
+        let array = arg.as_array_node()?;
+        let close = array.closing_loc()?;
+        let closing = if index + 1 == args.len() {
+            span(&close)
+        } else {
+            array.elements().iter().last()?.location().end_offset()..close.end_offset()
+        };
+        let text = &file.bytes[closing.clone()];
+        if !(text.ends_with(b"]")
+            && text[..text.len() - 1]
+                .iter()
+                .all(|b| b.is_ascii_whitespace() || *b == b','))
+        {
+            return None;
         }
+        edits.push((span(&array.opening_loc()?), String::new()));
+        edits.push((closing, String::new()));
     }
-    s.push('"');
-    s
+    let start = selector.start_offset();
+    let single =
+        file.line_of(call.location().start_offset()) == file.line_of(end.saturating_sub(1));
+    if call.opening_loc().is_some() || single {
+        edits.push((span(selector), "push".into()));
+    } else {
+        edits.push((start..args[0].location().start_offset(), "push(".into()));
+        let at = args.last()?.as_array_node()?.closing_loc()?.end_offset();
+        edits.push((at..at, ")".into()));
+    }
+    Correction::from_edits(&file.bytes, edits)
 }
 #[cfg(test)]
 mod tests {
@@ -201,7 +244,7 @@ mod tests {
         }
     }
     #[test]
-    fn pinned_multiline_comments_heredocs_and_empty_arrays_are_detection_only() {
+    fn pinned_multiline_comments_heredocs_and_empty_arrays() {
         use crate::cops::testing::correction_offenses;
         assert!(!ConcatArrayLiterals.safe_fixes());
         for (s, prefer, end) in [
@@ -253,10 +296,49 @@ mod tests {
                 "{}",
                 o[0].message
             );
-            assert!(o[0].correction.is_none());
+        }
+        // RuboCop 1.92 (pinned) `-A --only Style/ConcatArrayLiterals` output.
+        for (s, fixed) in [
+            (
+                "arr.concat([\n  foo,\n  bar\n])",
+                "arr.push(\n  foo,\n  bar\n)",
+            ),
+            (
+                "arr.concat([\n foo,\n], [\n bar,\n])",
+                "arr.push(\n foo, \n bar,\n)",
+            ),
+            (
+                "arr.concat [\n foo,\n bar,\n]",
+                "arr.push(\n foo,\n bar,\n)",
+            ),
+            (
+                "arr.concat [foo,\n bar\n] if baz",
+                "arr.push(foo,\n bar\n) if baz",
+            ),
+            ("arr&.concat [foo], [\n bar\n]", "arr&.push(foo, \n bar\n)"),
+            (
+                "arr.concat([\n foo # comment\n], [\n bar\n])",
+                "arr.concat([\n foo # comment\n], [\n bar\n])",
+            ),
+            (
+                "arr.concat([ # keep me\n], [\n 'b' # and me\n])",
+                "arr.concat([ # keep me\n], [\n 'b' # and me\n])",
+            ),
+            (
+                "arr.concat(%w[a], [\n b # comment\n])",
+                "arr.concat(%w[a], [\n b # comment\n])",
+            ),
+            ("arr.concat([], [], %w[])", "arr.push()"),
+            (
+                "arr.concat([[a]], [*b], [effect()])",
+                "arr.push([a], *b, effect())",
+            ),
+            ("concat([a]) {\n effect\n}", "push(a) {\n effect\n}"),
+        ] {
             assert_eq!(
-                crate::corrections::apply(s.as_bytes(), &o).unwrap().bytes,
-                s.as_bytes()
+                crate::cops::testing::fix_until_stable(&ConcatArrayLiterals, s),
+                fixed,
+                "{s}"
             );
         }
     }

@@ -228,7 +228,7 @@ pub(crate) mod redundant_exception;
 mod redundant_fetch_block;
 mod redundant_file_extension_in_require;
 mod redundant_filter_chain;
-mod redundant_format;
+pub(crate) mod redundant_format;
 pub(crate) mod redundant_freeze;
 mod redundant_heredoc_delimiter_quotes;
 pub(crate) mod redundant_initialize;
