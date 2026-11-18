@@ -1,7 +1,7 @@
-//! `Style/RedundantInterpolation` — detection only (upstream fixes are unsafe).
+//! `Style/RedundantInterpolation` — `to_s` for a lone interpolation.
 use crate::{
-    cops::{Cop, NodeContext},
-    offense::Offense,
+    cops::{Cop, NodeContext, ast},
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -9,6 +9,9 @@ pub struct RedundantInterpolation;
 impl Cop for RedundantInterpolation {
     fn name(&self) -> &'static str {
         "Style/RedundantInterpolation"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_interpolated_string_node().is_some()
@@ -72,6 +75,11 @@ impl Cop for RedundantInterpolation {
         } else if part.as_embedded_variable_node().is_none() {
             return;
         }
+        let correction = if cx.corrections_requested() {
+            correction(node, &part, file)
+        } else {
+            None
+        };
         let (line, col) = file.line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -80,17 +88,86 @@ impl Cop for RedundantInterpolation {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction,
         });
     }
 }
+/// `autocorrect_variable_interpolation`, `..._single_variable_interpolation`
+/// or `autocorrect_other`.
+fn correction(node: &Node<'_>, part: &Node<'_>, file: &SourceFile) -> Option<Correction> {
+    let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+    let whole = node.location().start_offset()..node.location().end_offset();
+    if let Some(variable) = part.as_embedded_variable_node() {
+        return Some(Correction {
+            range: whole,
+            replacement: format!("{}.to_s", text(&variable.variable())),
+        });
+    }
+    let embedded = part.as_embedded_statements_node()?;
+    let statements = embedded.statements();
+    let single = statements
+        .as_ref()
+        .filter(|s| s.body().len() == 1)
+        .and_then(|s| s.body().iter().next());
+    if let Some(child) = single {
+        let variable = matches!(
+            child,
+            Node::LocalVariableReadNode { .. }
+                | Node::InstanceVariableReadNode { .. }
+                | Node::ClassVariableReadNode { .. }
+                | Node::GlobalVariableReadNode { .. }
+                | Node::NumberedReferenceReadNode { .. }
+                | Node::BackReferenceReadNode { .. }
+        );
+        let send = child.as_call_node().filter(|c| {
+            !c.is_safe_navigation()
+                && c.block().is_none_or(|b| b.as_block_node().is_none())
+                && !ast::is_operator_method(c.name().as_slice())
+        });
+        if variable || send.is_some() {
+            let source = match send {
+                Some(call)
+                    if !ast::call_arguments(&call).is_empty() && call.opening_loc().is_none() =>
+                {
+                    let selector_end = call.message_loc()?.end_offset();
+                    let receiver = &file.bytes[child.location().start_offset()..selector_end];
+                    let arguments: Vec<String> =
+                        ast::call_arguments(&call).iter().map(text).collect();
+                    format!(
+                        "{}({})",
+                        String::from_utf8_lossy(receiver),
+                        arguments.join(", ")
+                    )
+                }
+                _ => text(&child),
+            };
+            return Some(Correction {
+                range: whole,
+                replacement: format!("{source}.to_s"),
+            });
+        }
+    }
+    let string = node.as_interpolated_string_node()?;
+    let (open, close) = (string.opening_loc()?, string.closing_loc()?);
+    let range = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    Correction::from_edits(
+        &file.bytes,
+        vec![
+            (range(&open), String::new()),
+            (range(&close), String::new()),
+            (range(&embedded.opening_loc()), "(".into()),
+            (range(&embedded.closing_loc()), ").to_s".into()),
+        ],
+    )
+}
+
 #[cfg(test)]
 mod tests {
     //! RuboCop redundant_interpolation_spec.rb (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
     use super::*;
     use crate::pipeline::lint_str;
     #[test]
-    fn pinned_offenses_are_detection_only() {
+    fn pinned_offenses_are_corrected() {
         for expr in [
             "1 + 1",
             "1 + 1; 2 + 2",
@@ -117,7 +194,7 @@ mod tests {
                 assert!(
                     crate::cops::testing::correction_offenses(&RedundantInterpolation, &src)[0]
                         .correction
-                        .is_none()
+                        .is_some()
                 );
             }
         }

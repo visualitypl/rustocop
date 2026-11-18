@@ -14,6 +14,11 @@ impl Cop for ItBlockParameter {
     fn safe_fixes(&self) -> bool {
         true
     }
+    /// Upstream's Style/For lists this cop as autocorrect-incompatible and
+    /// runs first.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
+        &["Style/For"]
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

@@ -1,10 +1,13 @@
-//! `Style/For` — prefer `each` over `for` (fixed policy, detection only).
+//! `Style/For` — prefer `each` over `for` (fixed policy).
 //!
 //! Every `for` is reported, including single-line and empty loops. Changing
 //! one to `each` is unsafe: loop variables and body locals have different scopes.
 use crate::{
-    cops::{Cop, NodeContext},
-    offense::Offense,
+    cops::{
+        Cop, NodeContext, ast,
+        walk::{NodeVisitor, walk},
+    },
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -16,6 +19,10 @@ impl Cop for For {
         "Style/For"
     }
 
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_for_node().is_some()
     }
@@ -23,7 +30,7 @@ impl Cop for For {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -38,9 +45,102 @@ impl Cop for For {
             line,
             col,
             end_line: file.last_line_of(loop_node.location()),
-            correction: None,
+            correction: if cx.corrections_requested() {
+                correction(&loop_node)
+            } else {
+                None
+            },
         });
     }
+}
+
+/// `ForToEachCorrector`, when `convertible_to_each?`.
+fn correction(node: &ruby_prism::ForNode<'_>) -> Option<Correction> {
+    if !local_targets(&node.index())
+        || node
+            .statements()
+            .is_some_and(|b| implicit_parameter(&b.as_node()))
+    {
+        return None;
+    }
+    let collection = node.collection();
+    let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+    let call = collection.as_call_node();
+    let parentheses = call
+        .as_ref()
+        .is_some_and(|c| !c.is_safe_navigation() && ast::is_operator_method(c.name().as_slice()))
+        || collection.as_range_node().is_some()
+        || collection.as_and_node().is_some()
+        || collection.as_or_node().is_some();
+    let source = if parentheses {
+        format!("({})", text(&collection))
+    } else {
+        text(&collection)
+    };
+    let dot = if call.is_some_and(|c| c.is_safe_navigation()) {
+        "&."
+    } else {
+        "."
+    };
+    let end = node
+        .do_keyword_loc()
+        .map_or(collection.location().end_offset(), |d| d.end_offset());
+    Some(Correction {
+        range: node.for_keyword_loc().start_offset()..end,
+        replacement: format!("{source}{dot}each do |{}|", text(&node.index())),
+    })
+}
+
+/// The loop variable is only local variable targets (`lvasgn`, `mlhs`, `splat`).
+fn local_targets(node: &Node<'_>) -> bool {
+    if let Some(multi) = node.as_multi_target_node() {
+        return multi
+            .lefts()
+            .iter()
+            .chain(multi.rest())
+            .chain(multi.rights().iter())
+            .all(|n| local_targets(&n));
+    }
+    if let Some(splat) = node.as_splat_node() {
+        return splat.expression().is_none_or(|e| local_targets(&e));
+    }
+    node.as_local_variable_target_node().is_some() || node.as_implicit_rest_node().is_some()
+}
+
+/// A reference to `_1`..`_9` or `it` outside any block of the body.
+fn implicit_parameter(body: &Node<'_>) -> bool {
+    struct Search {
+        blocks: Vec<bool>,
+        found: bool,
+    }
+    impl<'pr> NodeVisitor<'pr> for Search {
+        fn enter(&mut self, node: Node<'pr>) {
+            let name = |n: &[u8]| {
+                matches!(n, b"it")
+                    || (n.len() == 2 && n[0] == b'_' && (b'1'..=b'9').contains(&n[1]))
+            };
+            let implicit = node
+                .as_local_variable_read_node()
+                .is_some_and(|n| name(n.name().as_slice()))
+                || node.as_call_node().is_some_and(|c| {
+                    c.receiver().is_none() && c.arguments().is_none() && name(c.name().as_slice())
+                });
+            if implicit && !self.blocks.iter().any(|b| *b) {
+                self.found = true;
+            }
+            self.blocks
+                .push(node.as_block_node().is_some() || node.as_lambda_node().is_some());
+        }
+        fn leave(&mut self) {
+            self.blocks.pop();
+        }
+    }
+    let mut search = Search {
+        blocks: Vec::new(),
+        found: false,
+    };
+    walk(&mut search, body);
+    search.found
 }
 
 #[cfg(test)]
@@ -57,7 +157,7 @@ mod tests {
     }
 
     #[test]
-    fn every_applicable_pinned_call_has_exact_diagnostics_and_no_corrections() {
+    fn every_applicable_pinned_call_has_exact_diagnostics() {
         #[derive(serde::Deserialize)]
         struct Case {
             spec_line: u32,
@@ -85,7 +185,6 @@ mod tests {
             );
             let requested = crate::cops::testing::correction_offenses(&super::For, &case.source);
             assert_eq!(requested.len(), found.len());
-            assert!(requested.iter().all(|o| o.correction.is_none()));
         }
     }
 
@@ -177,7 +276,7 @@ mod tests {
         let found = crate::cops::testing::correction_offenses(&super::For, &source);
         assert_eq!(found.len(), 6_000);
         assert_eq!((found[5_999].line, found[5_999].col), (6_000, 1));
-        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(found.iter().all(|o| o.correction.is_some()));
         let source = format!(
             "{}work\n{}",
             "for x in items\n".repeat(20),

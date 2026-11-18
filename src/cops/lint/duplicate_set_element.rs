@@ -17,7 +17,7 @@ use crate::{
             short_const_name,
         },
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -70,6 +70,9 @@ impl Cop for DuplicateSetElement {
     fn name(&self) -> &'static str {
         "Lint/DuplicateSetElement"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -78,7 +81,7 @@ impl Cop for DuplicateSetElement {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -89,19 +92,23 @@ impl Cop for DuplicateSetElement {
             return;
         };
         let mut seen = HashSet::new();
-        for element in elements {
-            if !is_literal(&element) && !is_const(&element) && !is_variable(&element) {
+        for (index, element) in elements.iter().enumerate() {
+            if !is_literal(element) && !is_const(element) && !is_variable(element) {
                 continue;
             }
-            if seen.insert(fingerprint_for_duplicate(&element, file)) {
+            if seen.insert(fingerprint_for_duplicate(element, file)) {
                 continue;
             }
             let (line, col) = super::array_literal_in_regexp::reference_line_col(
                 element.location().start_offset(),
                 file,
             );
+            let correction = cx.corrections_requested().then(|| Correction {
+                range: elements[index - 1].location().end_offset()..element.location().end_offset(),
+                replacement: String::new(),
+            });
             out.push(Offense {
-                correction: None,
+                correction,
                 cop: self.name(),
                 severity: self.severity(),
                 message: format!("Remove the duplicate element in {class_name}."),

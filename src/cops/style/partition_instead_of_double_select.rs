@@ -1,8 +1,7 @@
 //! `Style/PartitionInsteadOfDoubleSelect` — adjacent complementary filters.
-//! Unsafe receiver/evaluation/Hash semantics: never emits corrections.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, CallNode, Node};
@@ -10,6 +9,9 @@ pub struct PartitionInsteadOfDoubleSelect;
 impl Cop for PartitionInsteadOfDoubleSelect {
     fn name(&self) -> &'static str {
         "Style/PartitionInsteadOfDoubleSelect"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_statements_node().is_some()
@@ -40,12 +42,18 @@ impl Cop for PartitionInsteadOfDoubleSelect {
         {
             return;
         }
+        let items: Vec<Node<'pr>> = statements.body().iter().collect();
         let mut previous = None;
-        for container in statements.body().iter() {
-            let current = candidate(&container);
+        for (index, container) in items.iter().enumerate() {
+            let current = candidate(container);
             if let (Some(first), Some(second)) = (previous, current.as_ref())
                 && matching(&first, second, file)
             {
+                let correction = if cx.corrections_requested() {
+                    correction(&items[index - 1], container, &first, second, file)
+                } else {
+                    None
+                };
                 let (line, col) = file.line_col(container.location().start_offset());
                 out.push(Offense {
                     cop: self.name(),
@@ -58,13 +66,75 @@ impl Cop for PartitionInsteadOfDoubleSelect {
                     line,
                     col,
                     end_line: file.last_line_of(container.location()),
-                    correction: None,
+                    correction,
                 });
             }
             previous = current;
         }
     }
 }
+fn is_select(call: &CallNode<'_>) -> bool {
+    call.name().as_slice() != b"reject"
+}
+
+/// Upstream's `autocorrect`, for two local variable assignments: the first
+/// becomes `select_var, reject_var = recv.partition ...`, the second line goes.
+fn correction(
+    sibling_container: &Node<'_>,
+    container: &Node<'_>,
+    sibling: &CallNode<'_>,
+    node: &CallNode<'_>,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let first = sibling_container.as_local_variable_write_node()?;
+    let second = container.as_local_variable_write_node()?;
+    let (first_var, second_var) = (
+        String::from_utf8_lossy(first.name().as_slice()),
+        String::from_utf8_lossy(second.name().as_slice()),
+    );
+    let (select_var, reject_var, partition) = if is_select(sibling) != is_select(node) {
+        if is_select(sibling) {
+            (first_var, second_var, sibling)
+        } else {
+            (second_var, first_var, node)
+        }
+    } else {
+        fn body<'pr>(c: &CallNode<'pr>) -> Option<Node<'pr>> {
+            c.block()?.as_block_node()?.body()
+        }
+        let node_negated = negated(body(node), body(sibling), file);
+        let partition = if node_negated { sibling } else { node };
+        if is_select(node) != node_negated {
+            (second_var, first_var, partition)
+        } else {
+            (first_var, second_var, partition)
+        }
+    };
+    // build_partition_call: the call's source with `partition` as selector.
+    let selector = partition.message_loc()?;
+    let start = partition.location().start_offset();
+    let end = partition.location().end_offset();
+    let call = format!(
+        "{}partition{}",
+        String::from_utf8_lossy(&file.bytes[start..selector.start_offset()]),
+        String::from_utf8_lossy(&file.bytes[selector.end_offset()..end])
+    );
+    // range_by_whole_lines(include_final_newline: true)
+    let lines_start = file.line_start(file.line_of(container.location().start_offset()));
+    let lines_end = file.line_start(file.last_line_of(container.location()) + 1);
+    Correction::from_edits(
+        &file.bytes,
+        vec![
+            (
+                sibling_container.location().start_offset()
+                    ..sibling_container.location().end_offset(),
+                format!("{select_var}, {reject_var} = {call}"),
+            ),
+            (lines_start..lines_end, String::new()),
+        ],
+    )
+}
+
 fn candidate<'pr>(container: &Node<'pr>) -> Option<CallNode<'pr>> {
     let value = assignment_value(container);
     let call = value.as_ref().unwrap_or(container).as_call_node()?;

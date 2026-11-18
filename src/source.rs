@@ -1859,7 +1859,7 @@ mod tests {
         let mut out = vec![];
         assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
         assert_eq!(out.len(), 12000);
-        assert!(out.iter().all(|o| o.correction.is_none()));
+        assert!(out.iter().all(|o| o.correction.is_some()));
         let facts = file.hash_each_facts.get().unwrap();
         assert!(facts.visits <= 6000 * 65 + 2, "{}", facts.visits);
         for _ in 0..6000 {

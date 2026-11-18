@@ -5,7 +5,7 @@ use crate::{
         variables::{ReferenceKind, ScopeAnalysis},
         walk::{NodeVisitor, walk},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, CallNode, Node};
@@ -14,6 +14,9 @@ pub struct HashEachMethods;
 impl Cop for HashEachMethods {
     fn name(&self) -> &'static str {
         "Style/HashEachMethods"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -76,11 +79,30 @@ impl Cop for HashEachMethods {
             } else {
                 "each_value"
             };
+            // correct_key_value_each: `hash.each_key`, keeping the dot.
+            let correction = if symbol_pass {
+                Some(Correction {
+                    range: start..end,
+                    replacement: prefer.into(),
+                })
+            } else {
+                kv.receiver()
+                    .zip(call.call_operator_loc())
+                    .map(|(hash, dot)| Correction {
+                        range: node.location().start_offset()..ast::source_end(node),
+                        replacement: format!(
+                            "{}{}{prefer}",
+                            String::from_utf8_lossy(hash.location().as_slice()),
+                            String::from_utf8_lossy(dot.as_slice())
+                        ),
+                    })
+            };
             report(
                 self,
                 file,
                 start..end,
                 format!("Use `{prefer}` instead of `{current}`."),
+                correction.filter(|_| cx.corrections_requested()),
                 out,
             );
             return;
@@ -97,12 +119,35 @@ impl Cop for HashEachMethods {
         if used_key == used_value {
             return;
         }
-        let (prefer, unused) = if used_key {
-            ("each_key", value)
+        let (prefer, unused, removal) = if used_key {
+            (
+                "each_key",
+                &value,
+                key.location().end_offset()..value.location().end_offset(),
+            )
         } else {
-            ("each_value", key)
+            (
+                "each_value",
+                &key,
+                key.location().start_offset()..value.location().start_offset(),
+            )
         };
         let unused = String::from_utf8_lossy(unused.location().as_slice());
+        let correction = call
+            .message_loc()
+            .filter(|_| cx.corrections_requested())
+            .and_then(|selector| {
+                Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (
+                            selector.start_offset()..selector.end_offset(),
+                            prefer.into(),
+                        ),
+                        (removal, String::new()),
+                    ],
+                )
+            });
         report(
             self,
             file,
@@ -110,6 +155,7 @@ impl Cop for HashEachMethods {
             format!(
                 "Use `{prefer}` instead of `each` and remove the unused `{unused}` block argument."
             ),
+            correction,
             out,
         );
     }
@@ -141,6 +187,7 @@ fn report(
     file: &SourceFile,
     range: Range<usize>,
     message: String,
+    correction: Option<Correction>,
     out: &mut Vec<Offense>,
 ) {
     let (line, col) = file.line_col(range.start);
@@ -151,7 +198,7 @@ fn report(
         line,
         col,
         end_line: file.line_of(range.end.saturating_sub(1)),
-        correction: None,
+        correction,
     });
 }
 
