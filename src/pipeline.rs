@@ -876,13 +876,23 @@ fn lint_file(
     }
     // Per-pass precedence of upstream-incompatible companions
     // (`Cop::autocorrect_deferred_to`): only companions' surviving edits defer.
+    // A companion's unsafe edits count only when `-A` applies them.
+    let applies = |name: &str| {
+        running.iter().any(|cop| {
+            cop.name() == name
+                && (cop.safe_fixes()
+                    || matches!(mode, CorrectionMode::Apply(p) if p.unsafe_fixes)
+                        && cop.unsafe_fixes())
+        })
+    };
     let deferring: Vec<&str> = running
         .iter()
         .filter(|cop| {
             cop.autocorrect_deferred_to().iter().any(|peer| {
-                offenses
-                    .iter()
-                    .any(|o| o.cop == *peer && o.correction.is_some())
+                applies(peer)
+                    && offenses
+                        .iter()
+                        .any(|o| o.cop == *peer && o.correction.is_some())
             })
         })
         .map(|cop| cop.name())

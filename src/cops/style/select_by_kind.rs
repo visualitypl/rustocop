@@ -1,7 +1,7 @@
-//! `Style/SelectByKind` — prefer grep/grep_v for a kind check (detection-only).
+//! `Style/SelectByKind` — prefer grep/grep_v for a kind check.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, Node};
@@ -10,6 +10,9 @@ impl Cop for SelectByKind {
     fn name(&self) -> &'static str {
         "Style/SelectByKind"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for SelectByKind {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -66,6 +69,19 @@ impl Cop for SelectByKind {
         } else {
             "grep"
         };
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let class = ast::call_arguments(&check).into_iter().next()?;
+                Some(Correction {
+                    range: call.message_loc()?.start_offset()..block.closing_loc().end_offset(),
+                    replacement: format!(
+                        "{replacement}({})",
+                        String::from_utf8_lossy(class.location().as_slice())
+                    ),
+                })
+            })
+            .flatten();
         let (line, col) = file.line_col(call.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -73,7 +89,7 @@ impl Cop for SelectByKind {
             line,
             col,
             end_line: file.last_line_of(call.location()),
-            correction: None,
+            correction,
             message: format!(
                 "Prefer `{replacement}` to `{}` with a kind check.",
                 String::from_utf8_lossy(call.name().as_slice())

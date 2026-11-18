@@ -2,7 +2,7 @@
 //! Only calls with a literal/forwarded block (or inject's final Symbol) qualify.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -11,6 +11,9 @@ impl Cop for CollectionMethods {
     fn name(&self) -> &'static str {
         "Style/CollectionMethods"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for CollectionMethods {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -58,7 +61,10 @@ impl Cop for CollectionMethods {
             line,
             col,
             end_line: file.line_of(loc.end_offset().saturating_sub(1)),
-            correction: None,
+            correction: cx.corrections_requested().then(|| Correction {
+                range: loc.start_offset()..loc.end_offset(),
+                replacement: prefer.into(),
+            }),
         });
     }
 }
@@ -103,7 +109,11 @@ mod tests {
                         (2, (3 + recv.len()) as u32, 2)
                     );
                     assert_eq!(o[0].message, format!("Prefer `{prefer}` over `{method}`."));
-                    assert!(o[0].correction.is_none());
+                    let fixed = crate::corrections::apply(s.as_bytes(), &o).unwrap();
+                    assert_eq!(
+                        String::from_utf8(fixed.bytes).unwrap(),
+                        format!("# header\n  {recv}{prefer}{suffix}")
+                    );
                 }
             }
         }

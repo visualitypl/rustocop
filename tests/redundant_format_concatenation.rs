@@ -216,15 +216,14 @@ fn imaginary_zero_cli_detection_and_no_write() {
     let inexact = b"format(\"%d\", 0.0i)\nformat(\"%f\", -0.0i)\nformat(\"%<x>d\", x: (0.0i))\nformat(\"%f\", (5+0.0i))\nformat(\"%*.*f\", 5, -0.0i, 1)\n";
     let out = unchanged(d.path(), inexact, &["--only", BOTH, "--fix", "a.rb"], 0);
     assert!(out.stderr.is_empty(), "{out:?}");
+    // RuboCop 1.92.0 raises on `Complex("0.0ri")`, so line 2 has no offense.
     let exact = b"format(\"%d\", 0i)\nformat(\"%f\", 0.0ri)\nx + \"y\"\n";
     let out = unchanged(d.path(), exact, &["--only", BOTH, "--fix", "a.rb"], 1);
     let stdout = String::from_utf8_lossy(&out.stdout);
     assert!(stdout.contains(
-        "a.rb:1:1: C: Use literal values directly instead of `format`. (Style/RedundantFormat)"
+        "a.rb:1:1: C: Use `\"0\"` directly instead of `format`. (Style/RedundantFormat)"
     ));
-    assert!(stdout.contains(
-        "a.rb:2:1: C: Use literal values directly instead of `format`. (Style/RedundantFormat)"
-    ));
+    assert!(!stdout.contains("a.rb:2:1"));
     assert!(stdout.contains("a.rb:3:1: C: Prefer string interpolation to string concatenation. (Style/StringConcatenation)"));
     assert!(out.stderr.is_empty(), "{out:?}");
 }

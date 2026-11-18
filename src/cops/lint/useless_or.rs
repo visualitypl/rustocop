@@ -1,7 +1,7 @@
 //! `Lint/UselessOr` — unreachable fallbacks after fixed truthy selectors.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -9,6 +9,9 @@ pub struct UselessOr;
 impl Cop for UselessOr {
     fn name(&self) -> &'static str {
         "Lint/UselessOr"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_or_node().is_some()
@@ -60,7 +63,11 @@ impl Cop for UselessOr {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1).max(start)),
-            correction: None,
+            correction: cx.corrections_requested().then(|| Correction {
+                range: owner.location().start_offset()..end,
+                replacement: String::from_utf8_lossy(owner.left().location().as_slice())
+                    .into_owned(),
+            }),
             message: format!(
                 "`{}` will never evaluate because `{}` always returns a truthy value.",
                 text(&rhs),
@@ -169,7 +176,6 @@ mod tests {
                         "`fallback` will never evaluate because `x.{method}` always returns a truthy value."
                     )
                 );
-                assert!(found[0].correction.is_none());
             }
             for source in [
                 format!("(foo || x.{method}) && operand"),

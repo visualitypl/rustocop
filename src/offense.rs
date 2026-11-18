@@ -159,6 +159,48 @@ pub struct GlobalOffense {
     pub message: String,
 }
 
+impl Correction {
+    /// One correction from several edits of the original source, as
+    /// RuboCop's corrector combines them: an empty range is an insertion,
+    /// placed before a replacement that starts at the same offset, and
+    /// insertions at one offset keep the given order. `None` when edits
+    /// overlap (upstream's clobbering error) or the result is not UTF-8.
+    pub fn from_edits(
+        source: &[u8],
+        mut edits: Vec<(std::ops::Range<usize>, String)>,
+    ) -> Option<Correction> {
+        edits.retain(|(range, text)| !(range.is_empty() && text.is_empty()));
+        edits.sort_by_key(|(range, _)| (range.start, !range.is_empty()));
+        let start = edits.first()?.0.start;
+        let mut replacement = Vec::new();
+        let mut cursor = start;
+        for (range, text) in &edits {
+            if range.start < cursor {
+                return None;
+            }
+            replacement.extend_from_slice(&source[cursor..range.start]);
+            replacement.extend_from_slice(text.as_bytes());
+            cursor = range.end;
+        }
+        Some(Correction {
+            range: start..cursor,
+            replacement: String::from_utf8(replacement).ok()?,
+        })
+    }
+}
+
+/// RuboCop's `range_with_surrounding_space(side: :right)` end: spaces and
+/// tabs, then line breaks.
+pub fn space_right(source: &[u8], mut pos: usize) -> usize {
+    while matches!(source.get(pos), Some(b' ' | b'\t')) {
+        pos += 1;
+    }
+    while source.get(pos) == Some(&b'\n') {
+        pos += 1;
+    }
+    pos
+}
+
 /// Source text quoted in a message, on one line: line breaks become
 /// spaces, as RuboCop's formatters print them.
 pub fn single_line(source: &[u8]) -> String {

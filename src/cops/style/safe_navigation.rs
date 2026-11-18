@@ -1,10 +1,14 @@
-//! `Style/SafeNavigation` — guarded receiver calls, detection only.
+//! `Style/SafeNavigation` — guarded receiver calls.
 use crate::{
-    cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    cops::{
+        Cop, NodeContext, ast,
+        walk::{NodeVisitor, walk},
+    },
+    offense::{Correction, Offense, space_right},
     source::SourceFile,
 };
-use ruby_prism::{Node, StatementsNode};
+use ruby_prism::{AndNode, CallNode, Node, StatementsNode};
+use std::{collections::HashSet, ops::Range};
 
 const MSG: &str =
     "Use safe navigation (`&.`) instead of checking if an object exists before calling the method.";
@@ -20,6 +24,14 @@ impl Cop for SafeNavigation {
     fn name(&self) -> &'static str {
         "Style/SafeNavigation"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        node.as_and_node().is_some()
+            || node.as_if_node().is_some()
+            || node.as_unless_node().is_some()
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -27,25 +39,25 @@ impl Cop for SafeNavigation {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let mut end = node.location().end_offset();
-        let candidate = if let Some(and) = node.as_and_node() {
-            let rhs = edge_clause(and.right(), true);
-            end = rhs.location().end_offset();
-            Some((edge_clause(and.left(), false), strip(rhs), false))
-        } else {
-            if_parts(node)
-        };
-        let Some((checked, body, ternary)) = candidate else {
-            return;
-        };
-        if !candidate_call(&checked, &body, ternary, file, node, cx) {
+        if node.as_and_node().is_some() {
+            // Upstream's on_and runs for every conjunction, but one sees the
+            // clauses of the conjunctions below it: visit them all from the
+            // outermost one, sharing the reported ranges.
+            if !cx.ancestors().any(|a| a.as_and_node().is_some()) {
+                self.check_conjunctions(node, cx, file, out);
+            }
             return;
         }
-        let start = if node.as_and_node().is_some() {
-            checked.location().start_offset()
-        } else {
-            node.location().start_offset()
+        let Some((checked, body, ternary)) = if_parts(node) else {
+            return;
         };
+        let Some(calls) = candidate_call(&checked, &body, ternary, file, &|| {
+            unsafe_enclosing_send(node, cx.ancestors(), ternary)
+        }) else {
+            return;
+        };
+        let start = node.location().start_offset();
+        let end = node.location().end_offset();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -54,90 +66,442 @@ impl Cop for SafeNavigation {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| if_correction(file, node, &checked, &body, &calls))
+                .flatten(),
         });
     }
+}
+
+impl SafeNavigation {
+    fn check_conjunctions<'pr>(
+        &self,
+        root: &Node<'pr>,
+        cx: &NodeContext<'_, 'pr>,
+        file: &SourceFile,
+        out: &mut Vec<Offense>,
+    ) {
+        let mut collector = Conjunctions {
+            outer: cx.ancestors().collect(),
+            outer_block: block_ancestor(cx.ancestors()),
+            stack: Vec::new(),
+            blocks: 0,
+            ands: Vec::new(),
+        };
+        walk(&mut collector, root);
+        let ands = collector.ands;
+        let mut reported = HashSet::new();
+        for (index, and) in ands.iter().enumerate() {
+            let mut list = and.parts.clone();
+            if !and.block_above {
+                for inner in ands[index + 1..]
+                    .iter()
+                    .take_while(|inner| inner.start < and.end)
+                {
+                    if !inner.block_above {
+                        list.extend_from_slice(&inner.parts);
+                    }
+                }
+            }
+            list.sort_by_key(Item::start);
+            let slices: Vec<&[Item]> = list.chunks(2).collect();
+            let mut ignored = false;
+            for pair in slices.windows(2) {
+                let (Item::Clause(left), Some(Item::Op(op)), Item::Clause(right)) =
+                    (&pair[0][0], pair[0].get(1), &pair[1][0])
+                else {
+                    continue;
+                };
+                let lhs = left.node(&ands);
+                let rhs = right.node(&ands);
+                // ConvertCodeThatCanStartToReturnNil is false.
+                if not_nil_check(&lhs) {
+                    continue;
+                }
+                let Some(body) = strip_begin(right.node(&ands)) else {
+                    continue;
+                };
+                let enclosing = ands[right.and].unsafe_enclosing;
+                let Some(calls) = candidate_call(&lhs, &body, false, file, &|| enclosing) else {
+                    continue;
+                };
+                let start = lhs.location().start_offset();
+                let end = rhs.location().end_offset();
+                if reported.insert((start, end)) {
+                    let (line, col) = file.line_col(start);
+                    let correct =
+                        cx.corrections_requested() && !ignored && !and_with_rhs_or(&and.node);
+                    out.push(Offense {
+                        cop: self.name(),
+                        severity: self.severity(),
+                        message: MSG.into(),
+                        line,
+                        col,
+                        end_line: file.line_of(end.saturating_sub(1)),
+                        correction: correct
+                            .then(|| {
+                                and_correction(file, &and.node, &lhs, op.clone(), &rhs, &calls)
+                            })
+                            .flatten(),
+                    });
+                }
+                ignored = true;
+            }
+        }
+    }
+}
+
+/// An entry of upstream's `collect_and_clauses` list: a clause or an `&&`
+/// operator.
+#[derive(Clone)]
+enum Item {
+    Clause(Clause),
+    Op(Range<usize>),
+}
+impl Item {
+    fn start(&self) -> usize {
+        match self {
+            Item::Clause(clause) => clause.start,
+            Item::Op(range) => range.start,
+        }
+    }
+}
+/// A side of one of the collected conjunctions.
+#[derive(Clone)]
+struct Clause {
+    and: usize,
+    right: bool,
+    start: usize,
+}
+impl Clause {
+    fn node<'pr>(&self, ands: &[Conjunction<'pr>]) -> Node<'pr> {
+        let and = &ands[self.and].node;
+        if self.right { and.right() } else { and.left() }
+    }
+}
+struct Conjunction<'pr> {
+    node: AndNode<'pr>,
+    start: usize,
+    end: usize,
+    /// A `block` ancestor (upstream's `each_ancestor(:block)`), anywhere up
+    /// to the root: its clauses are then left to its own visit.
+    block_above: bool,
+    /// Whether an enclosing send makes a call guarded here unsafe, for the
+    /// RHS shapes whose upstream ancestor scan runs past the clause.
+    unsafe_enclosing: bool,
+    /// `and_parts`.
+    parts: Vec<Item>,
+}
+struct Conjunctions<'a, 'pr> {
+    outer: Vec<&'a Node<'pr>>,
+    outer_block: bool,
+    stack: Vec<Node<'pr>>,
+    /// The `block` nodes (in parser's tree) on the stack.
+    blocks: usize,
+    ands: Vec<Conjunction<'pr>>,
+}
+impl<'pr> NodeVisitor<'pr> for Conjunctions<'_, 'pr> {
+    fn enter(&mut self, node: Node<'pr>) {
+        if let Some(and) = node.as_and_node() {
+            let index = self.ands.len();
+            let ancestors = self.stack.iter().rev().chain(self.outer.iter().copied());
+            let mut parts = vec![Item::Op(range(&and.operator_loc()))];
+            let (lhs, rhs) = (and.left(), and.right());
+            if !and_inside_begin(&rhs) {
+                parts.push(Item::Clause(Clause {
+                    and: index,
+                    right: true,
+                    start: rhs.location().start_offset(),
+                }));
+            }
+            if lhs.as_and_node().is_none() && !and_inside_begin(&lhs) {
+                parts.push(Item::Clause(Clause {
+                    and: index,
+                    right: false,
+                    start: lhs.location().start_offset(),
+                }));
+            }
+            self.ands.push(Conjunction {
+                start: node.location().start_offset(),
+                end: node.location().end_offset(),
+                block_above: self.outer_block || self.blocks > 0,
+                unsafe_enclosing: unsafe_enclosing_send(&node, ancestors, false),
+                parts,
+                node: and,
+            });
+        }
+        self.blocks += usize::from(parser_block(&node));
+        self.stack.push(node);
+    }
+    fn leave(&mut self) {
+        if let Some(node) = self.stack.pop() {
+            self.blocks -= usize::from(parser_block(&node));
+        }
+    }
+}
+
+fn range(location: &ruby_prism::Location<'_>) -> Range<usize> {
+    location.start_offset()..location.end_offset()
+}
+
+/// Whether `node` is or holds (as parser nests it) a `block` node: a
+/// literal block with ordinary parameters (numbered and `it` parameters make
+/// `numblock`/`itblock`), wrapping its call, or a lambda.
+fn parser_block(node: &Node<'_>) -> bool {
+    let ordinary = |parameters: Option<Node<'_>>| {
+        parameters.is_none_or(|p| {
+            p.as_numbered_parameters_node().is_none() && p.as_it_parameters_node().is_none()
+        })
+    };
+    let literal = |block: Option<Node<'_>>| {
+        block
+            .and_then(|b| b.as_block_node())
+            .is_some_and(|b| ordinary(b.parameters()))
+    };
+    if let Some(block) = node.as_block_node() {
+        ordinary(block.parameters())
+    } else if let Some(lambda) = node.as_lambda_node() {
+        ordinary(lambda.parameters())
+    } else if let Some(call) = node.as_call_node() {
+        literal(call.block())
+    } else if let Some(call) = node.as_super_node() {
+        literal(call.block())
+    } else if let Some(call) = node.as_forwarding_super_node() {
+        literal(call.block().map(|b| b.as_node()))
+    } else {
+        false
+    }
+}
+fn block_ancestor<'a, 'pr: 'a>(mut ancestors: impl Iterator<Item = &'a Node<'pr>>) -> bool {
+    ancestors.any(parser_block)
+}
+
+/// `` `(begin and ...) ``: the node or a descendant is a parser `begin`
+/// (parentheses, interpolation, or a body of several statements) whose first
+/// child is a conjunction.
+fn and_inside_begin(node: &Node<'_>) -> bool {
+    struct Search<'pr> {
+        stack: Vec<Node<'pr>>,
+        found: bool,
+    }
+    impl<'pr> NodeVisitor<'pr> for Search<'pr> {
+        fn enter(&mut self, node: Node<'pr>) {
+            if !self.found
+                && let Some(statements) = node.as_statements_node()
+            {
+                let body = statements.body();
+                let begin = match self.stack.last() {
+                    Some(p)
+                        if p.as_parentheses_node().is_some()
+                            || p.as_embedded_statements_node().is_some() =>
+                    {
+                        true
+                    }
+                    Some(p)
+                        if p.as_begin_node().is_some_and(|b| {
+                            b.rescue_clause().is_none()
+                                && b.else_clause().is_none()
+                                && b.ensure_clause().is_none()
+                        }) =>
+                    {
+                        false
+                    }
+                    _ => body.len() > 1,
+                };
+                self.found = begin
+                    && body
+                        .iter()
+                        .next()
+                        .is_some_and(|n| n.as_and_node().is_some());
+            }
+            self.stack.push(node);
+        }
+        fn leave(&mut self) {
+            self.stack.pop();
+        }
+    }
+    let mut search = Search {
+        stack: Vec::new(),
+        found: false,
+    };
+    walk(&mut search, node);
+    search.found
+}
+
+/// `(and _ {or (begin or)})`.
+fn and_with_rhs_or(and: &AndNode<'_>) -> bool {
+    let rhs = and.right();
+    rhs.as_or_node().is_some()
+        || rhs.as_parentheses_node().is_some_and(|p| {
+            p.body()
+                .and_then(|b| b.as_statements_node())
+                .is_some_and(|s| {
+                    s.body().len() == 1 && s.body().iter().all(|n| n.as_or_node().is_some())
+                })
+        })
+}
+
+/// `(send (send $_ :nil?) :!)`.
+fn not_nil_check(node: &Node<'_>) -> bool {
+    fn bare<'pr>(node: &Node<'pr>, name: &[u8]) -> Option<CallNode<'pr>> {
+        node.as_call_node().filter(|call| {
+            call.name().as_slice() == name
+                && !call.is_safe_navigation()
+                && call.arguments().is_none()
+                && call.block().is_none()
+        })
+    }
+    bare(node, b"!")
+        .and_then(|call| call.receiver())
+        .is_some_and(|receiver| bare(&receiver, b"nil?").is_some())
+}
+
+/// `{ (begin $!begin) $!(begin) }`.
+fn strip_begin(node: Node<'_>) -> Option<Node<'_>> {
+    let Some(paren) = node.as_parentheses_node() else {
+        return Some(node);
+    };
+    single(paren.body().and_then(|n| n.as_statements_node()))
+        .filter(|inner| inner.as_parentheses_node().is_none())
+}
+
+/// The `&` upstream's `add_safe_nav_to_all_methods_in_chain` inserts: before
+/// the dot of each plain, non-operator call of the chain.
+fn chain_edits<'a, 'pr: 'a>(
+    calls: impl Iterator<Item = &'a CallNode<'pr>>,
+    edits: &mut Vec<(Range<usize>, String)>,
+) {
+    for call in calls {
+        if !call.is_safe_navigation()
+            && !ast::is_operator_method(call.name().as_slice())
+            && let Some(dot) = call.call_operator_loc()
+        {
+            edits.push((dot.start_offset()..dot.start_offset(), "&".into()));
+        }
+    }
+}
+
+/// `handle_comments`: the comments on the lines of `node` outside its child
+/// nodes (parser's, in its order), inserted before `target`.
+fn comment_edit(
+    file: &SourceFile,
+    node: &Node<'_>,
+    children: &[&Node<'_>],
+    target: usize,
+    edits: &mut Vec<(Range<usize>, String)>,
+) {
+    let mut ranges = Vec::new();
+    let mut begin = file.line_of(node.location().start_offset());
+    for child in children {
+        ranges.push(begin..file.line_of(child.location().start_offset()));
+        begin = file.line_of(child.location().end_offset());
+    }
+    ranges.push(begin..file.line_of(node.location().end_offset()));
+    let comments: Vec<_> = ranges
+        .iter()
+        .flat_map(|lines| {
+            file.comments()
+                .iter()
+                .filter(|c| lines.contains(&file.line_of(c.start)))
+                .map(|c| String::from_utf8_lossy(&file.bytes[c.clone()]).into_owned())
+        })
+        .collect();
+    if !comments.is_empty() {
+        edits.push((target..target, format!("{}\n", comments.join("\n"))));
+    }
+}
+
+fn if_correction(
+    file: &SourceFile,
+    node: &Node<'_>,
+    checked: &Node<'_>,
+    body: &Node<'_>,
+    calls: &[CallNode<'_>],
+) -> Option<Correction> {
+    let (method, outer) = calls.split_last()?;
+    let receiver = method.receiver()?;
+    let body_range = range(&body.location());
+    let node_range = range(&node.location());
+    let mut edits = vec![
+        (node_range.start..body_range.start, String::new()),
+        (body_range.end..node_range.end, String::new()),
+    ];
+    if checked
+        .as_call_node()
+        .is_some_and(|c| c.is_safe_navigation())
+    {
+        edits.push((
+            range(&receiver.location()),
+            String::from_utf8(checked.location().as_slice().to_vec()).ok()?,
+        ));
+    }
+    if !method.is_safe_navigation() {
+        let dot = method.call_operator_loc()?.start_offset();
+        edits.push((dot..dot, "&".into()));
+    }
+    let predicate;
+    let mut children = Vec::new();
+    if let Some(n) = node.as_if_node() {
+        predicate = n.predicate();
+        children.push(&predicate);
+    } else {
+        predicate = node.as_unless_node()?.predicate();
+        children.push(&predicate);
+    }
+    let then = node.as_if_node().map_or_else(
+        || node.as_unless_node().and_then(|n| single(n.statements())),
+        |n| single(n.statements()),
+    );
+    let otherwise = node
+        .as_if_node()
+        .and_then(|n| n.subsequent())
+        .and_then(|n| n.as_else_node())
+        .and_then(|n| single(n.statements()));
+    children.extend(then.iter());
+    children.extend(otherwise.iter());
+    comment_edit(file, node, &children, body_range.start, &mut edits);
+    chain_edits(outer.iter().rev(), &mut edits);
+    Correction::from_edits(&file.bytes, edits)
+}
+
+fn and_correction(
+    file: &SourceFile,
+    and: &AndNode<'_>,
+    lhs: &Node<'_>,
+    op: Range<usize>,
+    rhs: &Node<'_>,
+    calls: &[CallNode<'_>],
+) -> Option<Correction> {
+    let receiver = calls.last()?.receiver()?;
+    let lhs_range = range(&lhs.location());
+    let rhs_start = rhs.location().start_offset();
+    let mut edits = vec![
+        (
+            lhs_range.start..space_right(&file.bytes, lhs_range.end),
+            String::new(),
+        ),
+        (op.start..space_right(&file.bytes, op.end), String::new()),
+    ];
+    let (left, right) = (and.left(), and.right());
+    comment_edit(
+        file,
+        &and.as_node(),
+        &[&left, &right],
+        rhs_start,
+        &mut edits,
+    );
+    edits.push((
+        range(&receiver.location()),
+        String::from_utf8(lhs.location().as_slice().to_vec()).ok()?,
+    ));
+    chain_edits(calls.iter().rev(), &mut edits);
+    Correction::from_edits(&file.bytes, edits)
 }
 
 fn single(statements: Option<StatementsNode<'_>>) -> Option<Node<'_>> {
     let body = statements?.body();
     (body.len() == 1).then(|| body.iter().next().unwrap())
-}
-fn strip(node: Node<'_>) -> Node<'_> {
-    if let Some(paren) = node.as_parentheses_node()
-        && let Some(inner) = single(paren.body().and_then(|n| n.as_statements_node()))
-    {
-        inner
-    } else {
-        node
-    }
-}
-// Adjacent source-ordered clauses, including conjunctions under grouping and
-// disjunctions. Do not descend into blocks or unrelated method arguments.
-fn edge_clause(mut node: Node<'_>, first: bool) -> Node<'_> {
-    loop {
-        #[cfg(test)]
-        STEPS.set(STEPS.get() + 1);
-        if node.as_parentheses_node().is_some()
-            && !grouped_and(&node)
-            && !(first && contains_grouped_and(&node))
-        {
-            break;
-        }
-        node = strip(node);
-        if let Some(and) = node.as_and_node() {
-            node = if first { and.left() } else { and.right() };
-        } else if first
-            && contains_grouped_and(&node)
-            && let Some(inner) = first_and(&node)
-        {
-            // Upstream collects descendant conjunction clauses even within an
-            // OR RHS; the original disjunction remains detection-only.
-            node = inner;
-        } else {
-            break;
-        }
-    }
-    node
-}
-fn contains_grouped_and(node: &Node<'_>) -> bool {
-    #[cfg(test)]
-    STEPS.set(STEPS.get() + 1);
-    if let Some(n) = node.as_parentheses_node() {
-        return single(n.body().and_then(|n| n.as_statements_node()))
-            .is_some_and(|n| grouped_and(&n) || contains_grouped_and(&n));
-    }
-    if let Some(n) = node.as_and_node() {
-        return contains_grouped_and(&n.left()) || contains_grouped_and(&n.right());
-    }
-    if let Some(n) = node.as_or_node() {
-        return contains_grouped_and(&n.left()) || contains_grouped_and(&n.right());
-    }
-    false
-}
-fn first_and<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
-    #[cfg(test)]
-    STEPS.set(STEPS.get() + 1);
-    if let Some(and) = node.as_and_node() {
-        return Some(and.as_node());
-    }
-    if let Some(or) = node.as_or_node() {
-        return first_and(&or.left()).or_else(|| first_and(&or.right()));
-    }
-    let inner = single(
-        node.as_parentheses_node()?
-            .body()
-            .and_then(|n| n.as_statements_node()),
-    )?;
-    first_and(&inner)
-}
-fn grouped_and(node: &Node<'_>) -> bool {
-    if node.as_and_node().is_some() {
-        return true;
-    }
-    node.as_parentheses_node()
-        .and_then(|n| single(n.body().and_then(|n| n.as_statements_node())))
-        .is_some_and(|n| grouped_and(&n))
 }
 fn unary_receiver<'pr>(node: &Node<'pr>, name: &[u8]) -> Option<Node<'pr>> {
     let call = node.as_call_node()?;
@@ -214,20 +578,15 @@ fn candidate_call<'pr>(
     body: &Node<'pr>,
     ternary: bool,
     file: &SourceFile,
-    node: &Node<'pr>,
-    cx: &NodeContext<'_, 'pr>,
-) -> bool {
+    unsafe_enclosing: &dyn Fn() -> bool,
+) -> Option<Vec<CallNode<'pr>>> {
     let mut current = None;
     let mut calls = Vec::new();
     // At most two calls after the repeated receiver; stop as soon as that
     // fixed bound is exceeded, rather than walking an arbitrary chain.
     for _ in 0..2 {
-        let Some(call) = current.as_ref().unwrap_or(body).as_call_node() else {
-            return false;
-        };
-        let Some(receiver) = call.receiver() else {
-            return false;
-        };
+        let call = current.as_ref().unwrap_or(body).as_call_node()?;
+        let receiver = call.receiver()?;
         calls.push(call);
         if matching(checked, &receiver, file) {
             // A literal block wraps its send in RuboCop's AST. For ternaries,
@@ -236,7 +595,7 @@ fn candidate_call<'pr>(
             let block_boundary = calls
                 .last()
                 .is_some_and(|c| c.block().is_some_and(|b| b.as_block_node().is_some()));
-            return calls.iter().enumerate().all(|(index, call)| {
+            let candidate = calls.iter().enumerate().all(|(index, call)| {
                 let dot = call.call_operator_loc().map(|l| l.as_slice());
                 (dot != Some(b"::".as_slice()) || (ternary && index + 1 != calls.len()))
                     && (dot.is_some() || (ternary && block_boundary && index + 1 != calls.len()))
@@ -253,18 +612,23 @@ fn candidate_call<'pr>(
                 || body.as_call_node().is_some_and(|c| {
                     c.is_safe_navigation() || c.block().is_some_and(|b| b.as_block_node().is_some())
                 }))
-                || !unsafe_enclosing_send(node, cx, ternary));
+                || !unsafe_enclosing());
+            return candidate.then_some(calls);
         }
         current = Some(receiver);
     }
-    false
+    None
 }
 // Upstream's ancestor-send safety loop stops when it reaches a *subsequent*
 // send equal to the RHS. For a single call, csend or block-wrapped RHS it instead
-// reaches enclosing sends. Ask NodeContext rather than rescanning the root.
-fn unsafe_enclosing_send<'pr>(node: &Node<'pr>, cx: &NodeContext<'_, 'pr>, ternary: bool) -> bool {
+// reaches enclosing sends. `ancestors` are the node's, innermost first.
+fn unsafe_enclosing_send<'a, 'pr: 'a>(
+    node: &'a Node<'pr>,
+    ancestors: impl Iterator<Item = &'a Node<'pr>>,
+    ternary: bool,
+) -> bool {
     let mut child = node;
-    for parent in cx.ancestors() {
+    for parent in ancestors {
         #[cfg(test)]
         STEPS.set(STEPS.get() + 1);
         if let Some(call) = parent.as_call_node()
@@ -366,6 +730,34 @@ mod tests {
     //! MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
     use super::*;
     use crate::pipeline::lint_str;
+    fn fix(source: &str) -> String {
+        crate::cops::testing::fix_until_stable(&SafeNavigation, source)
+    }
+    #[test]
+    fn conjunctions_in_blocks_and_one_correction_per_conjunction_as_rubocop_does() {
+        // Verified against RuboCop 1.92.0: under a `block`, a conjunction
+        // sees only its own clauses, so `c && c.d` goes unreported there.
+        assert_eq!(offenses("foo do\n  a && a.b && c && c.d\nend\n").len(), 1);
+        assert_eq!(offenses("-> { a && a.b && c && c.d }").len(), 1);
+        assert_eq!(offenses("items.each { _1 && _1.x && y && y.z }").len(), 2);
+        assert_eq!(offenses("a && a.b && c && c.d").len(), 2);
+        assert!(offenses("x && foo(a && a.b)").is_empty());
+        for (source, fixed) in [
+            ("a && a.b && c && c.d\n", "a&.b && c&.d\n"),
+            ("a && a.b && (c || d)\n", "a && a.b && (c || d)\n"),
+            ("z = (q && q.r) && (s && s.t)\n", "z = (q&.r) && (s&.t)\n"),
+            (
+                "foo &&\n  # comment\n  foo.bar\n",
+                "  # comment\n  # comment\nfoo&.bar\n",
+            ),
+            (
+                "foo.bar do\n  # inner\nend if foo\n",
+                "# inner\nfoo&.bar do\n  # inner\nend\n",
+            ),
+        ] {
+            assert_eq!(fix(source), fixed, "{source}");
+        }
+    }
     fn offenses(source: &str) -> Vec<Offense> {
         lint_str(source)
             .into_iter()
@@ -373,7 +765,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn every_applicable_pinned_call_matches_and_all_unsafe_corrections_are_withheld() {
+    fn every_applicable_pinned_call_and_correction_matches() {
         use crate::cops::testing::correction_offenses;
         let cases: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/safe_navigation_pinned.json"
@@ -399,13 +791,11 @@ mod tests {
             actual.sort();
             expected.sort();
             assert_eq!(actual, expected, "{case}");
-            assert!(
-                found
-                    .iter()
-                    .all(|o| o.message == MSG && o.correction.is_none()),
-                "{case}"
-            );
-            fixes += usize::from(!case["correction"].is_null());
+            assert!(found.iter().all(|o| o.message == MSG), "{case}");
+            if let Some(expected) = case["correction"].as_str() {
+                fixes += 1;
+                assert_eq!(fix(&source), expected, "{case}");
+            }
         }
         assert_eq!((fixes, invalid_yields), (493, 6));
     }
@@ -418,6 +808,7 @@ mod tests {
         assert!(versions.supports(RubyVersion(2, 3)));
         assert!(versions.supports(DEFAULT_RUBY_VERSION));
         assert!(!SafeNavigation.safe_fixes());
+        assert!(SafeNavigation.unsafe_fixes());
         assert!(SafeNavigation.default_enabled());
     }
     #[test]
@@ -464,7 +855,6 @@ mod tests {
             assert_eq!(found.len(), 1, "{source}");
             assert_eq!((found[0].line, found[0].col), (1, 1), "{source}");
             assert_eq!(found[0].message, MSG, "{source}");
-            assert!(found[0].correction.is_none(), "{source}");
         }
         for source in [
             "fetch(/foo/im) && fetch(/foo/i).bar",
@@ -564,7 +954,6 @@ mod tests {
                 found[0].message,
                 "Use safe navigation (`&.`) instead of checking if an object exists before calling the method."
             );
-            assert!(found[0].correction.is_none());
         }
     }
     #[test]

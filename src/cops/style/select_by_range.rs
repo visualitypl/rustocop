@@ -1,7 +1,7 @@
-//! `Style/SelectByRange` — prefer grep/grep_v for range checks (detection-only).
+//! `Style/SelectByRange` — prefer grep/grep_v for range checks.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, CallNode, Node};
@@ -10,6 +10,9 @@ impl Cop for SelectByRange {
     fn name(&self) -> &'static str {
         "Style/SelectByRange"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for SelectByRange {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -69,6 +72,31 @@ impl Cop for SelectByRange {
         } else {
             grep.into()
         };
+        // find_range: `min..max` of between?, else the range's source.
+        let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+        let range_literal = if check.name().as_slice() == b"between?" {
+            let args = ast::call_arguments(&check);
+            format!("{}..{}", text(&args[0]), text(&args[1]))
+        } else {
+            check
+                .receiver()
+                .and_then(one_parenthesis)
+                .map_or_else(String::new, |r| text(&r))
+        };
+        let suffix = if replacement.ends_with(".first") {
+            ".first"
+        } else {
+            ""
+        };
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                Some(Correction {
+                    range: call.message_loc()?.start_offset()..block.closing_loc().end_offset(),
+                    replacement: format!("{grep}({range_literal}){suffix}"),
+                })
+            })
+            .flatten();
         let (line, col) = file.line_col(call.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -76,7 +104,7 @@ impl Cop for SelectByRange {
             line,
             col,
             end_line: file.last_line_of(call.location()),
-            correction: None,
+            correction,
             message: format!(
                 "Prefer `{replacement}` to `{}` with a range check.",
                 String::from_utf8_lossy(call.name().as_slice())
@@ -85,8 +113,6 @@ impl Cop for SelectByRange {
     }
 }
 
-// These pinned shapes intentionally do not prove dispatch, bound purity, or
-// range ===/include? equivalence. That is why this cop never supplies edits.
 fn plain_call(call: &CallNode<'_>) -> bool {
     !call.is_safe_navigation()
         && call

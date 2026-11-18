@@ -13,6 +13,11 @@ impl Cop for Not {
     fn safe_fixes(&self) -> bool {
         true
     }
+    /// Upstream's Style/InverseMethods lists this cop as
+    /// autocorrect-incompatible and runs first.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
+        &["Style/InverseMethods"]
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }

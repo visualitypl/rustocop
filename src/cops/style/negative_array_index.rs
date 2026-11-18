@@ -1,10 +1,10 @@
-//! `Style/NegativeArrayIndex` — detection only; arbitrary receivers and wrapping differ.
+//! `Style/NegativeArrayIndex` — `a[a.length - n]` and its ranges.
 use crate::{
     cops::{
         Cop, NodeContext, ast,
         walk::{self, NodeVisitor},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -13,6 +13,9 @@ pub struct NegativeArrayIndex;
 impl Cop for NegativeArrayIndex {
     fn name(&self) -> &'static str {
         "Style/NegativeArrayIndex"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -66,7 +69,7 @@ impl Cop for NegativeArrayIndex {
             let preferred = format!("{start_source}{op}-{n}");
             // Upstream preserves a begin/parentheses source, but uses the
             // unwrapped child's source for other one-child wrappers, even
-            // semantically strange arrays/defined?/yield/super. Detection only.
+            // semantically strange arrays/defined?/yield/super.
             let current_end = if end.as_parentheses_node().is_some() {
                 &end
             } else {
@@ -112,7 +115,10 @@ impl Cop for NegativeArrayIndex {
             line,
             col,
             end_line: file.last_line_of(offense),
-            correction: None,
+            correction: cx.corrections_requested().then(|| Correction {
+                range: span(index),
+                replacement: prefer.clone(),
+            }),
         });
     }
 }
@@ -123,8 +129,8 @@ fn text(n: &Node<'_>) -> String {
     String::from_utf8_lossy(n.location().as_slice()).into_owned()
 }
 // The pinned outer range projection selects the first statement, even when
-// later statements determine the actual index value. This is detection only;
-// unlike range-end unwrapping below, it does not require a sole child.
+// later statements determine the actual index value. Unlike
+// range-end unwrapping below, it does not require a sole child.
 fn first_parenthesized_statement<'pr>(n: &Node<'pr>) -> Option<Node<'pr>> {
     n.as_parentheses_node()
         .and_then(|p| p.body())
@@ -299,7 +305,7 @@ mod tests {
                     o[0].message,
                     format!("Use `arr[{prefer}]` instead of `arr[{current}]`.")
                 );
-                assert!(o[0].correction.is_none());
+                assert_eq!(o[0].correction.as_ref().unwrap().replacement, prefer);
                 assert!(offenses(&format!("{getter} = rhs")).is_empty());
             }
             for getter in [
@@ -366,7 +372,7 @@ mod tests {
                 assert!(o[0].correction.is_none());
                 let fixes = crate::cops::testing::correction_offenses(&NegativeArrayIndex, &s);
                 assert_eq!(fixes.len(), 1, "{s}");
-                assert!(fixes[0].correction.is_none());
+                assert!(fixes[0].correction.is_some());
             }
         }
     }
@@ -388,7 +394,7 @@ mod tests {
                     );
                     let fixes = crate::cops::testing::correction_offenses(&NegativeArrayIndex, &s);
                     assert_eq!(fixes.len(), 1, "{s}");
-                    assert!(fixes[0].correction.is_none());
+                    assert!(fixes[0].correction.is_some());
                 }
             }
         }
@@ -440,7 +446,7 @@ mod tests {
                         o[0].message,
                         format!("Use `arr[0..-1]` instead of `arr[0..{current_end}]`.")
                     );
-                    assert!(o[0].correction.is_none(), "{s}");
+                    assert!(o[0].correction.is_some(), "{s}");
                 }
             }
         }
@@ -531,7 +537,7 @@ mod tests {
                             o[0].message,
                             format!("Use `arr[(0{op}-1)]` instead of `arr[(0{op}{current_end})]`.")
                         );
-                        assert!(o[0].correction.is_none(), "{source}");
+                        assert!(o[0].correction.is_some(), "{source}");
                     }
                 }
             }
@@ -695,7 +701,7 @@ mod tests {
     }
 
     #[test]
-    fn risk_shapes_always_remain_detection_only() {
+    fn risk_shapes_are_corrected_as_rubocop_does() {
         assert!(!NegativeArrayIndex.safe_fixes());
         for s in [
             "a = []; a[a.size - 2]",
@@ -707,7 +713,7 @@ mod tests {
         ] {
             let o = crate::cops::testing::correction_offenses(&NegativeArrayIndex, s);
             assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none());
+            assert!(o[0].correction.is_some());
         }
     }
 }

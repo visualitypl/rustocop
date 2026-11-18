@@ -15,10 +15,29 @@ pub(crate) fn correction_offenses(cop: &dyn Cop, source: &str) -> Vec<Offense> {
     crate::pipeline::lint_str_with_corrections(&[cop], source)
 }
 
+/// The source after applying a cop's corrections until none apply, as the
+/// spec's `expect_correction` loops (at most 20 passes).
+pub(crate) fn fix_until_stable(cop: &dyn Cop, source: &str) -> String {
+    let mut source = source.to_string();
+    for _ in 0..20 {
+        let found = correction_offenses(cop, &source);
+        let applied = crate::corrections::apply(source.as_bytes(), &found).unwrap();
+        if applied.count == 0 {
+            break;
+        }
+        source = String::from_utf8(applied.bytes).unwrap();
+    }
+    source
+}
+
 /// Assert a cop's single-pass correction, validating both sides with the same
 /// fixed Ruby 3.4 grammar and bounded parser stack/cleanup as production.
 pub(crate) fn assert_correction(cop: &dyn Cop, before: &str, after: &str) {
-    assert!(cop.safe_fixes(), "{} must opt in to safe fixes", cop.name());
+    assert!(
+        cop.safe_fixes() || cop.unsafe_fixes(),
+        "{} must opt in to fixes",
+        cop.name()
+    );
     assert_eq!(
         crate::parser::parse(before.as_bytes()).errors().count(),
         0,

@@ -1,7 +1,7 @@
-//! `Style/InverseMethods` — fixed inverse predicates/blocks, detection only.
+//! `Style/InverseMethods` — fixed inverse predicates/blocks.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -10,6 +10,9 @@ pub struct InverseMethods;
 impl Cop for InverseMethods {
     fn name(&self) -> &'static str {
         "Style/InverseMethods"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -25,10 +28,42 @@ impl Cop for InverseMethods {
         let Some(call) = node.as_call_node() else {
             return;
         };
-        let pair = if let Some((method, inverse, _)) = inverse_block(&call) {
+        let mut edits = Vec::new();
+        let pair = if let Some((method, inverse, tail)) = inverse_block(&call) {
             let mut parents = cx.ancestors();
             if double_negated(&mut parents) || has_next(node, cx, file) {
                 return;
+            }
+            if let Some(selector) = call.message_loc() {
+                edits.push((
+                    range(&selector),
+                    String::from_utf8_lossy(inverse).into_owned(),
+                ));
+            }
+            let tail = tail.as_call_node().unwrap();
+            if let Some(selector) = tail.message_loc() {
+                // correct_inverse_selector
+                match selector.as_slice() {
+                    b"!=" | b"!~" => {
+                        let mut text = selector.as_slice().to_vec();
+                        text[0] = b'=';
+                        edits.push((
+                            range(&selector),
+                            String::from_utf8_lossy(&text).into_owned(),
+                        ));
+                    }
+                    _ => {
+                        let start = tail
+                            .call_operator_loc()
+                            .map_or(selector.start_offset(), |d| d.start_offset());
+                        let end = if tail.call_operator_loc().is_some() {
+                            tail.location().end_offset()
+                        } else {
+                            selector.end_offset()
+                        };
+                        edits.push((start..end, String::new()));
+                    }
+                }
             }
             Some((method, inverse))
         } else if call.name().as_slice() == b"!"
@@ -62,12 +97,24 @@ impl Cop for InverseMethods {
                     }
                 }
             }
+            let grouped = call
+                .receiver()
+                .is_some_and(|r| r.as_parentheses_node().is_some());
             let Some(receiver) = call.receiver().and_then(single_group) else {
                 return;
             };
             let Some(candidate) = receiver.as_call_node() else {
                 return;
             };
+            // `(send (begin $(call ...)) :!)`: a block inside the parentheses
+            // is a `block` node, not a call (verified against RuboCop 1.92.0).
+            if grouped
+                && candidate
+                    .block()
+                    .is_some_and(|b| b.as_block_node().is_some())
+            {
+                return;
+            }
             if candidate.receiver().is_none()
                 || (candidate
                     .block()
@@ -91,6 +138,15 @@ impl Cop for InverseMethods {
             {
                 return;
             }
+            if cx.corrections_requested() {
+                negation_edits(&call, &candidate, method, cx, &mut edits);
+                if let Some(selector) = candidate.message_loc() {
+                    edits.push((
+                        range(&selector),
+                        String::from_utf8_lossy(inverse).into_owned(),
+                    ));
+                }
+            }
             Some((method, inverse))
         } else {
             None
@@ -111,8 +167,66 @@ impl Cop for InverseMethods {
                 String::from_utf8_lossy(inverse),
                 String::from_utf8_lossy(method)
             ),
-            correction: None,
+            correction: if cx.corrections_requested() {
+                Correction::from_edits(&file.bytes, edits)
+            } else {
+                None
+            },
         });
+    }
+}
+
+fn range(location: &ruby_prism::Location<'_>) -> std::ops::Range<usize> {
+    location.start_offset()..location.end_offset()
+}
+
+/// `remove_negation`.
+fn negation_edits(
+    node: &CallNode<'_>,
+    method_call: &CallNode<'_>,
+    method: &[u8],
+    cx: &NodeContext<'_, '_>,
+    edits: &mut Vec<(std::ops::Range<usize>, String)>,
+) {
+    let (Some(selector), Some(receiver)) = (node.message_loc(), node.receiver()) else {
+        return;
+    };
+    let receiver_begin = receiver.as_parentheses_node().is_some();
+    let parenthesized = node.opening_loc().is_some();
+    // keep_parentheses?: the parser parent (Prism's arguments list is not one).
+    let parent = cx
+        .ancestors()
+        .find(|a| a.as_arguments_node().is_none())
+        .and_then(|a| a.as_call_node());
+    let keep = (receiver_begin || parenthesized)
+        && ast::is_operator_method(method_call.name().as_slice())
+        && parent.is_some_and(|parent| {
+            (ast::is_operator_method(parent.name().as_slice())
+                && parent.call_operator_loc().is_none()
+                && !matches!(parent.name().as_slice(), b"[]" | b"[]="))
+                || parent.receiver().is_some_and(|r| {
+                    r.location().start_offset() == node.location().start_offset()
+                        && r.location().end_offset() == node.location().end_offset()
+                })
+        });
+    let call_start = method_call.location().start_offset();
+    if !keep {
+        edits.push((selector.start_offset()..call_start, String::new()));
+        if matches!(
+            method,
+            b"==" | b"!=" | b"=~" | b"!~" | b"<=" | b">=" | b"<" | b">"
+        ) || receiver_begin
+        {
+            let call_end = method_call.location().end_offset();
+            edits.push((call_end..node.location().end_offset(), String::new()));
+        }
+    } else if parenthesized {
+        edits.push((range(&selector), String::new()));
+    } else {
+        edits.push((
+            selector.start_offset()..receiver.location().start_offset(),
+            String::new(),
+        ));
     }
 }
 fn inverse_method(method: &[u8]) -> Option<&'static [u8]> {
@@ -174,7 +288,12 @@ fn inverse_block<'pr>(call: &CallNode<'pr>) -> Option<(&'pr [u8], &'static [u8],
     let block = call.block()?.as_block_node()?;
     let body = block.body()?.as_statements_node()?;
     let mut tail = body.body().last()?;
+    // A sole parenthesized body is the block's `begin`; one closing a longer
+    // body is a nested `begin`, which upstream's pattern does not search.
     if let Some(p) = tail.as_parentheses_node() {
+        if body.body().len() != 1 {
+            return None;
+        }
         tail = p.body()?.as_statements_node()?.body().last()?;
     }
     let inverted = tail.as_call_node()?;
@@ -238,7 +357,6 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for NextIndex {
 mod tests {
     //! Ported from RuboCop style/inverse_methods_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::cops::testing::correction_offenses;
     fn offenses(s: &str) -> Vec<Offense> {
         crate::pipeline::lint_str(s)
             .into_iter()
@@ -272,10 +390,9 @@ mod tests {
                         o[0].message,
                         format!("Use `{inverse}` instead of inverting `{method}`.")
                     );
-                    assert!(
-                        correction_offenses(&InverseMethods, &s)[0]
-                            .correction
-                            .is_none()
+                    assert_eq!(
+                        crate::cops::testing::fix_until_stable(&InverseMethods, &s),
+                        format!("\n  {receiver}.{inverse}")
                     );
                 }
             }

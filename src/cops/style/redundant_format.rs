@@ -1,10 +1,16 @@
-//! `Style/RedundantFormat` — detection-only; formatting can change mutability.
+//! `Style/RedundantFormat` — `format` calls whose result is a literal.
 use super::format_string_token::TOKENS;
 use crate::{
-    cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    cops::{
+        Cop, NodeContext, ast,
+        walk::{NodeVisitor, walk},
+    },
+    offense::{Correction, Offense},
     source::SourceFile,
 };
+use sprintf::Value;
+
+mod sprintf;
 use ruby_prism::Node;
 use std::{collections::HashMap, sync::LazyLock};
 
@@ -19,6 +25,9 @@ impl Cop for RedundantFormat {
     fn name(&self) -> &'static str {
         "Style/RedundantFormat"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -26,7 +35,7 @@ impl Cop for RedundantFormat {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -34,6 +43,7 @@ impl Cop for RedundantFormat {
             return;
         };
         let method = call.name().as_slice();
+        let method_name = String::from_utf8_lossy(method);
         if !matches!(method, b"format" | b"sprintf") || call.is_safe_navigation() {
             return;
         }
@@ -52,15 +62,11 @@ impl Cop for RedundantFormat {
                     | Node::ConstantReadNode { .. }
                     | Node::ConstantPathNode { .. }
             );
-        let message = if single {
+        let replacement = if single {
             if static_fragments(first).is_some_and(|s| TOKENS.is_match(&s)) {
                 return;
             }
-            format!(
-                "Use `{}` directly instead of `{}`.",
-                escape_controls(first.location().as_slice()),
-                String::from_utf8_lossy(method)
-            )
+            Some(escape_controls(first.location().as_slice()))
         } else {
             let Some(string) = first.as_string_node() else {
                 return;
@@ -73,15 +79,37 @@ impl Cop for RedundantFormat {
             {
                 return;
             }
-            // Detection is not a Ruby formatter or an unsafe correction. Avoid
-            // manufacturing replacement source (and potentially enormous width
-            // padding) just for the message. This path matches other receivers
-            // too, as upstream's detect_unnecessary_fields does.
-            format!(
-                "Use literal values directly instead of `{}`.",
-                String::from_utf8_lossy(method)
-            )
+            // `argument_values` runs outside upstream's `rescue`: an argument
+            // it cannot evaluate makes the cop raise, with no offense.
+            let Some(values) = args[1..]
+                .iter()
+                .map(|n| argument_value(n, file))
+                .collect::<Result<Vec<_>, Raise>>()
+                .ok()
+            else {
+                return;
+            };
+            values
+                .into_iter()
+                .collect::<Option<Vec<_>>>()
+                .and_then(|values| sprintf::format(string.unescaped(), &values))
+                .and_then(|formatted| quote(&call, &string, &formatted))
         };
+        // A value this port cannot compute (a Bignum, `__FILE__`,
+        // a huge padding) keeps the offense, without the literal.
+        let message = match &replacement {
+            Some(r) => format!("Use `{r}` directly instead of `{method_name}`."),
+            None => format!("Use literal values directly instead of `{method_name}`."),
+        };
+        let correction = replacement
+            .filter(|_| {
+                cx.corrections_requested()
+                    && call.block().is_none_or(|b| b.as_block_node().is_none())
+            })
+            .map(|replacement| Correction {
+                range: node.location().start_offset()..node.location().end_offset(),
+                replacement,
+            });
         let start = node.location().start_offset();
         let (line, col) = file.line_col(start);
         out.push(Offense {
@@ -91,11 +119,243 @@ impl Cop for RedundantFormat {
             line,
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1).max(start)),
-            correction: None,
+            correction,
         });
     }
 }
+
+/// Upstream's `argument_value` raised (a `Complex()` it cannot parse).
+struct Raise;
+
+/// `argument_value`; `Ok(None)` for a value this port does not compute.
+fn argument_value(node: &Node<'_>, file: &SourceFile) -> Result<Option<Value>, Raise> {
+    let inner;
+    let node = match node.as_parentheses_node() {
+        Some(p) => {
+            inner = p
+                .body()
+                .and_then(|b| b.as_statements_node())
+                .and_then(|s| s.body().iter().next())
+                .ok_or(Raise)?;
+            &inner
+        }
+        None => node,
+    };
+    if node.as_nil_node().is_some() {
+        return Ok(Some(Value::Nil));
+    }
+    let source = node.location().as_slice();
+    if let Some(dsym) = node.as_interpolated_symbol_node() {
+        let first = dsym.parts().iter().next().ok_or(Raise)?;
+        return Ok(Some(Value::Str(first.location().as_slice().to_vec())));
+    }
+    let elements = match node {
+        Node::HashNode { .. } => Some(node.as_hash_node().unwrap().elements()),
+        Node::KeywordHashNode { .. } => Some(node.as_keyword_hash_node().unwrap().elements()),
+        _ => None,
+    };
+    if let Some(elements) = elements {
+        let mut hash = Vec::new();
+        for element in elements.iter() {
+            let Some(pair) = element.as_assoc_node() else {
+                continue;
+            };
+            let value = argument_value(&pair.value(), file)?;
+            if let Some(key) = pair.key().as_symbol_node() {
+                let Some(value) = value else {
+                    return Ok(None);
+                };
+                hash.push((key.unescaped().to_vec(), value));
+            }
+        }
+        return Ok(Some(Value::Hash(hash)));
+    }
+    if rational_literal(node) {
+        return Ok(sprintf::str_to_r(source).map(|(n, d)| Value::Rational(n, d)));
+    }
+    if complex_literal(node) {
+        let (re, im) = parse_complex(source).ok_or(Raise)?;
+        return Ok(Some(Value::Complex(Box::new(re), Box::new(im))));
+    }
+    Ok(match node {
+        Node::StringNode { .. } => Some(Value::Str(
+            node.as_string_node().unwrap().unescaped().to_vec(),
+        )),
+        Node::InterpolatedStringNode { .. } => Some(Value::Str(dstr_value(node))),
+        Node::SymbolNode { .. } => Some(Value::Sym(
+            node.as_symbol_node().unwrap().unescaped().to_vec(),
+        )),
+        Node::IntegerNode { .. } => Some(integer(node)),
+        Node::FloatNode { .. } => Some(Value::Float(node.as_float_node().unwrap().value())),
+        Node::SourceLineNode { .. } => Some(Value::Int(i128::from(
+            file.line_of(node.location().start_offset()),
+        ))),
+        Node::SourceFileNode { .. } => None,
+        _ => Some(Value::Str(source.to_vec())),
+    })
+}
+
+fn integer(node: &Node<'_>) -> Value {
+    let value = node.as_integer_node().unwrap().value();
+    let (negative, digits) = value.to_u32_digits();
+    let mut n: Option<i128> = Some(0);
+    for d in digits.iter().rev() {
+        n = n.and_then(|n| n.checked_mul(1 << 32)?.checked_add(i128::from(*d)));
+    }
+    if let Some(n) = n {
+        return Value::Int(if negative { -n } else { n });
+    }
+    // Decimal digits of the base-2^32 limbs (most significant last).
+    let mut limbs: Vec<u32> = digits.iter().rev().copied().collect();
+    let mut chunks = Vec::new();
+    while limbs.iter().any(|&l| l != 0) {
+        let mut rem = 0u64;
+        for limb in &mut limbs {
+            let cur = (rem << 32) | u64::from(*limb);
+            *limb = (cur / 1_000_000_000) as u32;
+            rem = cur % 1_000_000_000;
+        }
+        chunks.push(rem);
+    }
+    let mut text = chunks.pop().map_or_else(String::new, |c| c.to_string());
+    for chunk in chunks.iter().rev() {
+        text.push_str(&format!("{chunk:09}"));
+    }
+    Value::Big(negative, text)
+}
+
+/// `DstrNode#value`: string parts by value, the rest by source.
+fn dstr_value(node: &Node<'_>) -> Vec<u8> {
+    let mut out = Vec::new();
+    for part in node.as_interpolated_string_node().unwrap().parts().iter() {
+        if let Some(s) = part.as_string_node() {
+            out.extend_from_slice(s.unescaped());
+        } else if part.as_interpolated_string_node().is_some() {
+            out.extend(dstr_value(&part));
+        } else if let Some(v) = part.as_embedded_variable_node() {
+            out.extend_from_slice(v.variable().location().as_slice());
+        } else {
+            out.extend_from_slice(part.location().as_slice());
+        }
+    }
+    out
+}
+
+/// `rational_number?`: `rational`, `(send int :/ rational)`, or either in
+/// one `begin`.
+fn rational_literal(node: &Node<'_>) -> bool {
+    special_literal(node, b"/", &|n| n.as_rational_node().is_some())
+}
+/// `complex_number?`, likewise for `complex` and `:+`.
+fn complex_literal(node: &Node<'_>) -> bool {
+    special_literal(node, b"+", &|n| n.as_imaginary_node().is_some())
+}
+fn special_literal(node: &Node<'_>, operator: &[u8], literal: &dyn Fn(&Node<'_>) -> bool) -> bool {
+    let shape = |n: &Node<'_>| {
+        literal(n)
+            || n.as_call_node().is_some_and(|c| {
+                c.name().as_slice() == operator
+                    && c.receiver().is_some_and(|r| r.as_integer_node().is_some())
+                    && c.block().is_none()
+                    && matches!(ast::call_arguments(&c).as_slice(), [a] if literal(a))
+            })
+    };
+    shape(node)
+        || node
+            .as_parentheses_node()
+            .and_then(|p| p.body())
+            .and_then(|b| b.as_statements_node())
+            .is_some_and(|s| s.body().len() == 1 && s.body().iter().all(|n| shape(&n)))
+}
+
+/// `Kernel#Complex(source)`: `[real](+|-)imag` + `i`; `None` where Ruby
+/// raises (hexadecimal or `r` parts).
+fn parse_complex(source: &[u8]) -> Option<(Value, Value)> {
+    let s = std::str::from_utf8(source.strip_suffix(b"i")?).ok()?;
+    let split = s
+        .char_indices()
+        .rev()
+        .find(|&(i, c)| i > 0 && matches!(c, '+' | '-') && !s[..i].ends_with(['e', 'E']))
+        .map(|(i, _)| i);
+    let (re, im) = match split {
+        Some(i) => (complex_part(&s[..i])?, complex_part(&s[i..])?),
+        None => (Value::Int(0), complex_part(s)?),
+    };
+    Some((re, im))
+}
+fn complex_part(s: &str) -> Option<Value> {
+    let body = s.strip_prefix(['+', '-']).unwrap_or(s);
+    let valid = !body.is_empty()
+        && body.starts_with(|c: char| c.is_ascii_digit())
+        && body
+            .chars()
+            .all(|c| c.is_ascii_digit() || matches!(c, '_' | '.' | 'e' | 'E' | '+' | '-' | '/'));
+    if !valid {
+        return None;
+    }
+    let clean = s.replace('_', "");
+    if let Some((n, d)) = clean.split_once('/') {
+        let (n, d) = (n.parse::<i128>().ok()?, d.parse::<i128>().ok()?);
+        let (mut a, mut b) = (n.abs(), d);
+        while b != 0 {
+            (a, b) = (b, a % b);
+        }
+        let g = a.max(1);
+        return Some(Value::Rational(n / g, d / g));
+    }
+    if clean.contains(['.', 'e', 'E']) {
+        clean.parse::<f64>().ok().map(Value::Float)
+    } else {
+        clean.parse::<i128>().ok().map(Value::Int)
+    }
+}
+
+/// Upstream's `quote`: the format string's delimiters, double quotes (or
+/// `%Q`) when the call holds an interpolation.
+fn quote(
+    call: &ruby_prism::CallNode<'_>,
+    string: &ruby_prism::StringNode<'_>,
+    formatted: &[u8],
+) -> Option<String> {
+    let mut start = String::from_utf8(string.opening_loc()?.as_slice().to_vec()).ok()?;
+    let mut end = String::from_utf8(string.closing_loc()?.as_slice().to_vec()).ok()?;
+    struct Interpolation(bool);
+    impl<'pr> NodeVisitor<'pr> for Interpolation {
+        fn enter(&mut self, node: Node<'pr>) {
+            self.0 |= node.as_interpolated_string_node().is_some()
+                || node.as_interpolated_symbol_node().is_some();
+        }
+    }
+    let mut found = Interpolation(false);
+    if let Some(receiver) = call.receiver() {
+        walk(&mut found, &receiver);
+    }
+    if let Some(arguments) = call.arguments() {
+        walk(&mut found, &arguments.as_node());
+    }
+    if let Some(block) = call
+        .block()
+        .filter(|b| b.as_block_argument_node().is_some())
+    {
+        walk(&mut found, &block);
+    }
+    if found.0 {
+        if start == "'" {
+            start = "\"".into();
+            end = "\"".into();
+        } else if let Some(rest) = start.strip_prefix("%q") {
+            start = format!("%Q{rest}");
+        }
+    }
+    let formatted = std::str::from_utf8(formatted).ok()?;
+    Some(format!(
+        "{start}{}{end}",
+        escape_controls(formatted.as_bytes())
+    ))
+}
+/// `gsub(/\p{Cc}/) { |s| s.dump[1..-2] }`.
 fn escape_controls(bytes: &[u8]) -> String {
+    use std::fmt::Write;
     let mut out = String::new();
     for c in String::from_utf8_lossy(bytes).chars() {
         match c {
@@ -107,8 +367,10 @@ fn escape_controls(bytes: &[u8]) -> String {
             '\x0b' => out.push_str("\\v"),
             '\x0c' => out.push_str("\\f"),
             '\x1b' => out.push_str("\\e"),
+            c if c.is_control() && (c as u32) < 0x80 => {
+                let _ = write!(out, "\\x{:02X}", c as u32);
+            }
             c if c.is_control() => {
-                use std::fmt::Write;
                 let _ = write!(out, "\\u{:04X}", c as u32);
             }
             c => out.push(c),
@@ -724,20 +986,20 @@ mod tests {
     #[test]
     fn exact_imaginary_zero_and_pinned_rational_forms_remain_convertible() {
         for method in ["format", "sprintf"] {
+            // Verified against RuboCop 1.92.0: `Complex()` raises for a
+            // hexadecimal or rational imaginary part, and so does the cop.
+            for arg in ["0x0i", "0ri", "0.0ri", "(0ri)", "5+0ri", "(5+0ri)"] {
+                assert_count(&format!("{method}('%d', {arg})"), 0);
+            }
             for arg in [
-                "0i", "-0i", "0x0i", "0ri", "0.0ri", "(0i)", "(0ri)", "5+0i", "(5+0i)", "5+0ri",
-                "(5+0ri)", "5r", "3/8r", "(3/8r)",
+                "0i", "-0i", "(0i)", "5+0i", "(5+0i)", "5r", "3/8r", "(3/8r)",
             ] {
                 for spec in ["%d", "%i", "%u", "%f", "%-2d"] {
                     let source = format!("  {method}('{spec}', {arg})");
                     let found = offenses(&source);
                     assert_eq!(found.len(), 1, "{source}");
                     assert_eq!((found[0].line, found[0].col), (1, 3), "{source}");
-                    assert_eq!(
-                        found[0].message,
-                        format!("Use literal values directly instead of `{method}`.")
-                    );
-                    assert!(found[0].correction.is_none());
+                    assert!(found[0].message.starts_with("Use `'"), "{source}");
                 }
                 for (spec, args) in [
                     ("%<x>d", format!("{{x: {arg}}}")),
@@ -950,6 +1212,42 @@ mod tests {
         assert_count("format('%2147483647s', 'x')", 1);
     }
     #[test]
+    fn corrections_and_messages_match_rubocop() {
+        // Each output printed by RuboCop 1.92.0 (`rubocop -A`).
+        for (source, fixed) in [
+            ("format('%.*s', 3, foo)", "'foo'"),
+            ("format('%<x>s', x: 1, x: foo)", "'foo'"),
+            ("format('%f', '1e9999')", "'Inf'"),
+            ("format('%.2f', 2.675)", "'2.68'"),
+            ("format('%.1f', 0.15)", "'0.2'"),
+            ("format('%s', 1e20)", "'1.0e+20'"),
+            ("format('%5.1f', -0.04)", "' -0.0'"),
+            ("format('%s %s', :foo, 1.5e-7)", "'foo 1.5e-07'"),
+            ("format('%d', '0x1A')", "'26'"),
+            ("format('%s', 1.5i)", "'0+1.5i'"),
+            ("format('%-8.3f|', 3/8r)", "'0.375   |'"),
+            ("format(\"%s\\x01\", 'a')", "\"a\\x01\""),
+            ("format('%s', \"a#@b\")", "\"a@b\""),
+            (
+                "format('%d', 99999999999999999999999999999999999999999)",
+                "'99999999999999999999999999999999999999999'",
+            ),
+            ("format('%{a}-%<b>s', a: 1, b: 2)", "'1-2'"),
+            ("format('%s', :\"a#{b}c\")", "\"a\""),
+            ("format('%3$s %1$s', 'a', 'b', 'c')", "'c a'"),
+            ("format('%*d', 5+0i, 1)", "'    1'"),
+        ] {
+            let found = crate::cops::testing::correction_offenses(&super::RedundantFormat, source);
+            assert_eq!(found.len(), 1, "{source}");
+            assert_eq!(
+                found[0].message,
+                format!("Use `{fixed}` directly instead of `format`.")
+            );
+            let applied = crate::corrections::apply(source.as_bytes(), &found).unwrap();
+            assert_eq!(String::from_utf8(applied.bytes).unwrap(), fixed, "{source}");
+        }
+    }
+    #[test]
     fn conversion_grammar_and_duplicate_named_keys() {
         for s in [
             "format('%d', (5))",
@@ -970,6 +1268,8 @@ mod tests {
             "format('%f', '0x_5')",
             "format('%<x>d', x: 1, x: 'bad')",
             "format('%<x>.2f', x: 1, x: 'bad')",
+            "format('%f', 0x0i)",
+            "format('%f', 0.0ri)",
         ] {
             assert_count(s, 0);
         }
@@ -981,8 +1281,6 @@ mod tests {
             "format('%<x>s', x: 1, x: foo)",
             "format('%f', '0xff')",
             "format('%f', '0x1.2p2')",
-            "format('%f', 0x0i)",
-            "format('%f', 0.0ri)",
             "format('%f', '.1')",
             "format('%f', '\x0b1')",
             "format('%d', '1\x0b')",

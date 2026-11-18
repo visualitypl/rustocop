@@ -1,8 +1,8 @@
-//! `Style/IfWithBooleanLiteralBranches` — detection only: predicate methods
-//! and comparison operators are not guaranteed to return actual booleans.
+//! `Style/IfWithBooleanLiteralBranches` — conditionals returning `true` or
+//! `false`; unsafe, as predicates need not return actual booleans.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{Node, StatementsNode};
@@ -10,6 +10,9 @@ pub struct IfWithBooleanLiteralBranches;
 impl Cop for IfWithBooleanLiteralBranches {
     fn name(&self) -> &'static str {
         "Style/IfWithBooleanLiteralBranches"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -77,6 +80,10 @@ impl Cop for IfWithBooleanLiteralBranches {
                 "Remove redundant ternary operator with boolean literal branches.".into(),
             )
         };
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(file, node, a))
+            .flatten();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -85,10 +92,64 @@ impl Cop for IfWithBooleanLiteralBranches {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1).max(start)),
-            correction: None,
+            correction,
         });
     }
 }
+/// The condition, negated (`opposite_condition?`) when the `if` branch is
+/// `false` (or an `unless` branch `true`); an `elsif` becomes `else`.
+fn correction(file: &SourceFile, node: &Node<'_>, if_branch: bool) -> Option<Correction> {
+    let (predicate, elsif) = match node.as_if_node() {
+        Some(n) => (
+            n.predicate(),
+            n.if_keyword_loc().is_some_and(|k| k.as_slice() == b"elsif"),
+        ),
+        None => (node.as_unless_node()?.predicate(), false),
+    };
+    let bang = if node.as_unless_node().is_some() {
+        if_branch
+    } else {
+        !if_branch
+    };
+    let condition = String::from_utf8(predicate.location().as_slice().to_vec()).ok()?;
+    // require_parentheses?: `operator_keyword?` or a comparison send.
+    let parentheses = predicate.as_and_node().is_some()
+        || predicate.as_or_node().is_some()
+        || predicate.as_call_node().is_some_and(|c| {
+            !c.is_safe_navigation()
+                && matches!(
+                    c.name().as_slice(),
+                    b"==" | b"===" | b"!=" | b"<=" | b">=" | b">" | b"<"
+                )
+        });
+    let replacement = match (bang, parentheses) {
+        (true, true) => format!("!({condition})"),
+        (true, false) => format!("!{condition}"),
+        _ => condition,
+    };
+    let start = node.location().start_offset();
+    if elsif {
+        let n = node.as_if_node()?;
+        let then = n.statements()?.body().iter().next()?;
+        let otherwise = n
+            .subsequent()?
+            .as_else_node()?
+            .statements()?
+            .body()
+            .iter()
+            .next()?;
+        let column = file.line_col(then.location().start_offset()).1 - 1;
+        return Some(Correction {
+            range: start..otherwise.location().end_offset(),
+            replacement: format!("else\n{}{replacement}", " ".repeat(column as usize)),
+        });
+    }
+    Some(Correction {
+        range: start..node.location().end_offset(),
+        replacement,
+    })
+}
+
 fn boolean_branch(statements: Option<StatementsNode<'_>>) -> Option<bool> {
     let statements = statements?;
     if statements.body().len() != 1 {
@@ -293,7 +354,7 @@ mod tests {
         PREDICATE_VISITS.with(|n| assert_eq!(n.get(), 12_000));
     }
     #[test]
-    fn all_pinned_diagnostics_and_unsafe_corrections() {
+    fn all_pinned_diagnostics_and_corrections() {
         let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
             "../../../tests/fixtures/if_with_boolean_literal_branches_pinned.json"
         ))
@@ -321,11 +382,14 @@ mod tests {
                 "spec {}",
                 c["spec_line"]
             );
-            assert!(
-                crate::cops::testing::correction_offenses(&IfWithBooleanLiteralBranches, source)
-                    .iter()
-                    .all(|o| o.correction.is_none())
-            );
+            if let Some(expected) = c["correction"].as_str() {
+                assert_eq!(
+                    crate::cops::testing::fix_until_stable(&IfWithBooleanLiteralBranches, source),
+                    expected,
+                    "spec {}",
+                    c["spec_line"]
+                );
+            }
         }
     }
 }
