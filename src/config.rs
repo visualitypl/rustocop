@@ -1,6 +1,6 @@
 //! `rustocop.toml` loading, discovery, strict validation, and resolution.
 //!
-//! Design decisions (see the project README):
+//! Design decisions (see docs/configuration.md):
 //! - TOML only; a missing file means "use the defaults".
 //! - Discovered by walking up from the current directory to the git root,
 //!   first hit wins.

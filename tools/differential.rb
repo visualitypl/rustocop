@@ -20,7 +20,7 @@ module Differential
   Result = Struct.new(:positions, :rejected, keyword_init: true)
   ESCAPES = { "%25" => "%", "%0D" => "\r", "%0A" => "\n", "%3A" => ":", "%2C" => "," }.freeze
 
-  # Keep aligned with the fixed defaults in README.md and tools/oracle/settings.rb.
+  # Keep aligned with the defaults in docs/migrating-from-rubocop.md and tools/oracle/settings.rb.
   # Unlisted settings are RuboCop's defaults (including settings read from
   # other cops). Do not use DisabledByDefault: that changes those semantics.
   CONFIG = {

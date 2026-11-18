@@ -929,7 +929,7 @@ module Oracle
   INERT = :inert
 
   # rustocop's settings where they are not RuboCop's defaults (see
-  # README.md). Keys absent here are RuboCop's default.
+  # docs/migrating-from-rubocop.md). Keys absent here are RuboCop's default.
   # Alternate boolean-cop options only matter when an actual candidate would
   # change. Keep shared negative examples and conditional-only `always` cases.
   class CaseEqualityAllowance
