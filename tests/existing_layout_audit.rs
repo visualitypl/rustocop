@@ -17,7 +17,7 @@ use crate::support::stdin as stdin_support;
 use rustocop::{cops::Registry, offense::Severity};
 
 /// `(cop, source, corrected source, finding positions)`. `None` after: the
-/// cop is detection-only (`Layout/LineLength`).
+/// cop has no correction for the source (`Layout/LineLength`, a long string).
 type Case = (
     &'static str,
     &'static str,
@@ -265,7 +265,7 @@ fn audited_identities_match_the_inventory_registry_and_fixed_policies() {
         assert_eq!(cop.default_enabled(), live["default_enabled"], "{name}");
         assert!(cop.default_enabled() && cop.department_selection_enables());
         assert_eq!(cop.safe_fixes(), live["safe_fixes"], "{name}");
-        assert_eq!(cop.safe_fixes(), name != "Layout/LineLength", "{name}");
+        assert!(cop.safe_fixes(), "{name}");
         assert_eq!(cop.severity(), Severity::Convention, "{name}");
         assert_eq!(live["severity"], "Convention", "{name}");
         assert_eq!(
@@ -445,14 +445,16 @@ fn read_only_targets_and_detection_only_line_length_are_never_written() {
     }
 }
 
-/// Layout/LineLength (max 120, detection-only) composes with the new
-/// whitespace, brace and alignment corrections: it is measured on the bytes
-/// each pass sees, never edits, and its `max` setting and directives apply.
+/// Layout/LineLength (max 120) composes with the new whitespace, brace and
+/// alignment corrections as in RuboCop: it is measured on the bytes each pass
+/// sees, its line breaks merge with the other edits, and its `max` setting and
+/// directives apply.
 #[test]
 fn line_length_120_composes_with_new_layout_corrections() {
     let padding = "a".repeat(102);
-    // 121 columns before the fix; 119 after SpaceInsideParens removes two
-    // spaces: the finding goes away with the correction that shortened it.
+    // 121 columns before the fix: LineLength breaks before the last argument
+    // in the same pass as SpaceInsideParens, and ArgumentAlignment aligns it
+    // (RuboCop 1.92.0 writes the same bytes).
     let shortened = format!("foo( {padding}, bbbbbbbbbb )\n");
     assert_eq!(shortened.len() - 1, 121);
     let dir = project("");
@@ -464,20 +466,20 @@ fn line_length_120_composes_with_new_layout_corrections() {
     assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(
         fs::read(&path).unwrap(),
-        format!("foo({padding}, bbbbbbbbbb)\n").as_bytes()
+        format!("foo({padding},\n    bbbbbbbbbb)\n").as_bytes()
     );
 
     // 119 columns before the fix and 123 after SpaceAfterComma and
-    // SpaceAroundOperators insert spaces: the next pass reports the line.
+    // SpaceAroundOperators insert spaces: the next pass breaks the line
+    // (RuboCop 1.92.0 writes the same bytes).
     let lengthened = format!("x = [{},1,2]+[3]\n", "b".repeat(105));
     assert_eq!(lengthened.len() - 1, 119);
     fs::write(&path, &lengthened).unwrap();
     let out = cli(dir.path(), &["--fix", "--only", "Layout", "x.rb"]);
-    assert_eq!(out.status.code(), Some(1), "{out:?}");
-    assert_eq!(positions(&out, "Layout/LineLength"), [(1, 121)]);
+    assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(
         fs::read(&path).unwrap(),
-        format!("x = [{}, 1, 2] + [3]\n", "b".repeat(105)).as_bytes()
+        format!("x = [{}, 1,\n     2] + [3]\n", "b".repeat(105)).as_bytes()
     );
 
     // Indentation corrections move a line past the limit as well.

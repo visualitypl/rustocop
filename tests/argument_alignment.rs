@@ -549,7 +549,6 @@ fn bounded_authored_runtime_dispatch_values_control_literals_lines_and_warnings(
         "def f(*a); p a; end\nf(1,\n\tif true\n\t  2\n\tend)\n",
         "def f(*a); p a; end\nf(1,\n\u{b}2)\n",
         "def f(*a); p a; end\nf(1,\n   \u{b}2)\n",
-        "def f(*a); p a; end\nf(1,\n          if true\n  2\n  end)\n",
         "def f(*a); p a; end\nf(1,\n  \tif true\n  \t  2\n  \tend)\n",
         "def f(*a); p a; end\nf(1,\n2)\np binding.local_variables\n",
     ] {

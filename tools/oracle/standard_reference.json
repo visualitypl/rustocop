@@ -2388,13 +2388,13 @@
           "minimum_ruby": null,
           "name": "Layout/LineLength",
           "path_policy": "None",
-          "safe_fixes": false,
+          "safe_fixes": true,
           "severity": "Convention"
         }
       },
       "correction": {
         "kind": "inherited_contract",
-        "actual_project_safe_fixes": false,
+        "actual_project_safe_fixes": true,
         "witness": null
       }
     },

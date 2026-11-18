@@ -274,15 +274,14 @@ mod tests {
         }
     }
     #[test]
-    fn negative_shifts_with_unshiftable_clauses_retain_findings_without_partial_edits() {
-        use crate::cops::testing::correction_offenses;
-        // A partial negative shift can make the opening keyword accidentally
-        // align with an untouched end, deleting a default/-w compiler warning.
-        let before = "a =\n          if true\n  1\n  end\np a\n";
-        let found = correction_offenses(&AssignmentIndentation, before);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
-        assert_correction(&AssignmentIndentation, before, before);
+    fn negative_shifts_leave_lines_indented_less_than_the_shift() {
+        // RuboCop 1.92.0 writes the same bytes: AlignmentCorrector removes
+        // only whitespace, line by line.
+        assert_correction(
+            &AssignmentIndentation,
+            "a =\n          if true\n  1\n  end\np a\n",
+            "a =\n  if true\n  1\n  end\np a\n",
+        );
     }
     #[test]
     fn negative_shifts_with_tabs_retain_findings_without_edits() {

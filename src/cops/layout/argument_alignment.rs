@@ -264,10 +264,9 @@ mod tests {
         }
     }
     #[test]
-    fn guarded_negative_tabs_unshiftable_clauses_and_document_comments_keep_findings() {
+    fn guarded_negative_tabs_and_document_comments_keep_findings() {
         for source in [
             "f(a,\n  \tb)\n",
-            "f(a,\n          if true\n  1\n  end)\n",
             "f(a,\nbegin\n=begin\ncomment\n=end\n  1\nend)\n",
         ] {
             let found = crate::cops::testing::correction_offenses(&ArgumentAlignment, source);
@@ -275,6 +274,14 @@ mod tests {
             assert!(found[0].correction.is_none());
             assert_correction(&ArgumentAlignment, source, source);
         }
+    }
+    #[test]
+    fn lines_indented_less_than_a_negative_shift_stay_as_rubocop_leaves_them() {
+        assert_correction(
+            &ArgumentAlignment,
+            "f(a,\n          if true\n  1\n  end)\n",
+            "f(a,\n  if true\n  1\n  end)\n",
+        );
     }
     #[test]
     fn wide_and_nested_argument_shifts_do_not_rescan_root_or_nested_expressions() {

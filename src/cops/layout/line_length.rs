@@ -25,19 +25,22 @@
 //! ending is not part of the line. The offense is reported at the first
 //! character that runs past the limit.
 
-use std::ops::Range;
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Range,
+};
 
 use ruby_prism::Node;
 use unicode_width::UnicodeWidthStr;
 
 use crate::{
     cops::{
-        Cop, NodeContext,
+        Cop, NodeContext, ast,
         settings::{self, Kind, Setting, Values},
         walk::{NodeVisitor, walk},
     },
     directives,
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -77,6 +80,10 @@ impl Cop for LineLength {
         "Layout/LineLength"
     }
 
+    fn safe_fixes(&self) -> bool {
+        true
+    }
+
     fn settings(&self) -> &'static [Setting] {
         const ALLOWED_PATTERNS: Setting = Setting {
             name: "allowed_patterns",
@@ -103,7 +110,7 @@ impl Cop for LineLength {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -111,6 +118,7 @@ impl Cop for LineLength {
             return;
         }
         let mut heredoc_bodies = None;
+        let mut breaks = None;
         let last_line = u32::try_from(file.code_line_count()).unwrap_or(u32::MAX);
         for line in 1..=last_line {
             let text = file.line_text(line);
@@ -129,12 +137,27 @@ impl Cop for LineLength {
             if bodies.iter().any(|body| body.contains(&line)) {
                 continue;
             }
-            let Some((length, excess_start)) = self.excess(file, line, &measured, length) else {
-                continue;
-            };
+            let breaks = breaks.get_or_insert_with(|| {
+                Breaks::collect(node, file, self.max, cx.corrections_requested())
+            });
+            // An endless method's line takes no exemption (`handle_endless_method_line`).
+            let (length, excess_start, correction) =
+                if let Some(rewrite) = breaks.endless.get(&line) {
+                    (length, measured.crossing(self.max), rewrite.clone())
+                } else {
+                    let Some((length, excess_start)) = self.excess(file, line, &measured, length)
+                    else {
+                        continue;
+                    };
+                    let correction = breaks.at.get(&line).map(|&at| Correction {
+                        range: at..at,
+                        replacement: "\n".into(),
+                    });
+                    (length, excess_start, correction)
+                };
             let (line, col) = file.line_col(file.line_start(line) + excess_start);
             out.push(Offense {
-                correction: None,
+                correction: correction.filter(|_| cx.corrections_requested()),
                 cop: self.name(),
                 severity: self.severity(),
                 message: format!("Line is too long. [{length}/{}]", self.max),
@@ -578,6 +601,446 @@ fn is_word_char(bytes: &[u8]) -> bool {
         .ok()
         .and_then(|s| s.chars().next())
         .is_some_and(|c| c.is_alphanumeric() || c == '_')
+}
+
+/// What RuboCop's autocorrection knows of a file: per line, where a line
+/// break goes (`breakable_range_by_line_index`) and the endless method
+/// rewritten (`endless_methods_by_line`).
+#[derive(Default)]
+struct Breaks {
+    at: HashMap<u32, usize>,
+    endless: HashMap<u32, Option<Correction>>,
+}
+
+impl Breaks {
+    /// `corrections`: collect the break positions too, not only the endless
+    /// methods (which detection needs).
+    fn collect(root: &Node<'_>, file: &SourceFile, max: usize, corrections: bool) -> Self {
+        let mut collector = Collector {
+            file,
+            max,
+            corrections,
+            comment_lines: if corrections {
+                file.comments()
+                    .iter()
+                    .map(|comment| file.line_of(comment.start))
+                    .collect()
+            } else {
+                HashSet::new()
+            },
+            ancestors: Vec::new(),
+            breaks: Breaks::default(),
+        };
+        if corrections && file.contains(b";") {
+            // `check_for_breakable_semicolons`: in reverse, so the first
+            // semicolon followed by something else on its line wins.
+            for token in file.parser_tokens().iter().rev() {
+                if token.kind != "tSEMI" {
+                    continue;
+                }
+                if file
+                    .bytes
+                    .get(token.end)
+                    .is_some_and(|byte| !matches!(byte, b'\r' | b'\n' | b';'))
+                {
+                    collector
+                        .breaks
+                        .at
+                        .insert(file.line_of(token.start), token.end);
+                }
+            }
+        }
+        walk(&mut collector, root);
+        collector.breaks
+    }
+}
+
+/// The tree walk behind [`Breaks`]: RuboCop's `on_block`, `on_send`,
+/// `on_array`, `on_hash` and `on_def`, with `CheckLineBreakable`.
+struct Collector<'a, 'pr> {
+    file: &'a SourceFile,
+    max: usize,
+    corrections: bool,
+    comment_lines: HashSet<u32>,
+    ancestors: Vec<Node<'pr>>,
+    breaks: Breaks,
+}
+
+impl<'pr> NodeVisitor<'pr> for Collector<'_, 'pr> {
+    fn enter(&mut self, node: Node<'pr>) {
+        if let Some(def) = node.as_def_node()
+            && def.equal_loc().is_some()
+        {
+            let line = self.file.line_of(node.location().start_offset());
+            let rewrite = self.endless_rewrite(&def);
+            self.breaks.endless.insert(line, rewrite);
+        } else if self.corrections {
+            match &node {
+                Node::CallNode { .. } => {
+                    let call = node.as_call_node().unwrap();
+                    if let Some(block) = call.block().and_then(|b| b.as_block_node()) {
+                        let lambda = call.name().as_slice() == b"lambda";
+                        self.on_block(
+                            &node,
+                            call.receiver(),
+                            &block.opening_loc(),
+                            block.parameters(),
+                            lambda,
+                        );
+                    }
+                    self.check_breakable(&node);
+                }
+                Node::SuperNode { .. } => {
+                    let block = node.as_super_node().unwrap().block();
+                    if let Some(block) = block.and_then(|b| b.as_block_node()) {
+                        self.on_block(&node, None, &block.opening_loc(), block.parameters(), false);
+                    }
+                }
+                Node::ForwardingSuperNode { .. } => {
+                    if let Some(block) = node.as_forwarding_super_node().unwrap().block() {
+                        self.on_block(&node, None, &block.opening_loc(), block.parameters(), false);
+                    }
+                }
+                Node::LambdaNode { .. } => {
+                    let lambda = node.as_lambda_node().unwrap();
+                    self.on_block(
+                        &node,
+                        None,
+                        &lambda.opening_loc(),
+                        lambda.parameters(),
+                        true,
+                    );
+                }
+                Node::ArrayNode { .. } | Node::HashNode { .. } | Node::DefNode { .. } => {
+                    self.check_breakable(&node);
+                }
+                _ => {}
+            }
+        }
+        self.ancestors.push(node);
+    }
+
+    fn leave(&mut self) {
+        self.ancestors.pop();
+    }
+}
+
+impl<'pr> Collector<'_, 'pr> {
+    fn first_line(&self, node: &Node<'_>) -> u32 {
+        self.file.line_of(node.location().start_offset())
+    }
+
+    fn last_line(&self, node: &Node<'_>) -> u32 {
+        let location = node.location();
+        self.file.line_of(
+            location
+                .end_offset()
+                .saturating_sub(1)
+                .max(location.start_offset()),
+        )
+    }
+
+    /// The 0-based character column of `offset`.
+    fn column(&self, offset: usize) -> usize {
+        self.file.line_col(offset).1 as usize - 1
+    }
+
+    /// `check_for_breakable_block`: overrides what the line had.
+    fn on_block(
+        &mut self,
+        node: &Node<'pr>,
+        receiver: Option<Node<'pr>>,
+        opening: &ruby_prism::Location<'pr>,
+        parameters: Option<Node<'pr>>,
+        lambda: bool,
+    ) {
+        if self.first_line(node) != self.last_line(node)
+            || receiver.is_some_and(|r| is_heredoc(&r) || has_heredoc_descendant(&r))
+        {
+            return;
+        }
+        // `arguments?`: explicit parameters, block-locals included.
+        let closing = parameters
+            .and_then(|p| p.as_block_parameters_node())
+            .filter(|p| p.parameters().is_some() || !p.locals().is_empty())
+            .and_then(|p| p.closing_loc());
+        let pos = match closing {
+            Some(closing) if !lambda => closing.end_offset(),
+            _ => opening.end_offset(),
+        };
+        let line = self.first_line(node);
+        self.breaks.at.insert(line, pos);
+    }
+
+    /// `check_for_breakable_node`: the first one on a line wins.
+    fn check_breakable(&mut self, node: &Node<'pr>) {
+        if let Some(start) = self.extract_breakable_node(node) {
+            self.breaks
+                .at
+                .entry(self.file.line_of(start))
+                .or_insert(start);
+        }
+    }
+
+    /// `extract_breakable_node`: where the chosen element starts.
+    fn extract_breakable_node(&self, node: &Node<'pr>) -> Option<usize> {
+        let elements = match node {
+            Node::CallNode { .. } => {
+                let call = node.as_call_node().unwrap();
+                let mut receiver = call.receiver();
+                while let Some(r) = receiver {
+                    if is_heredoc(&r) {
+                        return None;
+                    }
+                    receiver = r.as_call_node().and_then(|c| c.receiver());
+                }
+                process_args(ast::call_arguments(&call))
+            }
+            Node::DefNode { .. } => def_parameters(&node.as_def_node().unwrap()),
+            Node::ArrayNode { .. } => node.as_array_node().unwrap().elements().iter().collect(),
+            Node::HashNode { .. } => node.as_hash_node().unwrap().elements().iter().collect(),
+            _ => return None,
+        };
+        if elements.len() < 2 {
+            return None;
+        }
+        let line = self.first_line(node);
+        let text = self.file.line_text(line);
+        let start = self.file.line_start(line);
+        if self.column(start + text.len()) <= self.max || self.comment_lines.contains(&line) {
+            return None;
+        }
+        if self.safe_to_ignore(node, line, &elements) {
+            return None;
+        }
+        self.first_element_over_column_limit(node, line, elements)
+    }
+
+    /// `safe_to_ignore?`.
+    fn safe_to_ignore(&self, node: &Node<'pr>, line: u32, elements: &[Node<'pr>]) -> bool {
+        let multiline = if node.as_def_node().is_some() {
+            elements
+                .last()
+                .is_some_and(|last| self.last_line(last) != line)
+        } else {
+            let end = ast::source_end(node);
+            self.file
+                .line_of(end.saturating_sub(1).max(node.location().start_offset()))
+                != line
+        };
+        if multiline {
+            return true;
+        }
+        // `contained_by_breakable_collection_on_same_line?`
+        for index in (0..self.ancestors.len()).rev() {
+            if self.first_line(&self.ancestors[index]) != line {
+                break;
+            }
+            if self.ancestor_elements(index).is_some_and(|e| e.len() >= 2) {
+                return true;
+            }
+        }
+        // `contained_by_multiline_collection_that_could_be_broken_up?`
+        for index in (0..self.ancestors.len()).rev() {
+            if let Some(children) = self.ancestor_elements(index).filter(|e| e.len() >= 2) {
+                return self.children_could_be_broken_up(&children);
+            }
+        }
+        false
+    }
+
+    /// The elements of an ancestor that is a collection with brackets (an
+    /// array, a hash with braces or a call), as `breakable_collection?`
+    /// counts them. A call whose literal block holds the node is RuboCop's
+    /// `block` node, no call.
+    fn ancestor_elements(&self, index: usize) -> Option<Vec<Node<'pr>>> {
+        let ancestor = &self.ancestors[index];
+        match ancestor {
+            Node::ArrayNode { .. } => Some(
+                ancestor
+                    .as_array_node()
+                    .unwrap()
+                    .elements()
+                    .iter()
+                    .collect(),
+            ),
+            Node::HashNode { .. } => {
+                Some(ancestor.as_hash_node().unwrap().elements().iter().collect())
+            }
+            Node::CallNode { .. } => {
+                let from_block = self
+                    .ancestors
+                    .get(index + 1)
+                    .is_some_and(|child| child.as_block_node().is_some());
+                (!from_block)
+                    .then(|| process_args(ast::call_arguments(&ancestor.as_call_node().unwrap())))
+            }
+            _ => None,
+        }
+    }
+
+    /// `compute_children_could_be_broken_up?`: two children share a line.
+    fn children_could_be_broken_up(&self, children: &[Node<'pr>]) -> bool {
+        let (Some(first), Some(last)) = (children.first(), children.last()) else {
+            return false;
+        };
+        if self.first_line(first) == self.last_line(last) {
+            return false;
+        }
+        let mut last_seen = None;
+        for child in children {
+            if last_seen.is_some_and(|seen| seen >= self.first_line(child)) {
+                return true;
+            }
+            last_seen = Some(self.last_line(child));
+        }
+        false
+    }
+
+    /// `extract_first_element_over_column_limit`.
+    fn first_element_over_column_limit(
+        &self,
+        node: &Node<'pr>,
+        line: u32,
+        mut elements: Vec<Node<'pr>>,
+    ) -> Option<usize> {
+        // An unparenthesized call keeps its first argument in place.
+        if let Some(call) = node.as_call_node()
+            && call.opening_loc().is_none_or(|o| o.as_slice() != b"(")
+            && !ast::call_arguments(&call).first().is_some_and(is_heredoc)
+        {
+            elements.remove(0);
+        }
+        let mut index = elements
+            .iter()
+            .take_while(|e| {
+                let start = e.location().start_offset();
+                self.column(start) <= self.max && self.file.line_of(start) == line
+            })
+            .count();
+        // `shift_elements_for_heredoc_arg`: no break after a heredoc.
+        if node.as_def_node().is_none()
+            && let Some(heredoc) = self.heredoc_begin_position(node)
+        {
+            let last_safe = elements
+                .iter()
+                .rposition(|e| e.location().start_offset() <= heredoc)?;
+            if last_safe == 0 && elements[0].location().end_offset() > heredoc {
+                return None;
+            }
+            index = index.min(last_safe + 1);
+        }
+        let chosen = if index == 0 {
+            elements.first()?
+        } else {
+            &elements[index - 1]
+        };
+        Some(chosen.location().start_offset())
+    }
+
+    /// `heredoc_begin_position`: the first heredoc among the children (the
+    /// raw arguments of a call) and their descendants.
+    fn heredoc_begin_position(&self, node: &Node<'pr>) -> Option<usize> {
+        let children: Vec<Node<'pr>> = match node {
+            Node::CallNode { .. } => ast::call_arguments(&node.as_call_node().unwrap()),
+            Node::ArrayNode { .. } => node.as_array_node().unwrap().elements().iter().collect(),
+            Node::HashNode { .. } => node.as_hash_node().unwrap().elements().iter().collect(),
+            _ => return None,
+        };
+        children.iter().find_map(first_heredoc)
+    }
+
+    /// `correct_to_multiline` (EndlessMethodRewriter) for an endless method.
+    fn endless_rewrite(&self, def: &ruby_prism::DefNode<'pr>) -> Option<Correction> {
+        let file = self.file;
+        let text = |location: ruby_prism::Location<'_>| {
+            std::str::from_utf8(&file.bytes[location.start_offset()..location.end_offset()]).ok()
+        };
+        let receiver = match (def.receiver(), def.operator_loc()) {
+            (Some(receiver), Some(operator)) => {
+                format!("{}{}", text(receiver.location())?, text(operator)?)
+            }
+            _ => String::new(),
+        };
+        let name = std::str::from_utf8(def.name_loc().as_slice()).ok()?;
+        let arguments = match (def.parameters(), def.lparen_loc(), def.rparen_loc()) {
+            (Some(_), Some(open), Some(close)) => {
+                std::str::from_utf8(&file.bytes[open.start_offset()..close.end_offset()]).ok()?
+            }
+            (Some(parameters), ..) => text(parameters.location())?,
+            _ => "",
+        };
+        let body = text(def.body()?.location())?;
+        let start = def.location().start_offset();
+        let indent = " ".repeat(self.column(start));
+        Some(Correction {
+            range: start..def.location().end_offset(),
+            replacement: format!("def {receiver}{name}{arguments}\n{indent}  {body}\n{indent}end"),
+        })
+    }
+}
+
+/// `process_args`: the pairs of a trailing hash without braces count as
+/// arguments.
+fn process_args(mut args: Vec<Node<'_>>) -> Vec<Node<'_>> {
+    if let Some(hash) = args.last().and_then(|last| last.as_keyword_hash_node()) {
+        let pairs: Vec<_> = hash.elements().iter().collect();
+        args.pop();
+        args.extend(pairs);
+    }
+    args
+}
+
+/// A method definition's parameters in source order (RuboCop's `args`).
+fn def_parameters<'pr>(def: &ruby_prism::DefNode<'pr>) -> Vec<Node<'pr>> {
+    let Some(parameters) = def.parameters() else {
+        return Vec::new();
+    };
+    let mut nodes: Vec<Node<'pr>> = parameters.requireds().iter().collect();
+    nodes.extend(parameters.optionals().iter());
+    nodes.extend(parameters.rest());
+    nodes.extend(parameters.posts().iter());
+    nodes.extend(parameters.keywords().iter());
+    nodes.extend(parameters.keyword_rest());
+    nodes.extend(parameters.block().map(|b| b.as_node()));
+    nodes.sort_by_key(|n| n.location().start_offset());
+    nodes
+}
+
+/// RuboCop's `heredoc?`: a string or command literal opened with `<<`.
+fn is_heredoc(node: &Node<'_>) -> bool {
+    let opening = match node {
+        Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
+        Node::InterpolatedStringNode { .. } => {
+            node.as_interpolated_string_node().unwrap().opening_loc()
+        }
+        Node::XStringNode { .. } => Some(node.as_x_string_node().unwrap().opening_loc()),
+        Node::InterpolatedXStringNode { .. } => {
+            Some(node.as_interpolated_x_string_node().unwrap().opening_loc())
+        }
+        _ => None,
+    };
+    opening.is_some_and(|o| o.as_slice().starts_with(b"<<"))
+}
+
+/// Where the first heredoc in `node` (itself, then its descendants in
+/// order) starts.
+fn first_heredoc(node: &Node<'_>) -> Option<usize> {
+    struct Find(Option<usize>);
+    impl<'pr> NodeVisitor<'pr> for Find {
+        fn enter(&mut self, node: Node<'pr>) {
+            if self.0.is_none() && is_heredoc(&node) {
+                self.0 = Some(node.location().start_offset());
+            }
+        }
+    }
+    let mut find = Find(None);
+    walk(&mut find, node);
+    find.0
+}
+
+fn has_heredoc_descendant(node: &Node<'_>) -> bool {
+    first_heredoc(node).is_some()
 }
 
 /// The lines of every heredoc's body, as ranges of 1-based line numbers.
@@ -1245,6 +1708,41 @@ mod tests {
             // RuboCop counts characters: [44/40] at column 41.
             let source = "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaあbbbbb\"\n";
             assert_eq!(found_with(40, source), [at(1, 40, 45, 40)]);
+        }
+    }
+
+    #[test]
+    fn corrects_one_break_per_line_as_rubocop_does() {
+        use crate::cops::testing::assert_correction;
+        let cop = LineLength::new(40);
+        for (before, after) in [
+            // Before the last element starting within the limit.
+            (
+                "{abc: \"100000\", def: \"100000\", ghi: \"100000\", jkl: \"100000\"}\n",
+                "{abc: \"100000\", def: \"100000\", \nghi: \"100000\", jkl: \"100000\"}\n",
+            ),
+            // An unparenthesized call keeps its first argument.
+            (
+                "method_call xxxxxxxxxxxxxxxxxxxxxxxxxxxx, abc\n",
+                "method_call xxxxxxxxxxxxxxxxxxxxxxxxxxxx, \nabc\n",
+            ),
+            // A single-line block breaks after its parameters.
+            (
+                "foo.select { |bar| 4444000039123123129993912312312999199291203123123 }\n",
+                "foo.select { |bar|\n 4444000039123123129993912312312999199291203123123 }\n",
+            ),
+            // After a semicolon, before anything the tree offers.
+            (
+                "{foo: 1, bar: \"2\"}; a = 400000000000 + 500000000000000\n",
+                "{foo: 1, bar: \"2\"};\n a = 400000000000 + 500000000000000\n",
+            ),
+            // An endless method becomes a normal one.
+            (
+                "def very_long_method_name = some_long_expression_here_that_exceeds\n",
+                "def very_long_method_name\n  some_long_expression_here_that_exceeds\nend\n",
+            ),
+        ] {
+            assert_correction(&cop, before, after);
         }
     }
 }

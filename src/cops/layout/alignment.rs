@@ -213,10 +213,12 @@ pub(super) fn shift_lines(
             return None;
         }
         let target = prefix as i64 + delta;
-        if target < 0 || (target == 0 && &text[prefix..] == b"__END__") {
-            // A partial shift can accidentally align an untouched clause
-            // with a moved opener and erase a compiler warning. Preserve
-            // the complete source rather than guessing about that change.
+        // AlignmentCorrector removes only whitespace: a line indented less
+        // than the shift stays as it is.
+        if target < 0 {
+            continue;
+        }
+        if target == 0 && &text[prefix..] == b"__END__" {
             return None;
         }
         let range = line_start..line_start + prefix;

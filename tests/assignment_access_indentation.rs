@@ -208,8 +208,7 @@ fn adversarial_cli_corrections_are_canonical_or_guarded_no_write() {
             assert_unchanged(&path, &before, &old);
             if before != canonical {
                 withheld += 1;
-                // Holds are either inline modifier code or negative RHS shifts
-                // with an unshiftable clause: partial shifts can erase warnings.
+                // Holds are inline modifier code.
                 assert!(
                     before
                         .windows(b"(private; public)".len())
@@ -217,15 +216,7 @@ fn adversarial_cli_corrections_are_canonical_or_guarded_no_write() {
                         || before
                             .windows(b"(private)".len())
                             .any(|w| w == b"(private)")
-                        || before.starts_with(b"foo(\n  1) do; private")
-                        || (cop == ASSIGN
-                            && row["findings"].as_array().unwrap().iter().any(|o| {
-                                let line = o[0].as_u64().unwrap() as usize;
-                                before
-                                    .split(|b| *b == b'\n')
-                                    .nth(line - 1)
-                                    .is_some_and(|s| s.starts_with(b"     "))
-                            })),
+                        || before.starts_with(b"foo(\n  1) do; private"),
                     "unaccounted hold: {row}"
                 );
                 assert_eq!(out.status.code(), Some(1), "{row}: {out:?}");
@@ -250,7 +241,7 @@ fn adversarial_cli_corrections_are_canonical_or_guarded_no_write() {
     eprintln!(
         "adversarial correction count: {corrected} canonical rewrites; {withheld} guarded no-write controls"
     );
-    assert_eq!((corrected, withheld), (910, 169));
+    assert_eq!((corrected, withheld), (1076, 3));
 }
 #[test]
 fn safe_navigation_assignment_parent_cli_anchors_and_no_write_controls() {
@@ -1043,33 +1034,6 @@ fn native_ruby34_parses_all_reference_bytes_without_executing_them() {
     }
 }
 use crate::support::deprecated_constructor_native as native;
-#[test]
-fn partial_negative_shift_cannot_erase_native_warnings_or_write_source() {
-    let Ok(ruby) = crate::support::runtime::ruby() else {
-        return;
-    };
-    let d = project();
-    let path = d.path().join("example.rb");
-    for keyword in ["if true", "begin"] {
-        let source = format!("a =\n          {keyword}\n  1\n  end\np a\n");
-        let before = native::run(&ruby, &source);
-        assert!(before.status.success(), "{before:?}");
-        assert!(
-            String::from_utf8_lossy(&before.stderr).contains("mismatched indentations"),
-            "{before:?}"
-        );
-        fs::write(&path, &source).unwrap();
-        let old = fs::metadata(&path).unwrap();
-        let out = run(d.path(), &["--fix", "--only", ASSIGN, "example.rb"]);
-        assert_eq!(out.status.code(), Some(1), "{out:?}");
-        assert_eq!(count(&out, ASSIGN), 1);
-        assert_unchanged(&path, source.as_bytes(), &old);
-        let after = native::run(&ruby, &fs::read_to_string(&path).unwrap());
-        assert_eq!(before.stdout, after.stdout);
-        assert_eq!(before.stderr, after.stderr);
-        assert_eq!(before.status.code(), after.status.code());
-    }
-}
 #[test]
 fn emoji_width_cli_exact_corrections_and_no_offense_identity() {
     let d = project();

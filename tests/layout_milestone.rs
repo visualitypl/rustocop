@@ -239,14 +239,11 @@ fn exactly_the_authorized_layout_cops_ship_enabled_with_safe_fixes() {
             "{}",
             cop.name()
         );
-        // EndOfLine is detection-only upstream, like LineLength;
-        // the ClassStructure reorder is unsafe upstream.
+        // EndOfLine is detection-only upstream; the ClassStructure reorder
+        // is unsafe upstream.
         assert_eq!(
             cop.safe_fixes(),
-            !matches!(
-                cop.name(),
-                "Layout/LineLength" | "Layout/EndOfLine" | "Layout/ClassStructure"
-            )
+            !matches!(cop.name(), "Layout/EndOfLine" | "Layout/ClassStructure")
         );
         assert_eq!(
             cop.max_setting(),

@@ -1123,6 +1123,13 @@ module Oracle
       if cop == 'Style/ArrayIntersect' && target.to_f < 3.4 && IntersectionImplicitItVersion.match?(source)
         mismatches << 'Ruby behavior: implicit it binding differs before fixed Ruby 3.4'
       end
+      # SplitStrings changes only what LineLength's correction writes; rustocop
+      # has RuboCop's default (off), so a correction that splits a string (a
+      # line continuation) is not compared.
+      if correction && cop == "Layout/LineLength" && config.dig("Layout/LineLength", "SplitStrings") &&
+         source.match?(/\\\r?\n/)
+        mismatches << "Layout/LineLength SplitStrings=true"
+      end
       toml = {}
       # RuboCop's examples for this cop name Metrics cops, which are on there
       # and opt-in here: switch the department on, as the examples assume.
