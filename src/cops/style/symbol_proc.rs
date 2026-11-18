@@ -1,7 +1,7 @@
-//! `Style/SymbolProc` — fixed-default, unsafe, detection-only block advice.
+//! `Style/SymbolProc` — fixed-default `&:method` for single-call blocks.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -9,6 +9,14 @@ pub struct SymbolProc;
 impl Cop for SymbolProc {
     fn name(&self) -> &'static str {
         "Style/SymbolProc"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+    /// Upstream's Style/InverseMethods lists this cop as
+    /// autocorrect-incompatible and runs first.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
+        &["Style/InverseMethods"]
     }
     fn check_node<'pr>(
         &self,
@@ -83,6 +91,10 @@ impl Cop for SymbolProc {
         } else {
             format!("Pass `&:{method}` as an argument to `{dispatch}` instead of a block.")
         };
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(node, cx, &method, file))
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -90,9 +102,70 @@ impl Cop for SymbolProc {
             line,
             col,
             end_line,
-            correction: None,
+            correction,
         });
     }
+}
+
+/// Upstream's `autocorrect`: `(&:method)` for the block, appended to the
+/// arguments when there are any; a lambda literal becomes `lambda(&:method)`.
+fn correction(
+    node: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    method: &str,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let Some(block) = node.as_block_node() else {
+        return Some(Correction {
+            range: node.location().start_offset()..node.location().end_offset(),
+            replacement: format!("lambda(&:{method})"),
+        });
+    };
+    let parent = cx.parent()?;
+    let (arguments, opening) = if let Some(call) = parent.as_call_node() {
+        (call.arguments(), call.opening_loc())
+    } else if let Some(call) = parent.as_super_node() {
+        (call.arguments(), call.lparen_loc())
+    } else {
+        (None, None)
+    };
+    let last = arguments.and_then(|a| a.arguments().iter().last());
+    // block_range_with_space
+    let mut start = match (&last, opening) {
+        (None, Some(open)) => open.start_offset(),
+        _ => block.opening_loc().start_offset(),
+    };
+    let bytes = &file.bytes;
+    while start > 0 && matches!(bytes[start - 1], b' ' | b'\t') {
+        start -= 1;
+    }
+    while start > 0 && bytes[start - 1] == b'\n' {
+        start -= 1;
+    }
+    let block_range = start..block.closing_loc().end_offset();
+    let Some(last) = last else {
+        return Some(Correction {
+            range: block_range,
+            replacement: format!("(&:{method})"),
+        });
+    };
+    // autocorrect_with_args: after the last argument and a comma right after it.
+    let mut end = last.location().end_offset();
+    if bytes.get(end) == Some(&b',') {
+        end += 1;
+    }
+    let comma = if bytes[..end].ends_with(b",") {
+        ""
+    } else {
+        ","
+    };
+    Correction::from_edits(
+        bytes,
+        vec![
+            (end..end, format!("{comma} &:{method}")),
+            (block_range, String::new()),
+        ],
+    )
 }
 
 // Shared with TallyMethod. These match fixed-depth block shapes, not variable

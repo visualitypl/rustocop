@@ -1707,7 +1707,8 @@ mod tests {
         out.clear();
         assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
         assert_eq!(out.len(), 12000);
-        assert!(out.iter().all(|o| o.correction.is_none()));
+        // HashFetchChain corrects its 6000 chains; HashLookupMethod does not.
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
         let fetch = file.hash_fetch_facts.get().unwrap();
         assert_eq!(fetch.links, 49 * 6000);
         assert!(fetch.visits <= 6000 * 330 + 2, "{}", fetch.visits);
@@ -1748,7 +1749,8 @@ mod tests {
         let mut out = vec![];
         assert!(run_cops(&cops, &parsed, &f, &mut out).is_empty());
         assert_eq!(out.len(), 18000);
-        assert!(out.iter().all(|o| o.correction.is_none()));
+        // MapToSet corrects its 6000 calls.
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
         let facts = f.reduce_to_hash_facts.get().unwrap();
         assert!(facts.visits <= 6000 * 50 + 2, "{}", facts.visits);
         for _ in 0..6000 {

@@ -242,6 +242,11 @@ fn upstream_incompatible_companions_take_precedence_only_when_they_edit() {
         &BlockDelimiters,
         "# rubocop:disable Style/BlockDelimiters\na.map{ |x|\n  x\n}\n"
     ));
-    // SymbolProc is detection-only here: it never edits, so never defers.
-    assert!(brace_edit(&SymbolProc, "a.map{ |x| x.to_s }\n"));
+    // SymbolProc's edits are unsafe: a safe pass (this seam) does not apply
+    // them, so they defer nothing.
+    let found = crate::pipeline::lint_str_with_corrections(
+        &[&SpaceBeforeBlockBraces, &SymbolProc],
+        "a.map{ |x| x.to_s }\n",
+    );
+    assert!(found.iter().any(|o| o.cop == COP && o.correction.is_some()));
 }

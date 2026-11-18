@@ -1,7 +1,7 @@
-//! `Style/MapToSet` — unsafe map/collect to_set advice; detection only.
+//! `Style/MapToSet` — pass the map block to `to_set`.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense, space_left},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ impl Cop for MapToSet {
     fn name(&self) -> &'static str {
         "Style/MapToSet"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for MapToSet {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -50,6 +53,7 @@ impl Cop for MapToSet {
             return;
         }
         let selector = map.message_loc().unwrap();
+        let selector_range = selector.start_offset()..selector.end_offset();
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -61,7 +65,20 @@ impl Cop for MapToSet {
             line,
             col,
             end_line: file.last_line_of(selector),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| {
+                    let dot = to_set.call_operator_loc()?.start_offset();
+                    let end = to_set.message_loc()?.end_offset();
+                    Correction::from_edits(
+                        &file.bytes,
+                        vec![
+                            (space_left(&file.bytes, dot)..end, String::new()),
+                            (selector_range.clone(), "to_set".into()),
+                        ],
+                    )
+                })
+                .flatten(),
         });
     }
 }

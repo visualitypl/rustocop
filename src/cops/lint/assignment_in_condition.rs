@@ -20,7 +20,7 @@ use ruby_prism::{CallNode, InNode, Location, Node, ParenthesesNode, StatementsNo
 
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -33,6 +33,9 @@ const MESSAGE: &str = "Use `==` if you meant to do a comparison or wrap the expr
 impl Cop for AssignmentInCondition {
     fn name(&self) -> &'static str {
         "Lint/AssignmentInCondition"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
 
     fn check_node<'pr>(
@@ -80,10 +83,16 @@ struct Reporter<'a> {
 }
 
 impl Reporter<'_> {
-    fn report(&mut self, operator: &Location<'_>) {
+    /// Report at the `=` of `assignment`, wrapped in parentheses by the
+    /// correction (AllowSafeAssignment).
+    fn report(&mut self, operator: &Location<'_>, assignment: &Location<'_>) {
         let (line, col) = self.file.line_col(operator.start_offset());
+        let source = String::from_utf8(assignment.as_slice().to_vec()).ok();
         self.out.push(Offense {
-            correction: None,
+            correction: source.map(|source| Correction {
+                range: assignment.start_offset()..assignment.end_offset(),
+                replacement: format!("({source})"),
+            }),
             cop: self.cop.name(),
             severity: self.cop.severity(),
             message: MESSAGE.to_string(),
@@ -226,7 +235,7 @@ impl<'pr> Visit<'pr> for ConditionWalker<'_, '_> {
             return;
         }
         if let Some(operator) = node.equal_loc() {
-            self.reporter.report(&operator);
+            self.reporter.report(&operator, &node.location());
         }
         ruby_prism::visit_call_node(self, node);
     }
@@ -270,7 +279,7 @@ impl<'pr> Visit<'pr> for ConditionWalker<'_, '_> {
     }
 
     fn visit_local_variable_write_node(&mut self, node: &ruby_prism::LocalVariableWriteNode<'pr>) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_local_variable_write_node(self, node);
     }
 
@@ -278,12 +287,12 @@ impl<'pr> Visit<'pr> for ConditionWalker<'_, '_> {
         &mut self,
         node: &ruby_prism::InstanceVariableWriteNode<'pr>,
     ) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_instance_variable_write_node(self, node);
     }
 
     fn visit_class_variable_write_node(&mut self, node: &ruby_prism::ClassVariableWriteNode<'pr>) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_class_variable_write_node(self, node);
     }
 
@@ -291,22 +300,22 @@ impl<'pr> Visit<'pr> for ConditionWalker<'_, '_> {
         &mut self,
         node: &ruby_prism::GlobalVariableWriteNode<'pr>,
     ) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_global_variable_write_node(self, node);
     }
 
     fn visit_constant_write_node(&mut self, node: &ruby_prism::ConstantWriteNode<'pr>) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_constant_write_node(self, node);
     }
 
     fn visit_constant_path_write_node(&mut self, node: &ruby_prism::ConstantPathWriteNode<'pr>) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_constant_path_write_node(self, node);
     }
 
     fn visit_multi_write_node(&mut self, node: &ruby_prism::MultiWriteNode<'pr>) {
-        self.reporter.report(&node.operator_loc());
+        self.reporter.report(&node.operator_loc(), &node.location());
         ruby_prism::visit_multi_write_node(self, node);
     }
 

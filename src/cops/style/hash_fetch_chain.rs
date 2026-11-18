@@ -4,7 +4,7 @@ use crate::{
         Cop, NodeContext, ast,
         walk::{NodeVisitor, walk},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -16,6 +16,9 @@ pub struct HashFetchChain;
 impl Cop for HashFetchChain {
     fn name(&self) -> &'static str {
         "Style/HashFetchChain"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -46,7 +49,14 @@ impl Cop for HashFetchChain {
             line,
             col,
             end_line: file.line_of(range.end.saturating_sub(1)),
-            correction: None,
+            correction: message
+                .strip_prefix("Use `")
+                .and_then(|m| m.strip_suffix("` instead."))
+                .filter(|_| cx.corrections_requested())
+                .map(|replacement| Correction {
+                    range: range.clone(),
+                    replacement: replacement.to_owned(),
+                }),
         });
     }
 }

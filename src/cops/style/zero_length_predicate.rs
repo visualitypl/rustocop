@@ -1,9 +1,9 @@
-//! `Style/ZeroLengthPredicate` — prefer empty predicates (unsafe, detection only).
+//! `Style/ZeroLengthPredicate` — prefer empty predicates.
 use ruby_prism::{CallNode, Node};
 
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -13,6 +13,9 @@ impl Cop for ZeroLengthPredicate {
     fn name(&self) -> &'static str {
         "Style/ZeroLengthPredicate"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -21,7 +24,7 @@ impl Cop for ZeroLengthPredicate {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -92,6 +95,35 @@ impl Cop for ZeroLengthPredicate {
             }
         };
         let preferred = if nonzero { "!empty?" } else { "empty?" };
+        // `zero?` replaces `size.zero?`; a comparison is replaced whole by
+        // `recv.empty?`, or `!recv.empty?` when `zero_length_node` (a plain
+        // send) does not match.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                if op == b"zero?" {
+                    return Some(Correction {
+                        range: start..node.location().end_offset(),
+                        replacement: "empty?".into(),
+                    });
+                }
+                let receiver = length.receiver()?;
+                let dot = length.call_operator_loc()?;
+                let bang = if nonzero || call.is_safe_navigation() {
+                    "!"
+                } else {
+                    ""
+                };
+                Some(Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement: format!(
+                        "{bang}{}{}empty?",
+                        String::from_utf8_lossy(receiver.location().as_slice()),
+                        String::from_utf8_lossy(dot.as_slice())
+                    ),
+                })
+            })
+            .flatten();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -100,7 +132,7 @@ impl Cop for ZeroLengthPredicate {
             col,
             end_line: file.line_of(end.saturating_sub(1)),
             message: format!("Use `{preferred}` instead of `{current}`."),
-            correction: None,
+            correction,
         });
     }
 }

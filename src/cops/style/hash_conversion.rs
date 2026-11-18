@@ -1,7 +1,7 @@
-//! `Style/HashConversion` — fixed AllowSplatArgument=true; unsafe corrections omitted.
+//! `Style/HashConversion` — fixed AllowSplatArgument=true.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -9,6 +9,9 @@ pub struct HashConversion;
 impl Cop for HashConversion {
     fn name(&self) -> &'static str {
         "Style/HashConversion"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -41,6 +44,10 @@ impl Cop for HashConversion {
             _ if args.iter().any(|arg| arg.as_splat_node().is_some()) => return,
             _ => "Prefer literal hash to `Hash[arg1, arg2, ...]`.",
         };
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(node, &args, end, cx, file))
+            .flatten();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -49,10 +56,134 @@ impl Cop for HashConversion {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
+fn text(node: &Node<'_>) -> String {
+    String::from_utf8_lossy(node.location().as_slice()).into_owned()
+}
+
+fn correction(
+    node: &Node<'_>,
+    args: &[Node<'_>],
+    end: usize,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let range = node.location().start_offset()..end;
+    let mut edits = Vec::new();
+    match args {
+        [arg] if arg.as_hash_node().is_some() || arg.as_keyword_hash_node().is_some() => {
+            edits.push((range, format!("{{{}}}", text(arg))));
+            parent_parentheses(node, cx, &mut edits);
+        }
+        [arg] => {
+            // use_zip_method_without_argument?: give `zip` its argument.
+            if let Some(zip) = arg.as_call_node().filter(|c| {
+                !c.is_safe_navigation()
+                    && c.name().as_slice() == b"zip"
+                    && ast::call_arguments(c).is_empty()
+            }) {
+                let at = match zip.closing_loc() {
+                    Some(close) => close.start_offset(),
+                    None => ast::source_end(arg),
+                };
+                let text = if zip.closing_loc().is_some() {
+                    "[]"
+                } else {
+                    "([])"
+                };
+                edits.push((at..at, text.into()));
+            } else {
+                let parens = if let Some(call) = arg.as_call_node() {
+                    call.name().as_slice() != b"[]"
+                        && !ast::call_arguments(&call).is_empty()
+                        && call.opening_loc().is_none()
+                } else {
+                    arg.as_and_node().is_some() || arg.as_or_node().is_some()
+                };
+                let source = text(arg);
+                let source = if parens {
+                    format!("({source})")
+                } else {
+                    source
+                };
+                edits.push((range, format!("{source}.to_h")));
+            }
+        }
+        _ if args.len() % 2 == 1 => return None,
+        _ => {
+            let pairs: Vec<String> = args
+                .chunks(2)
+                .map(|pair| format!("{} => {}", text(&pair[0]), text(&pair[1])))
+                .collect();
+            edits.push((range, format!("{{{}}}", pairs.join(", "))));
+            parent_parentheses(node, cx, &mut edits);
+        }
+    }
+    Correction::from_edits(&file.bytes, edits)
+}
+
+/// `add_parentheses_to_parent_call`: a hash literal starting an unparenthesized
+/// argument list would parse as a block.
+fn parent_parentheses(
+    node: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    edits: &mut Vec<(std::ops::Range<usize>, String)>,
+) {
+    // Parser's parents: Prism's arguments list is not one.
+    let mut ancestors = cx.ancestors().filter(|a| a.as_arguments_node().is_none());
+    let mut start = node.location().start_offset();
+    let parent = loop {
+        let Some(parent) = ancestors.next() else {
+            return;
+        };
+        if parent.location().start_offset() != start {
+            break parent;
+        }
+        start = parent.location().start_offset();
+    };
+    let (keyword, parenthesized, end) = if let Some(call) = parent.as_call_node() {
+        let name = call.name();
+        let name = name.as_slice();
+        let setter = name.ends_with(b"=") && call.is_attribute_write();
+        let operator = ast::is_operator_method(name) && call.call_operator_loc().is_none();
+        if setter || operator {
+            return;
+        }
+        let Some(selector) = call.message_loc() else {
+            return;
+        };
+        (
+            selector,
+            call.opening_loc().is_some(),
+            ast::source_end(parent),
+        )
+    } else if let Some(s) = parent.as_super_node() {
+        (
+            s.keyword_loc(),
+            s.lparen_loc().is_some(),
+            s.arguments()
+                .map_or(s.keyword_loc().end_offset(), |a| a.location().end_offset()),
+        )
+    } else if let Some(y) = parent.as_yield_node() {
+        (
+            y.keyword_loc(),
+            y.lparen_loc().is_some(),
+            y.location().end_offset(),
+        )
+    } else {
+        return;
+    };
+    if parenthesized {
+        return;
+    }
+    let at = keyword.end_offset();
+    edits.push((at..at + 1, "(".into()));
+    edits.push((end..end, ")".into()));
+}
+
 fn candidate<'pr>(node: &Node<'pr>) -> Option<(Vec<Node<'pr>>, usize)> {
     let end = candidate_end(node)?;
     let args = if let Some(call) = node.as_call_node() {
@@ -142,7 +273,6 @@ mod tests {
                     "{visits} argument visits for {n} nested candidates"
                 );
                 assert_eq!(found.len(), if source.contains('{') { 2 } else { 1 });
-                assert!(found.iter().all(|o| o.correction.is_none()));
             }
         }
     }
@@ -201,7 +331,7 @@ mod tests {
             assert_eq!(o[0].message, TO_H);
             let fixes = crate::cops::testing::correction_offenses(&HashConversion, &s);
             assert_eq!(fixes.len(), 1);
-            assert!(fixes[0].correction.is_none());
+            assert!(fixes[0].correction.is_some());
         }
     }
     #[test]
@@ -239,9 +369,46 @@ mod tests {
             assert_eq!(o[0].message, msg, "{s}");
             let fixes = crate::cops::testing::correction_offenses(&HashConversion, s);
             assert_eq!(fixes.len(), 1, "{s}");
-            assert!(fixes[0].correction.is_none(), "{s}");
+            // An odd argument count has no literal to suggest.
+            assert_eq!(fixes[0].correction.is_none(), s == "Hash[a, b, c]", "{s}");
         }
         assert!(!HashConversion.safe_fixes());
+    }
+    #[test]
+    fn corrections_add_parent_parentheses_as_rubocop_does() {
+        // Each output printed by RuboCop (pinned revision), `-A`.
+        for (source, fixed) in [
+            ("Hash[a.foo :bar]", "(a.foo :bar).to_h"),
+            ("Hash[array.zip]", "array.zip([]).to_h"),
+            ("Hash[a || b]", "(a || b).to_h"),
+            ("Hash[a[1]]", "a[1].to_h"),
+            (
+                "do_something Hash[a: b, c: d], 42",
+                "do_something({a: b, c: d}, 42)",
+            ),
+            (
+                "def foo\n  super x, Hash[a => b]\nend",
+                "def foo\n  super(x, {a => b})\nend",
+            ),
+            (
+                "def foo\n  yield Hash[a, b]\nend",
+                "def foo\n  yield({a => b})\nend",
+            ),
+            (
+                "do_something Hash[a, b].merge(c)",
+                "do_something({a => b}.merge(c))",
+            ),
+            ("foo.bar = Hash[a => b]", "foo.bar = {a => b}"),
+            ("foo == Hash[a, b]", "foo == {a => b}"),
+            ("foo.[] Hash[a, b]", "foo.[]({a => b})"),
+            ("foo Hash[a, b] do\n  x\nend", "foo({a => b}) do\n  x\nend"),
+        ] {
+            assert_eq!(
+                crate::cops::testing::fix_until_stable(&HashConversion, source),
+                fixed,
+                "{source}"
+            );
+        }
     }
     #[test]
     fn pinned_splats_and_receiver_setter_lookalikes() {

@@ -1,7 +1,7 @@
-//! `Style/SelectByRegexp` — prefer grep/grep_v for regexp predicates (detection-only).
+//! `Style/SelectByRegexp` — prefer grep/grep_v for regexp predicates.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, CallNode, Node};
@@ -11,6 +11,9 @@ impl Cop for SelectByRegexp {
     fn name(&self) -> &'static str {
         "Style/SelectByRegexp"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for SelectByRegexp {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -92,6 +95,45 @@ impl Cop for SelectByRegexp {
         } else {
             "grep"
         };
+        // find_regexp: the operand opposite the block variable.
+        let text = |n: &Node<'_>| n.location().as_slice().to_vec();
+        let regexp: Option<Vec<u8>> = if check.as_match_write_node().is_some() {
+            predicate.receiver().map(|n| text(&n))
+        } else {
+            let lvar = |n: &Node<'_>| {
+                n.as_local_variable_read_node().is_some()
+                    || n.as_it_local_variable_read_node().is_some()
+            };
+            let implicit = block.parameters().is_some_and(|p| {
+                p.as_numbered_parameters_node().is_some() || p.as_it_parameters_node().is_some()
+            });
+            let first_parameter = block
+                .parameters()
+                .and_then(|p| p.as_block_parameters_node())
+                .and_then(|p| p.parameters())
+                .and_then(|p| p.requireds().iter().next())
+                .map(|p| p.location().as_slice().to_vec());
+            match predicate.receiver() {
+                Some(receiver)
+                    if lvar(&receiver)
+                        && (implicit
+                            || first_parameter.as_deref()
+                                == Some(receiver.location().as_slice())) =>
+                {
+                    args.first().map(text)
+                }
+                receiver if args.first().is_some_and(lvar) => receiver.map(|n| text(&n)),
+                _ => None,
+            }
+        };
+        let correction = regexp
+            .filter(|_| cx.corrections_requested())
+            .and_then(|regexp| {
+                Some(Correction {
+                    range: call.message_loc()?.start_offset()..block.closing_loc().end_offset(),
+                    replacement: format!("{replacement}({})", String::from_utf8_lossy(&regexp)),
+                })
+            });
         let (line, col) = file.line_col(call.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -99,7 +141,7 @@ impl Cop for SelectByRegexp {
             line,
             col,
             end_line: file.last_line_of(call.location()),
-            correction: None,
+            correction,
             message: format!(
                 "Prefer `{replacement}` to `{}` with a regexp match.",
                 String::from_utf8_lossy(call.name().as_slice())

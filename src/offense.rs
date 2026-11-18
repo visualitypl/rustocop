@@ -201,6 +201,18 @@ pub fn space_right(source: &[u8], mut pos: usize) -> usize {
     pos
 }
 
+/// RuboCop's `range_with_surrounding_space(side: :left)` start: spaces and
+/// tabs, then line breaks, before `pos`.
+pub fn space_left(source: &[u8], mut pos: usize) -> usize {
+    while pos > 0 && matches!(source[pos - 1], b' ' | b'\t') {
+        pos -= 1;
+    }
+    while pos > 0 && source[pos - 1] == b'\n' {
+        pos -= 1;
+    }
+    pos
+}
+
 /// Source text quoted in a message, on one line: line breaks become
 /// spaces, as RuboCop's formatters print them.
 pub fn single_line(source: &[u8]) -> String {

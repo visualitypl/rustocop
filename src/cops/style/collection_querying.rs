@@ -2,7 +2,7 @@
 //! Unsafe/detection-only: predicates can short circuit, change equality, or be absent.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense, space_left},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ pub struct CollectionQuerying;
 impl Cop for CollectionQuerying {
     fn name(&self) -> &'static str {
         "Style/CollectionQuerying"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -89,7 +92,31 @@ impl Cop for CollectionQuerying {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| {
+                    // Rename `count`, `!` before it for `!empty?`, and remove
+                    // the predicate with the space before it.
+                    let mut edits = Vec::new();
+                    let name = if let Some(name) = replacement.strip_prefix('!') {
+                        let at = count.location().start_offset();
+                        edits.push((at..at, "!".to_owned()));
+                        name
+                    } else {
+                        replacement
+                    };
+                    edits.push((
+                        selector.start_offset()..selector.end_offset(),
+                        name.to_owned(),
+                    ));
+                    let from = call.call_operator_loc().or_else(|| call.message_loc())?;
+                    edits.push((
+                        space_left(&file.bytes, from.start_offset())..node.location().end_offset(),
+                        String::new(),
+                    ));
+                    Correction::from_edits(&file.bytes, edits)
+                })
+                .flatten(),
         });
     }
 }
@@ -124,7 +151,7 @@ fn direct_dotted_receiver(parent: &Node<'_>, node: &Node<'_>) -> bool {
 mod tests {
     //! RuboCop collection_querying_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).
     use super::*;
-    use crate::{cops::testing::correction_offenses, pipeline::lint_str};
+    use crate::pipeline::lint_str;
     fn offenses(s: &str) -> Vec<Offense> {
         lint_str(s)
             .into_iter()
@@ -165,10 +192,18 @@ mod tests {
                             if block.is_empty() { empty } else { predicate }
                         )
                     );
-                    assert!(
-                        correction_offenses(&CollectionQuerying, &s)[0]
-                            .correction
-                            .is_none()
+                    let fixed = if block.is_empty() {
+                        match empty.strip_prefix('!') {
+                            Some(name) => format!("!{receiver}{name}"),
+                            None => format!("{receiver}{empty}"),
+                        }
+                    } else {
+                        format!("{receiver}{predicate}{block}")
+                    };
+                    assert_eq!(
+                        crate::cops::testing::fix_until_stable(&CollectionQuerying, &s),
+                        format!("# header\n  {fixed}"),
+                        "{s}"
                     );
                 }
             }

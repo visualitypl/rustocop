@@ -1,7 +1,7 @@
 //! `Style/MapCompactWithConditionalBlock` — unsafe select/reject suggestions.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -9,6 +9,9 @@ pub struct MapCompactWithConditionalBlock;
 impl Cop for MapCompactWithConditionalBlock {
     fn name(&self) -> &'static str {
         "Style/MapCompactWithConditionalBlock"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -103,6 +106,26 @@ impl Cop for MapCompactWithConditionalBlock {
             "filter_map { ... }".into()
         };
         let prefer = if select { "select" } else { "reject" };
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let first = body.body().iter().next()?;
+                let condition = match first.as_if_node() {
+                    Some(n) => n.predicate(),
+                    None => first.as_unless_node()?.predicate(),
+                };
+                let text =
+                    |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+                Some(Correction {
+                    range: selector.start_offset()..end,
+                    replacement: format!(
+                        "{prefer} {{ |{}| {} }}",
+                        text(&param.as_node()),
+                        text(&condition)
+                    ),
+                })
+            })
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -110,7 +133,7 @@ impl Cop for MapCompactWithConditionalBlock {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }

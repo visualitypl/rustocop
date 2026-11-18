@@ -1,7 +1,7 @@
-//! `Style/RedundantSort` — unsafe sort-then-select hints, never corrections.
+//! `Style/RedundantSort` — `min`/`max` for sort-then-select.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Offense, single_line},
+    offense::{Correction, Offense, single_line},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -9,6 +9,9 @@ pub struct RedundantSort;
 impl Cop for RedundantSort {
     fn name(&self) -> &'static str {
         "Style/RedundantSort"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -82,10 +85,55 @@ impl Cop for RedundantSort {
                 single_line(sorter),
                 single_line(&file.bytes[access_selector.start_offset()..end])
             ),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| correction(&access, &selector, &suggestion, cx, file))
+                .flatten(),
         });
     }
 }
+/// Rename the sorter and remove the accessor (`remove_accessor`).
+fn correction(
+    access: &CallNode<'_>,
+    selector: &ruby_prism::Location<'_>,
+    suggestion: &str,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let end = access.location().end_offset();
+    let receiver_end = access.receiver()?.location().end_offset();
+    let accessor_start = access
+        .call_operator_loc()
+        .or_else(|| access.message_loc())?
+        .start_offset();
+    let mut edits = vec![(
+        selector.start_offset()..selector.end_offset(),
+        suggestion.to_owned(),
+    )];
+    let before = &file.bytes[receiver_end..accessor_start];
+    if before.contains(&b'\n') && before.iter().all(u8::is_ascii_whitespace) {
+        edits.push((receiver_end..end, String::new()));
+    } else {
+        edits.push((accessor_start..end, String::new()));
+        let operator = cx.parent().and_then(|p| match p {
+            Node::AndNode { .. } => Some(p.as_and_node().unwrap().operator_loc()),
+            Node::OrNode { .. } => Some(p.as_or_node().unwrap().operator_loc()),
+            _ => None,
+        });
+        if let Some(operator) = operator {
+            edits.push((
+                receiver_end..receiver_end,
+                format!(" {}", String::from_utf8_lossy(operator.as_slice())),
+            ));
+            edits.push((
+                operator.start_offset()..operator.end_offset(),
+                String::new(),
+            ));
+        }
+    }
+    Correction::from_edits(&file.bytes, edits)
+}
+
 fn endpoint(call: &CallNode<'_>) -> Option<bool> {
     let args = ast::call_arguments(call);
     match call.name().as_slice() {
@@ -191,10 +239,10 @@ mod tests {
                         if min { "min" } else { "max" }
                     )
                 );
-                assert!(
-                    crate::cops::testing::correction_offenses(&RedundantSort, &s)[0]
-                        .correction
-                        .is_none()
+                let rest = sort.strip_prefix(sorter).unwrap();
+                assert_eq!(
+                    crate::cops::testing::fix_until_stable(&RedundantSort, &s),
+                    format!("\n  xs.{}{suffix}{rest}", if min { "min" } else { "max" })
                 );
             }
         }

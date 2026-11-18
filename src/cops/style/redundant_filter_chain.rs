@@ -1,7 +1,7 @@
-//! `Style/RedundantFilterChain` — prefer a direct predicate (unsafe correction withheld).
+//! `Style/RedundantFilterChain` — prefer a direct predicate.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ impl Cop for RedundantFilterChain {
     fn name(&self) -> &'static str {
         "Style/RedundantFilterChain"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for RedundantFilterChain {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -62,6 +65,20 @@ impl Cop for RedundantFilterChain {
         let Some(end) = predicate.message_loc() else {
             return;
         };
+        // Remove `.any?` (predicate_range) and rename the filter.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let receiver_end = predicate.receiver()?.location().end_offset();
+                Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (receiver_end..end.end_offset(), String::new()),
+                        (start.start_offset()..start.end_offset(), prefer.into()),
+                    ],
+                )
+            })
+            .flatten();
         let (line, col) = file.line_col(start.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -69,7 +86,7 @@ impl Cop for RedundantFilterChain {
             line,
             col,
             end_line: file.last_line_of(end),
-            correction: None,
+            correction,
             message: format!(
                 "Use `{prefer}` instead of `{}.{}`.",
                 String::from_utf8_lossy(select.name().as_slice()),

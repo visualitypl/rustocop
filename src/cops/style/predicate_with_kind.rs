@@ -2,7 +2,7 @@
 //! Detection only: `===` and kind checks need not have equivalent semantics.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{BlockNode, Node};
@@ -12,6 +12,9 @@ impl Cop for PredicateWithKind {
     fn name(&self) -> &'static str {
         "Style/PredicateWithKind"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -20,7 +23,7 @@ impl Cop for PredicateWithKind {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -77,7 +80,15 @@ impl Cop for PredicateWithKind {
             message: format!(
                 "Prefer `{method}({class})` to `{method} {{ ... }}` with a kind check."
             ),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| {
+                    Some(Correction {
+                        range: call.message_loc()?.start_offset()..block.closing_loc().end_offset(),
+                        replacement: format!("{method}({class})"),
+                    })
+                })
+                .flatten(),
         });
     }
 }
@@ -238,7 +249,7 @@ mod tests {
     }
 
     #[test]
-    fn arbitrary_class_expressions_and_shadowed_dispatch_still_report_without_edits() {
+    fn arbitrary_class_expressions_and_shadowed_dispatch_are_corrected() {
         use crate::cops::testing::correction_offenses;
         for class in [
             "::Integer",
@@ -257,7 +268,10 @@ mod tests {
             assert_offense(&source, "any?", class, 3, 3, 3);
             let found = correction_offenses(&PredicateWithKind, &source);
             assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
+            assert_eq!(
+                found[0].correction.as_ref().unwrap().replacement,
+                format!("any?({class})")
+            );
         }
         for prefix in [
             "def array.any?(*args); yield Object.new; end",
@@ -268,10 +282,13 @@ mod tests {
         ] {
             let source = format!("{prefix}\narray.any? {{ |x| x.is_a?(Integer) }}");
             assert_offense(&source, "any?", "Integer", 2, 1, 2);
-            assert!(
+            assert_eq!(
                 correction_offenses(&PredicateWithKind, &source)[0]
                     .correction
-                    .is_none()
+                    .as_ref()
+                    .unwrap()
+                    .replacement,
+                "any?(Integer)"
             );
         }
         assert_offense(
