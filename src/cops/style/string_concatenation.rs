@@ -1,7 +1,7 @@
-//! `Style/StringConcatenation` — aggressive, detection-only.
+//! `Style/StringConcatenation` — aggressive mode; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -11,6 +11,9 @@ pub struct StringConcatenation;
 impl Cop for StringConcatenation {
     fn name(&self) -> &'static str {
         "Style/StringConcatenation"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -30,9 +33,16 @@ impl Cop for StringConcatenation {
         {
             return;
         }
-        let mut pending = vec![(call, node.location().start_offset(), ast::source_end(node))];
-        let mut reports = BTreeMap::<usize, usize>::new();
-        while let Some((part, start, end)) = pending.pop() {
+        // Report roots: the topmost plus, and each plus with a literal block.
+        let mut roots = vec![(
+            plus(node).unwrap(),
+            node.location().start_offset(),
+            ast::source_end(node),
+        )];
+        let mut pending = vec![(call, 0)];
+        let mut reports = BTreeMap::<usize, (usize, usize)>::new();
+        while let Some((part, root)) = pending.pop() {
+            let (start, end) = (roots[root].1, roots[root].2);
             let arguments = ast::call_arguments(&part);
             if let (Some(receiver), [argument]) = (part.receiver(), arguments.as_slice())
                 && (static_string(&receiver) || static_string(argument))
@@ -42,21 +52,34 @@ impl Cop for StringConcatenation {
                 // block-bearing inner plus and its outer concatenation).
                 reports
                     .entry(start)
-                    .and_modify(|old| *old = (*old).max(end))
-                    .or_insert(end);
+                    .and_modify(|old| {
+                        if end > old.0 {
+                            *old = (end, root);
+                        }
+                    })
+                    .or_insert((end, root));
             }
             for child in part.receiver().iter().chain(arguments.iter()) {
                 if let Some(call) = plus(child) {
-                    let (start, end) = if literal_block(&call) {
-                        (child.location().start_offset(), ast::source_end(child))
+                    let root = if literal_block(&call) {
+                        roots.push((
+                            plus(child).unwrap(),
+                            child.location().start_offset(),
+                            ast::source_end(child),
+                        ));
+                        roots.len() - 1
                     } else {
-                        (start, end)
+                        root
                     };
-                    pending.push((call, start, end));
+                    pending.push((call, root));
                 }
             }
         }
-        for (start, end) in reports {
+        for (start, (end, root)) in reports {
+            let correction = cx
+                .corrections_requested()
+                .then(|| correction(&roots[root].0, file))
+                .flatten();
             let (line, col) = file.line_col(start);
             out.push(Offense {
                 cop: self.name(),
@@ -65,11 +88,165 @@ impl Cop for StringConcatenation {
                 line,
                 col,
                 end_line: file.line_of(end.saturating_sub(1).max(start)),
-                correction: None,
+                correction,
             });
         }
     }
 }
+/// Upstream's `replacement(parts)` for the topmost plus, unless a part is
+/// multiline, a heredoc or contains a block.
+fn correction(root: &CallNode<'_>, file: &SourceFile) -> Option<Correction> {
+    let mut parts = Vec::new();
+    collect_parts(root.as_node(), &mut parts);
+    if parts.iter().any(|part| uncorrectable(part, file)) {
+        return None;
+    }
+    let mut text = String::from("\"");
+    for part in &parts {
+        let adjusted = adjust(part, file);
+        text.push_str(if adjusted == "\"" { "\\\"" } else { &adjusted });
+    }
+    text.push('"');
+    let loc = root.location();
+    Some(Correction {
+        range: loc.start_offset()..loc.end_offset(),
+        replacement: text,
+    })
+}
+
+fn collect_parts<'pr>(node: Node<'pr>, parts: &mut Vec<Node<'pr>>) {
+    match plus(&node).filter(|call| !literal_block(call)) {
+        Some(call) => {
+            if let Some(receiver) = call.receiver() {
+                collect_parts(receiver, parts);
+            }
+            if let Some(argument) = ast::call_arguments(&call).into_iter().next() {
+                collect_parts(argument, parts);
+            }
+        }
+        None => parts.push(node),
+    }
+}
+
+/// `part.multiline? || heredoc?(part) || part.each_descendant(:any_block)`;
+/// a part's own literal block is the part itself upstream.
+fn uncorrectable(part: &Node<'_>, file: &SourceFile) -> bool {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Blocks<'a> {
+        own: Option<usize>,
+        found: &'a mut bool,
+    }
+    impl<'pr> NodeVisitor<'pr> for Blocks<'_> {
+        fn enter(&mut self, node: Node<'pr>) {
+            if matches!(node, Node::BlockNode { .. } | Node::LambdaNode { .. })
+                && Some(node.location().start_offset()) != self.own
+            {
+                *self.found = true;
+            }
+        }
+    }
+    let loc = part.location();
+    if file.line_of(loc.start_offset())
+        != file.line_of(loc.end_offset().saturating_sub(1).max(loc.start_offset()))
+    {
+        return true;
+    }
+    let heredoc = match part {
+        Node::StringNode { .. } => part.as_string_node().unwrap().opening_loc(),
+        Node::InterpolatedStringNode { .. } => {
+            part.as_interpolated_string_node().unwrap().opening_loc()
+        }
+        _ => None,
+    };
+    if heredoc.is_some_and(|o| o.as_slice().starts_with(b"<<")) {
+        return true;
+    }
+    let own = match part {
+        Node::LambdaNode { .. } => Some(loc.start_offset()),
+        _ => part
+            .as_call_node()
+            .and_then(|c| c.block())
+            .and_then(|b| b.as_block_node())
+            .map(|b| b.location().start_offset()),
+    };
+    let mut found = false;
+    walk(
+        &mut Blocks {
+            own,
+            found: &mut found,
+        },
+        part,
+    );
+    found
+}
+
+/// Upstream's `adjust_str`.
+fn adjust(part: &Node<'_>, file: &SourceFile) -> String {
+    let source = || String::from_utf8_lossy(part.location().as_slice()).into_owned();
+    let children = |nodes: &mut dyn Iterator<Item = Node<'_>>| {
+        nodes.map(|child| adjust(&child, file)).collect::<String>()
+    };
+    match part {
+        Node::StringNode { .. } => {
+            let string = part.as_string_node().unwrap();
+            let value = string.unescaped();
+            match string.opening_loc().map(|o| o.as_slice()[0]) {
+                Some(b'\'') => {
+                    let mut out = Vec::new();
+                    for (i, &b) in value.iter().enumerate() {
+                        if matches!(b, b'\\' | b'"')
+                            || (b == b'#' && matches!(value.get(i + 1), Some(b'{' | b'@' | b'$')))
+                        {
+                            out.push(b'\\');
+                        }
+                        out.push(b);
+                    }
+                    String::from_utf8_lossy(&out).into_owned()
+                }
+                Some(b'"') => {
+                    let raw = part.location().as_slice();
+                    String::from_utf8_lossy(&raw[1..raw.len() - 1]).into_owned()
+                }
+                _ => {
+                    let mut out = Vec::new();
+                    crate::cops::lint::duplicate_match_pattern::inspect_source(
+                        value, file, &mut out,
+                    );
+                    String::from_utf8_lossy(&out[1..out.len() - 1]).into_owned()
+                }
+            }
+        }
+        Node::SourceFileNode { .. } => format!("#{{{}}}", source()),
+        Node::InterpolatedStringNode { .. } => {
+            children(&mut part.as_interpolated_string_node().unwrap().parts().iter())
+        }
+        Node::EmbeddedStatementsNode { .. } => {
+            match part.as_embedded_statements_node().unwrap().statements() {
+                Some(statements) => children(&mut statements.body().iter()),
+                None => String::new(),
+            }
+        }
+        Node::ParenthesesNode { .. } => match part.as_parentheses_node().unwrap().body() {
+            Some(body) => match body.as_statements_node() {
+                Some(statements) => children(&mut statements.body().iter()),
+                None => adjust(&body, file),
+            },
+            None => String::new(),
+        },
+        Node::EmbeddedVariableNode { .. } => format!(
+            "#{{{}}}",
+            String::from_utf8_lossy(
+                part.as_embedded_variable_node()
+                    .unwrap()
+                    .variable()
+                    .location()
+                    .as_slice()
+            )
+        ),
+        _ => format!("#{{{}}}", source()),
+    }
+}
+
 fn plus<'pr>(node: &Node<'pr>) -> Option<CallNode<'pr>> {
     node.as_call_node()
         .filter(|c| c.name().as_slice() == b"+" && !c.is_safe_navigation())

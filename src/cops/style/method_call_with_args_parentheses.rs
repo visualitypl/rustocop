@@ -20,6 +20,11 @@ impl Cop for MethodCallWithArgsParentheses {
     fn name(&self) -> &'static str {
         "Style/MethodCallWithArgsParentheses"
     }
+    /// Upstream's Style/AndOr lists this cop as autocorrect-incompatible
+    /// and runs first.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
+        &["Style/AndOr"]
+    }
 
     fn safe_fixes(&self) -> bool {
         true

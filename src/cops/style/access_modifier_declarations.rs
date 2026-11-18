@@ -1,8 +1,8 @@
-//! `Style/AccessModifierDeclarations` — fixed group style, detection only.
+//! `Style/AccessModifierDeclarations` — fixed group style; unsafe correction.
 
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -11,6 +11,9 @@ pub struct AccessModifierDeclarations;
 impl Cop for AccessModifierDeclarations {
     fn name(&self) -> &'static str {
         "Style/AccessModifierDeclarations"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
 
     fn check_node<'pr>(
@@ -67,7 +70,20 @@ impl Cop for AccessModifierDeclarations {
         } else {
             return;
         };
-        check_group(&children, file, out);
+        // `node.each_ancestor(:class, :module, :sclass).first`'s `end`.
+        let scope_end = std::iter::once(node)
+            .chain(cx.ancestors())
+            .find_map(|n| match n {
+                Node::ClassNode { .. } => Some(n.as_class_node().unwrap().end_keyword_loc()),
+                Node::ModuleNode { .. } => Some(n.as_module_node().unwrap().end_keyword_loc()),
+                Node::SingletonClassNode { .. } => {
+                    Some(n.as_singleton_class_node().unwrap().end_keyword_loc())
+                }
+                _ => None,
+            })
+            .map(|end| end.start_offset());
+        let fix = cx.corrections_requested().then_some(Fix { scope_end });
+        check_group(&children, file, fix, out);
     }
 }
 
@@ -102,8 +118,18 @@ fn singleton_body(body: Option<Node<'_>>) -> Option<Node<'_>> {
         .flatten()
 }
 
+#[derive(Clone, Copy)]
+struct Fix {
+    scope_end: Option<usize>,
+}
+
 /// Returns the number of direct siblings examined, for bounded-work tests.
-fn check_group(children: &[Node<'_>], file: &SourceFile, out: &mut Vec<Offense>) -> usize {
+fn check_group(
+    children: &[Node<'_>],
+    file: &SourceFile,
+    fix: Option<Fix>,
+    out: &mut Vec<Offense>,
+) -> usize {
     let mut seen = [false; 4];
     let mut visited = 0;
     for child in children.iter().rev() {
@@ -129,6 +155,8 @@ fn check_group(children: &[Node<'_>], file: &SourceFile, out: &mut Vec<Offense>)
         {
             continue;
         }
+        let correction =
+            fix.and_then(|fix| correction(children, child, &call, &args[0], fix, file));
         let (line, col) = file.line_col(call.message_loc().unwrap().start_offset());
         let cop = AccessModifierDeclarations;
         out.push(Offense {
@@ -141,10 +169,79 @@ fn check_group(children: &[Node<'_>], file: &SourceFile, out: &mut Vec<Offense>)
             line,
             col,
             end_line: line,
-            correction: None,
+            correction,
         });
     }
     visited
+}
+
+/// Upstream's `autocorrect_group_style` with fixed `AllowModifiersOnSymbols`:
+/// the definition is the first argument. Its source, after the comments of
+/// the modifier, goes after a bare modifier of the same name, or before the
+/// `end` of the enclosing class-like scope; else the call is replaced.
+fn correction(
+    children: &[Node<'_>],
+    child: &Node<'_>,
+    call: &ruby_prism::CallNode<'_>,
+    definition: &Node<'_>,
+    fix: Fix,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+    let name = String::from_utf8_lossy(call.name().as_slice()).into_owned();
+    let (start, comments) = leading_comments(child.location().start_offset(), file);
+    let source = comments
+        .iter()
+        .map(|c| String::from_utf8_lossy(&file.bytes[c.clone()]).into_owned())
+        .chain(std::iter::once(text(definition)))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let bare = children.iter().find_map(|sibling| {
+        let other = sibling.as_call_node()?;
+        (other.name().as_slice() == call.name().as_slice()
+            && ast::call_arguments(&other).is_empty())
+        .then(|| sibling.location().end_offset())
+    });
+    let insertion = match (bare, fix.scope_end) {
+        (Some(at), _) => (at..at, format!("\n\n{source}")),
+        (None, Some(at)) => (at..at, format!("{name}\n\n{source}\n")),
+        (None, None) => {
+            let whole = child.location();
+            return Some(Correction {
+                range: whole.start_offset()..whole.end_offset(),
+                replacement: format!("{name}\n\n{source}"),
+            });
+        }
+    };
+    // range_with_comments_and_lines of the definition and of the call: the
+    // definition's trailing comment shares the call's last line.
+    let removal = super::correction::whole_lines(file, start..child.location().end_offset());
+    Correction::from_edits(&file.bytes, vec![(removal, String::new()), insertion])
+}
+
+/// Parser's leading comments of a statement: the comments on lines of their
+/// own before it, with only whitespace between. Returns the new start.
+fn leading_comments(mut start: usize, file: &SourceFile) -> (usize, Vec<std::ops::Range<usize>>) {
+    let comments = file.comments();
+    let mut found = Vec::new();
+    let mut index = comments.partition_point(|c| c.end <= start);
+    while let Some(comment) = index.checked_sub(1).map(|i| &comments[i]) {
+        let own_line = file.bytes[file.line_start(file.line_of(comment.start))..comment.start]
+            .iter()
+            .all(|b| matches!(b, b' ' | b'\t'));
+        if !own_line
+            || !file.bytes[comment.end..start]
+                .iter()
+                .all(u8::is_ascii_whitespace)
+        {
+            break;
+        }
+        start = comment.start;
+        found.push(comment.start..comment.end);
+        index -= 1;
+    }
+    found.reverse();
+    (start, found)
 }
 
 #[cfg(test)]
@@ -417,22 +514,36 @@ mod tests {
         );
     }
     #[test]
-    fn detection_only_never_emits_corrections_even_when_requested() {
+    fn unsafe_group_corrections_move_definitions_after_a_bare_modifier() {
+        use crate::cops::testing::fix_until_stable;
         for modifier in MODIFIERS {
-            for source in [
-                format!("{modifier} def foo; end\n"),
-                format!("class Foo\n  {modifier} def foo; end\n  {modifier} def bar; end\nend\n"),
-                format!("class << self\n  # docs\n  {modifier} def foo = __LINE__\nend\n"),
+            for (source, fixed) in [
+                (
+                    format!("{modifier} def foo; end\n"),
+                    format!("{modifier}\n\ndef foo; end\n"),
+                ),
+                (
+                    format!(
+                        "class Foo\n  {modifier} def foo; end\n  {modifier} def bar; end\nend\n"
+                    ),
+                    format!("class Foo\n{modifier}\n\ndef foo; end\n\ndef bar; end\nend\n"),
+                ),
+                (
+                    format!("class << self\n  # docs\n  {modifier} def foo = __LINE__\nend\n"),
+                    format!("class << self\n{modifier}\n\n# docs\ndef foo = __LINE__\nend\n"),
+                ),
             ] {
-                let found = crate::cops::testing::correction_offenses(
-                    &super::AccessModifierDeclarations,
-                    &source,
+                assert_eq!(
+                    fix_until_stable(&super::AccessModifierDeclarations, &source),
+                    fixed,
+                    "{source}"
                 );
-                assert_eq!(found.len(), 1, "{source}");
-                assert!(found[0].correction.is_none(), "{source}");
             }
         }
         assert!(!crate::cops::Cop::safe_fixes(
+            &super::AccessModifierDeclarations
+        ));
+        assert!(crate::cops::Cop::unsafe_fixes(
             &super::AccessModifierDeclarations
         ));
     }
@@ -450,7 +561,7 @@ mod tests {
             .collect();
         let file = crate::source::SourceFile::new("x.rb".into(), source.as_bytes().to_vec());
         let mut found = Vec::new();
-        assert_eq!(super::check_group(&children, &file, &mut found), 4001);
+        assert_eq!(super::check_group(&children, &file, None, &mut found), 4001);
         assert_eq!(found.len(), 1);
         assert_eq!((found[0].line, found[0].col), (4001, 1));
         assert_positions(&source, "private", &[(4001, 1)]);

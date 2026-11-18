@@ -17,6 +17,11 @@ impl Cop for SingleLineMethods {
     fn name(&self) -> &'static str {
         "Style/SingleLineMethods"
     }
+    /// Upstream's Style/AccessModifierDeclarations lists this cop as
+    /// autocorrect-incompatible and runs first.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
+        &["Style/AccessModifierDeclarations"]
+    }
     fn safe_fixes(&self) -> bool {
         true
     }

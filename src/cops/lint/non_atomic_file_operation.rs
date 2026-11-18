@@ -1,12 +1,12 @@
 //! `Lint/NonAtomicFileOperation` — syntactic filesystem TOCTOU checks.
-//! Detection only: upstream's atomic-operation rewrites are unsafe.
+//! Unsafe correction: drop the check and use the force method.
 
 use crate::{
     cops::{
         Cop, NodeContext, ast, variables,
         walk::{NodeVisitor, walk},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -16,6 +16,9 @@ pub struct NonAtomicFileOperation;
 impl Cop for NonAtomicFileOperation {
     fn name(&self) -> &'static str {
         "Lint/NonAtomicFileOperation"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -60,7 +63,7 @@ impl Cop for NonAtomicFileOperation {
         walk(&mut search, node);
         let Some(exist) = search.first else { return };
         let exist_arg = ast::call_arguments(&exist).into_iter().next();
-        let mut matched = false;
+        let mut matched = None;
         let mut projected = None;
         for candidate in candidates.iter().flatten() {
             let Some((call, replacement)) = operation(candidate) else {
@@ -89,7 +92,6 @@ impl Cop for NonAtomicFileOperation {
             if !same {
                 continue;
             }
-            matched = true;
             // Upstream's explicit-false guard searches the whole send, but
             // force_option? searches only arguments, never the receiver.
             let mut argument_options = ForceOptions::default();
@@ -100,6 +102,9 @@ impl Cop for NonAtomicFileOperation {
                 call.name().as_slice(),
                 b"makedirs" | b"mkdir_p" | b"mkpath" | b"rm_f" | b"rm_rf"
             ) || argument_options.explicit_true;
+            if matched.is_none() {
+                matched = Some((call, replacement, force));
+            }
             if !force {
                 report(
                     self,
@@ -111,7 +116,11 @@ impl Cop for NonAtomicFileOperation {
                 );
             }
         }
-        if matched {
+        if let Some((call, replacement, force)) = matched {
+            let correction = cx
+                .corrections_requested()
+                .then(|| correction(node, &keyword, &call, replacement, force, file))
+                .flatten();
             let receiver = ast::short_const_name(&exist.receiver().unwrap()).unwrap();
             let method = String::from_utf8_lossy(exist.name().as_slice()).into_owned();
             let predicate = candidates[0].as_ref().unwrap();
@@ -123,6 +132,9 @@ impl Cop for NonAtomicFileOperation {
                 format!("Remove unnecessary existence check `{receiver}.{method}`."),
                 out,
             );
+            if let Some(last) = out.last_mut() {
+                last.correction = correction;
+            }
         }
     }
 }
@@ -279,6 +291,65 @@ fn operation<'pr>(node: &Node<'pr>) -> Option<(CallNode<'pr>, &'static str)> {
         _ => return None,
     };
     Some((call, replacement))
+}
+/// Upstream's `autocorrect`: remove the keyword through the condition, and
+/// the `end` (or the space before a modifier keyword); a non-force call
+/// becomes `FileUtils.<force method>`. None in an `elsif`.
+fn correction(
+    node: &Node<'_>,
+    keyword: &ruby_prism::Location<'_>,
+    call: &CallNode<'_>,
+    replacement: &str,
+    force: bool,
+    file: &SourceFile,
+) -> Option<Correction> {
+    if keyword.as_slice() == b"elsif" {
+        return None;
+    }
+    let (predicate, end) = match node.as_if_node() {
+        Some(n) => (n.predicate(), n.end_keyword_loc()),
+        None => {
+            let n = node.as_unless_node()?;
+            (n.predicate(), n.end_keyword_loc())
+        }
+    };
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    let mut edits = vec![(
+        keyword.start_offset()..predicate.location().end_offset(),
+        String::new(),
+    )];
+    match end {
+        Some(end) => edits.push((span(&end), String::new())),
+        None => edits.push((
+            call.location().end_offset()..keyword.start_offset(),
+            String::new(),
+        )),
+    }
+    if !force {
+        let receiver = call.receiver()?;
+        let (name, dir) = match &receiver {
+            Node::ConstantReadNode { .. } => (
+                span(&receiver.location()),
+                receiver.location().as_slice() == b"Dir",
+            ),
+            Node::ConstantPathNode { .. } => {
+                let path = receiver.as_constant_path_node().unwrap();
+                (
+                    span(&path.name_loc()),
+                    path.parent().is_none() && path.name_loc().as_slice() == b"Dir",
+                )
+            }
+            _ => return None,
+        };
+        edits.push((name, "FileUtils".into()));
+        edits.push((span(&call.message_loc()?), replacement.into()));
+        let arguments = ast::call_arguments(call);
+        if dir && replacement == "mkdir_p" && arguments.len() == 2 {
+            let at = arguments[1].location().start_offset();
+            edits.push((at..at, "mode: ".into()));
+        }
+    }
+    Correction::from_edits(&file.bytes, edits)
 }
 fn report(
     cop: &NonAtomicFileOperation,

@@ -1,12 +1,12 @@
 //! `Style/InfiniteLoop` — prefer Kernel#loop for literal infinite loops.
-//! Detection only: block scope, dispatch and StopIteration make rewriting unsafe.
+//! Unsafe correction: block scope, dispatch and StopIteration can change.
 use crate::{
     cops::{
         Cop, NodeContext, ast,
         variables::{Assignment, AssignmentKind, ScopeAnalysis},
         walk::{self, NodeVisitor},
     },
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -18,6 +18,9 @@ impl Cop for InfiniteLoop {
     fn name(&self) -> &'static str {
         "Style/InfiniteLoop"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_program_node().is_some()
@@ -26,7 +29,7 @@ impl Cop for InfiniteLoop {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -35,9 +38,12 @@ impl Cop for InfiniteLoop {
         };
         // Whole-file variable identity is needed, just as for UselessAssignment.
         // Collect once, not once per loop; do not reparse or rescan source text.
-        let mut collector = Loops(Vec::new());
+        let mut collector = Loops {
+            loops: Vec::new(),
+            file: cx.corrections_requested().then_some(file),
+        };
         walk::walk(&mut collector, node);
-        let mut loops = collector.0;
+        let mut loops = collector.loops;
         if loops.is_empty() {
             return;
         }
@@ -105,7 +111,7 @@ impl Cop for InfiniteLoop {
                 line,
                 col,
                 end_line: line,
-                correction: None,
+                correction: candidate.correction,
             });
         }
     }
@@ -130,9 +136,93 @@ struct Loop {
     keyword: usize,
     parent: Option<usize>,
     suppressed: bool,
+    correction: Option<Correction>,
 }
-struct Loops(Vec<Loop>);
-impl<'pr> NodeVisitor<'pr> for Loops {
+struct Loops<'a> {
+    loops: Vec<Loop>,
+    /// Set when corrections are requested.
+    file: Option<&'a SourceFile>,
+}
+
+/// Upstream's `autocorrect`: `begin ... end while true` becomes `loop do
+/// ... end`, a modifier loop `loop { body }` (or a `loop do` block when
+/// multiline), and otherwise the keyword through the condition (or `do`)
+/// becomes `loop do`.
+fn correction(
+    node: &Node<'_>,
+    keyword: &ruby_prism::Location<'_>,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let (post, closing, do_keyword, predicate, statements) = match node.as_while_node() {
+        Some(n) => (
+            n.is_begin_modifier(),
+            n.closing_loc(),
+            n.do_keyword_loc(),
+            n.predicate(),
+            n.statements(),
+        ),
+        None => {
+            let n = node.as_until_node()?;
+            (
+                n.is_begin_modifier(),
+                n.closing_loc(),
+                n.do_keyword_loc(),
+                n.predicate(),
+                n.statements(),
+            )
+        }
+    };
+    let whole = node.location().start_offset()..node.location().end_offset();
+    if post {
+        let begin = statements?.body().iter().next()?;
+        let begin = begin.as_begin_node()?;
+        let (open, end) = (begin.begin_keyword_loc()?, begin.end_keyword_loc()?);
+        return Correction::from_edits(
+            &file.bytes,
+            vec![
+                (open.start_offset()..open.end_offset(), "loop do".into()),
+                (end.end_offset()..whole.end, String::new()),
+            ],
+        );
+    }
+    if closing.is_none() {
+        let body = statements?;
+        let body_source = String::from_utf8_lossy(body.location().as_slice()).into_owned();
+        let replacement = if file.line_of(whole.start) == file.line_of(whole.end.saturating_sub(1))
+        {
+            format!("loop {{ {body_source} }}")
+        } else {
+            let line_start = file.line_start(file.line_of(body.location().start_offset()));
+            let indentation: String = file.bytes[line_start..]
+                .iter()
+                .take_while(|b| matches!(b, b' ' | b'\t' | b'\r' | b'\x0b' | b'\x0c'))
+                .map(|&b| b as char)
+                .collect();
+            // Alignment#indentation: the loop's column plus the width.
+            let prefix = " ".repeat(file.line_col(whole.start).1 as usize - 1 + 2);
+            let indented = body_source
+                .split('\n')
+                .map(|line| format!("{prefix}{line}"))
+                .collect::<Vec<_>>()
+                .join("\n");
+            ["loop do", &indented, "end"].join(&format!("\n{indentation}"))
+        };
+        return Some(Correction {
+            range: whole,
+            replacement,
+        });
+    }
+    let end = match do_keyword {
+        Some(d) => d.end_offset(),
+        None => predicate.location().end_offset(),
+    };
+    Some(Correction {
+        range: keyword.start_offset()..end,
+        replacement: "loop do".into(),
+    })
+}
+
+impl<'pr> NodeVisitor<'pr> for Loops<'_> {
     fn enter(&mut self, node: Node<'pr>) {
         let keyword = if let Some(n) = node.as_while_node() {
             let predicate = n.predicate();
@@ -147,11 +237,12 @@ impl<'pr> NodeVisitor<'pr> for Loops {
         };
         if let Some(keyword) = keyword {
             let location = node.location();
-            self.0.push(Loop {
+            self.loops.push(Loop {
                 range: location.start_offset()..location.end_offset(),
                 keyword: keyword.start_offset(),
                 parent: None,
                 suppressed: false,
+                correction: self.file.and_then(|file| correction(&node, &keyword, file)),
             });
         }
     }
@@ -176,7 +267,7 @@ mod tests {
     }
 
     #[test]
-    fn every_applicable_pinned_call_has_exact_diagnostics_and_no_corrections() {
+    fn every_applicable_pinned_call_has_exact_diagnostics_and_corrections() {
         #[derive(serde::Deserialize)]
         struct Case {
             spec_line: u32,
@@ -207,7 +298,7 @@ mod tests {
             let requested =
                 crate::cops::testing::correction_offenses(&super::InfiniteLoop, &case.source);
             assert_eq!(requested.len(), found.len());
-            assert!(requested.iter().all(|o| o.correction.is_none()));
+            assert!(requested.iter().all(|o| o.correction.is_some()));
         }
     }
 

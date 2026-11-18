@@ -1,9 +1,9 @@
 //! `Style/CombinableLoops` — consecutive nonempty loops over the same data.
 //!
-//! Detection only: fusion can change evaluation order, control flow and values.
+//! Unsafe correction: fusion can change evaluation order, control flow and values.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -13,6 +13,9 @@ pub struct CombinableLoops;
 impl Cop for CombinableLoops {
     fn name(&self) -> &'static str {
         "Style/CombinableLoops"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
@@ -44,12 +47,13 @@ impl Cop for CombinableLoops {
         }
         // Scan each statement list once, not the siblings anew for every loop.
         // Other multi-statement Prism lists correspond to a begin parent.
-        let mut previous = None;
-        for current in statements.body().iter() {
-            if previous
-                .as_ref()
-                .is_some_and(|left| same_loops(left, &current, file))
-            {
+        let body: Vec<_> = statements.body().iter().collect();
+        for (index, current) in body.iter().enumerate() {
+            if index > 0 && same_loops(&body[index - 1], current, file) {
+                let correction = cx
+                    .corrections_requested()
+                    .then(|| correction(&body, index, file))
+                    .flatten();
                 let loc = current.location();
                 let (line, col) = file.line_col(loc.start_offset());
                 out.push(Offense {
@@ -59,12 +63,206 @@ impl Cop for CombinableLoops {
                     line,
                     col,
                     end_line: file.line_of(loc.end_offset().saturating_sub(1)),
-                    correction: None,
+                    correction,
                 });
             }
-            previous = Some(current);
         }
     }
+}
+
+/// Upstream's `combine_with_left_sibling`, when `combinable_blocks?` or
+/// `combinable_fors?` holds for the loop at `index` and its left sibling.
+fn correction(body: &[Node<'_>], index: usize, file: &SourceFile) -> Option<Correction> {
+    let (node, left) = (&body[index], &body[index - 1]);
+    if !combinable(node, left, file) {
+        return None;
+    }
+    let bytes = &file.bytes;
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    let start = node.location().start_offset();
+    // closing_with_preceding_space: the line break is kept when the next
+    // loop starts on the closing delimiter's line.
+    let left_end = closing(left)?;
+    let separate = file.line_of(left_end.start_offset()) != file.line_of(start);
+    let mut from = left_end.start_offset();
+    while from > 0 && matches!(bytes[from - 1], b' ' | b'\t') {
+        from -= 1;
+    }
+    if separate {
+        while from > 0 && bytes[from - 1] == b'\n' {
+            from -= 1;
+        }
+        while from > 0 && is_space(bytes[from - 1]) {
+            from -= 1;
+        }
+    }
+    let mut edits = vec![(from..left_end.end_offset(), String::new())];
+    // opening_with_following_space.
+    let mut to = opening(node)?.end_offset();
+    while matches!(bytes.get(to), Some(b' ' | b'\t')) {
+        to += 1;
+    }
+    while bytes.get(to) == Some(&b'\n') {
+        to += 1;
+    }
+    while bytes.get(to).is_some_and(|&b| is_space(b)) {
+        to += 1;
+    }
+    edits.push((start..to, String::new()));
+    // correct_end_of_block.
+    if block(left).is_some() && !combined_with_right_sibling(body, index, file) {
+        let mut first = index - 1;
+        while first > 0
+            && enabled(&body[first], file)
+            && same_loops(&body[first - 1], &body[first], file)
+            && combinable(&body[first], &body[first - 1], file)
+        {
+            first -= 1;
+        }
+        let braces = block(&body[first])?.opening_loc().as_slice() == b"{";
+        let end = closing(node)?;
+        edits.push((span(&end), String::new()));
+        let at = node.location().end_offset();
+        edits.push((at..at, if braces { "}" } else { " end" }.into()));
+    }
+    Correction::from_edits(bytes, edits)
+}
+
+/// Ruby's `\s`.
+fn is_space(b: u8) -> bool {
+    matches!(b, b' ' | b'\t' | b'\n' | b'\r' | b'\x0c' | b'\x0b')
+}
+
+fn block<'pr>(node: &Node<'pr>) -> Option<ruby_prism::BlockNode<'pr>> {
+    node.as_call_node()?.block()?.as_block_node()
+}
+
+fn closing<'pr>(node: &Node<'pr>) -> Option<ruby_prism::Location<'pr>> {
+    match node.as_for_node() {
+        Some(f) => Some(f.end_keyword_loc()),
+        None => Some(block(node)?.closing_loc()),
+    }
+}
+
+/// `loop_opening`: a block's arguments or `{`/`do`, a `for`'s `do` or
+/// collection.
+fn opening<'pr>(node: &Node<'pr>) -> Option<ruby_prism::Location<'pr>> {
+    if let Some(f) = node.as_for_node() {
+        return Some(
+            f.do_keyword_loc()
+                .unwrap_or_else(|| f.collection().location()),
+        );
+    }
+    let block = block(node)?;
+    Some(match block.parameters() {
+        Some(p) if p.as_block_parameters_node().is_some() => p.location(),
+        _ => block.opening_loc(),
+    })
+}
+
+fn loop_body<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
+    match node.as_for_node() {
+        Some(f) => f.statements().map(|s| s.as_node()),
+        None => block(node)?.body(),
+    }
+}
+
+/// `combinable_blocks?` / `combinable_fors?`.
+fn combinable(node: &Node<'_>, sibling: &Node<'_>, file: &SourceFile) -> bool {
+    if directive_after_opening(node, file) {
+        return false;
+    }
+    if let (Some(a), Some(b)) = (node.as_for_node(), sibling.as_for_node()) {
+        return same_node(&a.index(), &b.index(), file);
+    }
+    let (Some(a), Some(b)) = (block(node), block(sibling)) else {
+        return false;
+    };
+    let rescued = |n: &Node<'_>| {
+        n.as_begin_node()
+            .is_some_and(|b| b.rescue_clause().is_some() || b.ensure_clause().is_some())
+    };
+    same_parameters(a.parameters(), b.parameters(), file)
+        && !a.body().is_some_and(|b| rescued(&b))
+        && !b.body().is_some_and(|b| rescued(&b))
+}
+
+/// `arguments ==` and `argument_list ==`: numbered and `it` parameters have
+/// empty arguments, unlike a plain block's (possibly empty) `args`.
+fn same_parameters(a: Option<Node<'_>>, b: Option<Node<'_>>, file: &SourceFile) -> bool {
+    enum Kind<'a, 'pr> {
+        Plain(Option<&'a Node<'pr>>),
+        Numbered(u8),
+        It,
+    }
+    fn kind<'a, 'pr>(p: &'a Option<Node<'pr>>) -> Kind<'a, 'pr> {
+        match p {
+            None => Kind::Plain(None),
+            Some(Node::NumberedParametersNode { .. }) => Kind::Numbered(
+                p.as_ref()
+                    .unwrap()
+                    .as_numbered_parameters_node()
+                    .unwrap()
+                    .maximum(),
+            ),
+            Some(Node::ItParametersNode { .. }) => Kind::It,
+            Some(n) => {
+                let params = n.as_block_parameters_node();
+                let empty = params
+                    .as_ref()
+                    .is_some_and(|b| b.parameters().is_none() && b.locals().is_empty());
+                Kind::Plain((!empty).then_some(n))
+            }
+        }
+    }
+    match (kind(&a), kind(&b)) {
+        (Kind::Plain(None), Kind::Plain(None)) | (Kind::It, Kind::It) => true,
+        (Kind::Plain(Some(x)), Kind::Plain(Some(y))) => same_node(x, y, file),
+        (Kind::Numbered(x), Kind::Numbered(y)) => x == y,
+        _ => false,
+    }
+}
+
+/// The opening is removed, so a directive comment on its line (other than
+/// the body's first line) would cover the rest of the file.
+fn directive_after_opening(node: &Node<'_>, file: &SourceFile) -> bool {
+    let (Some(opening), Some(body)) = (opening(node), loop_body(node)) else {
+        return false;
+    };
+    let line = file.line_of(opening.start_offset());
+    if line == file.line_of(body.location().start_offset()) {
+        return false;
+    }
+    let comments = file.comments();
+    comments
+        .iter()
+        .find(|c| file.line_of(c.start) == line)
+        .is_some_and(|c| {
+            let text = &file.bytes[c.start + 1..c.end];
+            let text = text.trim_ascii_start();
+            text.strip_prefix(b"rubocop")
+                .is_some_and(|rest| rest.trim_ascii_start().starts_with(b":"))
+        })
+}
+
+fn enabled(node: &Node<'_>, file: &SourceFile) -> bool {
+    let loc = node.location();
+    file.cop_enabled_for_lines(
+        "Style/CombinableLoops",
+        file.line_of(loc.start_offset()),
+        file.line_of(loc.end_offset().saturating_sub(1)),
+    )
+}
+
+/// `combined_with_right_sibling?`: the next loop merges into this one.
+fn combined_with_right_sibling(body: &[Node<'_>], index: usize, file: &SourceFile) -> bool {
+    let Some(sibling) = body.get(index + 1) else {
+        return false;
+    };
+    block(sibling).is_some()
+        && enabled(sibling, file)
+        && same_loops(&body[index], sibling, file)
+        && combinable(sibling, &body[index], file)
 }
 
 #[cfg(test)]
@@ -263,9 +461,10 @@ mod tests {
             let found = correction_offenses(&CombinableLoops, &source);
             assert_eq!(found.len(), n - 1);
             // Three top-level statements per repetition; all block bodies have
-            // one statement, so they require no pair comparison.
-            assert_eq!(PAIR_CHECKS.with(|count| count.get()), 3 * n - 1);
-            assert!(found.iter().all(|o| o.correction.is_none()));
+            // one statement, so they require no pair comparison. Each
+            // correction compares one more left pair (first_combined_block).
+            assert_eq!(PAIR_CHECKS.with(|count| count.get()), 3 * n - 1 + (n - 1));
+            assert!(found.iter().all(|o| o.correction.is_some()));
         }
     }
 
