@@ -49,10 +49,6 @@ cd rustocop
 cargo install --locked --path .
 ```
 
-> [!NOTE]
-> `-a`/`-A` with RuboCop's corrections are on `master` and not yet in a
-> release; v1.3.0 has `--fix` with safe corrections only.
-
 ## Usage
 
 ```sh
