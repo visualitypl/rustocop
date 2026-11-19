@@ -33,6 +33,10 @@ impl Cop for CommentedKeyword {
         "Style/CommentedKeyword"
     }
 
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+
     fn check_source(&self, file: &SourceFile, out: &mut Vec<Offense>) {
         for comment in file.comments() {
             let line = file.line_of(comment.start);
@@ -59,8 +63,24 @@ impl Cop for CommentedKeyword {
             }
             let (line, col) = file.line_col(comment.start);
             let keyword = std::str::from_utf8(keyword).expect("ASCII keyword");
+            // The comment (with the blanks around it) goes; but for `end`, it
+            // moves to a line of its own before the keyword's.
+            let correction = {
+                let bytes = &file.bytes;
+                let mut start = comment.start;
+                while start > 0 && matches!(bytes[start - 1], b' ' | b'\t') {
+                    start -= 1;
+                }
+                let end = crate::offense::space_right_blank(bytes, comment.end);
+                let mut edits = vec![(start..end, String::new())];
+                if keyword != "end" {
+                    let at = file.line_start(line);
+                    edits.push((at..at, format!("{}\n", String::from_utf8_lossy(text))));
+                }
+                crate::offense::Correction::from_edits(bytes, edits)
+            };
             out.push(Offense {
-                correction: None,
+                correction,
                 cop: self.name(),
                 severity: self.severity(),
                 message: format!(
@@ -89,7 +109,7 @@ mod tests {
     }
 
     #[test]
-    fn pinned_keyword_positions_messages_and_no_unsafe_corrections() {
+    fn pinned_keyword_positions_messages_and_unsafe_corrections() {
         for (source, line, col, keyword) in [
             ("if x\n  y\nend # comment\n", 3, 5, "end"),
             ("begin # comment\n  y\nend\n", 1, 7, "begin"),
@@ -118,7 +138,7 @@ mod tests {
             );
             let found = correction_offenses(&CommentedKeyword, source);
             assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
 

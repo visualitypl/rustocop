@@ -5,21 +5,16 @@
 //! Matches RuboCop's semantics: a plain call (not `&.`) to one of these
 //! methods on `IO` is reported, at the start of the call, unless its first
 //! argument is a plain string starting with `|` after leading whitespace
-//! (an intentional command). One deviation: RuboCop only matches the
-//! receiver spelled `IO`, while rustocop also flags `::IO`, the same class.
-//! Another: the parser gem splits a non-squiggly string literal spanning
-//! several source lines (a multi-line `<<-X` heredoc, `"| cmd⏎bar"`) into a
-//! `dstr`, so RuboCop flags `IO.read` with it even when it starts with `|`.
-//! Prism gives one string; rustocop judges it by its content and accepts it.
+//! (an intentional command). As in RuboCop, only the receiver spelled `IO`
+//! counts, and a string literal spanning several source lines is a `dstr`
+//! there, so it does not count as a command. The unsafe correction calls the
+//! method on `File` instead.
 
 use ruby_prism::Node;
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        ast::{call_arguments, is_global_const},
-    },
-    offense::Offense,
+    cops::{Cop, NodeContext, ast::call_arguments},
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -41,6 +36,10 @@ impl Cop for IoMethods {
         "Security/IoMethods"
     }
 
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -48,7 +47,7 @@ impl Cop for IoMethods {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -60,21 +59,25 @@ impl Cop for IoMethods {
             || call.is_safe_navigation()
             || !call
                 .receiver()
-                .is_some_and(|receiver| is_global_const(&receiver, &["IO"]))
+                .is_some_and(|receiver| receiver.location().as_slice() == b"IO")
         {
             return;
         }
         let intentional_command = call_arguments(&call)
             .first()
             .and_then(|first| first.as_string_node())
-            .is_some_and(|string| starts_with_pipe(string.unescaped()));
+            .is_some_and(|string| one_part(&string, file) && starts_with_pipe(string.unescaped()));
         if intentional_command {
             return;
         }
         let method = String::from_utf8_lossy(method);
         let (line, col) = file.line_col(call.location().start_offset());
+        let receiver = call.receiver().unwrap().location();
         out.push(Offense {
-            correction: None,
+            correction: cx.corrections_requested().then(|| Correction {
+                range: receiver.start_offset()..receiver.end_offset(),
+                replacement: "File".into(),
+            }),
             cop: self.name(),
             severity: self.severity(),
             message: format!("`File.{method}` is safer than `IO.{method}`."),
@@ -92,6 +95,29 @@ fn starts_with_pipe(value: &[u8]) -> bool {
         .iter()
         .find(|&&byte| !matches!(byte, b'\0' | b'\t' | b'\n' | 0x0b | 0x0c | b'\r' | b' '))
         == Some(&b'|')
+}
+
+/// Whether the parser gem keeps the literal one `str`: a literal spanning
+/// several source lines is a `dstr` of one part per line.
+fn one_part(string: &ruby_prism::StringNode<'_>, file: &SourceFile) -> bool {
+    let single = string.opening_loc().is_some_and(|l| {
+        let l = l.as_slice();
+        l.starts_with(b"'")
+            || l.starts_with(b"%q")
+            || l.starts_with(b"<<'")
+            || l.starts_with(b"<<-'")
+            || l.starts_with(b"<<~'")
+    });
+    crate::cops::ast::require_literal::parts(
+        string.content_loc().as_slice(),
+        string.unescaped(),
+        single,
+        file,
+    )
+    .iter()
+    .filter(|part| !part.is_empty())
+    .count()
+        <= 1
 }
 
 #[cfg(test)]
@@ -179,14 +205,10 @@ mod tests {
     }
 
     #[test]
-    fn flags_top_level_io() {
-        // RuboCop only matches the receiver spelled `IO`; `::IO` is the same
-        // class, so rustocop flags it too.
-        assert_eq!(found("::IO.read(path)\n"), [at(1, 1, "read")]);
-        assert_eq!(
-            found("lines = ::IO.readlines(path, chomp: true)\n"),
-            [at(1, 9, "readlines")]
-        );
+    fn ignores_top_level_io_as_rubocop_does() {
+        // RuboCop only matches the receiver spelled `IO`.
+        assert_eq!(found("::IO.read(path)\n"), []);
+        assert_eq!(found("lines = ::IO.readlines(path, chomp: true)\n"), []);
     }
 
     #[test]
@@ -233,12 +255,16 @@ mod tests {
             "IO.read('|')\n",
             "IO.read(?|)\n",
             "IO.read(<<~CMD)\n  | command\nCMD\n",
-            // Multi-line strings are judged by content (RuboCop flags these
-            // two, as the parser gem splits them into a `dstr`).
+        ] {
+            assert!(found(source).is_empty(), "should not flag {source:?}");
+        }
+        // The parser gem splits a string literal spanning several lines into
+        // a `dstr`, which RuboCop does not take for a command.
+        for source in [
             "IO.read(<<-CMD)\n| command\nbar\nCMD\n",
             "IO.read(\"| command\nbar\")\n",
         ] {
-            assert!(found(source).is_empty(), "should not flag {source:?}");
+            assert_eq!(found(source).len(), 1, "should flag {source:?}");
         }
     }
 

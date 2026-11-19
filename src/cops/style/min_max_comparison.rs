@@ -1,7 +1,7 @@
-//! `Style/MinMaxComparison` — unsafe comparison hints; detection only.
+//! `Style/MinMaxComparison` — comparison branches; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Offense, single_line},
+    offense::{Correction, Offense, single_line},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,10 +10,13 @@ impl Cop for MinMaxComparison {
     fn name(&self) -> &'static str {
         "Style/MinMaxComparison"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -76,6 +79,38 @@ impl Cop for MinMaxComparison {
         };
         let method = if greater == normal { "max" } else { "min" };
         let loc = node.location();
+        // The conditional becomes `[lhs, rhs].max`; an `elsif` becomes the
+        // `else` branch of its parent.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let text =
+                    |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+                let replacement = format!("[{}, {}].{method}", text(&lhs), text(rhs));
+                let if_node = node.as_if_node();
+                match if_node.as_ref().and_then(|n| n.if_keyword_loc()) {
+                    Some(keyword) if keyword.as_slice() == b"elsif" => {
+                        let else_node = if_node?.subsequent()?.as_else_node()?;
+                        let body = else_node.statements()?.location();
+                        Correction::from_edits(
+                            &file.bytes,
+                            vec![
+                                (
+                                    keyword.start_offset()
+                                        ..else_node.else_keyword_loc().start_offset(),
+                                    String::new(),
+                                ),
+                                (body.start_offset()..body.end_offset(), replacement),
+                            ],
+                        )
+                    }
+                    _ => Some(Correction {
+                        range: loc.start_offset()..loc.end_offset(),
+                        replacement,
+                    }),
+                }
+            })
+            .flatten();
         let (line, col) = file.line_col(loc.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -88,7 +123,7 @@ impl Cop for MinMaxComparison {
                 single_line(lhs.location().as_slice()),
                 single_line(rhs.location().as_slice())
             ),
-            correction: None,
+            correction,
         });
     }
 }
@@ -124,7 +159,7 @@ mod tests {
                     assert!(
                         crate::cops::testing::correction_offenses(&MinMaxComparison, &s)[0]
                             .correction
-                            .is_none()
+                            .is_some()
                     );
                 }
             }
@@ -173,7 +208,7 @@ mod tests {
             assert!(
                 crate::cops::testing::correction_offenses(&MinMaxComparison, &s)[0]
                     .correction
-                    .is_none()
+                    .is_some()
             );
         }
         for s in [

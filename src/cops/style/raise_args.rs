@@ -1,7 +1,7 @@
 //! `Style/RaiseArgs` — fixed pinned exception policy.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ impl Cop for RaiseArgs {
     fn name(&self) -> &'static str {
         "Style/RaiseArgs"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for RaiseArgs {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -54,6 +57,24 @@ impl Cop for RaiseArgs {
         {
             return;
         }
+        // correction_compact_to_exploded: `raise Ex, message`, parenthesized
+        // where the parent needs it.
+        let correction = cx.corrections_requested().then(|| {
+            let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+            let arguments = std::iter::once(text(&new.receiver().unwrap()))
+                .chain(args.first().map(text))
+                .collect::<Vec<_>>()
+                .join(", ");
+            let name = String::from_utf8_lossy(call.name().as_slice());
+            Correction {
+                range: node.location().start_offset()..node.location().end_offset(),
+                replacement: if requires_parens(cx) {
+                    format!("{name}({arguments})")
+                } else {
+                    format!("{name} {arguments}")
+                },
+            }
+        });
         let (line, col) = file.line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -65,11 +86,40 @@ impl Cop for RaiseArgs {
                 "Provide an exception class and message as arguments to `{}`.",
                 String::from_utf8_lossy(call.name().as_slice())
             ),
-            // Foo.exception and Foo.new can have entirely different behavior.
-            correction: None,
+            correction,
         });
     }
 }
+/// `requires_parens?(node.parent)`: `and`/`or`, a call, `super`, `yield`, an
+/// array, a pair, an endless method or a ternary. Argument lists, a sole
+/// statement and a ternary's `else` are not parser nodes.
+fn requires_parens(cx: &NodeContext<'_, '_>) -> bool {
+    let parent = cx.ancestors().find(|n| match n {
+        Node::ArgumentsNode { .. } | Node::ElseNode { .. } => false,
+        Node::StatementsNode { .. } => n.as_statements_node().unwrap().body().len() > 1,
+        _ => true,
+    });
+    match parent {
+        Some(
+            Node::AndNode { .. }
+            | Node::OrNode { .. }
+            | Node::CallNode { .. }
+            | Node::SuperNode { .. }
+            | Node::YieldNode { .. }
+            | Node::ArrayNode { .. }
+            | Node::AssocNode { .. },
+        ) => true,
+        Some(Node::DefNode { .. }) => parent.unwrap().as_def_node().unwrap().equal_loc().is_some(),
+        Some(Node::IfNode { .. }) => parent
+            .unwrap()
+            .as_if_node()
+            .unwrap()
+            .if_keyword_loc()
+            .is_none(),
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/raise_args_spec.rb (MIT,
@@ -77,7 +127,7 @@ mod tests {
     use super::*;
     use crate::cops::testing::correction_offenses;
     #[test]
-    fn constructors_on_arbitrary_receivers_have_exact_diagnostics_but_no_edits() {
+    fn constructors_on_arbitrary_receivers_have_exact_diagnostics_and_edits() {
         for keyword in ["raise", "fail"] {
             for constructor in [
                 "Ex.new",
@@ -95,7 +145,7 @@ mod tests {
                     found[0].message,
                     format!("Provide an exception class and message as arguments to `{keyword}`.")
                 );
-                assert!(found[0].correction.is_none());
+                assert!(found[0].correction.is_some());
             }
         }
     }
@@ -163,7 +213,7 @@ mod tests {
                 }
             }
             assert!(
-                found.iter().all(|o| o.correction.is_none()),
+                found.iter().all(|o| o.correction.is_some()),
                 "unsafe edit: {source}"
             );
             let positions: Vec<_> = found.iter().map(|o| vec![o.line, o.col]).collect();

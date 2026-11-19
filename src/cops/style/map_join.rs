@@ -1,7 +1,7 @@
 //! `Style/MapJoin` — redundant string conversion before join (unsafe).
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ impl Cop for MapJoin {
     fn name(&self) -> &'static str {
         "Style/MapJoin"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for MapJoin {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -49,6 +52,33 @@ impl Cop for MapJoin {
             return;
         }
         let selector = map.message_loc().unwrap();
+        // Remove the `map` call: from its dot (or the end of a receiver on an
+        // earlier line), or, without a receiver, through the `join` dot.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let map_end = map.location().end_offset();
+                let range = match map.receiver() {
+                    Some(receiver) => {
+                        let dot = map.call_operator_loc()?;
+                        let end = receiver.location().end_offset();
+                        let start = if file.line_of(end.saturating_sub(1))
+                            < file.line_of(dot.start_offset())
+                        {
+                            end
+                        } else {
+                            dot.start_offset()
+                        };
+                        start..map_end
+                    }
+                    None => map.location().start_offset()..join.call_operator_loc()?.end_offset(),
+                };
+                Some(Correction {
+                    range,
+                    replacement: String::new(),
+                })
+            })
+            .flatten();
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -60,7 +90,7 @@ impl Cop for MapJoin {
             line,
             col,
             end_line: file.last_line_of(selector),
-            correction: None,
+            correction,
         });
     }
 }

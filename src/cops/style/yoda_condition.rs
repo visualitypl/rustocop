@@ -1,7 +1,7 @@
 //! `Style/YodaCondition` — forbid literal/constant-first comparisons.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -10,6 +10,9 @@ impl Cop for YodaCondition {
     fn name(&self) -> &'static str {
         "Style/YodaCondition"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for YodaCondition {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -53,6 +56,33 @@ impl Cop for YodaCondition {
         }
         let start = node.location().start_offset();
         let end = ast::source_end(node);
+        // move_receiver_to_back: `rhs op' lhs`, with the comparison reversed.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let operator = match call.name().as_slice() {
+                    b"<" => ">",
+                    b"<=" => ">=",
+                    b">" => "<",
+                    b">=" => "<=",
+                    other => std::str::from_utf8(other).ok()?,
+                };
+                let at = rhs.location().end_offset();
+                Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (start..rhs.location().start_offset(), String::new()),
+                        (
+                            at..at,
+                            format!(
+                                " {operator} {}",
+                                String::from_utf8_lossy(lhs.location().as_slice())
+                            ),
+                        ),
+                    ],
+                )
+            })
+            .flatten();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -64,7 +94,7 @@ impl Cop for YodaCondition {
                 "Reverse the order of the operands `{}`.",
                 String::from_utf8_lossy(&file.bytes[start..end])
             ),
-            correction: None,
+            correction,
         });
     }
 }
