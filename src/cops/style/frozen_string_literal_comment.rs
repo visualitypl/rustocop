@@ -20,6 +20,10 @@ impl Cop for FrozenStringLiteralComment {
         "Style/FrozenStringLiteralComment"
     }
 
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+
     fn default_enabled(&self) -> bool {
         false
     }
@@ -39,7 +43,7 @@ impl Cop for FrozenStringLiteralComment {
         });
         if !has_comment {
             out.push(Offense {
-                correction: None,
+                correction: Some(insert_comment(file)),
                 cop: self.name(),
                 severity: self.severity(),
                 message: "Missing frozen string literal comment.".to_string(),
@@ -54,6 +58,64 @@ impl Cop for FrozenStringLiteralComment {
 /// How many lines precede the line of the first token that is not a
 /// comment (all of them when there is none). `None` for a file with no
 /// tokens at all, comments included.
+/// Upstream's `insert_comment`: on a line of its own after a leading shebang
+/// and/or encoding comment, else at the top.
+fn insert_comment(file: &SourceFile) -> crate::offense::Correction {
+    use crate::cops::lint::magic_comment_header::{first_code_offset, parse};
+    let bytes = &file.bytes;
+    let comments = file.comments();
+    let code = first_code_offset(file);
+    let token = |index: usize| {
+        comments
+            .get(index)
+            .filter(|c| code.is_none_or(|o| c.start < o))
+    };
+    let mut special = None;
+    let mut next = 0;
+    if let Some(first) = token(0)
+        && bytes[first.clone()].starts_with(b"#!")
+    {
+        special = Some(first);
+        next = 1;
+    }
+    if let Some(comment) = token(next)
+        && parse(file, &bytes[comment.clone()]).encoding.is_some()
+    {
+        special = Some(comment);
+    }
+    match special {
+        Some(comment) => {
+            let line = file.line_of(comment.start);
+            let mut end = if (line as usize) < file.line_count() {
+                file.line_start(line + 1)
+            } else {
+                bytes.len()
+            };
+            if end > comment.start && bytes.get(end - 1) == Some(&b'\n') {
+                end -= 1;
+                if bytes.get(end.wrapping_sub(1)) == Some(&b'\r') {
+                    end -= 1;
+                }
+            }
+            crate::offense::Correction {
+                range: end..end,
+                replacement: "\n# frozen_string_literal: true".into(),
+            }
+        }
+        None => {
+            let at = if bytes.starts_with(b"\xEF\xBB\xBF") {
+                3
+            } else {
+                0
+            };
+            crate::offense::Correction {
+                range: at..at,
+                replacement: "# frozen_string_literal: true\n".into(),
+            }
+        }
+    }
+}
+
 fn leading_comment_lines(file: &SourceFile) -> Option<u32> {
     let bytes = &file.bytes;
     let comments = file.comments();
@@ -256,7 +318,7 @@ mod tests {
         let requested =
             crate::cops::testing::correction_offenses(&FrozenStringLiteralComment, "puts 1\n");
         assert_eq!(requested.len(), 1);
-        assert!(requested[0].correction.is_none());
+        assert!(requested[0].correction.is_some());
     }
 
     #[test]

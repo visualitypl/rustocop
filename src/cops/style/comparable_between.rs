@@ -10,6 +10,9 @@ impl Cop for ComparableBetween {
     fn name(&self) -> &'static str {
         "Style/ComparableBetween"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_and_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for ComparableBetween {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -41,6 +44,13 @@ impl Cop for ComparableBetween {
             return;
         };
         let loc = node.location();
+        let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+        let correction = cx
+            .corrections_requested()
+            .then(|| crate::offense::Correction {
+                range: loc.start_offset()..loc.end_offset(),
+                replacement: format!("{}.between?({}, {})", text(value), text(min), text(max)),
+            });
         let (line, col) = file.line_col(loc.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -54,7 +64,7 @@ impl Cop for ComparableBetween {
                 single_line(min.location().as_slice()),
                 single_line(max.location().as_slice())
             ),
-            correction: None,
+            correction,
         });
     }
 }
@@ -110,7 +120,7 @@ mod tests {
             assert!(
                 crate::cops::testing::correction_offenses(&ComparableBetween, &s)[0]
                     .correction
-                    .is_none()
+                    .is_some()
             );
         }
     }

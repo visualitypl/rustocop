@@ -72,7 +72,7 @@ mod literal_as_condition;
 pub(crate) mod literal_assignment_in_condition;
 mod literal_in_interpolation;
 mod r#loop;
-mod magic_comment_header;
+pub(crate) mod magic_comment_header;
 mod misplaced_magic_comment;
 mod missing_cop_enable_directive;
 pub(crate) mod missing_super;

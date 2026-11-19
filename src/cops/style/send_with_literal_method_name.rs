@@ -11,6 +11,9 @@ impl Cop for SendWithLiteralMethodName {
     fn name(&self) -> &'static str {
         "Style/SendWithLiteralMethodName"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for SendWithLiteralMethodName {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -58,6 +61,34 @@ impl Cop for SendWithLiteralMethodName {
         let Some(selector) = call.message_loc() else {
             return;
         };
+        // Call the method directly: the selector through the end becomes the
+        // name, or, with more arguments, the selector does and the name
+        // argument goes.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let end = crate::cops::bundler::ordered_gem_node::send_end(&call);
+                match args.get(1) {
+                    None => Some(crate::offense::Correction {
+                        range: selector.start_offset()..end,
+                        replacement: method.to_owned(),
+                    }),
+                    Some(second) => crate::offense::Correction::from_edits(
+                        &file.bytes,
+                        vec![
+                            (
+                                selector.start_offset()..selector.end_offset(),
+                                method.to_owned(),
+                            ),
+                            (
+                                first.location().start_offset()..second.location().start_offset(),
+                                String::new(),
+                            ),
+                        ],
+                    ),
+                }
+            })
+            .flatten();
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -66,7 +97,7 @@ impl Cop for SendWithLiteralMethodName {
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1)),
             message: format!("Use `{method}` method call directly instead."),
-            correction: None,
+            correction,
         });
     }
 }
@@ -110,7 +141,7 @@ mod tests {
                     assert!(
                         correction_offenses(&SendWithLiteralMethodName, &call)[0]
                             .correction
-                            .is_none()
+                            .is_some()
                     );
                 }
             }
@@ -175,7 +206,7 @@ mod tests {
                         found[0].message,
                         format!("Use `{word}` method call directly instead.")
                     );
-                    assert!(found[0].correction.is_none());
+                    assert!(found[0].correction.is_some());
                 }
                 let source = format!("{receiver}public_send(:{word})");
                 assert!(correction_offenses(&SendWithLiteralMethodName, &source).is_empty());
@@ -183,11 +214,11 @@ mod tests {
         }
     }
     #[test]
-    fn custom_public_send_still_reports_but_never_rewrites_visibility_or_results() {
+    fn custom_public_send_is_reported_and_rewritten_as_upstream_does() {
         let source = "def obj.public_send(*args); :custom; end\nobj.public_send(:private_method) { side_effect }\n";
         let found = correction_offenses(&SendWithLiteralMethodName, source);
         assert_eq!(found.len(), 1);
         assert_eq!((found[0].line, found[0].col), (2, 5));
-        assert!(found[0].correction.is_none());
+        assert!(found[0].correction.is_some());
     }
 }

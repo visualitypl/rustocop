@@ -28,6 +28,9 @@ impl Cop for RaiseException {
     fn name(&self) -> &'static str {
         "Lint/RaiseException"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -51,8 +54,18 @@ impl Cop for RaiseException {
         }
         let (line, col) =
             super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
+        let replacement = if location.as_slice().starts_with(b"::") {
+            "::StandardError"
+        } else {
+            "StandardError"
+        };
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: location.start_offset()..location.end_offset(),
+                    replacement: replacement.into(),
+                }),
             cop: self.name(),
             severity: self.severity(),
             message: "Use `StandardError` over `Exception`.".to_string(),

@@ -2,7 +2,7 @@
 use crate::{cops::style::magic_comment::MagicComment, source::SourceFile};
 use std::sync::LazyLock;
 
-pub(super) struct HeaderMagic {
+pub(crate) struct HeaderMagic {
     pub valid: bool,
     pub encoding: Option<Vec<u8>>,
     pub frozen: bool,
@@ -11,7 +11,7 @@ pub(super) struct HeaderMagic {
 /// Whole buffer lines and actual comment ranges have different validity rules:
 /// encoding_specified? may be true even when valid? is false (leading spaces,
 /// embedded-document prose). Keep those facts separate, as the callers do.
-pub(super) fn parse(file: &SourceFile, text: &[u8]) -> HeaderMagic {
+pub(crate) fn parse(file: &SourceFile, text: &[u8]) -> HeaderMagic {
     let projected = file.match_pattern_source(text);
     let starts_hash = projected.starts_with(b"#");
     let emacs = memchr::memmem::find(&projected, b"-*-").is_some_and(|start| {
@@ -79,7 +79,7 @@ pub(super) fn parse(file: &SourceFile, text: &[u8]) -> HeaderMagic {
 
 /// Main-parse lexical prefix: one scan of sorted Prism comments, including
 /// embedded documents and escaped newlines. EOF controls have no code token.
-pub(super) fn first_code_offset(file: &SourceFile) -> Option<usize> {
+pub(crate) fn first_code_offset(file: &SourceFile) -> Option<usize> {
     let mut offset = usize::from(file.bytes.starts_with(b"\xef\xbb\xbf")) * 3;
     let mut comments = file.comments().iter().peekable();
     while offset < file.bytes.len() {

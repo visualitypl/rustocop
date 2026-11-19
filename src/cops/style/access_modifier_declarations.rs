@@ -221,7 +221,10 @@ fn correction(
 
 /// Parser's leading comments of a statement: the comments on lines of their
 /// own before it, with only whitespace between. Returns the new start.
-fn leading_comments(mut start: usize, file: &SourceFile) -> (usize, Vec<std::ops::Range<usize>>) {
+pub(super) fn leading_comments(
+    mut start: usize,
+    file: &SourceFile,
+) -> (usize, Vec<std::ops::Range<usize>>) {
     let comments = file.comments();
     let mut found = Vec::new();
     let mut index = comments.partition_point(|c| c.end <= start);

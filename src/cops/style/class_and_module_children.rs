@@ -1,19 +1,22 @@
-//! `Style/ClassAndModuleChildren`: fixed nested style, detection only.
+//! `Style/ClassAndModuleChildren`: fixed nested style; unsafe correction.
 
 use ruby_prism::Node;
 
 use crate::{
-    cops::{Cop, NodeContext},
-    offense::Offense,
+    cops::{Cop, NodeContext, ast},
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
-/// Enforce the fixed nested style without changing lexical constant lookup.
+/// Enforce the fixed nested style.
 pub struct ClassAndModuleChildren;
 
 impl Cop for ClassAndModuleChildren {
     fn name(&self) -> &'static str {
         "Style/ClassAndModuleChildren"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
 
     fn check_node<'pr>(
@@ -65,6 +68,10 @@ impl Cop for ClassAndModuleChildren {
             return;
         }
         let location = identifier.location();
+        let correction = cx
+            .corrections_requested()
+            .then(|| nest_definition(node, &path, cx, file))
+            .flatten();
         let (line, col) = file.line_col(location.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -73,11 +80,107 @@ impl Cop for ClassAndModuleChildren {
             line,
             col,
             end_line: file.last_line_of(location),
-            // Nesting changes Module.nesting and constant lookup. Never guess
-            // whether a namespace is a class/module or rewrite its evaluation.
-            correction: None,
+            correction,
         });
     }
+}
+
+/// Upstream's `nest_definition`: the keyword becomes the namespace's
+/// (`class` when the previous sibling defines it as one, else `module`), the
+/// last `::` starts a nested definition, and a second `end` closes it.
+fn nest_definition(
+    node: &Node<'_>,
+    path: &ruby_prism::ConstantPathNode<'_>,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<Correction> {
+    let (keyword, end) = match node.as_class_node() {
+        Some(class) => (class.class_keyword_loc(), class.end_keyword_loc()),
+        None => {
+            let module = node.as_module_node()?;
+            (module.module_keyword_loc(), module.end_keyword_loc())
+        }
+    };
+    let namespace = path.parent()?;
+    let namespace_keyword = if left_sibling_defines_class(node, &namespace, cx, file) {
+        "class"
+    } else {
+        "module"
+    };
+    let start = node.location().start_offset();
+    let line_start = file.line_start(file.line_of(start));
+    let leading: String = file.bytes[line_start..]
+        .iter()
+        .take_while(|b| matches!(b, b' ' | b'\t' | b'\r' | b'\n' | b'\x0c' | b'\x0b'))
+        .map(|&b| b as char)
+        .collect();
+    let column = |offset: usize| file.line_col(offset).1 as usize - 1;
+    // indentation(node) + leading_spaces(node), as upstream computes it.
+    let padding = format!("{}  {leading}", " ".repeat(column(start)));
+    let end_padding = padding.replacen(&" ".repeat(column(end.start_offset())), "", 1);
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    Correction::from_edits(
+        &file.bytes,
+        vec![
+            (span(&keyword), namespace_keyword.to_owned()),
+            (
+                span(&path.delimiter_loc()),
+                format!(
+                    "\n{padding}{} ",
+                    String::from_utf8_lossy(keyword.as_slice())
+                ),
+            ),
+            (span(&end), format!("{end_padding}end\n{leading}end")),
+        ],
+    )
+}
+
+/// `heuristic_namespace_keyword`: whether the left sibling statement holds a
+/// `class` definition of the namespace.
+fn left_sibling_defines_class(
+    node: &Node<'_>,
+    namespace: &Node<'_>,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> bool {
+    use crate::cops::walk::{NodeVisitor, walk};
+    let Some(statements) = cx
+        .parent()
+        .and_then(|p| p.as_statements_node())
+        .filter(|s| s.body().len() > 1)
+    else {
+        return false;
+    };
+    let body: Vec<_> = statements.body().iter().collect();
+    let Some(index) = body
+        .iter()
+        .position(|n| n.location().start_offset() == node.location().start_offset())
+    else {
+        return false;
+    };
+    let Some(left) = index.checked_sub(1).map(|i| &body[i]) else {
+        return false;
+    };
+    struct Finder<'a, 'b> {
+        namespace: &'a Node<'b>,
+        file: &'a SourceFile,
+        found: bool,
+    }
+    impl<'pr> NodeVisitor<'pr> for Finder<'_, '_> {
+        fn enter(&mut self, node: Node<'pr>) {
+            if let Some(class) = node.as_class_node() {
+                self.found |= ast::fingerprint_for_detection(&class.constant_path(), self.file)
+                    == ast::fingerprint_for_detection(self.namespace, self.file);
+            }
+        }
+    }
+    let mut finder = Finder {
+        namespace,
+        file,
+        found: false,
+    };
+    walk(&mut finder, left);
+    finder.found
 }
 
 #[cfg(test)]

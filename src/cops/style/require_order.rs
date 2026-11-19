@@ -10,6 +10,9 @@ impl Cop for RequireOrder {
     fn name(&self) -> &'static str {
         "Style/RequireOrder"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -21,7 +24,13 @@ impl Cop for RequireOrder {
         // searches. Each sibling and intervening source byte is examined O(1)
         // times, even for an entire descending sequence of loads.
         if let Some(statements) = node.as_statements_node() {
-            check_sequence(statements.body().iter(), self, file, out);
+            check_sequence(
+                statements.body().iter(),
+                self,
+                file,
+                out,
+                cx.corrections_requested(),
+            );
         } else if let Some(call) = node.as_call_node() {
             // Prism's ArgumentsNode is transparent in RuboCop: receiver and
             // positional arguments are siblings, including operator calls.
@@ -34,25 +43,57 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(arguments) = node.as_arguments_node() {
             if cx.parent().is_none_or(|n| n.as_call_node().is_none()) {
-                check_sequence(arguments.arguments().iter(), self, file, out);
+                check_sequence(
+                    arguments.arguments().iter(),
+                    self,
+                    file,
+                    out,
+                    cx.corrections_requested(),
+                );
             }
         } else if let Some(array) = node.as_array_node() {
-            check_sequence(array.elements().iter(), self, file, out);
+            check_sequence(
+                array.elements().iter(),
+                self,
+                file,
+                out,
+                cx.corrections_requested(),
+            );
         } else if let Some(pair) = node.as_assoc_node() {
-            check_sequence([pair.key(), pair.value()].into_iter(), self, file, out);
+            check_sequence(
+                [pair.key(), pair.value()].into_iter(),
+                self,
+                file,
+                out,
+                cx.corrections_requested(),
+            );
         } else if let Some(and) = node.as_and_node() {
-            check_sequence([and.left(), and.right()].into_iter(), self, file, out);
+            check_sequence(
+                [and.left(), and.right()].into_iter(),
+                self,
+                file,
+                out,
+                cx.corrections_requested(),
+            );
         } else if let Some(or) = node.as_or_node() {
-            check_sequence([or.left(), or.right()].into_iter(), self, file, out);
+            check_sequence(
+                [or.left(), or.right()].into_iter(),
+                self,
+                file,
+                out,
+                cx.corrections_requested(),
+            );
         } else if let Some(range) = node.as_range_node() {
             check_sequence(
                 range.left().into_iter().chain(range.right()),
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(when) = node.as_when_node() {
             check_sequence(
@@ -62,6 +103,7 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(while_node) = node.as_while_node() {
             check_sequence(
@@ -70,6 +112,7 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(until) = node.as_until_node() {
             check_sequence(
@@ -78,6 +121,7 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(for_node) = node.as_for_node() {
             check_sequence(
@@ -86,6 +130,7 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(class) = node.as_class_node() {
             check_sequence(
@@ -96,6 +141,7 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(class) = node.as_singleton_class_node() {
             check_sequence(
@@ -103,6 +149,7 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(write) = node.as_constant_path_write_node() {
             check_sequence(
@@ -114,11 +161,18 @@ impl Cop for RequireOrder {
                 self,
                 file,
                 out,
+                cx.corrections_requested(),
             );
         } else if let Some(rescue) = node.as_rescue_node() {
             // Upstream wraps the exception list in an array, so the rescue
             // body is not a sibling of its individual exceptions.
-            check_sequence(rescue.exceptions().iter(), self, file, out);
+            check_sequence(
+                rescue.exceptions().iter(),
+                self,
+                file,
+                out,
+                cx.corrections_requested(),
+            );
         }
     }
 }
@@ -166,9 +220,12 @@ fn check_sequence<'pr>(
     cop: &RequireOrder,
     file: &SourceFile,
     out: &mut Vec<Offense>,
+    fix: bool,
 ) -> usize {
     let mut inspected = 0;
     let mut maximum: Option<(&[u8], ruby_prism::StringNode<'pr>)> = None;
+    // The sibling run since the last break: path value and statement range.
+    let mut run: Vec<(Vec<u8>, std::ops::Range<usize>)> = Vec::new();
     let mut previous_start = 0;
     let mut previous_end = 0;
     for node in nodes {
@@ -196,6 +253,13 @@ fn check_sequence<'pr>(
                     && !section_break(file, joined_start, joined_end)
                 {
                     let (line, col) = file.line_col(start);
+                    // Move the statement above the earliest greater sibling.
+                    let statement = node.location().start_offset()..ast::source_end(&node);
+                    let correction = run
+                        .iter()
+                        .filter(|_| fix)
+                        .find(|(value, _)| path.unescaped() < value.as_slice())
+                        .and_then(|(_, older)| move_before(file, older.clone(), statement));
                     out.push(Offense {
                         cop: cop.name(),
                         severity: cop.severity(),
@@ -206,7 +270,7 @@ fn check_sequence<'pr>(
                         line,
                         col,
                         end_line: file.line_of(end.saturating_sub(1).max(start)),
-                        correction: None,
+                        correction,
                     });
                 }
             }
@@ -217,10 +281,12 @@ fn check_sequence<'pr>(
             c.receiver().is_none() && (parts.is_none() || ast::call_arguments(c).len() == 1)
         }) else {
             maximum = None;
+            run.clear();
             continue;
         };
         let Some(path) = first_path(&call) else {
             maximum = None;
+            run.clear();
             continue;
         };
         let name = call.name().as_slice();
@@ -231,8 +297,13 @@ fn check_sequence<'pr>(
             inspected += end - start;
             if *old_name != name || section_break(file, start, end) {
                 maximum = None;
+                run.clear();
             }
         }
+        run.push((
+            path.unescaped().to_vec(),
+            node.location().start_offset()..ast::source_end(&node),
+        ));
         if maximum
             .as_ref()
             .is_none_or(|(_, old)| old.unescaped() < path.unescaped())
@@ -243,6 +314,42 @@ fn check_sequence<'pr>(
         previous_end = ast::source_end(&call.as_node());
     }
     inspected
+}
+/// Upstream's `autocorrect`, when both statements are on lines of their own:
+/// the statement's lines (with their comments) move before the older one's.
+fn move_before(
+    file: &SourceFile,
+    older: std::ops::Range<usize>,
+    statement: std::ops::Range<usize>,
+) -> Option<crate::offense::Correction> {
+    let own_lines = |range: &std::ops::Range<usize>| {
+        let line_start = file.line_start(file.line_of(range.start));
+        let last = file.line_of(range.end.saturating_sub(1).max(range.start));
+        let line_end = if (last as usize) < file.line_count() {
+            file.line_start(last + 1)
+        } else {
+            file.bytes.len()
+        };
+        let rest = &file.bytes[range.end..line_end];
+        let rest = &rest[rest.iter().take_while(|b| b.is_ascii_whitespace()).count()..];
+        file.bytes[line_start..range.start]
+            .iter()
+            .all(|b| matches!(b, b' ' | b'\t'))
+            && (rest.is_empty() || rest.starts_with(b"#"))
+    };
+    if !own_lines(&older) || !own_lines(&statement) {
+        return None;
+    }
+    let with_comments = |range: std::ops::Range<usize>| {
+        let start = super::access_modifier_declarations::leading_comments(range.start, file).0;
+        super::correction::whole_lines(file, start..range.end)
+    };
+    let (older, moved) = (with_comments(older), with_comments(statement));
+    let text = String::from_utf8(file.bytes[moved.clone()].to_vec()).ok()?;
+    crate::offense::Correction::from_edits(
+        &file.bytes,
+        vec![(older.start..older.start, text), (moved, String::new())],
+    )
 }
 fn first_path<'pr>(call: &CallNode<'pr>) -> Option<ruby_prism::StringNode<'pr>> {
     call.arguments()?
@@ -275,7 +382,7 @@ mod tests {
             for (o, line) in found.iter().zip(2..=4) {
                 assert_eq!((o.line, o.col, o.end_line), (line, 1, line));
                 assert_eq!(o.message, format!("Sort `{method}` in alphabetical order."));
-                assert!(o.correction.is_none());
+                assert!(o.correction.is_some());
             }
         }
         for (source, line, col) in [
@@ -392,6 +499,7 @@ mod tests {
             &RequireOrder,
             &file,
             &mut found,
+            false,
         );
         assert_eq!(visited, 4000);
         assert_eq!(found.len(), 3999);
@@ -433,6 +541,7 @@ mod tests {
             &RequireOrder,
             &file,
             &mut found,
+            false,
         );
         assert_eq!(visited, 4000);
         assert_eq!(found.len(), 3999);
