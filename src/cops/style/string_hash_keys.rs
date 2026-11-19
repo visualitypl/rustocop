@@ -10,6 +10,9 @@ impl Cop for StringHashKeys {
     fn name(&self) -> &'static str {
         "Style/StringHashKeys"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_assoc_node().is_some()
     }
@@ -51,7 +54,20 @@ impl Cop for StringHashKeys {
             line,
             col,
             end_line: file.last_line_of(key.location()),
-            correction: None,
+            // The key becomes its content's `to_sym.inspect`.
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: key.location().start_offset()..key.location().end_offset(),
+                    replacement: String::from_utf8_lossy(
+                        &crate::cops::lint::symbol_conversion::inspect_symbol(
+                            string.unescaped(),
+                            file,
+                            false,
+                        ),
+                    )
+                    .into_owned(),
+                }),
         });
     }
 }
@@ -135,7 +151,7 @@ mod tests {
             assert!(
                 crate::cops::testing::correction_offenses(&StringHashKeys, s)[0]
                     .correction
-                    .is_none()
+                    .is_some()
             );
         }
     }

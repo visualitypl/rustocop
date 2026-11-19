@@ -25,6 +25,9 @@ impl Cop for InheritException {
     fn name(&self) -> &'static str {
         "Lint/InheritException"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn check_node<'pr>(
         &self,
@@ -44,7 +47,12 @@ impl Cop for InheritException {
         let (line, col) =
             super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: location.start_offset()..location.end_offset(),
+                    replacement: "StandardError".into(),
+                }),
             cop: self.name(),
             severity: self.severity(),
             message: "Inherit from `StandardError` instead of `Exception`.".to_string(),

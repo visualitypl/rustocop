@@ -34,6 +34,9 @@ impl Cop for RedundantRequireStatement {
     fn name(&self) -> &'static str {
         "Lint/RedundantRequireStatement"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -42,7 +45,7 @@ impl Cop for RedundantRequireStatement {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -77,8 +80,64 @@ impl Cop for RedundantRequireStatement {
             call.location().start_offset(),
             file,
         );
+        // The require goes: its whole lines, or, as a modifier's body, with
+        // the spaces after it, the modifier becoming a block.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let loc = call.location();
+                let parent = cx
+                    .ancestors()
+                    .find(|n| !n.as_statements_node().is_some_and(|s| s.body().len() == 1));
+                let modifier = parent.filter(|p| match p {
+                    Node::IfNode { .. } => {
+                        let n = p.as_if_node().unwrap();
+                        n.if_keyword_loc().is_some_and(|k| k.as_slice() == b"if")
+                            && n.end_keyword_loc().is_none()
+                    }
+                    Node::UnlessNode { .. } => {
+                        p.as_unless_node().unwrap().end_keyword_loc().is_none()
+                    }
+                    Node::WhileNode { .. } => {
+                        let n = p.as_while_node().unwrap();
+                        n.closing_loc().is_none() && !n.is_begin_modifier()
+                    }
+                    Node::UntilNode { .. } => {
+                        let n = p.as_until_node().unwrap();
+                        n.closing_loc().is_none() && !n.is_begin_modifier()
+                    }
+                    _ => false,
+                });
+                match modifier {
+                    Some(parent) => {
+                        let at = parent.location().end_offset();
+                        crate::offense::Correction::from_edits(
+                            &file.bytes,
+                            vec![
+                                (
+                                    loc.start_offset()
+                                        ..crate::offense::space_right(
+                                            &file.bytes,
+                                            loc.end_offset(),
+                                        ),
+                                    String::new(),
+                                ),
+                                (at..at, "\nend".into()),
+                            ],
+                        )
+                    }
+                    None => Some(crate::offense::Correction {
+                        range: crate::cops::style::correction::whole_lines(
+                            file,
+                            loc.start_offset()..loc.end_offset(),
+                        ),
+                        replacement: String::new(),
+                    }),
+                }
+            })
+            .flatten();
         out.push(Offense {
-            correction: None,
+            correction,
             cop: self.name(),
             severity: self.severity(),
             message: "Remove unnecessary `require` statement.".to_string(),

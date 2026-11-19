@@ -12,6 +12,9 @@ impl Cop for TrailingCommaInBlockArgs {
     fn name(&self) -> &'static str {
         "Style/TrailingCommaInBlockArgs"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_block_node().is_some()
     }
@@ -19,7 +22,7 @@ impl Cop for TrailingCommaInBlockArgs {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -63,7 +66,12 @@ impl Cop for TrailingCommaInBlockArgs {
             line,
             col,
             end_line: line,
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: comma.location().start_offset()..comma.location().end_offset(),
+                    replacement: String::new(),
+                }),
         });
     }
 }
@@ -103,7 +111,7 @@ mod tests {
     }
 
     #[test]
-    fn pinned_diagnostics_never_offer_unsafe_corrections() {
+    fn pinned_diagnostics_and_unsafe_corrections() {
         for (source, col) in [
             ("test { |a, b,| a + b }", 13),
             ("test do |a, b,|\n  a + b\nend", 14),
@@ -119,7 +127,7 @@ mod tests {
                 found[0].message,
                 "Useless trailing comma present in block arguments."
             );
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
         assert!(!TrailingCommaInBlockArgs.safe_fixes());
         assert!(!TrailingCommaInBlockArgs.default_enabled());
@@ -170,7 +178,7 @@ mod tests {
     }
 
     #[test]
-    fn destructuring_counts_leaf_arguments_but_is_never_rewritten() {
+    fn destructuring_counts_leaf_arguments() {
         for source in [
             "test { |(a,b),| a }",
             "test { |((a,b),c),| a }",
@@ -183,7 +191,7 @@ mod tests {
             );
             let found = offenses(source);
             assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
 }

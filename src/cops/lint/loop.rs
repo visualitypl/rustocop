@@ -11,10 +11,13 @@ impl Cop for Loop {
     fn name(&self) -> &'static str {
         "Lint/Loop"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -26,6 +29,10 @@ impl Cop for Loop {
             None
         };
         let Some(keyword) = keyword else { return };
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(node, file))
+            .flatten();
         let (line, col) =
             super::array_literal_in_regexp::reference_line_col(keyword.start_offset(), file);
         out.push(Offense {
@@ -36,9 +43,52 @@ impl Cop for Loop {
             line,
             col,
             end_line: line,
-            correction: None,
+            correction,
         });
     }
+}
+
+/// Upstream's corrector: `begin` becomes `loop do`, the condition goes, and
+/// a `break` with the inverted keyword goes before `end`.
+fn correction(node: &Node<'_>, file: &SourceFile) -> Option<crate::offense::Correction> {
+    let (statements, predicate, until) = match node.as_while_node() {
+        Some(n) => (n.statements()?, n.predicate(), false),
+        None => {
+            let n = node.as_until_node()?;
+            (n.statements()?, n.predicate(), true)
+        }
+    };
+    let body = statements.body().iter().next()?;
+    let begin = body.as_begin_node()?;
+    let (open, end) = (begin.begin_keyword_loc()?, begin.end_keyword_loc()?);
+    let column = |offset: usize| file.line_col(offset).1 as usize - 1;
+    let indent = " ".repeat(column(node.location().start_offset()));
+    let single = file.line_of(body.location().start_offset()) == file.line_of(end.start_offset());
+    let keyword = if until { "if" } else { "unless" };
+    let mut text = format!(
+        "break {keyword} {}\n{indent}",
+        String::from_utf8_lossy(predicate.location().as_slice())
+    );
+    if single {
+        text = format!("\n{indent}  {text}");
+    }
+    let mut edits = vec![
+        (open.start_offset()..open.end_offset(), "loop do".to_owned()),
+        (
+            end.end_offset()..node.location().end_offset(),
+            String::new(),
+        ),
+    ];
+    if single {
+        let mut from = end.start_offset();
+        while from > 0 && matches!(file.bytes[from - 1], b' ' | b'\t') {
+            from -= 1;
+        }
+        edits.push((from..end.start_offset(), text));
+    } else {
+        edits.push((end.start_offset()..end.start_offset(), text));
+    }
+    crate::offense::Correction::from_edits(&file.bytes, edits)
 }
 
 #[cfg(test)]

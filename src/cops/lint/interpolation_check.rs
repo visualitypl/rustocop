@@ -14,6 +14,9 @@ impl Cop for InterpolationCheck {
     fn name(&self) -> &'static str {
         "Lint/InterpolationCheck"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn check_node<'pr>(
         &self,
@@ -52,6 +55,34 @@ impl Cop for InterpolationCheck {
         if !valid_converted_literal(raw, file) {
             return;
         }
+        // Double quotes, or `%{...}` when the string holds a `"`.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let (open, close) = match node {
+                    Node::StringNode { .. } => {
+                        let s = node.as_string_node()?;
+                        (s.opening_loc()?, s.closing_loc()?)
+                    }
+                    _ => {
+                        let s = node.as_interpolated_string_node()?;
+                        (s.opening_loc()?, s.closing_loc()?)
+                    }
+                };
+                let (start, end) = if raw.contains(&b'"') {
+                    ("%{", "}")
+                } else {
+                    ("\"", "\"")
+                };
+                crate::offense::Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (open.start_offset()..open.end_offset(), start.to_owned()),
+                        (close.start_offset()..close.end_offset(), end.to_owned()),
+                    ],
+                )
+            })
+            .flatten();
         let (line, col) = super::array_literal_in_regexp::reference_line_col(
             node.location().start_offset(),
             file,
@@ -60,7 +91,7 @@ impl Cop for InterpolationCheck {
             cop: self.name(), severity: self.severity(), line, col,
             end_line: file.last_line_of(node.location()),
             message: "Interpolation in single quoted string detected. Use double quoted strings if you need interpolation.".into(),
-            correction: None,
+            correction,
         });
     }
 }
