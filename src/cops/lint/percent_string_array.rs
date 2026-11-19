@@ -11,6 +11,9 @@ impl Cop for PercentStringArray {
     fn name(&self) -> &'static str {
         "Lint/PercentStringArray"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_array_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for PercentStringArray {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -55,6 +58,34 @@ impl Cop for PercentStringArray {
         }) {
             return;
         }
+        // Each element loses a leading quote and a trailing quote and comma.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let mut edits = Vec::new();
+                for element in array.elements().iter() {
+                    let loc = element.location();
+                    let source = loc.as_slice();
+                    let lead = usize::from(matches!(source.first(), Some(b'\'' | b'"')));
+                    let mut trail = usize::from(source.last() == Some(&b','));
+                    if matches!(
+                        source.get(source.len().wrapping_sub(trail + 1)),
+                        Some(b'\'' | b'"')
+                    ) && source.len() > trail
+                    {
+                        trail += 1;
+                    }
+                    let (start, end) = (loc.start_offset(), loc.end_offset());
+                    if lead + trail >= source.len() {
+                        edits.push((start..end, String::new()));
+                        continue;
+                    }
+                    edits.push((start..start + lead, String::new()));
+                    edits.push((end - trail..end, String::new()));
+                }
+                crate::offense::Correction::from_edits(&file.bytes, edits)
+            })
+            .flatten();
         let (line, col) = super::array_literal_in_regexp::reference_line_col(
             node.location().start_offset(),
             file,
@@ -70,7 +101,7 @@ impl Cop for PercentStringArray {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction,
         });
     }
 }

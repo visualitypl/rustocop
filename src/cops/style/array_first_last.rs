@@ -1,4 +1,4 @@
-//! `Style/ArrayFirstLast`: opt-in unsafe indexed-read suggestions, never edits.
+//! `Style/ArrayFirstLast`: opt-in indexed-read suggestions; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::Offense,
@@ -9,6 +9,9 @@ pub struct ArrayFirstLast;
 impl Cop for ArrayFirstLast {
     fn name(&self) -> &'static str {
         "Style/ArrayFirstLast"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -82,6 +85,20 @@ impl Cop for ArrayFirstLast {
         } else {
             selector.end_offset()
         };
+        let correction = cx.corrections_requested().then(|| {
+            let (end, replacement) = if inner.call_operator_loc().is_some() {
+                (
+                    crate::cops::bundler::ordered_gem_node::send_end(&inner),
+                    preferred.to_owned(),
+                )
+            } else {
+                (selector.end_offset(), format!(".{preferred}"))
+            };
+            crate::offense::Correction {
+                range: start..end,
+                replacement,
+            }
+        });
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -90,7 +107,7 @@ impl Cop for ArrayFirstLast {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
@@ -195,7 +212,7 @@ mod tests {
         }
     }
     #[test]
-    fn unknown_array_like_receivers_and_encoded_literals_are_still_detection_only() {
+    fn unknown_array_like_receivers_and_encoded_literals_are_corrected_too() {
         for s in [
             "[][0]",
             "[[]][-1]",
@@ -214,7 +231,7 @@ mod tests {
         ] {
             let o = crate::cops::testing::correction_offenses(&ArrayFirstLast, s);
             assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none());
+            assert!(o[0].correction.is_some());
         }
         assert!(!ArrayFirstLast.safe_fixes());
         assert!(!ArrayFirstLast.default_enabled());

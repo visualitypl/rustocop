@@ -1,4 +1,4 @@
-//! `Style/RedundantSelfAssignment` — unsafe receiver-returning method heuristic, detection only.
+//! `Style/RedundantSelfAssignment` — receiver-returning method heuristic; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::Offense,
@@ -37,10 +37,13 @@ impl Cop for RedundantSelfAssignment {
     fn name(&self) -> &'static str {
         "Style/RedundantSelfAssignment"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -75,6 +78,22 @@ impl Cop for RedundantSelfAssignment {
         if !same {
             return;
         }
+        // A variable assignment becomes its value; a setter loses everything
+        // before its argument.
+        let correction = cx.corrections_requested().then(|| {
+            let loc = node.location();
+            if variable.is_some() {
+                crate::offense::Correction {
+                    range: loc.start_offset()..loc.end_offset(),
+                    replacement: String::from_utf8_lossy(rhs.location().as_slice()).into_owned(),
+                }
+            } else {
+                crate::offense::Correction {
+                    range: loc.start_offset()..rhs.location().start_offset(),
+                    replacement: String::new(),
+                }
+            }
+        });
         let (line, col) = file.line_col(operator.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -82,7 +101,7 @@ impl Cop for RedundantSelfAssignment {
             line,
             col,
             end_line: line,
-            correction: None,
+            correction,
             message: format!(
                 "Redundant self assignment detected. Method `{}` modifies its receiver in place.",
                 String::from_utf8_lossy(call.name().as_slice())
@@ -151,7 +170,7 @@ mod tests {
     //! Ported from RuboCop's style/redundant_self_assignment_spec.rb
     //! (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
     #[test]
-    fn every_mutator_and_variable_kind_is_detection_only() {
+    fn every_mutator_and_variable_kind_is_corrected() {
         for method in super::METHODS {
             let method = std::str::from_utf8(method).unwrap();
             for variable in ["foo", "@foo", "@@foo", "$foo"] {
@@ -171,7 +190,7 @@ mod tests {
                         "Redundant self assignment detected. Method `{method}` modifies its receiver in place."
                     )
                 );
-                assert!(found[0].correction.is_none());
+                assert!(found[0].correction.is_some());
             }
         }
     }
@@ -187,7 +206,7 @@ mod tests {
             let found =
                 crate::cops::testing::correction_offenses(&super::RedundantSelfAssignment, source);
             assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
         for source in [
             "C = C.concat(ary)",

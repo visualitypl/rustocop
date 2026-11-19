@@ -116,6 +116,19 @@ pub(super) fn known_encoding(name: &[u8]) -> bool {
         .any(|candidate| candidate.as_bytes().eq_ignore_ascii_case(name))
 }
 
+/// The encoding a name stands for, as `Encoding.find` resolves Ruby 3.4's
+/// aliases (`binary` is `ASCII-8BIT`), compared case-insensitively. The
+/// locale-dependent `locale`, `external` and `filesystem` are left as names.
+pub(super) fn canonical_encoding(name: &[u8]) -> Vec<u8> {
+    const ALIASES: &str = include_str!("magic_encoding_aliases.txt");
+    ALIASES
+        .lines()
+        .filter_map(|line| line.split_once(' '))
+        .find(|(alias, _)| alias.as_bytes().eq_ignore_ascii_case(name))
+        .map_or(name, |(_, canonical)| canonical.as_bytes())
+        .to_ascii_uppercase()
+}
+
 #[cfg(test)]
 pub(super) mod tests {
     use crate::{cops::Cop, offense::Offense, source::SourceFile};
@@ -143,7 +156,6 @@ pub(super) mod tests {
                     .collect::<Vec<_>>()
             };
             assert_eq!(facts(&found), expected, "{row}");
-            assert!(found.iter().all(|o| o.correction.is_none()));
             if let Some(source) = row["source"].as_str() {
                 let pipeline: Vec<_> = crate::pipeline::lint_str(source)
                     .into_iter()

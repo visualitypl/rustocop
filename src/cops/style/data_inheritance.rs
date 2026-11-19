@@ -10,6 +10,9 @@ impl Cop for DataInheritance {
     fn name(&self) -> &'static str {
         "Style/DataInheritance"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -36,7 +39,7 @@ mod tests {
     };
     use super::*;
     #[test]
-    fn pinned_data_offenses_are_never_corrected() {
+    fn pinned_data_offenses_and_unsafe_corrections() {
         pinned_offenses(
             &DataInheritance,
             "Data.define",

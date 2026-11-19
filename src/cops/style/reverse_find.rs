@@ -1,5 +1,5 @@
 //! `Style/ReverseFind` — Ruby 4.0 `rfind` hints (runs only when the Ruby version is 4.0).
-//! Unsafe for unknown/lazy receivers; never emits corrections.
+//! Unsafe for unknown/lazy receivers: the correction applies with `-A`.
 use crate::{
     cops::{Cop, NodeContext},
     offense::Offense,
@@ -11,6 +11,9 @@ impl Cop for ReverseFind {
     fn name(&self) -> &'static str {
         "Style/ReverseFind"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for ReverseFind {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -54,9 +57,14 @@ impl Cop for ReverseFind {
             severity: self.severity(),
             line,
             col,
-            end_line: file.last_line_of(end),
+            end_line: file.last_line_of(call.message_loc().unwrap()),
             message: "Use `rfind` instead.".into(),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: start.start_offset()..end.end_offset(),
+                    replacement: "rfind".into(),
+                }),
         });
     }
 }
@@ -82,7 +90,7 @@ mod tests {
         lint_str_with(&active, source)
     }
     #[test]
-    fn ruby_four_real_matcher_all_pinned_forms_and_no_unsafe_fixes() {
+    fn ruby_four_real_matcher_all_pinned_forms_and_unsafe_fixes() {
         for (source, col) in [
             ("array.reverse.find { |item| item.even? }", 7),
             ("array&.reverse&.find { |item| item.even? }", 8),
@@ -104,7 +112,7 @@ mod tests {
             assert!(
                 crate::cops::testing::correction_offenses(&ReverseFind, source)[0]
                     .correction
-                    .is_none()
+                    .is_some()
             );
             assert!(offenses(source, RubyVersion(3, 4)).is_empty());
         }

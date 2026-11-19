@@ -14,6 +14,9 @@ impl Cop for StructInheritance {
     fn name(&self) -> &'static str {
         "Style/StructInheritance"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -26,7 +29,7 @@ impl Cop for StructInheritance {
 }
 
 /// Shared structural policy, not runtime constant resolution: the pin matches
-/// bare/rooted names even when shadowed. We never perform its unsafe rewrite.
+/// bare/rooted names even when shadowed.
 pub(super) fn check_inheritance(
     cop: &dyn Cop,
     node: &Node<'_>,
@@ -71,13 +74,86 @@ pub(super) fn check_inheritance(
             return;
         }
     }
+    let correction = cx
+        .corrections_requested()
+        .then(|| correction(&class, &call, constant == "Data", file))
+        .flatten();
     let (line, col) = file.line_col(parent.location().start_offset());
     let method = std::str::from_utf8(method).expect("fixed ASCII method");
     out.push(Offense {
-        cop: cop.name(), severity: cop.severity(), correction: None,
+        cop: cop.name(), severity: cop.severity(), correction,
         message: format!("Don't extend an instance initialized by `{constant}.{method}`. Use a block to customize the {noun}."),
         line, col, end_line: file.last_line_of(parent.location()),
     });
+}
+
+/// Upstream's corrector: `class Name < Struct.new(...)` becomes
+/// `Name = Struct.new(...) do`, the class body becoming the block's.
+fn correction(
+    class: &ruby_prism::ClassNode<'_>,
+    call: &ruby_prism::CallNode<'_>,
+    data: bool,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    use crate::offense::space_right_blank;
+    let bytes = &file.bytes;
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    let blank_left = |mut pos: usize| {
+        while pos > 0 && matches!(bytes[pos - 1], b' ' | b'\t') {
+            pos -= 1;
+        }
+        pos
+    };
+    let keyword = class.class_keyword_loc();
+    // Struct removes the blanks after `class`; Data those around it.
+    let keyword_start = if data {
+        blank_left(keyword.start_offset())
+    } else {
+        keyword.start_offset()
+    };
+    let mut edits = vec![
+        (
+            keyword_start..space_right_blank(bytes, keyword.end_offset()),
+            String::new(),
+        ),
+        (span(&class.inheritance_operator_loc()?), "=".to_owned()),
+    ];
+    let parent_end = call.location().end_offset();
+    if let Some(block) = call.block().and_then(|b| b.as_block_node()) {
+        let close = block.closing_loc();
+        edits.push((
+            blank_left(close.start_offset())..space_right_blank(bytes, close.end_offset()),
+            String::new(),
+        ));
+        if data && block.opening_loc().as_slice() == b"{" {
+            edits.push((span(&block.opening_loc()), "do".to_owned()));
+        }
+    } else if class.body().is_none() {
+        let end = class.end_keyword_loc();
+        let single =
+            file.line_of(class.location().start_offset()) == file.line_of(end.start_offset());
+        edits.push((
+            if single {
+                parent_end..class.location().end_offset()
+            } else {
+                crate::cops::style::correction::whole_lines(file, span(&end))
+            },
+            String::new(),
+        ));
+    } else if !data && call.opening_loc().is_none() && !ast::call_arguments(call).is_empty() {
+        let arguments = ast::call_arguments(call)
+            .iter()
+            .map(|a| String::from_utf8_lossy(a.location().as_slice()).into_owned())
+            .collect::<Vec<_>>()
+            .join(", ");
+        edits.push((
+            call.message_loc()?.end_offset()..parent_end,
+            format!("({arguments}) do"),
+        ));
+    } else {
+        edits.push((parent_end..parent_end, " do".to_owned()));
+    }
+    crate::offense::Correction::from_edits(bytes, edits)
 }
 
 /// One lazy complete main-AST walk for both cops, then constant-time queries.
@@ -198,7 +274,7 @@ pub(crate) mod tests {
                     assert!(found[0].correction.is_none());
                     let requested = correction_offenses(cop, &source);
                     assert_eq!(requested.len(), 1);
-                    assert!(requested[0].correction.is_none());
+                    assert!(requested[0].correction.is_some());
                 }
             }
         }
@@ -341,7 +417,7 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn pinned_struct_offenses_are_never_corrected() {
+    fn pinned_struct_offenses_and_unsafe_corrections() {
         pinned_offenses(
             &StructInheritance,
             "Struct.new",
