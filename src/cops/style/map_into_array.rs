@@ -15,6 +15,9 @@ impl Cop for MapIntoArray {
     fn name(&self) -> &'static str {
         "Style/MapIntoArray"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -86,6 +89,7 @@ impl Cop for MapIntoArray {
             return;
         };
         let tap = parent.body().len() == 1 && empty_tap(cx, &var.declaration);
+        let mut assignment_range = None;
         if !tap {
             let start = each.location().start_offset();
             let end = each.location().end_offset();
@@ -107,7 +111,22 @@ impl Cop for MapIntoArray {
             if writes.len() != 1 {
                 return;
             }
+            assignment_range = Some(assignment.range.clone());
         }
+        let correction = (cx.corrections_requested() && !return_value_used(node, cx))
+            .then(|| {
+                correction(
+                    &each,
+                    &push,
+                    argument,
+                    dest.name().as_slice(),
+                    &parent,
+                    assignment_range,
+                    cx,
+                    file,
+                )
+            })
+            .flatten();
         let (line, col) = file.line_col(each.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -116,9 +135,130 @@ impl Cop for MapIntoArray {
             line,
             col,
             end_line: file.last_line_of(each.location()),
-            correction: None,
+            correction,
         });
     }
+}
+
+/// Upstream's `return_value_used?`, over the parser parents of Prism nodes:
+/// a statement list of several is a `begin`, of one is transparent.
+fn return_value_used(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
+    let mut child = (node.location().start_offset(), node.location().end_offset());
+    let mut ancestors = cx.ancestors();
+    while let Some(parent) = ancestors.next() {
+        match parent {
+            Node::StatementsNode { .. } => {
+                let body: Vec<_> = parent.as_statements_node().unwrap().body().iter().collect();
+                if body.len() > 1 && body.last().is_some_and(|last| key(last) != child) {
+                    return false;
+                }
+            }
+            Node::ParenthesesNode { .. } => {}
+            Node::ProgramNode { .. } => return false,
+            Node::BeginNode { .. } => {
+                let begin = parent.as_begin_node().unwrap();
+                if begin.rescue_clause().is_some() {
+                    return true;
+                }
+                if begin.ensure_clause().is_some() {
+                    return false;
+                }
+            }
+            Node::EnsureNode { .. } | Node::ForNode { .. } => return false,
+            Node::DefNode { .. } => {
+                let name = parent.as_def_node().unwrap().name();
+                let name = name.as_slice();
+                let setter =
+                    name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"<=" | b">=" | b"===");
+                return !(name == b"initialize" || setter);
+            }
+            Node::BlockNode { .. } => {
+                return !ancestors
+                    .next()
+                    .and_then(|n| n.as_call_node())
+                    .is_some_and(|c| matches!(c.name().as_slice(), b"each" | b"tap"));
+            }
+            _ => return true,
+        }
+        child = key(parent);
+    }
+    false
+}
+
+/// Upstream's corrector: `each` becomes `map`, the empty-array assignment
+/// (or `tap`) goes, the push becomes its argument, and the result is
+/// assigned, a trailing read of the variable removed.
+#[allow(clippy::too_many_arguments)]
+fn correction(
+    each: &ruby_prism::CallNode<'_>,
+    push: &ruby_prism::CallNode<'_>,
+    argument: &Node<'_>,
+    name: &[u8],
+    parent: &ruby_prism::StatementsNode<'_>,
+    assignment: Option<Range<usize>>,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    use crate::offense::{space_left, space_right, space_right_blank};
+    let bytes = &file.bytes;
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    let start = each.location().start_offset();
+    let mut edits = vec![(span(&each.message_loc()?), "map".to_owned())];
+    match assignment {
+        Some(asgn) => {
+            let end = space_right_blank(bytes, space_right(bytes, asgn.end));
+            edits.push((asgn.start..end, String::new()));
+        }
+        None => {
+            // [].tap { |dest| ... }: the tap through the `each`, and the
+            // block's end with the blanks before it.
+            let mut ancestors = cx.ancestors();
+            ancestors.next();
+            let block = ancestors.next()?.as_block_node()?;
+            let tap = ancestors.next()?;
+            edits.push((tap.location().start_offset()..start, String::new()));
+            let close = block.closing_loc();
+            edits.push((
+                space_left(bytes, close.start_offset())..close.end_offset(),
+                String::new(),
+            ));
+        }
+    }
+    // correct_push_node
+    let (push_loc, arg_loc) = (push.location(), argument.location());
+    if argument.as_keyword_hash_node().is_some() {
+        edits.push((
+            arg_loc.start_offset()..arg_loc.start_offset(),
+            "{ ".to_owned(),
+        ));
+        edits.push((arg_loc.end_offset()..arg_loc.end_offset(), " }".to_owned()));
+    }
+    edits.push((
+        push_loc.start_offset()..arg_loc.start_offset(),
+        String::new(),
+    ));
+    edits.push((arg_loc.end_offset()..push_loc.end_offset(), String::new()));
+    // correct_return_value_handling
+    let body: Vec<_> = parent.body().iter().collect();
+    let index = body
+        .iter()
+        .position(|n| n.location().start_offset() == start)?;
+    if let Some(next) = body.get(index + 1)
+        && next
+            .as_local_variable_read_node()
+            .is_some_and(|r| r.name().as_slice() == name)
+    {
+        let loc = next.location();
+        edits.push((
+            space_left(bytes, loc.start_offset())..loc.end_offset(),
+            String::new(),
+        ));
+    }
+    edits.push((
+        start..start,
+        format!("{} = ", String::from_utf8_lossy(name)),
+    ));
+    crate::offense::Correction::from_edits(bytes, edits)
 }
 fn empty_tap(cx: &NodeContext<'_, '_>, declaration: &Range<usize>) -> bool {
     let mut ancestors = cx.ancestors();
