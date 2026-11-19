@@ -10,6 +10,9 @@ impl Cop for RedundantFetchBlock {
     fn name(&self) -> &'static str {
         "Style/RedundantFetchBlock"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for RedundantFetchBlock {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -89,6 +92,12 @@ impl Cop for RedundantFetchBlock {
             "fetch({key}) {}",
             value.map_or_else(|| "{}".into(), |v| format!("{{ {v} }}"))
         );
+        let correction = cx
+            .corrections_requested()
+            .then(|| crate::offense::Correction {
+                range: selector.start_offset()..block.location().end_offset(),
+                replacement: good.clone(),
+            });
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -97,7 +106,7 @@ impl Cop for RedundantFetchBlock {
             col,
             end_line: file.last_line_of(block.location()),
             message: format!("Use `{good}` instead of `{bad}`."),
-            correction: None,
+            correction,
         });
     }
 }
@@ -114,7 +123,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn all_applicable_pinned_calls_and_nine_unsafe_corrections_are_detected_but_never_edited() {
+    fn all_applicable_pinned_calls_and_nine_unsafe_corrections() {
         let cases: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/redundant_fetch_block_pinned.json"
         ))
@@ -126,11 +135,11 @@ mod tests {
             assert_eq!(serde_json::json!(positions), case["positions"], "{case}");
             let messages: Vec<_> = found.iter().map(|o| &o.message).collect();
             assert_eq!(serde_json::json!(messages), case["messages"], "{case}");
-            assert!(found.iter().all(|o| o.correction.is_none()), "{case}");
+            assert!(found.iter().all(|o| o.correction.is_some()), "{case}");
         }
     }
     #[test]
-    fn literal_defaults_empty_blocks_and_safe_navigation_are_detection_only() {
+    fn literal_defaults_empty_blocks_and_safe_navigation_are_corrected() {
         for value in ["5", "2.5", ":value", "2.0r", "1i", "true", "false", "nil"] {
             for (receiver, col) in [("hash.", 6), ("hash&.", 7), ("", 1)] {
                 let source = format!("{receiver}fetch(:key) {{ {value} }}");
@@ -144,7 +153,7 @@ mod tests {
                 assert!(
                     correction_offenses(&RedundantFetchBlock, &source)[0]
                         .correction
-                        .is_none()
+                        .is_some()
                 );
             }
         }

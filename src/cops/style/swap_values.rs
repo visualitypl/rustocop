@@ -10,6 +10,9 @@ impl Cop for SwapValues {
     fn name(&self) -> &'static str {
         "Style/SwapValues"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -39,7 +42,13 @@ impl Cop for SwapValues {
                     .and_then(|e| e.as_else_node())
                     .and_then(|e| single(e.statements())),
             ) {
-                check(self, [&n.predicate(), &a, &b], file, out);
+                check(
+                    self,
+                    [&n.predicate(), &a, &b],
+                    cx.corrections_requested(),
+                    file,
+                    out,
+                );
             }
             return;
         } else if let Some(n) = node.as_unless_node() {
@@ -48,7 +57,13 @@ impl Cop for SwapValues {
                 n.else_clause().and_then(|e| single(e.statements())),
             ) {
                 // RuboCop normalizes unless to if, reversing the body slots.
-                check(self, [&n.predicate(), &b, &a], file, out);
+                check(
+                    self,
+                    [&n.predicate(), &b, &a],
+                    cx.corrections_requested(),
+                    file,
+                    out,
+                );
             }
             return;
         } else if let Some(n) = node.as_when_node() {
@@ -64,7 +79,7 @@ impl Cop for SwapValues {
             #[cfg(test)]
             TRIPLES.with(|n| n.set(n.get() + 1));
             let [tmp, x, y] = triple else { unreachable!() };
-            check(self, [tmp, x, y], file, out);
+            check(self, [tmp, x, y], cx.corrections_requested(), file, out);
         }
     }
 }
@@ -72,7 +87,13 @@ fn single(body: Option<ruby_prism::StatementsNode<'_>>) -> Option<Node<'_>> {
     let body = body?;
     (body.body().len() == 1).then(|| body.body().first().unwrap())
 }
-fn check(cop: &SwapValues, [tmp, x, y]: [&Node<'_>; 3], file: &SourceFile, out: &mut Vec<Offense>) {
+fn check(
+    cop: &SwapValues,
+    [tmp, x, y]: [&Node<'_>; 3],
+    fix: bool,
+    file: &SourceFile,
+    out: &mut Vec<Offense>,
+) {
     let (Some((tmp_name, tmp_value)), Some((x_name, x_value)), Some((y_name, y_value))) =
         (assignment(tmp), assignment(x), assignment(y))
     else {
@@ -90,6 +111,23 @@ fn check(cop: &SwapValues, [tmp, x, y]: [&Node<'_>; 3], file: &SourceFile, out: 
     let y_name = String::from_utf8_lossy(&y_name);
     let x_line = file.line_of(x.location().start_offset());
     let y_line = file.line_of(y.location().start_offset());
+    // The three statements' whole lines (without the last line break).
+    let correction = fix.then(|| {
+        let start = file.line_start(file.line_of(tmp.location().start_offset()));
+        let last = file.line_of(y.location().end_offset().saturating_sub(1));
+        let mut end = if (last as usize) < file.line_count() {
+            file.line_start(last + 1)
+        } else {
+            file.bytes.len()
+        };
+        while end > start && matches!(file.bytes[end - 1], b'\n' | b'\r') {
+            end -= 1;
+        }
+        crate::offense::Correction {
+            range: start..end,
+            replacement: format!("{x_name}, {y_name} = {y_name}, {x_name}"),
+        }
+    });
     super::negated_if::report(
         cop,
         tmp,
@@ -97,7 +135,7 @@ fn check(cop: &SwapValues, [tmp, x, y]: [&Node<'_>; 3], file: &SourceFile, out: 
         format!(
             "Replace this and assignments at lines {x_line} and {y_line} with `{x_name}, {y_name} = {y_name}, {x_name}`."
         ),
-        None,
+        correction,
         out,
     );
 }
@@ -166,7 +204,7 @@ mod tests {
                         "Replace this and assignments at lines 1 and 1 with `{x}, {y} = {y}, {x}`."
                     )
                 );
-                assert!(found[0].correction.is_none());
+                assert!(found[0].correction.is_some());
             }
         }
         for source in [
@@ -218,16 +256,16 @@ mod tests {
         }
     }
     #[test]
-    fn sibling_scanning_is_linear_and_temporaries_are_never_removed() {
+    fn sibling_scanning_is_linear() {
         let source = "tmp=x; x=y; y=tmp; barrier\n".repeat(1000);
         TRIPLES.with(|n| n.set(0));
         let found = correction_offenses(&SwapValues, &source);
         assert_eq!(found.len(), 1000);
-        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(found.iter().all(|o| o.correction.is_some()));
         TRIPLES.with(|n| assert_eq!(n.get(), 3998));
     }
     #[test]
-    fn every_pinned_call_has_exact_diagnostics_and_no_correction() {
+    fn every_pinned_call_has_exact_diagnostics_and_a_correction() {
         let cases: Vec<serde_json::Value> = serde_json::from_str(include_str!(
             "../../../tests/fixtures/swap_values_pinned.json"
         ))
@@ -252,7 +290,7 @@ mod tests {
             assert!(
                 correction_offenses(&SwapValues, source)
                     .iter()
-                    .all(|o| o.correction.is_none())
+                    .all(|o| o.correction.is_some())
             );
         }
         assert!(!SwapValues.safe_fixes());

@@ -14,6 +14,9 @@ impl Cop for NumericOperationWithConstantResult {
     fn name(&self) -> &'static str {
         "Lint/NumericOperationWithConstantResult"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -71,6 +74,27 @@ impl Cop for NumericOperationWithConstantResult {
         if !matches {
             return;
         }
+        // The operation becomes its result; a compound assignment assigns it.
+        let correction = cx.corrections_requested().then(|| {
+            let (operator, name) = match node.as_call_node() {
+                Some(call) => (call.name().as_slice().to_vec(), None),
+                None => {
+                    let write = node.as_local_variable_operator_write_node().unwrap();
+                    (
+                        write.binary_operator().as_slice().to_vec(),
+                        Some(String::from_utf8_lossy(write.name().as_slice()).into_owned()),
+                    )
+                }
+            };
+            let result = if operator == b"*" { "0" } else { "1" };
+            crate::offense::Correction {
+                range: node.location().start_offset()..node.location().end_offset(),
+                replacement: match name {
+                    Some(name) => format!("{name} = {result}"),
+                    None => result.to_owned(),
+                },
+            }
+        });
         let (line, col) = super::array_literal_in_regexp::reference_line_col(
             node.location().start_offset(),
             file,
@@ -82,7 +106,7 @@ impl Cop for NumericOperationWithConstantResult {
             line,
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }

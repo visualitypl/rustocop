@@ -10,14 +10,18 @@ impl Cop for MixedCaseRange {
     fn name(&self) -> &'static str {
         "Lint/MixedCaseRange"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
         let mut ranges = vec![];
+        let mut in_regexp = false;
         if let Some(range) = node.as_range_node() {
             let (Some(left), Some(right)) = (range.left(), range.right()) else {
                 return;
@@ -33,16 +37,53 @@ impl Cop for MixedCaseRange {
         } else if let Some(regexp) = crate::cops::style::regexp_literal::Regexp::new(node) {
             ranges =
                 super::duplicate_regexp_character_class_element::mixed_case_ranges(&regexp, file);
+            in_regexp = true;
         }
         for (range, (line, col)) in ranges {
+            // Only a regexp range is corrected: `A-z` becomes `A-Za-z`.
+            let correction = (in_regexp && cx.corrections_requested())
+                .then(|| {
+                    regexp_range(&file.bytes[range.clone()]).map(|replacement| {
+                        crate::offense::Correction {
+                            range: range.clone(),
+                            replacement,
+                        }
+                    })
+                })
+                .flatten();
             out.push(Offense {
-                cop: self.name(), severity: self.severity(), correction: None,
+                cop: self.name(), severity: self.severity(), correction,
                 message: "Ranges from upper to lower case ASCII letters may include unintended characters. Instead of `A-z` (which also includes several symbols) specify each range individually: `A-Za-z` and individually specify any symbols.".into(),
                 line, col, end_line: file.line_of(range.end.saturating_sub(1)),
             });
         }
     }
 }
+/// Upstream's `regexp_range`: each bound extended to the end of its own
+/// letter or digit range (`A-z` gives `A-Za-z`).
+fn regexp_range(source: &[u8]) -> Option<String> {
+    let text = std::str::from_utf8(source).ok()?;
+    let mut parts = text.split('-');
+    let (open, close) = (parts.next()?, parts.next()?);
+    let range = |c: &str| -> Option<(char, char)> {
+        let mut chars = c.chars();
+        let ch = chars.next()?;
+        if chars.next().is_some() {
+            return None;
+        }
+        [('a', 'z'), ('A', 'Z'), ('0', '9')]
+            .into_iter()
+            .find(|(a, b)| (*a..=*b).contains(&ch))
+    };
+    let (open_range, close_range) = (range(open)?, range(close)?);
+    let join = |a: String, b: String| if a == b { a } else { format!("{a}-{b}") };
+    Some(format!(
+        "{}{}",
+        join(open.to_owned(), open_range.1.to_string()),
+        join(close_range.0.to_string(), close.to_owned())
+    ))
+}
+
 // None = not one Ruby character; Some(0/1/2) = other/lower/upper.
 fn category(node: &Node<'_>, file: &SourceFile) -> Option<u8> {
     if node.as_source_file_node().is_some() {

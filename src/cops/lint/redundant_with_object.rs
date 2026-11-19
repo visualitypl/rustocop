@@ -11,6 +11,9 @@ impl Cop for RedundantWithObject {
     fn name(&self) -> &'static str {
         "Lint/RedundantWithObject"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for RedundantWithObject {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -40,6 +43,28 @@ impl Cop for RedundantWithObject {
         let Some(selector) = call.message_loc() else {
             return;
         };
+        // `each_with_object(x)` becomes `each`; `.with_object(x)` goes.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let range = selector.start_offset()
+                    ..crate::cops::bundler::ordered_gem_node::send_end(&call);
+                if each {
+                    return Some(crate::offense::Correction {
+                        range,
+                        replacement: "each".into(),
+                    });
+                }
+                let dot = call.call_operator_loc()?;
+                crate::offense::Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (range, String::new()),
+                        (dot.start_offset()..dot.end_offset(), String::new()),
+                    ],
+                )
+            })
+            .flatten();
         let (line, col) =
             super::array_literal_in_regexp::reference_line_col(selector.start_offset(), file);
         out.push(Offense {
@@ -54,8 +79,7 @@ impl Cop for RedundantWithObject {
                 "Remove redundant `with_object`."
             }
             .into(),
-            // Unsafe upstream correction changes the value and drops memo evaluation.
-            correction: None,
+            correction,
         });
     }
 }

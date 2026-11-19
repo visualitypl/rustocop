@@ -10,6 +10,9 @@ impl Cop for YodaExpression {
     fn name(&self) -> &'static str {
         "Style/YodaExpression"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -29,6 +32,20 @@ impl Cop for YodaExpression {
         }
         let start = node.location().start_offset();
         let end = ast::source_end(node);
+        // Swap the operands.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let lhs = node.as_call_node()?.receiver()?;
+                let text =
+                    |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+                let span = |n: &Node<'_>| n.location().start_offset()..n.location().end_offset();
+                crate::offense::Correction::from_edits(
+                    &file.bytes,
+                    vec![(span(&lhs), text(&rhs)), (span(&rhs), text(&lhs))],
+                )
+            })
+            .flatten();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -40,7 +57,7 @@ impl Cop for YodaExpression {
                 "Non-literal operand (`{}`) should be first.",
                 String::from_utf8_lossy(rhs.location().as_slice())
             ),
-            correction: None,
+            correction,
         });
     }
 }
