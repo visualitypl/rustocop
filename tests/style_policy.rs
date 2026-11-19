@@ -1021,6 +1021,19 @@ fn ns04_directives_protect_the_entire_atomic_binding_and_stdin_never_writes() {
                 let mtime = fs::metadata(&path).unwrap().modified().unwrap();
                 let run = cli(dir.path(), "", &["--only", cop, "--fix", "lib/a.rb"], None);
                 assert_ne!(run.status.code(), Some(2), "{source}: {run:?}");
+                // As in RuboCop, a disable on a later use does not stop the
+                // enabled offense's rename from reaching it.
+                if source.starts_with("def +(arg)\n")
+                    || source.starts_with("begin; rescue => error\n")
+                {
+                    let renamed = if cop.ends_with("BinaryOperatorParameterName") {
+                        source.replace("arg", "other")
+                    } else {
+                        source.replace("error\n", "e\n").replace(" error ", " e ")
+                    };
+                    assert_eq!(fs::read_to_string(&path).unwrap(), renamed, "{run:?}");
+                    continue;
+                }
                 assert!(String::from_utf8_lossy(&run.stdout).contains("0 corrections applied"));
                 assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
                 assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
@@ -4088,17 +4101,18 @@ fn ns06_atomic_disabled_anchors_comments_stdin_provenance_and_no_write() {
                 &["--only", NS06_CASE, "--fix", "lib/a.rb"],
                 None,
             );
-            // A header-only disable withholds the whole atomic rename even
-            // though the terminator finding survives; a later disable cannot.
+            // The finding is on the terminator, so, as in RuboCop, a
+            // header-only disable does not stop the rename of both.
             let header_only = source.starts_with("p <<~sql #");
-            assert_eq!(run.status.code(), Some(i32::from(header_only)), "{run:?}");
-            let expected = if source.ends_with(&format!("# {prefix}:disable {NS06_CASE}\n")) {
-                source
-                    .replacen("<<~sql", "<<~SQL", 1)
-                    .replacen("\nsql\n", "\nSQL\n", 1)
-            } else {
-                source.clone()
-            };
+            assert_eq!(run.status.code(), Some(0), "{run:?}");
+            let expected =
+                if header_only || source.ends_with(&format!("# {prefix}:disable {NS06_CASE}\n")) {
+                    source
+                        .replacen("<<~sql", "<<~SQL", 1)
+                        .replacen("\nsql\n", "\nSQL\n", 1)
+                } else {
+                    source.clone()
+                };
             assert_eq!(fs::read_to_string(&path).unwrap(), expected);
         }
         let source = format!(

@@ -140,13 +140,15 @@ fn both_directive_prefixes_and_all_scopes_protect_bytes_and_mtime() {
             );
         }
     }
-    // A directive inside a multiline constructor cannot be erased by a fix.
-    unchanged(
-        d.path(),
-        b"Array.new(\n [] # rubocop:disable Style/RedundantArrayConstructor\n)\n",
-        &["--only", CONSTRUCTOR, "--fix", "a.rb"],
-        1,
-    );
+    // As in RuboCop, the enabled offense's replacement erases a directive
+    // inside the multiline constructor.
+    fs::write(
+        d.path().join("a.rb"),
+        "Array.new(\n [] # rubocop:disable Style/RedundantArrayConstructor\n)\n",
+    )
+    .unwrap();
+    cli(d.path(), &["--only", CONSTRUCTOR, "--fix", "a.rb"], 0);
+    assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), "[]\n");
 }
 #[test]
 fn typed_getters_and_one_child_wrappers_fix_without_writing_targets_or_aborting() {

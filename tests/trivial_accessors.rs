@@ -151,17 +151,17 @@ fn directives_optins_and_multiline_atomic_suppression() {
                 );
             }
         }
-        // Offense highlight is only `def`; suppression inside its subtree must
-        // still block the whole-definition replacement.
-        let source =
-            format!("class Foo\n  def foo\n    @foo # {prefix}:disable {COP}\n  end\nend\n");
-        count(
-            &unchanged(
-                d.path(),
-                source.as_bytes(),
-                &["--only", COP, "--fix", "a.rb"],
-            ),
-            1,
+        // Offense highlight is only `def`, so, as in RuboCop, a disable
+        // inside its subtree does not stop the whole-definition replacement.
+        fs::write(
+            d.path().join("a.rb"),
+            format!("class Foo\n  def foo\n    @foo # {prefix}:disable {COP}\n  end\nend\n"),
+        )
+        .unwrap();
+        count(&cli(d.path(), &["--only", COP, "--fix", "a.rb"]), 0);
+        assert_eq!(
+            fs::read_to_string(d.path().join("a.rb")).unwrap(),
+            "class Foo\n  attr_reader :foo\nend\n"
         );
         fs::write(
             d.path().join("rustocop.toml"),

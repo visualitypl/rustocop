@@ -283,10 +283,17 @@ impl Facts {
                     })
                 })
                 .collect();
-            if let Some(edits) = edits
-                && let Some(edit) = super::correction::combine(file, edits)
-            {
-                facts.edits.insert(edit.range.start, edit);
+            // Each read is its own offense and edit, as upstream. Upstream
+            // leaves a disabled read as `_1` beside `it`, which is invalid;
+            // here a block with a disabled read is not corrected at all.
+            let Some(edits) = edits else { continue };
+            if edits.iter().all(|edit| {
+                let line = file.line_of(edit.range.start);
+                file.cop_enabled_for_lines("Style/ItBlockParameter", line, line)
+            }) {
+                for edit in edits {
+                    facts.edits.insert(edit.range.start, edit);
+                }
             }
         }
         facts

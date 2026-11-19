@@ -99,13 +99,15 @@ fn directives_exclusions_and_stdin_honor_the_real_pipeline() {
                 0,
             );
         }
-        // Body-only disabling suppresses the atomic edit, not the header offense.
+        // As in RuboCop, body-only disabling does not stop the header
+        // offense's correction from reaching the body.
         let source = BAD.replace("    b", &format!("    b # {prefix}:disable {COP}"));
-        unchanged(
+        correct(
             d.path(),
             source.as_bytes(),
-            &["--only", COP, "--fix", "a.rb"],
-            1,
+            GOOD.replace("  b", &format!("  b # {prefix}:disable {COP}"))
+                .as_bytes(),
+            COP,
         );
         let disabled = format!("# {prefix}:disable {COP}\n{BAD}# {prefix}:enable {COP}\n");
         correct(

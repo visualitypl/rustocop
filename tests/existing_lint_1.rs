@@ -128,16 +128,28 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
 fn later_line_directives_overlap_exact_reports_not_enclosing_calls() {
     let d = project();
     for prefix in ["rubocop", "rustocop"] {
+        // As in RuboCop, the enabled offense's correction reaches the
+        // disabled closing line.
+        let path = d.path().join("lib/a.rb");
+        fs::write(
+            &path,
+            format!("foo *[\nx\n] # {prefix}:disable Lint/AmbiguousOperator\n"),
+        )
+        .unwrap();
+        let out = run(
+            d.path(),
+            &["--only", "Lint/AmbiguousOperator", "--fix", "lib/a.rb"],
+        );
+        assert_eq!(out.status.code(), Some(0), "{out:?}");
+        assert_eq!(
+            fs::read_to_string(&path).unwrap(),
+            format!("foo(*[\nx\n]) # {prefix}:disable Lint/AmbiguousOperator\n")
+        );
         for (cop, source, expected) in [
             (
                 "Lint/AmbiguousBlockAssociation",
                 "foo bar {\nx\n} # PREFIX:disable COP\n",
                 0,
-            ),
-            (
-                "Lint/AmbiguousOperator",
-                "foo *[\nx\n] # PREFIX:disable COP\n",
-                1,
             ),
             (
                 "Lint/AmbiguousRange",

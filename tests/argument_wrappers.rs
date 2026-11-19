@@ -129,19 +129,23 @@ fn encoding_bom_crlf_payload_and_explicit_line_values_survive() {
     }
 }
 #[test]
-fn atomic_signature_envelope_respects_disabled_lines_and_keeps_safe_siblings() {
+fn signature_edit_reaches_a_disabled_line_as_in_rubocop() {
     let dir = project();
     let path = dir.path().join("x.rb");
     for prefix in ["rubocop", "rustocop"] {
+        // The offense (line 2) is enabled, so, as in RuboCop, its correction
+        // also edits the signature on the disabled line 1.
         let before = format!(
             "def f # {prefix}:disable {BLOCK}\n  if block_given?; [1].each {{ |x| yield x }}; end\nend\nfoo(**{{}}.merge(y: 1))\n"
         );
-        let after = before.replace("{}.merge(y: 1)", "{}, y: 1");
+        let after = format!(
+            "def f(&block) # {prefix}:disable {BLOCK}\n  if block_given?; [1].each(&block); end\nend\nfoo(**{{}}, y: 1)\n"
+        );
         fs::write(&path, &before).unwrap();
         cli(
             dir.path(),
             &["--only", &format!("{BLOCK},{MERGE}"), "--fix", "x.rb"],
-            1,
+            0,
         );
         assert_eq!(fs::read_to_string(&path).unwrap(), after);
     }

@@ -116,15 +116,14 @@ fn excludes_and_both_directive_prefixes_suppress_reports_and_edits() {
                 0,
             );
         }
-        // The highlight stays enabled, but the atomic edit crosses a disabled span.
+        // As in RuboCop, the enabled highlight's edit crosses the disabled span.
         let source =
             format!("begin\n# {prefix}:disable {COP}\n  work\n# {prefix}:enable {COP}\nend\n");
-        unchanged(
-            dir.path(),
-            &["--only", COP, "--fix", "a.rb"],
-            source.as_bytes(),
-            1,
-            1,
+        fs::write(dir.path().join("a.rb"), &source).unwrap();
+        run(dir.path(), &["--only", COP, "--fix", "a.rb"], 0, 0);
+        assert_eq!(
+            fs::read_to_string(dir.path().join("a.rb")).unwrap(),
+            format!("\n# {prefix}:disable {COP}\n  work\n# {prefix}:enable {COP}\n\n")
         );
     }
 }

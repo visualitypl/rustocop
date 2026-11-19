@@ -138,5 +138,7 @@ validated version.
 **Writing.** Corrected source is parsed again before an atomic replacement
 that preserves permissions and symlinks. If the first pass fails validation,
 the original is left unchanged; if a later pass does, the earlier passes are
-kept and the failure is reported. Disabled lines, path exclusions and files
-with syntax errors are never rewritten.
+kept and the failure is reported. Path exclusions and files with syntax
+errors are never rewritten. An offense on a line where its cop is disabled
+is not corrected, but, as in RuboCop, an enabled offense's correction
+applies in full even where it reaches such a line.

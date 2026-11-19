@@ -112,16 +112,19 @@ fn config_exclusions_and_directives_suppress_atomic_edits() {
             }
         }
     }
-    // An alias highlight is just the selector, but a whole-call replacement
-    // crossing a disabled argument line must still be withheld atomically.
+    // An alias highlight is just the selector, so, as in RuboCop, its
+    // whole-call replacement crosses the disabled argument line.
     let source = "class Fresh\n def bala; 42; end\n alias_method(\n :ala, # rubocop:disable Style/Alias\n :bala)\nend\n";
     fs::write(&path, source).unwrap();
     cli(
         dir.path(),
         &["--only", "Style/Alias", "--fix", "lib/a.rb"],
-        1,
+        0,
     );
-    assert_eq!(fs::read_to_string(&path).unwrap(), source);
+    assert_eq!(
+        fs::read_to_string(&path).unwrap(),
+        "class Fresh\n def bala; 42; end\n alias ala bala\nend\n"
+    );
 }
 #[test]
 fn stdin_reports_each_cop_without_writing_display_paths() {

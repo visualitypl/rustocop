@@ -1606,7 +1606,9 @@ fn indentation_width_safe_withholding_and_raw_encoding_preservation() {
     for (before, after, status) in [
         (b"if a\r\n    puts 1\r\n  puts \"\xff\"\r\nend\r\n".as_slice(), b"if a\r\n  puts 1\r\n  puts \"\xff\"\r\nend\r\n".as_slice(), 0),
         (b"class A\nclass B\n  X = \"\xff\"\nend\nend\n", b"class A\nclass B\n  X = \"\xff\"\nend\nend\n", 1),
-        (b"module A\nclass B\n  # rubocop:disable Layout/IndentationWidth\n  def x\n  end\nend\nend\n", b"module A\nclass B\n  # rubocop:disable Layout/IndentationWidth\n  def x\n  end\nend\nend\n", 1),
+        // As in RuboCop, the enabled offense shifts the whole subtree,
+        // including lines on which the cop is disabled.
+        (b"module A\nclass B\n  # rubocop:disable Layout/IndentationWidth\n  def x\n  end\nend\nend\n", b"module A\n  class B\n    # rubocop:disable Layout/IndentationWidth\n    def x\n    end\n  end\nend\n", 0),
         (b"", b"", 0),
         (b"__END__\n if x\ny\nend\n", b"__END__\n if x\ny\nend\n", 0),
     ] {

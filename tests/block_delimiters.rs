@@ -105,17 +105,30 @@ fn atomic_edits_respect_disabled_interior_lines_and_both_directive_prefixes() {
         for source in [
             format!("# {prefix}:disable {COP}\n{BEFORE}"),
             format!("items.each do |x| x end # {prefix}:disable {COP}\n"),
-            format!("items.each {{ |x|\n x # {prefix}:disable {COP}\n}}\n"),
-            format!("items.each {{ |x|\n x\n}} # {prefix}:disable {COP}\n"),
             format!("# {prefix}:disable-next {COP}\n{BEFORE}"),
         ] {
-            let visible = usize::from(source.starts_with("items.each {"));
             unchanged(
                 dir.path(),
                 source.as_bytes(),
                 &["--only", COP, "--fix", "x.rb"],
-                visible as i32,
+                0,
             );
+        }
+        // As in RuboCop, the enabled offense on line 1 is corrected even
+        // though its edits reach the disabled lines.
+        for (before, after) in [
+            (
+                format!("items.each {{ |x|\n x # {prefix}:disable {COP}\n}}\n"),
+                format!("items.each do |x|\n x # {prefix}:disable {COP}\nend\n"),
+            ),
+            (
+                format!("items.each {{ |x|\n x\n}} # {prefix}:disable {COP}\n"),
+                format!("# {prefix}:disable {COP}\nitems.each do |x|\n x\nend\n"),
+            ),
+        ] {
+            fs::write(dir.path().join("x.rb"), before).unwrap();
+            only_fix(dir.path());
+            assert_eq!(fs::read_to_string(dir.path().join("x.rb")).unwrap(), after);
         }
         let before = format!("# {prefix}:disable {COP}\n{BEFORE}# {prefix}:enable {COP}\n{BEFORE}");
         let after = format!("# {prefix}:disable {COP}\n{BEFORE}# {prefix}:enable {COP}\n{AFTER}");

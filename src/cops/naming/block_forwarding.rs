@@ -97,7 +97,14 @@ impl Cop for BlockForwarding {
                     correction: None,
                 });
             }
-            if cx.corrections_requested() {
+            // The bundle stands for every offense of the method (upstream
+            // corrects each separately); a partly disabled group stays as is.
+            if cx.corrections_requested()
+                && out.len() > first
+                && out[first..]
+                    .iter()
+                    .all(|o| file.cop_enabled_for_lines(self.name(), o.line, o.end_line))
+            {
                 let (analysis, scopes) = bindings.get_or_insert_with(|| {
                     let analysis = ScopeAnalysis::of(&program);
                     let scopes: HashMap<_, _> = analysis

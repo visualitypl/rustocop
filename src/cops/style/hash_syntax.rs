@@ -212,37 +212,51 @@ impl Cop for HashSyntax {
                         Node::ReturnNode { .. } | Node::NextNode { .. } | Node::BreakNode { .. }
                     )
                 });
-        let braced_correction = if needs_braces {
-            corrections
+        // Upstream wraps the hash in braces in the first pair's correction
+        // only, and each enabled pair converts itself. One correction per
+        // offense: the first pair's carries the braces and every enabled
+        // pair's edit, so a single pass gives upstream's result.
+        let enabled = |pair: &ruby_prism::AssocNode<'_>| {
+            file.cop_enabled_for_lines(
+                self.name(),
+                file.line_of(pair.key().location().start_offset()),
+                file.last_line_of(pair.operator_loc().unwrap()),
+            )
+        };
+        let braced = needs_braces && rocket(first) && enabled(first);
+        let braced_correction = if braced {
+            let mut edits: Vec<_> = pairs
                 .iter()
-                .cloned()
-                .collect::<Option<Vec<_>>>()
-                .and_then(|mut edits| {
-                    let loc = node.location();
-                    edits.push(Correction {
-                        range: loc.start_offset()..loc.start_offset(),
-                        replacement: "{".into(),
-                    });
-                    edits.push(Correction {
-                        range: loc.end_offset()..loc.end_offset(),
-                        replacement: "}".into(),
-                    });
-                    super::correction::combine(file, edits)
-                })
+                .filter(|pair| pair.operator_loc().is_some())
+                .zip(&corrections)
+                .filter(|(pair, _)| enabled(pair))
+                .filter_map(|(_, correction)| correction.clone())
+                .collect();
+            let loc = node.location();
+            edits.push(Correction {
+                range: loc.start_offset()..loc.start_offset(),
+                replacement: "{".into(),
+            });
+            edits.push(Correction {
+                range: loc.end_offset()..loc.end_offset(),
+                replacement: "}".into(),
+            });
+            super::correction::combine(file, edits)
         } else {
             None
         };
-        for (pair, correction) in pairs
+        for (index, (pair, correction)) in pairs
             .iter()
             .filter(|pair| pair.operator_loc().is_some())
             .zip(corrections)
+            .enumerate()
         {
             let (line, col) = file.line_col(pair.key().location().start_offset());
             out.push(Offense {
-                correction: if needs_braces {
-                    braced_correction.clone()
-                } else {
-                    correction
+                correction: match (braced, index) {
+                    (true, 0) => braced_correction.clone(),
+                    (true, _) => None,
+                    (false, _) => correction,
                 },
                 cop: self.name(),
                 severity: self.severity(),

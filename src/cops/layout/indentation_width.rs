@@ -1174,10 +1174,18 @@ mod tests {
             let before = format!(
                 "module A\nclass B\n  # {prefix}:disable Layout/IndentationWidth\n  def x\n  end\n  # {prefix}:enable Layout/IndentationWidth\nend\nend\n"
             );
+            // As in RuboCop, the enabled offense shifts its whole subtree,
+            // disabled lines included.
             let found = correction_offenses(&IndentationWidth, &before);
             assert_eq!(found.len(), 1);
-            assert!(found[0].correction.is_none(), "{before}");
-            assert_correction(&IndentationWidth, &before, &before);
+            assert!(found[0].correction.is_some(), "{before}");
+            assert_correction(
+                &IndentationWidth,
+                &before,
+                &format!(
+                    "module A\n  class B\n    # {prefix}:disable Layout/IndentationWidth\n    def x\n    end\n    # {prefix}:enable Layout/IndentationWidth\n  end\nend\n"
+                ),
+            );
         }
     }
 

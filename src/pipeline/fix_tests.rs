@@ -405,19 +405,29 @@ fn production_style_fixture_pairs() {
 }
 
 #[test]
-fn production_atomic_corrections_respect_disabled_interior_lines() {
-    for (cop, source) in [
+fn production_corrections_reach_disabled_interior_lines_as_in_rubocop() {
+    // RuboCop 1.92 (pinned) `--only COP -a` output. A pair on a disabled line
+    // is its own offense, so it keeps its syntax.
+    for (cop, source, after) in [
         (
             "Style/RedundantParentheses",
+            "(\n  1 # rubocop:disable Style/RedundantParentheses\n)\n",
             "(\n  1 # rubocop:disable Style/RedundantParentheses\n)\n",
         ),
         (
             "Style/HashSyntax",
+            "return :a => 1,\n  :b => 2 # rubocop:disable Style/HashSyntax\n",
+            "return {a: 1,\n  :b => 2} # rubocop:disable Style/HashSyntax\n",
+        ),
+        (
+            "Style/HashSyntax",
             "return :a => 1,\n  :b => 2 # rustocop:disable Style/HashSyntax\n",
+            "return {a: 1,\n  :b => 2} # rustocop:disable Style/HashSyntax\n",
         ),
         (
             "Style/RedundantReturn",
             "def func\n  return 1,\n    2 # rubocop:disable Style/RedundantReturn\nend\n",
+            "def func\n  [1,\n    2] # rubocop:disable Style/RedundantReturn\nend\n",
         ),
     ] {
         let (dir, config) = project(source);
@@ -433,8 +443,11 @@ fn production_atomic_corrections_respect_disabled_interior_lines() {
         )
         .unwrap();
         assert!(!report.has_errors(), "{report:?}");
-        assert_eq!(report.corrections_applied, 0, "{cop}");
-        assert_eq!(fs::read_to_string(dir.path().join("x.rb")).unwrap(), source);
+        assert_eq!(
+            fs::read_to_string(dir.path().join("x.rb")).unwrap(),
+            after,
+            "{cop}"
+        );
     }
 }
 
@@ -826,7 +839,7 @@ fn corrections_producing_invalid_ruby_are_not_written() {
 }
 
 #[test]
-fn correction_span_cannot_edit_a_disabled_line_outside_the_highlight() {
+fn correction_span_edits_disabled_lines_outside_the_highlight_as_rubocop_does() {
     struct WideFix;
     impl Cop for WideFix {
         fn name(&self) -> &'static str {
@@ -878,13 +891,12 @@ fn correction_span_cannot_edit_a_disabled_line_outside_the_highlight() {
                 &Registry::from_cops(vec![Box::new(WideFix)]),
                 true,
             );
-            assert_eq!(report.corrections_applied, 0, "{source}");
-            assert_eq!(report.offense_count(), 1, "{source}");
-            assert!(
-                report.results[0].offenses[0].correction.is_none(),
-                "{source}"
+            // RuboCop checks only that the offense's line is enabled.
+            assert_eq!(report.corrections_applied, 1, "{source}");
+            assert_eq!(
+                fs::read_to_string(dir.path().join("x.rb")).unwrap(),
+                "after\n"
             );
-            assert_eq!(fs::read_to_string(dir.path().join("x.rb")).unwrap(), source);
         }
     }
 }

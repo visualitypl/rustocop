@@ -56,7 +56,14 @@ impl Cop for IdenticalConditionalBranches {
                 if !seen.insert((loc.start_offset(), loc.end_offset())) {
                     continue;
                 }
-                if correctable {
+                // Upstream's corrector runs only for an enabled offense.
+                if correctable
+                    && file.cop_enabled_for_lines(
+                        "Style/IdenticalConditionalBranches",
+                        file.line_of(loc.start_offset()),
+                        file.last_line_of(expression.location()),
+                    )
+                {
                     edits.push((removal_range(expression, file), String::new()));
                     lead.get_or_insert(*expression);
                 }
@@ -74,9 +81,15 @@ impl Cop for IdenticalConditionalBranches {
                     correction: None,
                 });
             }
-            if let (Some(offense), Some(expression)) = (out.get_mut(first), lead) {
-                edits.extend(insertion(node, cx.parent(), expression, after, file));
-                offense.correction = Correction::from_edits(&file.bytes, edits);
+            if let Some(expression) = lead {
+                let start = expression.location().start_offset();
+                let offense = out[first..]
+                    .iter_mut()
+                    .find(|o| (o.line, o.col) == file.line_col(start));
+                if let Some(offense) = offense {
+                    edits.extend(insertion(node, cx.parent(), expression, after, file));
+                    offense.correction = Correction::from_edits(&file.bytes, edits);
+                }
             }
         };
         if duplicated(&tails, condition.as_ref(), file) {

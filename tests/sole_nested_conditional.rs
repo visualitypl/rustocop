@@ -113,11 +113,6 @@ fn config_relative_exclusions_and_keyword_directives_apply_without_writes() {
                 BAD.replace("if second", &format!("if second # {prefix}:disable {COP}")),
                 0,
             ),
-            // Only the inner keyword is highlighted, not the whole body.
-            (
-                BAD.replace("work", &format!("work # {prefix}:disable {COP}")),
-                1,
-            ),
         ] {
             fs::write(&file, &source).unwrap();
             run(
@@ -128,6 +123,20 @@ fn config_relative_exclusions_and_keyword_directives_apply_without_writes() {
             );
             assert_eq!(fs::read_to_string(&file).unwrap(), source);
         }
+        // Only the inner keyword is highlighted, so, as in RuboCop, its
+        // correction reaches the disabled body line.
+        let source = BAD.replace("work", &format!("work # {prefix}:disable {COP}"));
+        fs::write(&file, &source).unwrap();
+        run(
+            dir.path(),
+            &["--only", COP, "--fix", "lib/a.rb"],
+            Some(0),
+            0,
+        );
+        assert_eq!(
+            fs::read_to_string(&file).unwrap(),
+            format!("if first && second\n    work # {prefix}:disable {COP}\n  end\n")
+        );
     }
 }
 

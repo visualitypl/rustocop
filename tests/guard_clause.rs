@@ -123,10 +123,6 @@ fn exclusions_and_directives_preserve_files() {
                 ),
                 0,
             ),
-            (
-                BAD.replace("    value", &format!("    value # {prefix}:disable {COP}")),
-                1,
-            ),
         ] {
             fs::write(&file, &source).unwrap();
             run(
@@ -137,6 +133,17 @@ fn exclusions_and_directives_preserve_files() {
             );
             assert_eq!(fs::read_to_string(&file).unwrap(), source);
         }
+        // As in RuboCop, the enabled `if` offense's correction reaches the
+        // disabled body line.
+        let source = BAD.replace("    value", &format!("    value # {prefix}:disable {COP}"));
+        fs::write(&file, &source).unwrap();
+        run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0, 0);
+        assert_eq!(
+            fs::read_to_string(&file).unwrap(),
+            format!(
+                "def example\n  return unless condition\n    side_effect\n    value # {prefix}:disable {COP}\n  \nend\n"
+            )
+        );
     }
 }
 

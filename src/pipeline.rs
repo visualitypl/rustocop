@@ -857,23 +857,8 @@ fn lint_file(
     offenses.sort_by(|a, b| {
         (a.line, a.col, a.cop, a.message.as_str()).cmp(&(b.line, b.col, b.cop, b.message.as_str()))
     });
-    // A correction may reach beyond its offense highlight. Never edit disabled
-    // lines in that larger span, even when the offense itself is enabled.
-    for offense in &mut offenses {
-        if let Some(correction) = &offense.correction {
-            let range = &correction.range;
-            if range.start <= range.end
-                && range.end <= file.bytes.len()
-                && !directives.is_enabled_for_lines(
-                    offense.cop,
-                    file.line_of(range.start),
-                    file.line_of(range.end.saturating_sub(1).max(range.start)),
-                )
-            {
-                offense.correction = None;
-            }
-        }
-    }
+    // As in RuboCop, an enabled offense's correction applies in full, even
+    // where it reaches lines on which its cop is disabled.
     // Per-pass precedence of upstream-incompatible companions
     // (`Cop::autocorrect_deferred_to`): only companions' surviving edits defer.
     // A companion's unsafe edits count only when `-A` applies them.

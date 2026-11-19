@@ -131,7 +131,16 @@ impl Cop for ArgumentsForwarding {
                     }
                 }
             }
-            if out.len() > first_offense && safety.as_ref().is_some_and(|s| !s.observes_bindings) {
+            // The bundle stands for every offense of the method. Upstream
+            // corrects each separately; a partly disabled group would leave a
+            // signature and its uses out of step, so it is not corrected.
+            let enabled = out[first_offense..]
+                .iter()
+                .all(|o| file.cop_enabled_for_lines(self.name(), o.line, o.end_line));
+            if out.len() > first_offense
+                && enabled
+                && safety.as_ref().is_some_and(|s| !s.observes_bindings)
+            {
                 out[first_offense].correction =
                     rewrite(&def, &calls, &params, &classifications, forward_all, file);
             }

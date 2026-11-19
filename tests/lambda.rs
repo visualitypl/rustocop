@@ -55,12 +55,17 @@ fn directives_excludes_and_atomic_disabled_delimiters() {
                 0,
             );
         }
-        let source = format!("sink -> do\n 1\nend # {prefix}:disable {COP}\n");
-        unchanged(
-            dir.path(),
-            source.as_bytes(),
-            &["--only", COP, "--fix", "x.rb"],
-            1,
+        // As in RuboCop, the offense on line 1 is corrected, delimiters on
+        // the disabled line included.
+        fs::write(
+            dir.path().join("x.rb"),
+            format!("sink -> do\n 1\nend # {prefix}:disable {COP}\n"),
+        )
+        .unwrap();
+        fix(dir.path());
+        assert_eq!(
+            fs::read_to_string(dir.path().join("x.rb")).unwrap(),
+            format!("sink lambda {{\n 1\n}} # {prefix}:disable {COP}\n")
         );
         let source = format!("# {prefix}:disable {COP}\n{BEFORE}# {prefix}:enable {COP}\n{BEFORE}");
         fs::write(dir.path().join("x.rb"), &source).unwrap();

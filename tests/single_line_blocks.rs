@@ -148,12 +148,20 @@ fn directives_excludes_and_noncorrectable_offenses_do_not_write() {
 #[test]
 fn disabled_interior_spans_and_inline_directives_withhold_whole_edits() {
     let dir = project();
+    // As in RuboCop, the enabled offense's renames reach the heredoc line on
+    // which the cop is disabled.
+    let path = dir.path().join("x.rb");
+    fs::write(
+        &path,
+        "xs.reduce { |memo,item| <<~TEXT }\n#{memo+item # rubocop:disable Style/SingleLineBlockParams\n}\nTEXT\n",
+    )
+    .unwrap();
+    cli(dir.path(), &["--only", PARAMS, "--fix", "x.rb"]);
+    assert_eq!(
+        fs::read_to_string(&path).unwrap(),
+        "xs.reduce { |acc, elem| <<~TEXT }\n#{acc+elem # rubocop:disable Style/SingleLineBlockParams\n}\nTEXT\n"
+    );
     for (cop, source, status) in [
-        (
-            PARAMS,
-            "xs.reduce { |memo,item| <<~TEXT }\n#{memo+item # rubocop:disable Style/SingleLineBlockParams\n}\nTEXT\n",
-            1,
-        ),
         (
             PARAMS,
             "xs.reduce { |memo,item| memo+item } # rustocop:disable Style/SingleLineBlockParams\n",

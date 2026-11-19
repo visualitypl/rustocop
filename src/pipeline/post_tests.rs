@@ -533,7 +533,7 @@ fn post_panics_are_isolated_keep_findings_and_prevent_writes() {
 }
 
 #[test]
-fn post_corrections_cannot_reach_beyond_highlights_into_disabled_lines() {
+fn post_corrections_reach_beyond_highlights_into_disabled_lines_as_in_rubocop() {
     struct Wide;
     impl Cop for Wide {
         fn name(&self) -> &'static str {
@@ -569,7 +569,7 @@ fn post_corrections_cannot_reach_beyond_highlights_into_disabled_lines() {
         let source = format!("before\n# {prefix}:disable Lint/Wide\nafter\n");
         let found = lint_str_with_corrections(&[&Wide], &source);
         assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
+        assert!(found[0].correction.is_some());
     }
     assert!(
         lint_str_with_corrections(&[&Wide], "before\n")[0]

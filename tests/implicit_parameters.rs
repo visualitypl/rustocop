@@ -164,14 +164,27 @@ fn stdin_reports_and_never_writes_and_fix_stdin_is_rejected() {
 fn directive_envelopes_forbid_partial_all_use_renames() {
     let d = project();
     for prefix in ["rubocop", "rustocop"] {
+        // RuboCop would leave the disabled read beside `it` (invalid code);
+        // a block with a disabled read is not corrected at all.
         for middle in [
             format!("# {prefix}:disable {IT}\n  use(_1)\n# {prefix}:enable {IT}"),
             format!("use(_1) # {prefix}:disable {IT}"),
-            format!("# {prefix}:disable {IT}\n  other\n# {prefix}:enable {IT}"),
         ] {
             let s = format!("foo do\n  use(_1)\n{middle}\n  use(_1)\nend\n");
             unchanged(d.path(), s.as_bytes(), &["--only", IT, "--fix", "x.rb"], 1);
         }
+        let middle = format!("# {prefix}:disable {IT}\n  other\n# {prefix}:enable {IT}");
+        let path = d.path().join("x.rb");
+        fs::write(
+            &path,
+            format!("foo do\n  use(_1)\n{middle}\n  use(_1)\nend\n"),
+        )
+        .unwrap();
+        cli(d.path(), &["--only", IT, "--fix", "x.rb"], 0);
+        assert_eq!(
+            fs::read_to_string(&path).unwrap(),
+            format!("foo do\n  use(it)\n{middle}\n  use(it)\nend\n")
+        );
     }
 }
 #[test]
@@ -197,12 +210,18 @@ fn unsafe_uncorrectable_clean_and_error_files_keep_bytes_and_mtime() {
     for (cop, s, _) in CASES.into_iter().filter(|(_, _, safe)| !safe) {
         unchanged(d.path(), s.as_bytes(), &["--only", cop, "--fix", "x.rb"], 1);
     }
-    // The atomic envelope contains legacy bytes. Do not decode/re-encode them.
-    unchanged(
-        d.path(),
+    // Each read is its own edit, as in RuboCop, so the legacy bytes between
+    // them are kept as they are.
+    let path = d.path().join("x.rb");
+    fs::write(
+        &path,
         b"# encoding: ISO-8859-1\nfoo { use(_1); \"\xe9\"; use(_1) }\n",
-        &["--only", IT, "--fix", "x.rb"],
-        1,
+    )
+    .unwrap();
+    cli(d.path(), &["--only", IT, "--fix", "x.rb"], 0);
+    assert_eq!(
+        fs::read(&path).unwrap(),
+        b"# encoding: ISO-8859-1\nfoo { use(it); \"\xe9\"; use(it) }\n"
     );
 }
 #[test]
