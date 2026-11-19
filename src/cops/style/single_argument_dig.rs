@@ -21,6 +21,9 @@ impl Cop for SingleArgumentDig {
     fn name(&self) -> &'static str {
         "Style/SingleArgumentDig"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn with_dig_chain(&self, enabled: bool) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
             dig_chain_enabled: enabled,
@@ -74,6 +77,13 @@ impl Cop for SingleArgumentDig {
         }
         let start = node.location().start_offset();
         let end = ast::source_end(node);
+        let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+        let correction = cx
+            .corrections_requested()
+            .then(|| crate::offense::Correction {
+                range: start..node.location().end_offset(),
+                replacement: format!("{}[{}]", text(&receiver), text(argument)),
+            });
         let original = single_line(&file.bytes[start..end]);
         let receiver = single_line(receiver.location().as_slice());
         let argument = single_line(argument.location().as_slice());
@@ -85,7 +95,7 @@ impl Cop for SingleArgumentDig {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
@@ -104,7 +114,7 @@ mod tests {
     }
 
     #[test]
-    fn all_pinned_examples_match_exact_positions_messages_and_emit_no_corrections() {
+    fn all_pinned_examples_match_exact_positions_and_messages() {
         use crate::cops::{Cop, testing::correction_offenses};
         let cases: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/single_argument_dig_pinned.json"
@@ -139,7 +149,6 @@ mod tests {
             actual.sort();
             expected.sort();
             assert_eq!(actual, expected, "{case}");
-            assert!(found.iter().all(|o| o.correction.is_none()));
         }
     }
 

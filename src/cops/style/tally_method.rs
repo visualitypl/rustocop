@@ -11,6 +11,9 @@ impl Cop for TallyMethod {
     fn name(&self) -> &'static str {
         "Style/TallyMethod"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for TallyMethod {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -54,8 +57,14 @@ impl Cop for TallyMethod {
             message: message.to_owned(),
             line,
             col,
-            end_line: file.last_line_of(loc),
-            correction: None,
+            end_line: file.last_line_of(report.message_loc().unwrap()),
+            // From the reported selector through the call (and its block).
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: loc.start_offset()..node.location().end_offset(),
+                    replacement: "tally".into(),
+                }),
         });
     }
 }

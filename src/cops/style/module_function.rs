@@ -11,6 +11,9 @@ impl Cop for ModuleFunction {
     fn name(&self) -> &'static str {
         "Style/ModuleFunction"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_module_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for ModuleFunction {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -57,7 +60,12 @@ impl Cop for ModuleFunction {
                 line,
                 col,
                 end_line: file.last_line_of(child.location()),
-                correction: None,
+                correction: cx
+                    .corrections_requested()
+                    .then(|| crate::offense::Correction {
+                        range: child.location().start_offset()..child.location().end_offset(),
+                        replacement: "module_function".into(),
+                    }),
             });
         }
     }

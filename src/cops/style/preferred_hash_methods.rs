@@ -10,6 +10,9 @@ impl Cop for PreferredHashMethods {
     fn name(&self) -> &'static str {
         "Style/PreferredHashMethods"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for PreferredHashMethods {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -43,7 +46,12 @@ impl Cop for PreferredHashMethods {
             line,
             col,
             end_line: file.line_of(loc.end_offset() - 1),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: loc.start_offset()..loc.end_offset(),
+                    replacement: prefer.into(),
+                }),
         });
     }
 }

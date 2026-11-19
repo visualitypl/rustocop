@@ -13,11 +13,14 @@ impl Cop for OrAssignmentToConstant {
     fn name(&self) -> &'static str {
         "Lint/OrAssignmentToConstant"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -33,7 +36,12 @@ impl Cop for OrAssignmentToConstant {
         };
         let (line, col) = file.line_col(operator.start_offset());
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: operator.start_offset()..operator.end_offset(),
+                    replacement: "=".into(),
+                }),
             cop: self.name(),
             severity: self.severity(),
             message: "Avoid using or-assignment with constants.".into(),

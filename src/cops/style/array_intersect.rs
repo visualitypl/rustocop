@@ -10,6 +10,9 @@ impl Cop for ArrayIntersect {
     fn name(&self) -> &'static str {
         "Style/ArrayIntersect"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for ArrayIntersect {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -52,7 +55,12 @@ impl Cop for ArrayIntersect {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement: replacement.clone(),
+                }),
         });
     }
 }
@@ -223,7 +231,11 @@ mod tests {
         );
         let fixes = crate::cops::testing::correction_offenses(&ArrayIntersect, s);
         assert_eq!(fixes.len(), 1);
-        assert!(fixes[0].correction.is_none());
+        // The unsafe correction replaces the expression with the suggestion.
+        assert_eq!(
+            fixes[0].correction.as_ref().unwrap().replacement,
+            replacement
+        );
     }
     #[test]
     fn pinned_predicates_and_exact_messages() {
@@ -314,7 +326,7 @@ mod tests {
                 );
                 let fixes = crate::cops::testing::correction_offenses(&ArrayIntersect, &source);
                 assert_eq!(fixes.len(), 1);
-                assert!(fixes[0].correction.is_none());
+                assert!(fixes[0].correction.is_some());
             }
         }
         let source = "# header\n  a.intersection(\n    &factory()\n  ).any?.to_s\n";
