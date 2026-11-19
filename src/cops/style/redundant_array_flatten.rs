@@ -10,6 +10,9 @@ impl Cop for RedundantArrayFlatten {
     fn name(&self) -> &'static str {
         "Style/RedundantArrayFlatten"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -55,7 +58,13 @@ impl Cop for RedundantArrayFlatten {
             line,
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: dot.start_offset()
+                        ..crate::cops::bundler::ordered_gem_node::send_end(&flatten),
+                    replacement: String::new(),
+                }),
         });
     }
 }
@@ -102,7 +111,7 @@ mod tests {
         }
     }
     #[test]
-    fn nested_arrays_depth_splat_nil_and_effects_are_not_corrected() {
+    fn nested_arrays_depth_splat_nil_and_effects_are_corrected_too() {
         assert!(!RedundantArrayFlatten.safe_fixes());
         for s in [
             "[].flatten.join",
@@ -119,7 +128,7 @@ mod tests {
         ] {
             let o = crate::cops::testing::correction_offenses(&RedundantArrayFlatten, s);
             assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none());
+            assert!(o[0].correction.is_some());
         }
     }
 }

@@ -13,6 +13,9 @@ impl Cop for StaticClass {
     fn name(&self) -> &'static str {
         "Style/StaticClass"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_class_node().is_some()
@@ -21,7 +24,7 @@ impl Cop for StaticClass {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -35,6 +38,37 @@ impl Cop for StaticClass {
         if elements.is_empty() || !elements.iter().all(convertible_element) {
             return;
         }
+        // `class` becomes `module` with `module_function`; `def self.x`
+        // loses `self.`, and `class << self` its opening and `end`.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+                let name_end = class.constant_path().location().end_offset();
+                let mut edits = vec![
+                    (span(&class.class_keyword_loc()), "module".to_owned()),
+                    (name_end..name_end, "\nmodule_function\n".to_owned()),
+                ];
+                for element in &elements {
+                    if let Some(def) = element.as_def_node()
+                        && let Some(receiver) = def.receiver()
+                    {
+                        edits.push((
+                            receiver.location().start_offset()..def.name_loc().start_offset(),
+                            String::new(),
+                        ));
+                    } else if let Some(sclass) = element.as_singleton_class_node() {
+                        edits.push((
+                            sclass.class_keyword_loc().start_offset()
+                                ..sclass.expression().location().end_offset(),
+                            String::new(),
+                        ));
+                        edits.push((span(&sclass.end_keyword_loc()), String::new()));
+                    }
+                }
+                crate::offense::Correction::from_edits(&file.bytes, edits)
+            })
+            .flatten();
         let (line, col) = file.line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -43,7 +77,7 @@ impl Cop for StaticClass {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction,
         });
     }
 }

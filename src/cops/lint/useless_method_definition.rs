@@ -12,6 +12,9 @@ impl Cop for UselessMethodDefinition {
     fn name(&self) -> &'static str {
         "Lint/UselessMethodDefinition"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_def_node().is_some()
     }
@@ -104,7 +107,18 @@ impl Cop for UselessMethodDefinition {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            // The definition goes, with a call it is the argument of.
+            correction: cx.corrections_requested().then(|| {
+                let target = cx
+                    .ancestors()
+                    .find(|n| n.as_arguments_node().is_none())
+                    .filter(|p| p.as_call_node().is_some_and(|c| !c.is_safe_navigation()))
+                    .map_or_else(|| node.location(), |p| p.location());
+                crate::offense::Correction {
+                    range: target.start_offset()..target.end_offset(),
+                    replacement: String::new(),
+                }
+            }),
         });
     }
 }

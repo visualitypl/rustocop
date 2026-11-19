@@ -10,6 +10,9 @@ impl Cop for DateTime {
     fn name(&self) -> &'static str {
         "Style/DateTime"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for DateTime {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -41,6 +44,19 @@ impl Cop for DateTime {
             return;
         }
         let start = node.location().start_offset();
+        // `DateTime` becomes `Time`; `#to_datetime` is not corrected.
+        let correction = (cx.corrections_requested() && !coercion)
+            .then(|| {
+                let name = match &receiver {
+                    Node::ConstantReadNode { .. } => receiver.location(),
+                    _ => receiver.as_constant_path_node()?.name_loc(),
+                };
+                Some(crate::offense::Correction {
+                    range: name.start_offset()..name.end_offset(),
+                    replacement: "Time".into(),
+                })
+            })
+            .flatten();
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -54,7 +70,7 @@ impl Cop for DateTime {
             line,
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1).max(start)),
-            correction: None,
+            correction,
         });
     }
 }
@@ -65,7 +81,7 @@ mod tests {
     use super::*;
     use crate::cops::testing::correction_offenses;
     #[test]
-    fn class_and_explicit_receiver_coercions_are_detection_only() {
+    fn class_and_explicit_receiver_coercions() {
         for expression in [
             "DateTime.now",
             "DateTime&.now",
@@ -88,7 +104,11 @@ mod tests {
                     "Prefer `Time` over `DateTime`."
                 }
             );
-            assert!(found[0].correction.is_none());
+            // `#to_datetime` is not corrected; `DateTime` becomes `Time`.
+            assert_eq!(
+                found[0].correction.is_none(),
+                expression.contains("to_datetime")
+            );
         }
     }
     #[test]
@@ -97,7 +117,7 @@ mod tests {
             correction_offenses(&DateTime, "module M; DateTime = Custom; DateTime.now; end");
         assert_eq!(found.len(), 1);
         assert_eq!((found[0].line, found[0].col), (1, 30));
-        assert!(found[0].correction.is_none());
+        assert!(found[0].correction.is_some());
     }
     #[test]
     fn historical_dates_and_lookalikes() {

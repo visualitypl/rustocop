@@ -1,4 +1,4 @@
-//! `Style/EnvHome` — prefer Dir.home (detection-only: not equivalent when HOME is unset).
+//! `Style/EnvHome` — prefer Dir.home (unsafe correction: not equivalent when HOME is unset).
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::Offense,
@@ -10,10 +10,13 @@ impl Cop for EnvHome {
     fn name(&self) -> &'static str {
         "Style/EnvHome"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -75,7 +78,17 @@ impl Cop for EnvHome {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1).max(start)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    // The read (a compound write's read side) is replaced.
+                    range: start..if node.as_call_node().is_some() {
+                        node.location().end_offset()
+                    } else {
+                        end
+                    },
+                    replacement: "Dir.home".into(),
+                }),
         });
     }
 }
@@ -86,7 +99,7 @@ mod tests {
     use super::*;
     use crate::{cops::testing::correction_offenses, pipeline::lint_str};
     #[test]
-    fn pinned_offenses_are_detection_only() {
+    fn pinned_offenses_and_corrections() {
         for receiver in ["ENV", "::ENV"] {
             for suffix in [
                 "['HOME']",
@@ -105,7 +118,7 @@ mod tests {
                 assert!(
                     correction_offenses(&EnvHome, &source)[0]
                         .correction
-                        .is_none()
+                        .is_some()
                 );
             }
         }
@@ -115,20 +128,25 @@ mod tests {
         let found = correction_offenses(&EnvHome, "module M; ENV = Custom; ENV['HOME']; end");
         assert_eq!(found.len(), 1);
         assert_eq!((found[0].line, found[0].col), (1, 25));
-        assert!(found[0].correction.is_none());
+        assert!(found[0].correction.is_some());
     }
     #[test]
-    fn compound_assignment_reads_are_reported_but_never_rewritten() {
-        for source in [
-            "ENV['HOME'] ||= value",
-            "::ENV['HOME'] &&= value",
-            "ENV['HOME'] += value",
+    fn compound_assignment_reads_are_reported_and_their_read_rewritten() {
+        for (source, fixed) in [
+            ("ENV['HOME'] ||= value", "Dir.home ||= value"),
+            ("::ENV['HOME'] &&= value", "Dir.home &&= value"),
+            ("ENV['HOME'] += value", "Dir.home += value"),
         ] {
             let found = correction_offenses(&EnvHome, source);
             assert_eq!(found.len(), 1, "{source}");
             assert_eq!((found[0].line, found[0].col), (1, 1));
             assert_eq!(found[0].message, "Use `Dir.home` instead.");
-            assert!(found[0].correction.is_none());
+            assert_eq!(
+                crate::corrections::apply(source.as_bytes(), &found)
+                    .unwrap()
+                    .bytes,
+                fixed.as_bytes()
+            );
         }
     }
     #[test]
