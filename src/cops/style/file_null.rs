@@ -13,6 +13,9 @@ impl Cop for FileNull {
     fn name(&self) -> &'static str {
         "Style/FileNull"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -53,7 +56,12 @@ impl Cop for FileNull {
             line,
             col,
             end_line: file.line_of(location.end_offset().saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: location.start_offset()..location.end_offset(),
+                    replacement: "File::NULL".into(),
+                }),
         });
     }
 }
@@ -113,7 +121,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn pinned_literals_positions_messages_and_no_unsafe_fixes() {
+    fn pinned_literals_positions_messages_and_unsafe_fixes() {
         for (value, prefix) in [
             ("/dev/null", ""),
             ("NUL:", ""),
@@ -131,7 +139,7 @@ mod tests {
             assert!(
                 correction_offenses(&FileNull, &source)
                     .iter()
-                    .all(|o| o.correction.is_none())
+                    .all(|o| o.correction.is_some())
             );
         }
         assert_eq!(offenses("path = cond ? '/dev/null' : 'NUL:'").len(), 2);
@@ -156,7 +164,7 @@ mod tests {
             assert!(
                 correction_offenses(&FileNull, source)[0]
                     .correction
-                    .is_none()
+                    .is_some()
             );
             let with_nul = format!("{source}; 'NUL'");
             assert_eq!(offenses(&with_nul).len(), 2, "{with_nul}");
@@ -191,7 +199,7 @@ mod tests {
             assert!(
                 correction_offenses(&FileNull, &source)
                     .iter()
-                    .all(|o| o.correction.is_none())
+                    .all(|o| o.correction.is_some())
             );
         }
         let found = offenses(r#"if /\/dev\/null/; end; "NUL""#);

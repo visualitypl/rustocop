@@ -19,6 +19,9 @@ impl Cop for DuplicateRequire {
     fn name(&self) -> &'static str {
         "Lint/DuplicateRequire"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_program_node().is_some()
@@ -66,7 +69,13 @@ impl Cop for DuplicateRequire {
             requires
                 .candidates
                 .into_iter()
-                .filter_map(|(offense, duplicate)| duplicate.then_some(offense)),
+                .filter_map(|(offense, duplicate)| duplicate.then_some(offense))
+                .map(|mut offense| {
+                    if !cx.corrections_requested() {
+                        offense.correction = None;
+                    }
+                    offense
+                }),
         );
     }
 }
@@ -252,7 +261,14 @@ impl<'pr> NodeVisitor<'pr> for Requires<'_, 'pr> {
                             line,
                             col,
                             end_line: self.file.line_of(end.saturating_sub(1).max(start)),
-                            correction: None,
+                            // The duplicate's whole lines go.
+                            correction: Some(crate::offense::Correction {
+                                range: crate::cops::style::correction::whole_lines(
+                                    self.file,
+                                    start..call.location().end_offset(),
+                                ),
+                                replacement: String::new(),
+                            }),
                         },
                         duplicate,
                     ));
@@ -541,7 +557,7 @@ mod tests {
                     assert_eq!(found.len(), 1, "{:?}", file.bytes);
                     assert_eq!((found[0].line, found[0].col, found[0].end_line), (3, 1, 3));
                     assert_eq!(found[0].message, "Duplicate `require` detected.");
-                    assert!(found[0].correction.is_none());
+                    assert!(found[0].correction.is_some());
                 }
             }
         }
@@ -652,7 +668,7 @@ mod tests {
     }
 
     #[test]
-    fn all_projected_fixtures_have_exact_ranges_messages_and_no_corrections() {
+    fn all_projected_fixtures_have_exact_ranges_messages_and_corrections() {
         byte_fixtures(
             include_str!("../../../tests/fixtures/duplicate_require_projected.json"),
             1752,
@@ -660,7 +676,7 @@ mod tests {
     }
 
     #[test]
-    fn v10_lexical_regexp_and_column_neighbours_keep_exact_detection_only_ranges() {
+    fn v10_lexical_regexp_and_column_neighbours_keep_exact_ranges() {
         byte_fixtures(
             include_str!("../../../tests/fixtures/duplicate_require_v10_neighbours.json"),
             209,
@@ -681,7 +697,7 @@ mod tests {
             file.record_encoding(&parsed);
             let mut found = Vec::new();
             assert!(run_cops(&[&super::DuplicateRequire], &parsed, &file, &mut found).is_empty());
-            assert!(found.iter().all(|o| o.correction.is_none()));
+            assert!(found.iter().all(|o| o.correction.is_some()));
             let actual: Vec<_> = found
                 .into_iter()
                 .map(|o| (o.line, o.col, o.end_line, o.message))
@@ -796,7 +812,7 @@ mod tests {
     }
 
     #[test]
-    fn v10_review_regexp_and_rescue_neighbours_keep_exact_detection_only_ranges() {
+    fn v10_review_regexp_and_rescue_neighbours_keep_exact_ranges() {
         byte_fixtures(
             include_str!("../../../tests/fixtures/duplicate_require_identity.json"),
             232,

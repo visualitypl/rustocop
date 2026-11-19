@@ -11,6 +11,9 @@ impl Cop for BooleanSymbol {
     fn name(&self) -> &'static str {
         "Lint/BooleanSymbol"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_symbol_node().is_some()
     }
@@ -56,6 +59,23 @@ impl Cop for BooleanSymbol {
         {
             return;
         }
+        // The symbol's colons go; a `true:` key becomes `true =>`.
+        let loc = node.location();
+        let source = String::from_utf8_lossy(loc.as_slice());
+        let key = symbol.closing_loc().is_some_and(|c| c.as_slice() == b":")
+            && cx
+                .parent()
+                .and_then(|p| p.as_assoc_node())
+                .is_some_and(|pair| pair.key().location().start_offset() == loc.start_offset());
+        let replacement = if key {
+            format!("{} =>", source.trim_end_matches(':'))
+        } else {
+            source.replace(':', "")
+        };
+        let correction = crate::offense::Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement,
+        };
         let (line, col) = super::array_literal_in_regexp::reference_line_col(
             node.location().start_offset(),
             file,
@@ -67,7 +87,7 @@ impl Cop for BooleanSymbol {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction: cx.corrections_requested().then_some(correction),
         });
     }
 }

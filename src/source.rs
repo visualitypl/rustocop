@@ -2213,7 +2213,7 @@ mod tests {
         assert!(file.file_api_bindings.get().is_none());
         let found = correction_offenses(&FileNull, &source);
         assert_eq!(found.len(), 2000);
-        assert!(found.iter().all(|o| o.correction.is_none()));
+        assert!(found.iter().all(|o| o.correction.is_some()));
     }
 
     #[test]

@@ -6,6 +6,9 @@ impl Cop for OrderedMagicComments {
     fn name(&self) -> &'static str {
         "Lint/OrderedMagicComments"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_source(&self, file: &SourceFile, out: &mut Vec<Offense>) {
         let (mut encoding, mut other) = (None, None);
         for line in 1..=leading_lines(file) {
@@ -19,6 +22,25 @@ impl Cop for OrderedMagicComments {
             // been seen, then returns the first pair. No later run is checked.
             if let (Some(encoding), Some(other)) = (encoding, other) {
                 if encoding > other {
+                    // Swap the two lines' contents.
+                    let content = |line: u32| {
+                        let start = file.line_start(line);
+                        let end = file.bytes[start..]
+                            .iter()
+                            .position(|&b| b == b'\n')
+                            .map_or(file.bytes.len(), |i| start + i);
+                        start..end
+                    };
+                    let (a, b) = (content(encoding), content(other));
+                    let text = |r: &std::ops::Range<usize>| {
+                        String::from_utf8(file.bytes[r.clone()].to_vec()).ok()
+                    };
+                    let correction = text(&a).zip(text(&b)).and_then(|(ta, tb)| {
+                        crate::offense::Correction::from_edits(
+                            &file.bytes,
+                            vec![(a.clone(), tb), (b.clone(), ta)],
+                        )
+                    });
                     out.push(Offense {
                         cop: self.name(),
                         severity: self.severity(),
@@ -28,7 +50,7 @@ impl Cop for OrderedMagicComments {
                         message:
                             "The encoding magic comment should precede all other magic comments."
                                 .into(),
-                        correction: None,
+                        correction,
                     });
                 }
                 break;

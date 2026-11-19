@@ -13,6 +13,9 @@ impl Cop for RedundantInitialize {
     fn name(&self) -> &'static str {
         "Style/RedundantInitialize"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_def_node().is_some()
     }
@@ -106,7 +109,15 @@ impl Cop for RedundantInitialize {
                 "Remove unnecessary `initialize` method."
             }
             .into(),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: super::correction::whole_lines(
+                        file,
+                        def.location().start_offset()..def.location().end_offset(),
+                    ),
+                    replacement: String::new(),
+                }),
         });
     }
 }
@@ -266,7 +277,7 @@ mod tests {
                 found[0].message,
                 "Remove unnecessary empty `initialize` method."
             );
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
     #[test]
@@ -318,7 +329,7 @@ mod tests {
         }
     }
     #[test]
-    fn exact_position_and_all_unsafe_edits_withheld() {
+    fn exact_position_and_unsafe_edits() {
         for (source, message) in [
             (
                 "class C\n  def initialize; end\nend",
@@ -333,7 +344,7 @@ mod tests {
             assert_eq!(found.len(), 1);
             assert_eq!((found[0].line, found[0].col), (2, 3));
             assert_eq!(found[0].message, message);
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
     #[test]
