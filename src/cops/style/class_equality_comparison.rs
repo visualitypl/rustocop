@@ -1,7 +1,7 @@
-//! `Style/ClassEqualityComparison` — class equality checks (detection only).
+//! `Style/ClassEqualityComparison` — class equality checks; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -11,6 +11,9 @@ const NAMES: &[&[u8]] = &[b"name", b"to_s", b"inspect"];
 impl Cop for ClassEqualityComparison {
     fn name(&self) -> &'static str {
         "Style/ClassEqualityComparison"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -61,8 +64,13 @@ impl Cop for ClassEqualityComparison {
         let Some(selector) = class.message_loc() else {
             return;
         };
-        let argument = class_argument(rhs, named, cx);
-        let argument = argument.map(|a| format!("({a})")).unwrap_or_default();
+        let name = class_argument(rhs, named, cx);
+        let argument = name.as_ref().map(|a| format!("({a})")).unwrap_or_default();
+        // Without a class name there is nothing to suggest.
+        let correction = (cx.corrections_requested() && name.is_some()).then(|| Correction {
+            range: selector.start_offset()..node.location().end_offset(),
+            replacement: format!("instance_of?{argument}"),
+        });
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -71,7 +79,7 @@ impl Cop for ClassEqualityComparison {
             col,
             end_line: file.line_of(ast::source_end(node).saturating_sub(1)),
             message: format!("Use `instance_of?{argument}` instead of comparing classes."),
-            correction: None,
+            correction,
         });
     }
 }
@@ -202,10 +210,12 @@ mod tests {
             "{source}"
         );
         assert!(!ClassEqualityComparison.safe_fixes());
+        // Unsafe: `instance_of?(name)`, when there is a name to suggest.
         assert!(
             correction_offenses(&ClassEqualityComparison, source)
                 .iter()
-                .all(|o| o.correction.is_none())
+                .all(|o| o.correction.is_some() == !argument.is_empty()),
+            "{source}"
         );
     }
     #[test]
@@ -363,7 +373,7 @@ mod tests {
         }
     }
     #[test]
-    fn shadowed_constants_and_selectors_remain_detection_only() {
+    fn shadowed_constants_and_selectors_are_reported_and_corrected_alike() {
         for prefix in [
             "Date = Custom",
             "def object.class; Custom; end",

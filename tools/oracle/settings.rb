@@ -1130,6 +1130,11 @@ module Oracle
          source.match?(/\\\r?\n/)
         mismatches << "Layout/LineLength SplitStrings=true"
       end
+      # RequireEnglish changes only whether the correction adds
+      # `require 'English'`; rustocop has RuboCop's default (on).
+      if correction && cop == "Style/SpecialGlobalVars" && config.dig(cop, "RequireEnglish") == false
+        mismatches << "Style/SpecialGlobalVars RequireEnglish=false"
+      end
       toml = {}
       # RuboCop's examples for this cop name Metrics cops, which are on there
       # and opt-in here: switch the department on, as the examples assume.

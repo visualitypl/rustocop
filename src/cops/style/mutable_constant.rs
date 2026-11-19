@@ -1,7 +1,7 @@
-//! `Style/MutableConstant`: fixed literals policy, Recursive=false; detection only.
+//! `Style/MutableConstant`: fixed literals policy, Recursive=false; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -11,10 +11,13 @@ impl Cop for MutableConstant {
     fn name(&self) -> &'static str {
         "Style/MutableConstant"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node(
         &self,
         node: &Node<'_>,
-        _cx: &NodeContext<'_, '_>,
+        cx: &NodeContext<'_, '_>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -47,6 +50,10 @@ impl Cop for MutableConstant {
         {
             return;
         }
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(&value, file))
+            .flatten();
         let (line, col) = file.line_col(loc.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -55,9 +62,53 @@ impl Cop for MutableConstant {
             line,
             col,
             end_line: file.line_of(loc.end_offset().saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
+}
+
+/// Upstream's `autocorrect`: append `.freeze`, bracketing an unbracketed
+/// array; an array of one splat becomes `(value).to_a.freeze`.
+fn correction(value: &Node<'_>, file: &SourceFile) -> Option<Correction> {
+    let loc = value.location();
+    let range = loc.start_offset()..loc.end_offset();
+    let end = range.end;
+    if let Some(array) = value.as_array_node() {
+        let elements: Vec<_> = array.elements().iter().collect();
+        if let [element] = elements.as_slice()
+            && let Some(splat) = element.as_splat_node()
+            && let Some(inner) = splat.expression()
+        {
+            let source = String::from_utf8_lossy(inner.location().as_slice());
+            let parenthesized_range = inner.as_parentheses_node().is_some_and(|p| {
+                p.body()
+                    .and_then(|b| b.as_statements_node())
+                    .is_some_and(|s| {
+                        s.body().len() == 1 && s.body().iter().all(|n| n.as_range_node().is_some())
+                    })
+            });
+            let replacement = if parenthesized_range {
+                format!("{source}.to_a.freeze")
+            } else {
+                format!("({source}).to_a.freeze")
+            };
+            return Some(Correction { range, replacement });
+        }
+        if array.opening_loc().is_none() {
+            return Correction::from_edits(
+                &file.bytes,
+                vec![
+                    (range.start..range.start, "[".into()),
+                    (end..end, "]".into()),
+                    (end..end, ".freeze".into()),
+                ],
+            );
+        }
+    }
+    Some(Correction {
+        range: end..end,
+        replacement: ".freeze".into(),
+    })
 }
 
 // Ruby 3.4 freezes ranges/regexps but not interpolated strings. Prism also

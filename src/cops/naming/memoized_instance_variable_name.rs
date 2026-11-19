@@ -1,8 +1,8 @@
 //! `Naming/MemoizedInstanceVariableName`: fixed disallowed leading underscores.
-//! Unsafe upstream instance-variable renaming is deliberately detection-only.
+//! Unsafe correction: renames the instance variable.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{Location, Node};
@@ -11,6 +11,9 @@ pub struct MemoizedInstanceVariableName;
 impl Cop for MemoizedInstanceVariableName {
     fn name(&self) -> &'static str {
         "Naming/MemoizedInstanceVariableName"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -36,7 +39,7 @@ impl Cop for MemoizedInstanceVariableName {
         if equivalent(&body, node, file)
             || last_child(&body).is_some_and(|last| equivalent(&last, node, file))
         {
-            report(self, write.name_loc(), &method, &suggestion, file, out);
+            report(self, write.name_loc(), &method, &suggestion, cx, file, out);
         }
     }
 }
@@ -185,7 +188,7 @@ fn check_defined(
         return;
     };
     for loc in [variable.location(), value.location(), write.name_loc()] {
-        report(cop, loc, &method, &suggestion, file, out);
+        report(cop, loc, &method, &suggestion, cx, file, out);
     }
 }
 
@@ -416,12 +419,16 @@ fn report(
     loc: Location<'_>,
     method: &MethodName,
     suggestion: &str,
+    cx: &NodeContext<'_, '_>,
     file: &SourceFile,
     out: &mut Vec<Offense>,
 ) {
     let (line, col) = file.line_col(loc.start_offset());
     out.push(Offense {
-        correction: None,
+        correction: cx.corrections_requested().then(|| Correction {
+            range: loc.start_offset()..loc.end_offset(),
+            replacement: format!("@{suggestion}"),
+        }),
         cop: cop.name(),
         severity: cop.severity(),
         message: format!(

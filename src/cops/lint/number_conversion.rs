@@ -1,7 +1,7 @@
 //! `Lint/NumberConversion` — opt-in, detection-only strict numeric parsing advice.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::Node;
@@ -11,10 +11,13 @@ impl Cop for NumberConversion {
     fn name(&self) -> &'static str {
         "Lint/NumberConversion"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -27,6 +30,13 @@ impl Cop for NumberConversion {
                     &format!("{text}{op}{method_text}"),
                     &replacement(&method, &text),
                 );
+                // The getter send is replaced (the result does not parse, as
+                // upstream's does not).
+                let correction = (cx.corrections_requested() && !safe && !navigates(&receiver))
+                    .then(|| Correction {
+                        range: node.location().start_offset()..end,
+                        replacement: replacement(&method, &raw(&receiver)),
+                    });
                 let (line, col) = super::array_literal_in_regexp::reference_line_col(
                     node.location().start_offset(),
                     file,
@@ -38,7 +48,7 @@ impl Cop for NumberConversion {
                     line,
                     col,
                     end_line: file.line_of(end.saturating_sub(1)),
-                    correction: None,
+                    correction,
                 });
             }
             return;
@@ -48,15 +58,26 @@ impl Cop for NumberConversion {
         };
         let receiver = call.receiver();
         let args = ast::call_arguments(&call);
+        let fix = cx.corrections_requested();
+        let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+        let mut correction = None;
         let message = if args.is_empty()
             && constructor(call.name().as_slice()).is_some()
             && receiver
                 .as_ref()
                 .is_some_and(|r| !allowed_receiver(r, file))
         {
-            let source = source(receiver.as_ref().unwrap(), file);
+            let receiver = receiver.as_ref().unwrap();
+            let source = source(receiver, file);
             let op = if call.is_safe_navigation() { "&." } else { "." };
             let method = std::str::from_utf8(call.name().as_slice()).unwrap();
+            // No correction with safe navigation in the call.
+            if fix && !call.is_safe_navigation() && !navigates(receiver) {
+                correction = Some(Correction {
+                    range: span(&node.location()),
+                    replacement: replacement(call.name().as_slice(), &raw(receiver)),
+                });
+            }
             Some(advice(
                 &format!("{source}{op}{method}"),
                 &replacement(call.name().as_slice(), &source),
@@ -71,10 +92,18 @@ impl Cop for NumberConversion {
                 .and_then(|s| {
                     let name = s.unescaped();
                     constructor(name)?;
-                    Some(advice(
-                        &source(arg, file),
-                        &format!("{{ |i| {} }}", replacement(name, "i")),
-                    ))
+                    let block = format!("{{ |i| {} }}", replacement(name, "i"));
+                    if fix {
+                        // The argument becomes a block; parentheses go.
+                        let mut edits = vec![(span(&arg.location()), block.clone())];
+                        if let (Some(open), Some(close)) = (call.opening_loc(), call.closing_loc())
+                        {
+                            edits.push((span(&open), " ".into()));
+                            edits.push((span(&close), String::new()));
+                        }
+                        correction = Correction::from_edits(&file.bytes, edits);
+                    }
+                    Some(advice(&source(arg, file), &block))
                 })
         } else {
             None
@@ -90,9 +119,28 @@ impl Cop for NumberConversion {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
+}
+
+/// A node's source as written.
+fn raw(node: &Node<'_>) -> String {
+    String::from_utf8_lossy(node.location().as_slice()).into_owned()
+}
+
+/// `node.each_descendant(:csend).any?` within the receiver.
+fn navigates(node: &Node<'_>) -> bool {
+    use crate::cops::walk::{NodeVisitor, walk};
+    struct Finder(bool);
+    impl<'pr> NodeVisitor<'pr> for Finder {
+        fn enter(&mut self, node: Node<'pr>) {
+            self.0 |= node.as_call_node().is_some_and(|c| c.is_safe_navigation());
+        }
+    }
+    let mut finder = Finder(false);
+    walk(&mut finder, node);
+    finder.0
 }
 // Prism folds the getter send into compound call writes. Its source stops
 // at the selector, not at the assignment value. Multi-target setters are not

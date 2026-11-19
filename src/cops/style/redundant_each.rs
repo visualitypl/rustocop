@@ -1,7 +1,7 @@
-//! `Style/RedundantEach` — redundant enumerator iteration (unsafe, detection-only).
+//! `Style/RedundantEach` — redundant enumerator iteration; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 use ruby_prism::{Location, Node};
@@ -50,6 +50,9 @@ pub struct RedundantEach;
 impl Cop for RedundantEach {
     fn name(&self) -> &'static str {
         "Style/RedundantEach"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn check_node<'pr>(
         &self,
@@ -111,11 +114,60 @@ impl Cop for RedundantEach {
         let (line, col) = file.line_col(start);
         let end = if name == b"each" {
             parent_call
-                .and_then(|p| p.operator)
+                .as_ref()
+                .and_then(|p| p.operator.as_ref())
                 .map_or(selector.end_offset(), |l| l.end_offset())
         } else {
             selector.end_offset()
         };
+        // An `each` goes, and a redundant `each_with_*` next to it (the
+        // chained call, else the receiver) becomes `each.with_*`; the other
+        // methods become `with_*`.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let selector_edit = |name: &[u8], selector: &Location<'_>| {
+                    let replacement = match name {
+                        b"each_with_index" => "each.with_index",
+                        b"each_with_object" => "each.with_object",
+                        _ => return None,
+                    };
+                    Some((
+                        selector.start_offset()..selector.end_offset(),
+                        replacement.to_owned(),
+                    ))
+                };
+                let mut edits = Vec::new();
+                match name {
+                    b"each" => {
+                        edits.push((start..end, String::new()));
+                        let redundant = if chained {
+                            cx.parent().and_then(read_call)
+                        } else {
+                            read_call(node)
+                                .and_then(|c| c.receiver)
+                                .and_then(|n| read_call(&n))
+                        };
+                        if let Some(redundant) = redundant
+                            && let Some(selector) = &redundant.selector
+                            && let Some(edit) = selector_edit(redundant.name, selector)
+                        {
+                            edits.push(edit);
+                        }
+                    }
+                    _ => edits.push((
+                        selector.start_offset()..selector.end_offset(),
+                        if name == b"each_with_index" {
+                            "with_index"
+                        } else {
+                            "with_object"
+                        }
+                        .into(),
+                    )),
+                }
+                Correction::from_edits(&file.bytes, edits)
+            })
+            .flatten();
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -128,7 +180,7 @@ impl Cop for RedundantEach {
                 _ => "Remove redundant `each`.",
             }
             .into(),
-            correction: None,
+            correction,
         });
     }
 }

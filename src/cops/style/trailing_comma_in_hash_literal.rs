@@ -12,6 +12,11 @@ impl Cop for TrailingCommaInHashLiteral {
     fn name(&self) -> &'static str {
         "Style/TrailingCommaInHashLiteral"
     }
+    /// Upstream's Style/MutableConstant lists this cop as
+    /// autocorrect-incompatible and runs first.
+    fn autocorrect_deferred_to(&self) -> &'static [&'static str] {
+        &["Style/MutableConstant"]
+    }
     fn safe_fixes(&self) -> bool {
         true
     }
