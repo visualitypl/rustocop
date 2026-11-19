@@ -1,7 +1,7 @@
-//! `Style/DigChain` — suggest collapsing consecutive dig calls (detection only).
+//! `Style/DigChain` — collapse consecutive dig calls; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
-    offense::{Offense, single_line},
+    offense::{Correction, Offense, single_line},
     source::SourceFile,
 };
 use ruby_prism::{CallNode, Node};
@@ -10,6 +10,9 @@ pub struct DigChain;
 impl Cop for DigChain {
     fn name(&self) -> &'static str {
         "Style/DigChain"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -70,6 +73,35 @@ impl Cop for DigChain {
         {
             return;
         }
+        // One `dig` with every argument; comments the replacement would
+        // destroy move above the chain.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let text = arguments
+                    .iter()
+                    .map(|arg| String::from_utf8_lossy(arg.location().as_slice()).into_owned())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let end = crate::cops::bundler::ordered_gem_node::send_end(&call);
+                let at = node.location().start_offset();
+                let mut edits = vec![(start..end, format!("dig({text})"))];
+                for comment in file
+                    .comments()
+                    .iter()
+                    .filter(|c| at <= c.start && c.end <= end)
+                {
+                    edits.push((
+                        at..at,
+                        format!(
+                            "{}\n",
+                            String::from_utf8_lossy(&file.bytes[comment.clone()])
+                        ),
+                    ));
+                }
+                Correction::from_edits(&file.bytes, edits)
+            })
+            .flatten();
         let arguments = arguments
             .iter()
             .map(|arg| single_line(arg.location().as_slice()))
@@ -84,7 +116,7 @@ impl Cop for DigChain {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
@@ -159,7 +191,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn all_pinned_examples_match_exact_positions_messages_and_emit_no_corrections() {
+    fn all_pinned_examples_match_exact_positions_and_messages() {
         use crate::cops::testing::correction_offenses;
         let cases: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/dig_chain_pinned.json"
@@ -186,7 +218,6 @@ mod tests {
                 })
                 .collect();
             assert_eq!(actual, expected, "{case}");
-            assert!(found.iter().all(|o| o.correction.is_none()));
         }
     }
 

@@ -112,6 +112,9 @@ impl Cop for LineEndConcatenation {
     fn name(&self) -> &'static str {
         "Style/LineEndConcatenation"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -149,7 +152,7 @@ impl Cop for LineEndConcatenation {
     fn leave_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -221,6 +224,18 @@ impl Cop for LineEndConcatenation {
         {
             return;
         }
+        // The operator and the blanks after it become `\`, taking an
+        // existing backslash with them.
+        let correction = cx.corrections_requested().then(|| {
+            let mut end = crate::offense::space_right_blank(bytes, operator.end_offset());
+            if bytes.get(end) == Some(&b'\\') {
+                end += 1;
+            }
+            crate::offense::Correction {
+                range: operator.start_offset()..end,
+                replacement: "\\".into(),
+            }
+        });
         let (line, col) = file.line_col(operator.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -232,7 +247,7 @@ impl Cop for LineEndConcatenation {
             line,
             col,
             end_line: line,
-            correction: None,
+            correction,
         });
     }
 }
@@ -252,12 +267,11 @@ mod tests {
         assert_eq!(ruby_prism::parse(s.as_bytes()).errors().count(), 0, "{s}");
         let found = offenses(s);
         assert_eq!(found.len(), positions.len(), "{s}: {found:?}");
-        // Every matching upstream correction shape remains uncorrected even
-        // when the pipeline explicitly requests edits.
+        // Every offense carries upstream's unsafe correction.
         let correction_found =
             crate::cops::testing::correction_offenses(&super::LineEndConcatenation, s);
         assert_eq!(correction_found.len(), positions.len(), "{s}");
-        assert!(correction_found.iter().all(|o| o.correction.is_none()));
+        assert!(correction_found.iter().all(|o| o.correction.is_some()));
         for (o, &(line, col, op)) in found.iter().zip(positions) {
             assert_eq!((o.line, o.col, o.end_line), (line, col, line), "{s}");
             assert_eq!(
@@ -428,24 +442,16 @@ mod tests {
         assert_at("x = <<~TXT\n#{\"a\" +\n \"b\"}\nTXT\n", &[(2, 7, "+")]);
     }
     #[test]
-    fn detection_only_even_when_corrections_are_requested() {
+    fn unsafe_corrections_use_a_backslash() {
         use super::LineEndConcatenation;
-        use crate::cops::{Cop, testing::correction_offenses};
+        use crate::cops::{Cop, testing::fix_until_stable};
         assert!(!LineEndConcatenation.safe_fixes());
-        for s in [
-            "\"a\" +\n \"b\"",
-            "\"#{effect}\" <<\n \"b\"",
-            "array << \"a\" <<\n \"b\"",
+        for (s, fixed) in [
+            ("\"a\" +\n \"b\"", "\"a\" \\\n \"b\""),
+            ("\"#{effect}\" <<  \n \"b\"", "\"#{effect}\" \\\n \"b\""),
+            ("array << \"a\" <<\n \"b\"", "array << \"a\" \\\n \"b\""),
         ] {
-            let found = correction_offenses(&LineEndConcatenation, s);
-            assert_eq!(found.len(), 1, "{s}");
-            assert!(found.iter().all(|o| o.correction.is_none()));
-            assert_eq!(
-                crate::corrections::apply(s.as_bytes(), &found)
-                    .unwrap()
-                    .bytes,
-                s.as_bytes()
-            );
+            assert_eq!(fix_until_stable(&LineEndConcatenation, s), fixed, "{s}");
         }
     }
     #[test]
@@ -470,7 +476,7 @@ mod tests {
                 .is_empty()
             );
             assert_eq!(found.len(), 2000);
-            assert!(found.iter().all(|o| o.correction.is_none()));
+            assert!(found.iter().all(|o| o.correction.is_some() == corrections));
             let boundaries = file.line_end_boundaries().lock().unwrap();
             assert_eq!(boundaries.starts.len(), 4000);
             assert_eq!(boundaries.ends.len(), 4000);

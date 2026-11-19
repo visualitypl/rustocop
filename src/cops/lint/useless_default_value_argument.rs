@@ -12,6 +12,9 @@ impl Cop for UselessDefaultValueArgument {
     fn name(&self) -> &'static str {
         "Lint/UselessDefaultValueArgument"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -20,7 +23,7 @@ impl Cop for UselessDefaultValueArgument {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -47,7 +50,7 @@ impl Cop for UselessDefaultValueArgument {
             return;
         }
         let arguments = crate::cops::ast::call_arguments(&call);
-        let [_, default] = arguments.as_slice() else {
+        let [previous, default] = arguments.as_slice() else {
             return;
         };
         if default.as_keyword_hash_node().is_some() {
@@ -64,7 +67,13 @@ impl Cop for UselessDefaultValueArgument {
             line,
             col,
             end_line: file.last_line_of(default.location()),
-            correction: None,
+            // From the end of the previous argument through the default.
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: previous.location().end_offset()..default.location().end_offset(),
+                    replacement: String::new(),
+                }),
         });
     }
 }

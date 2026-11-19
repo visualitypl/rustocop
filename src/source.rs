@@ -1988,7 +1988,7 @@ mod tests {
         CALL_ARGUMENT_VISITS.set(0);
         assert!(run_cops_with_corrections(&cops, &parsed, &file, &mut out, true).is_empty());
         assert_eq!(out.len(), 1000);
-        assert!(out.iter().all(|o| o.correction.is_none()));
+        assert!(out.iter().all(|o| o.correction.is_some()));
         assert!(
             CALL_ARGUMENT_VISITS.get() < 150_000,
             "{}",

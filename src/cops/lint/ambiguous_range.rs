@@ -28,6 +28,10 @@ impl Cop for AmbiguousRange {
         "Lint/AmbiguousRange"
     }
 
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
+
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_range_node().is_some()
     }
@@ -35,7 +39,7 @@ impl Cop for AmbiguousRange {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -47,8 +51,21 @@ impl Cop for AmbiguousRange {
                 continue;
             }
             let (line, col) = file.line_col(boundary.location().start_offset());
+            let loc = boundary.location();
             out.push(Offense {
-                correction: None,
+                // Wrap the boundary in parentheses.
+                correction: cx
+                    .corrections_requested()
+                    .then(|| {
+                        crate::offense::Correction::from_edits(
+                            &file.bytes,
+                            vec![
+                                (loc.start_offset()..loc.start_offset(), "(".into()),
+                                (loc.end_offset()..loc.end_offset(), ")".into()),
+                            ],
+                        )
+                    })
+                    .flatten(),
                 cop: self.name(),
                 severity: self.severity(),
                 message: "Wrap complex range boundaries with parentheses to avoid ambiguity."

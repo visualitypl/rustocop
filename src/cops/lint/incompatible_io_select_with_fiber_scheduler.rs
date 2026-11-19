@@ -13,6 +13,9 @@ impl Cop for IncompatibleIoSelectWithFiberScheduler {
     fn name(&self) -> &'static str {
         "Lint/IncompatibleIoSelectWithFiberScheduler"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -21,7 +24,7 @@ impl Cop for IncompatibleIoSelectWithFiberScheduler {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -59,6 +62,22 @@ impl Cop for IncompatibleIoSelectWithFiberScheduler {
         );
         let start = node.location().start_offset();
         let end = ast::source_end(node);
+        // Not when an assignment consumes the (different) return value.
+        let correction = (cx.corrections_requested()
+            && !cx
+                .parent()
+                .is_some_and(crate::cops::style::and_or::is_assignment))
+        .then(|| {
+            let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+            let timeout = args
+                .get(3)
+                .map(|n| format!("({})", text(n)))
+                .unwrap_or_default();
+            crate::offense::Correction {
+                range: start..node.location().end_offset(),
+                replacement: format!("{}.{method}{timeout}", text(&io)),
+            }
+        });
         let current = source(&file.bytes[start..end], file);
         let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
         out.push(Offense {
@@ -68,9 +87,7 @@ impl Cop for IncompatibleIoSelectWithFiberScheduler {
             col,
             end_line: file.line_of(end.saturating_sub(1)),
             message: format!("Use `{preferred}` instead of `{current}`."),
-            // Upstream's io/wait dependency and changed return value make these
-            // unsafe, even when no assignment consumes the result.
-            correction: None,
+            correction,
         });
     }
 }

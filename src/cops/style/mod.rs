@@ -14,7 +14,7 @@ mod accessor_grouping;
 pub(crate) mod accessors;
 pub(crate) mod alias;
 mod ambiguous_endless_method_definition;
-mod and_or;
+pub(crate) mod and_or;
 pub(crate) mod arguments_forwarding;
 mod array_coercion;
 mod array_first_last;

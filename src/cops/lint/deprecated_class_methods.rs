@@ -13,7 +13,7 @@ use ruby_prism::{CallNode, Node};
 
 use crate::{
     cops::{Cop, NodeContext},
-    offense::Offense,
+    offense::{Correction, Offense},
     source::SourceFile,
 };
 
@@ -24,6 +24,9 @@ impl Cop for DeprecatedClassMethods {
     fn name(&self) -> &'static str {
         "Lint/DeprecatedClassMethods"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
@@ -32,7 +35,7 @@ impl Cop for DeprecatedClassMethods {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -47,7 +50,10 @@ impl Cop for DeprecatedClassMethods {
             file,
         );
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| correction(&call))
+                .flatten(),
             cop: self.name(),
             severity: self.severity(),
             message: format!("`{current}` is deprecated in favor of `{prefer}`."),
@@ -135,6 +141,48 @@ fn deprecated_call(call: &CallNode<'_>, file: &SourceFile) -> Option<(String, St
     let start = call.location().start_offset();
     let source = call.location().as_slice();
     Some((text(&source[..message.end_offset() - start], file), prefer))
+}
+
+/// Upstream's corrector: the offense range becomes the preferred method
+/// (`ENV.freeze` becomes `ENV`); `Socket` calls are not corrected.
+fn correction(call: &CallNode<'_>) -> Option<Correction> {
+    let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
+    let start = call.location().start_offset();
+    let selector = call.message_loc()?;
+    let (range, replacement) = match call.receiver() {
+        None if call.name().as_slice() == b"iterator?" => (
+            selector.start_offset()..selector.end_offset(),
+            "block_given?".to_owned(),
+        ),
+        None => {
+            let arguments: Vec<_> = call.arguments()?.arguments().iter().collect();
+            let [attribute, flag] = arguments.as_slice() else {
+                return None;
+            };
+            let accessor = if flag.as_true_node().is_some() {
+                "attr_accessor"
+            } else {
+                "attr_reader"
+            };
+            let end = call
+                .closing_loc()
+                .map_or(flag.location().end_offset(), |closing| closing.end_offset());
+            (start..end, format!("{accessor} {}", text(attribute)))
+        }
+        Some(receiver) => match (global_const_name(&receiver)?, call.name().as_slice()) {
+            (b"Socket", _) => return None,
+            (_, b"freeze") => (start..call.location().end_offset(), "ENV".to_owned()),
+            (_, b"exists?") => (
+                start..selector.end_offset(),
+                format!("{}.exist?", text(&receiver)),
+            ),
+            _ => (
+                start..selector.end_offset(),
+                format!("{}.to_h", text(&receiver)),
+            ),
+        },
+    };
+    Some(Correction { range, replacement })
 }
 
 /// The name of a `Name` or `::Name` constant.
