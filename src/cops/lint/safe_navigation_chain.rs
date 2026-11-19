@@ -11,6 +11,9 @@ impl Cop for SafeNavigationChain {
     fn name(&self) -> &'static str {
         "Lint/SafeNavigationChain"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -41,6 +44,10 @@ impl Cop for SafeNavigationChain {
             return;
         }
         let start = dot.map_or(receiver.location().end_offset(), |l| l.start_offset());
+        let correction = cx
+            .corrections_requested()
+            .then(|| correction(node, &receiver, start, cx, file))
+            .flatten();
         let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
         out.push(Offense {
             cop: self.name(),
@@ -49,9 +56,74 @@ impl Cop for SafeNavigationChain {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
+}
+
+/// Upstream's `autocorrect` for a call: `&.` before the method (a bracket
+/// call spelled `&.[](...)`), parenthesized where its parent needs it. Not
+/// for the `else` branch of a conditional testing the safe navigation.
+fn correction(
+    node: &Node<'_>,
+    receiver: &Node<'_>,
+    start: usize,
+    cx: &NodeContext<'_, '_>,
+    file: &SourceFile,
+) -> Option<crate::offense::Correction> {
+    let call = node.as_call_node()?;
+    let ancestors: Vec<_> = cx
+        .ancestors()
+        .filter(|n| {
+            n.as_arguments_node().is_none()
+                && !n.as_statements_node().is_some_and(|s| s.body().len() == 1)
+        })
+        .take(2)
+        .collect();
+    if let [Node::ElseNode { .. }, conditional] = ancestors.as_slice()
+        && let Some(conditional) = conditional.as_if_node()
+        && ast::fingerprint_for_detection(&conditional.predicate(), file)
+            == ast::fingerprint_for_detection(receiver, file)
+    {
+        return None;
+    }
+    let end = crate::cops::bundler::ordered_gem_node::send_end(&call);
+    let name = call.name().as_slice();
+    let mut source = if matches!(name, b"[]" | b"[]=") {
+        let arguments = ast::call_arguments(&call)
+            .iter()
+            .map(|a| String::from_utf8_lossy(a.location().as_slice()).into_owned())
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!("{}({arguments})", String::from_utf8_lossy(name))
+    } else {
+        String::from_utf8_lossy(&file.bytes[start..end]).into_owned()
+    };
+    if !source.starts_with('.') {
+        source.insert(0, '.');
+    }
+    source.insert(0, '&');
+    let mut edits = vec![(start..end, source)];
+    let parent = ancestors.first();
+    let comparison = matches!(name, b"==" | b"!=" | b"<" | b">" | b"<=" | b">=" | b"===");
+    let parens = (call.call_operator_loc().is_none()
+        && parent.is_some_and(|p| matches!(p, Node::ArrayNode { .. } | Node::AssocNode { .. })))
+        || (comparison
+            && parent.is_some_and(|p| match p {
+                Node::AndNode { .. } => p.as_and_node().unwrap().operator_loc().as_slice() == b"&&",
+                Node::OrNode { .. } => p.as_or_node().unwrap().operator_loc().as_slice() == b"||",
+                Node::CallNode { .. } => matches!(
+                    p.as_call_node().unwrap().name().as_slice(),
+                    b"==" | b"!=" | b"<" | b">" | b"<=" | b">=" | b"==="
+                ),
+                _ => false,
+            }));
+    if parens {
+        let at = node.location().start_offset();
+        edits.push((at..at, "(".to_owned()));
+        edits.push((end..end, ")".to_owned()));
+    }
+    crate::offense::Correction::from_edits(&file.bytes, edits)
 }
 
 // Prism fuses the getter send in compound assignment and the setter send
@@ -327,7 +399,7 @@ mod tests {
                 (offense.line, offense.col, offense.end_line),
                 (index as u32 + 1, 14, index as u32 + 1)
             );
-            assert!(offense.correction.is_none());
+            assert!(offense.correction.is_some());
         }
     }
     #[test]

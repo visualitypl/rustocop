@@ -10,6 +10,9 @@ impl Cop for ArrayIntersectWithSingleElement {
     fn name(&self) -> &'static str {
         "Style/ArrayIntersectWithSingleElement"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for ArrayIntersectWithSingleElement {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -45,6 +48,47 @@ impl Cop for ArrayIntersectWithSingleElement {
             return;
         };
         let end = ast::source_end(node);
+        // `include?` with the element (a percent literal's by value).
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let element = array.elements().iter().next()?;
+                let percent = array
+                    .opening_loc()
+                    .is_some_and(|o| o.as_slice().starts_with(b"%"));
+                let text = if percent {
+                    let mut out = Vec::new();
+                    match element.as_symbol_node() {
+                        Some(symbol) => {
+                            out = crate::cops::lint::symbol_conversion::inspect_symbol(
+                                symbol.unescaped(),
+                                file,
+                                false,
+                            )
+                        }
+                        None => crate::cops::lint::duplicate_match_pattern::inspect_source(
+                            element.as_string_node()?.unescaped(),
+                            file,
+                            &mut out,
+                        ),
+                    }
+                    String::from_utf8_lossy(&out).into_owned()
+                } else {
+                    String::from_utf8_lossy(element.location().as_slice()).into_owned()
+                };
+                let loc = array.location();
+                crate::offense::Correction::from_edits(
+                    &file.bytes,
+                    vec![
+                        (
+                            selector.start_offset()..selector.end_offset(),
+                            "include?".to_owned(),
+                        ),
+                        (loc.start_offset()..loc.end_offset(), text),
+                    ],
+                )
+            })
+            .flatten();
         let (line, col) = file.line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -53,7 +97,7 @@ impl Cop for ArrayIntersectWithSingleElement {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
@@ -83,26 +127,41 @@ mod tests {
         }
     }
     #[test]
-    fn nested_empty_splat_percent_encoding_and_effects_are_detection_only() {
+    fn nested_empty_splat_percent_encoding_and_effects_are_corrected_too() {
         use crate::cops::testing::correction_offenses;
         assert!(!ArrayIntersectWithSingleElement.safe_fixes());
-        for s in [
-            "array.intersect?([[]])",
-            "array.intersect?([[*foo]])",
-            "intersect?([effect()])",
-            "array::intersect?([a = effect()])",
-            "array.intersect?(%w[a\\ b])",
-            "array.intersect?(%I[#{effect}])",
-            "array.intersect?(%w[é])",
-            "array.intersect?([nil]) { effect }",
-            "array.intersect?(\n [false]\n)",
-            "def f; array.intersect?([yield]); end",
+        // RuboCop 1.92 (pinned) `-A` output.
+        for (s, fixed) in [
+            ("array.intersect?([[]])", "array.include?([])"),
+            ("array.intersect?([[*foo]])", "array.include?([*foo])"),
+            ("intersect?([effect()])", "include?(effect())"),
+            (
+                "array::intersect?([a = effect()])",
+                "array::include?(a = effect())",
+            ),
+            ("array.intersect?(%w[a\\ b])", "array.include?(\"a b\")"),
+            (
+                "array.intersect?(%I[#{effect}])",
+                "array.intersect?(%I[#{effect}])",
+            ),
+            ("array.intersect?(%w[é])", "array.include?(\"é\")"),
+            (
+                "array.intersect?([nil]) { effect }",
+                "array.include?(nil) { effect }",
+            ),
+            (
+                "array.intersect?(\n [false]\n)",
+                "array.include?(\n false\n)",
+            ),
+            (
+                "def f; array.intersect?([yield]); end",
+                "def f; array.include?(yield); end",
+            ),
         ] {
             let o = correction_offenses(&ArrayIntersectWithSingleElement, s);
             assert_eq!(o.len(), 1, "{s}");
-            assert!(o[0].correction.is_none());
             let applied = crate::corrections::apply(s.as_bytes(), &o).unwrap();
-            assert_eq!(applied.bytes, s.as_bytes());
+            assert_eq!(String::from_utf8(applied.bytes).unwrap(), fixed, "{s}");
         }
         let s = "array.intersect?([a]) {\n effect\n}";
         assert_eq!(offenses(s)[0].end_line, 1);

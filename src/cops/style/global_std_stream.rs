@@ -10,6 +10,9 @@ impl Cop for GlobalStdStream {
     fn name(&self) -> &'static str {
         "Style/GlobalStdStream"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -55,7 +58,12 @@ impl Cop for GlobalStdStream {
             line,
             col,
             end_line: file.line_of(node.location().end_offset().saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement: format!("${}", name.to_lowercase()),
+                }),
         });
     }
 }
@@ -87,7 +95,7 @@ mod tests {
                 assert!(
                     correction_offenses(&GlobalStdStream, &source)
                         .iter()
-                        .all(|o| o.correction.is_none())
+                        .all(|o| o.correction.is_some())
                 );
             }
         }
@@ -130,7 +138,7 @@ mod tests {
         ] {
             let found = correction_offenses(&GlobalStdStream, source);
             assert_eq!(found.len(), 1, "{source}");
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
 }

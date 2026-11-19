@@ -17,6 +17,9 @@ impl Cop for CaseLikeIf {
     fn name(&self) -> &'static str {
         "Style/CaseLikeIf"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_if_node().is_some()
     }
@@ -24,7 +27,7 @@ impl Cop for CaseLikeIf {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -39,6 +42,7 @@ impl Cop for CaseLikeIf {
         // Only actual elsif edges count, never an if in the else body. Each
         // chain is processed once: dispatch of its elsif nodes returns above.
         let mut predicates = vec![first.predicate()];
+        let mut keywords = vec![first.if_keyword_loc().unwrap().start_offset()];
         let mut next = first.subsequent();
         while let Some(branch) = next.and_then(|n| n.as_if_node()) {
             if branch
@@ -50,6 +54,7 @@ impl Cop for CaseLikeIf {
             #[cfg(test)]
             MATCH_STEPS.with(|n| n.set(n.get() + 1));
             predicates.push(branch.predicate());
+            keywords.push(branch.if_keyword_loc().unwrap().start_offset());
             next = branch.subsequent();
         }
         if predicates.len() < 3 {
@@ -59,12 +64,37 @@ impl Cop for CaseLikeIf {
             return;
         };
         let target_key = ast::fingerprint_for_case_subject(&target, file);
-        if predicates
-            .into_iter()
-            .any(|p| working_captures(&p) || !convertible(p, &target_key, file))
-        {
-            return;
+        let mut branches = Vec::new();
+        for predicate in predicates {
+            let end = predicate.location().end_offset();
+            let mut conditions = Vec::new();
+            if working_captures(&predicate)
+                || !convertible(predicate, &target_key, file, &mut conditions)
+            {
+                return;
+            }
+            branches.push((end, conditions));
         }
+        // `case target` goes before the `if`; each `if`/`elsif` and its
+        // condition become `when` and the compared values.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let start = node.location().start_offset();
+                let indent = " ".repeat(file.line_col(start).1 as usize - 1);
+                let mut edits = vec![(
+                    start..start,
+                    format!(
+                        "case {}\n{indent}",
+                        String::from_utf8_lossy(target.location().as_slice())
+                    ),
+                )];
+                for (keyword, (end, conditions)) in keywords.iter().zip(&branches) {
+                    edits.push((*keyword..*end, format!("when {}", conditions.join(", "))));
+                }
+                crate::offense::Correction::from_edits(&file.bytes, edits)
+            })
+            .flatten();
         let (line, col) = file.line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -73,7 +103,7 @@ impl Cop for CaseLikeIf {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction,
         });
     }
 }
@@ -178,7 +208,12 @@ fn find_target(mut node: Node<'_>) -> Option<Node<'_>> {
         _ => None,
     }
 }
-fn convertible(node: Node<'_>, target: &ast::Fingerprint<'_>, file: &SourceFile) -> bool {
+fn convertible(
+    node: Node<'_>,
+    target: &ast::Fingerprint<'_>,
+    file: &SourceFile,
+    conditions: &mut Vec<String>,
+) -> bool {
     let same = |n: &Node<'_>| ast::fingerprint_for_case_subject(n, file) == *target;
     let mut pending = vec![node];
     while let Some(node) = pending.pop() {
@@ -226,9 +261,10 @@ fn convertible(node: Node<'_>, target: &ast::Fingerprint<'_>, file: &SourceFile)
             }
             _ => None,
         };
-        if condition.is_none() {
+        let Some(condition) = condition else {
             return false;
-        }
+        };
+        conditions.push(String::from_utf8_lossy(condition.location().as_slice()).into_owned());
     }
     true
 }
@@ -433,7 +469,7 @@ mod tests {
             MATCH_STEPS.with(|n| n.set(0));
             let found = correction_offenses(&CaseLikeIf, &source);
             assert_eq!(found.len(), count, "source bytes: {}", source.len());
-            assert!(found.iter().all(|o| o.correction.is_none()));
+            assert!(found.iter().all(|o| o.correction.is_some()));
             MATCH_STEPS.with(|n| assert_eq!(n.get(), steps));
         }
     }

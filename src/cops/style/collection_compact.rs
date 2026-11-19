@@ -11,6 +11,9 @@ impl Cop for CollectionCompact {
     fn name(&self) -> &'static str {
         "Style/CollectionCompact"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -18,7 +21,7 @@ impl Cop for CollectionCompact {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -72,7 +75,12 @@ impl Cop for CollectionCompact {
             line,
             col,
             end_line: file.line_of(end.saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: start..end,
+                    replacement: good.into(),
+                }),
         });
     }
 }
@@ -186,7 +194,7 @@ mod tests {
                         assert!(
                             correction_offenses(&CollectionCompact, &s)[0]
                                 .correction
-                                .is_none()
+                                .is_some()
                         );
                     }
                 }

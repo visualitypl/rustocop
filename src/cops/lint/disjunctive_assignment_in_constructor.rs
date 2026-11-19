@@ -13,6 +13,9 @@ impl Cop for DisjunctiveAssignmentInConstructor {
     fn name(&self) -> &'static str {
         "Lint/DisjunctiveAssignmentInConstructor"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_def_node().is_some()
@@ -64,7 +67,11 @@ impl DisjunctiveAssignmentInConstructor {
             if let Some(write) = statement.as_instance_variable_or_write_node() {
                 let (line, col) = file.line_col(write.operator_loc().start_offset());
                 out.push(Offense {
-                    correction: None,
+                    correction: Some(crate::offense::Correction {
+                        range: write.operator_loc().start_offset()
+                            ..write.operator_loc().end_offset(),
+                        replacement: "=".into(),
+                    }),
                     cop: self.name(),
                     severity: self.severity(),
                     message: "Unnecessary disjunctive assignment. Use plain assignment.".into(),

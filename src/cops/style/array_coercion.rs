@@ -10,13 +10,17 @@ impl Cop for ArrayCoercion {
     fn name(&self) -> &'static str {
         "Style/ArrayCoercion"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
+        let replacement;
         let message = if let Some(array) = node.as_array_node() {
             if array.opening_loc().is_none_or(|l| l.as_slice() != b"[")
                 || array.elements().len() != 1
@@ -32,15 +36,15 @@ impl Cop for ArrayCoercion {
                 return;
             };
             let arg = String::from_utf8_lossy(arg.location().as_slice());
+            replacement = format!("Array({arg})");
             format!("Use `Array({arg})` instead of `[*{arg}]`.")
         } else {
             let Some(name) = explicit_check(node) else {
                 return;
             };
-            format!(
-                "Use `Array({})` instead of explicit `Array` check.",
-                String::from_utf8_lossy(&name)
-            )
+            let name = String::from_utf8_lossy(&name);
+            replacement = format!("{name} = Array({name})");
+            format!("Use `Array({name})` instead of explicit `Array` check.")
         };
         let (line, col) = file.line_col(node.location().start_offset());
         out.push(Offense {
@@ -50,7 +54,12 @@ impl Cop for ArrayCoercion {
             line,
             col,
             end_line: file.last_line_of(node.location()),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement,
+                }),
         });
     }
 }
@@ -177,7 +186,7 @@ mod tests {
         }
     }
     #[test]
-    fn splat_values_nested_arrays_and_evaluation_are_detection_only() {
+    fn splat_values_nested_arrays_and_evaluation_are_corrected_too() {
         for s in [
             "[*nil]",
             "[*[]]",
@@ -191,7 +200,7 @@ mod tests {
         ] {
             let o = crate::cops::testing::correction_offenses(&ArrayCoercion, s);
             assert!(!o.is_empty(), "{s}");
-            assert!(o.iter().all(|o| o.correction.is_none()), "{s}");
+            assert!(o.iter().all(|o| o.correction.is_some()), "{s}");
         }
         assert!(!ArrayCoercion.safe_fixes());
         assert!(!ArrayCoercion.default_enabled());

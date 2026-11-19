@@ -10,6 +10,9 @@ impl Cop for FloatDivision {
     fn name(&self) -> &'static str {
         "Style/FloatDivision"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for FloatDivision {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -58,7 +61,14 @@ impl Cop for FloatDivision {
             col,
             end_line: file.line_of(crate::cops::ast::source_end(node).saturating_sub(1)),
             message: "Prefer using `.to_f` on one side only.".into(),
-            correction: None,
+            // The divisor's `.to_f` goes.
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: right.location().end_offset()
+                        ..right_call.message_loc().unwrap().end_offset(),
+                    replacement: String::new(),
+                }),
         });
     }
 }

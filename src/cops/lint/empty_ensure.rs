@@ -19,6 +19,9 @@ impl Cop for EmptyEnsure {
     fn name(&self) -> &'static str {
         "Lint/EmptyEnsure"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
 
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_ensure_node().is_some()
@@ -27,7 +30,7 @@ impl Cop for EmptyEnsure {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -41,8 +44,14 @@ impl Cop for EmptyEnsure {
             ensure.ensure_keyword_loc().start_offset(),
             file,
         );
+        let keyword = ensure.ensure_keyword_loc();
         out.push(Offense {
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: keyword.start_offset()..keyword.end_offset(),
+                    replacement: String::new(),
+                }),
             cop: self.name(),
             severity: self.severity(),
             message: "Empty `ensure` block detected.".to_string(),

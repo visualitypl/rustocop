@@ -10,6 +10,9 @@ impl Cop for FileTouch {
     fn name(&self) -> &'static str {
         "Style/FileTouch"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for FileTouch {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -58,7 +61,15 @@ impl Cop for FileTouch {
             line,
             col,
             end_line: file.line_of(node.location().end_offset().saturating_sub(1)),
-            correction: None,
+            correction: cx
+                .corrections_requested()
+                .then(|| crate::offense::Correction {
+                    range: node.location().start_offset()..node.location().end_offset(),
+                    replacement: format!(
+                        "FileUtils.touch({})",
+                        String::from_utf8_lossy(path.location().as_slice())
+                    ),
+                }),
         });
     }
 }
@@ -70,7 +81,7 @@ mod tests {
     use super::*;
     use crate::{cops::testing::correction_offenses, pipeline::lint_str};
     #[test]
-    fn append_modes_empty_blocks_and_paths_are_detection_only() {
+    fn append_modes_empty_blocks_and_paths_are_corrected_too() {
         for receiver in ["File", "::File"] {
             for mode in ["a", "a+", "ab", "a+b", "at", "a+t", "a\\x62"] {
                 for path in [
@@ -99,7 +110,7 @@ mod tests {
                         assert!(
                             correction_offenses(&FileTouch, &source)[0]
                                 .correction
-                                .is_none()
+                                .is_some()
                         );
                     }
                 }
