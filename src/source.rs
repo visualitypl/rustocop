@@ -1707,8 +1707,8 @@ mod tests {
         out.clear();
         assert!(run_cops(&cops, &parsed, &file, &mut out).is_empty());
         assert_eq!(out.len(), 12000);
-        // HashFetchChain corrects its 6000 chains; HashLookupMethod does not.
-        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 6000);
+        // HashFetchChain corrects its 6000 chains, HashLookupMethod its 6000.
+        assert_eq!(out.iter().filter(|o| o.correction.is_some()).count(), 12000);
         let fetch = file.hash_fetch_facts.get().unwrap();
         assert_eq!(fetch.links, 49 * 6000);
         assert!(fetch.visits <= 6000 * 330 + 2, "{}", fetch.visits);

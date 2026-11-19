@@ -1,4 +1,4 @@
-//! `Style/RedundantArgument`: fixed default values; detection only (unsafe upstream).
+//! `Style/RedundantArgument`: fixed default values; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext},
     offense::Offense,
@@ -10,6 +10,9 @@ impl Cop for RedundantArgument {
     fn name(&self) -> &'static str {
         "Style/RedundantArgument"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_call_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for RedundantArgument {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -66,6 +69,19 @@ impl Cop for RedundantArgument {
             .closing_loc()
             .map(|l| l.end_offset())
             .unwrap_or(arg.location().end_offset());
+        // Remove the parenthesized argument list, or the argument with the
+        // blanks around it.
+        let removal_end = if call.closing_loc().is_some() {
+            end
+        } else {
+            crate::offense::space_right_blank(&file.bytes, end)
+        };
+        let correction = cx
+            .corrections_requested()
+            .then(|| crate::offense::Correction {
+                range: start..removal_end,
+                replacement: String::new(),
+            });
         let (line, col) = file.line_col(start);
         out.push(Offense {
             cop: self.name(),
@@ -77,7 +93,7 @@ impl Cop for RedundantArgument {
                 "Argument {} is redundant because it is implied by default.",
                 String::from_utf8_lossy(arg.location().as_slice())
             ),
-            correction: None,
+            correction,
         });
     }
 }
@@ -110,7 +126,7 @@ mod tests {
             .collect()
     }
     #[test]
-    fn every_matching_pinned_unsafe_correction_pair_is_withheld() {
+    fn every_matching_pinned_unsafe_correction_pair() {
         let pairs: Vec<serde_json::Value> = serde_json::from_str(include_str!(
             "../../../tests/fixtures/argument_wrappers_corrections.json"
         ))
@@ -123,10 +139,10 @@ mod tests {
         for p in pairs {
             let before = p["before"].as_str().unwrap();
             assert!(!offenses(before).is_empty());
-            assert!(
-                crate::cops::testing::correction_offenses(&RedundantArgument, before)
-                    .iter()
-                    .all(|o| o.correction.is_none())
+            assert_eq!(
+                crate::cops::testing::fix_until_stable(&RedundantArgument, before),
+                p["after"].as_str().unwrap(),
+                "{before}"
             );
             assert!(offenses(p["after"].as_str().unwrap()).is_empty());
         }

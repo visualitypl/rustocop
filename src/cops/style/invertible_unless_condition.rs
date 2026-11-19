@@ -10,6 +10,9 @@ impl Cop for InvertibleUnlessCondition {
     fn name(&self) -> &'static str {
         "Style/InvertibleUnlessCondition"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_unless_node().is_some()
     }
@@ -17,7 +20,7 @@ impl Cop for InvertibleUnlessCondition {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
@@ -30,6 +33,19 @@ impl Cop for InvertibleUnlessCondition {
             return;
         }
         let loc = node.location();
+        // `unless` becomes `if`, and the condition is inverted in place.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let keyword = n.keyword_loc();
+                let mut edits = vec![(
+                    keyword.start_offset()..keyword.end_offset(),
+                    "if".to_owned(),
+                )];
+                invert_edits(&condition, &mut edits)?;
+                crate::offense::Correction::from_edits(&file.bytes, edits)
+            })
+            .flatten();
         let (line, col) = file.line_col(loc.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -41,9 +57,59 @@ impl Cop for InvertibleUnlessCondition {
                 "Prefer `if {preferred}` over `unless {}`.",
                 String::from_utf8_lossy(condition.location().as_slice())
             ),
-            correction: None,
+            correction,
         });
     }
+}
+
+type Edits = Vec<(std::ops::Range<usize>, String)>;
+
+/// Upstream's `autocorrect`: invert operators and selectors in place,
+/// parenthesizing an `and` operand of an `or`.
+fn invert_edits(n: &Node<'_>, edits: &mut Edits) -> Option<()> {
+    let span = |l: &ruby_prism::Location<'_>| l.start_offset()..l.end_offset();
+    if let Some(p) = n.as_parentheses_node() {
+        let statements = p.body()?.as_statements_node()?;
+        return invert_edits(&statements.body().iter().next()?, edits);
+    }
+    let logical = match n {
+        Node::AndNode { .. } => {
+            let n = n.as_and_node()?;
+            Some((n.left(), n.right(), n.operator_loc(), false))
+        }
+        Node::OrNode { .. } => {
+            let n = n.as_or_node()?;
+            Some((n.left(), n.right(), n.operator_loc(), true))
+        }
+        _ => None,
+    };
+    if let Some((left, right, operator, is_or)) = logical {
+        let inverse = match operator.as_slice() {
+            b"&&" => "||",
+            b"||" => "&&",
+            b"and" => "or",
+            _ => "and",
+        };
+        edits.push((span(&operator), inverse.to_owned()));
+        for operand in [left, right] {
+            invert_edits(&operand, edits)?;
+            if is_or && operand.as_and_node().is_some() {
+                let loc = operand.location();
+                edits.push((loc.start_offset()..loc.start_offset(), "(".to_owned()));
+                edits.push((loc.end_offset()..loc.end_offset(), ")".to_owned()));
+            }
+        }
+        return Some(());
+    }
+    let call = n.as_call_node()?;
+    let selector = call.message_loc()?;
+    let method = call.name().as_slice();
+    if method == b"!" {
+        edits.push((span(&selector), String::new()));
+    } else {
+        edits.push((span(&selector), inverse(method)?.to_owned()));
+    }
+    Some(())
 }
 /// Decode only diagnostic text; classification and locations use source bytes.
 fn source<'pr>(node: &Node<'pr>) -> std::borrow::Cow<'pr, str> {
@@ -365,7 +431,7 @@ mod tests {
                 found[0].message,
                 format!("Prefer `if {preferred}` over `unless {condition}`.")
             );
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
     #[test]
@@ -382,7 +448,7 @@ mod tests {
                 found[0].message,
                 "Prefer `if x >= __ENCODING__` over `unless x < __ENCODING__`."
             );
-            assert!(found[0].correction.is_none());
+            assert!(found[0].correction.is_some());
         }
     }
     #[test]
@@ -439,7 +505,7 @@ mod tests {
                 "spec {}",
                 c["spec_line"]
             );
-            assert!(found.iter().all(|o| o.correction.is_none()));
+            assert!(found.iter().all(|o| o.correction.is_some()));
         }
     }
 }

@@ -1,4 +1,4 @@
-//! `Style/NumericPredicate` — prefer numeric predicates (unsafe, detection only).
+//! `Style/NumericPredicate` — prefer numeric predicates; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext, ast},
     offense::{Offense, single_line},
@@ -15,6 +15,9 @@ impl Cop for NumericPredicate {
     fn name(&self) -> &'static str {
         "Style/NumericPredicate"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn with_bitwise_predicate(&self, enabled: bool) -> Option<Box<dyn Cop>> {
         Some(Box::new(ConfiguredNumericPredicate {
             bitwise_enabled: enabled,
@@ -23,29 +26,44 @@ impl Cop for NumericPredicate {
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        check(node, file, out, true);
+        check(node, file, out, true, cx.corrections_requested());
     }
 }
 impl Cop for ConfiguredNumericPredicate {
     fn name(&self) -> &'static str {
         "Style/NumericPredicate"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
-        _cx: &NodeContext<'_, 'pr>,
+        cx: &NodeContext<'_, 'pr>,
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        check(node, file, out, self.bitwise_enabled);
+        check(
+            node,
+            file,
+            out,
+            self.bitwise_enabled,
+            cx.corrections_requested(),
+        );
     }
 }
 
-fn check(node: &Node<'_>, file: &SourceFile, out: &mut Vec<Offense>, bitwise_enabled: bool) {
+fn check(
+    node: &Node<'_>,
+    file: &SourceFile,
+    out: &mut Vec<Offense>,
+    bitwise_enabled: bool,
+    fix: bool,
+) {
     let Some(call) = node.as_call_node() else {
         return;
     };
@@ -119,6 +137,17 @@ fn check(node: &Node<'_>, file: &SourceFile, out: &mut Vec<Offense>, bitwise_ena
     };
     let start = node.location().start_offset();
     let end = ast::source_end(node);
+    let correction = fix.then(|| {
+        let source = String::from_utf8_lossy(numeric.location().as_slice());
+        crate::offense::Correction {
+            range: start..node.location().end_offset(),
+            replacement: if parentheses {
+                format!("({source}).{method}")
+            } else {
+                format!("{source}.{method}")
+            },
+        }
+    });
     let current = single_line(&file.bytes[start..end]);
     let (line, col) = file.line_col(start);
     out.push(Offense {
@@ -128,7 +157,7 @@ fn check(node: &Node<'_>, file: &SourceFile, out: &mut Vec<Offense>, bitwise_ena
         col,
         end_line: file.line_of(end.saturating_sub(1)),
         message: format!("Use `{preferred}.{method}` instead of `{current}`."),
-        correction: None,
+        correction,
     });
 }
 

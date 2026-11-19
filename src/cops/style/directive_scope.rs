@@ -1,4 +1,4 @@
-//! `Style/DirectiveScope`: prefer statement-scoped directives (detection only).
+//! `Style/DirectiveScope`: prefer statement-scoped directives; unsafe correction.
 use crate::{
     cops::{Cop, NodeContext},
     directives::{
@@ -15,6 +15,9 @@ pub struct DirectiveScope;
 impl Cop for DirectiveScope {
     fn name(&self) -> &'static str {
         "Style/DirectiveScope"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_program_node().is_some()
@@ -68,6 +71,10 @@ impl Cop for DirectiveScope {
                 continue;
             };
             let close = &records[closing];
+            // The opening directive becomes its `-next` form; the closing
+            // directive's line goes.
+            let text = String::from_utf8_lossy(&file.bytes[d.range.clone()]).into_owned();
+            let mut replacement = None;
             let message = if d.disabled()
                 && !d.embedded
                 && !d.names.is_empty()
@@ -75,11 +82,13 @@ impl Cop for DirectiveScope {
                 && d.same_names(close)
                 && analysis.uninterrupted[i]
             {
+                replacement = sub_word(&text, d.mode, &format!("{}-next", d.mode));
                 Some(format!(
                     "Use `{}-next` instead of a `{}`/`enable` pair around a single statement.",
                     d.mode, d.mode
                 ))
             } else if d.mode == "push" && !d.signed.is_empty() && d.pop == Some(closing) {
+                replacement = Some(push_replacement(&text, d));
                 Some(format!(
                     "Use `{}` instead of `push`/`pop` around a single statement.",
                     d.replacement_mode()
@@ -93,6 +102,7 @@ impl Cop for DirectiveScope {
                 && d.same_names(close)
                 && analysis.closed_all[i]
             {
+                replacement = sub_word(&text, "enable", "enable-next");
                 Some("Use `enable-next` instead of an `enable`/`disable` pair around a single statement.".into())
             } else {
                 None
@@ -101,6 +111,21 @@ impl Cop for DirectiveScope {
                 continue;
             }
             if let Some(message) = message {
+                let correction = replacement.and_then(|replacement| {
+                    crate::offense::Correction::from_edits(
+                        &file.bytes,
+                        vec![
+                            (d.range.clone(), replacement),
+                            (
+                                crate::cops::style::correction::whole_lines(
+                                    file,
+                                    close.range.clone(),
+                                ),
+                                String::new(),
+                            ),
+                        ],
+                    )
+                });
                 let (line, col) = file.line_col(d.range.start);
                 out.push(Offense {
                     cop: self.name(),
@@ -109,10 +134,58 @@ impl Cop for DirectiveScope {
                     line,
                     col,
                     end_line: file.line_of(d.range.end.saturating_sub(1).max(d.range.start)),
-                    correction: None,
+                    correction,
                 });
             }
         }
+    }
+}
+
+/// `text.sub(/\b#{word}\b/, replacement)`.
+fn sub_word(text: &str, word: &str, replacement: &str) -> Option<String> {
+    let is_word = |c: Option<char>| c.is_some_and(|c| c.is_alphanumeric() || c == '_');
+    let mut from = 0;
+    while let Some(i) = text[from..].find(word).map(|i| i + from) {
+        let end = i + word.len();
+        if !is_word(text[..i].chars().last()) && !is_word(text[end..].chars().next()) {
+            return Some(format!("{}{replacement}{}", &text[..i], &text[end..]));
+        }
+        from = end;
+    }
+    None
+}
+
+/// Upstream's `push_replacement`: a `-next` directive for the signed
+/// arguments, keeping the reason after `--`.
+fn push_replacement(text: &str, d: &DirectiveComment) -> String {
+    let prefix = if text.contains("rustocop") {
+        "# rustocop:"
+    } else {
+        "# rubocop:"
+    };
+    let after = sub_word(text, "push", "\0")
+        .and_then(|marked| marked.split_once('\0').map(|(_, rest)| rest.to_owned()))
+        .unwrap_or_default();
+    let (cops, reason) = match after.split_once("--") {
+        Some((cops, reason)) => (cops.trim().to_owned(), Some(reason.trim().to_owned())),
+        None => (after.trim().to_owned(), None),
+    };
+    let names = |enable: bool| {
+        d.signed
+            .iter()
+            .filter(|(e, _)| *e == enable)
+            .map(|(_, name)| name.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let directive = match d.replacement_mode() {
+        "disable-next" => format!("{prefix}disable-next {}", names(false)),
+        "enable-next" => format!("{prefix}enable-next {}", names(true)),
+        _ => format!("{prefix}next {cops}"),
+    };
+    match reason.filter(|r| !r.is_empty()) {
+        Some(reason) => format!("{directive} -- {reason}"),
+        None => directive,
     }
 }
 
@@ -777,7 +850,7 @@ mod tests {
         }
     }
     #[test]
-    fn plain_pairs_report_exactly_and_never_correct() {
+    fn plain_pairs_report_exactly_and_correct() {
         for prefix in ["rubocop", "rustocop"] {
             for mode in ["disable", "todo"] {
                 let s = format!(
@@ -795,7 +868,7 @@ mod tests {
                 assert!(
                     crate::cops::testing::correction_offenses(&DirectiveScope, &s)[0]
                         .correction
-                        .is_none()
+                        .is_some()
                 );
             }
         }

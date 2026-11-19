@@ -15,6 +15,9 @@ impl Cop for UselessSetterCall {
     fn name(&self) -> &'static str {
         "Lint/UselessSetterCall"
     }
+    fn unsafe_fixes(&self) -> bool {
+        true
+    }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_program_node().is_some()
     }
@@ -60,7 +63,15 @@ impl Cop for UselessSetterCall {
             if !scope.variables().any(|v| analysis.variable(v).name == name) {
                 continue;
             }
-            candidates.insert(key, (name, receiver.location().start_offset()));
+            candidates.insert(
+                key,
+                (
+                    name,
+                    receiver.location().start_offset(),
+                    last.location().start_offset(),
+                    last.location().end_offset(),
+                ),
+            );
         }
         if candidates.is_empty() {
             return;
@@ -109,13 +120,13 @@ fn node_key<'pr>(node: &Node<'pr>) -> NodeKey<'pr> {
 struct Tracker<'a, 'pr> {
     file: &'a SourceFile,
     out: &'a mut Vec<Offense>,
-    candidates: HashMap<NodeKey<'pr>, (&'pr [u8], usize)>,
+    candidates: HashMap<NodeKey<'pr>, (&'pr [u8], usize, usize, usize)>,
     state: HashMap<&'pr [u8], usize>,
     frames: Vec<Frame<'pr>>,
     clock: usize,
 }
 struct Frame<'pr> {
-    candidate: Option<(&'pr [u8], usize)>,
+    candidate: Option<(&'pr [u8], usize, usize, usize)>,
     start: usize,
     shadow: Option<HashMap<&'pr [u8], usize>>,
 }
@@ -183,7 +194,7 @@ impl<'pr> NodeVisitor<'pr> for Tracker<'_, 'pr> {
         if let Some(state) = frame.shadow {
             self.state = state;
         }
-        if let Some((name, offset)) = frame.candidate
+        if let Some((name, offset, last_start, last_end)) = frame.candidate
             && self
                 .state
                 .get(name)
@@ -196,7 +207,15 @@ impl<'pr> NodeVisitor<'pr> for Tracker<'_, 'pr> {
                 line,
                 col,
                 end_line: line,
-                correction: None,
+                // Return the object: its name on a line after the setter.
+                correction: Some(crate::offense::Correction {
+                    range: last_end..last_end,
+                    replacement: format!(
+                        "\n{}{}",
+                        " ".repeat(self.file.line_col(last_start).1 as usize - 1),
+                        String::from_utf8_lossy(name)
+                    ),
+                }),
                 message: format!(
                     "Useless setter call to local variable `{}`.",
                     super::useless_or::source_text(name, self.file)

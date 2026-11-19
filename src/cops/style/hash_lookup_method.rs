@@ -1,4 +1,4 @@
-//! `Style/HashLookupMethod`: opt-in, fixed brackets policy; unsafe, no edits.
+//! `Style/HashLookupMethod`: opt-in, fixed brackets policy; unsafe correction.
 use crate::{
     cops::{
         Cop, NodeContext, ast,
@@ -22,6 +22,9 @@ impl Default for HashLookupMethod {
 impl Cop for HashLookupMethod {
     fn name(&self) -> &'static str {
         "Style/HashLookupMethod"
+    }
+    fn unsafe_fixes(&self) -> bool {
+        true
     }
     fn with_fetch_env_var(&self, enabled: bool) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
@@ -51,6 +54,21 @@ impl Cop for HashLookupMethod {
         if !facts.selectors.contains(&loc.start_offset()) {
             return;
         }
+        // `receiver.fetch(key)` becomes `receiver[key]`.
+        let correction = cx
+            .corrections_requested()
+            .then(|| {
+                let receiver = call.receiver()?;
+                let key = ast::call_arguments(&call).into_iter().next()?;
+                Some(crate::offense::Correction {
+                    range: receiver.location().end_offset()..call.location().end_offset(),
+                    replacement: format!(
+                        "[{}]",
+                        String::from_utf8_lossy(key.location().as_slice())
+                    ),
+                })
+            })
+            .flatten();
         let (line, col) = file.line_col(loc.start_offset());
         out.push(Offense {
             cop: self.name(),
@@ -59,7 +77,7 @@ impl Cop for HashLookupMethod {
             line,
             col,
             end_line: file.line_of(loc.end_offset().saturating_sub(1)),
-            correction: None,
+            correction,
         });
     }
 }
