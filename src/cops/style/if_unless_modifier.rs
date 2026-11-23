@@ -34,6 +34,10 @@ impl Cop for IfUnlessModifier {
             max: companions.line_length_limit,
         }))
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(node, Node::IfNode { .. } | Node::UnlessNode { .. })
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

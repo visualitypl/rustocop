@@ -13,6 +13,10 @@ impl Cop for NumericLiterals {
     fn safe_fixes(&self) -> bool {
         true
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(node, Node::IntegerNode { .. } | Node::FloatNode { .. })
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

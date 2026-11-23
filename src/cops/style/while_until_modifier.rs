@@ -80,6 +80,10 @@ impl Cop for WhileUntilModifier {
             max: companions.line_length_limit,
         }))
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(node, Node::WhileNode { .. } | Node::UntilNode { .. })
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

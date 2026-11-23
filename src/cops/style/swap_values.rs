@@ -13,6 +13,19 @@ impl Cop for SwapValues {
     fn unsafe_fixes(&self) -> bool {
         true
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(
+            node,
+            Node::StatementsNode { .. }
+                | Node::ArrayNode { .. }
+                | Node::ArgumentsNode { .. }
+                | Node::CallNode { .. }
+                | Node::IfNode { .. }
+                | Node::UnlessNode { .. }
+                | Node::WhenNode { .. }
+        )
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

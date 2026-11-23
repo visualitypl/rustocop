@@ -10,6 +10,24 @@ impl Cop for ItAssignment {
     fn name(&self) -> &'static str {
         "Style/ItAssignment"
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(
+            node,
+            Node::LocalVariableWriteNode { .. }
+                | Node::LocalVariableAndWriteNode { .. }
+                | Node::LocalVariableOrWriteNode { .. }
+                | Node::LocalVariableOperatorWriteNode { .. }
+                | Node::LocalVariableTargetNode { .. }
+                | Node::RequiredParameterNode { .. }
+                | Node::OptionalParameterNode { .. }
+                | Node::RequiredKeywordParameterNode { .. }
+                | Node::OptionalKeywordParameterNode { .. }
+                | Node::RestParameterNode { .. }
+                | Node::KeywordRestParameterNode { .. }
+                | Node::BlockParameterNode { .. }
+        )
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

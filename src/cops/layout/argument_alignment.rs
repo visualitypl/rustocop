@@ -13,6 +13,16 @@ impl Cop for ArgumentAlignment {
     fn safe_fixes(&self) -> bool {
         true
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(
+            node,
+            Node::CallNode { .. }
+                | Node::IndexAndWriteNode { .. }
+                | Node::IndexOrWriteNode { .. }
+                | Node::IndexOperatorWriteNode { .. }
+        )
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,

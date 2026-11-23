@@ -115,6 +115,21 @@ impl Cop for LineEndConcatenation {
     fn unsafe_fixes(&self) -> bool {
         true
     }
+    fn wants_node(&self, node: &Node<'_>) -> bool {
+        matches!(
+            node,
+            Node::StringNode { .. }
+                | Node::InterpolatedStringNode { .. }
+                | Node::SymbolNode { .. }
+                | Node::InterpolatedSymbolNode { .. }
+                | Node::XStringNode { .. }
+                | Node::InterpolatedXStringNode { .. }
+                | Node::ArrayNode { .. }
+                | Node::RegularExpressionNode { .. }
+                | Node::InterpolatedRegularExpressionNode { .. }
+        )
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
