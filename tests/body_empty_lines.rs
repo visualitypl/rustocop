@@ -204,7 +204,7 @@ fn directives_stdin_and_parse_errors() {
                 assert_eq!(count(&out, cop), 0, "{source:?}");
             }
             // A trailing disable on the first blank line's neighbour keeps
-            // both findings but holds the adjacent edit.
+            // both findings and, as in RuboCop, both edits.
             let first: usize = finding.split(':').nth(1).unwrap().parse().unwrap();
             let mut lines: Vec<String> = before.lines().map(String::from).collect();
             lines[first - 2].push_str(&format!(" # {prefix}:disable Lint/Debugger"));
@@ -213,8 +213,7 @@ fn directives_stdin_and_parse_errors() {
             assert_eq!(count(&out, cop), 2, "{source:?}");
             let (_, fixed) = fix(dir.path(), source.as_bytes(), &["--only", cop]);
             let fixed = String::from_utf8(fixed).unwrap();
-            assert!(fixed.contains("Lint/Debugger\n\n"), "{fixed}");
-            assert_eq!(fixed.matches("\n\n").count(), 1, "{fixed}");
+            assert_eq!(fixed, source.replace("\n\n", "\n"), "{fixed}");
         }
     }
     // stdin reports at the supplied path and never writes.

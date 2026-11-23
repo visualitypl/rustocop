@@ -31,19 +31,6 @@ pub(super) fn comment_relocation_safe(bytes: &[u8]) -> bool {
     !bytes.starts_with(b"#!") && !contains_magic_comment_key(bytes)
 }
 
-/// A newline-changing edit must not turn a standalone directive into a trailing
-/// one (or vice versa), or move code onto/off an inline directive's line. Check
-/// whole touched lines, including comments just outside the replacement range.
-pub(crate) fn touches_directive(file: &SourceFile, range: std::ops::Range<usize>) -> bool {
-    let start = file.line_start(file.line_of(range.start));
-    let end = file.line_start(file.line_of(range.end.saturating_sub(1).max(range.start)) + 1);
-    let comments = file.directive_comments();
-    let first = comments.partition_point(|comment| comment.end <= start);
-    comments
-        .get(first)
-        .is_some_and(|comment| comment.start < end)
-}
-
 /// Shared correction-only proof for method newline edits. Main-parse facts and
 /// the hardened observer/DATA index are lazy and cached once per source file.
 pub(super) fn method_newline_safe(
@@ -57,7 +44,6 @@ pub(super) fn method_newline_safe(
     };
     !(range.start < file.line_value_boundary()
         || file.heredoc_pending_at(root, range.start)
-        || touches_directive(file, range)
         || cx.ancestors().any(|n| n.as_def_node().is_some())
         || file.contains_heredoc(root, node))
 }

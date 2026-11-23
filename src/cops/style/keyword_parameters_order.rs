@@ -143,7 +143,6 @@ fn correction(
         != edit.replacement.bytes().filter(|b| *b == b'\n').count();
     if changes_lines
         && (edit.range.start < file.line_value_boundary()
-            || super::correction::touches_directive(file, edit.range.clone())
             || file.contains_heredoc(root, node)
             || file.heredoc_pending_at(root, edit.range.start))
     {

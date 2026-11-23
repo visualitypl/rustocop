@@ -3,10 +3,7 @@
 use ruby_prism::Node;
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        style::correction::{line_value_boundary, touches_directive},
-    },
+    cops::{Cop, NodeContext, style::correction::line_value_boundary},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -151,10 +148,7 @@ fn correction(
     } else {
         file.line_start(first + 1)
     };
-    if start < line_value_boundary(file)
-        || file.line_text(first).ends_with(b"\\")
-        || touches_directive(file, file.line_start(first)..file.line_start(last + 1))
-    {
+    if start < line_value_boundary(file) || file.line_text(first).ends_with(b"\\") {
         return None;
     }
     let range = if count > 1 {
@@ -398,13 +392,22 @@ mod tests {
                 "disable-next Lint/Debugger",
                 "enable Lint/Debugger",
             ] {
-                for before in [
-                    format!("def a\nend # {prefix}:{directive}\ndef b\nend\n"),
-                    format!("def a\nend\n# {prefix}:{directive}\ndef b\nend\n"),
-                    format!("def a\nend\n\n\n# {prefix}:{directive}\ndef b\nend\n"),
+                for (before, after) in [
+                    (
+                        format!("def a\nend # {prefix}:{directive}\ndef b\nend\n"),
+                        format!("def a\nend # {prefix}:{directive}\n\ndef b\nend\n"),
+                    ),
+                    (
+                        format!("def a\nend\n# {prefix}:{directive}\ndef b\nend\n"),
+                        format!("def a\nend\n\n# {prefix}:{directive}\ndef b\nend\n"),
+                    ),
+                    (
+                        format!("def a\nend\n\n\n# {prefix}:{directive}\ndef b\nend\n"),
+                        format!("def a\nend\n\n# {prefix}:{directive}\ndef b\nend\n"),
+                    ),
                 ] {
                     assert_eq!(offenses(&before).len(), 1, "{before}");
-                    assert_correction(&EmptyLineBetweenDefs, &before, &before);
+                    assert_correction(&EmptyLineBetweenDefs, &before, &after);
                 }
             }
             for target in [

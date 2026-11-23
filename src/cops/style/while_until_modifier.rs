@@ -230,7 +230,6 @@ impl WhileUntilModifier {
         let range = loc.start_offset()..loc.end_offset();
         let root = cx.ancestors().next_back()?;
         if range.len() > REWRITE_BUDGET
-            || super::correction::touches_directive(file, range.clone())
             || file.contains_heredoc(root, node)
             || file.heredoc_pending_at(root, range.start)
         {

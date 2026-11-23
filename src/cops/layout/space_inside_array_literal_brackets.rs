@@ -337,12 +337,10 @@ mod tests {
     }
 
     #[test]
-    fn newline_removal_is_withheld_for_later_line_values_and_directives() {
+    fn newline_removal_is_withheld_for_later_line_values() {
         for source in [
             "x = [\n]\np __LINE__\n",
             "x = [\n]\ndef f; __LINE__; end\n",
-            "x = [\n] # rubocop:disable Style\n",
-            "x = [\n] # rustocop:disable-next Style\n1\n",
             "x = <<~H\n  #{[\n]}\nH\n",
         ] {
             let found =
@@ -350,6 +348,16 @@ mod tests {
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
             assert_correction(&SpaceInsideArrayLiteralBrackets, source, source);
+        }
+        for source in [
+            "x = [\n] # rubocop:disable Style\n",
+            "x = [\n] # rustocop:disable-next Style\n1\n",
+        ] {
+            assert_correction(
+                &SpaceInsideArrayLiteralBrackets,
+                source,
+                &source.replacen("[\n]", "[]", 1),
+            );
         }
     }
 

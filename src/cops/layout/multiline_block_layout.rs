@@ -54,7 +54,7 @@ use super::{
 use crate::{
     cops::{
         Cop, NodeContext,
-        style::correction::{combine, touches_directive},
+        style::correction::combine,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -350,7 +350,6 @@ fn correction(
         if !string.exact()
             || !only_layout_between(file, &span, &string.kept)
             || file.heredoc_opening_in(root, span.clone())
-            || touches_directive(file, span.clone())
         {
             return None;
         }
@@ -363,9 +362,7 @@ fn correction(
     if let Some(body) = block.body_range()
         && file.line_of(body.start) == before_body_line
     {
-        if file.heredoc_pending_at(root, body.start)
-            || touches_directive(file, body.start..body.start + 1)
-        {
+        if file.heredoc_pending_at(root, body.start) {
             return None;
         }
         let column = file.line_col(block.start).1 as usize - 1;

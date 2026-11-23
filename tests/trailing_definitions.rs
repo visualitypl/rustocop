@@ -138,10 +138,20 @@ fn parenthesized_namespace_directives_use_only_the_inner_highlight() {
         ("Style/TrailingBodyOnMethodDefinition", "def f"),
     ] {
         for prefix in ["rubocop", "rustocop"] {
-            for (body, status, correctable) in [
-                (format!("( # {prefix}:disable {cop}\n1\n)"), 1, false),
-                (format!("(\n1\n) # {prefix}:disable {cop}"), 1, true),
-                (format!("(\n1 # {prefix}:disable {cop}\n)"), 0, false),
+            let directive = format!("# {prefix}:disable {cop}");
+            for (body, status, after) in [
+                // The header line's comment moves above the definition.
+                (
+                    format!("( {directive}\n1\n)"),
+                    1,
+                    Some(format!("{directive}\n{header}\n  ( \n1\n)\nend\n")),
+                ),
+                (
+                    format!("(\n1\n) {directive}"),
+                    1,
+                    Some(format!("{header}\n  (\n1\n) {directive}\nend\n")),
+                ),
+                (format!("(\n1 {directive}\n)"), 0, None),
             ] {
                 let source = format!("{header};{body}\nend\n");
                 fs::write(&path, &source).unwrap();
@@ -150,18 +160,11 @@ fn parenthesized_namespace_directives_use_only_the_inner_highlight() {
                 if status == 1 {
                     assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:2:1:"));
                 }
-                cli(
-                    dir.path(),
-                    &["--only", cop, "--fix", "lib/a.rb"],
-                    if correctable { 0 } else { status },
-                );
-                if correctable {
-                    assert_eq!(
-                        fs::read_to_string(&path).unwrap(),
-                        format!("{header}\n  {body}\nend\n")
-                    );
+                cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 0);
+                if let Some(after) = after {
+                    assert_eq!(fs::read_to_string(&path).unwrap(), after);
                 } else {
-                    // Disabled offenses and directive-adjacent edits never write.
+                    // Disabled offenses never write.
                     assert_eq!(fs::read_to_string(&path).unwrap(), source);
                     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
                 }

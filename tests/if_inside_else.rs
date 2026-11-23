@@ -93,7 +93,7 @@ fn default_enablement_selectors_and_config_have_no_implicit_writes() {
     assert_eq!(cop.ruby_versions(), Default::default());
 }
 #[test]
-fn exclusions_and_both_directive_prefixes_protect_atomic_edits() {
+fn exclusions_and_both_directive_prefixes() {
     let d = project();
     for config in [
         "exclude = [\"a.rb\"]\n".to_owned(),
@@ -119,10 +119,6 @@ fn exclusions_and_both_directive_prefixes_protect_atomic_edits() {
                 0,
             ),
             (
-                BAD.replace("second", &format!("second # {prefix}:disable {COP}")),
-                1,
-            ),
-            (
                 BAD.replace("if b", &format!("# {prefix}:disable-next {COP}\n  if b")),
                 0,
             ),
@@ -135,6 +131,13 @@ fn exclusions_and_both_directive_prefixes_protect_atomic_edits() {
                 count,
             );
         }
+        // A directive inside the corrected span does not hold the edit.
+        fix(
+            d.path(),
+            &BAD.replace("second", &format!("second # {prefix}:disable {COP}")),
+            &GOOD.replace("second", &format!("second # {prefix}:disable {COP}")),
+            COP,
+        );
         let source = format!("# {prefix}:disable {COP}\n{BAD}# {prefix}:enable {COP}\n{BAD}");
         let after = format!("# {prefix}:disable {COP}\n{BAD}# {prefix}:enable {COP}\n{GOOD}");
         fix(d.path(), &source, &after, COP);

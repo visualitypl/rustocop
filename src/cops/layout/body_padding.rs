@@ -2,10 +2,7 @@
 //! line is reported at each edge; additional padding needs another explicit pass.
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        style::correction::{line_value_boundary, touches_directive},
-    },
+    cops::{Cop, NodeContext, style::correction::line_value_boundary},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -70,7 +67,6 @@ pub(super) fn line_removal(
                 .next_back()
                 .is_some_and(|root| !file.overlaps_literal(root, &range))
         })
-        .filter(|_| !touches_directive(file, file.line_start(line - 1)..file.line_start(line + 2)))
         .map(|_| Correction {
             range,
             replacement: String::new(),
@@ -186,7 +182,7 @@ mod tests {
     }
 
     #[test]
-    fn comments_are_never_removed_and_directive_boundaries_withhold_fixes() {
+    fn comments_are_never_removed_and_directive_boundaries_are_corrected() {
         for (cop, header) in cops() {
             for prefix in ["rubocop", "rustocop"] {
                 for directive in [
@@ -198,11 +194,11 @@ mod tests {
                         "{header} # {prefix}:{directive}\n\n  work\n  # {prefix}:{directive}\n\nend\n"
                     );
                     assert_eq!(correction_offenses(cop, &before).len(), 2);
-                    assert_correction(cop, &before, &before);
+                    assert_correction(cop, &before, &before.replace("\n\n", "\n"));
                     let before = format!(
                         "{header}\n\n  # {prefix}:{directive}\n  work\n\nend # {prefix}:{directive}\n"
                     );
-                    assert_correction(cop, &before, &before);
+                    assert_correction(cop, &before, &before.replace("\n\n", "\n"));
                 }
                 for target in [
                     cop.name(),
@@ -225,9 +221,8 @@ mod tests {
                     "{header}\n  # {prefix}:disable-next {}\n\nend\n",
                     cop.name()
                 );
-                // A blank detaches disable-next; detection remains, but do
-                // not delete that blank and attach it to `end` instead.
-                assert_correction(cop, &before, &before);
+                // A blank detaches disable-next; RuboCop still deletes it.
+                assert_correction(cop, &before, &before.replace("\n\n", "\n"));
             }
         }
     }

@@ -111,10 +111,7 @@ fn rewrite(file: &SourceFile, node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Opti
     // DATA's initial byte/line position also changes even if its payload does not.
     // Multiline bodies/signatures and deferred heredocs require literal-aware
     // reindentation; retain their offense without moving any payload bytes.
-    if file.last_line_of(location) != line
-        || file.contains_heredoc(root, node)
-        || super::correction::touches_directive(file, start..end)
-    {
+    if file.last_line_of(location) != line || file.contains_heredoc(root, node) {
         return None;
     }
     let prefix = &file.bytes[file.line_start(line)..start];

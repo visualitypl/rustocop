@@ -160,11 +160,15 @@ mod tests {
         for source in [
             "def foo =\n\n  __LINE__\n",
             "def foo =\n\n  quux\np __LINE__\n",
-            "def foo =\n\n  # rubocop:disable Lint/Debugger\n  quux\n",
         ] {
             assert_eq!(offenses(source).len(), 1);
             assert_correction(&EmptyLinesAroundMethodBody, source, source);
         }
+        assert_correction(
+            &EmptyLinesAroundMethodBody,
+            "def foo =\n\n  # rubocop:disable Lint/Debugger\n  quux\n",
+            "def foo =\n  # rubocop:disable Lint/Debugger\n  quux\n",
+        );
     }
 
     #[test]

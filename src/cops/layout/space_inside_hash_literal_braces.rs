@@ -186,7 +186,7 @@ mod tests {
             assert!(offenses(after).is_empty(), "{after}");
         }
         let found = offenses("h = {\n}");
-        assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 6, 1));
+        assert_eq!((found[0].line, found[0].col, found[0].end_line), (1, 6, 2));
         assert_eq!(
             found[0].message,
             "Space inside empty hash literal braces detected."
@@ -212,21 +212,40 @@ mod tests {
     }
 
     #[test]
-    fn empty_hash_newline_corrections_are_withheld_without_hiding_offenses() {
+    fn empty_hash_newline_corrections_are_withheld_for_line_values() {
         for source in [
             "x = {\n}\np __LINE__\n",
             "x = {\n}\ndef f; __LINE__; end\n",
-            "x = {\n} # rubocop:disable Style\n",
-            "x = {\n} # rustocop:disable-next Style\n1\n",
             "x = <<~H\n  #{{\n}}\nH\n",
             "%W[#{{\n}}]",
-            "x = {\n} # rustocop:disable Layout/SpaceInsideHashLiteralBraces\n",
         ] {
             let found =
                 crate::cops::testing::correction_offenses(&SpaceInsideHashLiteralBraces, source);
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
             assert_correction(&SpaceInsideHashLiteralBraces, source, source);
+        }
+        for source in [
+            "x = {\n} # rubocop:disable Style\n",
+            "x = {\n} # rustocop:disable-next Style\n1\n",
+        ] {
+            assert_correction(
+                &SpaceInsideHashLiteralBraces,
+                source,
+                &source.replacen("{\n}", "{}", 1),
+            );
+        }
+        // The highlight ends after the newline, so a directive on the next
+        // line disables it, as Parser's `last_line` does.
+        for prefix in ["rubocop", "rustocop"] {
+            let source =
+                format!("x = {{\n}} # {prefix}:disable Layout/SpaceInsideHashLiteralBraces\n");
+            assert!(
+                crate::pipeline::lint_str(&source)
+                    .iter()
+                    .all(|o| o.cop != SpaceInsideHashLiteralBraces.name()),
+                "{source}"
+            );
         }
     }
 

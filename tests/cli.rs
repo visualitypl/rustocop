@@ -763,11 +763,6 @@ fn definition_spacing_clean_and_withheld_files_are_not_written() {
         ("__END__\ndef a\nend\ndef b\nend\n", 0, 0),
         ("def a; end\ndef b; end\n", 0, 0),
         ("def a\nend\ndef b\nend\np __LINE__\n", 1, 1),
-        (
-            "def a\nend\n\n\n# rubocop:disable Lint/Debugger\ndef b\nend\n",
-            1,
-            1,
-        ),
     ] {
         let dir = project(&[("x.rb", source)]);
         let path = dir.path().join("x.rb");
@@ -971,11 +966,6 @@ fn body_padding_clean_and_withheld_files_are_not_written() {
             (String::new(), 0, 0),
             ("__END__\n\nraw\n".into(), 0, 0),
             (format!("{header}\n\n  puts 1\n\nend\np __LINE__\n"), 1, 2),
-            (
-                format!("{header}\n\n  # rubocop:disable Lint/Debugger\n  puts 1\nend\n"),
-                1,
-                1,
-            ),
         ] {
             let dir = project(&[("x.rb", &source)]);
             let path = dir.path().join("x.rb");
@@ -1209,7 +1199,6 @@ fn empty_lines_clean_data_and_withheld_only_files_are_not_written() {
         ("__END__\n\n\nraw\n", 0),
         ("x = 'a\n\n\nb'\n", 0),
         ("puts 1\n\n\nclass C\nLINE = __LINE__\nend\n", 1),
-        ("puts 1\n\n\n# rubocop:disable Lint/Debugger\nputs 2\n", 1),
         ("x = %w(a\n\n\nb)\n", 1),
     ] {
         let dir = project(&[("x.rb", source)]);
@@ -2213,8 +2202,6 @@ fn brace_spacing_clean_and_safely_withheld_files_are_not_written() {
         ("__END__\n{a: 1} f {x}\n", 0),
         ("f {\n}\n-> {\n}\n", 0),
         ("x = {\n}\np __LINE__\n", 1),
-        ("x = {\n} # rubocop:disable Style\n", 1),
-        ("x = {\n} # rustocop:disable-next Style\n1\n", 1),
         (
             "x = {\n  # rustocop:disable Layout/SpaceInsideHashLiteralBraces\n}\n",
             0,
@@ -2506,10 +2493,6 @@ fn bracket_spacing_clean_and_withheld_only_files_are_not_written() {
         ("__END__\n[ x ] a[ x ]\n", 0),
         ("x = [\n]\na[\n]\np __LINE__\n", 1),
         ("x = [%q x ]\na[%q x ]\n", 1),
-        (
-            "x = [\n] # rubocop:disable Style\na[\n] # rustocop:disable Style\n",
-            1,
-        ),
     ] {
         let dir = project(&[("x.rb", source)]);
         let path = dir.path().join("x.rb");

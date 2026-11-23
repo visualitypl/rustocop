@@ -120,7 +120,7 @@ fn correction(
     // correction-only subtree walks, source copies or proofs during plain lint.
     let loc = inner.location();
     let span = outer_else.start_offset()..loc.end_offset();
-    if span.len() > REWRITE_BUDGET || super::correction::touches_directive(file, span.clone()) {
+    if span.len() > REWRITE_BUDGET {
         return None;
     }
     let root = cx.ancestors().next_back()?;

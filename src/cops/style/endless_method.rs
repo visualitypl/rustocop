@@ -83,7 +83,6 @@ fn rewrite(file: &SourceFile, node: &Node<'_>, cx: &NodeContext<'_, '_>) -> Opti
         .ancestors()
         .any(|n| n.as_def_node().is_some_and(|d| d.equal_loc().is_some()))
         || file.contains_heredoc(root, node)
-        || super::correction::touches_directive(file, start..end)
         || start < file.line_value_boundary()
     {
         return None;
@@ -276,14 +275,12 @@ mod tests {
     }
 
     #[test]
-    fn line_observations_directives_and_signature_heredocs_withhold_only_edits() {
+    fn line_observations_and_signature_heredocs_withhold_only_edits() {
         for source in [
             "def f = [\n  __LINE__]\n",
             "def f = [\n  1]\np __LINE__\n",
             "def f(a = <<~TEXT) = [\nhello\nTEXT\n  a]\n",
             "def f(a = <<~OUT) = [\n#{<<~INNER}\nhi\nINNER\nOUT\n a]\n",
-            "def f = [ # rustocop:disable Layout\n  1]\n",
-            "def f = [\n  1] # rubocop:disable Layout\n",
             "def f() = # keep me\n  [1]\n",
             "def f( # keep me\n) = [\n  1]\n",
             "def f() \\\n = [\n  1]\n",
@@ -295,6 +292,18 @@ mod tests {
             "p __LINE__\ndef f = [\n  1]\n",
             "p __LINE__\ndef f\n  [\n  1]\nend\n",
         );
+        for (before, after) in [
+            (
+                "def f = [ # rustocop:disable Layout\n  1]\n",
+                "def f\n  [ # rustocop:disable Layout\n  1]\nend\n",
+            ),
+            (
+                "def f = [\n  1] # rubocop:disable Layout\n",
+                "def f\n  [\n  1]\nend # rubocop:disable Layout\n",
+            ),
+        ] {
+            crate::cops::testing::assert_correction(&super::EndlessMethod, before, after);
+        }
     }
 
     #[test]

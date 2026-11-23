@@ -5,10 +5,7 @@ use std::ops::Range;
 use ruby_prism::Node;
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        style::correction::{line_value_boundary, touches_directive},
-    },
+    cops::{Cop, NodeContext, style::correction::line_value_boundary},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -70,14 +67,6 @@ impl Cop for EmptyLines {
                     correction: boundary
                         .filter(|&boundary| range.start >= boundary)
                         .filter(|_| !file.overlaps_literal(node, &range))
-                        // Protect directive scope on both adjacent lines, including
-                        // disable-next and multiline directive comments.
-                        .filter(|_| {
-                            !touches_directive(
-                                file,
-                                file.line_start(line - 1)..file.line_start(line + 2),
-                            )
-                        })
                         .map(|_| Correction {
                             range,
                             replacement: String::new(),
@@ -395,7 +384,7 @@ mod tests {
     }
 
     #[test]
-    fn directives_filter_offenses_and_withhold_adjacent_newline_movement() {
+    fn directives_filter_offenses_but_not_adjacent_newline_movement() {
         for prefix in ["rubocop", "rustocop"] {
             for target in ["Layout/EmptyLines", "EmptyLines", "Layout", "all"] {
                 for action in ["disable", "todo"] {
@@ -413,7 +402,7 @@ mod tests {
             ] {
                 let before = format!("x\n\n\n# {prefix}:{directive}\ny\n");
                 assert_eq!(offenses(&before).len(), 1);
-                assert_correction(&EmptyLines, &before, &before);
+                assert_correction(&EmptyLines, &before, &before.replacen("\n\n\n", "\n\n", 1));
             }
             let before = format!("# {prefix}:disable-next Layout/EmptyLines\n\n\nx\n");
             // The disabled next line is the retained first blank, not the

@@ -79,7 +79,7 @@ fn correction(node: &Node<'_>, cx: &NodeContext<'_, '_>, file: &SourceFile) -> O
     }
     let loc = node.location();
     let range = loc.start_offset()..loc.end_offset();
-    if range.len() > REWRITE_BUDGET || super::correction::touches_directive(file, range.clone()) {
+    if range.len() > REWRITE_BUDGET {
         return None;
     }
     let prefix = &file.bytes[file.line_start(file.line_of(range.start))..range.start];

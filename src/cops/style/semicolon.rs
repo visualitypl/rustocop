@@ -533,10 +533,9 @@ impl Layout {
 
     fn correction(&self, file: &SourceFile, offset: usize, separator: bool) -> Option<Correction> {
         if separator
-            && (super::correction::touches_directive(file, offset..offset + 1)
-                || self.heredoc_openings.iter().any(|range| {
-                    range.end <= offset && file.line_of(range.start) == file.line_of(offset)
-                }))
+            && self.heredoc_openings.iter().any(|range| {
+                range.end <= offset && file.line_of(range.start) == file.line_of(offset)
+            })
         {
             return None;
         }
@@ -967,11 +966,12 @@ mod tests {
     }
 
     #[test]
-    fn leaves_separators_that_would_change_other_directives_scope() {
-        let source = "fail; foo # rubocop:disable Style/SignalException\n";
-        let found = crate::cops::testing::correction_offenses(&Semicolon, source);
-        assert_eq!(found.len(), 1);
-        assert!(found[0].correction.is_none());
+    fn splits_separators_even_when_that_changes_a_directive_scope() {
+        crate::cops::testing::assert_correction(
+            &Semicolon,
+            "fail; foo # rubocop:disable Style/SignalException\n",
+            "fail\n foo # rubocop:disable Style/SignalException\n",
+        );
     }
 
     #[test]

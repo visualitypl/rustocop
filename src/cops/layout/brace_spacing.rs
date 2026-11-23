@@ -4,10 +4,7 @@ use std::ops::Range;
 use ruby_prism::Node;
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        style::correction::{line_value_boundary, touches_directive},
-    },
+    cops::{Cop, NodeContext, style::correction::line_value_boundary},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -36,7 +33,6 @@ pub(super) fn report(
             || (range.start >= line_value_boundary(file)
                 // Include the closing brace's line: an interior newline range
                 // itself ends before that brace and can miss its directive.
-                && !touches_directive(file, range.start..(range.end + 1).min(file.bytes.len()))
                 // Removing physical lines can change squiggly-heredoc dedentation.
                 && !cx.ancestors().any(|ancestor| {
                     ancestor.as_interpolated_string_node().and_then(|n| n.opening_loc())
@@ -52,7 +48,9 @@ pub(super) fn report(
         severity: cop.severity(),
         message: message.to_owned(),
         line,
-        end_line: file.line_of(highlight.end.saturating_sub(1).max(highlight.start)),
+        // Parser's `last_line` is the line of the end offset: a highlight
+        // ending in a newline reaches the next line, so its directives count.
+        end_line: file.line_of(highlight.end),
         col,
     });
 }

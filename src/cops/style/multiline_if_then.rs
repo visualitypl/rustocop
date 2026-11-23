@@ -153,9 +153,7 @@ pub(super) fn remove_then(
         replacement: String::new(),
     };
     let root = cx.ancestors().next_back()?;
-    if super::correction::touches_directive(file, edit.range.clone())
-        || (file.bytes[edit.range.clone()].contains(&b'\n') && file.heredoc_pending_at(root, start))
-    {
+    if file.bytes[edit.range.clone()].contains(&b'\n') && file.heredoc_pending_at(root, start) {
         return None;
     }
     Some(edit)

@@ -164,10 +164,7 @@ fn rewrite(
 ) -> Option<Correction> {
     let loc = node.location();
     let range = loc.start_offset()..loc.end_offset();
-    if range.len() > 16 * 1024
-        || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
-    {
+    if range.len() > 16 * 1024 || super::correction::contains_comment(file, range.clone()) {
         return None;
     }
     let root = cx.ancestors().next_back()?;

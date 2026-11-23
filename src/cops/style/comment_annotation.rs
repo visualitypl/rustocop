@@ -10,7 +10,7 @@ use crate::{
     source::SourceFile,
 };
 
-use super::correction::{contains_magic_comment_key, touches_directive};
+use super::correction::contains_magic_comment_key;
 
 // Ruby's \s is ASCII whitespace, but its word boundaries are Unicode-aware.
 // Byte captures retain legacy-encoding note bytes without transcoding them.
@@ -127,8 +127,7 @@ impl Cop for CommentAnnotation {
                     // A document's whitespace capture can cross lines. Do not
                     // join it or change an inert magic/directive spelling.
                     && text.starts_with(b"#")
-                    && !contains_magic_comment_key(text)
-                    && !touches_directive(file, comment.clone()))
+                    && !contains_magic_comment_key(text))
                 .then(|| Correction {
                     range: start..end,
                     replacement: format!("{upper}: "),
@@ -253,18 +252,22 @@ mod tests {
     }
 
     #[test]
-    fn withholds_magic_and_directive_edits_and_document_annotations() {
+    fn withholds_magic_edits_and_document_annotations() {
         for source in [
             "# TODO coding: ASCII-8BIT\n",
             "# todo frozen_string_literal: true\n",
             "# todo Frozen-String-Literal: true\n",
-            "# TODO # rubocop:disable Lint/Debugger\n",
             "=begin\n# TODO something\n=end\n",
         ] {
             let found = correction_offenses(&CommentAnnotation, source);
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
         }
+        crate::cops::testing::assert_correction(
+            &CommentAnnotation,
+            "# TODO # rubocop:disable Lint/Debugger\n",
+            "# TODO: # rubocop:disable Lint/Debugger\n",
+        );
     }
 
     #[test]

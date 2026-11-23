@@ -56,7 +56,7 @@ impl Cop for EmptyHeredoc {
             .then(|| {
                 // One envelope keeps all header tails, comments, queued siblings and
                 // both physical edits atomic. Bound work before copying interior text.
-                if end - start > 4096 || super::correction::touches_directive(file, start..end) {
+                if end - start > 4096 {
                     return None;
                 }
                 let after_line = file.line_of(end);

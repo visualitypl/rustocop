@@ -231,14 +231,22 @@ fn guarded_removals() {
         // A later `__LINE__` value would change.
         "begin\n\n  foo\nend\np __LINE__\n",
         "begin\n\n  __LINE__\nend\n",
-        // Directive comments next to the blank line.
-        "begin # rubocop:disable Lint/Debugger\n\n  foo\nend\n",
-        "begin\n\n  # rustocop:enable Lint/Debugger\n  foo\nend\n",
         // A heredoc body opened on the `begin` line.
         "x = <<~H + begin\n\nH\n  1\nend\n",
     ] {
         assert!(!findings(held).is_empty(), "{held:?}");
         assert_correction(&EmptyLinesAroundBeginBody, held, held);
+    }
+    // Directive comments next to the blank line do not hold the edit.
+    for source in [
+        "begin # rubocop:disable Lint/Debugger\n\n  foo\nend\n",
+        "begin\n\n  # rustocop:enable Lint/Debugger\n  foo\nend\n",
+    ] {
+        assert_correction(
+            &EmptyLinesAroundBeginBody,
+            source,
+            &source.replace("\n\n", "\n"),
+        );
     }
     // Literal interiors and the data section are not padding.
     for source in [

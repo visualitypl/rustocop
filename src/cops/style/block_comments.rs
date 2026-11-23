@@ -7,7 +7,7 @@ use crate::{
     source::SourceFile,
 };
 
-use super::correction::{contains_magic_comment_key, touches_directive};
+use super::correction::contains_magic_comment_key;
 
 pub struct BlockComments;
 
@@ -47,7 +47,6 @@ impl Cop for BlockComments {
                 .corrections_requested()
                 .then(|| {
                     if (line <= 2 && header_magic)
-                        || touches_directive(file, range.clone())
                         || contains_magic_comment_key(&file.bytes[range.clone()])
                     {
                         return None;

@@ -1,8 +1,5 @@
 //! `Style/Encoding` — unnecessary UTF-8 declarations in the magic header.
-use super::{
-    correction::touches_directive,
-    magic_comment::{MagicComment, leading_end},
-};
+use super::magic_comment::{MagicComment, leading_end};
 use crate::{
     cops::{Cop, NodeContext},
     offense::{Correction, Offense},
@@ -60,9 +57,6 @@ impl Cop for Encoding {
                 .is_some_and(|e| e.eq_ignore_ascii_case(b"utf-8"))
             {
                 let correction = safe_header.filter(|safe| *safe).and_then(|_| {
-                    if touches_directive(file, start..start + text.len()) {
-                        return None;
-                    }
                     let replacement = comment.without_encoding()?;
                     if replacement.as_bytes() == text {
                         return None;

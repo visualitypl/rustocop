@@ -80,7 +80,7 @@ fn default_on_selectors_config_and_plain_lint_do_not_write() {
     }
 }
 #[test]
-fn exclusions_both_directive_prefixes_and_disabled_interior_spans_hold_bytes() {
+fn exclusions_and_both_directive_prefixes_hold_bytes() {
     let d = project();
     for (cop, source, _) in CASES {
         for config in [
@@ -133,12 +133,17 @@ fn exclusions_both_directive_prefixes_and_disabled_interior_spans_hold_bytes() {
             );
         }
     }
-    unchanged(
-        d.path(),
-        TERNARY,
-        b"a = cond ?\n # rubocop:disable Lint/Debugger\n yes : no\n",
-        &["--only", TERNARY, "--fix", "a.rb"],
-        1,
+    // As in RuboCop, an interior comment moves above the rewrite.
+    fs::write(
+        d.path().join("a.rb"),
+        "a = cond ?\n # rubocop:disable Lint/Debugger\n yes : no\n",
+    )
+    .unwrap();
+    let o = cli(d.path(), &["--only", TERNARY, "--fix", "a.rb"]);
+    assert_eq!(o.status.code(), Some(0), "{o:?}");
+    assert_eq!(
+        fs::read_to_string(d.path().join("a.rb")).unwrap(),
+        "# rubocop:disable Lint/Debugger\na = if cond\n  yes\nelse\n  no\nend\n"
     );
 }
 #[test]

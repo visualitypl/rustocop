@@ -304,9 +304,6 @@ fn guarded_removals() {
         "foo do\n\n  __LINE__\nend\n",
         // An explicit continuation ends on the opening line.
         "foo do |x| \\\n\n  x\nend\n",
-        // Directive comments next to the blank line.
-        "foo do # rubocop:disable Lint/Debugger\n\n  bar\nend\n",
-        "foo do\n  bar\n\nend # rustocop:enable Lint/Debugger\n",
         // A heredoc body opened on the block's line.
         "foo(<<~H) do\n\nH\n  1\nend\n",
         // A percent array's interpolated block.
@@ -314,6 +311,17 @@ fn guarded_removals() {
     ] {
         assert!(!findings(held).is_empty(), "{held:?}");
         assert_correction(&EmptyLinesAroundBlockBody, held, held);
+    }
+    // Directive comments next to the blank line do not hold the edit.
+    for source in [
+        "foo do # rubocop:disable Lint/Debugger\n\n  bar\nend\n",
+        "foo do\n  bar\n\nend # rustocop:enable Lint/Debugger\n",
+    ] {
+        assert_correction(
+            &EmptyLinesAroundBlockBody,
+            source,
+            &source.replace("\n\n", "\n"),
+        );
     }
     // Code in string interpolation is corrected; string text is not padding.
     assert_correction(

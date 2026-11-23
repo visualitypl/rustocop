@@ -1551,9 +1551,6 @@ fn apply(source: &[u8], edits: &[Edit]) -> Option<Vec<u8>> {
 fn atomic_correction(file: &SourceFile, edits: &[Edit]) -> Option<Correction> {
     let start = edits.iter().map(|edit| edit.range.start).min()?;
     let end = edits.iter().map(|edit| edit.range.end).max()?;
-    if super::correction::touches_directive(file, start..end) {
-        return None;
-    }
     let relative: Vec<_> = edits
         .iter()
         .map(|edit| Edit {

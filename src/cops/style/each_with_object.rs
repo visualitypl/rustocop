@@ -1,5 +1,5 @@
 //! `Style/EachWithObject` — mutable accumulators returned by inject/reduce.
-use super::correction::{combine, contains_comment, touches_directive};
+use super::correction::{combine, contains_comment};
 use crate::{
     cops::{
         Cop, NodeContext, ast,
@@ -119,10 +119,6 @@ impl Cop for EachWithObject {
                     || contains_comment(
                         file,
                         block.location().start_offset()..block.location().end_offset(),
-                    )
-                    || touches_directive(
-                        file,
-                        call.location().start_offset()..call.location().end_offset(),
                     )
                 {
                     return None;

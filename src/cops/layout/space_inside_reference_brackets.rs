@@ -211,7 +211,6 @@ mod tests {
     fn unsafe_empty_multiline_and_literal_delimiter_fixes_are_withheld() {
         for source in [
             "a[\n]\np __LINE__\n",
-            "a[\n] # rubocop:disable Style\n",
             "x = <<~H\n  #{a[\n]}\nH\n",
             "a[%q x ]",
         ] {
@@ -222,6 +221,11 @@ mod tests {
             assert_correction(&SpaceInsideReferenceBrackets, source, source);
         }
         assert_correction(&SpaceInsideReferenceBrackets, "a[ %q x  ]", "a[%q x ]");
+        assert_correction(
+            &SpaceInsideReferenceBrackets,
+            "a[\n] # rubocop:disable Style\n",
+            "a[] # rubocop:disable Style\n",
+        );
     }
 
     #[test]

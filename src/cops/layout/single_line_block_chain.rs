@@ -34,7 +34,6 @@ use ruby_prism::Node;
 use crate::{
     cops::{
         Cop, NodeContext,
-        style::correction::touches_directive,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -214,10 +213,7 @@ impl Cop for SingleLineBlockChain {
 }
 
 fn correction(send: &Send<'_>, root: &Node<'_>, file: &SourceFile) -> Option<Correction> {
-    if file.bytes[send.dot.clone()] == *b"::"
-        || file.heredoc_pending_at(root, send.dot.start)
-        || touches_directive(file, send.dot.clone())
-    {
+    if file.bytes[send.dot.clone()] == *b"::" || file.heredoc_pending_at(root, send.dot.start) {
         return None;
     }
     Some(Correction {

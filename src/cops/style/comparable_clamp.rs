@@ -203,7 +203,6 @@ fn correct(
     if facts.changed
         || facts.first_effect.is_some_and(|end| end <= range.start)
         || super::correction::contains_comment(file, range.clone())
-        || super::correction::touches_directive(file, range.clone())
         || file.heredoc_pending_at(root, range.start)
     {
         return None;

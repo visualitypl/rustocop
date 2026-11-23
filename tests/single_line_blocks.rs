@@ -146,7 +146,7 @@ fn directives_excludes_and_noncorrectable_offenses_do_not_write() {
     );
 }
 #[test]
-fn disabled_interior_spans_and_inline_directives_withhold_whole_edits() {
+fn disabled_interior_spans_and_inline_directives() {
     let dir = project();
     // As in RuboCop, the enabled offense's renames reach the heredoc line on
     // which the cop is disabled.
@@ -169,11 +169,6 @@ fn disabled_interior_spans_and_inline_directives_withhold_whole_edits() {
         ),
         (
             DO_END,
-            "foo do <<~TEXT end\n#{1 # rubocop:disable Style/SingleLineDoEndBlock\n}\nTEXT\n",
-            1,
-        ),
-        (
-            DO_END,
             "foo do bar end # rustocop:disable Style/SingleLineDoEndBlock\n",
             0,
         ),
@@ -185,6 +180,17 @@ fn disabled_interior_spans_and_inline_directives_withhold_whole_edits() {
             status,
         );
     }
+    // As in RuboCop, a directive inside the heredoc body does not hold the edit.
+    fs::write(
+        &path,
+        "foo do <<~TEXT end\n#{1 # rubocop:disable Style/SingleLineDoEndBlock\n}\nTEXT\n",
+    )
+    .unwrap();
+    cli(dir.path(), &["--only", DO_END, "--fix", "x.rb"]);
+    assert_eq!(
+        fs::read_to_string(&path).unwrap(),
+        "foo do\n <<~TEXT \n#{1 # rubocop:disable Style/SingleLineDoEndBlock\n}\nTEXT\nend\n"
+    );
 }
 #[test]
 fn stdin_detection_and_fix_rejection_never_write() {

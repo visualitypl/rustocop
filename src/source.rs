@@ -168,8 +168,6 @@ pub struct SourceFile {
     directive_disabled: OnceLock<Vec<String>>,
     /// Parsed directive tokens, shared by the two directive Style policies.
     directive_records: OnceLock<Vec<crate::directives::comments::DirectiveComment>>,
-    /// Comments containing directive spellings, cached for newline-edit guards.
-    directive_comments: OnceLock<Vec<Range<usize>>>,
     /// Last textual `__LINE__` boundary, shared by newline-changing fixes.
     line_value_boundary: OnceLock<usize>,
     /// Errors and warnings from the main parse, including rejected input.
@@ -275,7 +273,6 @@ impl SourceFile {
             directives: OnceLock::new(),
             directive_disabled: OnceLock::new(),
             directive_records: OnceLock::new(),
-            directive_comments: OnceLock::new(),
             line_value_boundary: OnceLock::new(),
             diagnostics: OnceLock::new(),
             data_start: OnceLock::new(),
@@ -1207,23 +1204,6 @@ impl SourceFile {
     pub(crate) fn directive_records(&self) -> &[crate::directives::comments::DirectiveComment] {
         self.directive_records
             .get_or_init(|| crate::directives::comments::collect(self))
-    }
-
-    /// Directive-like comments for conservative newline correction guards.
-    /// Scan each comment's bytes once, even for many edits inside a large
-    /// block comment. Detection/normal lint never needs this cache.
-    pub(crate) fn directive_comments(&self) -> &[Range<usize>] {
-        self.directive_comments.get_or_init(|| {
-            self.comments()
-                .iter()
-                .filter(|comment| {
-                    let text = &self.bytes[(*comment).clone()];
-                    memchr::memmem::find(text, b"rubocop:").is_some()
-                        || memchr::memmem::find(text, b"rustocop:").is_some()
-                })
-                .cloned()
-                .collect()
-        })
     }
 
     /// Cache the newline-edit guard once per file, not once per definition.
@@ -2591,7 +2571,6 @@ mod tests {
         assert_eq!(found.len(), 3999);
         assert!(f.literal_ranges.get().is_none());
         assert!(f.line_value_boundary.get().is_none());
-        assert!(f.directive_comments.get().is_none());
         let cache = f.token_ranges.get().unwrap();
         assert_eq!(cache.definition_ends.len(), 6000);
         let pointer = cache.protected.as_ptr();
@@ -2632,7 +2611,6 @@ mod tests {
         assert!(found.iter().all(|o| o.correction.is_none()));
         assert!(f.line_value_boundary.get().is_none());
         assert!(f.literal_ranges.get().is_none());
-        assert!(f.directive_comments.get().is_none());
         found.clear();
         assert!(run_cops_with_corrections(cops, &result, &f, &mut found, true).is_empty());
         assert_eq!(found.len(), 12000);
@@ -2642,37 +2620,6 @@ mod tests {
         for _ in 0..2000 {
             assert_eq!(f.line_value_boundary(), 3);
             assert_eq!(f.literal_ranges.get().unwrap().as_ptr(), pointer);
-        }
-    }
-
-    #[test]
-    fn many_empty_lines_in_a_directive_block_comment_share_one_guard_scan() {
-        use crate::cops::{layout::EmptyLines, run_cops_with_corrections};
-        let source = "x\n=begin\n".to_string()
-            + &"\n".repeat(2000)
-            + "rubocop:enable Lint/Debugger\n=end\ny\n";
-        let f = file(source.as_bytes());
-        let result = ruby_prism::parse(&f.bytes);
-        assert_eq!(result.errors().count(), 0);
-        f.record_comments(&result);
-        f.record_data_start(&result);
-        f.record_encoding(&result);
-        let mut found = Vec::new();
-        assert!(
-            run_cops_with_corrections(&[&EmptyLines], &result, &f, &mut found, false).is_empty()
-        );
-        assert_eq!(found.len(), 1999);
-        assert!(f.directive_comments.get().is_none());
-        found.clear();
-        assert!(
-            run_cops_with_corrections(&[&EmptyLines], &result, &f, &mut found, true).is_empty()
-        );
-        assert_eq!(found.len(), 1999);
-        assert!(found.iter().all(|o| o.correction.is_none()));
-        assert_eq!(f.directive_comments.get().unwrap().len(), 1);
-        let pointer = f.directive_comments().as_ptr();
-        for _ in 0..2000 {
-            assert_eq!(f.directive_comments().as_ptr(), pointer);
         }
     }
 

@@ -347,14 +347,22 @@ fn guarded_removals() {
         "begin\n  a\n\nrescue\n  __LINE__\nend\n",
         // A backslash continuation before the blank line.
         "begin\n  a \\\n\nrescue\n  b\nend\n",
-        // Directive comments next to the blank line.
-        "begin\n  a # rubocop:disable Lint/Debugger\n\nrescue\n  b\nend\n",
-        "begin\n  a\nrescue # rustocop:enable Lint/Debugger\n\n  b\nend\n",
         // A heredoc body opened on the keyword's line.
         "begin\n  a\nrescue then p <<~H\n\nH\nend\n",
     ] {
         assert!(!findings(held).is_empty(), "{held:?}");
         assert_correction(&EmptyLinesAroundExceptionHandlingKeywords, held, held);
+    }
+    // Directive comments next to the blank line do not hold the edit.
+    for source in [
+        "begin\n  a # rubocop:disable Lint/Debugger\n\nrescue\n  b\nend\n",
+        "begin\n  a\nrescue # rustocop:enable Lint/Debugger\n\n  b\nend\n",
+    ] {
+        assert_correction(
+            &EmptyLinesAroundExceptionHandlingKeywords,
+            source,
+            &source.replace("\n\n", "\n"),
+        );
     }
     // Literal text and `__END__` data are not lines around keywords.
     for source in [

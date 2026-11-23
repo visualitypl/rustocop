@@ -76,10 +76,6 @@ impl Cop for SingleLineDoEndBlock {
                                 | Node::InterpolatedSymbolNode { .. }
                         )
                     })
-                    || super::correction::touches_directive(
-                        file,
-                        open.start_offset()..close.end_offset(),
-                    )
                 {
                     return None;
                 }
@@ -130,9 +126,6 @@ impl Cop for SingleLineDoEndBlock {
                         .iter()
                         .all(u8::is_ascii_whitespace)
                     {
-                        return None;
-                    }
-                    if super::correction::touches_directive(file, close.start_offset()..end) {
                         return None;
                     }
                     edits.push(Correction {

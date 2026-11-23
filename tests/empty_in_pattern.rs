@@ -175,9 +175,18 @@ fn block_pseudo_directives_do_not_suppress_code_or_opt_in_config_disabled_cops()
             format!("push +{COP}"),
             format!("next +{COP}"),
         ] {
+            // As in RuboCop, Style/BlockComments turns the pseudo-directive
+            // into a `# # …` line comment, which mobilizes nothing.
             let source = format!("=begin\n# {prefix}:{mode}\n=end\n{SOURCE}");
-            let out = unchanged(dir.path(), source.as_bytes(), &["--fix", "lib/a.rb"], 1);
+            let path = dir.path().join("lib/a.rb");
+            fs::write(&path, &source).unwrap();
+            let out = run(dir.path(), &["--fix", "lib/a.rb"]);
+            assert_eq!(out.status.code(), Some(0), "{source}\n{out:?}");
             assert_eq!(count(&out), 0, "{source}\n{out:?}");
+            assert_eq!(
+                fs::read_to_string(&path).unwrap(),
+                format!("# # {prefix}:{mode}\n{SOURCE}")
+            );
         }
         // Ordinary enables must still mobilize the same configured-disabled
         // cop; this is not a global rejection of source opt-ins.

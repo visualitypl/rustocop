@@ -140,7 +140,7 @@ fn rewrite(
 ) -> Option<Correction> {
     let loc = node.location();
     let mut range = loc.start_offset()..loc.end_offset();
-    if range.len() > BUDGET || super::correction::touches_directive(file, range.clone()) {
+    if range.len() > BUDGET {
         return None;
     }
     let root = cx.ancestors().next_back()?;
@@ -205,7 +205,7 @@ fn rewrite(
         range.start = start;
     }
     let edit = Correction { range, replacement };
-    (!super::correction::touches_directive(file, edit.range.clone())).then_some(edit)
+    Some(edit)
 }
 #[cfg(test)]
 thread_local! { static REWRITE_BYTES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }

@@ -39,7 +39,6 @@ use super::{
 use crate::{
     cops::{
         Cop, NodeContext,
-        style::correction::touches_directive,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -231,7 +230,7 @@ fn correction(
     file: &SourceFile,
 ) -> Option<Correction> {
     let root = cx.ancestors().next_back()?;
-    if comment_in(file, offense_range) || touches_directive(file, offense_range.clone()) {
+    if comment_in(file, offense_range) {
         return None;
     }
     let closing_line_start = file.line_start(file.line_of(block.closing.start));

@@ -4,10 +4,7 @@ use std::ops::Range;
 use ruby_prism::{Location, Node};
 
 use crate::{
-    cops::{
-        Cop, NodeContext,
-        style::correction::{line_value_boundary, touches_directive},
-    },
+    cops::{Cop, NodeContext, style::correction::line_value_boundary},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -173,7 +170,6 @@ fn report(
         && !range.is_empty()
         && (!newline
             || (range.start >= line_value_boundary(file)
-                && !touches_directive(file, highlight.clone())
                 // Squiggly-heredoc dedentation depends on physical lines;
                 // keep multiline interpolation edits conservative.
                 && !cx.ancestors().any(|ancestor| {
@@ -192,7 +188,8 @@ fn report(
         severity: cop.severity(),
         message,
         line,
-        end_line: file.line_of(highlight.end - 1),
+        // Parser's `last_line`: a highlight ending in a newline reaches the next line.
+        end_line: file.line_of(highlight.end),
         col,
     });
 }

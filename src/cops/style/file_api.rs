@@ -1,5 +1,4 @@
 //! Fixed-depth AST helpers and cached binding evidence for standard-library API cops.
-use super::correction::touches_directive;
 use crate::cops::walk::{NodeVisitor, walk};
 use crate::{
     cops::{NodeContext, ast},
@@ -764,9 +763,7 @@ fn replacement_inner(
         range,
         replacement: text,
     };
-    let changes_lines = memchr::memchr_iter(b'\n', &file.bytes[correction.range.clone()]).count()
-        != memchr::memchr_iter(b'\n', correction.replacement.as_bytes()).count();
-    (!changes_lines || !touches_directive(file, correction.range.clone())).then_some(correction)
+    Some(correction)
 }
 
 #[cfg(test)]
