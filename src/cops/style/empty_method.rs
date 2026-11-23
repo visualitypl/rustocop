@@ -1,6 +1,6 @@
 //! `Style/EmptyMethod` — compact empty method definitions.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -21,8 +21,10 @@ impl Cop for EmptyMethod {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self { max }))
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            max: companions.line_length_limit,
+        }))
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_def_node().is_some()

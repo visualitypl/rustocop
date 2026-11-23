@@ -1,6 +1,6 @@
 //! `Style/RedundantConstantBase` — unnecessary root qualification outside namespaces.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -16,9 +16,9 @@ impl Cop for RedundantConstantBase {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_constant_resolution(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            constant_resolution_enabled: enabled,
+            constant_resolution_enabled: companions.constant_resolution,
         }))
     }
     fn check_node<'pr>(

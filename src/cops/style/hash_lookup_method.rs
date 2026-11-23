@@ -1,7 +1,7 @@
 //! `Style/HashLookupMethod`: opt-in, fixed brackets policy; unsafe correction.
 use crate::{
     cops::{
-        Cop, NodeContext, ast,
+        Companions, Cop, NodeContext, ast,
         walk::{NodeVisitor, walk},
     },
     offense::Offense,
@@ -26,9 +26,9 @@ impl Cop for HashLookupMethod {
     fn unsafe_fixes(&self) -> bool {
         true
     }
-    fn with_fetch_env_var(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            fetch_env_enabled: enabled,
+            fetch_env_enabled: companions.fetch_env_var,
         }))
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {

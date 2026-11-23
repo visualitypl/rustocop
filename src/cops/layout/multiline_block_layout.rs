@@ -53,7 +53,7 @@ use super::{
 };
 use crate::{
     cops::{
-        Cop, NodeContext,
+        Companions, Cop, NodeContext,
         style::correction::combine,
         walk::{NodeVisitor, walk},
     },
@@ -85,9 +85,9 @@ impl Cop for MultilineBlockLayout {
         true
     }
 
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            max_line_length: max,
+            max_line_length: companions.line_length_limit,
         }))
     }
 

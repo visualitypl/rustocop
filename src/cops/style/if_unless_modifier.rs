@@ -2,7 +2,7 @@
 
 use crate::{
     cops::{
-        Cop, NodeContext, ast, variables,
+        Companions, Cop, NodeContext, ast, variables,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -29,8 +29,10 @@ impl Cop for IfUnlessModifier {
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {
         &["Style/Next", "Style/SoleNestedConditional"]
     }
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self { max }))
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            max: companions.line_length_limit,
+        }))
     }
     fn check_node<'pr>(
         &self,

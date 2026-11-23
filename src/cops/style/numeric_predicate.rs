@@ -1,6 +1,6 @@
 //! `Style/NumericPredicate` — prefer numeric predicates; unsafe correction.
 use crate::{
-    cops::{Cop, NodeContext, ast},
+    cops::{Companions, Cop, NodeContext, ast},
     offense::{Offense, single_line},
     source::SourceFile,
 };
@@ -18,9 +18,9 @@ impl Cop for NumericPredicate {
     fn unsafe_fixes(&self) -> bool {
         true
     }
-    fn with_bitwise_predicate(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(ConfiguredNumericPredicate {
-            bitwise_enabled: enabled,
+            bitwise_enabled: companions.bitwise_predicate,
         }))
     }
     fn check_node<'pr>(

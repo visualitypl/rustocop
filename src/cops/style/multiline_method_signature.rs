@@ -1,6 +1,6 @@
 //! `Style/MultilineMethodSignature` — opt-in signature collapsing.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -22,9 +22,9 @@ impl Cop for MultilineMethodSignature {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            max_line_length: max,
+            max_line_length: companions.line_length_limit,
         }))
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
@@ -285,17 +285,17 @@ mod tests {
     fn configured_width_includes_visibility_and_disabling_length_removes_limit() {
         let source = "class Foo\n  private def bar(baz,\n                  qux)\n  end\nend\n";
         for (max, count) in [(Some(5), 0), (Some(20), 0), (Some(30), 1), (None, 1)] {
-            let cop = MultilineMethodSignature::default()
-                .with_line_length_limit(max)
-                .unwrap();
-            assert_eq!(lint_str_with(&[cop.as_ref()], source).len(), count);
+            let cop = MultilineMethodSignature {
+                max_line_length: max,
+            };
+            assert_eq!(lint_str_with(&[&cop], source).len(), count);
         }
         let source = format!("def f({},\n b)\nend\n", "a".repeat(120));
         assert!(offenses(&source).is_empty());
-        let cop = MultilineMethodSignature::default()
-            .with_line_length_limit(None)
-            .unwrap();
-        assert_eq!(lint_str_with(&[cop.as_ref()], &source).len(), 1);
+        let cop = MultilineMethodSignature {
+            max_line_length: None,
+        };
+        assert_eq!(lint_str_with(&[&cop], &source).len(), 1);
     }
     #[test]
     fn pinned_lookalikes_and_multiline_defaults() {

@@ -1,6 +1,6 @@
 //! `Style/SingleLineMethods` — allow empty and endless definitions.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -25,8 +25,10 @@ impl Cop for SingleLineMethods {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_endless_methods(&self, enabled: bool) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self { endless: enabled }))
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            endless: companions.endless_method,
+        }))
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_def_node().is_some()

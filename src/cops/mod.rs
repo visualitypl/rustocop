@@ -42,9 +42,9 @@ pub mod walk;
 /// Cops are stateless and shared across worker threads: configuration is
 /// resolved by the pipeline (which decides whether a cop runs, and filters
 /// its offenses), never read ad hoc inside the cop. The settings a cop
-/// declares and internal dependencies on LineLength's enable/max policy are
-/// resolved into configured copies ([`Cop::configure`],
-/// [`Cop::with_line_length_limit`]) before selection; those copies run instead.
+/// declares and the configuration of the cops it follows are resolved into
+/// configured copies ([`Cop::configure`], [`Cop::with_companions`]) before
+/// selection; those copies run instead.
 pub trait Cop: Send + Sync {
     /// The full cop name, e.g. `Lint/Debugger`. A department prefix is required.
     fn name(&self) -> &'static str;
@@ -136,84 +136,11 @@ pub trait Cop: Send + Sync {
         max.map(|setting| setting.name)
     }
 
-    /// Internal dependency on Layout/LineLength's configured enable/max, not
-    /// its selection by --only/--except. `None` means the length cop is disabled.
-    /// This does not expose a new per-cop numeric setting.
-    fn with_line_length_limit(&self, _max: Option<usize>) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// Internal dependency for SingleLineMethods' canonical correction syntax.
-    /// Like LineLength, this reads configured enablement, not CLI selection.
-    fn with_endless_methods(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// HashLookupMethod's ENV exemption follows configured FetchEnvVar
-    /// enablement, not CLI selection. No new public setting is exposed.
-    fn with_fetch_env_var(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// NumericPredicate delegates bitwise comparisons according to configured
-    /// BitwisePredicate enablement, independent of CLI selection.
-    fn with_bitwise_predicate(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// MissingElse's exemptions follow configured companions, not CLI selection.
-    /// Fixed EmptyElse=both intentionally has no compatible else insertion.
-    fn with_missing_else_companions(
-        &self,
-        _guard_clause: bool,
-        _unless_else: bool,
-    ) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// EmptyElse must not remove clauses required by configured MissingElse.
-    /// Like the other companion seams, this is independent of CLI selection.
-    fn with_empty_else_missing_else(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// EmptyLiteral follows configured frozen-comment enablement, not CLI selection.
-    fn with_frozen_string_comment(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// SingleArgumentDig delegates chains to configured DigChain, independently
-    /// of CLI selection. No public setting is added.
-    fn with_dig_chain(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// RedundantConstantBase delegates to configured ConstantResolution,
-    /// independent of CLI selection. No index or public option is introduced.
-    fn with_constant_resolution(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// RedundantLineBreak defers chains on single-line blocks to configured
-    /// SingleLineBlockChain enablement, independent of CLI selection. Called
-    /// on the cop as already configured by the earlier seams.
-    fn with_single_line_block_chain(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// SpaceAroundBlockParameters leaves the inside of a lambda's parameter
-    /// parentheses to configured SpaceInsideParens enablement, independent of
-    /// CLI selection (upstream's `config.cop_enabled?`). No public setting.
-    fn with_space_inside_parens(&self, _enabled: bool) -> Option<Box<dyn Cop>> {
-        None
-    }
-
-    /// A copy of this cop that writes single-quoted strings, for the cops
-    /// that write a string literal in a message or a correction. `single`
-    /// is whether the config gives Style/StringLiterals the style
-    /// `single_quotes` or disables that cop, as RuboCop's
-    /// `StringLiteralsHelp` reads it.
-    fn with_single_quoted_strings(&self, _single: bool) -> Option<Box<dyn Cop>> {
+    /// A copy of this cop for what the configuration says about the cops it
+    /// follows (RuboCop's `config.cop_enabled?` and `for_cop`), never their
+    /// CLI selection. Config resolution calls it on the copy that
+    /// [`Cop::configure`] built, if any. `None` for a cop that follows none.
+    fn with_companions(&self, _companions: &Companions) -> Option<Box<dyn Cop>> {
         None
     }
 
@@ -318,6 +245,41 @@ pub trait Cop: Send + Sync {
         _out: &mut Vec<Offense>,
     ) {
     }
+}
+
+/// What the configuration says about the cops that other cops follow,
+/// independent of CLI selection: a cop's `enabled`, else its department's,
+/// else its default (Layout/SingleLineBlockChain reads only its own).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Companions {
+    /// Layout/LineLength's `max`, `None` when that cop is disabled.
+    pub line_length_limit: Option<usize>,
+    /// Style/EndlessMethod: SingleLineMethods may correct to endless methods.
+    pub endless_method: bool,
+    /// Style/FetchEnvVar: HashLookupMethod leaves `ENV` lookups to it.
+    pub fetch_env_var: bool,
+    /// Style/BitwisePredicate: NumericPredicate leaves bitwise comparisons to it.
+    pub bitwise_predicate: bool,
+    /// Style/GuardClause and Style/UnlessElse: MissingElse's exemptions.
+    pub guard_clause: bool,
+    pub unless_else: bool,
+    /// Style/MissingElse: EmptyElse keeps the clauses it requires.
+    pub missing_else: bool,
+    /// Style/FrozenStringLiteralComment, for EmptyLiteral.
+    pub frozen_string_literal_comment: bool,
+    /// Style/DigChain: SingleArgumentDig leaves chains to it.
+    pub dig_chain: bool,
+    /// Lint/ConstantResolution: RedundantConstantBase defers to it.
+    pub constant_resolution: bool,
+    /// Layout/SingleLineBlockChain: RedundantLineBreak defers chains on
+    /// single-line blocks to it.
+    pub single_line_block_chain: bool,
+    /// Layout/SpaceInsideParens: SpaceAroundBlockParameters leaves the inside
+    /// of a lambda's parameter parentheses to it.
+    pub space_inside_parens: bool,
+    /// Style/StringLiterals is disabled or prefers single quotes, for the cops
+    /// that write a string literal (RuboCop's `StringLiteralsHelp`).
+    pub single_quotes: bool,
 }
 
 /// One registered cop's per-file investigation facts. Absence from the universe

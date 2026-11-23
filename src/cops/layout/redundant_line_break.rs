@@ -48,7 +48,7 @@ use ruby_prism::Node;
 
 use crate::{
     cops::{
-        Cop, NodeContext,
+        Companions, Cop, NodeContext,
         ast::fingerprint_folding_strings,
         reparse::{self, Equivalence},
         walk::{NodeVisitor, walk},
@@ -91,17 +91,10 @@ impl Cop for RedundantLineBreak {
         false
     }
 
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            max_line_length: max,
-            single_line_block_chain: self.single_line_block_chain,
-        }))
-    }
-
-    fn with_single_line_block_chain(&self, enabled: bool) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self {
-            max_line_length: self.max_line_length,
-            single_line_block_chain: enabled,
+            max_line_length: companions.line_length_limit,
+            single_line_block_chain: companions.single_line_block_chain,
         }))
     }
 

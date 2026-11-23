@@ -295,7 +295,6 @@ fn metadata() {
     assert!(cop.safe_fixes());
     assert!(cop.autocorrect_incompatible_with().is_empty());
     assert!(cop.max_setting().is_none() && cop.path_policy().is_none());
-    assert!(cop.with_space_inside_parens(false).is_some());
 }
 
 #[test]

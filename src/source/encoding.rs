@@ -30,6 +30,38 @@ mod naming_uppercase;
 
 type CharacterWidth = unsafe extern "C" fn(*const u8, isize) -> usize;
 
+/// Prism's entry for an encoding name or alias, from its static table.
+fn find(name: &[u8]) -> Option<&'static pm_encoding_t> {
+    // SAFETY: the pointers delimit `name`. Prism returns null or an entry of
+    // its immutable, process-lifetime encoding table.
+    unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() }
+}
+
+/// The canonical name of the encoding `name` names, e.g. `UTF-8` for `utf8`.
+fn canonical_name(name: &[u8]) -> Option<&'static [u8]> {
+    // SAFETY: table entries have NUL-terminated, process-lifetime names.
+    find(name).map(|encoding| unsafe { std::ffi::CStr::from_ptr(encoding.name) }.to_bytes())
+}
+
+/// Calls one of Prism's per-encoding character callbacks on `bytes`.
+fn call(callback: CharacterWidth, bytes: &[u8]) -> usize {
+    // SAFETY: Prism's callbacks are stateless and read at most `n` bytes from
+    // the pointer, none when `n` is 0.
+    unsafe { callback(bytes.as_ptr(), bytes.len() as isize) }
+}
+
+/// Whether `width` splits all of `bytes` into characters.
+fn valid_with(width: CharacterWidth, mut bytes: &[u8]) -> bool {
+    while !bytes.is_empty() {
+        let size = call(width, bytes);
+        if size == 0 || size > bytes.len() {
+            return false;
+        }
+        bytes = &bytes[size..];
+    }
+    true
+}
+
 #[cfg(test)]
 thread_local! {
     pub(super) static WIDTH_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
@@ -453,9 +485,7 @@ impl ParsedEncoding {
         let Some(char_width) = self.char_width.filter(|_| !bytes[0].is_ascii()) else {
             return 1;
         };
-        // SAFETY: bytes is nonempty and valid for its supplied length.
-        // Prism callbacks read at most that length and have no state.
-        unsafe { char_width(bytes.as_ptr(), bytes.len() as isize) }.max(1)
+        call(char_width, bytes).max(1)
     }
 
     /// Bounded first projected character. Prism exposes CESU-8 surrogate halves
@@ -514,9 +544,8 @@ impl ParsedEncoding {
         if !self.legacy_alnum.is_empty() {
             return encoded_alnum;
         }
-        // SAFETY: same immutable encoding callback contract as width above.
         self.single_byte_alnum
-            .is_some_and(|classify| unsafe { classify(bytes.as_ptr(), bytes.len() as isize) != 0 })
+            .is_some_and(|classify| call(classify, bytes) != 0)
     }
 
     pub fn contains_lowercase(self, bytes: &[u8]) -> bool {
@@ -592,19 +621,9 @@ impl ParsedEncoding {
         false
     }
 
-    pub fn valid(self, mut bytes: &[u8]) -> bool {
-        let Some(width) = self.validation_width else {
-            return false;
-        };
-        while !bytes.is_empty() {
-            // SAFETY: immutable Prism callback, bounded by the live slice.
-            let size = unsafe { width(bytes.as_ptr(), bytes.len() as isize) };
-            if size == 0 || size > bytes.len() {
-                return false;
-            }
-            bytes = &bytes[size..];
-        }
-        true
+    pub fn valid(self, bytes: &[u8]) -> bool {
+        self.validation_width
+            .is_some_and(|width| valid_with(width, bytes))
     }
 
     /// /i/ folds needed by the fixed InclusiveLanguage terms. Existing generated
@@ -693,13 +712,9 @@ impl ParsedEncoding {
 }
 
 fn encoding_is(name: &[u8], wanted: &[u8]) -> bool {
-    // SAFETY: both pointer pairs delimit their respective live slices.
-    // Alias lookup returns the same immutable encoding-table entry; comparing
-    // pointers distinguishes UTF-8 aliases from CESU-8 and UTF8-MAC.
-    unsafe {
-        pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len()))
-            == pm_encoding_find(wanted.as_ptr(), wanted.as_ptr().add(wanted.len()))
-    }
+    // Aliases share one table entry; comparing entries distinguishes UTF-8
+    // aliases from CESU-8 and UTF8-MAC.
+    find(name).map(std::ptr::from_ref) == find(wanted).map(std::ptr::from_ref)
 }
 
 // Parser::Source::Buffer recognizes only column-zero comments, after *any*
@@ -727,12 +742,7 @@ fn match_pattern_encoding(source: &[u8]) -> &'static [u8] {
         return b"UTF-8";
     };
     let name = (1..=3).find_map(|i| captures.get(i)).unwrap().as_bytes();
-    // SAFETY: lookup returns an immutable, process-lifetime canonical name.
-    let encoding =
-        unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() };
-    encoding.map_or(b"UTF-8", |e| {
-        unsafe { std::ffi::CStr::from_ptr(e.name) }.to_bytes()
-    })
+    canonical_name(name).unwrap_or(b"UTF-8")
 }
 
 /// Validate source-buffer bytes beyond Prism's token-only acceptance, including
@@ -768,19 +778,7 @@ pub(super) fn source_buffer_error(result: &ParseResult<'_>) -> Option<String> {
     let valid = if name == b"UTF-8" {
         std::str::from_utf8(source).is_ok()
     } else if let Some(width) = validation_width(name) {
-        let mut bytes = source;
-        while !bytes.is_empty() {
-            // SAFETY: immutable codec callback, bounded by this live slice.
-            let size = unsafe { width(bytes.as_ptr(), bytes.len() as isize) };
-            if size == 0 || size > bytes.len() {
-                return Some(format!(
-                    "Invalid byte sequence in {}.",
-                    String::from_utf8_lossy(name).to_ascii_lowercase()
-                ));
-            }
-            bytes = &bytes[size..];
-        }
-        true
+        valid_with(width, source)
     } else {
         // Main Prism already rejects unknown/unusable source codecs. Do not
         // invent a buffer exception for a codec we cannot validate here.
@@ -812,10 +810,7 @@ fn legacy_case_ranges<T: 'static>(
     name: &[u8],
     ranges: fn(&[u8]) -> &'static [T],
 ) -> Option<&'static [T]> {
-    // SAFETY: same immutable, process-lifetime encoding lookup as below.
-    let encoding =
-        unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() }?;
-    let name = unsafe { std::ffi::CStr::from_ptr(encoding.name) }.to_bytes();
+    let name = canonical_name(name)?;
     if name == b"UTF-8" || name.starts_with(b"UTF8") || name == b"CESU-8" {
         None
     } else {
@@ -824,22 +819,13 @@ fn legacy_case_ranges<T: 'static>(
 }
 
 fn legacy_alnum(name: &[u8]) -> &'static [(u32, u32)] {
-    // SAFETY: alias lookup returns an immutable, process-lifetime entry with a
-    // NUL-terminated canonical name. No source/parse pointer is retained.
-    let Some(encoding) =
-        (unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() })
-    else {
-        return &[];
-    };
-    let name = unsafe { std::ffi::CStr::from_ptr(encoding.name) }.to_bytes();
-    escape_alnum::ranges(name)
+    canonical_name(name)
+        .map(escape_alnum::ranges)
+        .unwrap_or_default()
 }
 
 fn legacy_word(name: &[u8]) -> Option<&'static [(u32, u32)]> {
-    // SAFETY: immutable process-lifetime Prism encoding entry and canonical name.
-    let encoding =
-        unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() }?;
-    let name = unsafe { std::ffi::CStr::from_ptr(encoding.name) }.to_bytes();
+    let name = canonical_name(name)?;
     if matches!(
         name,
         b"UTF-8"
@@ -858,20 +844,13 @@ fn legacy_word(name: &[u8]) -> Option<&'static [(u32, u32)]> {
 }
 
 fn word_expansions(name: &[u8]) -> &'static [(&'static [u8], usize)] {
-    // SAFETY: immutable process-lifetime canonical encoding name, as above.
-    let Some(encoding) =
-        (unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() })
-    else {
-        return &[];
-    };
-    let name = unsafe { std::ffi::CStr::from_ptr(encoding.name) }.to_bytes();
-    word_array_classes::expansions(name)
+    canonical_name(name)
+        .map(word_array_classes::expansions)
+        .unwrap_or_default()
 }
 
 fn single_byte_alnum(name: &[u8]) -> Option<CharacterWidth> {
-    // SAFETY: the pointer pair delimits a live slice; the result is immutable.
-    let encoding =
-        unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() }?;
+    let encoding = find(name)?;
     if encoding.multibyte {
         None
     } else {
@@ -880,16 +859,11 @@ fn single_byte_alnum(name: &[u8]) -> Option<CharacterWidth> {
 }
 
 fn validation_width(name: &[u8]) -> Option<CharacterWidth> {
-    // SAFETY: lookup returns an immutable, process-lifetime encoding entry.
-    unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() }?.char_width
+    find(name)?.char_width
 }
 
 fn character_width(name: &[u8]) -> Option<CharacterWidth> {
-    // SAFETY: both pointers delimit the same live slice. The returned pointer
-    // is null or points to Prism's immutable, process-lifetime encoding table.
-    let encoding =
-        unsafe { pm_encoding_find(name.as_ptr(), name.as_ptr().add(name.len())).as_ref() };
-    let Some(encoding) = encoding else {
+    let Some(encoding) = find(name) else {
         // Prism leaves the default UTF-8 encoding in place for an unknown name
         // and emits a diagnostic. Column mapping must work for that case too.
         return character_width(b"UTF-8");

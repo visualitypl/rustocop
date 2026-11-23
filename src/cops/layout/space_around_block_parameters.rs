@@ -41,7 +41,7 @@ use std::ops::Range;
 use ruby_prism::Node;
 
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -189,9 +189,9 @@ impl Cop for SpaceAroundBlockParameters {
         true
     }
 
-    fn with_space_inside_parens(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            space_inside_parens: enabled,
+            space_inside_parens: companions.space_inside_parens,
         }))
     }
 

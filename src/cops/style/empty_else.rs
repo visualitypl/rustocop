@@ -1,7 +1,7 @@
 //! `Style/EmptyElse` — fixed `both`, `AllowComments: false`.
 
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -19,9 +19,9 @@ impl Cop for EmptyElse {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_empty_else_missing_else(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            missing_else: enabled,
+            missing_else: companions.missing_else,
         }))
     }
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {

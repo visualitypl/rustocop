@@ -1,6 +1,6 @@
 //! `Style/EmptyLiteral` — prefer empty literals to exact core constructor shapes.
 use crate::{
-    cops::{Cop, NodeContext, ast},
+    cops::{Companions, Cop, NodeContext, ast},
     offense::{Correction, Offense, single_line},
     source::SourceFile,
 };
@@ -19,16 +19,10 @@ impl Cop for EmptyLiteral {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_frozen_string_comment(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            frozen_comment_enabled: enabled,
-            single_quotes: self.single_quotes,
-        }))
-    }
-    fn with_single_quoted_strings(&self, single: bool) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self {
-            frozen_comment_enabled: self.frozen_comment_enabled,
-            single_quotes: single,
+            frozen_comment_enabled: companions.frozen_string_literal_comment,
+            single_quotes: companions.single_quotes,
         }))
     }
     fn check_node<'pr>(

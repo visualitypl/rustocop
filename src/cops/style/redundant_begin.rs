@@ -1,7 +1,7 @@
 //! `Style/RedundantBegin` — redundant explicit exception/grouping wrappers.
 use crate::{
     cops::{
-        Cop, NodeContext,
+        Companions, Cop, NodeContext,
         walk::{NodeVisitor, walk},
     },
     offense::Offense,
@@ -37,8 +37,10 @@ impl Cop for RedundantBegin {
     fn autocorrect_incompatible_with(&self) -> &'static [&'static str] {
         &["Style/BlockDelimiters"]
     }
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self { max }))
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            max: companions.line_length_limit,
+        }))
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
         node.as_begin_node().is_some()

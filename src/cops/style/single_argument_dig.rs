@@ -1,7 +1,7 @@
 //! `Style/SingleArgumentDig` — prefer indexing for ordinary one-key dig calls.
 use super::dig_chain::literal_block;
 use crate::{
-    cops::{Cop, NodeContext, ast},
+    cops::{Companions, Cop, NodeContext, ast},
     offense::{Offense, single_line},
     source::SourceFile,
 };
@@ -24,9 +24,9 @@ impl Cop for SingleArgumentDig {
     fn unsafe_fixes(&self) -> bool {
         true
     }
-    fn with_dig_chain(&self, enabled: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            dig_chain_enabled: enabled,
+            dig_chain_enabled: companions.dig_chain,
         }))
     }
     fn wants_node(&self, node: &Node<'_>) -> bool {
@@ -125,10 +125,10 @@ mod tests {
             let enabled = case["toml"]["Style/DigChain"]["enabled"]
                 .as_bool()
                 .unwrap_or(true);
-            let cop = super::SingleArgumentDig::default()
-                .with_dig_chain(enabled)
-                .unwrap();
-            let found = correction_offenses(cop.as_ref(), case["source"].as_str().unwrap());
+            let cop = super::SingleArgumentDig {
+                dig_chain_enabled: enabled,
+            };
+            let found = correction_offenses(&cop, case["source"].as_str().unwrap());
             let mut actual: Vec<_> = found
                 .iter()
                 .map(|o| (o.line, o.col, o.message.as_str()))

@@ -5,7 +5,7 @@ use super::if_unless_modifier::{
 };
 use crate::{
     cops::{
-        Cop, NodeContext, variables,
+        Companions, Cop, NodeContext, variables,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -75,8 +75,10 @@ impl Cop for WhileUntilModifier {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
-        Some(Box::new(Self { max }))
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Self {
+            max: companions.line_length_limit,
+        }))
     }
     fn check_node<'pr>(
         &self,

@@ -1,6 +1,6 @@
 //! `Style/EmptyHeredoc` — raw-empty string heredocs, never command heredocs.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -14,9 +14,9 @@ impl Cop for EmptyHeredoc {
     fn name(&self) -> &'static str {
         "Style/EmptyHeredoc"
     }
-    fn with_single_quoted_strings(&self, single: bool) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            single_quotes: single,
+            single_quotes: companions.single_quotes,
         }))
     }
     fn safe_fixes(&self) -> bool {

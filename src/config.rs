@@ -257,14 +257,17 @@ impl ResolvedConfig {
         // The quotes that other cops take from Style/StringLiterals: those of
         // its style, and single quotes when the cop is disabled, as in
         // RuboCop.
+        // Whether the configuration enables a cop that others follow: its own
+        // setting, else its department's, else its default.
+        let own = |name: &str| cop_settings.get(name).and_then(|s| s.enabled);
+        let enabled = |name: &str| {
+            own(name)
+                .or_else(|| own(name.split('/').next().unwrap_or(name)))
+                .unwrap_or_else(|| crate::cops::policy::default_enabled(name))
+        };
         let style = |cop: &str| settings.get(cop)?.choice("enforced_style");
-        let string_literals = cop_settings
-            .get("Style/StringLiterals")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Style").and_then(|s| s.enabled))
-            .unwrap_or(true);
-        let single_quotes =
-            !string_literals || style("Style/StringLiterals") == Some("single_quotes");
+        let single_quotes = !enabled("Style/StringLiterals")
+            || style("Style/StringLiterals") == Some("single_quotes");
         // Quoted symbols have them unless Style/QuotedSymbols names a style
         // of its own.
         if let None | Some("same_as_string_literals") = style("Style/QuotedSymbols")
@@ -285,142 +288,33 @@ impl ResolvedConfig {
             configured.insert(name.clone(), cop);
         }
 
-        // Style rules that construct guard/modifier examples use the configured
-        // LineLength policy even when --only selects just the Style rule.
-        let line_length_enabled = cop_settings
-            .get("Layout/LineLength")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Layout").and_then(|s| s.enabled))
-            .unwrap_or(true);
-        let line_length_max = settings
-            .get("Layout/LineLength")
-            .and_then(|v| v.count("max"));
-        let line_length_limit = line_length_enabled.then(|| line_length_max.unwrap_or(120));
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_line_length_limit(line_length_limit) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        let endless_enabled = cop_settings
-            .get("Style/EndlessMethod")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Style").and_then(|s| s.enabled))
-            .unwrap_or(true);
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_endless_methods(endless_enabled) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        let fetch_env_enabled = cop_settings
-            .get("Style/FetchEnvVar")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Style").and_then(|s| s.enabled))
-            .unwrap_or(true);
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_fetch_env_var(fetch_env_enabled) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        let bitwise_enabled = cop_settings
-            .get("Style/BitwisePredicate")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Style").and_then(|s| s.enabled))
-            .unwrap_or(true);
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_bitwise_predicate(bitwise_enabled) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        let companion_enabled = |name: &str| {
-            cop_settings
-                .get(name)
-                .and_then(|s| s.enabled)
-                .or_else(|| cop_settings.get("Style").and_then(|s| s.enabled))
-                .unwrap_or_else(|| crate::cops::policy::default_enabled(name))
+        let companions = crate::cops::Companions {
+            line_length_limit: enabled("Layout/LineLength").then(|| {
+                settings
+                    .get("Layout/LineLength")
+                    .and_then(|v| v.count("max"))
+                    .unwrap_or(120)
+            }),
+            endless_method: enabled("Style/EndlessMethod"),
+            fetch_env_var: enabled("Style/FetchEnvVar"),
+            bitwise_predicate: enabled("Style/BitwisePredicate"),
+            guard_clause: enabled("Style/GuardClause"),
+            unless_else: enabled("Style/UnlessElse"),
+            missing_else: enabled("Style/MissingElse"),
+            frozen_string_literal_comment: enabled("Style/FrozenStringLiteralComment"),
+            dig_chain: enabled("Style/DigChain"),
+            constant_resolution: enabled("Lint/ConstantResolution"),
+            // Upstream's `cop_enabled?`: only the cop's own setting enables
+            // the opt-in SingleLineBlockChain, never its department.
+            single_line_block_chain: own("Layout/SingleLineBlockChain").unwrap_or(false),
+            space_inside_parens: enabled("Layout/SpaceInsideParens"),
+            single_quotes,
         };
         for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_missing_else_companions(
-                companion_enabled("Style/GuardClause"),
-                companion_enabled("Style/UnlessElse"),
-            ) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        for cop in registry.cops() {
-            if let Some(configured_cop) =
-                cop.with_empty_else_missing_else(companion_enabled("Style/MissingElse"))
-            {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop
-                .with_frozen_string_comment(companion_enabled("Style/FrozenStringLiteralComment"))
-            {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_dig_chain(companion_enabled("Style/DigChain")) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        let constant_resolution_enabled = cop_settings
-            .get("Lint/ConstantResolution")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Lint").and_then(|s| s.enabled))
-            .unwrap_or(false);
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_constant_resolution(constant_resolution_enabled)
-            {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        // Upstream's `cop_enabled?`: only the cop's own configured setting
-        // enables the opt-in SingleLineBlockChain (never its department).
-        let single_line_block_chain = cop_settings
-            .get("Layout/SingleLineBlockChain")
-            .and_then(|s| s.enabled)
-            .unwrap_or(false);
-        for cop in registry.cops() {
             let base = configured
                 .get(cop.name())
                 .map_or(cop.as_ref(), |configured| configured.as_ref());
-            if let Some(configured_cop) = base.with_single_line_block_chain(single_line_block_chain)
-            {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        // Upstream's `cop_enabled?`: the configured Layout/SpaceInsideParens,
-        // or its department, never the CLI selection.
-        let space_inside_parens = cop_settings
-            .get("Layout/SpaceInsideParens")
-            .and_then(|s| s.enabled)
-            .or_else(|| cop_settings.get("Layout").and_then(|s| s.enabled))
-            .unwrap_or(true);
-        for cop in registry.cops() {
-            if let Some(configured_cop) = cop.with_space_inside_parens(space_inside_parens) {
-                configured.insert(cop.name().to_owned(), configured_cop);
-            }
-        }
-
-        // The cops that write a string literal take its quotes from
-        // Style/StringLiterals, on top of what else configures them.
-        for cop in registry.cops() {
-            let base = configured
-                .get(cop.name())
-                .map_or(cop.as_ref(), |configured| configured.as_ref());
-            if let Some(configured_cop) = base.with_single_quoted_strings(single_quotes) {
+            if let Some(configured_cop) = base.with_companions(&companions) {
                 configured.insert(cop.name().to_owned(), configured_cop);
             }
         }

@@ -1,6 +1,6 @@
 //! `Style/MissingElse` — opt-in exhaustive ordinary conditionals (fixed `both`).
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::Offense,
     source::SourceFile,
 };
@@ -26,14 +26,10 @@ impl Cop for MissingElse {
     fn safe_fixes(&self) -> bool {
         true
     }
-    fn with_missing_else_companions(
-        &self,
-        guard_clause: bool,
-        unless_else: bool,
-    ) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            guard_clause,
-            unless_else,
+            guard_clause: companions.guard_clause,
+            unless_else: companions.unless_else,
         }))
     }
     fn check_node<'pr>(

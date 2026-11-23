@@ -3,7 +3,7 @@
 use ruby_prism::{Location, Node, StatementsNode};
 
 use crate::{
-    cops::{Cop, NodeContext, variables},
+    cops::{Companions, Cop, NodeContext, variables},
     offense::{Correction, Offense},
     source::SourceFile,
 };
@@ -33,9 +33,9 @@ impl Cop for GuardClause {
         &["Style/MissingElse"]
     }
 
-    fn with_line_length_limit(&self, max: Option<usize>) -> Option<Box<dyn Cop>> {
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
-            max_line_length: max,
+            max_line_length: companions.line_length_limit,
         }))
     }
 
