@@ -137,7 +137,7 @@ fn correction_validation_rejects_ruby_4_logical_chains_without_writing() {
         assert_eq!(report.errors.len(), 1);
         assert_eq!(
             report.errors[0].message,
-            "corrections failed validation; file left unchanged"
+            "corrections of Style/VersionFix failed validation and were not applied"
         );
         assert_eq!(fs::read(&path).unwrap(), b"before\n");
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
@@ -199,7 +199,7 @@ fn corrections_that_exceed_the_ast_depth_budget_are_not_written() {
     assert_eq!(report.errors.len(), 1);
     assert_eq!(
         report.errors[0].message,
-        "corrections failed validation; file left unchanged"
+        "corrections of Style/DeepFix failed validation and were not applied"
     );
     assert_eq!(fs::read_to_string(dir.path().join("x.rb")).unwrap(), source);
 }
@@ -256,7 +256,7 @@ fn corrections_that_exhaust_parser_budgets_are_not_written() {
         assert_eq!(report.errors.len(), 1);
         assert_eq!(
             report.errors[0].message,
-            "corrections failed validation; file left unchanged"
+            "corrections of Style/ParserBudgetFix failed validation and were not applied"
         );
         assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), b"before\n");
         assert_eq!(fs::read_dir(dir.path()).unwrap().count(), 1);
@@ -692,6 +692,29 @@ fn rewriting(steps: &[(&'static str, &'static [u8], &'static str)]) -> Registry 
 }
 
 #[test]
+fn a_cop_whose_edits_break_the_file_does_not_block_the_others() {
+    let registry = rewriting(&[
+        ("Style/Breaks", b"broken", "("),
+        ("Style/Works", b"before", "after"),
+    ]);
+    let (dir, config) = project("before\nbroken\nbefore\n");
+    let report = run_project(dir.path(), &config, &registry, true);
+    assert_eq!(
+        fs::read(dir.path().join("x.rb")).unwrap(),
+        b"after\nbroken\nafter\n"
+    );
+    assert_eq!(report.corrections_applied, 2);
+    assert_eq!(report.offense_count(), 1);
+    assert!(report.internal_errors.is_empty());
+    assert_eq!(report.errors.len(), 1);
+    assert_eq!(
+        report.errors[0].message,
+        "corrections of Style/Breaks failed validation and were not applied"
+    );
+    assert_eq!(report.exit_code(), EXIT_ERRORS);
+}
+
+#[test]
 fn a_fix_run_repeats_passes_until_nothing_changes() {
     let registry = rewriting(&[
         ("Style/First", b"first", "second"),
@@ -764,7 +787,8 @@ fn a_later_pass_that_fails_validation_keeps_the_earlier_passes() {
     );
     assert_eq!(report.errors.len(), 1);
     assert!(
-        report.errors[0].message.contains("failed validation after"),
+        report.errors[0].message
+            == "corrections of Style/Deep failed validation and were not applied",
         "{:?}",
         report.errors
     );

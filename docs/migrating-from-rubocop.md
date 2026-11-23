@@ -177,3 +177,7 @@ when the project declares Ruby 4.0. Older target versions are checked as Ruby
   [differences](usage.md#output-formats).
 - **Unsafe corrections** (`-A`) are being ported cop by cop; a cop without
   one reports its offense and leaves the code as it is.
+- **Corrections that break the file** are not written. Where RuboCop's
+  correction produces invalid Ruby, rustocop applies the other cops'
+  corrections and reports the cop whose edits it left out (see
+  [Autocorrection](usage.md#autocorrection)).

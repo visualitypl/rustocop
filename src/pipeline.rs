@@ -912,10 +912,11 @@ fn sort_global_offenses(offenses: &mut [GlobalOffense]) {
 
 /// Merge eligible corrections across aliases, repeat passes in memory until a
 /// pass changes nothing, write once, and retain a separate post-fix report for
-/// each display path. A first pass that fails validation prevents the write;
-/// a later one keeps the passes already validated. Passes stop with an error
-/// when one restores an earlier version of the file or the built-in limit is
-/// reached; an explicit `--fix-passes` limit stops without an error.
+/// each display path. When a pass fails validation, the edits of the cops
+/// that broke it are withheld for the rest of the file, with an error, and
+/// the pass is retried without them. Passes stop with an error when one
+/// restores an earlier version of the file or the built-in limit is reached;
+/// an explicit `--fix-passes` limit stops without an error.
 fn correct_files(
     read_path: &Path,
     original: &[u8],
@@ -946,6 +947,15 @@ fn correct_files(
     let mut total = 0;
     let mut done = 0;
     let mut stopped = None;
+    // Cops whose edits made a pass fail validation: their corrections are
+    // withheld for the rest of the file, and the other cops' still apply.
+    let mut withheld: Vec<&'static str> = Vec::new();
+    let mut withheld_panics = Vec::new();
+    let invalid = |reports: &[FileReport]| {
+        reports
+            .iter()
+            .any(|report| !report.errors.is_empty() || !report.internal_errors.is_empty())
+    };
     loop {
         let (source, pending) = accepted
             .as_ref()
@@ -956,14 +966,15 @@ fn correct_files(
             .iter()
             .flat_map(|report| &report.result.offenses)
             .filter(|offense| {
-                active.enabled.iter().chain(&active.disabled).any(|cop| {
-                    cop.name() == offense.cop
-                        && (cop.safe_fixes() || passes.unsafe_fixes && cop.unsafe_fixes())
-                })
+                !withheld.contains(&offense.cop)
+                    && active.enabled.iter().chain(&active.disabled).any(|cop| {
+                        cop.name() == offense.cop
+                            && (cop.safe_fixes() || passes.unsafe_fixes && cop.unsafe_fixes())
+                    })
             })
             .cloned()
             .collect();
-        let mut applied = match crate::corrections::apply(source, &safe) {
+        let applied = match crate::corrections::apply(source, &safe) {
             Ok(applied) => applied,
             Err(error) => {
                 stopped = Some(format!("could not apply corrections: {error}"));
@@ -973,15 +984,7 @@ fn correct_files(
         if applied.count == 0 {
             break;
         }
-        // RuboCop's Parser buffer reads `\r\n` as `\n`, so a corrected file
-        // has LF line endings throughout, literals and data included.
-        if memchr::memmem::find(&applied.bytes, b"\r\n").is_some() {
-            let bytes = &applied.bytes;
-            applied.bytes = (0..bytes.len())
-                .filter(|&i| !(bytes[i] == b'\r' && bytes.get(i + 1) == Some(&b'\n')))
-                .map(|i| bytes[i])
-                .collect();
-        }
+        let bytes = lf_line_endings(applied.bytes);
         if done == max_passes {
             if !passes.explicit {
                 stopped = Some(format!(
@@ -995,7 +998,7 @@ fn correct_files(
         } else {
             CorrectionMode::Collect
         };
-        if max_passes > 1 && !seen.insert(content_key(&applied.bytes)) {
+        if max_passes > 1 && !seen.insert(content_key(&bytes)) {
             stopped = Some(
                 "corrections restored an earlier version of the file; later passes were skipped"
                     .into(),
@@ -1004,61 +1007,57 @@ fn correct_files(
         }
         // Re-lint each display path once per pass to validate the new Ruby and
         // report current positions (including unsafe, unfixable and deferred edits).
-        let mut next: Vec<_> = pending
-            .iter()
-            .map(|report| {
-                lint_one_in_mode(
-                    read_path,
-                    &report.result.path,
-                    SourceInput::DiskSnapshot(&applied.bytes, metadata),
-                    active,
-                    config,
-                    relint_mode,
-                )
-            })
-            .collect();
-        if next
-            .iter()
-            .any(|report| !report.errors.is_empty() || !report.internal_errors.is_empty())
-        {
-            let Some((_, kept)) = accepted.as_mut() else {
-                for (report, corrected) in reports.iter_mut().zip(&mut next) {
-                    if !corrected.errors.is_empty() || !corrected.internal_errors.is_empty() {
-                        report.errors.push(LintError {
-                            path: report.result.path.clone(),
-                            position: None,
-                            message: "corrections failed validation; file left unchanged".into(),
-                        });
-                        report
-                            .internal_errors
-                            .append(&mut corrected.internal_errors);
-                    }
-                }
-                return reports;
-            };
-            for (report, corrected) in kept.iter_mut().zip(&mut next) {
-                report
-                    .internal_errors
-                    .append(&mut corrected.internal_errors);
+        let relint = |bytes: &[u8]| -> Vec<FileReport> {
+            pending
+                .iter()
+                .map(|report| {
+                    lint_one_in_mode(
+                        read_path,
+                        &report.result.path,
+                        SourceInput::DiskSnapshot(bytes, metadata),
+                        active,
+                        config,
+                        relint_mode,
+                    )
+                })
+                .collect()
+        };
+        let mut next = relint(&bytes);
+        if invalid(&next) {
+            // `safe` has no withheld cop, so each round withholds new ones.
+            let breaking = breaking_cops(source, &safe, |bytes| invalid(&relint(bytes)));
+            if breaking.is_empty() {
+                stopped = Some("corrections failed validation".into());
+                break;
             }
-            stopped = Some(format!(
-                "corrections failed validation after {done} applied passes; \
-                 later corrections were not applied"
-            ));
-            break;
+            withheld.extend(breaking);
+            for report in &mut next {
+                withheld_panics.append(&mut report.internal_errors);
+            }
+            continue;
         }
         total += applied.count;
         done += 1;
-        accepted = Some((applied.bytes, next));
+        accepted = Some((bytes, next));
     }
+    let withheld = (!withheld.is_empty()).then(|| LintError {
+        path: display_path.clone(),
+        position: None,
+        message: format!(
+            "corrections of {} failed validation and were not applied",
+            withheld.join(", ")
+        ),
+    });
+    let stopped = stopped.map(|message| LintError {
+        path: display_path.clone(),
+        position: None,
+        message,
+    });
     let Some((bytes, mut corrected)) = accepted else {
-        if let Some(message) = stopped {
-            reports[0].errors.push(LintError {
-                path: display_path,
-                position: None,
-                message,
-            });
-        }
+        reports[0]
+            .errors
+            .extend(withheld.into_iter().chain(stopped));
+        reports[0].internal_errors.append(&mut withheld_panics);
         return reports;
     };
     if let Err(error) = write_corrected(read_path, original, &bytes) {
@@ -1070,14 +1069,59 @@ fn correct_files(
         return reports;
     }
     corrected[0].corrections_applied = total;
-    if let Some(message) = stopped {
-        corrected[0].errors.push(LintError {
-            path: display_path,
-            position: None,
-            message,
-        });
-    }
+    corrected[0]
+        .errors
+        .extend(withheld.into_iter().chain(stopped));
+    corrected[0].internal_errors.append(&mut withheld_panics);
     corrected
+}
+
+/// RuboCop's Parser buffer reads `\r\n` as `\n`, so a corrected file has
+/// LF line endings throughout, literals and data included.
+fn lf_line_endings(bytes: Vec<u8>) -> Vec<u8> {
+    if memchr::memmem::find(&bytes, b"\r\n").is_none() {
+        return bytes;
+    }
+    (0..bytes.len())
+        .filter(|&i| !(bytes[i] == b'\r' && bytes.get(i + 1) == Some(&b'\n')))
+        .map(|i| bytes[i])
+        .collect()
+}
+
+/// The cops whose corrections make `source` `invalid`: each cop's edits are
+/// tried, in order of their first offense, on top of those of the cops
+/// before it that passed. RuboCop writes such corrections even when they
+/// break the file; here only the breaking cops' edits are dropped.
+// One validation per cop with edits, only on a failing pass;
+// bisect the cops if that ever shows up in a profile.
+fn breaking_cops(
+    source: &[u8],
+    safe: &[Offense],
+    invalid: impl Fn(&[u8]) -> bool,
+) -> Vec<&'static str> {
+    let mut cops: Vec<&'static str> = Vec::new();
+    for offense in safe {
+        if !cops.contains(&offense.cop) {
+            cops.push(offense.cop);
+        }
+    }
+    let mut passed: Vec<&'static str> = Vec::new();
+    let mut breaking = Vec::new();
+    for cop in cops {
+        let trial: Vec<Offense> = safe
+            .iter()
+            .filter(|offense| offense.cop == cop || passed.contains(&offense.cop))
+            .cloned()
+            .collect();
+        let valid = crate::corrections::apply(source, &trial)
+            .is_ok_and(|applied| !invalid(&lf_line_endings(applied.bytes)));
+        if valid {
+            passed.push(cop);
+        } else {
+            breaking.push(cop);
+        }
+    }
+    breaking
 }
 
 fn content_key(bytes: &[u8]) -> (usize, u64) {
