@@ -7,7 +7,7 @@ use std::{
     path::Path,
 };
 
-use serde_json::{Value, json};
+use serde::Serialize;
 
 use crate::{cops::Registry, pipeline::RunReport};
 
@@ -118,32 +118,78 @@ pub fn render_offenses(report: &RunReport) -> String {
 ///   is a string in the `errors` of its file and counts in `error_count` of
 ///   the summary. Both keys are absent when there are no such errors.
 pub fn render_json(report: &RunReport, registry: &Registry) -> String {
+    // Typed and borrowed, not a `serde_json::Value` tree: a tree of a million
+    // offenses takes gigabytes. Fields are in alphabetical order, the order
+    // of RuboCop's keys in rustocop's output since 1.0.
+    #[derive(Serialize)]
+    struct Output<'a> {
+        files: Vec<File<'a>>,
+        metadata: Metadata,
+        summary: Summary,
+    }
+    #[derive(Serialize)]
+    struct Metadata {
+        rustocop_version: &'static str,
+    }
+    #[derive(Serialize)]
+    struct Summary {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        error_count: Option<usize>,
+        inspected_file_count: usize,
+        offense_count: usize,
+        target_file_count: usize,
+    }
+    #[derive(Serialize)]
+    struct File<'a> {
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        errors: Vec<String>,
+        offenses: Vec<JsonOffense<'a>>,
+        path: String,
+    }
+    #[derive(Serialize)]
+    struct JsonOffense<'a> {
+        cop_name: &'a str,
+        correctable: bool,
+        corrected: bool,
+        location: Location,
+        message: &'a str,
+        severity: &'a str,
+    }
+    #[derive(Serialize)]
+    struct Location {
+        column: u32,
+        last_column: u32,
+        last_line: u32,
+        length: u32,
+        line: u32,
+        start_column: u32,
+        start_line: u32,
+    }
+
     let cops = registry.cops().iter();
     let correctable: HashSet<&str> = cops
         .filter(|cop| cop.safe_fixes() || cop.unsafe_fixes())
         .map(|cop| cop.name())
         .collect();
-    let offense = |severity: &str, message: &str, cop: &str, (line, column): (u32, u32)| {
-        json!({
-            "severity": severity,
-            "message": message,
-            "cop_name": cop,
-            "corrected": false,
-            "correctable": correctable.contains(cop),
-            "location": {
-                "start_line": line,
-                "start_column": column,
-                "last_line": line,
-                "last_column": column,
-                "length": 1,
-                "line": line,
-                "column": column,
-            },
-        })
+    let offense = |severity, message, cop, (line, column): (u32, u32)| JsonOffense {
+        cop_name: cop,
+        correctable: correctable.contains(cop),
+        corrected: false,
+        location: Location {
+            column,
+            last_column: column,
+            last_line: line,
+            length: 1,
+            line,
+            start_column: column,
+            start_line: line,
+        },
+        message,
+        severity,
     };
 
     // The offenses and the errors of each file, in path order.
-    let mut files: BTreeMap<&Path, (Vec<Value>, Vec<String>)> = BTreeMap::new();
+    let mut files: BTreeMap<&Path, (Vec<JsonOffense<'_>>, Vec<String>)> = BTreeMap::new();
     for result in &report.results {
         let (offenses, _) = files.entry(&result.path).or_default();
         for found in &result.global_offenses {
@@ -173,28 +219,31 @@ pub fn render_json(report: &RunReport, registry: &Registry) -> String {
     }
 
     let (mut offense_count, mut error_count) = (0, 0);
-    let files: Vec<Value> = files
+    let files = files
         .into_iter()
         .map(|(path, (offenses, errors))| {
             offense_count += offenses.len();
             error_count += errors.len();
-            let mut file = json!({ "path": path.display().to_string(), "offenses": offenses });
-            if !errors.is_empty() {
-                file["errors"] = json!(errors);
+            File {
+                errors,
+                offenses,
+                path: path.display().to_string(),
             }
-            file
         })
         .collect();
-    let mut summary = json!({
-        "offense_count": offense_count,
-        "target_file_count": report.files_inspected,
-        "inspected_file_count": report.files_inspected,
-    });
-    if error_count > 0 {
-        summary["error_count"] = json!(error_count);
-    }
-    let metadata = json!({ "rustocop_version": env!("CARGO_PKG_VERSION") });
-    let mut out = json!({ "metadata": metadata, "files": files, "summary": summary }).to_string();
+    let output = Output {
+        files,
+        metadata: Metadata {
+            rustocop_version: env!("CARGO_PKG_VERSION"),
+        },
+        summary: Summary {
+            error_count: (error_count > 0).then_some(error_count),
+            inspected_file_count: report.files_inspected,
+            offense_count,
+            target_file_count: report.files_inspected,
+        },
+    };
+    let mut out = serde_json::to_string(&output).expect("JSON of strings and numbers");
     out.push('\n');
     out
 }
@@ -370,6 +419,7 @@ mod tests {
     use crate::isolation::CaughtPanic;
     use crate::offense::{GlobalOffense, Offense, Severity};
     use crate::pipeline::{FileResult, InternalError, LintError};
+    use serde_json::{Value, json};
     use std::path::PathBuf;
 
     fn sample_report() -> RunReport {
