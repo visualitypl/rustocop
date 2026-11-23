@@ -60,7 +60,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
 }
 type Finding = (u32, u32, u32, String);
 fn expected(row: &serde_json::Value, cop: &str) -> Vec<Finding> {
-    serde_json::from_value(row["findings"][cop].clone()).unwrap()
+    crate::support::fixture::value(&row["findings"][cop])
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn all_pinned_specs_documentation_syntactic_and_original_byte_controls_match_pip
         rustocop::cops::select_active(&registry, &config, &[FLIP.into(), EACH.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -117,7 +117,7 @@ fn all_pinned_specs_documentation_syntactic_and_original_byte_controls_match_pip
 fn every_fixture_matches_exact_rebuilt_cli_and_never_writes_even_when_fix_requested() {
     let dir = project();
     for row in rows() {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let has_findings = [FLIP, EACH].iter().any(|c| !expected(&row, c).is_empty());
         let out = unchanged(
             dir.path(),
@@ -438,7 +438,7 @@ fn native_ruby34_parses_every_reference_input_without_execution() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["-c", "-W0"])
             .stdin(Stdio::piped())

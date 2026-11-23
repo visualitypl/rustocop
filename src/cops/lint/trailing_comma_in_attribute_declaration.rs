@@ -87,7 +87,7 @@ mod tests {
             .into_iter()
             .filter(|r| r["cop"] == "Lint/TrailingCommaInAttributeDeclaration")
         {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let bytes: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let Ok(source) = std::str::from_utf8(&bytes) else {
                 continue;
             };
@@ -96,8 +96,7 @@ mod tests {
                 .filter(|o| o.cop == "Lint/TrailingCommaInAttributeDeclaration")
                 .map(|o| (o.line, o.col, o.end_line, o.message))
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(found, expected, "{row}");
         }
     }

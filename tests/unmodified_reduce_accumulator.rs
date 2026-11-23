@@ -26,7 +26,7 @@ fn rows() -> Vec<serde_json::Value> {
     rows.into_iter().chain(unicode).chain(heredoc).collect()
 }
 fn expected(row: &serde_json::Value) -> Vec<Finding> {
-    serde_json::from_value(row["findings"].clone()).unwrap()
+    crate::support::fixture::value(&row["findings"])
 }
 fn project() -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
@@ -72,7 +72,7 @@ fn all_original_byte_fixtures_match_exact_pipeline_or_explicit_parser_rejections
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -118,7 +118,7 @@ fn all_original_byte_fixtures_match_exact_pipeline_or_explicit_parser_rejections
 fn every_fixture_matches_exact_rebuilt_cli_lint_and_fix_without_writes() {
     parallel_rows!(for row in rows() => {
         let dir = project();
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let invalid =
             row.get("parser_rejection").is_some() || row.get("native_parser_rejection").is_some();
         let findings = if invalid { vec![] } else { expected(&row) };
@@ -399,7 +399,7 @@ fn native_ruby34_syntax_only_checks_all_reference_inputs() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["-c", "-W0"])
             .stdin(Stdio::piped())

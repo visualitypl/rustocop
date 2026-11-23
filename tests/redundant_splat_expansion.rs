@@ -260,14 +260,14 @@ fn native(source: &[u8], syntax: bool) -> Option<Output> {
 #[test]
 fn reference_inputs_are_only_syntax_checked_never_executed() {
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         if let Some(out) = native(&bytes, true) {
             let invalid = row.get("parser_rejection").is_some()
                 || row.get("native_scope_rejection").is_some();
             assert_eq!(out.status.success(), !invalid, "{row}\n{out:?}");
         }
         if let Some(after) = row.get("project_after") {
-            let bytes: Vec<u8> = serde_json::from_value(after.clone()).unwrap();
+            let bytes: Vec<u8> = crate::support::fixture::value(after);
             if let Some(out) = native(&bytes, true) {
                 assert!(out.status.success(), "{row}\n{out:?}");
             }

@@ -98,7 +98,7 @@ fn pinned_main_source_and_original_bytes_match_pipeline_without_edits() {
     let mut failures = Vec::new();
     for row in rows() {
         let cop = row["cop"].as_str().unwrap();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -127,7 +127,7 @@ fn pinned_main_source_and_original_bytes_match_pipeline_without_edits() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",
@@ -147,7 +147,7 @@ fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
     parallel_rows!(for row in rows() => {
         let dir = project();
         let cop = row["cop"].as_str().unwrap();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for fix in [false, true] {
             let mut args = vec!["--only", cop];
             if fix {
@@ -161,7 +161,7 @@ fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
                 );
                 continue;
             }
-            let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
             let out = unchanged(
                 dir.path(),
                 &bytes,
@@ -576,9 +576,9 @@ fn native_ruby34_syntax_only_never_execute_reference_inputs() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         if let Some(adapted) = row.get("capture_adaptation") {
-            let adapted: Vec<u8> = serde_json::from_value(adapted.clone()).unwrap();
+            let adapted: Vec<u8> = crate::support::fixture::value(adapted);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-W0", "-c"])
                 .stdin(Stdio::piped())

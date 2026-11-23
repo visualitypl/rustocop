@@ -480,8 +480,7 @@ mod tests {
                     (o.line, o.col, o.end_line, o.message.clone())
                 })
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(actual, expected, "{row}");
             checked += 1;
         }
@@ -632,7 +631,7 @@ mod tests {
         ))
         .unwrap();
         for row in rows {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let bytes: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let source = std::str::from_utf8(&bytes).unwrap();
             let found = crate::pipeline::lint_str_with(&[&super::UselessConstantScoping], source);
             let actual: Vec<_> = found
@@ -643,7 +642,7 @@ mod tests {
                 })
                 .collect();
             let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["raw_findings"].clone()).unwrap();
+                crate::fixture::value(&row["raw_findings"]);
             assert_eq!(actual, expected, "{source}");
         }
     }
@@ -687,8 +686,7 @@ mod tests {
                 .into_iter()
                 .filter(|o| o.cop == "Lint/UselessConstantScoping")
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             let mut actual: Vec<_> = found
                 .iter()
                 .map(|o| {

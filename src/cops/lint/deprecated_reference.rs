@@ -584,7 +584,7 @@ mod tests {
         .unwrap();
         for row in rows.as_array().unwrap() {
             let source = row["source"].as_str().unwrap();
-            let index: Option<Index> = serde_json::from_value(row["index"].clone()).unwrap();
+            let index: Option<Index> = crate::fixture::value(&row["index"]);
             let found = supplied(source, index.as_ref());
             assert!(supplied(source, None).is_empty());
             let found: Vec<_> = found
@@ -595,8 +595,7 @@ mod tests {
                     (o.line, o.col, o.end_line, o.message)
                 })
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(
                 found, expected,
                 "{}:{} {}",
@@ -609,7 +608,7 @@ mod tests {
             "../../../tests/fixtures/deprecated_reference.json"
         ))
         .unwrap();
-        serde_json::from_value(rows[1]["index"].clone()).unwrap()
+        crate::fixture::value(&rows[1]["index"])
     }
     #[test]
     fn decoding_documentation_preserves_deprecated_definition_exemption() {
@@ -653,7 +652,7 @@ mod tests {
             .iter()
             .find(|r| r["source"] == "# @deprecated\nmodule Legacy; end\nLegacy::C = Class.new\n")
             .unwrap();
-        let index: Index = serde_json::from_value(row["index"].clone()).unwrap();
+        let index: Index = crate::fixture::value(&row["index"]);
         for factory in [
             "Class&.new",
             "Module&.new",
@@ -737,7 +736,7 @@ mod tests {
         ))
         .unwrap();
         let row = &rows.as_array().unwrap()[1];
-        let index: Index = serde_json::from_value(row["index"].clone()).unwrap();
+        let index: Index = crate::fixture::value(&row["index"]);
         let source = "class Client < Api\n  def call; self.old_method; end\nend\n";
         let found = indexed(source, &index);
         assert_eq!(found.len(), 1);

@@ -77,8 +77,7 @@ mod tests {
                 .into_iter()
                 .filter(|o| o.cop == RescueStandardError.name())
                 .collect();
-            let expected: Vec<Vec<u32>> =
-                serde_json::from_value(case["positions"].clone()).unwrap();
+            let expected: Vec<Vec<u32>> = crate::fixture::value(&case["positions"]);
             assert_eq!(
                 found
                     .iter()
@@ -87,7 +86,7 @@ mod tests {
                 expected,
                 "{source}"
             );
-            let messages: Vec<String> = serde_json::from_value(case["messages"].clone()).unwrap();
+            let messages: Vec<String> = crate::fixture::value(&case["messages"]);
             assert_eq!(
                 found.iter().map(|o| o.message.clone()).collect::<Vec<_>>(),
                 messages,

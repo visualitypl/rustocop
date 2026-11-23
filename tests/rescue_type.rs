@@ -112,8 +112,8 @@ fn defaults_selectors_strict_config_paths_and_supplied_provenance() {
 fn canonical_edits_atomic_permissions_comments_and_symlink_failures() {
     let dir = project();
     for row in rows().into_iter().filter(|r| r.get("after").is_some()) {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let after: Vec<u8> = serde_json::from_value(row["after"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let after: Vec<u8> = crate::support::fixture::value(&row["after"]);
         unchanged(dir.path(), &before, &["--only", COP, "lib/foo.rb"], Some(1));
         let path = dir.path().join("lib/foo.rb");
         let old = fs::metadata(&path).unwrap();
@@ -206,10 +206,10 @@ fn native_syntax_only_all_reference_bytes_and_canonical_outputs() {
         return;
     };
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for source in std::iter::once(bytes).chain(
             row.get("after")
-                .map(|v| serde_json::from_value::<Vec<u8>>(v.clone()).unwrap()),
+                .map(crate::support::fixture::value::<Vec<u8>>),
         ) {
             let out = native(&ruby, &source, true);
             assert_eq!(
@@ -365,7 +365,7 @@ fn all_original_byte_reference_rows_match_pipeline_and_canonical_edits() {
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -391,7 +391,7 @@ fn all_original_byte_reference_rows_match_pipeline_and_canonical_edits() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{}: expected {expected:?}, found {found:?}",

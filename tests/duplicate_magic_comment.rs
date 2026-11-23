@@ -191,7 +191,7 @@ fn reference_sources_and_upstream_outputs_native_syntax_only() {
         serde_json::from_str(include_str!("fixtures/duplicate_magic_bytes.json")).unwrap();
     sources.extend(bytes.into_iter().map(|r| {
         (
-            serde_json::from_value::<Vec<u8>>(r["bytes"].clone()).unwrap(),
+            crate::support::fixture::value::<Vec<u8>>(&r["bytes"]),
             false,
         )
     }));

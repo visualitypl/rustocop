@@ -70,7 +70,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
     let registry = rustocop::cops::Registry::new();
     let mut mismatches = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let cop: &dyn Cop = registry
             .cops()
             .iter()
@@ -105,7 +105,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
             .collect();
         actual.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         if actual != expected {
             mismatches.push(format!(
                 "{}\nactual: {actual:?}\nexpected: {expected:?}",
@@ -208,7 +208,7 @@ fn native_ruby34_syntax_only_all_reference_and_adversarial_original_bytes() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-W0", "-c"])
             .stdin(Stdio::piped())

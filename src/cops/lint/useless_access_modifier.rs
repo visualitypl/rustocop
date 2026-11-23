@@ -670,7 +670,7 @@ mod tests {
         .unwrap();
         let mut mismatches = vec![];
         for row in rows {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let bytes: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let Ok(source) = std::str::from_utf8(&bytes) else {
                 continue;
             };
@@ -679,8 +679,7 @@ mod tests {
                 .map(|o| (o.line, o.col, o.end_line, o.message))
                 .collect();
             found.sort();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             if found != expected {
                 mismatches.push(format!("{source:?}: {found:?} != {expected:?}"));
             }

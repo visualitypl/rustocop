@@ -14,7 +14,7 @@ fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/useless_numeric_operation.json")).unwrap()
 }
 fn bytes(r: &serde_json::Value, key: &str) -> Vec<u8> {
-    serde_json::from_value(r[key].clone()).unwrap()
+    crate::support::fixture::value(&r[key])
 }
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();
@@ -101,7 +101,7 @@ fn all_original_bytes_exact_pipeline_findings_ranges_messages_and_no_detection_e
             })
             .collect();
         got.sort();
-        let want: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let want: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if got != want {
             errors.push(format!(
                 "{}: {got:?} != {want:?}",

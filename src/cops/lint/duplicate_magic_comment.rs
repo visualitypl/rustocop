@@ -150,8 +150,7 @@ mod tests {
         assert_eq!(rows.len(), 342);
         for row in rows {
             let found = offenses(row["source"].as_str().unwrap());
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(
                 found
                     .iter()
@@ -166,13 +165,12 @@ mod tests {
         ))
         .unwrap();
         for row in rows {
-            let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let source: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let file = SourceFile::new(std::path::PathBuf::from("example.rb"), source);
             let result = crate::parser::parse(&file.bytes);
             let mut found = vec![];
             crate::cops::run_cops(&[&DuplicateMagicComment], &result, &file, &mut found);
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(
                 found
                     .iter()

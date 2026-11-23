@@ -82,7 +82,7 @@ fn every_pinned_spec_documentation_and_control_matches_pipeline_and_rebuilt_cli_
             .collect();
         found.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         assert_eq!(found, expected, "{row}");
         let out = unchanged(
             dir.path(),

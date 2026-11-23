@@ -85,7 +85,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -118,7 +118,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{}: expected {expected:?}, found {found:?}",

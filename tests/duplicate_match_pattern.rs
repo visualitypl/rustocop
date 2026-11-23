@@ -144,7 +144,7 @@ fn byte_rows_match_cli(json: &str) {
     let rows: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
     let dir = project();
     for row in rows {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let findings = row["findings"].as_array().unwrap();
         for args in [
             vec!["--only", COP, "lib/a.rb"],
@@ -535,12 +535,11 @@ fn every_reference_input_is_native_syntax_checked_only_never_executed() {
     let sources = rows()
         .into_iter()
         .map(|r| (r["source"].as_str().unwrap().as_bytes().to_vec(), r))
-        .chain(byte_rows.into_iter().map(|r| {
-            (
-                serde_json::from_value::<Vec<u8>>(r["bytes"].clone()).unwrap(),
-                r,
-            )
-        }));
+        .chain(
+            byte_rows
+                .into_iter()
+                .map(|r| (crate::support::fixture::value::<Vec<u8>>(&r["bytes"]), r)),
+        );
     for (source, row) in sources {
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-c", "-"])

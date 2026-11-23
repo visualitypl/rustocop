@@ -83,7 +83,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
     for row in rows() {
         let cop = row["cop"].as_str().unwrap();
         let active = rustocop::cops::select_active(&registry, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -112,7 +112,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",
@@ -217,8 +217,8 @@ fn defaults_selectors_toml_department_and_path_precedence() {
 fn canonical_edits_are_real_atomic_byte_preserving_and_idempotent() {
     let dir = project();
     for row in rows().into_iter().filter(|r| r.get("after").is_some()) {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let after: Vec<u8> = serde_json::from_value(row["after"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let after: Vec<u8> = crate::support::fixture::value(&row["after"]);
         let cop = COPS[0];
         unchanged(dir.path(), &before, &["--only", cop, "lib/a.rb"], Some(1));
         let path = dir.path().join("lib/a.rb");
@@ -258,14 +258,14 @@ fn native_ruby34_syntax_only_never_execute_reference_inputs() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let after = row.get("after").or_else(|| {
             (row["origin"] == "spec")
                 .then(|| row.get("upstream_after"))
                 .flatten()
         });
         if let Some(after) = after {
-            let after: Vec<u8> = serde_json::from_value(after.clone()).unwrap();
+            let after: Vec<u8> = crate::support::fixture::value(after);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-w", "-c"])
                 .stdin(Stdio::piped())

@@ -578,11 +578,11 @@ mod tests {
         ))
         .unwrap();
         for row in rows {
-            let index: Option<Index> = serde_json::from_value(row["index"].clone()).unwrap();
+            let index: Option<Index> = crate::fixture::value(&row["index"]);
             let source: Vec<u8> = row["source"]
                 .as_str()
                 .map(|s| s.as_bytes().to_vec())
-                .unwrap_or_else(|| serde_json::from_value(row["source_bytes"].clone()).unwrap());
+                .unwrap_or_else(|| crate::fixture::value(&row["source_bytes"]));
             let found: Vec<_> = supplied_bytes(&source, index.as_ref())
                 .into_iter()
                 .map(|o| {
@@ -591,8 +591,7 @@ mod tests {
                     (o.line, o.col, o.end_line, o.message)
                 })
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(
                 found, expected,
                 "{}:{} {source:?}",

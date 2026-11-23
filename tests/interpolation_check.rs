@@ -72,7 +72,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -95,7 +95,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{}: expected {expected:?}, found {found:?}",
@@ -114,8 +114,8 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
 fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
     parallel_rows!(for row in rows() => {
         let dir = project();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         for fix in [false, true] {
             let mut args = vec!["--only", COP];
             if fix {
@@ -322,7 +322,7 @@ fn original_fixture_sources_pass_native_ruby34_syntax_only_never_execute_interpo
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-W0", "-c"])
             .stdin(Stdio::piped())
@@ -355,7 +355,7 @@ fn individual_when_not_conversions_are_fixed34_reference_grammar_differences() {
     for row in exclusions {
         let source = row["source"].as_str().unwrap().as_bytes();
         let expected: Vec<(u32, u32, String)> =
-            serde_json::from_value(row["fixed_findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["fixed_findings"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),

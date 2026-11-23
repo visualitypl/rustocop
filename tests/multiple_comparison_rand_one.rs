@@ -77,7 +77,7 @@ fn pinned_main_source_original_bytes_and_send_shapes_match_without_edits() {
     for row in rows() {
         let cop = row["cop"].as_str().unwrap();
         let active = rustocop::cops::select_active(&registry, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -106,7 +106,7 @@ fn pinned_main_source_original_bytes_and_send_shapes_match_without_edits() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",
@@ -192,7 +192,7 @@ fn native_ruby34_syntax_only_never_execute_comparisons_or_random_calls() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-W0", "-c"])
             .stdin(Stdio::piped())

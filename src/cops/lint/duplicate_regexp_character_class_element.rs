@@ -1247,8 +1247,7 @@ mod tests {
         .unwrap();
         for row in rows {
             let source = row["source"].as_str().unwrap();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(
                 offenses(source)
                     .into_iter()
@@ -1284,8 +1283,7 @@ mod tests {
                 .map(|o| (o.cop.to_string(), o.line, o.col, o.end_line, o.message))
                 .collect::<Vec<_>>();
             actual.sort();
-            let expected: Vec<(String, u32, u32, u32, String)> =
-                serde_json::from_value(expected.clone()).unwrap();
+            let expected: Vec<(String, u32, u32, u32, String)> = crate::fixture::value(expected);
             assert_eq!(actual, expected, "{row}");
         }
         assert_eq!(checked, 607);

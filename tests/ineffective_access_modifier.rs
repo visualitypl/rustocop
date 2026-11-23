@@ -62,7 +62,7 @@ fn all_reference_original_bytes_match_pipeline_exactly_without_corrections() {
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -85,7 +85,7 @@ fn all_reference_original_bytes_match_pipeline_exactly_without_corrections() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{}: expected {expected:?}, found {found:?}",
@@ -104,8 +104,8 @@ fn all_reference_original_bytes_match_pipeline_exactly_without_corrections() {
 fn all_reference_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
     let dir = project();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         for fix in [false, true] {
             let mut args = vec!["--only", COP];
             if fix {
@@ -398,7 +398,7 @@ fn native_ruby34_syntax_checks_original_bytes_without_executing_definitions() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["-c", "-W0"])
             .stdin(Stdio::piped())

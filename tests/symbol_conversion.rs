@@ -13,7 +13,7 @@ fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/symbol_conversion.json")).unwrap()
 }
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
-    serde_json::from_value(row[key].clone()).unwrap()
+    crate::support::fixture::value(&row[key])
 }
 fn project() -> tempfile::TempDir {
     let d = tempfile::tempdir().unwrap();

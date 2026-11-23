@@ -111,7 +111,7 @@ fn check_reference_rows(rows: &serde_json::Value) {
             .collect();
         found.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         assert_eq!(found, expected, "{row}");
         for fix in [false, true] {
             let mut args = vec!["--only", COP, "lib/a.rb"];

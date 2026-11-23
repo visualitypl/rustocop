@@ -653,8 +653,7 @@ mod tests {
             let source = row["source"].as_str().unwrap();
             let mut found = lint_str_with(&[&BlockForwarding], source);
             found.sort_by_key(|o| (o.line, o.col));
-            let positions: Vec<(u32, u32)> =
-                serde_json::from_value(row["positions"].clone()).unwrap();
+            let positions: Vec<(u32, u32)> = crate::fixture::value(&row["positions"]);
             assert_eq!(
                 found.iter().map(|o| (o.line, o.col)).collect::<Vec<_>>(),
                 positions,

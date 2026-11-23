@@ -1110,8 +1110,7 @@ mod tests {
                     (o.line, o.col, o.end_line, o.message)
                 })
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(found, expected, "{row}");
         }
     }

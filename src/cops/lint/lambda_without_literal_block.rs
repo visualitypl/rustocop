@@ -295,7 +295,7 @@ mod tests {
         .unwrap();
         let mismatches = std::sync::Mutex::new(vec![]);
         parallel_rows!(for row in rows => {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let bytes: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let Ok(source) = std::str::from_utf8(&bytes) else {
                 continue;
             };
@@ -305,7 +305,7 @@ mod tests {
                 .collect();
             got.sort();
             let want: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+                crate::fixture::value(&row["findings"]);
             if got != want {
                 mismatches.lock().unwrap().push(format!("{source:?}: {got:?} != {want:?}"));
             }

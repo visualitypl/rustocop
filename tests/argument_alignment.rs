@@ -28,7 +28,7 @@ fn run(root: &Path, args: &[&str]) -> Output {
         .unwrap()
 }
 fn bytes(row: &serde_json::Value, field: &str) -> Vec<u8> {
-    serde_json::from_value(row[field].clone()).unwrap()
+    crate::support::fixture::value(&row[field])
 }
 fn unchanged(path: &Path, before: &[u8], old: &fs::Metadata) {
     assert_eq!(fs::read(path).unwrap(), before);
@@ -76,7 +76,7 @@ fn complete_main_custom_source_encoding_and_adversarial_exact_detection() {
         let expected: Vec<(u32, u32, u32, String)> = if rejected {
             vec![]
         } else {
-            serde_json::from_value(row["findings"].clone()).unwrap()
+            crate::support::fixture::value(&row["findings"])
         };
         if found != expected {
             mismatches.push(format!(

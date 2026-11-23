@@ -111,7 +111,7 @@ fn encoded_literal_argument_keys_match_reference_without_writes() {
         serde_json::from_str(include_str!("fixtures/duplicate_require_bytes.json")).unwrap();
     let dir = project();
     for row in rows {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for args in [
             vec!["--only", COP, "lib/a.rb"],
             vec!["--only", COP, "--fix", "lib/a.rb"],
@@ -444,7 +444,7 @@ fn byte_rows_match_without_writes(rows: Vec<serde_json::Value>) {
         fs::set_permissions(&path, fs::Permissions::from_mode(0o751)).unwrap();
     }
     for row in rows {
-        let source: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let expected = row["findings"].as_array().unwrap();
         for fix in [false, true] {
             let mut args = vec!["--only", COP];
@@ -932,7 +932,7 @@ fn all_reference_sources_are_native_syntax_checked_only() {
                 .chain(projected_rows())
                 .chain(v10_neighbour_rows())
                 .chain(v10_review_rows())
-                .map(|r| serde_json::from_value::<Vec<u8>>(r["bytes"].clone()).unwrap()),
+                .map(|r| crate::support::fixture::value::<Vec<u8>>(&r["bytes"])),
         );
     for source in sources {
         let out = native(&ruby, &source, &["--parser=prism", "-c", "-"]);

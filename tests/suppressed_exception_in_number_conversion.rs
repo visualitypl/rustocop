@@ -85,7 +85,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
     for row in rows() {
         let cop = COPS[0];
         let active = rustocop::cops::select_active(&registry, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -114,7 +114,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",
@@ -134,7 +134,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
     let dir = project();
     for row in rows() {
         let cop = COPS[0];
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for fix in [false, true] {
             let mut args = vec!["--only", cop];
             if fix {
@@ -146,7 +146,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
                 assert_eq!(count(&out, cop), 0);
                 continue;
             }
-            let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
             let out = unchanged(
                 dir.path(),
                 &bytes,
@@ -543,7 +543,7 @@ fn native_ruby34_syntax_only_never_execute_reference_inputs() {
     for row in rows() {
         for key in ["bytes", "upstream_after"] {
             let Some(value) = row.get(key) else { continue };
-            let bytes: Vec<u8> = serde_json::from_value(value.clone()).unwrap();
+            let bytes: Vec<u8> = crate::support::fixture::value(value);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-W0", "-c"])
                 .stdin(Stdio::piped())

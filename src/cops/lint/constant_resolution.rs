@@ -105,8 +105,7 @@ mod tests {
         {
             let source = row["source"].as_str().unwrap();
             let found = crate::pipeline::lint_str_with(&active, source);
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             let mut actual: Vec<_> = found
                 .iter()
                 .map(|o| {

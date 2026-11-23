@@ -257,7 +257,7 @@ fn native_syntax_only_original_and_canonical_bytes() {
             let Some(value) = row.get(key) else {
                 continue;
             };
-            let bytes: Vec<u8> = serde_json::from_value(value.clone()).unwrap();
+            let bytes: Vec<u8> = crate::support::fixture::value(value);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-W0", "-c"])
                 .stdin(Stdio::piped())

@@ -83,7 +83,7 @@ fn all_pinned_specs_source_chunks_and_numeric_controls_match_pipeline_without_ed
             .collect();
         found.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         if found != expected {
             mismatches.push(format!(
                 "{source:?}: {cop}: expected {expected:?}, found {found:?}"
@@ -106,7 +106,7 @@ fn every_reference_fixture_matches_exact_rebuilt_cli_diagnostics_without_writes(
     for row in rows.as_array().unwrap() {
         let cop = row["cop"].as_str().unwrap();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         let out = unchanged(
             dir.path(),
             row["source"].as_str().unwrap().as_bytes(),
@@ -132,14 +132,14 @@ fn encoded_rows() -> Vec<serde_json::Value> {
 }
 
 fn encoded_source(row: &serde_json::Value) -> Vec<u8> {
-    serde_json::from_value(row["bytes"].clone()).unwrap()
+    crate::support::fixture::value(&row["bytes"])
 }
 
 fn assert_encoded_diagnostics(out: &Output, row: &serde_json::Value, path: &str, enabled: &[&str]) {
     let stdout = String::from_utf8_lossy(&out.stdout);
     for cop in [COMPARISON, RANGE] {
         let findings: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"][cop].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"][cop]);
         let mut expected: Vec<_> = findings
             .into_iter()
             .filter(|_| enabled.contains(&cop))
@@ -189,7 +189,7 @@ fn encoded_original_bytes_match_exact_pinned_pipeline_positions_without_edits() 
                 .collect();
             found.sort();
             let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"][cop].clone()).unwrap();
+                crate::support::fixture::value(&row["findings"][cop]);
             assert_eq!(found, expected, "{row}");
         }
     }

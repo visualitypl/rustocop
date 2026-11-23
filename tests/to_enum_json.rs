@@ -195,7 +195,7 @@ fn native_syntax_only_for_all_reference_valid_byte_rows() {
         .into_iter()
         .filter(|r| r.get("parser_rejection").is_none())
     {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         fs::write(d.path().join("example.rb"), bytes).unwrap();
         let out = Command::new("timeout")
             .args([

@@ -86,7 +86,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
     for row in rows() {
         let cop = row["cop"].as_str().unwrap();
         let active = rustocop::cops::select_active(&registry, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new(row["path"].as_str().unwrap()),
             Path::new(row["path"].as_str().unwrap()),
@@ -115,7 +115,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",
@@ -247,8 +247,8 @@ fn canonical_whole_line_removal_is_atomic_byte_preserving_and_idempotent() {
     let dir = project();
     let cop = COPS[1];
     for row in rows().into_iter().filter(|r| r.get("after").is_some()) {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let after: Vec<u8> = serde_json::from_value(row["after"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let after: Vec<u8> = crate::support::fixture::value(&row["after"]);
         unchanged(dir.path(), &before, &["--only", cop, "lib/foo.rb"], Some(1));
         let path = dir.path().join("lib/foo.rb");
         let old = fs::metadata(&path).unwrap();
@@ -278,10 +278,10 @@ fn native_syntax_only_all_original_inputs_never_execute_snippets() {
         return;
     };
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for source in std::iter::once(bytes).chain(
             row.get("after")
-                .map(|v| serde_json::from_value::<Vec<u8>>(v.clone()).unwrap()),
+                .map(crate::support::fixture::value::<Vec<u8>>),
         ) {
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-c", "-"])

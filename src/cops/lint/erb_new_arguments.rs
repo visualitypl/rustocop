@@ -179,8 +179,7 @@ mod tests {
         .unwrap();
         for row in rows.iter().filter(|r| r["cop"] == "Lint/ErbNewArguments") {
             let source = row["source"].as_str().unwrap();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             let found = offenses(source);
             assert_eq!(
                 found
@@ -248,8 +247,7 @@ mod tests {
                 crate::cops::run_cops(&[&super::ErbNewArguments], &parsed, &file, &mut found)
                     .is_empty()
             );
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             found.sort_by_key(|o| (o.line, o.col));
             assert_eq!(
                 found

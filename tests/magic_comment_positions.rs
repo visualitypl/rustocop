@@ -64,7 +64,7 @@ fn source(row: &serde_json::Value) -> Vec<u8> {
     row["source"]
         .as_str()
         .map(|s| s.as_bytes().to_vec())
-        .unwrap_or_else(|| serde_json::from_value(row["bytes"].clone()).unwrap())
+        .unwrap_or_else(|| crate::support::fixture::value(&row["bytes"]))
 }
 #[test]
 fn every_pinned_spec_source_shared_alias_byte_and_control_row_exact_cli_no_write() {

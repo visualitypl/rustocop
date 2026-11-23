@@ -81,7 +81,7 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> O
 fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edits() {
     let config = ResolvedConfig::default();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let cop: &dyn Cop = if row["cop"] == CASES[0].0 {
             &UselessMethodDefinition
         } else {
@@ -115,7 +115,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
             .collect();
         actual.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         assert_eq!(
             actual,
             expected,
@@ -128,7 +128,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
 fn all_original_bytes_rebuilt_cli_lint_and_fix_preserve_bytes_mtime_permissions_inode_fd() {
     parallel_rows!(for row in rows() => {
         let d = project();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let cop = row["cop"].as_str().unwrap();
         for fix in [false, true] {
             let mut args = vec!["--only", cop];
@@ -141,7 +141,7 @@ fn all_original_bytes_rebuilt_cli_lint_and_fix_preserve_bytes_mtime_permissions_
                 continue;
             }
             let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+                crate::support::fixture::value(&row["findings"]);
             let out = unchanged(
                 d.path(),
                 &bytes,
@@ -516,7 +516,7 @@ fn native_ruby34_syntax_only_all_reference_and_adversarial_original_bytes() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-W0", "-c"])
             .stdin(Stdio::piped())

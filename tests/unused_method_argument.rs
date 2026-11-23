@@ -10,7 +10,7 @@ fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/unused_method_argument.json")).unwrap()
 }
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
-    serde_json::from_value(row[key].clone()).unwrap()
+    crate::support::fixture::value(&row[key])
 }
 #[test]
 fn pinned_main_source_and_all_original_bytes_match_exact_pipeline_findings() {
@@ -49,7 +49,7 @@ fn pinned_main_source_and_all_original_bytes_match_exact_pipeline_findings() {
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{}: expected {expected:?}, found {found:?}",

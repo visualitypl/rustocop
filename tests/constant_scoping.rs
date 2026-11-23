@@ -79,7 +79,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_with_no_edits()
             .collect();
         found.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         assert_eq!(found, expected, "{row}");
         let out = unchanged(
             dir.path(),
@@ -116,7 +116,7 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
     for row in rows {
         let source = row["source"].as_str().unwrap();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         for args in [
             vec!["--only", SCOPING, "lib/a.rb"],
             vec!["--only", SCOPING, "--fix", "lib/a.rb"],
@@ -184,9 +184,9 @@ fn operator_recovery_source_projection_pipeline_cli_and_native_syntax_only() {
     assert_eq!(review.len(), 330);
     rows.extend(review);
     for row in rows {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["raw_findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["raw_findings"]);
         let report = rustocop::pipeline::lint_one(
             &dir.path().join("lib/a.rb"),
             Path::new("lib/a.rb"),

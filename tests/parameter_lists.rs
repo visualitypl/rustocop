@@ -55,7 +55,7 @@ fn complete_fixed_reference_bytes_match_pipeline_and_actual_cli_no_write() {
     let config = ResolvedConfig::default();
     let active = select_active(&registry, &config, &[COP.into()], &[]);
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             &d.path().join("lib/a.rb"),
             Path::new("lib/a.rb"),
@@ -426,7 +426,7 @@ fn native_ruby34_syntax_only_all_original_reference_bytes() {
         String::from_utf8_lossy(&version.stdout).contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-W0", "-c"])
             .stdin(Stdio::piped())

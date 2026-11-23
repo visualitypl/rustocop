@@ -78,7 +78,7 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> O
 fn every_original_byte_fixture_matches_rebuilt_cli_lint_and_fix_no_write() {
     parallel_rows!(for row in rows() => {
         let d = project();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for fix in [false, true] {
             let mut args = vec!["--only", COP];
             if fix {
@@ -90,7 +90,7 @@ fn every_original_byte_fixture_matches_rebuilt_cli_lint_and_fix_no_write() {
                 continue;
             }
             let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+                crate::support::fixture::value(&row["findings"]);
             let out = unchanged(
                 d.path(),
                 &bytes,
@@ -434,7 +434,7 @@ fn native_ruby34_syntax_only_for_all_inputs_and_upstream_canonicals() {
             let Some(value) = row.get(key) else {
                 continue;
             };
-            let bytes: Vec<u8> = serde_json::from_value(value.clone()).unwrap();
+            let bytes: Vec<u8> = crate::support::fixture::value(value);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-W0", "-c"])
                 .stdin(Stdio::piped())

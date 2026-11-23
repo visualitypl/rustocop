@@ -66,7 +66,7 @@ fn source_bytes(row: &serde_json::Value) -> Vec<u8> {
     row["source"]
         .as_str()
         .map(|s| s.as_bytes().to_vec())
-        .unwrap_or_else(|| serde_json::from_value(row["source_bytes"].clone()).unwrap())
+        .unwrap_or_else(|| crate::support::fixture::value(&row["source_bytes"]))
 }
 #[test]
 fn every_reference_source_has_no_production_index_even_when_forced_or_fixing() {

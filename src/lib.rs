@@ -10,6 +10,10 @@
 #[path = "../tests/support/parallel_rows.rs"]
 mod parallel_rows;
 
+#[cfg(test)]
+#[path = "../tests/support/fixture.rs"]
+mod fixture;
+
 pub mod baseline;
 pub mod config;
 pub mod cops;

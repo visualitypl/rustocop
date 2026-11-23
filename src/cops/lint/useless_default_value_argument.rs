@@ -177,7 +177,7 @@ mod tests {
         let active = [&UselessDefaultValueArgument as &dyn Cop];
         let mut errors = Vec::new();
         for row in rows {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let bytes: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let report = crate::pipeline::lint_one(
                 Path::new("example.rb"),
                 Path::new("example.rb"),
@@ -205,8 +205,7 @@ mod tests {
                 })
                 .collect();
             actual.sort();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             if actual != expected {
                 errors.push(format!(
                     "{}: {actual:?} != {expected:?}",

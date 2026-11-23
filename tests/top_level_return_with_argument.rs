@@ -7,7 +7,7 @@ fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/top_level_return_with_argument.json")).unwrap()
 }
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
-    serde_json::from_value(row[key].clone()).unwrap()
+    crate::support::fixture::value(&row[key])
 }
 #[test]
 fn native_syntax_only_for_every_original_input_and_expected_output() {

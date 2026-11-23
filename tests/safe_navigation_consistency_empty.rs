@@ -77,7 +77,7 @@ fn mixed_newline_source_fixed_policy_pipeline_positions_and_detection_only() {
     let cases: Vec<_> = rows.iter().filter(|r| r["origin"] == "newline").collect();
     assert_eq!(cases.len(), 98);
     for row in cases {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             std::path::Path::new("example.rb"),
             std::path::Path::new("example.rb"),
@@ -99,7 +99,7 @@ fn mixed_newline_source_fixed_policy_pipeline_positions_and_detection_only() {
             })
             .collect();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         assert_eq!(found, expected, "{}: {:?}", row["case"], bytes);
     }
 }
@@ -115,7 +115,7 @@ fn all_pinned_original_byte_fixtures() {
     for row in rows {
         let cop = row["cop"].as_str().unwrap();
         let active = rustocop::cops::select_active(&registry, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             std::path::Path::new("example.rb"),
             std::path::Path::new("example.rb"),
@@ -138,7 +138,7 @@ fn all_pinned_original_byte_fixtures() {
             .collect();
         found.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",

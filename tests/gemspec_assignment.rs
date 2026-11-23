@@ -23,7 +23,7 @@ fn all_main_specs_and_structural_controls_match_exact_reference() {
         assert!(r.has_cop(cop), "{cop} is not implemented");
         let config = ResolvedConfig::default();
         let selected = rustocop::cops::select_active(&r, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = pipeline::lint_one(
             &d.path().join("a.gemspec"),
             Path::new("a.gemspec"),
@@ -63,7 +63,7 @@ fn fixture_cli_lint_and_fix_match_exact_reference_and_preserve_open_file_identit
         let d = project();
         let path = d.path().join("a.gemspec");
         let cop = row["cop"].as_str().unwrap();
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         fs::write(&path, &bytes).unwrap();
         #[cfg(unix)]
         {
@@ -447,7 +447,7 @@ fn native_ruby34_checks_every_reference_source_without_execution() {
         .contains(crate::support::runtime::banner_prefix())
     );
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let mut child = Command::new(&ruby)
             .args(["--parser=prism", "-W0", "-c"])
             .stdin(Stdio::piped())

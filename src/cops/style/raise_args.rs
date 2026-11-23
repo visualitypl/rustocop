@@ -217,11 +217,10 @@ mod tests {
                 "unsafe edit: {source}"
             );
             let positions: Vec<_> = found.iter().map(|o| vec![o.line, o.col]).collect();
-            let expected: Vec<Vec<u32>> =
-                serde_json::from_value(case["positions"].clone()).unwrap();
+            let expected: Vec<Vec<u32>> = crate::fixture::value(&case["positions"]);
             assert_eq!(positions, expected, "{source}");
             let messages: Vec<_> = found.iter().map(|o| o.message.as_str()).collect();
-            let expected: Vec<String> = serde_json::from_value(case["messages"].clone()).unwrap();
+            let expected: Vec<String> = crate::fixture::value(&case["messages"]);
             assert_eq!(messages, expected, "{source}");
         }
     }

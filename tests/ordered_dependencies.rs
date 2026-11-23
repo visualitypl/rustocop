@@ -21,8 +21,7 @@ fn project() -> tempfile::TempDir {
 }
 
 fn bytes(row: &serde_json::Value, key: &str) -> Option<Vec<u8>> {
-    row.get(key)
-        .map(|value| serde_json::from_value(value.clone()).unwrap())
+    row.get(key).map(crate::support::fixture::value)
 }
 
 fn findings(row: &serde_json::Value) -> Vec<(u32, u32, String)> {

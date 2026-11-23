@@ -73,7 +73,7 @@ fn bytes(row: &serde_json::Value) -> Vec<u8> {
     row["source"]
         .as_str()
         .map(|s| s.as_bytes().to_vec())
-        .unwrap_or_else(|| serde_json::from_value(row["source_bytes"].clone()).unwrap())
+        .unwrap_or_else(|| crate::support::fixture::value(&row["source_bytes"]))
 }
 #[test]
 fn registered_metadata_and_default_selection_do_not_supply_index() {

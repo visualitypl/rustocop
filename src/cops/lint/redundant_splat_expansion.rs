@@ -282,7 +282,7 @@ mod tests {
             .find(|c| c.name() == RedundantSplatExpansion.name())
             .unwrap();
         for row in data["rows"].as_array().unwrap() {
-            let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+            let bytes: Vec<u8> = crate::fixture::value(&row["bytes"]);
             let file = SourceFile::new("example.rb".into(), bytes);
             let parsed = ruby_prism::parse(&file.bytes);
             if row.get("parser_rejection").is_some() || row.get("native_scope_rejection").is_some()
@@ -294,8 +294,7 @@ mod tests {
             let mut actual = Vec::new();
             assert!(crate::cops::run_cops(&[cop.as_ref()], &parsed, &file, &mut actual).is_empty());
             actual.sort_by_key(|o| (o.line, o.col));
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(
                 actual
                     .iter()

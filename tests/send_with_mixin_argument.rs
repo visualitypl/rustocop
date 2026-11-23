@@ -25,7 +25,7 @@ fn original_byte_reference_rows() {
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
     let mut failures = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let path = std::path::Path::new(row["path"].as_str().unwrap());
         let report = rustocop::pipeline::lint_one(path, path, Some(&bytes), &active, &config);
         assert!(report.internal_errors.is_empty(), "{row}: {report:?}");
@@ -42,7 +42,7 @@ fn original_byte_reference_rows() {
             .collect();
         actual.sort();
         let expected: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         if actual != expected {
             failures.push(format!(
                 "{}: expected {expected:?}, got {actual:?}",

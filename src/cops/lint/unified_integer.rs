@@ -146,8 +146,7 @@ mod tests {
                 _ => unreachable!(),
             };
             let source = row["source"].as_str().unwrap();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             let mut found: Vec<_> = lint_str(source)
                 .into_iter()
                 .filter(|o| o.cop == cop.name())

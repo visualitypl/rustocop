@@ -358,8 +358,7 @@ mod tests {
                 .into_iter()
                 .map(|o| (o.line, o.col, o.end_line, o.message))
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(actual, expected, "{source}");
         }
     }
@@ -690,7 +689,7 @@ mod tests {
         for row in rows {
             let file = SourceFile::new(
                 "lib/a.rb".into(),
-                serde_json::from_value::<Vec<u8>>(row["bytes"].clone()).unwrap(),
+                crate::fixture::value::<Vec<u8>>(&row["bytes"]),
             );
             let parsed = crate::parser::parse(&file.bytes);
             assert!(parsed.errors().next().is_none(), "{row}");
@@ -702,8 +701,7 @@ mod tests {
                 .into_iter()
                 .map(|o| (o.line, o.col, o.end_line, o.message))
                 .collect();
-            let expected: Vec<(u32, u32, u32, String)> =
-                serde_json::from_value(row["findings"].clone()).unwrap();
+            let expected: Vec<(u32, u32, u32, String)> = crate::fixture::value(&row["findings"]);
             assert_eq!(actual, expected, "{row}");
         }
     }

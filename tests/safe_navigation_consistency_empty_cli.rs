@@ -94,7 +94,7 @@ fn pinned_main_source_original_bytes_and_safe_navigation_shapes_match_without_ed
     for row in rows() {
         let cop = row["cop"].as_str().unwrap();
         let active = rustocop::cops::select_active(&registry, &config, &[cop.into()], &[]);
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let report = rustocop::pipeline::lint_one(
             Path::new("example.rb"),
             Path::new("example.rb"),
@@ -123,7 +123,7 @@ fn pinned_main_source_original_bytes_and_safe_navigation_shapes_match_without_ed
             })
             .collect();
         found.sort();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         if found != expected {
             failures.push(format!(
                 "{cop} {}: expected {expected:?}, found {found:?}",
@@ -147,8 +147,8 @@ fn mixed_newline_source_fixed_policy_rebuilt_cli_preserves_raw_bytes_and_metadat
         .collect();
     assert_eq!(cases.len(), 98);
     for row in cases {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let expected: Vec<Finding> = serde_json::from_value(row["findings"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         for fix in [false, true] {
             let mut args = vec!["--only", COPS[0]];
             if fix {
@@ -393,7 +393,7 @@ fn native_ruby34_syntax_only_never_execute_reference_inputs() {
             let Some(value) = row.get(key) else {
                 continue;
             };
-            let bytes: Vec<u8> = serde_json::from_value(value.clone()).unwrap();
+            let bytes: Vec<u8> = crate::support::fixture::value(value);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-W0", "-c"])
                 .stdin(Stdio::piped())

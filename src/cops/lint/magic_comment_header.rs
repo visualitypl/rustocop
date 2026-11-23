@@ -142,7 +142,7 @@ pub(super) mod tests {
             let source = row["source"]
                 .as_str()
                 .map(|s| s.as_bytes().to_vec())
-                .unwrap_or_else(|| serde_json::from_value(row["bytes"].clone()).unwrap());
+                .unwrap_or_else(|| crate::fixture::value(&row["bytes"]));
             let file = SourceFile::new("example.rb".into(), source.clone());
             let result = crate::parser::parse(&file.bytes);
             let mut found = vec![];

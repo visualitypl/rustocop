@@ -35,7 +35,7 @@ fn complete_pinned_custom_source_and_adversarial_original_byte_detection() {
     let config = ResolvedConfig::default();
     let mut mismatches = Vec::new();
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let cop = row["cop"].as_str().unwrap();
         let active = select_active(&registry, &config, &[cop.into()], &[]);
         let report = rustocop::pipeline::lint_one(
@@ -65,7 +65,7 @@ fn complete_pinned_custom_source_and_adversarial_original_byte_detection() {
         let expected: Vec<(u32, u32, u32, String)> = if rejected {
             vec![]
         } else {
-            serde_json::from_value(row["findings"].clone()).unwrap()
+            crate::support::fixture::value(&row["findings"])
         };
         if found != expected {
             mismatches.push(format!(
@@ -107,7 +107,7 @@ fn every_pinned_source_control_and_encoding_uses_actual_read_only_cli() {
     let d = project();
     let path = d.path().join("example.rb");
     for row in rows() {
-        let bytes: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
+        let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         fs::write(&path, &bytes).unwrap();
         let old = fs::metadata(&path).unwrap();
         let cop = row["cop"].as_str().unwrap();
@@ -116,7 +116,7 @@ fn every_pinned_source_control_and_encoding_uses_actual_read_only_cli() {
         let findings: Vec<(u32, u32, u32, String)> = if rejected {
             vec![]
         } else {
-            serde_json::from_value(row["findings"].clone()).unwrap()
+            crate::support::fixture::value(&row["findings"])
         };
         assert_eq!(
             out.status.code(),
@@ -146,8 +146,8 @@ fn all_main_custom_options_and_source_corrections_replay_at_fixed_defaults() {
         .into_iter()
         .filter(|r| matches!(r["origin"].as_str(), Some("spec" | "source")))
     {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let after: Vec<u8> = serde_json::from_value(row["after_bytes"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let after: Vec<u8> = crate::support::fixture::value(&row["after_bytes"]);
         let cop = row["cop"].as_str().unwrap();
         fs::write(&path, &before).unwrap();
         let old = fs::metadata(&path).unwrap();
@@ -173,8 +173,8 @@ fn canonical_alignment_preserves_every_encoded_token_and_crlf_byte() {
     let d = project();
     let path = d.path().join("example.rb");
     for row in rows().into_iter().filter(|r| r["origin"] == "encoding") {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let after: Vec<u8> = serde_json::from_value(row["project_after_bytes"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let after: Vec<u8> = crate::support::fixture::value(&row["project_after_bytes"]);
         fs::write(&path, &before).unwrap();
         let cop = row["cop"].as_str().unwrap();
         let out = run(d.path(), &["--fix", "--only", cop, "example.rb"]);
@@ -197,8 +197,8 @@ fn adversarial_cli_corrections_are_canonical_or_guarded_no_write() {
         .into_iter()
         .filter(|r| r["origin"] == "control" && r.get("parser_rejection").is_none())
     {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let canonical: Vec<u8> = serde_json::from_value(row["after_bytes"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let canonical: Vec<u8> = crate::support::fixture::value(&row["after_bytes"]);
         let cop = row["cop"].as_str().unwrap();
         fs::write(&path, &before).unwrap();
         let old = fs::metadata(&path).unwrap();
@@ -330,10 +330,10 @@ fn actual_callback_owners_lint_fix_and_nested_canonical_no_write_controls() {
     let d = project();
     let path = d.path().join("example.rb");
     for row in rows().into_iter().filter(|r| r["origin"] == "callback") {
-        let before: Vec<u8> = serde_json::from_value(row["bytes"].clone()).unwrap();
-        let after: Vec<u8> = serde_json::from_value(row["after_bytes"].clone()).unwrap();
+        let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
+        let after: Vec<u8> = crate::support::fixture::value(&row["after_bytes"]);
         let findings: Vec<(u32, u32, u32, String)> =
-            serde_json::from_value(row["findings"].clone()).unwrap();
+            crate::support::fixture::value(&row["findings"]);
         fs::write(&path, &before).unwrap();
         let old = fs::metadata(&path).unwrap();
         let lint = run(d.path(), &["--only", ACCESS, "example.rb"]);
@@ -1024,7 +1024,7 @@ fn native_ruby34_parses_all_reference_bytes_without_executing_them() {
             );
         }
         for side in sides {
-            let bytes: Vec<u8> = serde_json::from_value(side.clone()).unwrap();
+            let bytes: Vec<u8> = crate::support::fixture::value(side);
             let mut child = Command::new(&ruby)
                 .args(["--parser=prism", "-W0", "-c"])
                 .stdin(Stdio::piped())
