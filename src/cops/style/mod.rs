@@ -1,8 +1,5 @@
-//! The `Style` department: idiomatic Ruby, with opinionated defaults.
-//!
-//! The existing defaults (double-quoted strings, ruby19 hashes, `raise`)
-//! remain fixed without style parameters. The Style policy expands
-//! coverage to all Style cops.
+//! The `Style` department: idiomatic Ruby. A cop's styles, such as
+//! `EnforcedStyle`, are the settings it declares (`Cop::settings`).
 
 /// Ruby's ASCII `\s` includes vertical tab, unlike Rust's ASCII whitespace.
 fn is_ruby_whitespace(byte: u8) -> bool {

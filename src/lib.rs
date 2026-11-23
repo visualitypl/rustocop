@@ -1,8 +1,9 @@
-//! rustocop — a blazing-fast, opinionated Ruby linter.
+//! rustocop — a fast Ruby linter and autocorrector, compatible with RuboCop.
 //!
-//! Zero-config by default, configured via `rustocop.toml`, and requiring no
-//! Ruby runtime: parsing is done through [Prism](https://github.com/ruby/prism),
-//! Ruby's official parser, via its Rust bindings.
+//! It runs RuboCop's cops with RuboCop's names, disable comments and
+//! corrections, configured via `rustocop.toml`, and needs no Ruby runtime:
+//! parsing is done through [Prism](https://github.com/ruby/prism), Ruby's
+//! official parser, via its Rust bindings.
 
 #[cfg(test)]
 #[macro_use]
