@@ -212,6 +212,16 @@ impl PrivateNames {
     }
 }
 
+/// Detection-only descendant symbol-call ranges for lexical visibility.
+pub(crate) static INEFFECTIVE_PRIVATE_NAMES: crate::source::Fact<PrivateNames> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn ineffective_private_names(&self, root: &ruby_prism::Node<'_>) -> &PrivateNames {
+        INEFFECTIVE_PRIVATE_NAMES.get(self, || PrivateNames::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/ineffective_access_modifier_spec.rb.

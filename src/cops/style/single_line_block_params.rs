@@ -388,6 +388,15 @@ impl Facts {
         facts
     }
 }
+
+pub(crate) static BLOCK_PARAM_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn block_param_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        BLOCK_PARAM_FACTS.get(self, || Facts::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Fixed-default adaptations of RuboCop style/single_line_block_params_spec.rb

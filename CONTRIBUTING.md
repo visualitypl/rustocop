@@ -30,7 +30,9 @@ fmt, clippy and the tests must all be clean before a commit.
 
 Every cop lives in its own file under `src/cops/<department>/`, implements the
 `Cop` trait and is registered in `Registry::new()` in `src/cops/mod.rs`.
-`src/cops/lint/debugger.rs` is the reference implementation. Tests sit next to
+`src/cops/lint/debugger.rs` is the reference implementation. A cop that
+builds facts once per file declares a `Fact` static in its own file (see
+`Fact` in `src/source.rs`) instead of adding a field to `SourceFile`. Tests sit next to
 the cop and in `tests/`. Where semantics match RuboCop, its spec examples are
 ported; RuboCop is MIT licensed and the ported modules keep the attribution.
 

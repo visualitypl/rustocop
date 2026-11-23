@@ -442,6 +442,16 @@ fn report(
     });
 }
 
+/// Lazy structural tail equality for Naming memoization detection only.
+pub(crate) static MEMOIZED_NAME_FINGERPRINTS: crate::source::Fact<std::sync::Mutex<Fingerprints>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn memoized_name_fingerprints(&self) -> &std::sync::Mutex<Fingerprints> {
+        MEMOIZED_NAME_FINGERPRINTS.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop naming/memoized_instance_variable_name_spec.rb

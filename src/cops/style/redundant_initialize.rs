@@ -247,6 +247,15 @@ impl Comments {
             .unwrap_or(node.location().end_offset())
     }
 }
+
+pub(crate) static INITIALIZE_COMMENTS: crate::source::Fact<Comments> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn initialize_comments(&self, root: &ruby_prism::Node<'_>) -> &Comments {
+        INITIALIZE_COMMENTS.get(self, || Comments::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/redundant_initialize_spec.rb.

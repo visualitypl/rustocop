@@ -364,6 +364,16 @@ fn siblings<'pr>(
     visitor.nodes
 }
 
+/// Per-container method visibility, indexed lazily from NodeContext parents.
+pub(crate) static METHOD_VISIBILITY: crate::source::Fact<std::sync::Mutex<MethodVisibility>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn method_visibility(&self) -> &std::sync::Mutex<MethodVisibility> {
+        METHOD_VISIBILITY.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/documentation_method_spec.rb

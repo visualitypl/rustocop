@@ -326,6 +326,14 @@ pub(super) fn source_end(call: &SuperNode<'_>) -> usize {
     end
 }
 
+pub(crate) static SUPER_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn super_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        SUPER_FACTS.get(self, || Facts::of(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop super_arguments_spec.rb (MIT, Copyright (c)

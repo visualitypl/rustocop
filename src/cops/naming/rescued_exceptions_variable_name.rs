@@ -305,6 +305,15 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for ReadIndex<'pr> {
     }
 }
 
+pub(crate) static RESCUE_PREFERRED_READS: crate::source::Fact<PreferredReads> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn rescue_preferred_reads(&self, root: &ruby_prism::Node<'_>) -> &PreferredReads {
+        RESCUE_PREFERRED_READS.get(self, || PreferredReads::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported RuboCop specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov).

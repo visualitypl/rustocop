@@ -108,6 +108,16 @@ impl Facts {
         index.facts
     }
 }
+
+/// Distinct numbered-name masks folded once from the main AST.
+pub(crate) static NUMBERED_LIMIT_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn numbered_limit_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        NUMBERED_LIMIT_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/numbered_parameters_limit_spec.rb.

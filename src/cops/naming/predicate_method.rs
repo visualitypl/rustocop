@@ -355,6 +355,17 @@ fn value(node: &Node<'_>) -> u8 {
         _ => UNKNOWN,
     }
 }
+
+/// Detection-only conservative method return facts, built once on demand.
+pub(crate) static PREDICATE_METHOD_RETURNS: crate::source::Fact<Returns> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn predicate_method_returns(&self, root: &ruby_prism::Node<'_>) -> &Returns {
+        PREDICATE_METHOD_RETURNS.get(self, || Returns::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! RuboCop specs: MIT, Copyright (c) 2012-26 Bozhidar Batsov.

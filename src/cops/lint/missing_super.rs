@@ -199,6 +199,14 @@ impl Facts {
     }
 }
 
+pub(crate) static MISSING_SUPER_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn missing_super_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        MISSING_SUPER_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's `spec/rubocop/cop/lint/missing_super_spec.rb`

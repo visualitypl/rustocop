@@ -154,6 +154,14 @@ impl Facts {
     }
 }
 
+pub(crate) static HASH_FETCH_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn hash_fetch_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        HASH_FETCH_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop hash_fetch_chain_spec.rb (MIT, Copyright (c) 2012-26 Bozhidar Batsov).

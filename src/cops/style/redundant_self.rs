@@ -417,6 +417,15 @@ impl Facts {
         i > 0 && offset < ranges[i - 1].end
     }
 }
+
+pub(crate) static SELF_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn self_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        SELF_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/redundant_self_spec.rb.

@@ -343,6 +343,17 @@ fn env_receiver(receiver: Option<Node<'_>>) -> bool {
             .is_some_and(|c| c.name().as_slice() == b"ENV")
     })
 }
+
+/// Direct conditional guard keys, indexed once per condition for FetchEnvVar.
+pub(crate) static FETCH_ENV_CONDITIONS: crate::source::Fact<std::sync::Mutex<Conditions>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn fetch_env_conditions(&self) -> &std::sync::Mutex<Conditions> {
+        FETCH_ENV_CONDITIONS.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/fetch_env_var_spec.rb (MIT,

@@ -299,6 +299,15 @@ impl Facts {
         facts
     }
 }
+
+pub(crate) static IT_PARAMETER_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn it_parameter_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        IT_PARAMETER_FACTS.get(self, || Facts::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/it_block_parameter_spec.rb (MIT,

@@ -162,6 +162,21 @@ impl Facts {
         builder.facts
     }
 }
+
+pub(crate) static HASH_LOOKUP_FACTS: [crate::source::Fact<Facts>; 2] =
+    [crate::source::Fact::new(), crate::source::Fact::new()];
+
+impl crate::source::SourceFile {
+    pub(crate) fn hash_lookup_facts(
+        &self,
+        root: &ruby_prism::Node<'_>,
+        fetch_env_enabled: bool,
+    ) -> &Facts {
+        HASH_LOOKUP_FACTS[usize::from(fetch_env_enabled)]
+            .get(self, || Facts::build(root, self, fetch_env_enabled))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop hash_lookup_method_spec.rb (MIT, Copyright (c) 2012-26 Bozhidar Batsov).

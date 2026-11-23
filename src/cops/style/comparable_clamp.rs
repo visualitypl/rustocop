@@ -285,6 +285,15 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Safety {
     }
 }
 
+/// Correction-only closed eager core proof for literal conditional clamps.
+pub(crate) static COMPARABLE_CLAMP_SAFETY: crate::source::Fact<Safety> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn comparable_clamp_safety(&self, root: &ruby_prism::Node<'_>) -> &Safety {
+        COMPARABLE_CLAMP_SAFETY.get(self, || Safety::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/comparable_clamp_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).

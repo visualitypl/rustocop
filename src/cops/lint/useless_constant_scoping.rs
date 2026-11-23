@@ -295,8 +295,8 @@ pub(super) fn method_modifier_scope(
                 child.location().start_offset(),
                 child.location().end_offset(),
             );
-            *file
-                .method_definition_macro_branches
+            *METHOD_DEFINITION_MACRO_BRANCHES
+                .get(file, Default::default)
                 .lock()
                 .unwrap()
                 .entry(key)
@@ -453,6 +453,12 @@ fn class_definition(node: &Node<'_>) -> bool {
             })
     })
 }
+
+/// Conditional-edge equality, only for non-bare method modifiers.
+pub(crate) static METHOD_DEFINITION_MACRO_BRANCHES: crate::source::Fact<
+    std::sync::Mutex<MacroBranches>,
+> = crate::source::Fact::new();
+type MacroBranches = std::collections::HashMap<(usize, usize, usize), bool>;
 
 #[cfg(test)]
 mod tests {

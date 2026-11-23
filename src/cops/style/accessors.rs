@@ -205,3 +205,17 @@ impl CustomAttrs {
         self.scopes.contains(&node.location().start_offset())
     }
 }
+
+pub(crate) static CUSTOM_ATTRS: crate::source::Fact<CustomAttrs> = crate::source::Fact::new();
+pub(crate) static ACCESSOR_ANNOTATIONS: crate::source::Fact<Annotations> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn custom_attrs(&self, root: &ruby_prism::Node<'_>) -> &CustomAttrs {
+        CUSTOM_ATTRS.get(self, || CustomAttrs::build(root))
+    }
+
+    pub(crate) fn accessor_annotations(&self) -> &Annotations {
+        ACCESSOR_ANNOTATIONS.get(self, || Annotations::build(self))
+    }
+}

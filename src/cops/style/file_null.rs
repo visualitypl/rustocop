@@ -108,6 +108,17 @@ impl<'pr> NodeVisitor<'pr> for NullDevices {
     fn leave(&mut self) {}
 }
 
+/// FileNull's detection evidence, distinct from correction-only bindings.
+pub(crate) static CONTAINS_DEV_NULL: crate::source::Fact<NullDevices> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn contains_dev_null(&self, root: &ruby_prism::Node<'_>) -> bool {
+        CONTAINS_DEV_NULL
+            .get(self, || NullDevices::build(root))
+            .contains_dev_null
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/file_null_spec.rb (MIT,

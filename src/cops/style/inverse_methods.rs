@@ -353,6 +353,14 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for NextIndex {
     }
 }
 
+pub(crate) static INVERSE_METHOD_NEXTS: crate::source::Fact<NextIndex> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn inverse_method_nexts(&self, root: &ruby_prism::Node<'_>) -> &NextIndex {
+        INVERSE_METHOD_NEXTS.get(self, || NextIndex::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/inverse_methods_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).

@@ -121,3 +121,12 @@ pub(super) fn is_class_emitter(name: &[u8], cx: &NodeContext<'_, '_>, file: &Sou
         .get(&parent)
         .is_some_and(|names| names.contains(name))
 }
+
+pub(crate) static CLASS_EMITTER_SIBLINGS: crate::source::Fact<Siblings> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn class_emitter_siblings(&self, root: &ruby_prism::Node<'_>) -> &Siblings {
+        CLASS_EMITTER_SIBLINGS.get(self, || Siblings::build(root))
+    }
+}

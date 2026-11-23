@@ -187,6 +187,17 @@ impl<'pr> NodeVisitor<'pr> for CompanionIndex {
         self.stack.pop();
     }
 }
+
+/// Main-AST lexical companion-method presence, indexed at most once.
+pub(crate) static RESPOND_TO_MISSING_INDEX: crate::source::Fact<CompanionIndex> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn respond_to_missing_index(&self, root: &ruby_prism::Node<'_>) -> &CompanionIndex {
+        RESPOND_TO_MISSING_INDEX.get(self, || CompanionIndex::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/missing_respond_to_missing_spec.rb

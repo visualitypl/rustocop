@@ -336,6 +336,31 @@ fn source_pattern(source: &[u8], pattern: &mut String) {
     }
 }
 
+/// Physical-line # markers for eval docs, including markers in literals.
+pub(crate) static NON_INTERPOLATION_HASH_LINES: crate::source::Fact<Vec<bool>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    /// Eval documentation uses physical source lines, not parser comments.
+    /// Index once: many eval calls/interpolations on one line must not rescan it.
+    pub(crate) fn line_has_non_interpolation_hash(&self, line: u32) -> bool {
+        let lines = NON_INTERPOLATION_HASH_LINES.get(self, || {
+            self.bytes
+                .split(|&b| b == b'\n')
+                .map(|line| {
+                    line.iter()
+                        .enumerate()
+                        .any(|(i, &b)| b == b'#' && line.get(i + 1) != Some(&b'{'))
+                })
+                .collect()
+        });
+        line.checked_sub(1)
+            .and_then(|i| lines.get(i as usize))
+            .copied()
+            .unwrap_or(false)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's

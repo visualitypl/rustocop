@@ -967,6 +967,15 @@ fn regexp_match_statement(condition: &Node<'_>) -> bool {
         })
 }
 
+/// Lazy source-order facts for modifier eligibility, using the main AST.
+pub(crate) static MODIFIER_INDEX: crate::source::Fact<ModifierIndex> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn modifier_index(&self, root: &ruby_prism::Node<'_>) -> &ModifierIndex {
+        MODIFIER_INDEX.get(self, || ModifierIndex::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's if_unless_modifier_spec.rb and

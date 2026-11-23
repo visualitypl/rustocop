@@ -194,6 +194,14 @@ impl Facts {
     }
 }
 
+pub(crate) static USELESS_RESCUE_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn useless_rescue_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        USELESS_RESCUE_FACTS.get(self, || Facts::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/useless_rescue_spec.rb (MIT License,

@@ -659,6 +659,20 @@ fn last_child_of_parent(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
     true
 }
 
+/// IdenticalConditionalBranches expression ranges already reported by an
+/// enclosing chain; also deduplicates an expression that is both edges.
+pub(crate) static IDENTICAL_BRANCH_EDGES: crate::source::Fact<
+    std::sync::Mutex<std::collections::HashSet<(usize, usize)>>,
+> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn identical_branch_edges(
+        &self,
+    ) -> &std::sync::Mutex<std::collections::HashSet<(usize, usize)>> {
+        IDENTICAL_BRANCH_EDGES.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/identical_conditional_branches_spec.rb

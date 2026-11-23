@@ -216,6 +216,15 @@ thread_local! {
     static VISITS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
+/// Correction-only lexical declaration/read evidence for branch swaps.
+pub(crate) static UNLESS_ELSE_BINDINGS: crate::source::Fact<Bindings> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn unless_else_bindings(&self, root: &ruby_prism::Node<'_>) -> &Bindings {
+        UNLESS_ELSE_BINDINGS.get(self, || Bindings::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! RuboCop unless_else_spec.rb examples (MIT, Copyright (c) 2012-26 Bozhidar Batsov).

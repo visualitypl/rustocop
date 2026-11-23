@@ -471,6 +471,20 @@ fn method_argument<'pr>(node: &Node<'pr>) -> Option<(ruby_prism::CallNode<'pr>, 
     Some((call, argument))
 }
 
+/// RedundantCondition matches already visited in the main preorder walk.
+/// Descendants query these facts instead of re-fingerprinting ancestors.
+pub(crate) static REDUNDANT_CONDITIONS: crate::source::Fact<
+    std::sync::Mutex<std::collections::HashSet<(usize, usize)>>,
+> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn redundant_conditions(
+        &self,
+    ) -> &std::sync::Mutex<std::collections::HashSet<(usize, usize)>> {
+        REDUNDANT_CONDITIONS.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's `spec/rubocop/cop/style/redundant_condition_spec.rb`

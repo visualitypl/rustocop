@@ -252,6 +252,16 @@ impl Cop for LineEndConcatenation {
     }
 }
 
+/// Literal-token boundaries recorded by the main LineEndConcatenation walk.
+pub(crate) static LINE_END_BOUNDARIES: crate::source::Fact<std::sync::Mutex<Boundaries>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn line_end_boundaries(&self) -> &std::sync::Mutex<Boundaries> {
+        LINE_END_BOUNDARIES.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's `style/line_end_concatenation_spec.rb`

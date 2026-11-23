@@ -558,6 +558,15 @@ fn eval_block(node: &Node<'_>) -> bool {
             && matches!(c.name().as_slice(), b"class_eval" | b"instance_eval")
     })
 }
+
+pub(crate) static USELESS_ACCESS_MODIFIERS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn useless_access_modifiers(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        USELESS_ACCESS_MODIFIERS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/useless_access_modifier_spec.rb.

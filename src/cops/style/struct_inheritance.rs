@@ -229,6 +229,19 @@ impl<'pr> NodeVisitor<'pr> for DefinitionVisitor<'pr> {
     }
 }
 
+/// Shared constant-definition locations for Struct/Data superclass checks.
+pub(crate) static INHERITANCE_CONSTANTS: crate::source::Fact<ConstantDefinitions> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn inheritance_constants(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &ConstantDefinitions {
+        INHERITANCE_CONSTANTS.get(self, || ConstantDefinitions::build(root))
+    }
+}
+
 #[cfg(test)]
 pub(crate) mod tests {
     //! Examples ported from RuboCop's style/struct_inheritance_spec.rb and

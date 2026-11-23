@@ -412,6 +412,15 @@ impl Facts {
     }
 }
 
+/// Correction-only closed eager Kernel.lambda lookup proof.
+pub(crate) static LAMBDA_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn lambda_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        LAMBDA_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's `spec/rubocop/cop/style/lambda_spec.rb`

@@ -175,6 +175,15 @@ impl<'pr> NodeVisitor<'pr> for Bindings {
     }
 }
 
+/// Correction-only binding evidence for class-check selector replacements.
+pub(crate) static CLASS_CHECK_BINDINGS: crate::source::Fact<Bindings> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn class_check_bindings(&self, root: &ruby_prism::Node<'_>) -> &Bindings {
+        CLASS_CHECK_BINDINGS.get(self, || Bindings::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/class_check_spec.rb

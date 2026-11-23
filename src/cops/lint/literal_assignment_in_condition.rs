@@ -891,6 +891,17 @@ fn same_location(a: &Node<'_>, b: &Node<'_>) -> bool {
         && a.location().end_offset() == b.location().end_offset()
 }
 
+/// LiteralAssignmentInCondition's bounded, lazy structural scope-edge facts.
+pub(crate) static LITERAL_ASSIGNMENT_SCOPE_EDGES: crate::source::Fact<
+    std::sync::Mutex<ScopeEdges>,
+> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn literal_assignment_scope_edges(&self) -> &std::sync::Mutex<ScopeEdges> {
+        LITERAL_ASSIGNMENT_SCOPE_EDGES.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/literal_assignment_in_condition_spec.rb

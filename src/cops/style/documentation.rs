@@ -580,6 +580,16 @@ fn mixins_only(node: &Node<'_>) -> bool {
     }
 }
 
+/// Fixed documentation/annotation/nodoc facts, classified once per comment.
+pub(crate) static DOCUMENTATION_COMMENTS: crate::source::Fact<DocumentationComments> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn documentation_comments(&self) -> &DocumentationComments {
+        DOCUMENTATION_COMMENTS.get(self, || DocumentationComments::build(self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/documentation_spec.rb

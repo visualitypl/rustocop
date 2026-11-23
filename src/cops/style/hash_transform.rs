@@ -476,6 +476,14 @@ fn scalar_symbol<'pr>(node: &Node<'pr>) -> Option<&'pr [u8]> {
     }
 }
 
+pub(crate) static HASH_TRANSFORM_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn hash_transform_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        HASH_TRANSFORM_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Pinned RuboCop style/hash_transform_{keys,values}_spec.rb and

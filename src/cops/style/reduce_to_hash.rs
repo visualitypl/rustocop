@@ -209,6 +209,15 @@ impl Facts {
         b.facts
     }
 }
+
+pub(crate) static REDUCE_TO_HASH_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn reduce_to_hash_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        REDUCE_TO_HASH_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop reduce_to_hash_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).

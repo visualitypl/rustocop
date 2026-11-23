@@ -141,6 +141,15 @@ impl Facts {
         }
     }
 }
+
+pub(crate) static BLOCK_CHAIN_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn block_chain_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        BLOCK_CHAIN_FACTS.get(self, || Facts::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/multiline_block_chain_spec.rb (MIT,

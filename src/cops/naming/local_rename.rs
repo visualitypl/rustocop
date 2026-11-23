@@ -369,6 +369,14 @@ pub(super) fn attach(
     }
 }
 
+pub(crate) static LOCAL_RENAME_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn local_rename_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        LOCAL_RENAME_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

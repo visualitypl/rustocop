@@ -179,6 +179,14 @@ pub(super) fn literal_block(call: &CallNode<'_>) -> bool {
         .is_some_and(|block| block.as_block_node().is_some())
 }
 
+pub(crate) static DIG_CALLS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn dig_calls(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        DIG_CALLS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's `dig_chain_spec.rb`.

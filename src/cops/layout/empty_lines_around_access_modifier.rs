@@ -379,5 +379,15 @@ impl Scopes {
     }
 }
 
+pub(crate) static ACCESS_MODIFIER_SCOPES: crate::source::Fact<Scopes> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    /// Layout/EmptyLinesAroundAccessModifier's whole-investigation state at
+    /// each candidate modifier, from one walk of the file.
+    pub(crate) fn access_modifier_scopes(&self, root: &ruby_prism::Node<'_>) -> &Scopes {
+        ACCESS_MODIFIER_SCOPES.get(self, || Scopes::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests;

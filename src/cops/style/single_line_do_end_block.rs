@@ -232,6 +232,15 @@ impl Facts {
         index.facts
     }
 }
+
+pub(crate) static DO_END_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn do_end_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        DO_END_FACTS.get(self, || Facts::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop style/single_line_do_end_block_spec.rb (MIT,

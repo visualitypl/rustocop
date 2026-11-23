@@ -876,6 +876,18 @@ fn arguments<'pr>(node: &Node<'pr>) -> Vec<Node<'pr>> {
     args
 }
 
+pub(crate) static FORWARDING_SAFETY: crate::source::Fact<Safety> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn forwarding_safety(
+        &self,
+        root: &ruby_prism::Node<'_>,
+        analysis: &crate::cops::variables::ScopeAnalysis<'_>,
+    ) -> &Safety {
+        FORWARDING_SAFETY.get(self, || Safety::build(root, analysis))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's `spec/rubocop/cop/style/arguments_forwarding_spec.rb`

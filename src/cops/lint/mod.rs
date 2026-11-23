@@ -150,7 +150,7 @@ pub(crate) mod useless_access_modifier;
 pub use useless_access_modifier::UselessAccessModifier;
 mod syntax;
 mod useless_assignment;
-mod useless_constant_scoping;
+pub(crate) mod useless_constant_scoping;
 mod useless_else_without_rescue;
 mod void;
 pub use syntax::Syntax;

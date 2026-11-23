@@ -424,6 +424,15 @@ impl Facts {
         b.facts
     }
 }
+
+pub(crate) static EACH_WITH_OBJECT_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn each_with_object_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        EACH_WITH_OBJECT_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop each_with_object_spec.rb (MIT License,

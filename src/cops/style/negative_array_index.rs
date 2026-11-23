@@ -273,6 +273,16 @@ impl Facts {
             .and_then(|f| f.1.clone())
     }
 }
+
+pub(crate) static NEGATIVE_ARRAY_INDEX_FACTS: crate::source::Fact<Facts> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn negative_array_index_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        NEGATIVE_ARRAY_INDEX_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop negative_array_index_spec.rb (MIT License,

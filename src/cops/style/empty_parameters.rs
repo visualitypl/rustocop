@@ -159,6 +159,15 @@ impl Facts {
     }
 }
 
+/// Correction-only implicit-it hazards for both empty-parameter cops.
+pub(crate) static EMPTY_PARAMETER_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn empty_parameter_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        EMPTY_PARAMETER_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::cops::{

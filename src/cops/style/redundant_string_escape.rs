@@ -157,6 +157,36 @@ impl Cop for RedundantStringEscape {
         }
     }
 }
+
+/// Correction-only unbraced variable ends, recorded in the existing main
+/// preorder cop dispatch. Exact offsets avoid fragment/sibling rescans.
+pub(crate) static STRING_ESCAPE_VARIABLE_ENDS: crate::source::Fact<
+    std::sync::Mutex<std::collections::HashSet<usize>>,
+> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn record_string_escape_variable_end(&self, end: usize) {
+        STRING_ESCAPE_VARIABLE_ENDS
+            .get(self, Default::default)
+            .lock()
+            .unwrap()
+            .insert(end);
+    }
+
+    #[cfg(test)]
+    pub(crate) fn string_escape_variable_count(&self) -> Option<usize> {
+        STRING_ESCAPE_VARIABLE_ENDS
+            .peek(self)
+            .map(|ends| ends.lock().unwrap().len())
+    }
+
+    pub(crate) fn follows_string_escape_variable(&self, start: usize) -> bool {
+        STRING_ESCAPE_VARIABLE_ENDS
+            .peek(self)
+            .is_some_and(|ends| ends.lock().unwrap().contains(&start))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/redundant_string_escape_spec.rb

@@ -263,7 +263,10 @@ fn allowed_receiver(node: &Node<'_>, file: &SourceFile) -> bool {
     {
         return true;
     }
-    let mut cache = file.number_conversion_roots.lock().unwrap();
+    let mut cache = NUMBER_CONVERSION_ROOTS
+        .get(file, Default::default)
+        .lock()
+        .unwrap();
     let mut current = None;
     let mut path = Vec::new();
     let allowed = loop {
@@ -285,6 +288,11 @@ fn allowed_receiver(node: &Node<'_>, file: &SourceFile) -> bool {
     }
     allowed
 }
+
+/// Memoized syntactic Time/DateTime roots, only for the opt-in detector.
+pub(crate) static NUMBER_CONVERSION_ROOTS: crate::source::Fact<
+    std::sync::Mutex<std::collections::HashMap<(usize, usize), bool>>,
+> = crate::source::Fact::new();
 
 #[cfg(test)]
 mod tests {
@@ -415,7 +423,14 @@ mod tests {
         };
         walk(&mut check, &parsed.node());
         assert_eq!(check.checked, 20);
-        assert_eq!(file.number_conversion_roots.lock().unwrap().len(), 40);
+        assert_eq!(
+            super::NUMBER_CONVERSION_ROOTS
+                .get(&file, Default::default)
+                .lock()
+                .unwrap()
+                .len(),
+            40
+        );
     }
     #[test]
     fn compound_assignment_getters_are_real_sends_but_targets_are_setters() {

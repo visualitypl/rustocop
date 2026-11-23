@@ -3006,6 +3006,14 @@ fn static_selector_matches(node: Node<'_>, predicate: fn(&[u8]) -> bool) -> Opti
         })
 }
 
+pub(crate) static VISIBLE_LOCALS: crate::source::Fact<VisibleLocals> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn visible_locals(&self, root: &ruby_prism::Node<'_>) -> &VisibleLocals {
+        VISIBLE_LOCALS.get(self, || VisibleLocals::of(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -238,6 +238,18 @@ fn correction(
     super::correction::combine(file, edits)
 }
 
+pub(crate) static REDUNDANT_DOUBLE_SPLATS: crate::source::Fact<std::collections::HashSet<usize>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn redundant_double_splats(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &std::collections::HashSet<usize> {
+        REDUNDANT_DOUBLE_SPLATS.get(self, || index(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop redundant_double_splat_hash_braces_spec.rb

@@ -314,6 +314,20 @@ thread_local! {
     static BUILDS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
     static VISITS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
+
+/// Detection-only bottom-up return facts for subjectless-case branch guards.
+pub(crate) static EMPTY_CASE_RETURN_BODIES: crate::source::Fact<std::collections::HashSet<usize>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn empty_case_return_bodies(
+        &self,
+        root: &ruby_prism::Node<'_>,
+    ) -> &std::collections::HashSet<usize> {
+        EMPTY_CASE_RETURN_BODIES.get(self, || return_bodies(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! RuboCop empty_case_condition_spec.rb examples (MIT, Copyright (c) 2012-26 Bozhidar Batsov).

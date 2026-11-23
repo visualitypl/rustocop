@@ -163,6 +163,16 @@ impl MagicState {
     }
 }
 
+/// MutableConstant's fixed magic policy, indexed once rather than per write.
+pub(crate) static MUTABLE_CONSTANT_MAGIC: crate::source::Fact<MagicState> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn mutable_constant_magic(&self) -> &MagicState {
+        MUTABLE_CONSTANT_MAGIC.get(self, || MagicState::build(self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/mutable_constant_spec.rb (MIT License,

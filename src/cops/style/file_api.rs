@@ -766,6 +766,15 @@ fn replacement_inner(
     Some(correction)
 }
 
+/// Correction-only file API binding evidence, indexed once from the main AST.
+pub(crate) static FILE_API_BINDINGS: crate::source::Fact<Bindings> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn file_api_bindings(&self, root: &ruby_prism::Node<'_>) -> &Bindings {
+        FILE_API_BINDINGS.get(self, || Bindings::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

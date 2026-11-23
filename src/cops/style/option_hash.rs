@@ -149,6 +149,14 @@ impl<'pr> NodeVisitor<'pr> for SuperIndex {
     }
 }
 
+pub(crate) static OPTION_HASH_SUPERS: crate::source::Fact<SuperIndex> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn option_hash_supers(&self, root: &ruby_prism::Node<'_>) -> &SuperIndex {
+        OPTION_HASH_SUPERS.get(self, || SuperIndex::of(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop option_hash_spec.rb (MIT License,

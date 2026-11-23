@@ -455,6 +455,19 @@ impl Cop for RedundantLineContinuation {
     }
 }
 
+pub(crate) static LINE_CONTINUATIONS: crate::source::Fact<std::sync::Mutex<Facts>> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn line_continuations(&self) -> Option<&std::sync::Mutex<Facts>> {
+        let records = self.raw_continuations()?;
+        if records.is_empty() {
+            return None;
+        }
+        Some(LINE_CONTINUATIONS.get(self, || std::sync::Mutex::new(Facts::new(self, records))))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's

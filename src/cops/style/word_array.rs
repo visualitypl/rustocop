@@ -518,6 +518,19 @@ fn brackets(array: &ArrayNode<'_>, file: &SourceFile) -> Option<String> {
         .collect::<Option<Vec<_>>>()?;
     super::correction::bracketed_array(array, &words, file)
 }
+
+pub(crate) static WORD_ARRAY_MATRICES: crate::source::Fact<
+    std::sync::Mutex<std::collections::HashSet<usize>>,
+> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn word_array_matrices(
+        &self,
+    ) -> &std::sync::Mutex<std::collections::HashSet<usize>> {
+        WORD_ARRAY_MATRICES.get(self, Default::default)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop word_array_spec.rb (MIT License,

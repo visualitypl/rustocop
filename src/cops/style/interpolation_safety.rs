@@ -222,3 +222,11 @@ pub(super) fn unfreeze<'pr>(n: &Node<'pr>) -> Option<(Node<'pr>, bool)> {
     }
     Some((string, new))
 }
+
+pub(crate) static INTERPOLATION_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn interpolation_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        INTERPOLATION_FACTS.get(self, || Facts::build(root))
+    }
+}

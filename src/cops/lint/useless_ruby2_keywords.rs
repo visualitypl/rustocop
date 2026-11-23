@@ -362,6 +362,14 @@ impl Facts {
     }
 }
 
+pub(crate) static RUBY2_KEYWORDS_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn ruby2_keywords_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        RUBY2_KEYWORDS_FACTS.get(self, || Facts::build(root, self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/useless_ruby2_keywords_spec.rb (MIT,

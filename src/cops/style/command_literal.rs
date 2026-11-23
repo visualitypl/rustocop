@@ -99,6 +99,24 @@ impl Cop for CommandLiteral {
     }
 }
 
+/// Raw backtick character starts, indexed once for nested command bodies.
+pub(crate) static COMMAND_BACKTICKS: crate::source::Fact<Vec<usize>> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    /// Raw policy includes interpolation code, not just decoded static parts.
+    /// One encoding-aware index avoids rescanning recursively nested bodies.
+    pub(crate) fn command_body_has_backtick(&self, range: std::ops::Range<usize>) -> bool {
+        let offsets = COMMAND_BACKTICKS.get(self, || {
+            self.character_offsets(0..self.bytes.len())
+                .filter(|&i| self.bytes[i] == b'`')
+                .collect()
+        });
+        offsets
+            .get(offsets.partition_point(|&i| i < range.start))
+            .is_some_and(|&i| i < range.end)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's `spec/rubocop/cop/style/command_literal_spec.rb`.

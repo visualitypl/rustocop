@@ -160,6 +160,16 @@ impl Facts {
         index.facts
     }
 }
+
+/// Correction-only closed eager Proc constant and Kernel.proc lookup proof.
+pub(crate) static PROC_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn proc_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        PROC_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Examples ported from RuboCop's style/proc_spec.rb.

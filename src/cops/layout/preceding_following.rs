@@ -245,6 +245,16 @@ impl Lines {
     }
 }
 
+pub(crate) static PRECEDING_FOLLOWING: crate::source::Fact<Lines> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    /// Line facts of RuboCop's PrecedingFollowingAlignment, shared by the
+    /// spacing cops that allow alignment.
+    pub(crate) fn preceding_following(&self) -> &Lines {
+        PRECEDING_FOLLOWING.get(self, || Lines::build(self))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

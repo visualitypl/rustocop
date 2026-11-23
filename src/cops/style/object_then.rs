@@ -125,6 +125,15 @@ impl<'pr> crate::cops::walk::NodeVisitor<'pr> for Bindings {
     }
 }
 
+/// Correction-only binding/visibility proof for ObjectThen selector edits.
+pub(crate) static OBJECT_THEN_BINDINGS: crate::source::Fact<Bindings> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn object_then_bindings(&self, root: &ruby_prism::Node<'_>) -> &Bindings {
+        OBJECT_THEN_BINDINGS.get(self, || Bindings::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/object_then_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).

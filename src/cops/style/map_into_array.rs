@@ -460,6 +460,15 @@ impl Facts {
         out
     }
 }
+
+pub(crate) static MAP_INTO_ARRAY_FACTS: crate::source::Fact<Facts> = crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn map_into_array_facts(&self, root: &ruby_prism::Node<'_>) -> &Facts {
+        MAP_INTO_ARRAY_FACTS.get(self, || Facts::build(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop map_into_array_spec.rb (MIT, (c) 2012-26 Bozhidar Batsov).

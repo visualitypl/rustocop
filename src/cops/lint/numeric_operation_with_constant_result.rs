@@ -159,7 +159,7 @@ fn projected_local<'pr>(
     // Index once, retaining raw names for VariableForce's scope/order queries.
     // Deduplicate spellings shared by multiple scopes; unrelated declarations
     // never enter a receiver's lookup bucket.
-    let aliases = file.numeric_operation_local_aliases.get_or_init(|| {
+    let aliases = NUMERIC_OPERATION_LOCAL_ALIASES.get(file, || {
         let mut seen = std::collections::HashSet::new();
         let mut aliases = std::collections::HashMap::<Vec<u8>, Vec<Vec<u8>>>::new();
         for alias in locals.declaration_names() {
@@ -200,6 +200,12 @@ fn integer_zero(node: &Node<'_>) -> bool {
 fn constant_result(lhs: &[u8], operation: &[u8], zero: bool, rhs: Option<&[u8]>) -> bool {
     (zero && matches!(operation, b"*" | b"**")) || (operation == b"/" && rhs == Some(lhs))
 }
+
+/// Detection-only UTF8-MAC aliases; built once, only for numeric candidates.
+pub(crate) static NUMERIC_OPERATION_LOCAL_ALIASES: crate::source::Fact<
+    std::collections::HashMap<Vec<u8>, Vec<Vec<u8>>>,
+> = crate::source::Fact::new();
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's lint/numeric_operation_with_constant_result_spec.rb
@@ -364,9 +370,15 @@ mod tests {
                     };
                     assert!(work <= bound, "{encoding} {expression}: {work} > {bound}");
                     if bound == 0 {
-                        assert!(file.numeric_operation_local_aliases.get().is_none());
+                        assert!(super::NUMERIC_OPERATION_LOCAL_ALIASES.peek(&file).is_none());
                     } else {
-                        assert_eq!(file.numeric_operation_local_aliases.get().unwrap().len(), n);
+                        assert_eq!(
+                            super::NUMERIC_OPERATION_LOCAL_ALIASES
+                                .peek(&file)
+                                .unwrap()
+                                .len(),
+                            n
+                        );
                     }
                 }
             }

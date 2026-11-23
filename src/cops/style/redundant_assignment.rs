@@ -244,6 +244,15 @@ fn method_tail(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
     false
 }
 
+pub(crate) static REDUNDANT_ASSIGNMENT_SAFETY: crate::source::Fact<Safety> =
+    crate::source::Fact::new();
+
+impl crate::source::SourceFile {
+    pub(crate) fn redundant_assignment_safety(&self, root: &ruby_prism::Node<'_>) -> &Safety {
+        REDUNDANT_ASSIGNMENT_SAFETY.get(self, || Safety::of(root))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     //! Ported from RuboCop's style/redundant_assignment_spec.rb
