@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn all_pinned_examples_match_exact_positions_and_messages() {
-        use crate::cops::{Cop, testing::correction_offenses};
+        use crate::cops::testing::correction_offenses;
         let cases: serde_json::Value = serde_json::from_str(include_str!(
             "../../../tests/fixtures/single_argument_dig_pinned.json"
         ))
