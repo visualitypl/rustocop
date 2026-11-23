@@ -99,7 +99,7 @@ fn dense_unicode_corrections_keep_raw_byte_offsets_and_sorted_remaining_position
     let output = cli(dir.path(), &["--fix", "--only", ONLY, "x.rb"], 1);
     assert_eq!(
         fs::read(&path).unwrap(),
-        format!("\u{feff}{}\r\n", fixed_fragment.repeat(REPEATS)).as_bytes()
+        format!("\u{feff}{}\n", fixed_fragment.repeat(REPEATS)).as_bytes()
     );
     let mut expected = String::new();
     let first_col = fixed_fragment

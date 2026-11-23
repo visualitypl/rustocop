@@ -87,7 +87,11 @@ fn fixed(root: &Path, before: &[u8], after: &[u8]) -> Output {
     let old = fs::metadata(&path).unwrap();
     let out = run(root, &["--only", COP, "--fix", "lib/a.rb"]);
     assert!(out.stderr.is_empty(), "{out:?}");
-    assert_eq!(fs::read(&path).unwrap(), after, "{out:?}");
+    assert_eq!(
+        fs::read(&path).unwrap(),
+        crate::support::lf::lf(after),
+        "{out:?}"
+    );
     assert_eq!(
         old.permissions(),
         fs::metadata(&path).unwrap().permissions()

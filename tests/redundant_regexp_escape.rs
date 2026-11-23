@@ -105,7 +105,10 @@ fn encoding_bom_crlf_line_and_data_bytes() {
                 format!("{prefix}/a-b/imx\np __LINE__\n__END__\n/a\\-b/\n").replace('\n', nl);
             fs::write(d.path().join("a.rb"), source).unwrap();
             cli(d.path(), &["--only", COP, "--fix", "a.rb"], 0);
-            assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
+            assert_eq!(
+                fs::read_to_string(d.path().join("a.rb")).unwrap(),
+                crate::support::lf::lf_str(&after)
+            );
         }
     }
     for (source, after) in [

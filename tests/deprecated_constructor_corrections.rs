@@ -56,6 +56,7 @@ fn genuine_edits_preserve_envelopes_and_obey_config_directive_and_selection_gate
             unchanged(dir.path(), before.as_bytes(), &["--only", cop, "a.rb"], 1);
             let out = cli(dir.path(), &["--only", cop, "--fix", "a.rb"]);
             assert_eq!(out.status.code(), Some(0), "{out:?}");
+            let expected = crate::support::lf::lf_str(&expected);
             assert_eq!(
                 fs::read(dir.path().join("a.rb")).unwrap(),
                 expected.as_bytes()
@@ -77,7 +78,7 @@ fn genuine_edits_preserve_envelopes_and_obey_config_directive_and_selection_gate
             assert_eq!(out.status.code(), Some(0), "{out:?}");
             assert_eq!(
                 fs::read(dir.path().join("a.rb")).unwrap(),
-                [prefix, after.as_bytes()].concat()
+                crate::support::lf::lf([prefix, after.as_bytes()].concat())
             );
         }
         for config in [
@@ -129,6 +130,7 @@ fn genuine_edits_preserve_envelopes_and_obey_config_directive_and_selection_gate
                 &["--fix", "--except", "Style,Layout,Naming,Security", "a.rb"],
             );
             assert_eq!(out.status.code(), Some(0), "{out:?}");
+            let expected = crate::support::lf::lf_str(&expected);
             assert_eq!(
                 fs::read(dir.path().join("a.rb")).unwrap(),
                 expected.as_bytes()

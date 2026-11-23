@@ -217,7 +217,7 @@ fn bom_crlf_encoding_line_literals_and_data_bytes_survive() {
             .replace("# rubocop:enable Migration/Nonexistent", "");
         let mut expected = after.into_bytes();
         expected.extend_from_slice(b"\xff\x82\xa0\r\n");
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 #[test]

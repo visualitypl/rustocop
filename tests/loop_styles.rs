@@ -166,7 +166,14 @@ fn do_range_wrappers_and_continuations_preserve_runtime_per_individual_edit() {
                     let source = format!("def consume(value); value; end\nevents=[]\nr={word} {predicate} do\n -1\n events << :body\n break :done\nend\np [r,events]\n").replace('\n', nl);
                     let after = if changes {
                         let after = correct(d.path(), DO, &source);
-                        assert_eq!(after, source.replacen(&format!(" do{nl}"), nl, 1));
+                        assert_eq!(
+                            after,
+                            crate::support::lf::lf_str(&source.replacen(
+                                &format!(" do{nl}"),
+                                nl,
+                                1
+                            ))
+                        );
                         after
                     } else {
                         let o = unchanged(

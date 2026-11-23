@@ -124,7 +124,10 @@ fn encoding_bom_crlf_payload_and_explicit_line_values_survive() {
                 &["--only", cop, "--fix", "x.rb"],
                 i32::from(cop == REDUNDANT),
             );
-            assert_eq!(fs::read(&path).unwrap(), after);
+            assert_eq!(
+                fs::read(&path).unwrap(),
+                crate::support::lf::fixed(&before, &after)
+            );
         }
     }
 }
@@ -157,7 +160,7 @@ fn signature_edit_reaches_a_disabled_line_as_in_rubocop() {
         &["--only", &format!("{BLOCK},{MERGE}"), "--fix", "x.rb"],
         1,
     );
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
 }
 fn ruby_available() -> bool {
     Command::new("ruby")

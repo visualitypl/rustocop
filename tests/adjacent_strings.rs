@@ -249,7 +249,10 @@ fn authored_native_continuation_line_events_and_cli_no_write_hold() {
                 // The pairwise cop can safely remove one same-line empty
                 // child, but must leave the other on the original start line.
                 assert!(out.status.success(), "{out:?}");
-                assert_eq!(after, source.replace("\"\"\"\"", "\"\""));
+                assert_eq!(
+                    after,
+                    crate::support::lf::lf_str(&source.replace("\"\"\"\"", "\"\""))
+                );
                 unchanged(
                     d.path(),
                     after.as_bytes(),

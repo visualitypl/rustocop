@@ -52,7 +52,10 @@ fn actual_canonical_cli_envelopes_no_write_gates_and_idempotence() {
                 unchanged(dir.path(), source.as_bytes(), &["--only", COP, "a.rb"], 1);
                 let out = cli(dir.path(), &["--only", COP, "--fix", "a.rb"]);
                 assert_eq!(out.status.code(), Some(0), "{source}\n{out:?}");
-                assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), after.as_bytes());
+                assert_eq!(
+                    fs::read(dir.path().join("a.rb")).unwrap(),
+                    crate::support::lf::lf(&after)
+                );
                 unchanged(
                     dir.path(),
                     after.as_bytes(),
@@ -98,7 +101,7 @@ fn actual_canonical_cli_envelopes_no_write_gates_and_idempotence() {
             );
         }
     }
-    // ASCII-compatible source encodings and non-UTF8 comments stay byte-exact.
+    // ASCII-compatible source encodings and non-UTF8 comments keep their bytes.
     for prefix in [
         b"# coding: ISO-8859-1\r\n# \xe9\r\n".as_slice(),
         b"# coding: Shift_JIS\r\n# \x82\xa0\r\n",
@@ -109,7 +112,7 @@ fn actual_canonical_cli_envelopes_no_write_gates_and_idempotence() {
         assert_eq!(out.status.code(), Some(0), "{out:?}");
         assert_eq!(
             fs::read(dir.path().join("a.rb")).unwrap(),
-            [prefix, AFTER.as_bytes()].concat()
+            crate::support::lf::lf([prefix, AFTER.as_bytes()].concat())
         );
     }
 }

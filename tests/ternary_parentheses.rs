@@ -26,7 +26,11 @@ fn fix(root: &Path, before: &str, after: &str) {
     fs::write(&path, before).unwrap();
     let old_time = fs::metadata(&path).unwrap().modified().unwrap();
     run(root, &["--only", COP, "--fix", "lib/a.rb"]);
-    assert_eq!(fs::read(&path).unwrap(), after.as_bytes(), "{before}");
+    assert_eq!(
+        fs::read(&path).unwrap(),
+        crate::support::lf::lf(after),
+        "{before}"
+    );
     if before == after {
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), old_time);
     }

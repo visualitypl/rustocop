@@ -25,7 +25,11 @@ fn fix(root: &Path, before: &[u8], after: &[u8], status: i32) {
     let old = fs::metadata(&path).unwrap();
     let out = run(root, &["--only", BOTH, "--fix", "lib/a.rb"]);
     assert_eq!(out.status.code(), Some(status), "{out:?}\n{before:?}");
-    assert_eq!(fs::read(&path).unwrap(), after, "{before:?}\n{out:?}");
+    assert_eq!(
+        fs::read(&path).unwrap(),
+        crate::support::lf::lf(after),
+        "{before:?}\n{out:?}"
+    );
     let new = fs::metadata(&path).unwrap();
     assert_eq!(old.permissions(), new.permissions());
     if before == after {

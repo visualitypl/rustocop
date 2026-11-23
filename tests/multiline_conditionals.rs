@@ -325,7 +325,10 @@ fn when_escaped_boundary_does_not_block_a_safe_sibling_correction() {
         fs::write(d.path().join("a.rb"), &source).unwrap();
         let o = cli(d.path(), &["--only", WHEN, "--fix", "a.rb"]);
         assert_eq!(o.status.code(), Some(1), "{o:?}");
-        assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), fixed.as_bytes());
+        assert_eq!(
+            fs::read(d.path().join("a.rb")).unwrap(),
+            crate::support::lf::lf(&fixed)
+        );
         observations_equal(d.path());
         unchanged(
             d.path(),

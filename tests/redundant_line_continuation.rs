@@ -191,6 +191,8 @@ fn bom_crlf_legacy_encoding_frozen_line_data_and_command_contents() {
         b"[<<~TXT, \\\nbody \\\ntext\nTXT\n 'value']\n",
     ] {
         let fixed = fix(d.path(), source, 0);
+        // As in RuboCop, the corrected file has LF line endings throughout.
+        let source = crate::support::lf::lf(source);
         assert_eq!(
             fixed.iter().filter(|&&b| b == b'\n').count(),
             source.iter().filter(|&&b| b == b'\n').count()
@@ -419,6 +421,7 @@ fn required_mlhs_escape_never_aborts_same_file_or_sibling_corrections() {
             let safe = format!("safe = [1, \\{nl} 2]{nl}");
             let mixed = format!("{source}{safe}");
             let expected = format!("{source}{}", safe.replace('\\', ""));
+            let expected = crate::support::lf::lf_str(&expected);
             assert_eq!(fix(d.path(), mixed.as_bytes(), 0), expected.as_bytes());
             unchanged(
                 d.path(),
@@ -434,7 +437,7 @@ fn required_mlhs_escape_never_aborts_same_file_or_sibling_corrections() {
             assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), mtime);
             assert_eq!(
                 fs::read(d.path().join("sibling.rb")).unwrap(),
-                safe.replace('\\', "").as_bytes()
+                crate::support::lf::lf(safe.replace('\\', ""))
             );
             if let Some(before) = before {
                 assert_eq!(Some(before), shape(&path));
@@ -522,7 +525,7 @@ p $events
             .replace("ArgumentError \\", "ArgumentError ")
             .replace("=> e \\", "=> e ")
             .replace("x, (y, z), \\", "x, (y, z), ");
-        assert_eq!(fixed, expected.as_bytes());
+        assert_eq!(fixed, crate::support::lf::lf(&expected));
         if let Some(before) = before_shape {
             assert_eq!(Some(before), shape(&path));
         }
@@ -574,7 +577,7 @@ fn review_continuation_trivia_exact_diagnostics_and_single_pass_cli_fixes() {
             }
             let before_shape = shape(&path);
             let fixed = fix(d.path(), source.as_bytes(), 0);
-            assert_eq!(fixed, source.replace('\\', "").as_bytes());
+            assert_eq!(fixed, crate::support::lf::lf(source.replace('\\', "")));
             if let Some(before) = before_shape {
                 assert_eq!(Some(before), shape(&path));
             }
@@ -599,7 +602,7 @@ fn review_continuation_trivia_preserves_controlled_header_runtime() {
         let expected = source
             .replace('\\', "")
             .replace(&format!("comment {nl}"), &format!("comment \\{nl}"));
-        assert_eq!(fixed, expected.as_bytes());
+        assert_eq!(fixed, crate::support::lf::lf(&expected));
         if let Some(before) = before_runtime {
             assert_eq!(Some(before), runtime(&path));
         }

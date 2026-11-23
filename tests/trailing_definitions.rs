@@ -244,7 +244,7 @@ fn bom_crlf_encoding_literal_and_raw_data_bytes() {
             expected.splice(start..start + from.len(), to.iter().copied());
         }
         cli(dir.path(), &["--only", ONLY, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
     for source in [
         b"# encoding: ISO-8859-1\r\nclass C; 1 # caf\xe9\r\nend\r\n".as_slice(),
@@ -593,7 +593,10 @@ fn trailing_method_body_encoding_bom_crlf_comments_and_data_bytes() {
             ],
             status,
         );
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(
+            fs::read(&path).unwrap(),
+            crate::support::lf::fixed(source, expected)
+        );
         if status == 1 {
             assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
         }

@@ -326,7 +326,7 @@ fn supplied_paths_stdin_fatal_resource_encoding_bom_crlf_and_opaque_data() {
         fs::write(&path, source).unwrap();
         let out = run(d.path(), &["--fix", "--only", COP, "input.arb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
         fs::write(&path, b"sentinel\n").unwrap();
         let old = fs::metadata(&path).unwrap();
         let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))

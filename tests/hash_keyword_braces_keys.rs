@@ -258,7 +258,7 @@ fn source_envelopes_decoded_keys_and_original_columns() {
     );
     assert_eq!(
         fix(d.path(), before.as_bytes(), Some(BRACES)),
-        after.as_bytes()
+        crate::support::lf::lf(&after)
     );
     let o = unchanged(
         d.path(),

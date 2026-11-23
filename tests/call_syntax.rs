@@ -343,7 +343,7 @@ fn heredoc_scope_corrections_preserve_headers_directives_excludes_and_raw_bytes(
         let expected = [prefix, body.replace("safe()", "safe").as_bytes(), suffix].concat();
         fs::write(&path, &source).unwrap();
         cli(dir.path(), &["--only", CASES[0].0, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
         cli(dir.path(), &["--only", CASES[0].0, "--fix", "lib/a.rb"], 0);
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);

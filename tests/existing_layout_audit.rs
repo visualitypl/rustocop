@@ -397,7 +397,7 @@ fn every_audited_cop_corrects_or_holds_through_stdin_crlf_bom_and_data() {
                     assert_eq!(out.status.code(), Some(0), "{context}: {out:?}");
                     assert_eq!(
                         fs::read(&path).unwrap(),
-                        shape(after).as_bytes(),
+                        crate::support::lf::fixed(&input, shape(after)),
                         "{context}"
                     );
                     let again = cli(dir.path(), &["--fix", "--only", cop, "x.rb"]);

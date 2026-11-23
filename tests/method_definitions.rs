@@ -251,7 +251,10 @@ fn encoding_bom_crlf_data_and_non_utf8_spans_preserve_bytes() {
             &["--only", name, "--fix", "lib/a.rb"],
             Some(i32::from(before == after)),
         );
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(
+            fs::read(&path).unwrap(),
+            crate::support::lf::fixed(before, after)
+        );
         if before == after {
             assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
         }

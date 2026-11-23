@@ -663,7 +663,8 @@ fn definition_spacing_default_lint_is_read_only_and_fix_preserves_exact_bytes() 
         );
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
         assert!(fixed.stderr.is_empty());
-        assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+        let after = crate::support::lf::lf(&after);
+        assert_eq!(std::fs::read(&path).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
             "1 file inspected, 1 correction applied, 0 offenses remaining"
@@ -683,7 +684,7 @@ fn definition_spacing_default_lint_is_read_only_and_fix_preserves_exact_bytes() 
     std::fs::write(&path, before).unwrap();
     let fixed = rustocop(dir.path(), &["--fix", "--only", cop, "x.rb"], "");
     assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
-    assert_eq!(std::fs::read(&path).unwrap(), after);
+    assert_eq!(std::fs::read(&path).unwrap(), crate::support::lf::lf(after));
 }
 
 #[test]
@@ -883,7 +884,8 @@ fn body_padding_default_lint_is_read_only_and_fixes_are_stable() {
             );
             assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
             assert!(fixed.stderr.is_empty(), "{fixed:?}");
-            assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+            let after = crate::support::lf::lf(&after);
+            assert_eq!(std::fs::read(&path).unwrap(), after);
             assert_eq!(
                 stdout_lines(&fixed).last().unwrap(),
                 "1 file inspected, 2 corrections applied, 0 offenses remaining"
@@ -894,7 +896,7 @@ fn body_padding_default_lint_is_read_only_and_fixes_are_stable() {
                 stdout_lines(&again).last().unwrap(),
                 "1 file inspected, 0 corrections applied, 0 offenses remaining"
             );
-            assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+            assert_eq!(std::fs::read(&path).unwrap(), after);
         }
     }
 }
@@ -1011,6 +1013,7 @@ fn body_padding_preserves_raw_encoding_bytes() {
         std::fs::write(&path, &before).unwrap();
         let fixed = rustocop(dir.path(), &["--fix", "--only", cop, "x.rb"], "");
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+        let after = crate::support::lf::lf(&after);
         assert_eq!(std::fs::read(path).unwrap(), after);
     }
 }
@@ -1115,7 +1118,8 @@ fn empty_lines_default_lint_is_read_only_and_single_pass_fix_is_stable() {
         );
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
         assert!(fixed.stderr.is_empty(), "{fixed:?}");
-        assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+        let after = crate::support::lf::lf(after);
+        assert_eq!(std::fs::read(&path).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
             "1 file inspected, 1 correction applied, 0 offenses remaining"
@@ -1130,7 +1134,7 @@ fn empty_lines_default_lint_is_read_only_and_single_pass_fix_is_stable() {
             stdout_lines(&again).last().unwrap(),
             "1 file inspected, 0 corrections applied, 0 offenses remaining"
         );
-        assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+        assert_eq!(std::fs::read(&path).unwrap(), after);
     }
 }
 
@@ -1245,6 +1249,7 @@ fn empty_lines_preserve_raw_encoding_and_exact_byte_ranges() {
         "",
     );
     assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+    let after = crate::support::lf::lf(after);
     assert_eq!(std::fs::read(path).unwrap(), after);
 }
 
@@ -1331,7 +1336,8 @@ fn end_alignment_default_plain_lint_is_read_only_and_fix_is_stable() {
         );
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
         assert!(fixed.stderr.is_empty(), "{fixed:?}");
-        assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+        let after = crate::support::lf::lf(&after);
+        assert_eq!(std::fs::read(&path).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
             "1 file inspected, 1 correction applied, 0 offenses remaining"
@@ -1490,7 +1496,8 @@ fn indentation_width_default_plain_lint_is_read_only_and_fix_is_stable() {
         );
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
         assert!(fixed.stderr.is_empty(), "{fixed:?}");
-        assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+        let after = crate::support::lf::lf(after);
+        assert_eq!(std::fs::read(&path).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
             "1 file inspected, 1 correction applied, 0 offenses remaining"
@@ -1609,6 +1616,7 @@ fn indentation_width_safe_withholding_and_raw_encoding_preservation() {
         let fixed = rustocop(dir.path(), &["--fix", "--only", cop, "x.rb"], "");
         assert_eq!(fixed.status.code(), Some(status), "{fixed:?}");
         assert!(fixed.stderr.is_empty(), "{fixed:?}");
+        let after = crate::support::lf::fixed(&before, &after);
         assert_eq!(std::fs::read(path).unwrap(), after);
     }
 }
@@ -1676,10 +1684,8 @@ fn indentation_style_plain_lint_is_read_only_and_fix_reports_withheld_tabs() {
         );
         assert_eq!(fixed.status.code(), Some(1), "{fixed:?}");
         assert!(fixed.stderr.is_empty(), "{fixed:?}");
-        assert_eq!(
-            std::fs::read(dir.path().join("x.rb")).unwrap(),
-            after.as_bytes()
-        );
+        let after = crate::support::lf::lf(after);
+        assert_eq!(std::fs::read(dir.path().join("x.rb")).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
             "1 file inspected, 3 corrections applied, 1 offense remaining"
@@ -1694,10 +1700,7 @@ fn indentation_style_plain_lint_is_read_only_and_fix_reports_withheld_tabs() {
             stdout_lines(&again).last().unwrap(),
             "1 file inspected, 0 corrections applied, 1 offense remaining"
         );
-        assert_eq!(
-            std::fs::read(dir.path().join("x.rb")).unwrap(),
-            after.as_bytes()
-        );
+        assert_eq!(std::fs::read(dir.path().join("x.rb")).unwrap(), after);
     }
 }
 
@@ -1816,6 +1819,7 @@ fn indentation_style_preserves_raw_encoding_bytes() {
         "",
     );
     assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+    let after = crate::support::lf::lf(after);
     assert_eq!(std::fs::read(path).unwrap(), after);
 }
 
@@ -1881,6 +1885,7 @@ fn operator_spacing_plain_lint_default_enabled_and_fixes_are_stable() {
             "",
         );
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+        let after = crate::support::lf::lf(after);
         assert_eq!(std::fs::read(&path).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
@@ -2030,7 +2035,7 @@ fn operator_and_default_spacing_preserve_controlled_runtime_values_and_line_numb
         let result = rustocop(dir.path(), &["--fix", "--only", only, "x.rb"], "");
         assert_eq!(result.status.code(), Some(0), "{result:?}");
         let after = std::fs::read_to_string(dir.path().join("x.rb")).unwrap();
-        assert_eq!(after, expected);
+        assert_eq!(after, crate::support::lf::lf_str(&expected));
         let execute = |source: &str| {
             let output = Command::new("ruby")
                 .args(["-e", source])
@@ -2190,6 +2195,7 @@ fn brace_spacing_preserves_raw_bytes_crlf_bom_comments_and_data() {
         assert_eq!(std::fs::read(&path).unwrap(), before);
         let fixed = rustocop(dir.path(), &["--fix", "--only", &selected, "x.rb"], "");
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+        let after = crate::support::lf::lf(after);
         assert_eq!(std::fs::read(&path).unwrap(), after);
     }
 }
@@ -2481,6 +2487,7 @@ fn bracket_spacing_preserves_raw_bytes_crlf_bom_and_data() {
         assert_eq!(std::fs::read(&path).unwrap(), before);
         let fixed = rustocop(dir.path(), &["--fix", "--only", &selected, "x.rb"], "");
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+        let after = crate::support::lf::lf(after);
         assert_eq!(std::fs::read(&path).unwrap(), after);
     }
 }
@@ -2572,6 +2579,7 @@ fn paren_spacing_plain_lint_is_read_only_default_enabled_and_fix_is_stable() {
             "",
         );
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+        let after = crate::support::lf::lf(after);
         assert_eq!(std::fs::read(&path).unwrap(), after);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
@@ -2733,11 +2741,9 @@ fn paren_spacing_preserves_controlled_runtime_values_and_line_numbers() {
         assert_eq!(run(&after), expected);
         assert_eq!(after.lines().count(), source.lines().count());
         assert!(after.contains("# keep"));
+        let source = crate::support::lf::lf_str(&source);
         assert!(after.ends_with(&source[source.find("__END__").unwrap()..]));
-        assert_eq!(
-            after.matches("\r\n").count(),
-            source.matches("\r\n").count()
-        );
+        assert!(!after.contains("\r\n"));
     }
 }
 
@@ -2770,7 +2776,8 @@ fn separator_cops_plain_lint_is_read_only_and_only_fixes_independently() {
             );
             assert_eq!(fixed.status.code(), Some(0), "{cop}: {fixed:?}");
             assert!(fixed.stderr.is_empty(), "{fixed:?}");
-            assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+            let after = crate::support::lf::lf(after);
+            assert_eq!(std::fs::read(&path).unwrap(), after);
             assert_eq!(
                 stdout_lines(&fixed).last().unwrap(),
                 "1 file inspected, 1 correction applied, 0 offenses remaining"
@@ -2781,7 +2788,7 @@ fn separator_cops_plain_lint_is_read_only_and_only_fixes_independently() {
                 stdout_lines(&again).last().unwrap(),
                 "1 file inspected, 0 corrections applied, 0 offenses remaining"
             );
-            assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+            assert_eq!(std::fs::read(&path).unwrap(), after);
         }
     }
 }
@@ -2816,6 +2823,7 @@ fn separator_cops_preserve_eof_payload_bytes() {
             assert_eq!(std::fs::read(&path).unwrap(), bytes);
             let fixed = rustocop(dir.path(), &["--fix", "--only", only, "x.rb"], "");
             assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
+            let expected = crate::support::lf::fixed(&bytes, &expected);
             assert_eq!(std::fs::read(&path).unwrap(), expected);
             assert_eq!(
                 stdout_lines(&fixed).last().unwrap(),
@@ -2845,10 +2853,8 @@ fn separator_cops_fix_nested_heredoc_code_but_preserve_literal_text() {
         let dir = project(&[("x.rb", &source)]);
         let fixed = rustocop(dir.path(), &["--fix", "--only", only, "x.rb"], "");
         assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
-        assert_eq!(
-            std::fs::read(dir.path().join("x.rb")).unwrap(),
-            expected.as_bytes()
-        );
+        let expected = crate::support::lf::lf(&expected);
+        assert_eq!(std::fs::read(dir.path().join("x.rb")).unwrap(), expected);
         assert_eq!(
             stdout_lines(&fixed).last().unwrap(),
             "1 file inspected, 7 corrections applied, 0 offenses remaining"
@@ -3059,7 +3065,7 @@ fn separator_cops_are_default_enabled_and_preserve_raw_encoding_bytes() {
     assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
     assert_eq!(
         std::fs::read(&path).unwrap(),
-        b"# coding: ascii-8bit\nf(\"\xff\", 2); g\r\n__END__\r\nraw,;\xff\r\n"
+        b"# coding: ascii-8bit\nf(\"\xff\", 2); g\n__END__\nraw,;\xff\n"
     );
 }
 
@@ -3099,7 +3105,8 @@ fn trailing_empty_lines_plain_lint_is_read_only_and_fixes_exact_eof_bytes() {
             );
             assert_eq!(fixed.status.code(), Some(0), "{fixed:?}");
             assert!(fixed.stderr.is_empty(), "{fixed:?}");
-            assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+            let after = crate::support::lf::lf(after);
+            assert_eq!(std::fs::read(&path).unwrap(), after);
             assert_eq!(
                 stdout_lines(&fixed).last().unwrap(),
                 "1 file inspected, 1 correction applied, 0 offenses remaining"
@@ -3114,7 +3121,7 @@ fn trailing_empty_lines_plain_lint_is_read_only_and_fixes_exact_eof_bytes() {
                 stdout_lines(&again).last().unwrap(),
                 "1 file inspected, 0 corrections applied, 0 offenses remaining"
             );
-            assert_eq!(std::fs::read(&path).unwrap(), after.as_bytes());
+            assert_eq!(std::fs::read(&path).unwrap(), after);
         }
     }
 }
@@ -3208,13 +3215,13 @@ fn trailing_empty_lines_and_trailing_whitespace_compose_in_explicit_passes() {
     assert_eq!(first.status.code(), Some(1), "{first:?}");
     assert_eq!(
         std::fs::read(dir.path().join("x.rb")).unwrap(),
-        b"puts \"\xc3\xa9\"\r\n\r\n\r\n"
+        b"puts \"\xc3\xa9\"\n\n\n"
     );
     let second = rustocop(dir.path(), &args, "");
     assert_eq!(second.status.code(), Some(0), "{second:?}");
     assert_eq!(
         std::fs::read(dir.path().join("x.rb")).unwrap(),
-        "puts \"é\"\r\n".as_bytes()
+        "puts \"é\"\n".as_bytes()
     );
     let third = rustocop(dir.path(), &args, "");
     assert_eq!(third.status.code(), Some(0), "{third:?}");
@@ -3286,6 +3293,7 @@ fn trailing_empty_lines_preserves_binary_source_and_payload_bytes() {
         );
         assert_eq!(output.status.code(), Some(0), "{output:?}");
         assert!(output.stderr.is_empty(), "{output:?}");
+        let after = crate::support::lf::fixed(before, after);
         assert_eq!(std::fs::read(&path).unwrap(), after);
     }
 }

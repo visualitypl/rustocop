@@ -183,7 +183,7 @@ fn token_edit_preserves_bom_crlf_encoding_literal_line_and_data_bytes() {
         expected.extend_from_slice(b"at_exit");
         expected.extend_from_slice(&source[start+3..]);
         run(dir.path(), &["--only",END,"--fix","a.rb"],0,[0,0]);
-        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(),expected);
+        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 #[test]

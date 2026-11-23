@@ -154,7 +154,10 @@ puts 'authored VM/heap passed'
             .output()
             .unwrap();
         assert!(cli.status.success(), "{cli:?}");
-        assert_eq!(fs::read_to_string(d.path().join("safety.rb")).unwrap(), b);
+        assert_eq!(
+            fs::read_to_string(d.path().join("safety.rb")).unwrap(),
+            crate::support::lf::lf_str(&b)
+        );
         for warning in ["", "-W1", "-w"] {
             let first = program(&ruby, d.path(), &a, warning);
             let mut args = vec!["--parser=prism"];

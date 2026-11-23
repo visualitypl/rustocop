@@ -210,7 +210,7 @@ fn bom_crlf_headers_literals_line_and_data_bytes_are_preserved() {
         &["--only", only, "--fix", "--fix-passes", "1", "lib/a.rb"],
         0,
     );
-    assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
+    assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
     cli(
         dir.path(),
@@ -239,7 +239,7 @@ fn legacy_encoding_header_normalization_does_not_transcode_literal_bytes() {
             &["--only", "Style/MagicCommentFormat", "--fix", "lib/a.rb"],
             0,
         );
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
     }
 }
 

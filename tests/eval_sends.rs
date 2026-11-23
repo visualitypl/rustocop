@@ -162,7 +162,7 @@ fn canonical_fixes_preserve_bom_headers_crlf_data_and_mixed_safe_fixes_stabilize
         assert_eq!(fs::read(&path).unwrap(), source);
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
         run(dir.path(), &["--only", selector, "--fix", "a.rb"], 0, [0, 0, 0]);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(expected));
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
         run(dir.path(), &["--only", selector, "--fix", "a.rb"], 0, [0, 0, 0]);
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);

@@ -157,7 +157,7 @@ fn bom_encoding_crlf_and_raw_data_survive_atomic_canonical_corrections() {
         fs::write(&path, &before).unwrap();
         let output = cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
         assert_eq!(output.status.code(), Some(0), "{output:?}");
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
         unchanged(dir.path(), &after, 0, 0);
     }
 }

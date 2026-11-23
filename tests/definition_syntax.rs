@@ -171,7 +171,7 @@ fn token_edits_preserve_bom_crlf_encoding_data_and_explicit_lines() {
             expected.splice(start..start + from.len(), to.iter().copied());
         }
         cli(dir.path(), &["--only", ONLY, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 fn ruby(dir: &Path, harness: &str) -> Output {

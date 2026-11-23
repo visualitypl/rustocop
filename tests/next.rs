@@ -154,9 +154,9 @@ fn bom_crlf_line_numbers_literals_comments_and_data_keep_their_values() {
             let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
             assert!(after.contains("next unless x # condition"));
             assert_eq!(before.matches('\n').count(), after.matches('\n').count());
-            assert!(after.ends_with(&format!("__END__{newline}raw\0data{newline}")));
+            assert!(after.ends_with("__END__\nraw\0data\n"));
             assert!(after.starts_with('\u{feff}'));
-            assert_eq!(before.matches('\r').count(), after.matches('\r').count());
+            assert!(!after.contains('\r'));
         }
     }
     let ascii = b"# encoding: ISO-8859-1\nxs.each do\n  if ready?\n    a\n    b\n    c\n  end\nend\n__END__\n\xff\n";

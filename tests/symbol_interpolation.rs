@@ -275,11 +275,15 @@ fn bom_crlf_heredoc_indentation_line_and_data_bytes_survive() {
     let before = has_ruby().then(|| ruby(d.path()));
     cli(d.path(), &["--only", ALL, "--fix", "a.rb"], 0);
     let after = fs::read_to_string(d.path().join("a.rb")).unwrap();
-    assert!(after.contains("p [:\"café\", :word]\r\n"), "{after}");
-    assert!(after.contains("  #{@word}\r\n  :'not-code'\r\n"));
+    // As in RuboCop, the corrected file has LF line endings throughout.
+    assert!(after.contains("p [:\"café\", :word]\n"), "{after}");
+    assert!(after.contains("  #{@word}\n  :'not-code'\n"));
     assert!(after.starts_with('\u{feff}'));
-    assert!(after.split_inclusive('\n').all(|l| l.ends_with("\r\n")));
-    assert_eq!(src.split("__END__").nth(1), after.split("__END__").nth(1));
+    assert!(!after.contains('\r'));
+    assert_eq!(
+        crate::support::lf::lf_str(src).split("__END__").nth(1),
+        after.split("__END__").nth(1)
+    );
     assert_eq!(
         src.bytes().filter(|&b| b == b'\n').count(),
         after.bytes().filter(|&b| b == b'\n').count()

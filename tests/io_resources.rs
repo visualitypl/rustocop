@@ -168,7 +168,7 @@ fn byte_local_fixes_preserve_legacy_encoding_bom_crlf_data_and_line() {
         expected.extend_from_slice(&source[start + 12..]);
         fs::write(&path, &source).unwrap();
         cli(dir.path(), &["--only", "Style/StderrPuts", "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 fn ruby(source: &str) -> Option<Output> {

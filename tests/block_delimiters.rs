@@ -151,7 +151,7 @@ fn bytes_bom_crlf_encoding_literals_data_and_legacy_withholding() {
     ] {
         fs::write(&path, before).unwrap();
         only_fix(dir.path());
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::fixed(before, after));
     }
 }
 

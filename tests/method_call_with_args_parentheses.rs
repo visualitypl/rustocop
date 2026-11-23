@@ -210,10 +210,11 @@ fn post_execution_arguments_do_not_abort_independent_fixes() {
         assert_eq!(fs::read(&path).unwrap(), before.as_bytes());
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
         cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
+        let after = crate::support::lf::lf(&after);
+        assert_eq!(fs::read(&path).unwrap(), after);
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
         cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
+        assert_eq!(fs::read(&path).unwrap(), after);
         assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
     }
 }

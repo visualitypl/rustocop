@@ -151,7 +151,7 @@ fn bom_crlf_encoding_comments_literals_line_and_payload_survive() {
         let offset = source.windows(5).position(|b| b == b"a, _ ").unwrap()+3;
         let mut expected=source.clone(); expected.drain(offset..offset+2);
         fs::write(&path, &source).unwrap(); cli(d.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 fn ruby(path: &Path) -> Option<Output> {

@@ -261,11 +261,7 @@ untouched payload
         assert!(
             fs::read_to_string(d.path().join("a.rb"))
                 .unwrap()
-                .ends_with(if source.contains("\r\n") {
-                    "__END__\r\nuntouched payload\r\n"
-                } else {
-                    "__END__\nuntouched payload\n"
-                })
+                .ends_with("__END__\nuntouched payload\n")
         );
     }
 }

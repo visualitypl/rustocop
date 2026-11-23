@@ -179,7 +179,11 @@ fn canonical_alignment_preserves_every_encoded_token_and_crlf_byte() {
         let cop = row["cop"].as_str().unwrap();
         let out = run(d.path(), &["--fix", "--only", cop, "example.rb"]);
         assert_eq!(out.status.code(), Some(0), "{row}: {out:?}");
-        assert_eq!(fs::read(&path).unwrap(), after, "{row}: {out:?}");
+        assert_eq!(
+            fs::read(&path).unwrap(),
+            crate::support::lf::lf(&after),
+            "{row}: {out:?}"
+        );
     }
 }
 #[test]
@@ -295,6 +299,7 @@ fn safe_navigation_assignment_parent_cli_anchors_and_no_write_controls() {
                 assert_unchanged(&path, &before, &old);
                 let fix = run(d.path(), &["--fix", "--only", ASSIGN, "example.rb"]);
                 assert_eq!(fix.status.code(), Some(0), "{before:?}: {fix:?}");
+                let after = crate::support::lf::fixed(&before, &after);
                 assert_eq!(fs::read(&path).unwrap(), after, "{before:?}: {fix:?}");
                 if indent == expected {
                     assert_unchanged(&path, &before, &old);
@@ -407,7 +412,11 @@ fn implicit_callback_ownership_survives_directives_and_original_encoding() {
                 assert_unchanged(&path, &before, &old);
                 let fix = run(d.path(), &["--fix", "--only", ACCESS, "example.rb"]);
                 assert_eq!(fix.status.code(), Some(0), "{fix:?}");
-                assert_eq!(fs::read(&path).unwrap(), expected, "{fix:?}");
+                assert_eq!(
+                    fs::read(&path).unwrap(),
+                    crate::support::lf::fixed(&before, &expected),
+                    "{fix:?}"
+                );
                 if disabled {
                     assert_unchanged(&path, &before, &old);
                 }
@@ -921,7 +930,7 @@ fn supplied_paths_stdin_bom_crlf_legacy_encoding_and_data_ranges() {
         fs::write(&path, source).unwrap();
         let out = run(d.path(), &["--fix", "--only", BOTH, "input.arb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
         fs::write(&path, b"sentinel\n").unwrap();
         let old = fs::metadata(&path).unwrap();
         let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))

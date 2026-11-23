@@ -181,7 +181,7 @@ fn selector_only_edits_preserve_envelopes_and_stabilize() {
         let mut expected = source[..at].to_vec();
         expected.extend_from_slice(if source[at.saturating_sub(1)] == b'.' { b"then" } else { b"self.then" });
         expected.extend_from_slice(&source[at+10..]);
-        assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), expected);
+        assert_eq!(fs::read(d.path().join("a.rb")).unwrap(), crate::support::lf::lf(&expected));
         unchanged(d.path(), &expected, &["--only", THEN, "--fix", "a.rb"], 0);
     }
 }

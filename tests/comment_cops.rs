@@ -164,7 +164,7 @@ fn bom_crlf_literals_data_and_line_observations_keep_exact_bytes() {
         ],
         0,
     );
-    assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
+    assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
     // Non-ASCII inside the heredoc and data section is never a comment offense.
     cli(
         dir.path(),
@@ -198,6 +198,7 @@ fn legacy_notes_and_non_utf8_document_bytes_are_not_transcoded() {
                 .contains("1 correction applied, 1 offense remaining"),
             "{out:?}"
         );
+        let after = crate::support::lf::fixed(&before, &after);
         assert_eq!(fs::read(&path).unwrap(), after);
         let out = cli(
             dir.path(),

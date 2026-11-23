@@ -179,15 +179,16 @@ fn end_of_line_never_normalizes_bytes() {
             "{out:?}"
         );
     }
-    // Another cop's edit keeps every CR LF; the finding remains.
+    // As in RuboCop, another cop's edit writes LF line endings, which
+    // clears the finding.
     let (out, fixed) = fix(
         dir.path(),
         b"x = 1  \r\ny = 2\r\n",
         &["--only", "Layout/TrailingWhitespace,Layout/EndOfLine"],
     );
-    assert_eq!(out.status.code(), Some(1), "{out:?}");
-    assert_eq!(fixed, b"x = 1\r\ny = 2\r\n");
-    assert_eq!(count(&out, EOL), 1, "{out:?}");
+    assert_eq!(out.status.code(), Some(0), "{out:?}");
+    assert_eq!(fixed, b"x = 1\ny = 2\n");
+    assert_eq!(count(&out, EOL), 0, "{out:?}");
     // Lines after the last token and the data section are not checked.
     for source in [
         b"x = 1\n\r\n".as_slice(),

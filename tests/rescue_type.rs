@@ -121,7 +121,7 @@ fn canonical_edits_atomic_permissions_comments_and_symlink_failures() {
         let out = run(dir.path(), &["--only", COP, "--fix", "lib/foo.rb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
         assert!(String::from_utf8_lossy(&out.stdout).contains("1 correction applied"));
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
         assert_eq!(
             old.permissions(),
             fs::metadata(&path).unwrap().permissions()

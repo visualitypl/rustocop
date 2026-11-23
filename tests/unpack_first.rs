@@ -150,7 +150,7 @@ fn bom_crlf_encoding_frozen_line_and_data_bytes_survive() {
             b"# frozen_string_literal: true\n\"a\\xFF\".unpack1('a*')\n",
         ),
     ] {
-        assert_eq!(fix(d.path(), source, 0), after);
+        assert_eq!(fix(d.path(), source, 0), crate::support::lf::lf(after));
     }
 }
 #[test]

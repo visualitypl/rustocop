@@ -170,7 +170,7 @@ fn bytes_bom_crlf_legacy_encoding_data_and_line_observations() {
     ] {
         fs::write(&path, before).unwrap();
         cli(dir.path(), &["--only", ONLY, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
     }
 }
 fn ruby_available() -> bool {

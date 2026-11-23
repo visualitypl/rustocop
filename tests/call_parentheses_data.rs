@@ -81,7 +81,10 @@ fn no_data_and_inert_spellings_still_correct_exactly_and_stabilize() {
                 fs::write(&path, decorate(before)).unwrap();
                 let original = ruby_available().then(|| execute(&path));
                 cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 0);
-                assert_eq!(fs::read(&path).unwrap(), decorate(after));
+                assert_eq!(
+                    fs::read(&path).unwrap(),
+                    crate::support::lf::lf(decorate(after))
+                );
                 if let Some(original) = original {
                     assert_eq!(execute(&path), original);
                 }

@@ -174,7 +174,11 @@ fn byte_fidelity_for_bom_crlf_legacy_literals_and_data_payloads() {
     ] {
         fs::write(dir.path().join("x.rb"), before).unwrap();
         fix(dir.path(), cop);
-        assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), after, "{cop}");
+        assert_eq!(
+            fs::read(dir.path().join("x.rb")).unwrap(),
+            crate::support::lf::fixed(before, after),
+            "{cop}"
+        );
     }
 }
 fn ruby(dir: &Path) -> Output {

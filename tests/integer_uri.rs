@@ -337,7 +337,10 @@ fn canonical_bytes_encoding_bom_crlf_comments_and_observer_holds() {
         );
         let out = run(dir.path(), &["--only", INTEGER, "--fix", "lib/a.rb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fs::read(dir.path().join("lib/a.rb")).unwrap(), after);
+        assert_eq!(
+            fs::read(dir.path().join("lib/a.rb")).unwrap(),
+            crate::support::lf::lf(&after)
+        );
     }
     for observer in [
         "p __LINE__",

@@ -248,6 +248,7 @@ fn canonical_fixes_are_atomic_single_pass_and_stable_with_bytes_preserved() {
             unchanged(dir.path(), &before, &["--only", cop, "lib/a.rb"]);
             let output = cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"]);
             assert_eq!(output.status.code(), Some(i32::from(!safe)), "{output:?}");
+            let after = crate::support::lf::fixed(&before, &after);
             assert_eq!(fs::read(dir.path().join("lib/a.rb")).unwrap(), after);
             unchanged(dir.path(), &after, &["--only", cop, "--fix", "lib/a.rb"]);
         }

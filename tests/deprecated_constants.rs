@@ -188,7 +188,10 @@ fn canonical_byte_envelopes_preserve_comments_encoding_bom_and_crlf() {
         unchanged(dir.path(), &source, &["--only", COP, "lib/a.rb"], Some(1));
         let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fs::read(dir.path().join("lib/a.rb")).unwrap(), after);
+        assert_eq!(
+            fs::read(dir.path().join("lib/a.rb")).unwrap(),
+            crate::support::lf::lf(&after)
+        );
     }
 }
 #[test]

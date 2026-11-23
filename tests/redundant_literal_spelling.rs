@@ -187,10 +187,11 @@ fn bom_crlf_heredoc_indentation_line_and_data_payloads_survive() {
     fs::write(dir.path().join("a.rb"), source).unwrap();
     cli(dir.path(), &["--only", ALL, "--fix", "a.rb"], 0);
     let after = fs::read_to_string(dir.path().join("a.rb")).unwrap();
-    assert!(after.contains("p ['café', %w(a b), 'é']\r\n"), "{after}");
-    assert!(after.contains("  %q(not code)\r\n  #{\"#{1}\"}\r\n"));
+    // As in RuboCop, the corrected file has LF line endings throughout.
+    assert!(after.contains("p ['café', %w(a b), 'é']\n"), "{after}");
+    assert!(after.contains("  %q(not code)\n  #{\"#{1}\"}\n"));
     assert_eq!(
-        source.split("__END__").nth(1),
+        crate::support::lf::lf_str(source).split("__END__").nth(1),
         after.split("__END__").nth(1)
     );
     assert!(after.starts_with('\u{feff}'));
@@ -198,11 +199,7 @@ fn bom_crlf_heredoc_indentation_line_and_data_payloads_survive() {
         source.bytes().filter(|&b| b == b'\n').count(),
         after.bytes().filter(|&b| b == b'\n').count()
     );
-    assert!(
-        after
-            .split_inclusive('\n')
-            .all(|line| line.ends_with("\r\n"))
-    );
+    assert!(!after.contains('\r'));
 }
 
 #[test]

@@ -963,7 +963,7 @@ fn correct_files(
             })
             .cloned()
             .collect();
-        let applied = match crate::corrections::apply(source, &safe) {
+        let mut applied = match crate::corrections::apply(source, &safe) {
             Ok(applied) => applied,
             Err(error) => {
                 stopped = Some(format!("could not apply corrections: {error}"));
@@ -972,6 +972,15 @@ fn correct_files(
         };
         if applied.count == 0 {
             break;
+        }
+        // RuboCop's Parser buffer reads `\r\n` as `\n`, so a corrected file
+        // has LF line endings throughout, literals and data included.
+        if memchr::memmem::find(&applied.bytes, b"\r\n").is_some() {
+            let bytes = &applied.bytes;
+            applied.bytes = (0..bytes.len())
+                .filter(|&i| !(bytes[i] == b'\r' && bytes.get(i + 1) == Some(&b'\n')))
+                .map(|i| bytes[i])
+                .collect();
         }
         if done == max_passes {
             if !passes.explicit {

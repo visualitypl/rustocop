@@ -208,7 +208,12 @@ fn canonical_fixes_preserve_bom_crlf_line_observations_and_end_data() {
             String::from_utf8_lossy(&output.stdout).contains(expected),
             "{output:?}"
         );
-        assert_eq!(fs::read(&path).unwrap(), after.as_bytes(), "{}", case.cop);
+        assert_eq!(
+            fs::read(&path).unwrap(),
+            crate::support::lf::fixed(&before, &after),
+            "{}",
+            case.cop
+        );
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
         cli(
             dir.path(),

@@ -155,7 +155,7 @@ fn comma_deletion_retains_bom_crlf_encoding_literals_comments_data_and_line() {
         let offset = source.windows(2).position(|w| w == b",)").unwrap();
         expected.remove(offset);
         cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 

@@ -151,7 +151,7 @@ fn bom_crlf_line_values_and_heredoc_body_boundaries_survive() {
     let dir = project();
     let source = b"\xef\xbb\xbf# encoding: UTF-8\r\np %x(no), <<~TXT\r\n  static\r\n  #{%x(#{value})}\r\nTXT\r\np __LINE__\r\n";
     let expected = b"\xef\xbb\xbf# encoding: UTF-8\r\np `no`, <<~TXT\r\n  static\r\n  #{`#{value}`}\r\nTXT\r\np __LINE__\r\n";
-    assert_eq!(fix(dir.path(), source, 0), expected);
+    assert_eq!(fix(dir.path(), source, 0), crate::support::lf::lf(expected));
     // A command heredoc itself is excluded, but its real command child isn't.
     assert_eq!(
         fix(dir.path(), b"p <<~`SH`\n  #{%x(no)}\nSH\n", 0),

@@ -256,7 +256,7 @@ fn canonical_whole_line_removal_is_atomic_byte_preserving_and_idempotent() {
         let out = run(dir.path(), &["--only", cop, "--fix", "lib/foo.rb"]);
         assert_eq!(out.status.code(), Some(0), "{row}: {out:?}");
         assert!(String::from_utf8_lossy(&out.stdout).contains("1 correction applied"));
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
         assert_eq!(
             old.permissions(),
             fs::metadata(&path).unwrap().permissions()

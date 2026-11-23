@@ -142,15 +142,12 @@ fn lint_never_writes_and_fix_writes_the_canonical_edit_once() {
             &["--only", cop, "--fix"],
             Some(0),
         );
-        // CRLF line endings and a UTF-8 BOM are preserved around the edit.
+        // As in RuboCop, a corrected file gets LF line endings; a BOM stays.
         let crlf = before.replace('\n', "\r\n");
         fs::write(&path, &crlf).unwrap();
         let out = run(dir.path(), &["--only", cop, "--fix", "example.rb"]);
         assert_eq!(out.status.code(), Some(0), "{cop}: {out:?}");
-        assert_eq!(
-            fs::read_to_string(&path).unwrap(),
-            after.replace('\n', "\r\n")
-        );
+        assert_eq!(fs::read_to_string(&path).unwrap(), after);
         fs::write(&path, format!("\u{feff}{before}")).unwrap();
         let out = run(dir.path(), &["--only", cop, "--fix", "example.rb"]);
         assert_eq!(out.status.code(), Some(0), "{cop}: {out:?}");

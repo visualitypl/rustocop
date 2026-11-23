@@ -169,7 +169,7 @@ fn byte_exact_bom_crlf_encoding_comments_heredocs_data_and_line_values() {
     ] {
         fs::write(dir.path().join("x.rb"), before).unwrap();
         cli(dir.path(), &["--only", BOTH, "--fix", "x.rb"], 0);
-        assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), after);
+        assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), crate::support::lf::lf(after));
     }
 }
 fn ruby_available() -> bool {

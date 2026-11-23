@@ -184,7 +184,10 @@ fn bom_crlf_options_line_and_end_data_are_preserved() {
                     .replace('\n', nl);
             fs::write(d.path().join("a.rb"), &source).unwrap();
             cli(d.path(), &["--only", COP, "--fix", "a.rb"], 0);
-            assert_eq!(fs::read_to_string(d.path().join("a.rb")).unwrap(), after);
+            assert_eq!(
+                fs::read_to_string(d.path().join("a.rb")).unwrap(),
+                crate::support::lf::lf_str(&after)
+            );
         }
     }
 }

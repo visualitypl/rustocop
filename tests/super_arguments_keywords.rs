@@ -91,7 +91,7 @@ fn byte_boundaries_encoding_bom_crlf_line_and_payload() {
             let after = [header, after.replace('\n', "\r\n").as_bytes(), suffix].concat();
             fs::write(&path, before).unwrap();
             cli(dir.path(), &["--only", cop, "--fix", "x.rb"], 0);
-            assert_eq!(fs::read(&path).unwrap(), after);
+            assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
         }
     }
     let before =
@@ -100,7 +100,7 @@ fn byte_boundaries_encoding_bom_crlf_line_and_payload() {
         b"# encoding: ISO-8859-1\r\ndef f; super \"caf\xe9\"; end\r\ndef g; super(1); end\r\n";
     fs::write(&path, before).unwrap();
     cli(dir.path(), &["--only", CASES[1].0, "--fix", "x.rb"], 1);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
 }
 fn ruby_available() -> bool {
     Command::new("ruby")

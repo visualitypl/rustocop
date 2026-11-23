@@ -188,6 +188,7 @@ fn order_keeping_tab_shifts_stay_corrected_with_identical_native_warnings() {
                 String::from_utf8_lossy(&out.stdout).contains(" applied, "),
                 "{before:?} {out:?}"
             );
+            let after = crate::support::lf::lf(&after);
             assert_eq!(fs::read(&path).unwrap(), after, "{before:?}");
             assert_eq!(warnings(dir.path()), native, "{before:?}");
             // The corrected file is stable: a second fix pass writes nothing.

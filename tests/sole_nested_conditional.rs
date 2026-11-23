@@ -243,7 +243,11 @@ fn fix(root: &Path, before: &str, after: &str, selected: &str) {
         .output()
         .unwrap();
     assert_ne!(output.status.code(), Some(2), "{output:?}");
-    assert_eq!(fs::read_to_string(path).unwrap(), after, "{output:?}");
+    assert_eq!(
+        fs::read_to_string(path).unwrap(),
+        crate::support::lf::lf_str(after),
+        "{output:?}"
+    );
 }
 
 #[test]
@@ -360,8 +364,9 @@ fn bom_crlf_literal_and_end_payload_bytes_are_preserved_by_real_fix() {
     assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), time);
     let mut before = b"if a\n  if b\n    work\n  end\nend\n__END__\n".to_vec();
     before.extend_from_slice(b"\xff\x00raw\r\n");
+    // As in RuboCop, the data section's CR LF becomes LF too.
     let mut after = b"if a && b\n    work\n  end\n__END__\n".to_vec();
-    after.extend_from_slice(b"\xff\x00raw\r\n");
+    after.extend_from_slice(b"\xff\x00raw\n");
     fs::write(&path, before).unwrap();
     run(
         dir.path(),

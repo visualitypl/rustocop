@@ -1121,7 +1121,7 @@ fn ns04_legacy_encodings_preserve_identifier_bindings_and_withhold_invalid_inter
             assert_eq!(run.status.code(), Some(0), "{encoding}: {run:?}");
             let expected =
                 format!("{header}{head}{preferred}{tail}{preferred}; end\r\n__END__\r\nraw\r\n");
-            assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
+            assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
             // Untouched legacy literal bytes between coordinated edits cannot
             // be represented by Correction's UTF-8 string; no transcoding.
             if encoding != "UTF-8" {
@@ -3590,7 +3590,7 @@ fn ns05_source_comments_encoding_bom_crlf_line_and_data_envelopes() {
                 None,
             );
             assert_eq!(run.status.code(), Some(0), "{source}: {run:?}");
-            assert_eq!(fs::read(&path).unwrap(), expected.as_bytes());
+            assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
         }
     }
     for (source, expected) in [

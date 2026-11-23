@@ -150,7 +150,10 @@ fn byte_fidelity_bom_crlf_legacy_heredocs_line_and_data() {
     ] {
         fs::write(dir.path().join("x.rb"), before).unwrap();
         fix(dir.path());
-        assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), after);
+        assert_eq!(
+            fs::read(dir.path().join("x.rb")).unwrap(),
+            crate::support::lf::fixed(before, after)
+        );
     }
 }
 fn ruby(dir: &Path) -> Output {

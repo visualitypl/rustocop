@@ -226,7 +226,8 @@ fn cross_delimiter_and_multiglyph_edits_commit_independent_lf_crlf_siblings() {
                 let after_text = String::from_utf8(after.clone()).unwrap();
                 assert!(after_text.contains("x=%"), "{after_text}");
                 assert!(after_text.contains("y=%"), "{after_text}");
-                assert_eq!(after_text.matches(nl).count(), 3);
+                assert_eq!(after_text.matches('\n').count(), 3);
+                assert!(!after_text.contains('\r'));
                 if encoding != "UTF-8" {
                     assert!(after.is_ascii(), "{after_text}");
                 }

@@ -120,7 +120,7 @@ fn bom_crlf_legacy_encodings_invalid_payload_line_and_unobserved_data() {
         (b"# encoding: ISO-8859-1\n'\xe9'.intern\n' \xe9 '.rstrip.lstrip\n",b"# encoding: ISO-8859-1\n'\xe9'.to_sym\n' \xe9 '.strip\n"),
         (b"# encoding: Windows-31J\n'\x83\\'.intern\n' \x83\\ '.lstrip.rstrip\n",b"# encoding: Windows-31J\n'\x83\\'.to_sym\n' \x83\\ '.strip\n"),
 
-    ] { assert_eq!(fix(d.path(),ALL,s,0),after); }
+    ] { assert_eq!(fix(d.path(),ALL,s,0), crate::support::lf::lf(after)); }
 }
 fn ruby(executable: &str, source: &[u8]) -> Output {
     let mut child = Command::new(executable)

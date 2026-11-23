@@ -43,7 +43,10 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
 fn fixed(dir: &Path, cop: &str, before: &[u8], after: &[u8]) {
     unchanged(dir, before, &["--only", cop, "a.rb"], 1);
     cli(dir, &["--only", cop, "--fix", "a.rb"], 0);
-    assert_eq!(fs::read(dir.join("a.rb")).unwrap(), after);
+    assert_eq!(
+        fs::read(dir.join("a.rb")).unwrap(),
+        crate::support::lf::lf(after)
+    );
     unchanged(dir, after, &["--only", cop, "--fix", "a.rb"], 0);
 }
 #[test]

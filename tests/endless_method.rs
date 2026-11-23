@@ -128,7 +128,7 @@ fn encoding_bom_crlf_data_and_stdin_contract() {
             &["--only", COP, "--fix", "lib/a.rb"],
             if before == after { 1 } else { 0 },
         );
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
     }
     fs::write(&path, BEFORE).unwrap();
     let modified = fs::metadata(&path).unwrap().modified().unwrap();

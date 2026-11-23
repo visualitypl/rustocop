@@ -245,7 +245,7 @@ fn source_envelopes_literals_lines_data_payload_and_legacy_bytes_are_preserved()
     ] {
         fs::write(dir.path().join("a.rb"), before).unwrap();
         run(dir.path(), &["--only", RETURN, "--fix", "a.rb"], 0, [0,0]);
-        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), after);
+        assert_eq!(fs::read(dir.path().join("a.rb")).unwrap(), crate::support::lf::lf(after));
     }
 }
 #[test]

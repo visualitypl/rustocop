@@ -165,7 +165,7 @@ fn canonical_bytes_atomic_idempotence_and_encoding() {
         let old = fs::metadata(&path).unwrap();
         let out = run(dir.path(), &["--only", COP, "--fix", "lib/a.rb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
-        assert_eq!(fs::read(&path).unwrap(), after);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
         let mut retained = Vec::new();
         held.read_to_end(&mut retained).unwrap();
         assert_eq!(retained, before);

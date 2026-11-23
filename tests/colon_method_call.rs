@@ -178,7 +178,7 @@ fn token_edits_preserve_bom_crlf_encoding_literals_data_and_line_numbers() {
         let mut expected = source.to_vec();
         expected.splice(start..start + 2, *b".");
         cli(dir.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 

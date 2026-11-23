@@ -258,7 +258,7 @@ fn canonical_edits_preserve_bom_crlf_encodings_comments_line_values_and_data() {
         let old = b"instance_methods(true).include?(:size)";
         let at = source.windows(old.len()).position(|w| w == old).unwrap();
         let mut expected = source[..at].to_vec(); expected.extend(b"method_defined?(:size)"); expected.extend(&source[at + old.len()..]);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
         if let Some(before) = before { same(&before, &ruby(dir.path()).unwrap()); }
     }
 }

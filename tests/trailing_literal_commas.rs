@@ -219,7 +219,7 @@ fn deletion_preserves_bom_crlf_legacy_encoding_comments_literals_data_and_line()
             if expected[offset] == b',' && matches!(expected[offset+1], b']' | b'}') { expected.remove(offset); }
         }
         cli(dir.path(), &["--only", ALL, "--fix", "lib/a.rb"], 0);
-        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&expected));
     }
 }
 

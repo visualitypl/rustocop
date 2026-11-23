@@ -143,7 +143,7 @@ fn bom_crlf_legacy_literals_line_values_and_data_bytes_are_preserved() {
     after.extend_from_slice(b"p __LINE__\r\n__END__\r\n\xff *args **kwargs &block\r\n");
     fs::write(&path, &before).unwrap();
     fix(dir.path(), COP);
-    assert_eq!(fs::read(&path).unwrap(), after);
+    assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(&after));
     // Non-UTF-8 outside the atomic span remains byte-for-byte intact.
     let mut legacy = b"# encoding: ISO-8859-1\ntext = '\xe9'\n".to_vec();
     legacy.extend_from_slice(BEFORE.as_bytes());

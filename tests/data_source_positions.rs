@@ -60,7 +60,10 @@ fn ordinary_payload_and_inert_data_spellings_still_correct_exactly() {
             };
             fs::write(&path, decorate(before)).unwrap();
             cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 0);
-            assert_eq!(fs::read(&path).unwrap(), decorate(after));
+            assert_eq!(
+                fs::read(&path).unwrap(),
+                crate::support::lf::lf(decorate(after))
+            );
             let modified = fs::metadata(&path).unwrap().modified().unwrap();
             cli(dir.path(), &["--only", cop, "--fix", "lib/a.rb"], 0);
             assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
