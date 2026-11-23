@@ -402,7 +402,7 @@ fn heredoc_search(n: &Node<'_>) -> Option<usize> {
             None => heredoc_search(&body),
         };
     }
-    if is_heredoc(n) {
+    if crate::cops::ast::is_heredoc(n) {
         return Some(n.location().start_offset());
     }
     let (arguments, block, receiver) = match n {
@@ -477,22 +477,6 @@ fn last_child<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
     arguments?.arguments().iter().last()
 }
 
-/// RuboCop's `heredoc?`: a string or command literal opened with `<<`.
-fn is_heredoc(node: &Node<'_>) -> bool {
-    let opening = match node {
-        Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
-        Node::InterpolatedStringNode { .. } => {
-            node.as_interpolated_string_node().unwrap().opening_loc()
-        }
-        Node::XStringNode { .. } => Some(node.as_x_string_node().unwrap().opening_loc()),
-        Node::InterpolatedXStringNode { .. } => {
-            Some(node.as_interpolated_x_string_node().unwrap().opening_loc())
-        }
-        _ => None,
-    };
-    opening.is_some_and(|o| o.as_slice().starts_with(b"<<"))
-}
-
 /// `condition.descendants.any?(&:heredoc?)`.
 fn has_heredoc_descendant(node: &Node<'_>) -> bool {
     struct Find(bool, usize);
@@ -500,7 +484,7 @@ fn has_heredoc_descendant(node: &Node<'_>) -> bool {
         fn enter(&mut self, node: Node<'pr>) {
             self.1 += 1;
             // The root itself is not its own descendant.
-            self.0 |= self.1 > 1 && is_heredoc(&node);
+            self.0 |= self.1 > 1 && crate::cops::ast::is_heredoc(&node);
         }
     }
     let mut find = Find(false, 0);

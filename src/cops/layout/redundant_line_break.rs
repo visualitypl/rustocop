@@ -261,48 +261,10 @@ impl<'pr> NodeVisitor<'pr> for Walker<'_, 'pr> {
     }
 }
 
-/// The assignments RuboCop's `CheckAssignment` callbacks see.
-fn is_assignment(node: &Node<'_>) -> bool {
-    matches!(
-        node,
-        Node::LocalVariableWriteNode { .. }
-            | Node::InstanceVariableWriteNode { .. }
-            | Node::ClassVariableWriteNode { .. }
-            | Node::GlobalVariableWriteNode { .. }
-            | Node::ConstantWriteNode { .. }
-            | Node::ConstantPathWriteNode { .. }
-            | Node::MultiWriteNode { .. }
-            | Node::LocalVariableOperatorWriteNode { .. }
-            | Node::InstanceVariableOperatorWriteNode { .. }
-            | Node::ClassVariableOperatorWriteNode { .. }
-            | Node::GlobalVariableOperatorWriteNode { .. }
-            | Node::ConstantOperatorWriteNode { .. }
-            | Node::ConstantPathOperatorWriteNode { .. }
-            | Node::CallOperatorWriteNode { .. }
-            | Node::IndexOperatorWriteNode { .. }
-            | Node::LocalVariableOrWriteNode { .. }
-            | Node::InstanceVariableOrWriteNode { .. }
-            | Node::ClassVariableOrWriteNode { .. }
-            | Node::GlobalVariableOrWriteNode { .. }
-            | Node::ConstantOrWriteNode { .. }
-            | Node::ConstantPathOrWriteNode { .. }
-            | Node::CallOrWriteNode { .. }
-            | Node::IndexOrWriteNode { .. }
-            | Node::LocalVariableAndWriteNode { .. }
-            | Node::InstanceVariableAndWriteNode { .. }
-            | Node::ClassVariableAndWriteNode { .. }
-            | Node::GlobalVariableAndWriteNode { .. }
-            | Node::ConstantAndWriteNode { .. }
-            | Node::ConstantPathAndWriteNode { .. }
-            | Node::CallAndWriteNode { .. }
-            | Node::IndexAndWriteNode { .. }
-    )
-}
-
 impl<'pr> Walker<'_, 'pr> {
     fn visit<'s>(&mut self, stack: &'s [Node<'pr>], index: usize) {
         let node = &stack[index];
-        if is_assignment(node) {
+        if crate::cops::ast::is_assignment(node) {
             if !(self.percent_blank && node.as_local_variable_write_node().is_some()) {
                 self.check(Parser::Other(node));
             }

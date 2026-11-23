@@ -205,11 +205,6 @@ pub(crate) fn integer_to_s(node: &Node<'_>) -> String {
     }
 }
 
-/// `Float#to_s`.
-pub(crate) fn float_to_s(f: f64) -> String {
-    sprintf::float_to_s(f)
-}
-
 fn integer(node: &Node<'_>) -> Value {
     let value = node.as_integer_node().unwrap().value();
     let (negative, digits) = value.to_u32_digits();

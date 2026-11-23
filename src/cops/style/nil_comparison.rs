@@ -84,7 +84,7 @@ pub(super) fn operator_expression(node: &Node<'_>, index_is_operator: bool) -> b
     ) || node
         .as_if_node()
         .is_some_and(|n| n.if_keyword_loc().is_none())
-        || super::redundant_parentheses::is_assignment(node)
+        || crate::cops::ast::is_assignment(node)
         || node.as_call_node().is_some_and(|c| c.equal_loc().is_some())
 }
 

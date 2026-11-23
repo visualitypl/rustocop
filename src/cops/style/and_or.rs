@@ -110,7 +110,7 @@ fn correction(
                 | Node::NextNode { .. }
                 | Node::BreakNode { .. }
                 | Node::YieldNode { .. }
-        ) || is_assignment(expr)
+        ) || crate::cops::ast::is_assignment(expr)
         {
             correct_other(expr, last, &mut edits);
         }
@@ -216,45 +216,6 @@ fn correct_other(node: &Node<'_>, last: bool, edits: &mut Edits) {
     }
     let loc = node.location();
     edits.wraps.push(loc.start_offset()..loc.end_offset());
-}
-
-/// rubocop-ast's `assignment?`: variable, constant, multiple and shorthand
-/// assignments (a setter call is a send).
-pub(crate) fn is_assignment(node: &Node<'_>) -> bool {
-    matches!(
-        node,
-        Node::LocalVariableWriteNode { .. }
-            | Node::InstanceVariableWriteNode { .. }
-            | Node::ClassVariableWriteNode { .. }
-            | Node::GlobalVariableWriteNode { .. }
-            | Node::ConstantWriteNode { .. }
-            | Node::ConstantPathWriteNode { .. }
-            | Node::MultiWriteNode { .. }
-            | Node::LocalVariableOperatorWriteNode { .. }
-            | Node::InstanceVariableOperatorWriteNode { .. }
-            | Node::ClassVariableOperatorWriteNode { .. }
-            | Node::GlobalVariableOperatorWriteNode { .. }
-            | Node::ConstantOperatorWriteNode { .. }
-            | Node::ConstantPathOperatorWriteNode { .. }
-            | Node::CallOperatorWriteNode { .. }
-            | Node::IndexOperatorWriteNode { .. }
-            | Node::LocalVariableOrWriteNode { .. }
-            | Node::InstanceVariableOrWriteNode { .. }
-            | Node::ClassVariableOrWriteNode { .. }
-            | Node::GlobalVariableOrWriteNode { .. }
-            | Node::ConstantOrWriteNode { .. }
-            | Node::ConstantPathOrWriteNode { .. }
-            | Node::CallOrWriteNode { .. }
-            | Node::IndexOrWriteNode { .. }
-            | Node::LocalVariableAndWriteNode { .. }
-            | Node::InstanceVariableAndWriteNode { .. }
-            | Node::ClassVariableAndWriteNode { .. }
-            | Node::GlobalVariableAndWriteNode { .. }
-            | Node::ConstantAndWriteNode { .. }
-            | Node::ConstantPathAndWriteNode { .. }
-            | Node::CallAndWriteNode { .. }
-            | Node::IndexAndWriteNode { .. }
-    )
 }
 
 #[cfg(test)]

@@ -168,7 +168,7 @@ fn insertion(
     let text = String::from_utf8_lossy(expression.location().as_slice()).into_owned();
     let column = |offset: usize| " ".repeat(file.line_col(offset).1 as usize - 1);
     let (start, end) = (node.location().start_offset(), node.location().end_offset());
-    match parent.filter(|p| super::and_or::is_assignment(p)) {
+    match parent.filter(|p| crate::cops::ast::is_assignment(p)) {
         Some(parent) => {
             let parent_start = parent.location().start_offset();
             let indentation = column(parent_start);

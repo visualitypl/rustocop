@@ -11,8 +11,8 @@
 use super::multiline_expression::{
     Parens, Span, argument_in_method_call, arguments, column, correct_indentation, dot,
     keyword_node, line_indentation, method_name, node_span, not_for_this_cop,
-    operation_description, operator_method, parser_ancestors, parser_span, part_of_assignment_rhs,
-    receiver, selector,
+    operation_description, parser_ancestors, parser_span, part_of_assignment_rhs, receiver,
+    selector,
 };
 use crate::{
     cops::{
@@ -120,7 +120,8 @@ fn operands(node: &Node<'_>) -> Option<(Span, Span)> {
 /// `unary_operation?`: an operator method whose selector starts the node.
 fn unary_operation(node: &Node<'_>) -> bool {
     selector(node).is_some_and(|s| {
-        operator_method(method_name(node)) && s.start_offset() == node.location().start_offset()
+        crate::cops::ast::is_operator_method(method_name(node))
+            && s.start_offset() == node.location().start_offset()
     })
 }
 

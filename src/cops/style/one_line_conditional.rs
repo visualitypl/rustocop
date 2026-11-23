@@ -118,7 +118,7 @@ fn text<'a>(n: &Node<'a>) -> Option<&'a str> {
     std::str::from_utf8(n.location().as_slice()).ok()
 }
 fn operand(n: &Node<'_>) -> Option<String> {
-    let grouping = super::redundant_parentheses::is_assignment(n)
+    let grouping = crate::cops::ast::is_assignment(n)
         || matches!(
             n,
             Node::AndNode { .. }

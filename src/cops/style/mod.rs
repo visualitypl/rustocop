@@ -260,6 +260,7 @@ mod reverse_find;
 mod safe_navigation;
 mod safe_navigation_chain_length;
 pub(crate) mod sample;
+mod select_by;
 mod select_by_kind;
 mod select_by_range;
 mod select_by_regexp;

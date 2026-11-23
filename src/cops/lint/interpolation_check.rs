@@ -37,7 +37,10 @@ impl Cop for InterpolationCheck {
         } else {
             false
         };
-        if !delimited || is_heredoc(node) || cx.ancestors().any(is_heredoc) {
+        if !delimited
+            || crate::cops::ast::is_heredoc(node)
+            || cx.ancestors().any(crate::cops::ast::is_heredoc)
+        {
             return;
         }
         if cx.parent().is_some_and(|p| {
@@ -94,21 +97,6 @@ impl Cop for InterpolationCheck {
             correction,
         });
     }
-}
-
-fn is_heredoc(node: &Node<'_>) -> bool {
-    let opening = match node {
-        Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
-        Node::InterpolatedStringNode { .. } => {
-            node.as_interpolated_string_node().unwrap().opening_loc()
-        }
-        Node::XStringNode { .. } => Some(node.as_x_string_node().unwrap().opening_loc()),
-        Node::InterpolatedXStringNode { .. } => {
-            Some(node.as_interpolated_x_string_node().unwrap().opening_loc())
-        }
-        _ => None,
-    };
-    opening.is_some_and(|o| o.as_slice().starts_with(b"<<"))
 }
 
 fn looks_like_interpolation(raw: &[u8]) -> bool {

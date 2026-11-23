@@ -189,24 +189,6 @@ fn constant_write_name(node: &Node<'_>) -> Option<String> {
     };
     Some(String::from_utf8_lossy(name.as_slice()).into())
 }
-fn constant_path_write<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
-    Some(match node {
-        Node::ConstantPathWriteNode { .. } => {
-            node.as_constant_path_write_node()?.target().as_node()
-        }
-        Node::ConstantPathOrWriteNode { .. } => {
-            node.as_constant_path_or_write_node()?.target().as_node()
-        }
-        Node::ConstantPathAndWriteNode { .. } => {
-            node.as_constant_path_and_write_node()?.target().as_node()
-        }
-        Node::ConstantPathOperatorWriteNode { .. } => node
-            .as_constant_path_operator_write_node()?
-            .target()
-            .as_node(),
-        _ => return None,
-    })
-}
 
 #[derive(Clone)]
 struct Reference {
@@ -818,7 +800,7 @@ impl<'pr> NodeVisitor<'pr> for Index<'pr> {
                 .map_or_else(|| name.clone(), |scope| format!("{scope}::{name}"));
             self.constants.insert(full);
         }
-        if let Some(target) = constant_path_write(&node)
+        if let Some(target) = crate::cops::ast::constant_path_write_target(&node)
             && let Some(r) = reference(&target, &nesting)
         {
             let full = r

@@ -5,7 +5,9 @@ use crate::{
     offense::{Correction, Offense},
     source::SourceFile,
 };
-use ruby_prism::{BlockNode, Node};
+use ruby_prism::Node;
+
+use super::select_by::uses_parameter;
 
 pub struct PredicateWithKind;
 impl Cop for PredicateWithKind {
@@ -95,52 +97,6 @@ impl Cop for PredicateWithKind {
 
 // Bounded local shape checks only: no subtree walk, reparse or scope scan.
 // The receiver must be the block's parameter, not an outer/local lookalike.
-fn uses_parameter(block: &BlockNode<'_>, receiver: &Node<'_>) -> bool {
-    let Some(parameters) = block.parameters() else {
-        return false;
-    };
-    if let Some(numbered) = parameters.as_numbered_parameters_node() {
-        return numbered.maximum() == 1
-            && receiver
-                .as_local_variable_read_node()
-                .is_some_and(|n| n.name().as_slice() == b"_1");
-    }
-    if parameters.as_it_parameters_node().is_some() {
-        return receiver.as_it_local_variable_read_node().is_some();
-    }
-    let Some(parameters) = parameters.as_block_parameters_node() else {
-        return false;
-    };
-    if !parameters.locals().is_empty() {
-        return false;
-    }
-    let Some(parameters) = parameters.parameters() else {
-        return false;
-    };
-    if parameters.requireds().len() != 1
-        || !parameters.optionals().is_empty()
-        || parameters
-            .rest()
-            .is_some_and(|n| n.as_implicit_rest_node().is_none())
-        || !parameters.posts().is_empty()
-        || !parameters.keywords().is_empty()
-        || parameters.keyword_rest().is_some()
-        || parameters.block().is_some()
-    {
-        return false;
-    }
-    let Some(parameter) = parameters
-        .requireds()
-        .iter()
-        .next()
-        .and_then(|n| n.as_required_parameter_node())
-    else {
-        return false;
-    };
-    receiver
-        .as_local_variable_read_node()
-        .is_some_and(|n| n.name().as_slice() == parameter.name().as_slice())
-}
 
 #[cfg(test)]
 mod tests {

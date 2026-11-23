@@ -755,7 +755,7 @@ impl<'pr> Collector<'_, 'pr> {
         lambda: bool,
     ) {
         if self.first_line(node) != self.last_line(node)
-            || receiver.is_some_and(|r| is_heredoc(&r) || has_heredoc_descendant(&r))
+            || receiver.is_some_and(|r| ast::is_heredoc(&r) || has_heredoc_descendant(&r))
         {
             return;
         }
@@ -789,7 +789,7 @@ impl<'pr> Collector<'_, 'pr> {
                 let call = node.as_call_node().unwrap();
                 let mut receiver = call.receiver();
                 while let Some(r) = receiver {
-                    if is_heredoc(&r) {
+                    if ast::is_heredoc(&r) {
                         return None;
                     }
                     receiver = r.as_call_node().and_then(|c| c.receiver());
@@ -907,7 +907,9 @@ impl<'pr> Collector<'_, 'pr> {
         // An unparenthesized call keeps its first argument in place.
         if let Some(call) = node.as_call_node()
             && call.opening_loc().is_none_or(|o| o.as_slice() != b"(")
-            && !ast::call_arguments(&call).first().is_some_and(is_heredoc)
+            && !ast::call_arguments(&call)
+                .first()
+                .is_some_and(ast::is_heredoc)
         {
             elements.remove(0);
         }
@@ -1007,29 +1009,13 @@ fn def_parameters<'pr>(def: &ruby_prism::DefNode<'pr>) -> Vec<Node<'pr>> {
     nodes
 }
 
-/// RuboCop's `heredoc?`: a string or command literal opened with `<<`.
-fn is_heredoc(node: &Node<'_>) -> bool {
-    let opening = match node {
-        Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
-        Node::InterpolatedStringNode { .. } => {
-            node.as_interpolated_string_node().unwrap().opening_loc()
-        }
-        Node::XStringNode { .. } => Some(node.as_x_string_node().unwrap().opening_loc()),
-        Node::InterpolatedXStringNode { .. } => {
-            Some(node.as_interpolated_x_string_node().unwrap().opening_loc())
-        }
-        _ => None,
-    };
-    opening.is_some_and(|o| o.as_slice().starts_with(b"<<"))
-}
-
 /// Where the first heredoc in `node` (itself, then its descendants in
 /// order) starts.
 fn first_heredoc(node: &Node<'_>) -> Option<usize> {
     struct Find(Option<usize>);
     impl<'pr> NodeVisitor<'pr> for Find {
         fn enter(&mut self, node: Node<'pr>) {
-            if self.0.is_none() && is_heredoc(&node) {
+            if self.0.is_none() && ast::is_heredoc(&node) {
                 self.0 = Some(node.location().start_offset());
             }
         }

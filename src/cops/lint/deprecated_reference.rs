@@ -278,7 +278,7 @@ impl References<'_> {
             // nested qualifiers remain ordinary const children to check.
             let mut ancestors = cx.ancestors();
             if let (Some(target), Some(write)) = (ancestors.next(), ancestors.next())
-                && constant_target(write).is_some_and(|n| {
+                && crate::cops::ast::constant_path_write_target(write).is_some_and(|n| {
                     n.location().start_offset() == target.location().start_offset()
                 })
                 && namespace_factory_assignment(write)
@@ -288,7 +288,7 @@ impl References<'_> {
             // Prism's write target is a path node; RuboCop's casgn has only the
             // qualifier const as a child (not the assigned final component).
             if cx.parent().is_some_and(|p| {
-                constant_target(p).is_some_and(|target| {
+                crate::cops::ast::constant_path_write_target(p).is_some_and(|target| {
                     target.location().start_offset() == node.location().start_offset()
                 })
             }) {
@@ -442,24 +442,6 @@ fn namespace_factory_assignment(node: &Node<'_>) -> bool {
     // Reuse the exact send/ordinary-block distinction: csend, numblock
     // and itblock do not satisfy Node#defined_module0 (rubocop-ast:390-398).
     super::constant_resolution::defines_module(&write.value())
-}
-fn constant_target<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
-    Some(match node {
-        Node::ConstantPathWriteNode { .. } => {
-            node.as_constant_path_write_node()?.target().as_node()
-        }
-        Node::ConstantPathOrWriteNode { .. } => {
-            node.as_constant_path_or_write_node()?.target().as_node()
-        }
-        Node::ConstantPathAndWriteNode { .. } => {
-            node.as_constant_path_and_write_node()?.target().as_node()
-        }
-        Node::ConstantPathOperatorWriteNode { .. } => node
-            .as_constant_path_operator_write_node()?
-            .target()
-            .as_node(),
-        _ => return None,
-    })
 }
 
 /// Local port of Parser::Source::Comment::Associator's leading/sparse/decorating

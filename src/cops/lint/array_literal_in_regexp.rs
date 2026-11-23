@@ -105,7 +105,7 @@ fn literal_value(node: &Node<'_>, file: &SourceFile) -> Option<(bool, String)> {
         }
         Node::FloatNode { .. } => Some((
             false,
-            crate::cops::style::redundant_format::float_to_s(node.as_float_node().unwrap().value()),
+            crate::cops::ast::float_to_s(node.as_float_node().unwrap().value()),
         )),
         Node::TrueNode { .. } | Node::FalseNode { .. } | Node::NilNode { .. } => Some((
             false,

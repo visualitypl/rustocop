@@ -64,9 +64,7 @@ impl Cop for IncompatibleIoSelectWithFiberScheduler {
         let end = ast::source_end(node);
         // Not when an assignment consumes the (different) return value.
         let correction = (cx.corrections_requested()
-            && !cx
-                .parent()
-                .is_some_and(crate::cops::style::and_or::is_assignment))
+            && !cx.parent().is_some_and(crate::cops::ast::is_assignment))
         .then(|| {
             let text = |n: &Node<'_>| String::from_utf8_lossy(n.location().as_slice()).into_owned();
             let timeout = args

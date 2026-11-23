@@ -13,8 +13,8 @@ use super::multiline_expression::{
     Anc, Parens, Span, any_block, argument_in_method_call, assignment_method, block_delimiters,
     call_type, column, correct_indentation, dot, grouped_expression, inside_arg_list_parentheses,
     keyword_node, kwbegin, line_indentation, literal_block, method_name, node_span,
-    not_for_this_cop, operation_description, operator_method, parser_ancestors, parser_span,
-    part_of_assignment_rhs, receiver, selector, span, ternary, within,
+    not_for_this_cop, operation_description, parser_ancestors, parser_span, part_of_assignment_rhs,
+    receiver, selector, span, ternary, within,
 };
 use crate::{
     cops::{
@@ -550,7 +550,7 @@ impl<'pr> Check<'_, '_, 'pr> {
         let own = std::iter::once(Anc::Call(self.node));
         own.chain(self.ancestors.iter().copied()).find_map(|a| {
             let Anc::Call(call) = a else { return None };
-            if !a.send() || !operator_method(method_name(call)) {
+            if !a.send() || !crate::cops::ast::is_operator_method(method_name(call)) {
                 return None;
             }
             let first = super::multiline_expression::arguments(call)

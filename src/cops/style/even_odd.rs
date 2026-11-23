@@ -112,7 +112,7 @@ fn correct(node: &Node<'_>, base: &Node<'_>, method: &str) -> Option<Correction>
     let source = std::str::from_utf8(base.location().as_slice()).ok()?;
     let operator = base.as_call_node().is_some_and(|c| {
         let name = c.name().as_slice();
-        name != b"[]" && super::super::layout::multiline_expression::operator_method(name)
+        name != b"[]" && crate::cops::ast::is_operator_method(name)
     });
     let source = if operator {
         format!("({source})")

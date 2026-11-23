@@ -457,38 +457,7 @@ fn number(node: &Node<'_>) -> String {
             digits
         };
     }
-    float_to_s(node.as_float_node().unwrap().value())
-}
-
-/// Ruby's `Float#to_s`: the shortest digits that read back as the same
-/// float, in fixed notation for decimal exponents from -4 to 15, else in
-/// scientific notation with at least two exponent digits.
-fn float_to_s(value: f64) -> String {
-    if value.is_infinite() {
-        return if value > 0.0 { "Infinity" } else { "-Infinity" }.into();
-    }
-    if value.is_nan() {
-        return "NaN".into();
-    }
-    let scientific = format!("{:e}", value.abs());
-    let (mantissa, exponent) = scientific.split_once('e').unwrap();
-    let digits: String = mantissa.chars().filter(char::is_ascii_digit).collect();
-    let point = exponent.parse::<i32>().unwrap() + 1;
-    let sign = if value.is_sign_negative() { "-" } else { "" };
-    let text = if (1..=16).contains(&point) {
-        let point = point as usize;
-        if digits.len() > point {
-            format!("{}.{}", &digits[..point], &digits[point..])
-        } else {
-            format!("{digits}{}.0", "0".repeat(point - digits.len()))
-        }
-    } else if (-3..=0).contains(&point) {
-        format!("0.{}{digits}", "0".repeat(point.unsigned_abs() as usize))
-    } else {
-        let rest = if digits.len() > 1 { &digits[1..] } else { "0" };
-        format!("{}.{rest}e{:+03}", &digits[..1], point - 1)
-    };
-    format!("{sign}{text}")
+    crate::cops::ast::float_to_s(node.as_float_node().unwrap().value())
 }
 
 /// RuboCop's `escape_string_content`: a backslash before each backslash,
@@ -554,6 +523,9 @@ mod tests {
             ("0xaabb", "43707"),
             ("1.2e-3", "0.0012"),
             ("1e20", "1.0e+20"),
+            // Ruby's `Float#to_s` turns scientific from 16 integer digits.
+            ("1e15", "1.0e+15"),
+            ("123456789012345.6", "123456789012345.6"),
             ("nil", ""),
             ("'a\"b'", "a\\\"b"),
             (":\"sym\"", "sym"),

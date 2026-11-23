@@ -24,7 +24,7 @@ fn correct(node: &Node<'_>) -> Option<Correction> {
                 | Node::OrNode { .. }
                 | Node::IfNode { .. }
                 | Node::RangeNode { .. }
-        ) || super::redundant_parentheses::is_assignment(n)
+        ) || crate::cops::ast::is_assignment(n)
             || n.as_call_node().is_some_and(|c| {
                 !c.is_safe_navigation()
                     && !c.block().is_some_and(|b| b.as_block_node().is_some())

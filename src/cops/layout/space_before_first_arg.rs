@@ -29,42 +29,6 @@ pub struct SpaceBeforeFirstArg;
 
 const MESSAGE: &str = "Put one space between the method name and the first argument.";
 
-/// rubocop-ast's `OPERATOR_METHODS`.
-fn operator_method(name: &[u8]) -> bool {
-    matches!(
-        name,
-        b"|" | b"^"
-            | b"&"
-            | b"<=>"
-            | b"=="
-            | b"==="
-            | b"=~"
-            | b">"
-            | b">="
-            | b"<"
-            | b"<="
-            | b"<<"
-            | b">>"
-            | b"+"
-            | b"-"
-            | b"*"
-            | b"/"
-            | b"%"
-            | b"**"
-            | b"~"
-            | b"+@"
-            | b"-@"
-            | b"!@"
-            | b"~@"
-            | b"[]"
-            | b"[]="
-            | b"!"
-            | b"!="
-            | b"!~"
-            | b"`"
-    )
-}
-
 impl Cop for SpaceBeforeFirstArg {
     fn name(&self) -> &'static str {
         "Layout/SpaceBeforeFirstArg"
@@ -102,7 +66,7 @@ impl Cop for SpaceBeforeFirstArg {
         let (Some(first), Some(selector)) = (first, call.message_loc()) else {
             return;
         };
-        if operator_method(call.name().as_slice())
+        if crate::cops::ast::is_operator_method(call.name().as_slice())
             || call.equal_loc().is_some()
             || call.closing_loc().is_some_and(|c| c.as_slice() == b")")
         {

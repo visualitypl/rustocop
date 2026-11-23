@@ -614,7 +614,7 @@ impl<'pr> Context<'_, 'pr> {
         if block_parent || self.body_range(node) {
             return Some(BLOCK_BODY);
         }
-        if is_assignment(node) && (self.parent().is_none() || self.parent_is_begin()) {
+        if ast::is_assignment(node) && (self.parent().is_none() || self.parent_is_begin()) {
             return Some("an assignment");
         }
         if is_lambda_or_proc_expression(node) {
@@ -712,7 +712,7 @@ impl<'pr> Context<'_, 'pr> {
             let endless_def = parent
                 .as_def_node()
                 .is_some_and(|def| def.equal_loc().is_some());
-            if endless_def || is_assignment(parent) || is_setter_call(parent) {
+            if endless_def || ast::is_assignment(parent) || is_setter_call(parent) {
                 return false;
             }
         }
@@ -1129,45 +1129,6 @@ fn keyword_with_redundant_parentheses(node: &Node<'_>) -> bool {
         }
         _ => false,
     }
-}
-
-/// RuboCop's `assignment?`: variable, constant and multiple assignments,
-/// and their `op=`, `||=` and `&&=` forms (on calls and indexes too).
-pub(super) fn is_assignment(node: &Node<'_>) -> bool {
-    matches!(
-        node,
-        Node::LocalVariableWriteNode { .. }
-            | Node::InstanceVariableWriteNode { .. }
-            | Node::ClassVariableWriteNode { .. }
-            | Node::GlobalVariableWriteNode { .. }
-            | Node::ConstantWriteNode { .. }
-            | Node::ConstantPathWriteNode { .. }
-            | Node::MultiWriteNode { .. }
-            | Node::LocalVariableOperatorWriteNode { .. }
-            | Node::LocalVariableOrWriteNode { .. }
-            | Node::LocalVariableAndWriteNode { .. }
-            | Node::InstanceVariableOperatorWriteNode { .. }
-            | Node::InstanceVariableOrWriteNode { .. }
-            | Node::InstanceVariableAndWriteNode { .. }
-            | Node::ClassVariableOperatorWriteNode { .. }
-            | Node::ClassVariableOrWriteNode { .. }
-            | Node::ClassVariableAndWriteNode { .. }
-            | Node::GlobalVariableOperatorWriteNode { .. }
-            | Node::GlobalVariableOrWriteNode { .. }
-            | Node::GlobalVariableAndWriteNode { .. }
-            | Node::ConstantOperatorWriteNode { .. }
-            | Node::ConstantOrWriteNode { .. }
-            | Node::ConstantAndWriteNode { .. }
-            | Node::ConstantPathOperatorWriteNode { .. }
-            | Node::ConstantPathOrWriteNode { .. }
-            | Node::ConstantPathAndWriteNode { .. }
-            | Node::CallOperatorWriteNode { .. }
-            | Node::CallOrWriteNode { .. }
-            | Node::CallAndWriteNode { .. }
-            | Node::IndexOperatorWriteNode { .. }
-            | Node::IndexOrWriteNode { .. }
-            | Node::IndexAndWriteNode { .. }
-    )
 }
 
 /// A setter call: `foo.bar = 1`, `foo[0] = 1` (RuboCop's `setter_method?`).

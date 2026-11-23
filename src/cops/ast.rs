@@ -2060,6 +2060,122 @@ pub fn is_operator_method(name: &[u8]) -> bool {
     OPERATOR_METHODS.contains(&name)
 }
 
+/// Ruby's `Float#to_s`: the shortest digits that read back as the same
+/// float, in fixed notation for decimal exponents from -4 to 15, else in
+/// scientific notation with at least two exponent digits.
+pub fn float_to_s(f: f64) -> String {
+    if f.is_nan() {
+        return "NaN".into();
+    }
+    if f.is_infinite() {
+        return if f < 0.0 { "-Infinity" } else { "Infinity" }.into();
+    }
+    let sign = if f.is_sign_negative() { "-" } else { "" };
+    if f == 0.0 {
+        return format!("{sign}0.0");
+    }
+    let e = format!("{:e}", f.abs());
+    let (mantissa, exp) = e.split_once('e').unwrap();
+    let digits: String = mantissa.chars().filter(|c| *c != '.').collect();
+    let decpt = exp.parse::<i64>().unwrap() + 1;
+    let n = digits.len() as i64;
+    if 0 < decpt && decpt <= 15 {
+        if n <= decpt {
+            format!("{sign}{digits}{}.0", "0".repeat((decpt - n) as usize))
+        } else {
+            let (a, b) = digits.split_at(decpt as usize);
+            format!("{sign}{a}.{b}")
+        }
+    } else if -4 < decpt && decpt <= 0 {
+        format!("{sign}0.{}{digits}", "0".repeat(-decpt as usize))
+    } else {
+        let (a, b) = digits.split_at(1);
+        let b = if b.is_empty() { "0" } else { b };
+        let x = decpt - 1;
+        format!(
+            "{sign}{a}.{b}e{}{:02}",
+            if x < 0 { '-' } else { '+' },
+            x.unsigned_abs()
+        )
+    }
+}
+
+/// RuboCop's `heredoc?`: a string or command literal opened with `<<`.
+pub fn is_heredoc(node: &Node<'_>) -> bool {
+    let opening = match node {
+        Node::StringNode { .. } => node.as_string_node().unwrap().opening_loc(),
+        Node::InterpolatedStringNode { .. } => {
+            node.as_interpolated_string_node().unwrap().opening_loc()
+        }
+        Node::XStringNode { .. } => Some(node.as_x_string_node().unwrap().opening_loc()),
+        Node::InterpolatedXStringNode { .. } => {
+            Some(node.as_interpolated_x_string_node().unwrap().opening_loc())
+        }
+        _ => None,
+    };
+    opening.is_some_and(|o| o.as_slice().starts_with(b"<<"))
+}
+
+/// RuboCop's `assignment?`: variable, constant and multiple assignments,
+/// and their `op=`, `||=` and `&&=` forms (on calls and indexes too).
+pub fn is_assignment(node: &Node<'_>) -> bool {
+    matches!(
+        node,
+        Node::LocalVariableWriteNode { .. }
+            | Node::InstanceVariableWriteNode { .. }
+            | Node::ClassVariableWriteNode { .. }
+            | Node::GlobalVariableWriteNode { .. }
+            | Node::ConstantWriteNode { .. }
+            | Node::ConstantPathWriteNode { .. }
+            | Node::MultiWriteNode { .. }
+            | Node::LocalVariableOperatorWriteNode { .. }
+            | Node::LocalVariableOrWriteNode { .. }
+            | Node::LocalVariableAndWriteNode { .. }
+            | Node::InstanceVariableOperatorWriteNode { .. }
+            | Node::InstanceVariableOrWriteNode { .. }
+            | Node::InstanceVariableAndWriteNode { .. }
+            | Node::ClassVariableOperatorWriteNode { .. }
+            | Node::ClassVariableOrWriteNode { .. }
+            | Node::ClassVariableAndWriteNode { .. }
+            | Node::GlobalVariableOperatorWriteNode { .. }
+            | Node::GlobalVariableOrWriteNode { .. }
+            | Node::GlobalVariableAndWriteNode { .. }
+            | Node::ConstantOperatorWriteNode { .. }
+            | Node::ConstantOrWriteNode { .. }
+            | Node::ConstantAndWriteNode { .. }
+            | Node::ConstantPathOperatorWriteNode { .. }
+            | Node::ConstantPathOrWriteNode { .. }
+            | Node::ConstantPathAndWriteNode { .. }
+            | Node::CallOperatorWriteNode { .. }
+            | Node::CallOrWriteNode { .. }
+            | Node::CallAndWriteNode { .. }
+            | Node::IndexOperatorWriteNode { .. }
+            | Node::IndexOrWriteNode { .. }
+            | Node::IndexAndWriteNode { .. }
+    )
+}
+
+/// The constant path a `Foo::Bar = …` write (or its `||=`, `&&=` and `op=`
+/// form) assigns.
+pub fn constant_path_write_target<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
+    Some(match node {
+        Node::ConstantPathWriteNode { .. } => {
+            node.as_constant_path_write_node()?.target().as_node()
+        }
+        Node::ConstantPathOrWriteNode { .. } => {
+            node.as_constant_path_or_write_node()?.target().as_node()
+        }
+        Node::ConstantPathAndWriteNode { .. } => {
+            node.as_constant_path_and_write_node()?.target().as_node()
+        }
+        Node::ConstantPathOperatorWriteNode { .. } => node
+            .as_constant_path_operator_write_node()?
+            .target()
+            .as_node(),
+        _ => return None,
+    })
+}
+
 /// RuboCop's `variable?`: a local, instance, class or global variable read.
 pub fn is_variable(node: &Node<'_>) -> bool {
     matches!(

@@ -245,7 +245,7 @@ fn with_parentheses(condition: &Node<'_>, file: &SourceFile) -> Option<String> {
         .is_some_and(|c| c.block().is_some_and(|b| b.as_block_node().is_some()));
     let parenthesized =
         |c: &ruby_prism::CallNode<'_>| c.opening_loc().is_some_and(|o| o.as_slice() == b"(");
-    let needed = super::redundant_parentheses::is_assignment(condition)
+    let needed = crate::cops::ast::is_assignment(condition)
         || condition.as_or_node().is_some()
         || condition
             .as_and_node()
@@ -291,7 +291,7 @@ fn contains_assignment(node: &Node<'_>) -> bool {
     struct Found(bool);
     impl NodeVisitor<'_> for Found {
         fn enter(&mut self, n: Node<'_>) {
-            self.0 |= super::redundant_parentheses::is_assignment(&n);
+            self.0 |= crate::cops::ast::is_assignment(&n);
         }
     }
     let mut found = Found(false);
@@ -306,7 +306,7 @@ fn parenthesized_and(node: &Node<'_>, file: &SourceFile) -> Option<String> {
     let rhs = and.right();
     let rhs = if rhs.as_and_node().is_some() {
         parenthesized_and(&rhs, file)?
-    } else if super::redundant_parentheses::is_assignment(&rhs) {
+    } else if crate::cops::ast::is_assignment(&rhs) {
         format!("({})", text(&rhs)?)
     } else {
         text(&rhs)?.to_owned()

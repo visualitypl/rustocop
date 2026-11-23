@@ -279,42 +279,6 @@ pub(super) fn assignment_method(name: &[u8]) -> bool {
     name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"<=" | b">=" | b"===")
 }
 
-/// RuboCop AST's `OPERATOR_METHODS`.
-pub(crate) fn operator_method(name: &[u8]) -> bool {
-    matches!(
-        name,
-        b"|" | b"^"
-            | b"&"
-            | b"<=>"
-            | b"=="
-            | b"==="
-            | b"=~"
-            | b">"
-            | b">="
-            | b"<"
-            | b"<="
-            | b"<<"
-            | b">>"
-            | b"+"
-            | b"-"
-            | b"*"
-            | b"/"
-            | b"%"
-            | b"**"
-            | b"~"
-            | b"+@"
-            | b"-@"
-            | b"!@"
-            | b"~@"
-            | b"[]"
-            | b"[]="
-            | b"!"
-            | b"!="
-            | b"!~"
-            | b"`"
-    )
-}
-
 /// One parser-gem ancestor of a node.
 #[derive(Clone, Copy)]
 pub(super) enum Anc<'b, 'pr> {

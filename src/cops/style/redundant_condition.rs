@@ -181,7 +181,7 @@ fn correction(
         && truthy.as_call_node().is_some_and(|c| {
             c.receiver().is_some()
                 && c.call_operator_loc().is_none()
-                && super::super::layout::multiline_expression::operator_method(c.name().as_slice())
+                && crate::cops::ast::is_operator_method(c.name().as_slice())
         });
     let if_source = if same_methods && parenthesized(truthy) {
         text(truthy)?.strip_suffix(')')?.to_owned()
@@ -232,7 +232,7 @@ fn correction(
         !c.is_safe_navigation()
             && !ast::call_arguments(c).is_empty()
             && !parenthesized(falsy)
-            && !super::super::layout::multiline_expression::operator_method(name)
+            && !crate::cops::ast::is_operator_method(name)
             && !(name.ends_with(b"=") && !matches!(name, b"==" | b"!=" | b"===" | b"<=" | b">="))
     }) {
         let arguments = ast::call_arguments(&call)

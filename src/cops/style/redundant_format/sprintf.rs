@@ -2,6 +2,8 @@
 //! corrects: `sprintf.c` for `%s %d %i %u %f` and templates, `flo_to_s`,
 //! and `BSD__dtoa` mode 3 (with Ruby's `half` change) for `%f` of a Float.
 
+use crate::cops::ast::float_to_s;
+
 /// An argument as upstream's `argument_value` computes it.
 pub(super) enum Value {
     Str(Vec<u8>),
@@ -618,44 +620,6 @@ fn exact(d: f64, ndigits: i64, half: bool) -> (Vec<u8>, i64) {
         }
     }
     (digits, decpt)
-}
-
-/// `Float#to_s`.
-pub(super) fn float_to_s(f: f64) -> String {
-    if f.is_nan() {
-        return "NaN".into();
-    }
-    if f.is_infinite() {
-        return if f < 0.0 { "-Infinity" } else { "Infinity" }.into();
-    }
-    let sign = if f.is_sign_negative() { "-" } else { "" };
-    if f == 0.0 {
-        return format!("{sign}0.0");
-    }
-    let e = format!("{:e}", f.abs());
-    let (mantissa, exp) = e.split_once('e').unwrap();
-    let digits: String = mantissa.chars().filter(|c| *c != '.').collect();
-    let decpt = exp.parse::<i64>().unwrap() + 1;
-    let n = digits.len() as i64;
-    if 0 < decpt && decpt <= 15 {
-        if n <= decpt {
-            format!("{sign}{digits}{}.0", "0".repeat((decpt - n) as usize))
-        } else {
-            let (a, b) = digits.split_at(decpt as usize);
-            format!("{sign}{a}.{b}")
-        }
-    } else if -4 < decpt && decpt <= 0 {
-        format!("{sign}0.{}{digits}", "0".repeat(-decpt as usize))
-    } else {
-        let (a, b) = digits.split_at(1);
-        let b = if b.is_empty() { "0" } else { b };
-        let x = decpt - 1;
-        format!(
-            "{sign}{a}.{b}e{}{:02}",
-            if x < 0 { '-' } else { '+' },
-            x.unsigned_abs()
-        )
-    }
 }
 
 fn to_s(value: &Value) -> Option<Vec<u8>> {

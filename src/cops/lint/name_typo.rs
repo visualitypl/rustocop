@@ -446,38 +446,20 @@ fn definition_identifier(node: &Node<'_>, cx: &NodeContext<'_, '_>) -> bool {
         .find(|p| !p.as_statements_node().is_some_and(|s| s.body().len() == 1));
     if parent.is_some_and(|p| {
         namespace_parts(p).is_some()
-            || constant_target(p)
+            || crate::cops::ast::constant_path_write_target(p)
                 .is_some_and(|t| t.location().start_offset() == node.location().start_offset())
     }) {
         return true;
     }
     let mut ancestors = cx.ancestors();
     if let (Some(target), Some(write)) = (ancestors.next(), ancestors.next()) {
-        return constant_target(write)
+        return crate::cops::ast::constant_path_write_target(write)
             .is_some_and(|n| n.location().start_offset() == target.location().start_offset())
             && write
                 .as_constant_path_write_node()
                 .is_some_and(|w| super::constant_resolution::defines_module(&w.value()));
     }
     false
-}
-fn constant_target<'pr>(node: &Node<'pr>) -> Option<Node<'pr>> {
-    Some(match node {
-        Node::ConstantPathWriteNode { .. } => {
-            node.as_constant_path_write_node()?.target().as_node()
-        }
-        Node::ConstantPathOrWriteNode { .. } => {
-            node.as_constant_path_or_write_node()?.target().as_node()
-        }
-        Node::ConstantPathAndWriteNode { .. } => {
-            node.as_constant_path_and_write_node()?.target().as_node()
-        }
-        Node::ConstantPathOperatorWriteNode { .. } => node
-            .as_constant_path_operator_write_node()?
-            .target()
-            .as_node(),
-        _ => return None,
-    })
 }
 struct Send<'pr> {
     name: String,

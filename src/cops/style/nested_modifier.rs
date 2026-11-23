@@ -156,7 +156,7 @@ fn operand_source(n: &Node<'_>) -> Option<String> {
         !c.is_safe_navigation()
             && !c.block().is_some_and(|b| b.as_block_node().is_some())
             && c.arguments().is_some()
-            && !super::super::layout::multiline_expression::operator_method(c.name().as_slice())
+            && !crate::cops::ast::is_operator_method(c.name().as_slice())
     }) else {
         return text(n);
     };
@@ -189,9 +189,7 @@ fn low_precedence(n: &Node<'_>) -> bool {
                 || (c.is_safe_navigation()
                     && c.arguments().is_some()
                     && c.opening_loc().is_none()
-                    && !super::super::layout::multiline_expression::operator_method(
-                        c.name().as_slice(),
-                    ))
+                    && !crate::cops::ast::is_operator_method(c.name().as_slice()))
         }
         Node::YieldNode { .. } => {
             let y = n.as_yield_node().unwrap();
@@ -201,7 +199,7 @@ fn low_precedence(n: &Node<'_>) -> bool {
             let s = n.as_super_node().unwrap();
             s.arguments().is_some() && s.lparen_loc().is_none()
         }
-        _ => super::redundant_parentheses::is_assignment(n),
+        _ => crate::cops::ast::is_assignment(n),
     }
 }
 #[cfg(test)]

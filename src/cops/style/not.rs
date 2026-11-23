@@ -121,7 +121,7 @@ fn requires_parens(node: &Node<'_>) -> bool {
     ) || node
         .as_if_node()
         .is_some_and(|n| n.if_keyword_loc().is_none())
-        || super::redundant_parentheses::is_assignment(node)
+        || crate::cops::ast::is_assignment(node)
 }
 #[cfg(test)]
 mod tests {
