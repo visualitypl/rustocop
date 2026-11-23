@@ -47,8 +47,15 @@ pub(crate) fn assignment_or_comparison(kind: &str) -> bool {
 }
 
 pub(super) fn collect(file: &SourceFile) -> Vec<Token> {
-    let raw = crate::parser::tokens::lex(&file.bytes, file.ruby_version());
-    let spans = translate(&file.bytes, &raw, |offset| file.line_of(offset));
+    let lexed;
+    let raw = match file.raw_tokens() {
+        Some(raw) => raw,
+        None => {
+            lexed = crate::parser::tokens::lex(&file.bytes, file.ruby_version());
+            &lexed
+        }
+    };
+    let spans = translate(&file.bytes, raw, |offset| file.line_of(offset));
     let positions = file.line_cols(spans.iter().flat_map(|s| [s.1, s.2]));
     spans
         .into_iter()

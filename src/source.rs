@@ -106,6 +106,8 @@ pub struct SourceFile {
     parser_tokens: OnceLock<Vec<tokens::Token>>,
     /// Narrow continuation facts from the main lexer, completed by cop dispatch.
     raw_continuations: OnceLock<Vec<crate::parser::Continuation>>,
+    /// Prism's token stream as the main parse recorded it.
+    raw_tokens: OnceLock<Vec<crate::parser::tokens::RawToken>>,
     /// Pipeline directive state, also read by cross-cop length-policy checks.
     directives: OnceLock<crate::directives::Directives>,
     /// Configured-off cop universe, before CLI force-selection/exclusion.
@@ -155,6 +157,7 @@ impl SourceFile {
             comments: OnceLock::new(),
             parser_tokens: OnceLock::new(),
             raw_continuations: OnceLock::new(),
+            raw_tokens: OnceLock::new(),
             directives: OnceLock::new(),
             directive_disabled: OnceLock::new(),
             directive_records: OnceLock::new(),
@@ -172,6 +175,16 @@ impl SourceFile {
 
     pub(crate) fn record_continuations(&self, records: &[crate::parser::Continuation]) {
         let _ = self.raw_continuations.set(records.to_vec());
+    }
+
+    /// Record the token stream of the main parse of this file's bytes, so
+    /// [`SourceFile::parser_tokens`] needs no second parse. A no-op once known.
+    pub(crate) fn record_raw_tokens(&self, tokens: Vec<crate::parser::tokens::RawToken>) {
+        let _ = self.raw_tokens.set(tokens);
+    }
+
+    pub(crate) fn raw_tokens(&self) -> Option<&[crate::parser::tokens::RawToken]> {
+        self.raw_tokens.get().map(Vec::as_slice)
     }
 
     pub(crate) fn raw_continuations(&self) -> Option<&[crate::parser::Continuation]> {
@@ -540,7 +553,8 @@ impl SourceFile {
 
     /// RuboCop's `processed_source.tokens` (stream order, not sorted): Prism's
     /// own lexer tokens projected as the pinned Prism-to-parser translator
-    /// does. Computed once, by a token-only parse with the main options.
+    /// does. Computed once, from the main parse's recorded tokens or else by
+    /// a token-only parse with the main options.
     pub(crate) fn parser_tokens(&self) -> &[tokens::Token] {
         self.parser_tokens.get_or_init(|| tokens::collect(self))
     }
@@ -691,7 +705,10 @@ impl SourceFile {
             .enumerate()
             .map(|(index, offset)| (offset.min(self.bytes.len()), index))
             .collect();
-        queries.sort_unstable();
+        // The keys are unique, and callers pass nearly sorted offsets (token
+        // starts and ends), which the stable sort's run detection handles in
+        // about linear time.
+        queries.sort();
         let mut positions = vec![(1, 1); queries.len()];
         if queries.is_empty() {
             return positions;

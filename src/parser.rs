@@ -37,6 +37,8 @@ pub(crate) struct Parsed<'src> {
     result: Option<ParseResult<'src>>,
     depth_error: Option<DepthError>,
     pub(crate) continuations: Vec<Continuation>,
+    /// Prism's token stream, for a parse made with [`parse_with_tokens`].
+    pub(crate) tokens: Option<Vec<tokens::RawToken>>,
 }
 
 impl Parsed<'_> {
@@ -78,10 +80,29 @@ pub(crate) fn grammar(version: RubyVersion) -> ruby_prism_sys::pm_options_versio
 /// latest grammar. stacker switches stacks on this same thread, so
 /// ParseResult's !Send contract and the caller's panic isolation hold.
 pub(crate) fn parse_as(source: &[u8], version: RubyVersion) -> Parsed<'_> {
+    parse_recording(source, version, false)
+}
+
+/// [`parse_as`], also recording Prism's token stream (see [`tokens`]), so the
+/// file's tokens need no second parse.
+pub(crate) fn parse_with_tokens(source: &[u8], version: RubyVersion) -> Parsed<'_> {
+    parse_recording(source, version, true)
+}
+
+/// The parse behind [`parse_as`] and [`parse_with_tokens`]: `lexing` records
+/// the token stream.
+fn parse_recording(source: &[u8], version: RubyVersion, lexing: bool) -> Parsed<'_> {
     let grammar = grammar(version);
-    let (result, continuations) = continuations::collect(|| {
+    let ((result, tokens), continuations) = continuations::collect(|| {
         stacker::grow(PARSER_STACK_SIZE, || {
-            ruby_prism::parse_with_version(source, grammar)
+            if lexing {
+                let (result, tokens) = tokens::recording(source, |callback| {
+                    ruby_prism::parse_with_version_lexing(source, grammar, callback)
+                });
+                (result, Some(tokens))
+            } else {
+                (ruby_prism::parse_with_version(source, grammar), None)
+            }
         })
     });
     let depth_error = depth::check(&result.node().as_program_node().unwrap()).err();
@@ -89,6 +110,7 @@ pub(crate) fn parse_as(source: &[u8], version: RubyVersion) -> Parsed<'_> {
         result: Some(result),
         depth_error,
         continuations,
+        tokens,
     }
 }
 

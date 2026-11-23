@@ -675,7 +675,7 @@ fn lint_file(
     } else {
         file
     };
-    let result = crate::parser::parse_as(&file.bytes, file.ruby_version());
+    let mut result = crate::parser::parse_with_tokens(&file.bytes, file.ruby_version());
     // Retain actual errors AND warnings, with encoding, even on rejected
     // input. Fatal delivery and later warning consumers share this main parse.
     file.record_diagnostics(&result);
@@ -752,6 +752,7 @@ fn lint_file(
 
     file.record_comments(&result);
     file.record_continuations(&result.continuations);
+    file.record_raw_tokens(result.tokens.take().unwrap_or_default());
     file.record_data_start(&result);
     file.record_directive_disabled(&active.directive_disabled);
     let disabled: Vec<_> = active.disabled.iter().map(|c| c.name()).collect();

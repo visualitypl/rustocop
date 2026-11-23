@@ -300,40 +300,53 @@ impl<'a> Investigation<'a> {
         let group = self.group_profile(token.line);
         let profile = &self.profiles[&group];
         let column = token.column;
-        let (lines, spacings) = profile
-            .typed
-            .get(&(column, token.kind))
-            .cloned()
-            .unwrap_or_default();
-        let entries = profile.by_column.get(&column).map_or(0, Vec::len);
+        let empty = (Vec::new(), Vec::new());
+        let (lines, spacings) = profile.typed.get(&(column, token.kind)).unwrap_or(&empty);
+        let entries = profile
+            .by_column
+            .get(&column)
+            .map_or(&[][..], Vec::as_slice);
         if lines.len() > 1 {
             let key = (group, column, token.kind);
             if let Some(&verdict) = self.verdicts.get(&key) {
                 return verdict;
             }
-            let members: std::collections::HashSet<u32> = lines.iter().copied().collect();
-            let verdict = distinct(&spacings) > 1
-                || self.profiles[&group]
-                    .by_column
-                    .iter()
-                    .any(|(&other, entries)| {
-                        other != column && {
-                            let shared: Vec<i64> = entries
-                                .iter()
-                                .filter(|(line, _)| members.contains(line))
-                                .map(|&(_, spacing)| spacing)
-                                .collect();
-                            distinct(&shared) > 1
-                        }
-                    });
+            let verdict =
+                varies(spacings.iter().copied()) || self.other_column_varies(lines, column);
             self.verdicts.insert(key, verdict);
             verdict
-        } else if entries > 1 {
-            let spacings: Vec<i64> = profile.by_column[&column].iter().map(|e| e.1).collect();
-            distinct(&spacings) > 1
+        } else if entries.len() > 1 {
+            varies(entries.iter().map(|&(_, spacing)| spacing))
         } else {
             self.nearest_spacing_varies(previous, token)
         }
+    }
+
+    /// Whether, on `lines` (sorted, as profiles are built from a group's
+    /// sorted lines), the spacing before the tokens of some column other
+    /// than `column` varies: the group profile's `by_column` restricted to
+    /// `lines`, read from the lines instead of from every column's entries.
+    fn other_column_varies(&self, lines: &[u32], column: u32) -> bool {
+        let mut spaced = Vec::new();
+        let mut previous = None;
+        for &line in lines {
+            if previous.replace(line) == Some(line) {
+                continue;
+            }
+            let Some(indices) = self.by_line.get(line as usize) else {
+                continue;
+            };
+            for pair in indices.windows(2) {
+                let token = &self.tokens[pair[1]];
+                if token.column != column {
+                    spaced.push((token.column, self.spacing(&self.tokens[pair[0]], token)));
+                }
+            }
+        }
+        spaced.sort_unstable();
+        spaced
+            .chunk_by(|a, b| a.0 == b.0)
+            .any(|run| run[0].1 != run[run.len() - 1].1)
     }
 
     /// `group_profile`: the profile of the alignment group of `line`.
@@ -476,11 +489,11 @@ impl<'a> Investigation<'a> {
     }
 }
 
-fn distinct(values: &[i64]) -> usize {
-    let mut values = values.to_vec();
-    values.sort_unstable();
-    values.dedup();
-    values.len()
+/// Whether `values` holds two different values.
+fn varies(mut values: impl Iterator<Item = i64>) -> bool {
+    values
+        .next()
+        .is_some_and(|first| values.any(|value| value != first))
 }
 
 #[cfg(test)]

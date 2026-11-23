@@ -42,6 +42,15 @@ and correction-validation parses therefore use the Ruby version of the run
 and stack-bounded cleanup for deep/recovered trees. Existing unit fixtures that
 call upstream `parse` directly still exercise upstream defaults.
 
+## Lexer callback
+
+**`parse_with_version_lexing(source, version, lex_callback)`** is
+`parse_with_version` with Prism's own `pm_parser_t::lex_callback` installed
+between `pm_parser_init` and `pm_parse`, and removed before it returns: the
+hook `Prism.lex` uses. rustocop's main parse records the token stream with it
+for `Layout/ExtraSpacing` and its peers, instead of lexing the file a second
+time. No other option or parser state differs.
+
 ## Printable diagnostic messages
 
 Upstream `Diagnostic::message()` assumes all C diagnostic messages are UTF-8

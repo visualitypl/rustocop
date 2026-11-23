@@ -691,7 +691,7 @@ impl Drop for ParseResult<'_> {
 ///
 #[must_use]
 pub fn parse(source: &[u8]) -> ParseResult<'_> {
-    parse_with_options(source, None)
+    parse_with_options(source, None, std::ptr::null_mut())
 }
 
 /// Parses with the fixed CRuby 3.4 grammar and otherwise normal parser defaults.
@@ -708,6 +708,18 @@ pub fn parse_ruby_3_4(source: &[u8]) -> ParseResult<'_> {
 /// `parse_ruby_3_4` is this function with the CRuby 3.4 grammar.
 #[must_use]
 pub fn parse_with_version(source: &[u8], version: ruby_prism_sys::pm_options_version_t) -> ParseResult<'_> {
+    parse_with_options(source, Some(&version_options(source, version)), std::ptr::null_mut())
+}
+
+/// [`parse_with_version`], also reporting every token Prism lexes to
+/// `lex_callback` during the parse, as `Prism.lex` observes them. The callback
+/// is installed after parser initialization and removed before this returns.
+#[must_use]
+pub fn parse_with_version_lexing<'src>(source: &'src [u8], version: ruby_prism_sys::pm_options_version_t, lex_callback: &mut ruby_prism_sys::pm_lex_callback_t) -> ParseResult<'src> {
+    parse_with_options(source, Some(&version_options(source, version)), lex_callback)
+}
+
+fn version_options(source: &[u8], version: ruby_prism_sys::pm_options_version_t) -> ruby_prism_sys::pm_options_t {
     // SAFETY: Prism's pm_options_t supports C zero-initialization (including its
     // empty strings, null pointers/callback and UNSET version/frozen mode).
     // Unlike C's zero defaults, the normal null-options parse starts on line 1.
@@ -725,24 +737,28 @@ pub fn parse_with_version(source: &[u8], version: ruby_prism_sys::pm_options_ver
         // substring search starts at the original source (not after the BOM).
         options.main_script = source[..length].windows(4).any(|word| word == b"ruby");
     }
-    parse_with_options(source, Some(&options))
+    options
 }
 
-fn parse_with_options<'src>(source: &'src [u8], options: Option<&ruby_prism_sys::pm_options_t>) -> ParseResult<'src> {
+fn parse_with_options<'src>(source: &'src [u8], options: Option<&ruby_prism_sys::pm_options_t>, lex_callback: *mut ruby_prism_sys::pm_lex_callback_t) -> ParseResult<'src> {
     unsafe {
-        let uninit = Box::new(MaybeUninit::<pm_parser_t>::uninit());
-        let uninit = Box::into_raw(uninit);
+        // One raw pointer for the parser's whole life: pm_parser_init stores
+        // pointers into the parser itself, which a later `&mut` reborrow
+        // would invalidate under Rust's aliasing rules.
+        let parser = Box::into_raw(Box::new(MaybeUninit::<pm_parser_t>::uninit())).cast::<pm_parser_t>();
 
         // Options are borrowed only for initialization. The fixed entrypoint's
         // options own no allocations; their empty filepath/encoding/scopes do
         // not leave borrowed storage in the parser. ParseResult ownership and
         // destruction are unchanged.
-        pm_parser_init((*uninit).as_mut_ptr(), source.as_ptr(), source.len(), options.map_or(std::ptr::null(), std::ptr::from_ref));
+        pm_parser_init(parser, source.as_ptr(), source.len(), options.map_or(std::ptr::null(), std::ptr::from_ref));
 
-        let parser = (*uninit).assume_init_mut();
         let parser = NonNull::new_unchecked(parser);
 
+        // The callback is borrowed for this synchronous parse only.
+        (*parser.as_ptr()).lex_callback = lex_callback;
         let node = pm_parse(parser.as_ptr());
+        (*parser.as_ptr()).lex_callback = std::ptr::null_mut();
         let node = NonNull::new_unchecked(node);
 
         ParseResult { source, parser, node }

@@ -9,8 +9,11 @@ use crate::source::{SourceFile, tokens::assignment_or_comparison};
 
 /// Per-line facts of `processed_source.lines`.
 pub(crate) struct Lines {
-    /// Byte offsets of each character start plus the line end, per line.
-    chars: Vec<Vec<usize>>,
+    /// Byte offsets of each character start plus the line end, line after
+    /// line; [`Lines::chars`] reads one line's.
+    offsets: Vec<usize>,
+    /// Where each line's entries start in `offsets`, plus the total length.
+    bounds: Vec<usize>,
     /// Character index of the first non-`\s` character (`line =~ /\S/`).
     first: Vec<Option<usize>>,
     /// Lines whose comment begins the line (`aligned_comment_lines`).
@@ -41,21 +44,23 @@ pub(crate) fn line_count(file: &SourceFile) -> usize {
 impl Lines {
     pub(crate) fn build(file: &SourceFile) -> Self {
         let count = line_count(file);
-        let chars: Vec<Vec<usize>> = (1..=count)
-            .map(|line| {
-                let mut start = file.line_start(line as u32);
-                let end = start + file.line_text(line as u32).len();
-                if line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf") {
-                    start = (start + 3).min(end);
-                }
-                file.character_offsets(start..end)
-                    .chain(std::iter::once(end))
-                    .collect()
-            })
-            .collect();
-        let first: Vec<Option<usize>> = chars
-            .iter()
-            .map(|offsets| {
+        let mut offsets = Vec::with_capacity(file.bytes.len() + count);
+        let mut bounds = Vec::with_capacity(count + 1);
+        for line in 1..=count {
+            let mut start = file.line_start(line as u32);
+            let end = start + file.line_text(line as u32).len();
+            if line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf") {
+                start = (start + 3).min(end);
+            }
+            bounds.push(offsets.len());
+            offsets.extend(file.character_offsets(start..end));
+            offsets.push(end);
+        }
+        bounds.push(offsets.len());
+        let chars = |i: usize| &offsets[bounds[i]..bounds[i + 1]];
+        let first: Vec<Option<usize>> = (0..count)
+            .map(|i| {
+                let offsets = chars(i);
                 offsets[..offsets.len() - 1]
                     .iter()
                     .position(|&offset| !space(file.bytes[offset]))
@@ -109,7 +114,7 @@ impl Lines {
         sorted.sort_by_key(|&i| tokens[i].start);
         let operator = (0..count)
             .map(|i| {
-                let offsets = &chars[i];
+                let offsets = chars(i);
                 let (start, end) = (file.line_start(i as u32 + 1), *offsets.last().unwrap());
                 let from = sorted.partition_point(|&t| tokens[t].start < start);
                 let to = sorted
@@ -126,7 +131,8 @@ impl Lines {
             })
             .collect();
         Self {
-            chars,
+            offsets,
+            bounds,
             first,
             comment_lines,
             nearest,
@@ -136,7 +142,12 @@ impl Lines {
     }
 
     pub(crate) fn count(&self) -> usize {
-        self.chars.len()
+        self.bounds.len() - 1
+    }
+
+    /// Byte offsets of each character start plus the end of 0-based line `i`.
+    fn chars(&self, i: usize) -> &[usize] {
+        &self.offsets[self.bounds[i]..self.bounds[i + 1]]
     }
 
     /// The text of 1-based `line`'s character `column` onwards, if it exists.
@@ -146,7 +157,7 @@ impl Lines {
         line: usize,
         column: usize,
     ) -> Option<&'f [u8]> {
-        let offsets = self.chars.get(line)?;
+        let offsets = (line < self.count()).then(|| self.chars(line))?;
         let start = *offsets.get(column)?;
         Some(&file.bytes[start..*offsets.last().unwrap()])
     }
@@ -154,7 +165,7 @@ impl Lines {
     /// `line_indentation`: leading `\s` characters of a 1-based line.
     pub(crate) fn indentation(&self, line: u32) -> usize {
         let i = line as usize - 1;
-        self.first[i].unwrap_or(self.chars[i].len() - 1)
+        self.first[i].unwrap_or(self.chars(i).len() - 1)
     }
 
     /// `String#blank?` of a 1-based line.
@@ -215,10 +226,11 @@ impl Lines {
         other: usize,
     ) -> bool {
         let text = &file.bytes[range.clone()];
+        let chars = self.chars(other);
         let words = column > 0
-            && self.chars[other].len() > column + 1
-            && space(file.bytes[self.chars[other][column - 1]])
-            && !space(file.bytes[self.chars[other][column]]);
+            && chars.len() > column + 1
+            && space(file.bytes[chars[column - 1]])
+            && !space(file.bytes[chars[column]]);
         words
             || self
                 .text_at_column(file, other, column)
