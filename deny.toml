@@ -1,0 +1,35 @@
+# cargo-deny checks the dependencies: security advisories, licenses, duplicate
+# and wildcard versions, and where crates come from. CI runs `cargo deny check`.
+# https://embarkstudios.github.io/cargo-deny/
+
+[graph]
+# The targets of the release binaries (.github/workflows/release.yml).
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+]
+
+[advisories]
+yanked = "deny"
+
+[licenses]
+# Each of these permits distributing the binary under the MIT license.
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-3-Clause",
+    "ISC",
+    "MIT",
+    "Unicode-3.0",
+    "Zlib",
+]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

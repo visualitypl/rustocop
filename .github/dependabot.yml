@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Keeps the actions, pinned by commit, current.
+  - package-ecosystem: github-actions
+    directories: ["/", "/.github/actions/*"]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      cargo:
+        update-types: [minor, patch]
+    ignore:
+      # Vendored and patched (vendor/ruby-prism*/RUSTOCOP.md): updated by hand.
+      - dependency-name: ruby-prism
+      - dependency-name: ruby-prism-sys

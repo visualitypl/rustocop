@@ -8,6 +8,7 @@ and what RuboCop 1.92 reports or corrects for the same code.
 - [Tests](#tests)
 - [RuboCop spec oracle](#rubocop-spec-oracle)
 - [Differential check](#differential-check)
+- [Continuous integration](#continuous-integration)
 
 ## Building
 
@@ -50,12 +51,15 @@ cargo test --test integration cli::
 **In Docker.** The tests assume one environment: Ubuntu 24.04, its system Ruby
 3.2 at `/usr/bin/ruby`, Ruby 3.4.1 and Ruby 4.0.9 built against the system
 OpenSSL, and the RuboCop checkout at the pinned revision.
-`tools/docker-test.sh` builds an image with exactly that and runs fmt, clippy
-and the tests in it. It gives the same result on every machine, and the oracle
-always runs there. Pass a command to run something else:
+`tools/docker-test.sh` builds an image with exactly that and runs every check
+of CI in it (`tools/check.sh`): fmt, clippy, rustdoc, the tests, the tests of
+the Ruby tools in `tools/test`, and a check that each generated source is the
+output of its generator. It gives the same result on every machine, and the
+oracle always runs there. Pass a command to run something else:
 
 ```sh
-tools/docker-test.sh                      # fmt, clippy and all tests
+tools/docker-test.sh                      # every check of CI
+tools/docker-test.sh tools/check.sh test  # one step: lint, test, test-ruby-4.0 or tools
 tools/docker-test.sh cargo test --lib     # any other command
 ```
 
@@ -106,3 +110,25 @@ in `tools/oracle/baseline.txt`. See
 `tools/differential.rb` compares rustocop with a local RuboCop executable over
 a directory of real Ruby code and lists every position where they disagree.
 It is an optional local check and never executes the corpus.
+
+## Continuous integration
+
+GitHub Actions runs `.github/workflows/ci.yml` on every push to master, on
+pull requests, and weekly:
+
+- **lint**, **test**, **test-ruby-4.0** and **tools** each run that step of
+  `tools/check.sh`, the last three in the test image: the tests on x86_64
+  and arm64 Linux, the architectures of the Linux binaries. Reproduce a step
+  with `tools/docker-test.sh tools/check.sh <step>`.
+- **build (macOS)** builds the code of the macOS binaries and lints a file
+  with it; **build (stable Rust)** builds with the latest Rust, which users
+  who build from source usually have.
+- **cargo deny** checks the dependencies against security advisories, and
+  their licenses and sources against `deny.toml`.
+- **workflows and scripts** runs actionlint, zizmor and shellcheck.
+- **CI** passes when all of them do.
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`: CI on the tagged
+commit, then the release with binaries for Linux and macOS. Dependabot
+proposes updates of the actions, which are pinned by commit, and of the
+crates.

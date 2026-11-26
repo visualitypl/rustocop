@@ -1,6 +1,7 @@
 name: Release
 
-# Builds the binaries of a tag and puts them on the tag's release page.
+# Checks a tag with CI, then builds its binaries and puts them on its release
+# page.
 on:
   push:
     tags: ["v*"]
@@ -12,21 +13,41 @@ on:
         required: true
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   TAG: ${{ inputs.tag || github.ref_name }}
-  GH_TOKEN: ${{ github.token }}
-  GH_REPO: ${{ github.repository }}
 
 jobs:
+  ci:
+    # A tag that is built again was checked when it was pushed, possibly
+    # before tools/check.sh existed.
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ github.sha }}
+
   release:
+    needs: ci
+    if: ${{ !cancelled() && (needs.ci.result == 'success' || needs.ci.result == 'skipped') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
-      - run: gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes
 
   build:
     needs: release
+    # Without a condition, a job is skipped when any job it depends on,
+    # however indirectly, is: `ci` is when a tag is built again.
+    if: ${{ !cancelled() && needs.release.result == 'success' }}
+    timeout-minutes: 45
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -39,18 +60,29 @@ jobs:
           - { os: macos-latest, target: aarch64-apple-darwin }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.TAG }}
+          persist-credentials: false
       # bindgen, which the vendored Prism parser builds with, loads libclang.
       - if: runner.os == 'Linux'
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libclang-dev
-      - run: rustup toolchain install 1.99 --profile minimal && rustup default 1.99
+      # Inline rather than .github/actions/setup-rust, which older tags lack,
+      # and without a cache, so that nothing but the tag goes into a release.
+      - name: Install the Rust version that Cargo.toml requires
+        run: |
+          rust_version=$(awk -F '"' '/^rust-version[[:space:]]*=/ { print $2; exit }' Cargo.toml)
+          rustup toolchain install "$rust_version" --profile minimal
+          rustup default "$rust_version"
       - run: cargo build --release --locked
       - name: Check that the binary runs and has the version of the tag
         run: test "$(target/release/rustocop --version)" = "rustocop ${TAG#v}"
       - name: Upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TARGET: ${{ matrix.target }}
         run: |
-          archive="rustocop-$TAG-${{ matrix.target }}.tar.gz"
+          archive="rustocop-$TAG-$TARGET.tar.gz"
           tar -czf "$archive" LICENSE -C target/release rustocop
           gh release upload "$TAG" "$archive" --clobber

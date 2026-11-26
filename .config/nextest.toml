@@ -1,0 +1,13 @@
+# cargo-nextest settings: https://nexte.st/docs/configuration/
+# CI selects the `ci` profile with NEXTEST_PROFILE=ci.
+
+[profile.ci]
+# Run every test, and print the output of the failures again at the end.
+fail-fast = false
+failure-output = "immediate-final"
+# Report the tests that are slow or fail, not each one that passes.
+status-level = "slow"
+final-status-level = "slow"
+# Flag a test after a minute and stop it after 20: the slowest take about
+# two minutes on a fast machine.
+slow-timeout = { period = "60s", terminate-after = 20 }

@@ -1,5 +1,6 @@
 # rustocop
 
+[![CI](https://github.com/visualitypl/rustocop/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/visualitypl/rustocop/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![RuboCop 1.92](https://img.shields.io/badge/RuboCop-1.92-red.svg)](docs/migrating-from-rubocop.md)
 [![Ruby 3.4 | 4.0](https://img.shields.io/badge/Ruby-3.4%20%7C%204.0-CC342D.svg)](docs/configuration.md#ruby-version)
