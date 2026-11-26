@@ -1,4 +1,5 @@
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, lint::RedundantCopEnableDirective},
@@ -19,13 +20,6 @@ const STDIN_FIX_ERROR: &str = concat!(
     "Usage: rustocop --only <ONLY> --stdin <PATH> [PATHS]...\n\n",
     "For more information, try '--help'.\n"
 );
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], code: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -81,7 +75,7 @@ fn defaults_selectors_strict_toml_and_supplied_stdin_path() {
     assert!(c.default_enabled() && c.safe_fixes());
     assert!(c.path_policy().is_none() && c.max_setting().is_none());
     assert_eq!(c.ruby_versions(), Default::default());
-    let d = project();
+    let d = project_with_lib();
     let p = d.path().join("lib/a.rb");
     fs::write(&p, BEFORE).unwrap();
     let old = fs::metadata(&p).unwrap();
@@ -165,7 +159,7 @@ fn defaults_selectors_strict_toml_and_supplied_stdin_path() {
 }
 #[test]
 fn stdin_fix_rejection_handles_a_deterministically_closed_pipe() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, BEFORE).unwrap();
     let old = fs::metadata(&path).unwrap();

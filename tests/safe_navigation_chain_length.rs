@@ -1,4 +1,5 @@
 //! chain-length policy and noncorrectable/no-write CLI contract.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -9,13 +10,6 @@ use crate::support::stdin as stdin_support;
 
 const COP: &str = "Style/SafeNavigationChainLength";
 const SOURCE: &str = "x&.a&.b&.c\n";
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 
 fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
     let path = dir.join("a.rb");

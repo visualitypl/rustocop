@@ -40,7 +40,7 @@ impl Cop for IdentityComparison {
         }
         let start = node.location().start_offset();
         let end = ast::source_end(node);
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         let bang = if op == b"!=" { "!" } else { "" };
         let op = std::str::from_utf8(op).unwrap();
         out.push(Offense {

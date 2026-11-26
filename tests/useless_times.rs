@@ -1,5 +1,6 @@
 //! Source-only pipeline/CLI controls. Inputs are NEVER executed.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{count, project_with_lib, run};
 use rustocop::{
     config::ResolvedConfig,
     cops::{Cop, lint::UselessTimes},
@@ -13,25 +14,6 @@ use std::{
 const CASES: [(&str, &[u8]); 1] = [("Lint/UselessTimes", b"0.times { work }\n")];
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/useless_times.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -96,7 +78,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -113,7 +95,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
 }
 #[test]
 fn all_original_bytes_rebuilt_cli_lint_and_fix_preserve_bytes_mtime_permissions_inode_fd() {
-    let d = project();
+    let d = project_with_lib();
     for row in rows() {
         let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let cop = row["cop"].as_str().unwrap();
@@ -143,7 +125,7 @@ fn all_original_bytes_rebuilt_cli_lint_and_fix_preserve_bytes_mtime_permissions_
                 .collect();
             let want: Vec<_> = expected
                 .iter()
-                .map(|(l, c, _, m)| format!("lib/a.rb:{l}:{c}: E: {m} ({cop})"))
+                .map(|(l, c, _, m)| format!("lib/a.rb:{l}:{c}: W: {m} ({cop})"))
                 .collect();
             assert_eq!(actual, want, "{row}");
             assert!(out.stderr.is_empty(), "{out:?}");
@@ -155,7 +137,7 @@ fn all_original_bytes_rebuilt_cli_lint_and_fix_preserve_bytes_mtime_permissions_
 }
 #[test]
 fn reviewed_symbol_and_compound_projection_is_default_on_in_actual_cli_without_writes() {
-    let d = project();
+    let d = project_with_lib();
     let cop = "Lint/UselessTimes";
     for row in rows()
         .into_iter()
@@ -171,7 +153,7 @@ fn reviewed_symbol_and_compound_projection_is_default_on_in_actual_cli_without_w
         for (line, col, _, message) in expected {
             assert!(
                 String::from_utf8_lossy(&out.stdout)
-                    .contains(&format!("lib/a.rb:{line}:{col}: E: {message} ({cop})")),
+                    .contains(&format!("lib/a.rb:{line}:{col}: W: {message} ({cop})")),
                 "{row}: {out:?}"
             );
         }
@@ -181,7 +163,7 @@ fn reviewed_symbol_and_compound_projection_is_default_on_in_actual_cli_without_w
 #[test]
 fn defaults_selectors_strict_toml_department_precedence_and_path_excludes() {
     let registry = rustocop::cops::Registry::new();
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in CASES {
         let implementation = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(implementation.default_enabled());
@@ -250,7 +232,7 @@ fn defaults_selectors_strict_toml_department_precedence_and_path_excludes() {
 }
 #[test]
 fn supplied_file_stdin_path_provenance_and_stdin_fix_rejection() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in CASES {
         for conf in [
             String::new(),
@@ -332,7 +314,7 @@ fn supplied_file_stdin_path_provenance_and_stdin_fix_rejection() {
 }
 #[test]
 fn both_directive_prefixes_multiline_next_push_scopes_and_selector_bounds() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in CASES {
         let source = std::str::from_utf8(source).unwrap();
         for prefix in ["rubocop", "rustocop"] {
@@ -421,7 +403,7 @@ fn both_directive_prefixes_multiline_next_push_scopes_and_selector_bounds() {
 }
 #[test]
 fn observer_bytes_parser_gate_style_layout_composition_and_symlink_atomic_failure() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in CASES {
         for suffix in [
             "p __LINE__; File.binread(__FILE__); DATA.pos\n__END__\nraw\0\n",

@@ -1,4 +1,5 @@
 //! fixed nested-style policy and unsafe-correction no-write contract.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -14,14 +15,6 @@ use rustocop::{
 
 const COP: &str = "Style/ClassAndModuleChildren";
 const SOURCE: &str = "# Namespace.\nmodule Foo\nend\n\nclass Foo::Bar\nend\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -85,7 +78,7 @@ fn real_pipeline_has_fixed_default_and_no_path_or_version_gate() {
 
 #[test]
 fn default_selectors_and_config_precedence_never_rewrite_namespaces() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, args, count) in [
         ("", vec!["lib/a.rb"], 1),
         ("", vec!["--only", COP, "lib/a.rb"], 1),
@@ -138,7 +131,7 @@ fn default_selectors_and_config_precedence_never_rewrite_namespaces() {
 
 #[test]
 fn directives_apply_to_the_identifier_range_not_the_class_body() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rustocop", "rubocop"] {
         for target in [COP, "Style", "all"] {
             for source in [
@@ -178,7 +171,7 @@ fn directives_apply_to_the_identifier_range_not_the_class_body() {
 
 #[test]
 fn config_relative_excludes_and_stdin_respect_selection_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -228,7 +221,7 @@ fn config_relative_excludes_and_stdin_respect_selection_without_writes() {
 
 #[test]
 fn unsafe_fix_preserves_bom_crlf_encodings_line_and_data_and_error_files() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         "\u{feff}class Foo::Bar\r\n  VALUE = [__LINE__, \"é\"]\r\nend\r\n__END__\r\nmodule X::Y\r\n".as_bytes(),
         b"# encoding: ASCII-8BIT\nclass Foo::Bar\n  VALUE = \"\xff\"\nend\n",
@@ -256,7 +249,7 @@ fn unsafe_fix_preserves_bom_crlf_encodings_line_and_data_and_error_files() {
 
 #[test]
 fn safe_style_and_layout_edits_leave_namespace_and_its_offense_intact() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = "# Namespace.\nmodule Foo\nend\n\nclass Foo::Bar\n  def value\n    return { :key => 'value' };\n  end\nend\n";
     let expected = "# Namespace.\nmodule Foo\nend\n\nclass Foo::Bar\n  def value\n    { key: \"value\" }\n  end\nend\n";
     let only = "Style/ClassAndModuleChildren,Style/StringLiterals,Style/HashSyntax,Style/RedundantReturn,Style/Semicolon,Style/RedundantParentheses,Style/SignalException,Layout";
@@ -278,7 +271,7 @@ fn safe_style_and_layout_edits_leave_namespace_and_its_offense_intact() {
 
 #[test]
 fn rejects_style_overrides_instead_of_silently_accepting_them() {
-    let dir = project();
+    let dir = project_with_lib();
     for option in [
         "enforced_style = 'compact'",
         "enforced_style_for_classes = 'compact'",
@@ -333,7 +326,7 @@ class << Foo::Bar
 end
 p [Foo::Bar.superclass == Base, Foo::Bar.snapshot, EVENTS]
 "#;
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let ruby = || {

@@ -1,4 +1,5 @@
 //! real CLI controls and independent, controlled Ruby observations.
+use crate::support::cli::project;
 use crate::support::source_getter;
 use std::{
     fs,
@@ -15,12 +16,6 @@ const CASES: [(&str, &str, &str); 3] = [
     (S, "p :\"word\"\n", "p :word\n"),
     (V, "p \"#@word\"\n", "p \"#{@word}\"\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

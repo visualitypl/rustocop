@@ -1,4 +1,5 @@
 //! real CLI policy, no-write contracts and isolated Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -10,13 +11,6 @@ const EQUALITY: &str = "Style/ClassEqualityComparison";
 const MISSING: &str = "Style/MissingRespondToMissing";
 const ALL: &str = "Style/ClassCheck,Style/ClassEqualityComparison,Style/MissingRespondToMissing";
 const NAMES: [&str; 3] = [CHECK, EQUALITY, MISSING];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -36,7 +30,7 @@ fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
 }
 #[test]
 fn default_selectors_config_reenabling_and_no_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source =
         "p x.kind_of?(String)\np x.class == Date\ndef method_missing(name)\n  super\nend\n";
@@ -108,7 +102,7 @@ fn default_selectors_config_reenabling_and_no_fix_never_write() {
 }
 #[test]
 fn directives_and_config_relative_excludes_suppress_reports_and_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, code) in [
         (CHECK, "x.kind_of?(String)"),
@@ -193,7 +187,7 @@ fn directives_and_config_relative_excludes_suppress_reports_and_fixes() {
 }
 #[test]
 fn canonical_fixes_detection_only_and_clean_error_withheld_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "x.kind_of? y\nx&.kind_of? y\nx.class.name == 'Date'\n";
     fs::write(&path, source).unwrap();
@@ -236,7 +230,7 @@ fn canonical_fixes_detection_only_and_clean_error_withheld_no_write() {
 }
 #[test]
 fn stdin_is_lint_only_and_uses_the_display_path_for_excludes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "unchanged disk bytes").unwrap();
     for (config, count) in [
@@ -291,7 +285,7 @@ fn same(before: &Output, after: &Output) {
 }
 #[test]
 fn ruby_custom_selectors_visibility_refinements_and_unsafe_comparisons_stay_unchanged() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "o = Object.new\ndef o.kind_of?(x); [:custom, x]; end\np o.kind_of?(String)\n",
@@ -348,7 +342,7 @@ fn ruby_custom_selectors_visibility_refinements_and_unsafe_comparisons_stay_unch
 }
 #[test]
 fn ruby_module_function_visibility_is_not_changed_by_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for visibility in [
         "module_function :is_a?",
@@ -376,7 +370,7 @@ fn ruby_module_function_visibility_is_not_changed_by_fixes() {
 }
 #[test]
 fn ruby_method_object_binders_and_visibility_are_reported_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, expected) in [
         // Struct/Data member DSLs also bind the tested selectors, including
@@ -481,7 +475,7 @@ fn ruby_method_object_binders_and_visibility_are_reported_without_writes() {
 }
 #[test]
 fn ruby_benign_method_reflection_still_allows_canonical_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "obj = Object.new; p [obj.method(:is_a?).call(Object), obj.kind_of?(Object)]\n",
@@ -508,7 +502,7 @@ fn ruby_benign_method_reflection_still_allows_canonical_fixes() {
 }
 #[test]
 fn curated_style_layout_composition_converges_without_runtime_changes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def f\n  return ({:value => 'x'.kind_of?(String)});\nend\np f\n";
     fs::write(&path, source).unwrap();

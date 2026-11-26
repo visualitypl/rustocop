@@ -1,4 +1,5 @@
 //! real CLI policy, byte preservation, and controlled Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -20,14 +21,6 @@ const CASES: &[(&str, &str, &str, &str)] = &[
         "1:3",
     ),
 ];
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -60,7 +53,7 @@ fn exact_names_defaults_and_safe_capabilities() {
 
 #[test]
 fn defaults_opt_in_selectors_config_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, after, position) in CASES {
         fs::write(&path, before).unwrap();
@@ -116,7 +109,7 @@ fn defaults_opt_in_selectors_config_and_no_write() {
 
 #[test]
 fn directives_and_additive_config_relative_excludes_protect_all_three() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _, _) in CASES {
         for prefix in ["rubocop", "rustocop"] {
@@ -147,7 +140,7 @@ fn directives_and_additive_config_relative_excludes_protect_all_three() {
 
 #[test]
 fn bom_crlf_literals_data_and_line_observations_keep_exact_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let before = "\u{feff}# encoding: UTF-8\r\np __LINE__\r\n=begin\r\ncomment\r\n=end\r\nx = \"# TODO text\" # todo improve this\r\nx = <<~H\r\n=begin\r\n# todo text\r\n日本語\r\n=end\r\nH\r\n__END__\r\n# todo text\r\n=begin\r\n日本語\r\n=end\r\n";
     let after = before
@@ -175,7 +168,7 @@ fn bom_crlf_literals_data_and_line_observations_keep_exact_bytes() {
 
 #[test]
 fn legacy_notes_and_non_utf8_document_bytes_are_not_transcoded() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for encoding in ["ASCII-8BIT", "Windows-1252", "Shift_JIS"] {
         let mut before = format!("# coding: {encoding}\nx = 1 # todo ").into_bytes();
@@ -217,7 +210,7 @@ fn controlled_ruby_observations_preserve_values_encodings_frozen_state_and_data(
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "# encoding: UTF-8\np __LINE__\n=begin\ncomment\n=end\nx = 0 # todo improve this\nx += 1\np [x, \"é\".encoding.name, \"a\".frozen?, DATA.read.bytes]\n__END__\n# TODO data\n",
@@ -251,7 +244,7 @@ fn controlled_ruby_observations_preserve_values_encodings_frozen_state_and_data(
 
 #[test]
 fn mixed_style_layout_and_newly_exposed_annotations_stabilize_in_two_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let before = "=begin\nTODO improve this\n=end\nx = 'text';  \nx\n";
     fs::write(&path, before).unwrap();

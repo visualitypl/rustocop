@@ -76,10 +76,7 @@ impl Cop for BooleanSymbol {
             range: loc.start_offset()..loc.end_offset(),
             replacement,
         };
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            node.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

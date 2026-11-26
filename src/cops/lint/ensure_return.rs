@@ -48,10 +48,7 @@ impl Cop for EnsureReturn {
                 return;
             }
             if ancestor.as_ensure_node().is_some() {
-                let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                    node.location().start_offset(),
-                    file,
-                );
+                let (line, col) = file.reference_line_col(node.location().start_offset());
                 out.push(Offense {
                     correction: None,
                     cop: self.name(),

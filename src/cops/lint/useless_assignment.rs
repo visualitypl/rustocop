@@ -121,10 +121,7 @@ impl Cop for UselessAssignment {
                             }
                         }
                     }
-                    let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                        assignment.name_range.start,
-                        file,
-                    );
+                    let (line, col) = file.reference_line_col(assignment.name_range.start);
                     let correction = cx
                         .corrections_requested()
                         .then(|| correction(assignment, variable.name, &extent, &sequential, file))

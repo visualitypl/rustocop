@@ -266,8 +266,8 @@ fn audited_identities_match_the_inventory_registry_and_fixed_policies() {
         assert!(cop.default_enabled() && cop.department_selection_enables());
         assert_eq!(cop.safe_fixes(), live["safe_fixes"], "{name}");
         assert!(cop.safe_fixes(), "{name}");
-        assert_eq!(cop.severity(), Severity::Convention, "{name}");
-        assert_eq!(live["severity"], "Convention", "{name}");
+        assert_eq!(cop.severity(), Severity::for_cop(name), "{name}");
+        assert_eq!(live["severity"], format!("{:?}", cop.severity()), "{name}");
         assert_eq!(
             cop.max_setting(),
             (name == "Layout/LineLength").then_some("max"),

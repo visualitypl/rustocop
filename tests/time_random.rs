@@ -1,4 +1,5 @@
 //! real CLI policy and isolated Ruby behavioral observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -6,13 +7,6 @@ use std::{
 };
 const TIME: &str = "Style/TimeNow";
 const RANDOM: &str = "Style/RandomWithOffset";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -32,7 +26,7 @@ fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
 }
 #[test]
 fn defaults_selectors_config_and_no_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "Time.new\nrand(6) + 1\n";
     fs::write(&path, source).unwrap();
@@ -85,7 +79,7 @@ fn defaults_selectors_config_and_no_fix_never_write() {
 }
 #[test]
 fn excludes_and_both_directive_prefixes_suppress_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, code) in [(TIME, "Time.new"), (RANDOM, "rand(6).succ")] {
         for prefix in ["rustocop", "rubocop"] {
@@ -155,7 +149,7 @@ fn seeded_translations_preserve_draws_types_bounds_order_defaults_and_control_fl
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let expressions = [
         "rand(6) + 1",
         "1 + Kernel.rand(6)",
@@ -204,7 +198,7 @@ fn time_uses_the_real_clock_and_preserves_defaults_chaining_and_ignored_blocks()
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def f(t = ::Time.new()); t; end\na = Time.now\ntimes = [Time.new, Time&.new(), f, -> { Time.new }.call]\nb = Time.now\np [times.map(&:class), times.all? { |t| t >= a && t <= b }, Time.new.year == b.year]\n";
     fs::write(&path, source).unwrap();
@@ -249,7 +243,7 @@ fn time_empty_parentheses_preserve_signed_operand_binding_at_runtime() {
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for receiver in ["Time.", "::Time.", "Time&.", "Time::"] {
         for operand in ["+1", "-1"] {

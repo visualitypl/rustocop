@@ -1,5 +1,6 @@
 //! Source-only RuboCop replay (MIT, Copyright (c) 2012-26
 //! Bozhidar Batsov). Only separately authored bounded native controls execute.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -14,20 +15,6 @@ fn rows() -> Vec<serde_json::Value> {
 }
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
     crate::support::fixture::value(&row[key])
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -81,7 +68,7 @@ fn native_syntax_only_for_interpolation_projection_inputs() {
 #[test]
 fn defaults_selectors_toml_department_provenance_and_strict_keys() {
     let registry = rustocop::cops::Registry::new();
-    let d = project();
+    let d = project_with_lib();
     for (i, cop) in COPS.iter().enumerate() {
         let rule = registry.cops().iter().find(|c| c.name() == *cop).unwrap();
         assert!(rule.default_enabled() && rule.safe_fixes());
@@ -169,7 +156,7 @@ fn defaults_selectors_toml_department_provenance_and_strict_keys() {
 #[test]
 fn atomic_mode_symlink_and_readonly_failures() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, SAFE[0]).unwrap();
     symlink(&path, d.path().join("link.rb")).unwrap();
@@ -210,7 +197,7 @@ fn atomic_mode_symlink_and_readonly_failures() {
 }
 #[test]
 fn authored_native_continuation_line_events_and_cli_no_write_hold() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let ruby = crate::support::runtime::ruby().ok();
     // Separately authored bounded witness: observe actual line events, not just
@@ -303,7 +290,7 @@ fn authored_native_allocation_chilled_mutation_dispatch_and_trace_controls() {
 }
 #[test]
 fn original_legacy_payload_canonical_removal_and_unrepresentable_batch_hold() {
-    let d = project();
+    let d = project_with_lib();
     let before = b"# coding: ISO-8859-1\nvalue = \"caf\xe9\" \"\"\np [value.bytes,value.encoding.name,value.frozen?]\n";
     let after = b"# coding: ISO-8859-1\nvalue = \"caf\xe9\" \np [value.bytes,value.encoding.name,value.frozen?]\n";
     fs::write(d.path().join("lib/a.rb"), before).unwrap();

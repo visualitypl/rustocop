@@ -1,4 +1,5 @@
 //! controlled fixtures only; no corpus code is ever executed.
+use crate::support::cli::project_with_lib;
 use rustocop::cops::Registry;
 use std::{
     fs,
@@ -17,13 +18,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "def f(a, b)\n [a,b]\nend\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: Option<i32>) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -38,7 +32,7 @@ fn cli(dir: &Path, args: &[&str], status: Option<i32>) -> Output {
     output
 }
 fn fix(source: &str, only: &str, config: &str) -> String {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     fs::write(dir.path().join("rustocop.toml"), config).unwrap();
@@ -52,7 +46,7 @@ fn defaults_opt_ins_selectors_config_and_no_write_are_real() {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert_eq!(cop.default_enabled(), name == SINGLE);
         assert_eq!(cop.safe_fixes(), name != TOP);
-        let dir = project();
+        let dir = project_with_lib();
         let path = dir.path().join("lib/a.rb");
         fs::write(&path, before).unwrap();
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -114,7 +108,7 @@ fn correction_dependencies_read_config_not_only_or_except() {
         fix(before, SINGLE, "[cops.Style]\nenabled = false\n"),
         multiline
     );
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, before).unwrap();
     cli(
@@ -145,7 +139,7 @@ fn correction_dependencies_read_config_not_only_or_except() {
 #[test]
 fn directives_excludes_parse_errors_and_detection_only_never_write() {
     for (name, before, _) in CASES {
-        let dir = project();
+        let dir = project_with_lib();
         let path = dir.path().join("lib/a.rb");
         for config in [
             "exclude = [\"lib/**\"]\n".to_string(),
@@ -205,7 +199,7 @@ fn directives_excludes_parse_errors_and_detection_only_never_write() {
 }
 #[test]
 fn encoding_bom_crlf_data_and_non_utf8_spans_preserve_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (name, before, after) in [
         (
@@ -262,7 +256,7 @@ fn encoding_bom_crlf_data_and_non_utf8_spans_preserve_bytes() {
 }
 #[test]
 fn signature_width_uses_declared_encoding_at_the_line_length_boundary() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let overhead = b"def f(a = \"\", b = 1)".len();
     for (encoding, character) in [
@@ -299,7 +293,7 @@ fn signature_width_uses_declared_encoding_at_the_line_length_boundary() {
 fn stdin_is_diagnostic_only_for_every_assigned_cop() {
     use std::{io::Write, process::Stdio};
     for (name, before, _) in CASES {
-        let dir = project();
+        let dir = project_with_lib();
         let path = dir.path().join("lib/a.rb");
         fs::write(&path, before).unwrap();
         let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -343,7 +337,7 @@ fn controlled_ruby_binding_evaluation_control_flow_and_literal_values_survive() 
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("run.rb");
     for (name, source) in [
         (
@@ -394,7 +388,7 @@ fn single_line_shebang_relocation_preserves_main_script_output_bytes_and_mtime()
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("run.rb");
     for (config, body) in [
         ("", "1; 2"),
@@ -451,7 +445,7 @@ fn single_line_shebang_lookalikes_and_unmoved_comments_still_fix_at_runtime() {
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("run.rb");
     for (config, source, expected) in [
         (
@@ -482,7 +476,7 @@ fn trailing_comments_on_visibility_wrappers_preserve_following_method_visibility
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("run.rb");
     for visibility in ["private", "protected", "public"] {
         // `public def` must also preserve an existing private default scope.

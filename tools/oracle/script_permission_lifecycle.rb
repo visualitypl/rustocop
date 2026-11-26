@@ -35,7 +35,7 @@ module Oracle
               chdir: root, stdin_data: e.source)
             raise "ScriptPermission CLI failed: #{stdout}#{stderr}" unless [0, 1].include?(status.exitstatus) && stderr.empty?
             found = stdout.lines.filter_map do |line|
-              match = /\A#{Regexp.escape(name)}:(\d+):(\d+): E: (.*) \(Lint\/ScriptPermission\)\s*\z/.match(line)
+              match = /\A#{Regexp.escape(name)}:(\d+):(\d+): W: (.*) \(Lint\/ScriptPermission\)\s*\z/.match(line)
               { line: match[1].to_i, col: match[2].to_i, message: match[3] } if match
             end
             wanted = e.offenses.map { |o| [o.line, o.col, o.message] }

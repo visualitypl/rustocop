@@ -1,5 +1,6 @@
 //! real policy controls, canonical/no-write fixes and Ruby flow witnesses.
 //! Pinned fixtures port RuboCop specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -12,12 +13,6 @@ const SOURCE: &str = "def f?\n  return nil if condition\n  true\nend\n";
 /// The pinned source's guard clause is also a default-on
 /// Layout/EmptyLineAfterGuardClause finding; it is not the subject here.
 const GUARD_OFF: &str = "[cops.\"Layout/EmptyLineAfterGuardClause\"]\nenabled = false\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

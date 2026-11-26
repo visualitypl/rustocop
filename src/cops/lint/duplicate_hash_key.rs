@@ -53,10 +53,7 @@ impl Cop for DuplicateHashKey {
             if seen.insert(fingerprint_for_duplicate(&key, file)) {
                 continue;
             }
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                key.location().start_offset(),
-                file,
-            );
+            let (line, col) = file.reference_line_col(key.location().start_offset());
             out.push(Offense {
                 correction: None,
                 cop: self.name(),

@@ -1,6 +1,7 @@
 //! production no-index prerequisite and actual CLI/no-write controls.
 //! Indexed expectations are retained verbatim and exercised privately in the cop.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -11,20 +12,6 @@ use std::{
 use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/ArgumentMismatch";
 const SOURCE: &str = "# Report.\nclass Report\n  def self.generate(source, format); end\nend\nReport.generate(source)\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -85,7 +72,7 @@ fn all_reference_sources_without_assigned_index_have_no_pipeline_findings() {
             .filter(|o| o.cop == COP)
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -99,7 +86,7 @@ fn all_reference_sources_without_assigned_index_have_no_pipeline_findings() {
 }
 #[test]
 fn lead_default_probe_and_source_forces_cannot_supply_an_index() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = "class A\n  def self.f(a); end\nend\nA.f\n";
     for (args, status) in [
         (vec!["lib/a.rb"], 1), // Other departments still report their own findings.
@@ -143,7 +130,7 @@ fn lead_default_probe_and_source_forces_cannot_supply_an_index() {
 }
 #[test]
 fn default_selectors_strict_toml_and_metadata() {
-    let dir = project();
+    let dir = project_with_lib();
     let registry = rustocop::cops::Registry::new();
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled());
@@ -217,7 +204,7 @@ fn default_selectors_strict_toml_and_metadata() {
 }
 #[test]
 fn user_exclusions_supplied_paths_and_stdin_provenance() {
-    let dir = project();
+    let dir = project_with_lib();
     let sentinel = dir.path().join("lib/display.rb");
     fs::write(&sentinel, "sentinel\n").unwrap();
     let old = fs::metadata(&sentinel).unwrap();
@@ -271,7 +258,7 @@ fn user_exclusions_supplied_paths_and_stdin_provenance() {
 }
 #[test]
 fn both_prefixes_multiline_next_push_and_source_enables() {
-    let dir = project();
+    let dir = project_with_lib();
     let definition = "class A; def self.f(a,b); end; end\n";
     for prefix in ["rubocop", "rustocop"] {
         for source in [
@@ -316,7 +303,7 @@ fn both_prefixes_multiline_next_push_and_source_enables() {
 }
 #[test]
 fn envelopes_parser_failures_readonly_symlinks_and_no_external_index() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         format!(
             "\u{feff}# encoding: utf-8\r\n{}",
@@ -421,7 +408,7 @@ fn native_ruby34_syntax_only_reference_controls() {
 }
 #[test]
 fn flat_deep_ancestry_and_cycles_are_bounded_without_rust_recursion() {
-    let dir = project();
+    let dir = project_with_lib();
     let mut source = String::from("class C0; def self.f(a); end; end\n");
     for i in 1..2500 {
         source.push_str(&format!("class C{i} < C{}; end\n", i - 1));
@@ -458,7 +445,7 @@ fn flat_deep_ancestry_and_cycles_are_bounded_without_rust_recursion() {
 fn all_reference_rows_preserve_bytes_mtime_permissions_on_actual_cli() {
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/argument_mismatch.json")).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows.as_array().unwrap() {
         for fix in [false, true] {
             let mut args = vec!["--only", COP, "lib/a.rb"];

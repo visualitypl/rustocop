@@ -177,7 +177,7 @@ mod tests {
             let found = offenses(before);
             assert_eq!(found.len(), 1);
             assert_eq!((found[0].line, found[0].end_line, found[0].col), (2, 2, 3));
-            assert_eq!(found[0].severity, Severity::Convention);
+            assert_eq!(found[0].severity, Severity::Warning);
             assert_eq!(
                 found[0].message,
                 "`end` at 2, 2 is not aligned with `def` at 1, 0."

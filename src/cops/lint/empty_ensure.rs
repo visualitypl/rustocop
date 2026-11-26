@@ -40,10 +40,7 @@ impl Cop for EmptyEnsure {
         if ensure.statements().is_some() {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            ensure.ensure_keyword_loc().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(ensure.ensure_keyword_loc().start_offset());
         let keyword = ensure.ensure_keyword_loc();
         out.push(Offense {
             correction: cx

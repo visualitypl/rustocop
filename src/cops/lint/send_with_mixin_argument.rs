@@ -59,8 +59,7 @@ impl Cop for SendWithMixinArgument {
             .collect::<Vec<_>>()
             .join(", ");
         let bad = source_text(&file.bytes[selector.start_offset()..end], file);
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(selector.start_offset(), file);
+        let (line, col) = file.reference_line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

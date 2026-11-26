@@ -1,4 +1,5 @@
 //! real selectors/config/bytes and controlled Ruby semantics.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -18,12 +19,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "f = ->(a, b) { [a, b] }\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

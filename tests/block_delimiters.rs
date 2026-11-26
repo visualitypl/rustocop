@@ -1,4 +1,5 @@
 //! exact safe corrections through the real CLI and controlled Ruby.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -9,12 +10,6 @@ const COP: &str = "Style/BlockDelimiters";
 const BEFORE: &str = "items.each do |x| x end\n";
 const AFTER: &str = "items.each { |x| x }\n";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

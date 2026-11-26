@@ -1,5 +1,6 @@
 //! detection-only rules. Only controlled ordinary Ruby witnesses run;
 //! command literals and command heredocs below are NEVER executed.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -9,12 +10,6 @@ use std::{
 const FORMAT: &str = "Style/RedundantFormat";
 const CONCAT: &str = "Style/StringConcatenation";
 const BOTH: &str = "Style/RedundantFormat,Style/StringConcatenation";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

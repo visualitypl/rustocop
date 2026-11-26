@@ -6,6 +6,7 @@
 //! untouched; one that keeps every compared pair's native order stays
 //! corrected. Native checks only syntax-check (`-w -c`, never run) these
 //! authored controls.
+use crate::support::cli::{project, run};
 use std::{
     fs,
     path::Path,
@@ -93,21 +94,6 @@ fn variants(source: &str) -> Vec<Vec<u8>> {
         bom,
         binary,
     ]
-}
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 
 fn count(out: &Output) -> usize {

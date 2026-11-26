@@ -48,7 +48,7 @@ impl Cop for NextWithoutAccumulator {
         let mut search = BareNext::default();
         walk::walk(&mut search, &body);
         let Some(offset) = search.first else { return };
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, file);
+        let (line, col) = file.reference_line_col(offset);
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

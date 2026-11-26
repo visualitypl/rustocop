@@ -57,7 +57,7 @@ impl Cop for DuplicateMatchPattern {
                 continue;
             }
             let location = pattern.location();
-            let (line, col) = buffer_line_col(location.start_offset(), file);
+            let (line, col) = file.buffer_line_col(location.start_offset());
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -110,28 +110,6 @@ fn identity(pattern: &Node<'_>, file: &SourceFile) -> Vec<u8> {
 fn buffer_source(source: &[u8], file: &SourceFile) -> Vec<u8> {
     let projected = file.match_pattern_source(source);
     normalized_newlines(&projected).into_owned()
-}
-
-pub(super) fn buffer_line_col(offset: usize, file: &SourceFile) -> (u32, u32) {
-    let line = file.line_of(offset);
-    let start = if line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf") {
-        3.min(offset)
-    } else {
-        file.line_start(line)
-    };
-    // Composition, surrogate pairs and multi-scalar expansions can all change
-    // the character count before the original AST offset. Use this cop's buffer
-    // profile, not the main parser's declared-encoding character widths.
-    let prefix = buffer_source(&file.bytes[start..offset], file);
-    let columns = if file.match_pattern_binary() {
-        prefix.len()
-    } else {
-        prefix
-            .utf8_chunks()
-            .map(|chunk| chunk.valid().chars().count() + chunk.invalid().len())
-            .sum()
-    };
-    (line, columns as u32 + 1)
 }
 
 fn normalized_newlines(source: &[u8]) -> Cow<'_, [u8]> {

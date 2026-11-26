@@ -27,7 +27,7 @@ pub enum Format {
 /// Render the report in RuboCop-inspired text format:
 ///
 /// ```text
-/// path/to/file.rb:8:5: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)
+/// path/to/file.rb:8:5: W: Remove debugger entry point `binding.pry`. (Lint/Debugger)
 ///
 /// 2 files inspected, 1 offense detected
 /// ```
@@ -100,7 +100,7 @@ pub fn render_offenses(report: &RunReport) -> String {
 /// {"files":[{"offenses":[{"cop_name":"Lint/Debugger","correctable":false,
 ///   "corrected":false,"location":{"column":5,"last_column":5,"last_line":8,
 ///   "length":1,"line":8,"start_column":5,"start_line":8},
-///   "message":"Remove …","severity":"error"}],"path":"app/a.rb"}],
+///   "message":"Remove …","severity":"warning"}],"path":"app/a.rb"}],
 ///  "metadata":{"rustocop_version":"1.1.0"},
 ///  "summary":{"inspected_file_count":1,"offense_count":1,"target_file_count":1}}
 /// ```

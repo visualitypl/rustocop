@@ -1,5 +1,6 @@
 //! Source-only pinned fixtures, actual CLI/native syntax and no-write proofs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, select_active},
@@ -13,20 +14,6 @@ use std::{
 };
 const COP: &str = "Metrics/ParameterLists";
 const SOURCE: &[u8] = b"def foo(a,b,c,d,e,f); end\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -50,7 +37,7 @@ fn rows() -> Vec<serde_json::Value> {
 }
 #[test]
 fn complete_fixed_reference_bytes_match_pipeline_and_actual_cli_no_write() {
-    let d = project();
+    let d = project_with_lib();
     let registry = Registry::new();
     let config = ResolvedConfig::default();
     let active = select_active(&registry, &config, &[COP.into()], &[]);
@@ -72,7 +59,7 @@ fn complete_fixed_reference_bytes_match_pipeline_and_actual_cli_no_write() {
             .into_iter()
             .map(|o| {
                 assert_eq!(o.cop, COP);
-                assert_eq!(o.severity, Severity::Convention);
+                assert_eq!(o.severity, Severity::Refactor);
                 assert!(o.correction.is_none());
                 (o.line, o.col, o.end_line, o.message)
             })
@@ -108,7 +95,7 @@ fn complete_fixed_reference_bytes_match_pipeline_and_actual_cli_no_write() {
             let stdout = String::from_utf8_lossy(&out.stdout);
             for (line, col, _, message) in &found {
                 assert!(
-                    stdout.contains(&format!("lib/a.rb:{line}:{col}: C: {message} ({COP})")),
+                    stdout.contains(&format!("lib/a.rb:{line}:{col}: R: {message} ({COP})")),
                     "{row}: {stdout}"
                 );
             }
@@ -122,7 +109,7 @@ fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(!cop.default_enabled());
     assert!(!cop.safe_fixes());
-    assert_eq!(cop.severity(), Severity::Convention);
+    assert_eq!(cop.severity(), Severity::Refactor);
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none());
     assert_eq!(cop.max_setting(), Some("max"));
@@ -152,7 +139,7 @@ fn actual_metadata_and_only_landed_metrics_names_are_admitted() {
 }
 #[test]
 fn defaults_config_department_only_except_exclusions_and_strict_errors() {
-    let d = project();
+    let d = project_with_lib();
     for (config, flags, expected) in [
         (String::new(), vec![], 0),
         ("[cops.Metrics]\nenabled=true\n".into(), vec![], 1),
@@ -225,7 +212,7 @@ fn defaults_config_department_only_except_exclusions_and_strict_errors() {
 }
 #[test]
 fn supplied_nonstandard_paths_relative_exclusions_and_invalid_encoding_do_not_write() {
-    let d = project();
+    let d = project_with_lib();
     fs::write(d.path().join("lib/input.arb"), SOURCE).unwrap();
     let out = run(d.path(), &["--only", "Metrics", "lib/input.arb"]);
     assert_eq!(out.status.code(), Some(1), "{out:?}");
@@ -258,7 +245,7 @@ fn supplied_nonstandard_paths_relative_exclusions_and_invalid_encoding_do_not_wr
 
 #[test]
 fn both_directive_prefixes_spans_next_push_enable_and_unknown_names() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable Metrics\ndef foo(a,b,c,d,e,f); end\n"),
@@ -299,7 +286,7 @@ fn both_directive_prefixes_spans_next_push_enable_and_unknown_names() {
 }
 #[test]
 fn stdin_paths_exclusions_encoded_buffers_and_early_fix_rejection_never_write() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, b"sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -341,7 +328,7 @@ fn stdin_paths_exclusions_encoded_buffers_and_early_fix_rejection_never_write() 
 }
 #[test]
 fn parse_failure_missing_readonly_alias_and_atomic_peer_failure_preserve_signature() {
-    let d = project();
+    let d = project_with_lib();
     let out = unchanged(
         d.path(),
         b"def foo(a,b,c,d,e,f); end\ndef broken(\n",
@@ -388,7 +375,7 @@ fn parse_failure_missing_readonly_alias_and_atomic_peer_failure_preserve_signatu
 }
 #[test]
 fn style_layout_composition_fixes_peers_not_parameter_lists_and_stabilizes() {
-    let d = project();
+    let d = project_with_lib();
     let source = b"def foo(a,b,c,d,e,f)\n\t'value'\nend\n";
     fs::write(d.path().join("lib/a.rb"), source).unwrap();
     let flags = [

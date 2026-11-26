@@ -2,6 +2,7 @@
 //! registry metadata, selectors, strict config, both directive prefixes,
 //! the pinned BlockLength gemspec exclusion, stdin/encoding/CRLF/BOM/DATA,
 //! parser errors and the no-write guarantee of a detection-only family.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::{cops::Registry, offense::Severity};
 use std::{
     fs,
@@ -33,23 +34,7 @@ fn source() -> String {
     )
 }
 
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-
-/// The findings of the family, as `(file:line:col: C: message (cop))` lines.
+/// The findings of the family, as `(file:line:col: R: message (cop))` lines.
 fn found(out: &Output) -> Vec<String> {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -75,10 +60,10 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: i32) -> Output {
 
 fn expected(file: &str) -> Vec<String> {
     vec![
-        format!("{file}:1:1: C: Module has too many lines. [101/100] (Metrics/ModuleLength)"),
-        format!("{file}:2:3: C: Class has too many lines. [101/100] (Metrics/ClassLength)"),
-        format!("{file}:3:5: C: Method has too many lines. [11/10] (Metrics/MethodLength)"),
-        format!("{file}:16:5: C: Block has too many lines. [26/25] (Metrics/BlockLength)"),
+        format!("{file}:1:1: R: Module has too many lines. [101/100] (Metrics/ModuleLength)"),
+        format!("{file}:2:3: R: Class has too many lines. [101/100] (Metrics/ClassLength)"),
+        format!("{file}:3:5: R: Method has too many lines. [11/10] (Metrics/MethodLength)"),
+        format!("{file}:16:5: R: Block has too many lines. [26/25] (Metrics/BlockLength)"),
     ]
 }
 
@@ -90,7 +75,7 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(!cop.default_enabled(), "{name}");
         assert!(!cop.safe_fixes(), "{name}");
-        assert_eq!(cop.severity(), Severity::Convention);
+        assert_eq!(cop.severity(), Severity::Refactor);
         assert_eq!(cop.ruby_versions(), Default::default());
         assert_eq!(cop.max_setting(), Some("max"), "{name}");
         let one = &rustocop::cops::settings::Values::default()
@@ -103,7 +88,7 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
 
 #[test]
 fn enabled_runs_report_each_cop_at_its_node_and_fix_never_writes() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = source();
     // The cops are opt-in: a run without a selector or config reports none.
     let out = unchanged(d.path(), bytes.as_bytes(), &["lib/a.rb"], 1);
@@ -125,7 +110,7 @@ fn enabled_runs_report_each_cop_at_its_node_and_fix_never_writes() {
 
 #[test]
 fn selectors_department_and_strict_config() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = source();
     for (config, flags, count) in [
         (String::new(), vec!["--only", "Metrics"], 4),
@@ -208,7 +193,7 @@ fn selectors_department_and_strict_config() {
 
 #[test]
 fn both_directive_prefixes_disable_at_the_reported_line() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         let bytes = format!("# {prefix}:disable Metrics\n{}", source());
         let out = unchanged(
@@ -250,7 +235,7 @@ fn both_directive_prefixes_disable_at_the_reported_line() {
 
 #[test]
 fn the_pinned_gemspec_exclusion_holds_even_when_forced() {
-    let d = project();
+    let d = project_with_lib();
     let block = format!("Gem::Specification.new do |s|\n{}end\n", lines(30, "  "));
     fs::write(d.path().join("foo.gemspec"), &block).unwrap();
     fs::write(d.path().join("lib/foo.rb"), &block).unwrap();
@@ -273,7 +258,7 @@ fn the_pinned_gemspec_exclusion_holds_even_when_forced() {
             let out = run(d.path(), &args);
             assert_eq!(
                 found(&out),
-                ["lib/foo.rb:1:1: C: Block has too many lines. [30/25] (Metrics/BlockLength)"],
+                ["lib/foo.rb:1:1: R: Block has too many lines. [30/25] (Metrics/BlockLength)"],
                 "{config:?} {flags:?}"
             );
         }
@@ -303,7 +288,7 @@ fn the_pinned_gemspec_exclusion_holds_even_when_forced() {
 
 #[test]
 fn stdin_crlf_bom_data_and_legacy_encodings_keep_positions() {
-    let d = project();
+    let d = project_with_lib();
     let crlf = source().replace('\n', "\r\n");
     let bom = format!("\u{feff}{}", source());
     let data = format!("{}__END__\n{}", source(), lines(200, "  "));
@@ -359,7 +344,7 @@ fn shift_line(finding: &str, shift: u32) -> String {
 
 #[test]
 fn parse_errors_missing_files_and_stdin_fix_never_write() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = format!("{}def broken(\n", source());
     let out = unchanged(
         d.path(),
@@ -384,7 +369,7 @@ fn parse_errors_missing_files_and_stdin_fix_never_write() {
 
 #[test]
 fn correcting_peers_compose_and_the_family_keeps_its_findings() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let bytes = source().replacen("a = 1\n", "a = 'x'\n", 1);
     fs::write(&path, &bytes).unwrap();
@@ -426,7 +411,7 @@ fn max_sets_the_limit_of_a_cop_and_switches_the_cop_on() {
     let method_length = "[cops.\"Metrics/MethodLength\"]\n";
     assert_eq!(
         metrics(&format!("{method_length}max = 2\n")),
-        ["a.rb:1:1: C: Method has too many lines. [3/2] (Metrics/MethodLength)"]
+        ["a.rb:1:1: R: Method has too many lines. [3/2] (Metrics/MethodLength)"]
     );
     assert!(metrics(&format!("{method_length}max = 3\n")).is_empty());
     assert!(metrics(&format!("{method_length}max = 2\nenabled = false\n")).is_empty());

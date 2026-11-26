@@ -1,4 +1,5 @@
 //! selectors/no-write policy and controlled regexp-state observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -11,13 +12,6 @@ const COPS: [&str; 3] = [
 ];
 const ALL: &str = "Style/GlobalVars,Style/SpecialGlobalVars,Style/PerlBackrefs";
 const PERL: &str = "Style/PerlBackrefs";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -37,7 +31,7 @@ fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
 }
 #[test]
 fn defaults_only_except_config_and_lint_without_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "/(a)/ =~ \"a\"\n$custom = 1\nputs $:\nputs $1\n";
     fs::write(&path, source).unwrap();
@@ -84,7 +78,7 @@ fn defaults_only_except_config_and_lint_without_fix_never_write() {
 }
 #[test]
 fn directives_and_config_relative_excludes_suppress_findings_and_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, code) in COPS.into_iter().zip(["$custom = 1", "puts $$", "puts $1"]) {
         for prefix in ["rustocop", "rubocop"] {
@@ -140,7 +134,7 @@ fn runtime_nil_failure_optional_captures_method_block_thread_and_interpolation_s
     if !has_ruby() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "p [$1, $9, $&]\n",

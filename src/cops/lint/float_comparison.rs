@@ -33,10 +33,8 @@ impl Cop for FloatComparison {
                 };
                 for condition in &when.conditions() {
                     if float(&condition) && !literal_safe(&condition) {
-                        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                            condition.location().start_offset(),
-                            file,
-                        );
+                        let (line, col) =
+                            file.reference_line_col(condition.location().start_offset());
                         out.push(Offense {
                             cop: self.name(),
                             severity: self.severity(),
@@ -73,10 +71,7 @@ impl Cop for FloatComparison {
         };
         // Project only this report prefix through the existing pinned buffer:
         // its composition/header/BOM rules differ from general diagnostics.
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            node.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

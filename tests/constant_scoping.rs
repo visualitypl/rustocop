@@ -1,5 +1,6 @@
 //! source-only references and real rebuilt CLI controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -12,20 +13,6 @@ const CASES: [(&str, &str); 2] = [
     (RESOLUTION, "value = MyConst\n"),
     (SCOPING, "class Foo\n private\n X = 1\nend\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -46,7 +33,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str]) -> Output {
 
 #[test]
 fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_with_no_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/constant_scoping.json")).unwrap();
     assert_eq!(rows.len(), 1656);
@@ -73,7 +60,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_with_no_edits()
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -95,7 +82,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_with_no_edits()
         for (line, col, _, msg) in expected {
             assert!(
                 String::from_utf8_lossy(&out.stdout)
-                    .contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({cop})")),
+                    .contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({cop})")),
                 "{row}\n{out:?}"
             );
         }
@@ -104,7 +91,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_with_no_edits()
 
 #[test]
 fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/forwarded_private_constants.json")).unwrap();
     assert_eq!(rows.len(), 49);
@@ -132,7 +119,7 @@ fn forwarded_private_constants_cli_keeps_exact_findings_and_source_bytes() {
             for (line, col, _, msg) in &expected {
                 assert!(
                     String::from_utf8_lossy(&out.stdout)
-                        .contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({SCOPING})")),
+                        .contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({SCOPING})")),
                     "{row}\n{out:?}"
                 );
             }
@@ -171,7 +158,7 @@ fn native_ruby34_accepts_fixture_syntax_without_executing_inputs() {
 
 #[test]
 fn operator_recovery_source_projection_pipeline_cli_and_native_syntax_only() {
-    let dir = project();
+    let dir = project_with_lib();
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[SCOPING.into()], &[]);
@@ -222,7 +209,7 @@ fn operator_recovery_source_projection_pipeline_cli_and_native_syntax_only() {
             for (line, col, _, msg) in &expected {
                 assert!(
                     String::from_utf8_lossy(&out.stdout)
-                        .contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({SCOPING})")),
+                        .contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({SCOPING})")),
                     "{row}\n{out:?}"
                 );
             }
@@ -273,7 +260,7 @@ fn exact_live_metadata_default_opt_in_and_no_new_capabilities() {
 
 #[test]
 fn selectors_config_precedence_strict_toml_exclusions_and_explicit_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in CASES {
         for (config, select, expected) in [
             (String::new(), vec![], usize::from(cop == SCOPING)),
@@ -368,7 +355,7 @@ fn selectors_config_precedence_strict_toml_exclusions_and_explicit_paths() {
 
 #[test]
 fn both_prefixes_multiline_next_push_and_opt_in_source_activation() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in CASES {
         for prefix in ["rubocop", "rustocop"] {
             for decorated in [
@@ -432,7 +419,7 @@ fn both_prefixes_multiline_next_push_and_opt_in_source_activation() {
 
 #[test]
 fn stdin_path_provenance_and_fix_rejection_preserve_existing_file() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -475,7 +462,7 @@ fn stdin_path_provenance_and_fix_rejection_preserve_existing_file() {
 
 #[test]
 fn encodings_observers_control_flow_and_invalid_inputs_keep_bytes_and_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in CASES {
         for prefix in [
             b"\xef\xbb\xbf# encoding: utf-8\r\n".as_slice(),
@@ -506,7 +493,7 @@ fn encodings_observers_control_flow_and_invalid_inputs_keep_bytes_and_findings()
         }
         for suffix in [
             "def broken(\n".into(),
-            format!("{}nil\n", "x = ".repeat(80)),
+            format!("{}nil{}\n", "[".repeat(4100), "]".repeat(4100)),
         ] {
             let bytes = format!("{source}{suffix}");
             let out = unchanged(
@@ -533,7 +520,7 @@ fn atomic_layout_composition_symlinks_and_readonly_no_edit_or_failure() {
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let alias = dir.path().join("lib/alias.rb");
     symlink("a.rb", &alias).unwrap();
@@ -551,8 +538,8 @@ fn atomic_layout_composition_symlinks_and_readonly_no_edit_or_failure() {
         assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
         let mut old_bytes = Vec::new();
         original.read_to_end(&mut old_bytes).unwrap();
-        assert_eq!(old_bytes, before.as_bytes());
-        assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+        assert_eq!(old_bytes, after.as_bytes());
+        assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
         assert_eq!(
             fs::metadata(&path).unwrap().permissions().mode() & 0o777,
             0o640
@@ -588,7 +575,7 @@ fn atomic_layout_composition_symlinks_and_readonly_no_edit_or_failure() {
 
 #[test]
 fn redundant_constant_base_follows_configured_resolution_not_selectors() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, expected) in [
         (String::new(), 1),
         (format!("[cops.\"{RESOLUTION}\"]\nenabled = true\n"), 0),

@@ -1,5 +1,6 @@
 //! real CLI controls and controlled Ruby binding/backtrace witnesses.
 //! Pinned fixture examples: RuboCop MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -7,12 +8,6 @@ use std::{
 };
 const COP: &str = "Style/RedundantBegin";
 const SOURCE: &str = "begin\n  work\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

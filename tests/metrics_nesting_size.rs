@@ -2,6 +2,7 @@
 //! through the actual CLI — registry metadata, selectors, strict config,
 //! both directive prefixes, file-local measuring, stdin/encoding/CRLF/BOM/
 //! DATA, parser errors and the no-write guarantee of detection-only cops.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::{cops::Registry, offense::Severity};
 use std::{
     fs,
@@ -31,22 +32,6 @@ fn source() -> String {
     )
 }
 
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-
 /// `expect_early_error` only for runs whose asserted exit is the early
 /// `--stdin --fix` rejection, which may exit before reading stdin.
 fn run_stdin(root: &Path, args: &[&str], bytes: &[u8], expect_early_error: bool) -> Output {
@@ -62,7 +47,7 @@ fn run_stdin(root: &Path, args: &[&str], bytes: &[u8], expect_early_error: bool)
     child.wait_with_output().unwrap()
 }
 
-/// The findings of the two cops, as `file:line:col: C: message (cop)` lines.
+/// The findings of the two cops, as `file:line:col: R: message (cop)` lines.
 fn found(out: &Output) -> Vec<String> {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -89,11 +74,11 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: i32) -> Output {
 fn expected(file: &str, shift: u32) -> Vec<String> {
     vec![
         format!(
-            "{file}:{}:7: C: {NESTING} (Metrics/BlockNesting)",
+            "{file}:{}:7: R: {NESTING} (Metrics/BlockNesting)",
             4 + shift
         ),
         format!(
-            "{file}:{}:5: C: {SIZE} (Metrics/CollectionLiteralLength)",
+            "{file}:{}:5: R: {SIZE} (Metrics/CollectionLiteralLength)",
             10 + shift
         ),
     ]
@@ -107,7 +92,7 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(!cop.default_enabled(), "{name}");
         assert!(!cop.safe_fixes(), "{name}");
-        assert_eq!(cop.severity(), Severity::Convention);
+        assert_eq!(cop.severity(), Severity::Refactor);
         assert_eq!(cop.ruby_versions(), Default::default());
         assert!(cop.path_policy().is_none(), "{name}");
         // CollectionLiteralLength has a `LengthThreshold` upstream, no `Max`.
@@ -123,7 +108,7 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
 
 #[test]
 fn enabled_runs_report_each_cop_and_fix_never_writes() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = source();
     // The cops are opt-in: a run without a selector or config reports none.
     let out = unchanged(d.path(), bytes.as_bytes(), &["lib/a.rb"], 1);
@@ -151,7 +136,7 @@ fn enabled_runs_report_each_cop_and_fix_never_writes() {
 
 #[test]
 fn boundaries_at_the_actual_defaults() {
-    let d = project();
+    let d = project_with_lib();
     let three = "if a\n  if b\n    if c\n      x while d\n    end\n  end\nend\n";
     let out = unchanged(
         d.path(),
@@ -161,7 +146,7 @@ fn boundaries_at_the_actual_defaults() {
     );
     assert_eq!(
         found(&out),
-        [format!("lib/a.rb:4:7: C: {NESTING} (Metrics/BlockNesting)")]
+        [format!("lib/a.rb:4:7: R: {NESTING} (Metrics/BlockNesting)")]
     );
     let out = unchanged(
         d.path(),
@@ -190,7 +175,7 @@ fn boundaries_at_the_actual_defaults() {
             );
             let want: Vec<String> = if reported {
                 vec![format!(
-                    "lib/a.rb:1:1: C: {SIZE} (Metrics/CollectionLiteralLength)"
+                    "lib/a.rb:1:1: R: {SIZE} (Metrics/CollectionLiteralLength)"
                 )]
             } else {
                 vec![]
@@ -202,7 +187,7 @@ fn boundaries_at_the_actual_defaults() {
 
 #[test]
 fn selectors_department_and_strict_config() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = source();
     for (config, flags, count) in [
         (String::new(), vec!["--only", "Metrics"], 2),
@@ -288,7 +273,7 @@ fn selectors_department_and_strict_config() {
 
 #[test]
 fn both_directive_prefixes_disable_at_the_reported_line() {
-    let d = project();
+    let d = project_with_lib();
     fs::write(d.path().join("rustocop.toml"), "").unwrap();
     for prefix in ["rubocop", "rustocop"] {
         let bytes = format!("# {prefix}:disable Metrics\n{}", source());
@@ -337,7 +322,7 @@ fn both_directive_prefixes_disable_at_the_reported_line() {
         assert_eq!(
             found(&out),
             [format!(
-                "lib/a.rb:5:15: C: {NESTING} (Metrics/BlockNesting)"
+                "lib/a.rb:5:15: R: {NESTING} (Metrics/BlockNesting)"
             )]
         );
     }
@@ -345,7 +330,7 @@ fn both_directive_prefixes_disable_at_the_reported_line() {
 
 #[test]
 fn every_file_is_measured_on_its_own() {
-    let d = project();
+    let d = project_with_lib();
     let deep = source();
     let shallow = "if a\n  if b\n    if c\n      x\n    end\n  end\nend\nX = [1]\n";
     fs::write(d.path().join("lib/a.rb"), &deep).unwrap();
@@ -369,7 +354,7 @@ fn every_file_is_measured_on_its_own() {
 
 #[test]
 fn stdin_crlf_bom_data_and_legacy_encodings_keep_positions() {
-    let d = project();
+    let d = project_with_lib();
     let crlf = source().replace('\n', "\r\n");
     let bom = format!("\u{feff}{}", source());
     let data = format!(
@@ -410,7 +395,7 @@ fn stdin_crlf_bom_data_and_legacy_encodings_keep_positions() {
 
 #[test]
 fn parse_errors_missing_files_and_stdin_fix_never_write() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = format!("{}def broken(\n", source());
     let out = unchanged(
         d.path(),
@@ -442,7 +427,7 @@ fn parse_errors_missing_files_and_stdin_fix_never_write() {
 
 #[test]
 fn correcting_peers_compose_and_the_cops_keep_their_findings() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let bytes = source().replacen("        x\n", "        x = 'y'\n", 1);
     fs::write(&path, &bytes).unwrap();

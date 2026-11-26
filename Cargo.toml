@@ -28,12 +28,14 @@ toml_edit = "0.22"
 unicode-width = "0.2"
 # Reads `.rubocop.yml` for `--import-rubocop-config`.
 yaml-rust2 = { version = "0.13", default-features = false }
-tempfile = "3"
 stacker = "0.1.25"
 
 [target.'cfg(unix)'.dependencies]
 # Safe effective-ID/group queries for Ruby File::Stat permission semantics.
 rustix = { version = "1", features = ["process"] }
+
+[dev-dependencies]
+tempfile = "3"
 
 [[test]]
 name = "integration"

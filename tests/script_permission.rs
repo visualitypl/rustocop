@@ -1,6 +1,7 @@
 //! ScriptPermission fixtures ported from RuboCop's lint/script_permission_spec.rb
 //! (MIT, Copyright (c) 2012-26 Bozhidar Batsov). Never execute fixture source.
 #![cfg(unix)]
+use crate::support::cli::project;
 
 use std::{
     fs,
@@ -12,13 +13,6 @@ use std::{
 
 const COP: &str = "Lint/ScriptPermission";
 const SOURCE: &[u8] = b"#!/usr/bin/ruby\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn fixture(root: &Path, name: &str, source: &[u8], mode: u32) -> fs::Metadata {
     let path = root.join(name);
@@ -281,7 +275,7 @@ fn aliases_report_their_supplied_basename_but_never_change_identity_or_mode() {
         for name in ["script.rb", "alias.rb", "hard.rb"] {
             assert!(found.iter().any(|s| s
                 == &format!(
-                    "{name}:1:1: E: Script file {name} doesn't have execute permission. ({COP})"
+                    "{name}:1:1: W: Script file {name} doesn't have execute permission. ({COP})"
                 )));
             unchanged(&dir.path().join(name), &before, SOURCE);
         }
@@ -332,7 +326,7 @@ fn source_atomic_correction_composes_without_a_permission_correction() {
         b"#!/usr/bin/ruby\nx = 1\n"
     );
     assert_eq!(after.mode(), before.mode());
-    assert_ne!(after.ino(), before.ino());
+    assert_eq!(after.ino(), before.ino());
     assert!(
         fs::symlink_metadata(dir.path().join("alias.rb"))
             .unwrap()
@@ -354,7 +348,7 @@ fn actual_nonexecutable_shebang_reports_exact_error_and_never_chmods() {
         assert_eq!(
             findings(&out),
             vec![
-                "script.rb:1:1: E: Script file script.rb doesn't have execute permission. (Lint/ScriptPermission)"
+                "script.rb:1:1: W: Script file script.rb doesn't have execute permission. (Lint/ScriptPermission)"
             ]
         );
         unchanged(&dir.path().join("script.rb"), &before, SOURCE);

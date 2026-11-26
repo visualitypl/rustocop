@@ -426,10 +426,7 @@ impl Projection<'_, '_> {
                 }
                 if !preceded && self.nodes[candidate].descendant_last_or != Some(true) {
                     let loc = node.location();
-                    let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                        loc.start_offset(),
-                        self.file,
-                    );
+                    let (line, col) = self.file.reference_line_col(loc.start_offset());
                     self.out.push(Offense {
                         cop: "Lint/UnreachableLoop",
                         severity: UnreachableLoop.severity(),

@@ -1,4 +1,5 @@
 //! Source-only fixtures from RuboCop (MIT, (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use rustocop::{config::ResolvedConfig, cops::Registry, pipeline};
 use std::{fs, path::Path, process::Command};
 const NAMES: [&str; 2] = [
@@ -7,12 +8,6 @@ const NAMES: [&str; 2] = [
 ];
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/gemspec_assignment.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
 }
 #[test]
 fn all_main_specs_and_structural_controls_match_exact_reference() {
@@ -58,7 +53,7 @@ fn all_main_specs_and_structural_controls_match_exact_reference() {
 fn fixture_cli_lint_and_fix_match_exact_reference_and_preserve_open_file_identity() {
     use std::io::Read;
     let position =
-        regex::Regex::new(r"^a\.gemspec:(\d+):(\d+): C: (.*?) \((Gemspec/\w+)\)$").unwrap();
+        regex::Regex::new(r"^a\.gemspec:(\d+):(\d+): [CW]: (.*?) \((Gemspec/\w+)\)$").unwrap();
     parallel_rows!(for row in rows() => {
         let d = project();
         let path = d.path().join("a.gemspec");
@@ -163,7 +158,7 @@ fn metadata_admits_exactly_two_landed_gemspec_cops() {
     for name in NAMES {
         let c = r.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(c.default_enabled());
-        assert_eq!(c.severity(), rustocop::offense::Severity::Convention);
+        assert_eq!(c.severity(), rustocop::offense::Severity::for_cop(name));
         assert!(!c.safe_fixes());
         assert!(c.max_setting().is_none());
         assert_eq!(c.ruby_versions(), Default::default());
@@ -323,7 +318,7 @@ fn both_directives_and_syntax_encoding_resource_io_failures_compose() {
     for bytes in [
         format!("{SOURCE}\ndef (").into_bytes(),
         b"# coding: no-such-encoding\nx=1\n".to_vec(),
-        format!("{}{}{}", SOURCE, "[".repeat(100), "]".repeat(100)).into_bytes(),
+        format!("{}{}{}", SOURCE, "[".repeat(4100), "]".repeat(4100)).into_bytes(),
     ] {
         for path in ["a.gemspec", "a.rb"] {
             let out = cli(

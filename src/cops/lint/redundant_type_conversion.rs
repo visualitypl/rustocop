@@ -52,8 +52,7 @@ impl Cop for RedundantTypeConversion {
         let Some(selector) = call.message_loc() else {
             return;
         };
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(selector.start_offset(), file);
+        let (line, col) = file.reference_line_col(selector.start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

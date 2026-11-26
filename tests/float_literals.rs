@@ -1,5 +1,6 @@
 //! Source-only pinned fixtures, rebuilt CLI and no-write policy.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ const COMPARISON: &str = "Lint/FloatComparison";
 const RANGE: &str = "Lint/FloatOutOfRange";
 const BOTH: &str = "Lint/FloatComparison,Lint/FloatOutOfRange";
 const SOURCE: &[u8] = b"x == 0.1\nvalue = 1e400\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -77,7 +64,7 @@ fn all_pinned_specs_source_chunks_and_numeric_controls_match_pipeline_without_ed
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -100,7 +87,7 @@ fn all_pinned_specs_source_chunks_and_numeric_controls_match_pipeline_without_ed
 
 #[test]
 fn every_reference_fixture_matches_exact_rebuilt_cli_diagnostics_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/float_literals.json")).unwrap();
     for row in rows.as_array().unwrap() {
@@ -117,7 +104,7 @@ fn every_reference_fixture_matches_exact_rebuilt_cli_diagnostics_without_writes(
         let stdout = String::from_utf8_lossy(&out.stdout);
         for (line, col, _, msg) in expected {
             assert!(
-                stdout.contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({cop})")),
+                stdout.contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({cop})")),
                 "{stdout}"
             );
         }
@@ -143,7 +130,7 @@ fn assert_encoded_diagnostics(out: &Output, row: &serde_json::Value, path: &str,
         let mut expected: Vec<_> = findings
             .into_iter()
             .filter(|_| enabled.contains(&cop))
-            .map(|(line, col, _, message)| format!("{path}:{line}:{col}: E: {message} ({cop})"))
+            .map(|(line, col, _, message)| format!("{path}:{line}:{col}: W: {message} ({cop})"))
             .collect();
         let mut found: Vec<_> = stdout
             .lines()
@@ -183,7 +170,7 @@ fn encoded_original_bytes_match_exact_pinned_pipeline_positions_without_edits() 
                 .filter(|o| o.cop == cop)
                 .map(|o| {
                     assert!(o.correction.is_none());
-                    assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                    assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                     (o.line, o.col, o.end_line, o.message.clone())
                 })
                 .collect();
@@ -235,7 +222,7 @@ fn encoded_cli_lint_and_fix_preserve_open_fd_inode_mtime_mode751_and_exact_posit
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for row in encoded_rows() {
         let source = encoded_source(&row);
@@ -272,7 +259,7 @@ fn encoded_cli_lint_and_fix_preserve_open_fd_inode_mtime_mode751_and_exact_posit
 
 #[test]
 fn encoded_defaults_config_paths_directives_and_stdin_keep_projected_positions() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in encoded_rows()
         .into_iter()
         .filter(|r| r["origin"] == "counterexample")
@@ -384,7 +371,7 @@ fn metadata_matches_real_detection_only_policy() {
 
 #[test]
 fn defaults_selectors_and_strict_config_precedence_preserve_bytes_even_without_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selection, expected) in [
         (String::new(), vec![], (1, 1)),
         (String::new(), vec!["--only", BOTH], (1, 1)),
@@ -461,7 +448,7 @@ fn defaults_selectors_and_strict_config_precedence_preserve_bytes_even_without_f
 
 #[test]
 fn supplied_paths_exclusions_and_stdin_are_provenance_not_write_targets() {
-    let dir = project();
+    let dir = project_with_lib();
     for config in [
         "exclude = ['lib/a.rb']\n".into(),
         format!(
@@ -542,7 +529,7 @@ fn supplied_paths_exclusions_and_stdin_are_provenance_not_write_targets() {
 
 #[test]
 fn both_directive_prefixes_multiline_next_and_push_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable Lint\nx == 0.1\n1e400\n"),
@@ -576,7 +563,7 @@ fn both_directive_prefixes_multiline_next_and_push_scopes() {
 
 #[test]
 fn encoding_envelopes_and_runtime_observer_source_text_never_get_fabricated_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\nx == 0.1\r\n1e400\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# encoding: Windows-1252\np '\xe9'; x == 0.1\n1e400\n",
@@ -631,7 +618,7 @@ fn shared_layout_edits_remain_atomic_and_readonly_failure_keeps_both_findings() 
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let before = b"x == 0.1\n1e400\nvalues = [1,2]\n";
     let after = b"x == 0.1\n1e400\nvalues = [1, 2]\n";
     let only = "Lint/FloatComparison,Lint/FloatOutOfRange,Layout/SpaceAfterComma";
@@ -648,8 +635,8 @@ fn shared_layout_edits_remain_atomic_and_readonly_failure_keeps_both_findings() 
     assert_eq!(fs::read(&path).unwrap(), after);
     let mut old_bytes = Vec::new();
     original.read_to_end(&mut old_bytes).unwrap();
-    assert_eq!(old_bytes, before);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(old_bytes, after);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -674,7 +661,7 @@ fn shared_layout_edits_remain_atomic_and_readonly_failure_keeps_both_findings() 
 
 #[test]
 fn invalid_source_failure_and_readonly_symlinks_preserve_bytes_permissions_and_links() {
-    let dir = project();
+    let dir = project_with_lib();
     let out = unchanged(
         dir.path(),
         b"x == 0.1\n1e400\ndef broken(\n",

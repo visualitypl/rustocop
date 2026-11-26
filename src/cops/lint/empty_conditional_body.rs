@@ -64,8 +64,7 @@ impl Cop for EmptyConditionalBody {
         {
             return;
         }
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(branch.keyword.start_offset(), file);
+        let (line, col) = file.reference_line_col(branch.keyword.start_offset());
         let comment_end = if branch.next_branch.is_none() && branch.keyword.as_slice() == b"if" {
             // StatementsNode is transparent in the parser AST. Only the direct
             // parentheses parent extends CommentsHelp's window, not any ancestor.

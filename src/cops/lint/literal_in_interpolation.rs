@@ -94,8 +94,7 @@ impl Cop for LiteralInInterpolation {
                 continue;
             };
             let location = literal.location();
-            let (line, col) =
-                super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
+            let (line, col) = file.reference_line_col(location.start_offset());
             // RuboCop leaves a nested string, and an interpolation after one
             // that inlines nothing or a `#`, to the next pass.
             let follows = before
@@ -330,10 +329,7 @@ fn ends_line(
         .utf8_chunks()
         .map(|c| c.valid().chars().count() + c.invalid().len())
         .sum::<usize>() as u32;
-    let (_, end_col) = super::array_literal_in_regexp::reference_line_col(
-        interpolation.location().end_offset(),
-        file,
-    );
+    let (_, end_col) = file.reference_line_col(interpolation.location().end_offset());
     line_length == end_col - 1
 }
 

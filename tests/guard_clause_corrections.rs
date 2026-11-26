@@ -1,14 +1,9 @@
 //! Pinned RuboCop guard_clause_spec.rb examples (MIT License,
 //! Copyright (c) 2012-26 Bozhidar Batsov), plus controlled safety witnesses.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 
 const COP: &str = "Style/GuardClause";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], code: i32) {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

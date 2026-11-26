@@ -3,6 +3,7 @@
 //! directive prefixes, stdin, BOM/CRLF/legacy encodings, `DATA`, parse
 //! errors, and no write under `--fix` (bytes, mtime, permissions and inode
 //! kept), alone and composed with correcting cops.
+use crate::support::cli::{project, run};
 use std::{
     fs,
     io::Write,
@@ -16,21 +17,6 @@ const BEFORE: &str = "class Person\n  def name; end\n  include Comparable\nend\n
 
 const FINDING: &str =
     "example.rb:3:3: C: `module_inclusion` is supposed to appear before `public_methods`.";
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)

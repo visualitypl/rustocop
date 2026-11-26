@@ -1,5 +1,6 @@
 //! CLI policy, no-write checks and controlled Ruby exit-hook witnesses.
 //! Pinned examples ported from RuboCop (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -10,12 +11,6 @@ const BEGIN: &str = "Style/BeginBlock";
 const END: &str = "Style/EndBlock";
 const BOTH: &str = "Style/BeginBlock,Style/EndBlock";
 const SOURCE: &str = "BEGIN { work }\nEND { work }\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

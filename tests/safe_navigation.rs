@@ -1,5 +1,6 @@
 //! unsafe safe-navigation suggestions never rewrite Ruby evaluation.
 //! Pinned specs: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -7,12 +8,6 @@ use std::{
 };
 const COP: &str = "Style/SafeNavigation";
 const SOURCE: &str = "foo && foo.bar\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
     let path = dir.join("a.rb");
     fs::write(&path, source).unwrap();

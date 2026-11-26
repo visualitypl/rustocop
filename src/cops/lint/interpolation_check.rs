@@ -86,10 +86,7 @@ impl Cop for InterpolationCheck {
                 )
             })
             .flatten();
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            node.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(), severity: self.severity(), line, col,
             end_line: file.last_line_of(node.location()),
@@ -447,7 +444,7 @@ mod tests {
 
     #[test]
     fn converted_literal_resource_rejection_does_not_recurse_or_execute() {
-        let source = format!("'#{{{}1{}}}'", "[".repeat(1500), "]".repeat(1500));
+        let source = format!("'#{{{}1{}}}'", "[".repeat(4100), "]".repeat(4100));
         // The original is a shallow inert string; only its validation tree
         // exceeds the existing AST budget. Rejection uses guarded destruction.
         assert!(

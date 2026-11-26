@@ -1,5 +1,6 @@
 //! exact pinned detection and real CLI no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::offense::Offense;
 use std::{
     fs,
@@ -8,22 +9,6 @@ use std::{
 };
 
 use crate::support::stdin as stdin_support;
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -65,7 +50,7 @@ const FILE: &str = "Lint/EmptyFile";
 
 #[test]
 fn every_pinned_spec_documentation_and_control_matches_pipeline_and_rebuilt_cli_without_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/empty_expression_file.json")).unwrap();
     assert_eq!(rows.as_array().unwrap().len(), 187);
@@ -76,7 +61,7 @@ fn every_pinned_spec_documentation_and_control_matches_pipeline_and_rebuilt_cli_
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -94,7 +79,7 @@ fn every_pinned_spec_documentation_and_control_matches_pipeline_and_rebuilt_cli_
         let stdout = String::from_utf8_lossy(&out.stdout);
         for (line, col, _, msg) in expected {
             assert!(
-                stdout.contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({cop})")),
+                stdout.contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({cop})")),
                 "{stdout}"
             );
         }
@@ -118,7 +103,7 @@ fn metadata_matches_actual_default_detection_only_policy() {
 
 #[test]
 fn defaults_selectors_config_and_department_precedence_never_write_without_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in [(EXPR, "()\n"), (FILE, "")] {
         for (config, select, expected) in [
             (String::new(), vec![], 1),
@@ -162,7 +147,7 @@ fn defaults_selectors_config_and_department_precedence_never_write_without_fix()
 
 #[test]
 fn strict_toml_exclusions_and_supplied_paths_apply_to_both_source_lifecycles() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in [(EXPR, "()\n"), (FILE, "")] {
         for key in [
             "max = 1",
@@ -207,7 +192,7 @@ fn strict_toml_exclusions_and_supplied_paths_apply_to_both_source_lifecycles() {
 
 #[test]
 fn both_directive_prefixes_multiline_next_push_and_source_enable_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable Lint\n()\n"),
@@ -255,7 +240,7 @@ fn both_directive_prefixes_multiline_next_push_and_source_enable_scopes() {
 
 #[test]
 fn stdin_provenance_never_reads_or_writes_the_display_path_and_fix_is_rejected() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -275,7 +260,7 @@ fn stdin_provenance_never_reads_or_writes_the_display_path_and_fix_is_rejected()
             assert_eq!(out.status.code(), Some(i32::from(expected > 0)), "{out:?}");
             assert_eq!(count(&out, cop), expected, "{out:?}");
             if expected > 0 {
-                assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:1: E:"));
+                assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:1: W:"));
             }
         }
         let out = stdin(
@@ -300,7 +285,7 @@ fn stdin_provenance_never_reads_or_writes_the_display_path_and_fix_is_rejected()
 
 #[test]
 fn source_envelopes_and_observer_text_keep_findings_and_never_receive_fabricated_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\n()\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# encoding: Windows-1252\np '\xe9'; ()\n",
@@ -326,7 +311,7 @@ fn source_envelopes_and_observer_text_keep_findings_and_never_receive_fabricated
 
 #[test]
 fn parser_failure_missing_inputs_and_readonly_symlinks_reuse_shared_no_write_controls() {
-    let dir = project();
+    let dir = project_with_lib();
     let both = "Lint/EmptyExpression,Lint/EmptyFile";
     let out = unchanged(
         dir.path(),

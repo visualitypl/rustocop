@@ -1,4 +1,5 @@
 //! real CLI controls and isolated, controlled Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -15,13 +16,6 @@ const CASES: [(&str, &str, &str); 2] = [
         "def f\n  true\nend if condition\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -33,7 +27,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 }
 #[test]
 fn defaults_selectors_config_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     for (cop, before, after) in CASES {
@@ -91,7 +85,7 @@ fn defaults_selectors_config_and_no_write() {
 }
 #[test]
 fn excludes_directives_and_atomic_parameter_span() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         for config in [
@@ -129,7 +123,7 @@ fn excludes_directives_and_atomic_parameter_span() {
 #[test]
 fn stdin_is_report_only_and_fix_is_rejected() {
     use std::{io::Write, process::Stdio};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         fs::write(&path, before).unwrap();
@@ -161,7 +155,7 @@ fn stdin_is_report_only_and_fix_is_rejected() {
 }
 #[test]
 fn bytes_bom_crlf_legacy_encoding_data_and_line_observations() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (before, after) in [
         ("\u{feff}# encoding: UTF-8\r\ndef f arg = \"café\"; [arg, __LINE__]; end\r\np __LINE__\r\n__END__\r\nrawÿ\r\n".as_bytes().to_vec(), "\u{feff}# encoding: UTF-8\r\ndef f(arg = \"café\"); [arg, __LINE__]; end\r\np __LINE__\r\n__END__\r\nrawÿ\r\n".as_bytes().to_vec()),
@@ -177,7 +171,7 @@ fn ruby_available() -> bool {
     Command::new("ruby").arg("--version").output().is_ok()
 }
 fn runtime_case(source: &str, fixed: &str, harness: &str) {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let run = || {
@@ -316,7 +310,7 @@ fn ruby_conditional_definition_absence_and_receiver_evaluation_order() {
 }
 #[test]
 fn style_layout_and_forwarding_peer_stabilize_within_four_explicit_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def self::f a = 'x';  \n  return (a);\nend\ndef g = 'y' if condition\n";
     fs::write(&path, source).unwrap();

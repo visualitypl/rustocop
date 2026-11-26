@@ -1,5 +1,6 @@
 //! real selectors/config/directives, safe edits and controlled Ruby observations.
 //! Pinned fixtures port RuboCop specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -9,13 +10,6 @@ const IMPLICIT: &str = "Style/ImplicitRuntimeError";
 const ARGS: &str = "Style/RaiseArgs";
 const REDUNDANT: &str = "Style/RedundantException";
 const ALL: &str = "Style/ImplicitRuntimeError,Style/RaiseArgs,Style/RedundantException";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -43,7 +37,7 @@ fn unchanged(dir: &Path, args: &[&str], source: &[u8], status: i32, counts: [usi
 }
 #[test]
 fn defaults_opt_in_selectors_config_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = b"raise 'x'\nraise OtherError.new('x')\nraise RuntimeError, 'x'\n";
     for (config, args, counts) in [
         (String::new(), vec!["lib/a.rb"], [0, 1, 1]),
@@ -103,7 +97,7 @@ fn defaults_opt_in_selectors_config_and_no_write() {
 }
 #[test]
 fn excludes_both_directive_prefixes_and_opt_in_source_controls() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, code) in [
         (IMPLICIT, "raise 'x'"),
         (ARGS, "raise Ex.new('x')"),
@@ -159,7 +153,7 @@ fn excludes_both_directive_prefixes_and_opt_in_source_controls() {
 fn stdin_opt_in_and_fix_rejection_do_not_write_named_paths() {
     use std::io::Write;
     use std::process::Stdio;
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "untouched\n").unwrap();
     for (cop, source) in [
@@ -223,7 +217,7 @@ fn ruby(ruby: &str, dir: &Path) -> Output {
 }
 #[test]
 fn canonical_fixes_preserve_exception_ancestry_cause_backtrace_ensure_and_return_contexts() {
-    let dir = project();
+    let dir = project_with_lib();
     // Observe backtraces from a separate controlled harness: a written backtrace
     // path acquisition correctly triggers the shared own-source correction barrier.
     fs::write(
@@ -284,7 +278,7 @@ p [result, values, $events, __LINE__]
 }
 #[test]
 fn selected_style_and_layout_fixes_stabilize_without_enabling_unsafe_corrections() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def f; fail RuntimeError.new('bad'); end\n";
     fs::write(&path, source).unwrap();

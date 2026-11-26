@@ -53,7 +53,7 @@ impl Cop for ParenthesesAsGroupedExpression {
         if end <= start {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         let projected = file.match_pattern_source(arg.location().as_slice());
         let mut argument = String::new();
         for chunk in projected.utf8_chunks() {

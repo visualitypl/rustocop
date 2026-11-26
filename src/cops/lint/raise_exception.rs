@@ -52,8 +52,7 @@ impl Cop for RaiseException {
         if !top_level && cx.ancestors().any(is_allowed_namespace) {
             return;
         }
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(location.start_offset(), file);
+        let (line, col) = file.reference_line_col(location.start_offset());
         let replacement = if location.as_slice().starts_with(b"::") {
             "::StandardError"
         } else {

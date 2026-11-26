@@ -1596,7 +1596,7 @@
           "name": "Layout/EndAlignment",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Convention"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -3927,7 +3927,7 @@
           "name": "Lint/AmbiguousAssignment",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -3954,7 +3954,7 @@
           "name": "Lint/AmbiguousBlockAssociation",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -3981,7 +3981,7 @@
           "name": "Lint/AmbiguousOperator",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4010,7 +4010,7 @@
           "name": "Lint/AmbiguousOperatorPrecedence",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4037,7 +4037,7 @@
           "name": "Lint/AmbiguousRange",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4064,7 +4064,7 @@
           "name": "Lint/AmbiguousRegexpLiteral",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4091,7 +4091,7 @@
           "name": "Lint/ArgumentMismatch",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4118,7 +4118,7 @@
           "name": "Lint/ArrayLiteralInRegexp",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4145,7 +4145,7 @@
           "name": "Lint/AssignmentInCondition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4172,7 +4172,7 @@
           "name": "Lint/BigDecimalNew",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4199,7 +4199,7 @@
           "name": "Lint/BinaryOperatorWithIdenticalOperands",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4226,7 +4226,7 @@
           "name": "Lint/BooleanSymbol",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4253,7 +4253,7 @@
           "name": "Lint/CircularArgumentReference",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4280,7 +4280,7 @@
           "name": "Lint/ConstantDefinitionInBlock",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4310,7 +4310,7 @@
           "name": "Lint/ConstantOverwrittenInRescue",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4337,7 +4337,7 @@
           "name": "Lint/ConstantReassignment",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4364,7 +4364,7 @@
           "name": "Lint/ConstantResolution",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4391,7 +4391,7 @@
           "name": "Lint/CopDirectiveSyntax",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4418,7 +4418,7 @@
           "name": "Lint/DataDefineOverride",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4445,7 +4445,7 @@
           "name": "Lint/Debugger",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4472,7 +4472,7 @@
           "name": "Lint/DeprecatedClassMethods",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4499,7 +4499,7 @@
           "name": "Lint/DeprecatedConstants",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4526,7 +4526,7 @@
           "name": "Lint/DeprecatedOpenSSLConstant",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4553,7 +4553,7 @@
           "name": "Lint/DeprecatedReference",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4580,7 +4580,7 @@
           "name": "Lint/DisjunctiveAssignmentInConstructor",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4607,7 +4607,7 @@
           "name": "Lint/DuplicateBranch",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4634,7 +4634,7 @@
           "name": "Lint/DuplicateCaseCondition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4661,7 +4661,7 @@
           "name": "Lint/DuplicateElsifCondition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4688,7 +4688,7 @@
           "name": "Lint/DuplicateHashKey",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4715,7 +4715,7 @@
           "name": "Lint/DuplicateMagicComment",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4742,7 +4742,7 @@
           "name": "Lint/DuplicateMatchPattern",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4769,7 +4769,7 @@
           "name": "Lint/DuplicateMethods",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4796,7 +4796,7 @@
           "name": "Lint/DuplicateRegexpCharacterClassElement",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4823,7 +4823,7 @@
           "name": "Lint/DuplicateRequire",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4850,7 +4850,7 @@
           "name": "Lint/DuplicateRescueException",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4877,7 +4877,7 @@
           "name": "Lint/DuplicateSetElement",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4904,7 +4904,7 @@
           "name": "Lint/EachWithObjectArgument",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4931,7 +4931,7 @@
           "name": "Lint/ElseLayout",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4958,7 +4958,7 @@
           "name": "Lint/EmptyBlock",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -4985,7 +4985,7 @@
           "name": "Lint/EmptyClass",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5012,7 +5012,7 @@
           "name": "Lint/EmptyConditionalBody",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5039,7 +5039,7 @@
           "name": "Lint/EmptyEnsure",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5066,7 +5066,7 @@
           "name": "Lint/EmptyExpression",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5093,7 +5093,7 @@
           "name": "Lint/EmptyFile",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5120,7 +5120,7 @@
           "name": "Lint/EmptyInPattern",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5147,7 +5147,7 @@
           "name": "Lint/EmptyInterpolation",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5174,7 +5174,7 @@
           "name": "Lint/EmptyWhen",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5201,7 +5201,7 @@
           "name": "Lint/EnsureReturn",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5228,7 +5228,7 @@
           "name": "Lint/ErbNewArguments",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5255,7 +5255,7 @@
           "name": "Lint/FlipFlop",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5282,7 +5282,7 @@
           "name": "Lint/FloatComparison",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5309,7 +5309,7 @@
           "name": "Lint/FloatOutOfRange",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5336,7 +5336,7 @@
           "name": "Lint/FormatParameterMismatch",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5363,7 +5363,7 @@
           "name": "Lint/HashCompareByIdentity",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5390,7 +5390,7 @@
           "name": "Lint/HashNewWithKeywordArgumentsAsDefault",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5417,7 +5417,7 @@
           "name": "Lint/HeredocMethodCallPosition",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5444,7 +5444,7 @@
           "name": "Lint/IdentityComparison",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5471,7 +5471,7 @@
           "name": "Lint/ImplicitStringConcatenation",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5498,7 +5498,7 @@
           "name": "Lint/IncompatibleIoSelectWithFiberScheduler",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5525,7 +5525,7 @@
           "name": "Lint/IneffectiveAccessModifier",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5552,7 +5552,7 @@
           "name": "Lint/InheritException",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5579,7 +5579,7 @@
           "name": "Lint/InterpolationCheck",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5606,7 +5606,7 @@
           "name": "Lint/ItWithoutArgumentsInBlock",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5633,7 +5633,7 @@
           "name": "Lint/LambdaWithoutLiteralBlock",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5660,7 +5660,7 @@
           "name": "Lint/LiteralAsCondition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5687,7 +5687,7 @@
           "name": "Lint/LiteralAssignmentInCondition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5714,7 +5714,7 @@
           "name": "Lint/LiteralInInterpolation",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5741,7 +5741,7 @@
           "name": "Lint/Loop",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5768,7 +5768,7 @@
           "name": "Lint/MisplacedMagicComment",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5795,7 +5795,7 @@
           "name": "Lint/MissingCopEnableDirective",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5822,7 +5822,7 @@
           "name": "Lint/MissingSuper",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5849,7 +5849,7 @@
           "name": "Lint/MixedCaseRange",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5876,7 +5876,7 @@
           "name": "Lint/MixedRegexpCaptureTypes",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5903,7 +5903,7 @@
           "name": "Lint/MultipleComparison",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5930,7 +5930,7 @@
           "name": "Lint/NameTypo",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5957,7 +5957,7 @@
           "name": "Lint/NestedMethodDefinition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -5984,7 +5984,7 @@
           "name": "Lint/NestedPercentLiteral",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6011,7 +6011,7 @@
           "name": "Lint/NextWithoutAccumulator",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6038,7 +6038,7 @@
           "name": "Lint/NoReturnInBeginEndBlocks",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6065,7 +6065,7 @@
           "name": "Lint/NonAtomicFileOperation",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6092,7 +6092,7 @@
           "name": "Lint/NonDeterministicRequireOrder",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6119,7 +6119,7 @@
           "name": "Lint/NonLocalExitFromIterator",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6146,7 +6146,7 @@
           "name": "Lint/NumberConversion",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6173,7 +6173,7 @@
           "name": "Lint/NumberedParameterAssignment",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6200,7 +6200,7 @@
           "name": "Lint/NumericOperationWithConstantResult",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6227,7 +6227,7 @@
           "name": "Lint/OrAssignmentToConstant",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6254,7 +6254,7 @@
           "name": "Lint/OrderedMagicComments",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6281,7 +6281,7 @@
           "name": "Lint/OutOfRangeRegexpRef",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6308,7 +6308,7 @@
           "name": "Lint/ParenthesesAsGroupedExpression",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6335,7 +6335,7 @@
           "name": "Lint/PercentStringArray",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6362,7 +6362,7 @@
           "name": "Lint/PercentSymbolArray",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6389,7 +6389,7 @@
           "name": "Lint/RaiseException",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6416,7 +6416,7 @@
           "name": "Lint/RandOne",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6443,7 +6443,7 @@
           "name": "Lint/RedundantCopDisableDirective",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6470,7 +6470,7 @@
           "name": "Lint/RedundantCopEnableDirective",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6497,7 +6497,7 @@
           "name": "Lint/RedundantDirGlobSort",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6524,7 +6524,7 @@
           "name": "Lint/RedundantRegexpQuantifiers",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6551,7 +6551,7 @@
           "name": "Lint/RedundantRequireStatement",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6578,7 +6578,7 @@
           "name": "Lint/RedundantSafeNavigation",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6605,7 +6605,7 @@
           "name": "Lint/RedundantSplatExpansion",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6632,7 +6632,7 @@
           "name": "Lint/RedundantStringCoercion",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6659,7 +6659,7 @@
           "name": "Lint/RedundantTypeConversion",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6686,7 +6686,7 @@
           "name": "Lint/RedundantWithIndex",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6713,7 +6713,7 @@
           "name": "Lint/RedundantWithObject",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6740,7 +6740,7 @@
           "name": "Lint/RefinementImportMethods",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6767,7 +6767,7 @@
           "name": "Lint/RegexpAsCondition",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6794,7 +6794,7 @@
           "name": "Lint/RequireParentheses",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6821,7 +6821,7 @@
           "name": "Lint/RequireRangeParentheses",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6848,7 +6848,7 @@
           "name": "Lint/RequireRelativeSelfPath",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6875,7 +6875,7 @@
           "name": "Lint/RescueException",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6902,7 +6902,7 @@
           "name": "Lint/RescueType",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6929,7 +6929,7 @@
           "name": "Lint/ReturnInVoidContext",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6956,7 +6956,7 @@
           "name": "Lint/SafeNavigationChain",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -6983,7 +6983,7 @@
           "name": "Lint/SafeNavigationConsistency",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7010,7 +7010,7 @@
           "name": "Lint/SafeNavigationWithEmpty",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7037,7 +7037,7 @@
           "name": "Lint/ScriptPermission",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7064,7 +7064,7 @@
           "name": "Lint/SelfAssignment",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7091,7 +7091,7 @@
           "name": "Lint/SendWithMixinArgument",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7118,7 +7118,7 @@
           "name": "Lint/ShadowedArgument",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7145,7 +7145,7 @@
           "name": "Lint/ShadowedException",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7172,7 +7172,7 @@
           "name": "Lint/ShadowingOuterLocalVariable",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7199,7 +7199,7 @@
           "name": "Lint/SharedMutableDefault",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7226,7 +7226,7 @@
           "name": "Lint/StructNewOverride",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7253,7 +7253,7 @@
           "name": "Lint/SuperArgumentMismatch",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7280,7 +7280,7 @@
           "name": "Lint/SuppressedException",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7307,7 +7307,7 @@
           "name": "Lint/SuppressedExceptionInNumberConversion",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7334,7 +7334,7 @@
           "name": "Lint/SymbolConversion",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7361,7 +7361,7 @@
           "name": "Lint/Syntax",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7388,7 +7388,7 @@
           "name": "Lint/ToEnumArguments",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7415,7 +7415,7 @@
           "name": "Lint/ToJSON",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7444,7 +7444,7 @@
           "name": "Lint/TopLevelReturnWithArgument",
           "path_policy": "Some(PathPolicy { includes: [], excludes: [GlobMatcher { pat: Glob(\"**/*.jb\"), re: Regex { imp: RegexI { strat: Core { info: RegexInfo(RegexInfoI { config: Config { match_kind: None, utf8_empty: Some(false), autopre: None, pre: None, which_captures: None, nfa_size_limit: Some(Some(10485760)), onepass_size_limit: None, hybrid_cache_capacity: Some(10485760), hybrid: None, dfa: None, dfa_size_limit: None, dfa_state_limit: None, onepass: None, backtrack: None, byte_classes: None, line_terminator: None, pool_capacity: None }, props: [Properties(PropertiesI { minimum_len: Some(3), maximum_len: None, look_set: Az, look_set_prefix: A, look_set_suffix: z, look_set_prefix_any: A, look_set_suffix_any: z, utf8: false, explicit_captures_len: 0, static_explicit_captures_len: Some(0), literal: false, alternation_literal: false })], props_union: Properties(PropertiesI { minimum_len: Some(3), maximum_len: None, look_set: Az, look_set_prefix: A, look_set_suffix: z, look_set_prefix_any: A, look_set_suffix_any: z, utf8: false, explicit_captures_len: 0, static_explicit_captures_len: Some(0), literal: false, alternation_literal: false }) }), pre: None, nfa: thompson::NFA(\n^000000: capture(pid=0, group=0, slot=0) => 1\n 000001: Start => 7\n 000002: binary-union(3, 8)\n 000003: / => 8\n 000004: binary-union(5, 6)\n 000005: \\x00-\\xFF => 4\n 000006: / => 8\n 000007: binary-union(2, 4)\n 000008: binary-union(9, 10)\n 000009: \\x00-\\xFF => 8\n 000010: . => 11\n 000011: j => 12\n 000012: b => 13\n 000013: End => 14\n 000014: capture(pid=0, group=0, slot=1) => 15\n 000015: MATCH(0)\n\ntransition equivalence classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI])\n)\n, nfarev: Some(thompson::NFA(\n^000000: Start => 1\n 000001: b => 2\n 000002: j => 3\n 000003: . => 4\n 000004: binary-union(5, 11)\n 000005: \\x00-\\xFF => 4\n 000006: binary-union(7, 12)\n 000007: / => 12\n 000008: / => 9\n 000009: binary-union(10, 12)\n 000010: \\x00-\\xFF => 9\n 000011: binary-union(6, 8)\n 000012: End => 13\n 000013: MATCH(0)\n\ntransition equivalence classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI])\n)\n), pikevm: PikeVM(PikeVMEngine(PikeVM { config: Config { match_kind: Some(LeftmostFirst), pre: Some(None) }, nfa: thompson::NFA(\n^000000: capture(pid=0, group=0, slot=0) => 1\n 000001: Start => 7\n 000002: binary-union(3, 8)\n 000003: / => 8\n 000004: binary-union(5, 6)\n 000005: \\x00-\\xFF => 4\n 000006: / => 8\n 000007: binary-union(2, 4)\n 000008: binary-union(9, 10)\n 000009: \\x00-\\xFF => 8\n 000010: . => 11\n 000011: j => 12\n 000012: b => 13\n 000013: End => 14\n 000014: capture(pid=0, group=0, slot=1) => 15\n 000015: MATCH(0)\n\ntransition equivalence classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI])\n)\n })), backtrack: BoundedBacktracker(Some(BoundedBacktrackerEngine(BoundedBacktracker { config: Config { pre: Some(None), visited_capacity: None }, nfa: thompson::NFA(\n^000000: capture(pid=0, group=0, slot=0) => 1\n 000001: Start => 7\n 000002: binary-union(3, 8)\n 000003: / => 8\n 000004: binary-union(5, 6)\n 000005: \\x00-\\xFF => 4\n 000006: / => 8\n 000007: binary-union(2, 4)\n 000008: binary-union(9, 10)\n 000009: \\x00-\\xFF => 8\n 000010: . => 11\n 000011: j => 12\n 000012: b => 13\n 000013: End => 14\n 000014: capture(pid=0, group=0, slot=1) => 15\n 000015: MATCH(0)\n\ntransition equivalence classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI])\n)\n }))), onepass: OnePass(None), hybrid: Hybrid(Some(HybridEngine(Regex { forward: DFA { config: Config { match_kind: Some(LeftmostFirst), pre: Some(None), starts_for_each_pattern: Some(true), byte_classes: Some(true), unicode_word_boundary: Some(true), quitset: None, specialize_start_states: Some(false), cache_capacity: Some(10485760), skip_cache_capacity_check: Some(false), minimum_cache_clear_count: Some(Some(3)), minimum_bytes_per_state: Some(Some(10)) }, nfa: thompson::NFA(\n^000000: capture(pid=0, group=0, slot=0) => 1\n 000001: Start => 7\n 000002: binary-union(3, 8)\n 000003: / => 8\n 000004: binary-union(5, 6)\n 000005: \\x00-\\xFF => 4\n 000006: / => 8\n 000007: binary-union(2, 4)\n 000008: binary-union(9, 10)\n 000009: \\x00-\\xFF => 8\n 000010: . => 11\n 000011: j => 12\n 000012: b => 13\n 000013: End => 14\n 000014: capture(pid=0, group=0, slot=1) => 15\n 000015: MATCH(0)\n\ntransition equivalence classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI])\n)\n, stride2: 4, start_map: StartByteMap{\\x00 => NonWordByte, \\x01 => NonWordByte, \\x02 => NonWordByte, \\x03 => NonWordByte, \\x04 => NonWordByte, \\x05 => NonWordByte, \\x06 => NonWordByte, \\x07 => NonWordByte, \\x08 => NonWordByte, \\t => NonWordByte, \\n => LineLF, \\x0B => NonWordByte, \\x0C => NonWordByte, \\r => LineCR, \\x0E => NonWordByte, \\x0F => NonWordByte, \\x10 => NonWordByte, \\x11 => NonWordByte, \\x12 => NonWordByte, \\x13 => NonWordByte, \\x14 => NonWordByte, \\x15 => NonWordByte, \\x16 => NonWordByte, \\x17 => NonWordByte, \\x18 => NonWordByte, \\x19 => NonWordByte, \\x1A => NonWordByte, \\x1B => NonWordByte, \\x1C => NonWordByte, \\x1D => NonWordByte, \\x1E => NonWordByte, \\x1F => NonWordByte, ' ' => NonWordByte, ! => NonWordByte, \\\" => NonWordByte, # => NonWordByte, $ => NonWordByte, % => NonWordByte, & => NonWordByte, \\' => NonWordByte, ( => NonWordByte, ) => NonWordByte, * => NonWordByte, + => NonWordByte, , => NonWordByte, - => NonWordByte, . => NonWordByte, / => NonWordByte, 0 => WordByte, 1 => WordByte, 2 => WordByte, 3 => WordByte, 4 => WordByte, 5 => WordByte, 6 => WordByte, 7 => WordByte, 8 => WordByte, 9 => WordByte, : => NonWordByte, ; => NonWordByte, < => NonWordByte, = => NonWordByte, > => NonWordByte, ? => NonWordByte, @ => NonWordByte, A => WordByte, B => WordByte, C => WordByte, D => WordByte, E => WordByte, F => WordByte, G => WordByte, H => WordByte, I => WordByte, J => WordByte, K => WordByte, L => WordByte, M => WordByte, N => WordByte, O => WordByte, P => WordByte, Q => WordByte, R => WordByte, S => WordByte, T => WordByte, U => WordByte, V => WordByte, W => WordByte, X => WordByte, Y => WordByte, Z => WordByte, [ => NonWordByte, \\\\ => NonWordByte, ] => NonWordByte, ^ => NonWordByte, _ => WordByte, ` => NonWordByte, a => WordByte, b => WordByte, c => WordByte, d => WordByte, e => WordByte, f => WordByte, g => WordByte, h => WordByte, i => WordByte, j => WordByte, k => WordByte, l => WordByte, m => WordByte, n => WordByte, o => WordByte, p => WordByte, q => WordByte, r => WordByte, s => WordByte, t => WordByte, u => WordByte, v => WordByte, w => WordByte, x => WordByte, y => WordByte, z => WordByte, { => NonWordByte, | => NonWordByte, } => NonWordByte, ~ => NonWordByte, \\x7F => NonWordByte, \\x80 => NonWordByte, \\x81 => NonWordByte, \\x82 => NonWordByte, \\x83 => NonWordByte, \\x84 => NonWordByte, \\x85 => NonWordByte, \\x86 => NonWordByte, \\x87 => NonWordByte, \\x88 => NonWordByte, \\x89 => NonWordByte, \\x8A => NonWordByte, \\x8B => NonWordByte, \\x8C => NonWordByte, \\x8D => NonWordByte, \\x8E => NonWordByte, \\x8F => NonWordByte, \\x90 => NonWordByte, \\x91 => NonWordByte, \\x92 => NonWordByte, \\x93 => NonWordByte, \\x94 => NonWordByte, \\x95 => NonWordByte, \\x96 => NonWordByte, \\x97 => NonWordByte, \\x98 => NonWordByte, \\x99 => NonWordByte, \\x9A => NonWordByte, \\x9B => NonWordByte, \\x9C => NonWordByte, \\x9D => NonWordByte, \\x9E => NonWordByte, \\x9F => NonWordByte, \\xA0 => NonWordByte, \\xA1 => NonWordByte, \\xA2 => NonWordByte, \\xA3 => NonWordByte, \\xA4 => NonWordByte, \\xA5 => NonWordByte, \\xA6 => NonWordByte, \\xA7 => NonWordByte, \\xA8 => NonWordByte, \\xA9 => NonWordByte, \\xAA => NonWordByte, \\xAB => NonWordByte, \\xAC => NonWordByte, \\xAD => NonWordByte, \\xAE => NonWordByte, \\xAF => NonWordByte, \\xB0 => NonWordByte, \\xB1 => NonWordByte, \\xB2 => NonWordByte, \\xB3 => NonWordByte, \\xB4 => NonWordByte, \\xB5 => NonWordByte, \\xB6 => NonWordByte, \\xB7 => NonWordByte, \\xB8 => NonWordByte, \\xB9 => NonWordByte, \\xBA => NonWordByte, \\xBB => NonWordByte, \\xBC => NonWordByte, \\xBD => NonWordByte, \\xBE => NonWordByte, \\xBF => NonWordByte, \\xC0 => NonWordByte, \\xC1 => NonWordByte, \\xC2 => NonWordByte, \\xC3 => NonWordByte, \\xC4 => NonWordByte, \\xC5 => NonWordByte, \\xC6 => NonWordByte, \\xC7 => NonWordByte, \\xC8 => NonWordByte, \\xC9 => NonWordByte, \\xCA => NonWordByte, \\xCB => NonWordByte, \\xCC => NonWordByte, \\xCD => NonWordByte, \\xCE => NonWordByte, \\xCF => NonWordByte, \\xD0 => NonWordByte, \\xD1 => NonWordByte, \\xD2 => NonWordByte, \\xD3 => NonWordByte, \\xD4 => NonWordByte, \\xD5 => NonWordByte, \\xD6 => NonWordByte, \\xD7 => NonWordByte, \\xD8 => NonWordByte, \\xD9 => NonWordByte, \\xDA => NonWordByte, \\xDB => NonWordByte, \\xDC => NonWordByte, \\xDD => NonWordByte, \\xDE => NonWordByte, \\xDF => NonWordByte, \\xE0 => NonWordByte, \\xE1 => NonWordByte, \\xE2 => NonWordByte, \\xE3 => NonWordByte, \\xE4 => NonWordByte, \\xE5 => NonWordByte, \\xE6 => NonWordByte, \\xE7 => NonWordByte, \\xE8 => NonWordByte, \\xE9 => NonWordByte, \\xEA => NonWordByte, \\xEB => NonWordByte, \\xEC => NonWordByte, \\xED => NonWordByte, \\xEE => NonWordByte, \\xEF => NonWordByte, \\xF0 => NonWordByte, \\xF1 => NonWordByte, \\xF2 => NonWordByte, \\xF3 => NonWordByte, \\xF4 => NonWordByte, \\xF5 => NonWordByte, \\xF6 => NonWordByte, \\xF7 => NonWordByte, \\xF8 => NonWordByte, \\xF9 => NonWordByte, \\xFA => NonWordByte, \\xFB => NonWordByte, \\xFC => NonWordByte, \\xFD => NonWordByte, \\xFE => NonWordByte, \\xFF => NonWordByte}, classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI]), quitset: ByteSet { bits: {} }, cache_capacity: 10485760 }, reverse: DFA { config: Config { match_kind: Some(All), pre: Some(None), starts_for_each_pattern: Some(true), byte_classes: Some(true), unicode_word_boundary: Some(true), quitset: None, specialize_start_states: Some(false), cache_capacity: Some(10485760), skip_cache_capacity_check: Some(false), minimum_cache_clear_count: Some(Some(3)), minimum_bytes_per_state: Some(Some(10)) }, nfa: thompson::NFA(\n^000000: Start => 1\n 000001: b => 2\n 000002: j => 3\n 000003: . => 4\n 000004: binary-union(5, 11)\n 000005: \\x00-\\xFF => 4\n 000006: binary-union(7, 12)\n 000007: / => 12\n 000008: / => 9\n 000009: binary-union(10, 12)\n 000010: \\x00-\\xFF => 9\n 000011: binary-union(6, 8)\n 000012: End => 13\n 000013: MATCH(0)\n\ntransition equivalence classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI])\n)\n, stride2: 4, start_map: StartByteMap{\\x00 => NonWordByte, \\x01 => NonWordByte, \\x02 => NonWordByte, \\x03 => NonWordByte, \\x04 => NonWordByte, \\x05 => NonWordByte, \\x06 => NonWordByte, \\x07 => NonWordByte, \\x08 => NonWordByte, \\t => NonWordByte, \\n => LineLF, \\x0B => NonWordByte, \\x0C => NonWordByte, \\r => LineCR, \\x0E => NonWordByte, \\x0F => NonWordByte, \\x10 => NonWordByte, \\x11 => NonWordByte, \\x12 => NonWordByte, \\x13 => NonWordByte, \\x14 => NonWordByte, \\x15 => NonWordByte, \\x16 => NonWordByte, \\x17 => NonWordByte, \\x18 => NonWordByte, \\x19 => NonWordByte, \\x1A => NonWordByte, \\x1B => NonWordByte, \\x1C => NonWordByte, \\x1D => NonWordByte, \\x1E => NonWordByte, \\x1F => NonWordByte, ' ' => NonWordByte, ! => NonWordByte, \\\" => NonWordByte, # => NonWordByte, $ => NonWordByte, % => NonWordByte, & => NonWordByte, \\' => NonWordByte, ( => NonWordByte, ) => NonWordByte, * => NonWordByte, + => NonWordByte, , => NonWordByte, - => NonWordByte, . => NonWordByte, / => NonWordByte, 0 => WordByte, 1 => WordByte, 2 => WordByte, 3 => WordByte, 4 => WordByte, 5 => WordByte, 6 => WordByte, 7 => WordByte, 8 => WordByte, 9 => WordByte, : => NonWordByte, ; => NonWordByte, < => NonWordByte, = => NonWordByte, > => NonWordByte, ? => NonWordByte, @ => NonWordByte, A => WordByte, B => WordByte, C => WordByte, D => WordByte, E => WordByte, F => WordByte, G => WordByte, H => WordByte, I => WordByte, J => WordByte, K => WordByte, L => WordByte, M => WordByte, N => WordByte, O => WordByte, P => WordByte, Q => WordByte, R => WordByte, S => WordByte, T => WordByte, U => WordByte, V => WordByte, W => WordByte, X => WordByte, Y => WordByte, Z => WordByte, [ => NonWordByte, \\\\ => NonWordByte, ] => NonWordByte, ^ => NonWordByte, _ => WordByte, ` => NonWordByte, a => WordByte, b => WordByte, c => WordByte, d => WordByte, e => WordByte, f => WordByte, g => WordByte, h => WordByte, i => WordByte, j => WordByte, k => WordByte, l => WordByte, m => WordByte, n => WordByte, o => WordByte, p => WordByte, q => WordByte, r => WordByte, s => WordByte, t => WordByte, u => WordByte, v => WordByte, w => WordByte, x => WordByte, y => WordByte, z => WordByte, { => NonWordByte, | => NonWordByte, } => NonWordByte, ~ => NonWordByte, \\x7F => NonWordByte, \\x80 => NonWordByte, \\x81 => NonWordByte, \\x82 => NonWordByte, \\x83 => NonWordByte, \\x84 => NonWordByte, \\x85 => NonWordByte, \\x86 => NonWordByte, \\x87 => NonWordByte, \\x88 => NonWordByte, \\x89 => NonWordByte, \\x8A => NonWordByte, \\x8B => NonWordByte, \\x8C => NonWordByte, \\x8D => NonWordByte, \\x8E => NonWordByte, \\x8F => NonWordByte, \\x90 => NonWordByte, \\x91 => NonWordByte, \\x92 => NonWordByte, \\x93 => NonWordByte, \\x94 => NonWordByte, \\x95 => NonWordByte, \\x96 => NonWordByte, \\x97 => NonWordByte, \\x98 => NonWordByte, \\x99 => NonWordByte, \\x9A => NonWordByte, \\x9B => NonWordByte, \\x9C => NonWordByte, \\x9D => NonWordByte, \\x9E => NonWordByte, \\x9F => NonWordByte, \\xA0 => NonWordByte, \\xA1 => NonWordByte, \\xA2 => NonWordByte, \\xA3 => NonWordByte, \\xA4 => NonWordByte, \\xA5 => NonWordByte, \\xA6 => NonWordByte, \\xA7 => NonWordByte, \\xA8 => NonWordByte, \\xA9 => NonWordByte, \\xAA => NonWordByte, \\xAB => NonWordByte, \\xAC => NonWordByte, \\xAD => NonWordByte, \\xAE => NonWordByte, \\xAF => NonWordByte, \\xB0 => NonWordByte, \\xB1 => NonWordByte, \\xB2 => NonWordByte, \\xB3 => NonWordByte, \\xB4 => NonWordByte, \\xB5 => NonWordByte, \\xB6 => NonWordByte, \\xB7 => NonWordByte, \\xB8 => NonWordByte, \\xB9 => NonWordByte, \\xBA => NonWordByte, \\xBB => NonWordByte, \\xBC => NonWordByte, \\xBD => NonWordByte, \\xBE => NonWordByte, \\xBF => NonWordByte, \\xC0 => NonWordByte, \\xC1 => NonWordByte, \\xC2 => NonWordByte, \\xC3 => NonWordByte, \\xC4 => NonWordByte, \\xC5 => NonWordByte, \\xC6 => NonWordByte, \\xC7 => NonWordByte, \\xC8 => NonWordByte, \\xC9 => NonWordByte, \\xCA => NonWordByte, \\xCB => NonWordByte, \\xCC => NonWordByte, \\xCD => NonWordByte, \\xCE => NonWordByte, \\xCF => NonWordByte, \\xD0 => NonWordByte, \\xD1 => NonWordByte, \\xD2 => NonWordByte, \\xD3 => NonWordByte, \\xD4 => NonWordByte, \\xD5 => NonWordByte, \\xD6 => NonWordByte, \\xD7 => NonWordByte, \\xD8 => NonWordByte, \\xD9 => NonWordByte, \\xDA => NonWordByte, \\xDB => NonWordByte, \\xDC => NonWordByte, \\xDD => NonWordByte, \\xDE => NonWordByte, \\xDF => NonWordByte, \\xE0 => NonWordByte, \\xE1 => NonWordByte, \\xE2 => NonWordByte, \\xE3 => NonWordByte, \\xE4 => NonWordByte, \\xE5 => NonWordByte, \\xE6 => NonWordByte, \\xE7 => NonWordByte, \\xE8 => NonWordByte, \\xE9 => NonWordByte, \\xEA => NonWordByte, \\xEB => NonWordByte, \\xEC => NonWordByte, \\xED => NonWordByte, \\xEE => NonWordByte, \\xEF => NonWordByte, \\xF0 => NonWordByte, \\xF1 => NonWordByte, \\xF2 => NonWordByte, \\xF3 => NonWordByte, \\xF4 => NonWordByte, \\xF5 => NonWordByte, \\xF6 => NonWordByte, \\xF7 => NonWordByte, \\xF8 => NonWordByte, \\xF9 => NonWordByte, \\xFA => NonWordByte, \\xFB => NonWordByte, \\xFC => NonWordByte, \\xFD => NonWordByte, \\xFE => NonWordByte, \\xFF => NonWordByte}, classes: ByteClasses(0 => [\\x00--], 1 => [.], 2 => [/], 3 => [0-a], 4 => [b], 5 => [c-i], 6 => [j], 7 => [k-\\xFF], 8 => [EOI]), quitset: ByteSet { bits: {} }, cache_capacity: 10485760 } }))), dfa: DFA(None) }, info: RegexInfo(RegexInfoI { config: Config { match_kind: None, utf8_empty: Some(false), autopre: None, pre: None, which_captures: None, nfa_size_limit: Some(Some(10485760)), onepass_size_limit: None, hybrid_cache_capacity: Some(10485760), hybrid: None, dfa: None, dfa_size_limit: None, dfa_state_limit: None, onepass: None, backtrack: None, byte_classes: None, line_terminator: None, pool_capacity: None }, props: [Properties(PropertiesI { minimum_len: Some(3), maximum_len: None, look_set: Az, look_set_prefix: A, look_set_suffix: z, look_set_prefix_any: A, look_set_suffix_any: z, utf8: false, explicit_captures_len: 0, static_explicit_captures_len: Some(0), literal: false, alternation_literal: false })], props_union: Properties(PropertiesI { minimum_len: Some(3), maximum_len: None, look_set: Az, look_set_prefix: A, look_set_suffix: z, look_set_prefix_any: A, look_set_suffix_any: z, utf8: false, explicit_captures_len: 0, static_explicit_captures_len: Some(0), literal: false, alternation_literal: false }) }) }, pool: Pool(Pool { stacks: [CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. }), CacheLine(Mutex { data: [], poisoned: false, .. })], owner: 0, owner_val: UnsafeCell { .. } }) } }] })",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7471,7 +7471,7 @@
           "name": "Lint/TrailingCommaInAttributeDeclaration",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7498,7 +7498,7 @@
           "name": "Lint/TripleQuotes",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7525,7 +7525,7 @@
           "name": "Lint/UnderscorePrefixedVariableName",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7552,7 +7552,7 @@
           "name": "Lint/UnescapedBracketInRegexp",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7579,7 +7579,7 @@
           "name": "Lint/UnexpectedBlockArity",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7606,7 +7606,7 @@
           "name": "Lint/UnifiedInteger",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7633,7 +7633,7 @@
           "name": "Lint/UnmodifiedReduceAccumulator",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7660,7 +7660,7 @@
           "name": "Lint/UnreachableCode",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7687,7 +7687,7 @@
           "name": "Lint/UnreachableLoop",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7714,7 +7714,7 @@
           "name": "Lint/UnreachablePatternBranch",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7741,7 +7741,7 @@
           "name": "Lint/UnusedBlockArgument",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7770,7 +7770,7 @@
           "name": "Lint/UnusedMethodArgument",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7797,7 +7797,7 @@
           "name": "Lint/UnusedPrivateMethod",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7824,7 +7824,7 @@
           "name": "Lint/UriEscapeUnescape",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7851,7 +7851,7 @@
           "name": "Lint/UriRegexp",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7878,7 +7878,7 @@
           "name": "Lint/UselessAccessModifier",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7905,7 +7905,7 @@
           "name": "Lint/UselessAssignment",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7932,7 +7932,7 @@
           "name": "Lint/UselessConstantScoping",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7959,7 +7959,7 @@
           "name": "Lint/UselessDefaultValueArgument",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -7986,7 +7986,7 @@
           "name": "Lint/UselessDefined",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8013,7 +8013,7 @@
           "name": "Lint/UselessElseWithoutRescue",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8040,7 +8040,7 @@
           "name": "Lint/UselessMethodDefinition",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8067,7 +8067,7 @@
           "name": "Lint/UselessNumericOperation",
           "path_policy": "None",
           "safe_fixes": true,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8094,7 +8094,7 @@
           "name": "Lint/UselessOr",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8121,7 +8121,7 @@
           "name": "Lint/UselessRescue",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8148,7 +8148,7 @@
           "name": "Lint/UselessRuby2Keywords",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8175,7 +8175,7 @@
           "name": "Lint/UselessSetterCall",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8202,7 +8202,7 @@
           "name": "Lint/UselessTimes",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8229,7 +8229,7 @@
           "name": "Lint/Void",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -8516,7 +8516,7 @@
           "name": "Metrics/ParameterLists",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Convention"
+          "severity": "Refactor"
         }
       },
       "correction": {
@@ -9135,7 +9135,7 @@
           "name": "Security/CompoundHash",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -9162,7 +9162,7 @@
           "name": "Security/Eval",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -9189,7 +9189,7 @@
           "name": "Security/IoMethods",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -9216,7 +9216,7 @@
           "name": "Security/JSONLoad",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -9243,7 +9243,7 @@
           "name": "Security/MarshalLoad",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -9270,7 +9270,7 @@
           "name": "Security/Open",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {
@@ -9297,7 +9297,7 @@
           "name": "Security/YAMLLoad",
           "path_policy": "None",
           "safe_fixes": false,
-          "severity": "Error"
+          "severity": "Warning"
         }
       },
       "correction": {

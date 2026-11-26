@@ -1,4 +1,5 @@
 //! CLI policy, safe fixes and controlled Ruby semantic observations.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const ONE: &str = "Style/OneLineConditional";
 const PARENS: &str = "Style/ParenthesesAroundCondition";
@@ -7,12 +8,6 @@ const CASES: [(&str, &str, &str); 2] = [
     (ONE, "if a then b else c end\n", "a ? b : c\n"),
     (PARENS, "if (a); b; end\n", "if a; b; end\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

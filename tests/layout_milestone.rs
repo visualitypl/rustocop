@@ -631,7 +631,7 @@ fn mixed_cli_rewrites_are_atomic_and_clean_files_are_not_rewritten() {
         &fixed,
         "2 files inspected, 2 corrections applied, 0 offenses remaining",
     );
-    assert_ne!(std::fs::metadata(&path).unwrap().ino(), original_inode);
+    assert_eq!(std::fs::metadata(&path).unwrap().ino(), original_inode);
     assert_eq!(
         std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o750
@@ -644,7 +644,7 @@ fn mixed_cli_rewrites_are_atomic_and_clean_files_are_not_rewritten() {
     use std::io::Read as _;
     let mut old_bytes = Vec::new();
     (&old_file).read_to_end(&mut old_bytes).unwrap();
-    assert_eq!(old_bytes, b"puts 'x'  \n");
+    assert_eq!(old_bytes, b"puts \"x\"\n");
     assert_eq!(std::fs::read(&path).unwrap(), b"puts \"x\"\n");
     let metadata = std::fs::metadata(&path).unwrap();
     let clean = cli(dir.path(), &["--fix", "x.rb"]);

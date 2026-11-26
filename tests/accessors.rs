@@ -1,4 +1,5 @@
 //! accessor policy, atomic corrections and Ruby semantic regressions.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::{RawConfig, ResolvedConfig},
     cops::{Registry, select_active},
@@ -30,13 +31,6 @@ const CASES: [(&str, &str, &str, usize); 3] = [
         2,
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -68,7 +62,7 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str]) -> Output {
 fn exact_registry_defaults_pipeline_and_canonical_single_pass_fixes() {
     let registry = Registry::new();
     let config = ResolvedConfig::resolve(RawConfig::default(), None, &registry).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, before, after, n) in CASES {
         let entries: Vec<_> = registry.cops().iter().filter(|c| c.name() == cop).collect();
         assert_eq!(entries.len(), 1);
@@ -113,7 +107,7 @@ fn exact_registry_defaults_pipeline_and_canonical_single_pass_fixes() {
 }
 #[test]
 fn default_only_except_config_disabling_and_explicit_enabling() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, before, _, n) in CASES {
         for (config, args, expected) in [
             (String::new(), vec!["lib/a.rb"], n),
@@ -151,7 +145,7 @@ fn default_only_except_config_disabling_and_explicit_enabling() {
 }
 #[test]
 fn excludes_stdin_and_no_fix_never_write() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, before, _, n) in CASES {
         for config in [
             "exclude = ['lib/**']\n".into(),
@@ -212,7 +206,7 @@ fn ruby(dir: &Path, source: &str, observe: &str) -> Option<Output> {
 }
 #[test]
 fn controlled_ruby_canonical_values_visibility_and_singleton_binding_match() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, before, after, _) in CASES {
         // Observe from a separate driver, not by executing arbitrary corpus code.
         let observe = "o=Foo.new; o.instance_variable_set(:@one, 7); o.instance_variable_set(:@two, 9); p [o.one, (o.two if o.respond_to?(:two)), Foo.public_instance_methods(false).sort, Foo.private_instance_methods(false).sort]; o.one=11 if o.respond_to?(:one=); p o.one";
@@ -247,7 +241,7 @@ fn controlled_ruby_canonical_values_visibility_and_singleton_binding_match() {
 }
 #[test]
 fn mixed_style_layout_single_passes_converge_without_oscillation() {
-    let d = project();
+    let d = project_with_lib();
     let source =
         "class Foo\nattr :one;\nattr :two;\nattr_reader :three;\nattr_writer :three;\nend\n";
     fs::write(d.path().join("lib/a.rb"), source).unwrap();

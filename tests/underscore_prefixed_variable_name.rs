@@ -1,5 +1,6 @@
 //! Source-only pinned AST and CLI checks. Never execute reference inputs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{count, project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -22,25 +23,6 @@ fn rows() -> Vec<serde_json::Value> {
         3
     );
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -109,7 +91,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -131,7 +113,7 @@ fn pinned_main_source_original_bytes_and_parent_shapes_match_without_edits() {
 }
 #[test]
 fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows() {
         let cop = COPS[0];
         let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
@@ -156,7 +138,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
             assert_eq!(count(&out, cop), expected.len(), "{row}: {out:?}");
             let mut stdout = String::new();
             for (line, col, _, message) in &expected {
-                stdout.push_str(&format!("lib/a.rb:{line}:{col}: E: {message} ({cop})\n"));
+                stdout.push_str(&format!("lib/a.rb:{line}:{col}: W: {message} ({cop})\n"));
             }
             let n = expected.len();
             let plural = if n == 1 { "" } else { "s" };
@@ -176,7 +158,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
 #[test]
 fn defaults_selectors_toml_department_and_path_precedence() {
     let registry = rustocop::cops::Registry::new();
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let detector = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(detector.default_enabled());
@@ -262,7 +244,7 @@ fn defaults_selectors_toml_department_and_path_precedence() {
 }
 #[test]
 fn supplied_file_stdin_path_provenance_and_no_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for config in [
             String::new(),
@@ -347,7 +329,7 @@ fn supplied_file_stdin_path_provenance_and_no_writes() {
 }
 #[test]
 fn separated_parameter_name_line_controls_directives_in_pipeline_and_cli() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = COPS[0];
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
@@ -424,7 +406,7 @@ fn separated_parameter_name_line_controls_directives_in_pipeline_and_cli() {
 
 #[test]
 fn both_directive_prefixes_multiline_next_push_and_range_end() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let source = std::str::from_utf8(source).unwrap();
         for prefix in ["rubocop", "rustocop"] {
@@ -521,7 +503,7 @@ fn both_directive_prefixes_multiline_next_push_and_range_end() {
 }
 #[test]
 fn observer_bytes_parser_gate_peer_composition_and_symlink_atomic_failure() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for suffix in [
             "p __LINE__; File.binread(__FILE__); DATA.pos\n__END__\nraw\0\n",

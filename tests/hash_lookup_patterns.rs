@@ -1,4 +1,5 @@
 //! all three fixed hash suggestions are detection-only.
+use crate::support::cli::project;
 use crate::support::stdin;
 use std::{
     fs,
@@ -15,12 +16,6 @@ fn examples() -> [(&'static str, &'static str, bool); 3] {
         (CASE, CASE_SOURCE, true),
         (LOOKUP, "hash.fetch(key)\n", false),
     ]
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
 }
 fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> Output {
     let p = dir.join("a.rb");

@@ -1,4 +1,5 @@
 //! controlled fixtures only; never execute corpus code.
+use crate::support::cli::project_with_lib;
 use rustocop::cops::Registry;
 use std::{
     fs,
@@ -8,13 +9,6 @@ use std::{
 const COP: &str = "Style/EndlessMethod";
 const BEFORE: &str = "def f = [\n  1]\n";
 const AFTER: &str = "def f\n  [\n  1]\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -34,7 +28,7 @@ fn fix(source: &str, only: &[&str]) -> Vec<u8> {
             .count(),
         only.len()
     );
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -54,7 +48,7 @@ fn fix(source: &str, only: &[&str]) -> Vec<u8> {
 }
 #[test]
 fn default_selectors_config_no_write_and_canonical_fix_are_real() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = Registry::new();
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
@@ -105,7 +99,7 @@ fn default_selectors_config_no_write_and_canonical_fix_are_real() {
 #[test]
 fn encoding_bom_crlf_data_and_stdin_contract() {
     use std::{io::Write, process::Stdio};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (before, after) in [
         (
@@ -177,7 +171,7 @@ fn incompatible_peers_and_layout_use_deterministic_atomic_single_pass_edits() {
     let mut reverse = only;
     reverse.reverse();
     assert_eq!(fix(before, &reverse), first.as_bytes());
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, before).unwrap();
     let selector = only.join(",");
@@ -242,7 +236,7 @@ fn runtime_case(before: &str, after: &str, driver: &str) -> Vec<u8> {
         fixed,
         "canonical corrections stabilize in one pass"
     );
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let execute = || {
         let mut command = Command::new("ruby");

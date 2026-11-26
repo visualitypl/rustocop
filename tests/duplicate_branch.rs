@@ -1,5 +1,6 @@
 //! exact pinned source-only parity and rebuilt CLI no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -21,20 +22,6 @@ fn rows() -> Vec<serde_json::Value> {
     assert_eq!(review.len(), 51);
     rows.extend(review);
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -65,7 +52,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Ou
 }
 #[test]
 fn every_reference_row_matches_rebuilt_cli_with_and_without_fix_and_never_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     assert_eq!(rows().len(), 694);
     for row in rows() {
         let source = row["source"].as_str().unwrap();
@@ -84,7 +71,7 @@ fn every_reference_row_matches_rebuilt_cli_with_and_without_fix_and_never_writes
             for f in findings {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        "lib/a.rb:{}:{}: W: {} ({COP})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -104,7 +91,7 @@ fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, n) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -173,7 +160,7 @@ fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
 }
 #[test]
 fn both_prefixes_multiline_owner_range_next_and_push_pop_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable {COP}\nif x; work; else; work; end\n"),
@@ -237,7 +224,7 @@ fn both_prefixes_multiline_owner_range_next_and_push_pop_scopes() {
 }
 #[test]
 fn supplied_paths_empty_fixed_path_policy_stdin_provenance_and_rejected_stdin_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in ["lib/a.arb", "lib/a.jb", "Rakefile", "lib/.hidden.rb"] {
         fs::write(dir.path().join(path), SOURCE).unwrap();
         let out = run(dir.path(), &["--only", COP, "--fix", path]);
@@ -292,7 +279,7 @@ fn supplied_paths_empty_fixed_path_policy_stdin_provenance_and_rejected_stdin_fi
 }
 #[test]
 fn source_file_value_uses_supplied_file_and_stdin_paths_not_display_or_realpath() {
-    let dir = project();
+    let dir = project_with_lib();
     let absolute = dir.path().join("lib/a.rb").to_str().unwrap().to_owned();
     for path in [
         "lib/a.rb",
@@ -323,7 +310,7 @@ fn source_file_value_uses_supplied_file_and_stdin_paths_not_display_or_realpath(
             if matches {
                 assert!(
                     String::from_utf8_lossy(&out.stdout)
-                        .contains(":3:1: E: Duplicate branch body detected.")
+                        .contains(":3:1: W: Duplicate branch body detected.")
                 );
             }
             if path != "virtual/example.rb" {
@@ -368,7 +355,7 @@ fn source_file_value_uses_supplied_file_and_stdin_paths_not_display_or_realpath(
 
 #[test]
 fn source_envelopes_literals_comments_and_runtime_observers_are_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in [
         b"".as_slice(),
         b"\xef\xbb\xbf",
@@ -417,7 +404,7 @@ fn source_envelopes_literals_comments_and_runtime_observers_are_no_write() {
 #[test]
 fn shared_atomic_validation_readonly_symlink_failure_and_peer_composition() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -461,7 +448,7 @@ fn shared_atomic_validation_readonly_symlink_failure_and_peer_composition() {
     assert_eq!(out.status.code(), Some(1), "{out:?}");
     assert_eq!(count(&out), 1);
     assert_eq!(fs::read(&path).unwrap(), after);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640

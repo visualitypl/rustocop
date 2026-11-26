@@ -1,5 +1,6 @@
 //! Actual CLI lifecycle for the keyword-end-alignment family
 //! (BeginEndAlignment, DefEndAlignment, BlockAlignment).
+use crate::support::cli::{count, project, run};
 use std::{
     fs,
     io::Write,
@@ -29,27 +30,6 @@ const CASES: [(&str, &str, &str, &str); 3] = [
     ),
 ];
 
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
-}
-
 /// Run `args` on `example.rb` holding `source`; the file must keep its bytes,
 /// mtime, permissions and inode.
 fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Output {
@@ -74,13 +54,18 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Ou
     out
 }
 
+/// The text-format severity letter of `cop`'s findings.
+fn letter(cop: &str) -> char {
+    rustocop::offense::Severity::for_cop(cop).letter()
+}
+
 #[test]
 fn metadata_defaults_selectors_and_strict_toml() {
     let registry = rustocop::cops::Registry::new();
     for (cop, before, _, position) in CASES {
         let found = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(found.default_enabled() && found.safe_fixes(), "{cop}");
-        assert_eq!(found.severity(), rustocop::offense::Severity::Convention);
+        assert_eq!(found.severity(), rustocop::offense::Severity::for_cop(cop));
         assert_eq!(found.ruby_versions(), Default::default());
         assert!(found.path_policy().is_none() && found.max_setting().is_none());
         assert!(found.autocorrect_incompatible_with().is_empty());
@@ -101,7 +86,7 @@ fn metadata_defaults_selectors_and_strict_toml() {
             if n == 1 {
                 let text = String::from_utf8_lossy(&out.stdout);
                 assert!(
-                    text.contains(&format!("example.rb:{position}: C: ")),
+                    text.contains(&format!("example.rb:{position}: {}: ", letter(cop))),
                     "{text}"
                 );
             }
@@ -203,7 +188,7 @@ fn stdin_reports_positions_and_parse_errors_report_nothing() {
         assert_eq!(out.status.code(), Some(1), "{out:?}");
         let text = String::from_utf8_lossy(&out.stdout);
         assert!(
-            text.contains(&format!("virtual.rb:{position}: C: ")),
+            text.contains(&format!("virtual.rb:{position}: {}: ", letter(cop))),
             "{text}"
         );
         // An invalid file is an error, never an alignment finding or a write.

@@ -99,7 +99,7 @@ fn ruby_version_in_the_config_selects_the_grammar_and_the_cops() {
     assert!(!stdout.contains("syntax error"), "{stdout}");
     assert!(
         stdout.contains(
-            "a.rb:1:1: E: Remove unnecessary `require` statement. (Lint/RedundantRequireStatement)"
+            "a.rb:1:1: W: Remove unnecessary `require` statement. (Lint/RedundantRequireStatement)"
         ),
         "{stdout}"
     );
@@ -350,10 +350,10 @@ fn ruby34_nested_english_not_survives_files_stdin_and_fix_validation() {
 #[test]
 fn excessive_ast_depth_is_a_file_error_and_fix_never_writes_it() {
     let mut deep = String::from("# rustocop:disable all\n");
-    for i in 0..400 {
+    for i in 0..2100 {
         deep.push_str(&format!("def foo{i}(*args)\nbar(*args)  \n"));
     }
-    deep.push_str(&"end\n".repeat(400));
+    deep.push_str(&"end\n".repeat(2100));
     assert_eq!(ruby_prism::parse(deep.as_bytes()).errors().count(), 0);
     let dir = project(&[("deep.rb", &deep), ("other.rb", "binding.pry\n")]);
     for args in [
@@ -365,7 +365,7 @@ fn excessive_ast_depth_is_a_file_error_and_fix_never_writes_it() {
         assert!(output.stderr.is_empty(), "{output:?}");
         let stdout = String::from_utf8(output.stdout).unwrap();
         assert!(
-            stdout.contains("deep.rb: error: AST exceeds maximum depth of 64"),
+            stdout.contains("deep.rb: error: AST exceeds maximum depth of 4096"),
             "{stdout}"
         );
         if args.contains(&"other.rb") {
@@ -382,13 +382,13 @@ fn excessive_ast_depth_is_a_file_error_and_fix_never_writes_it() {
     assert!(
         String::from_utf8(output.stdout)
             .unwrap()
-            .contains("AST exceeds maximum depth of 64")
+            .contains("AST exceeds maximum depth of 4096")
     );
 }
 
 #[test]
 fn parser_stack_is_bounded_on_default_parallel_workers() {
-    for levels in [1000, 12_000] {
+    for levels in [2100, 12_000] {
         let source = format!(
             "{}{}",
             "def foo(*args)\nbar(*args)  \n".repeat(levels),
@@ -418,8 +418,8 @@ fn parser_stack_is_bounded_on_default_parallel_workers() {
             assert!(output.stderr.is_empty(), "{output:?}");
             let stdout = String::from_utf8(output.stdout).unwrap();
             assert!(stdout.contains("Lint/Debugger"), "{stdout}");
-            let diagnostic = if levels == 1000 {
-                "AST exceeds maximum depth of 64"
+            let diagnostic = if levels == 2100 {
+                "AST exceeds maximum depth of 4096"
             } else {
                 "syntax error on line"
             };
@@ -621,7 +621,7 @@ fn rejected_receiver_chains_are_destroyed_safely_and_other_files_are_linted() {
             assert!(output.stderr.is_empty(), "{output:?}");
             let stdout = String::from_utf8(output.stdout).unwrap();
             let diagnostic = if source == &deep {
-                "AST exceeds maximum depth of 64"
+                "AST exceeds maximum depth of 4096"
             } else {
                 "syntax error on line"
             };
@@ -3515,7 +3515,7 @@ fn fix_preserves_path_specific_exclusions_across_symlink_aliases() {
         assert_eq!(output.status.code(), Some(1), "{output:?}");
         assert!(output.stderr.is_empty(), "{output:?}");
         let lines = stdout_lines(&output);
-        assert!(lines[0].starts_with("z.rb:1:1: E: Remove debugger"));
+        assert!(lines[0].starts_with("z.rb:1:1: W: Remove debugger"));
         assert_eq!(
             lines.last().unwrap(),
             if fix {
@@ -3625,7 +3625,7 @@ fn fix_does_not_rewrite_parse_errors_and_continues_to_other_files() {
     let output = rustocop(dir.path(), &["--fix", "--only", "Lint/Debugger"], "");
     assert_eq!(output.status.code(), Some(2), "{output:?}");
     let text = String::from_utf8_lossy(&output.stdout);
-    assert!(text.contains("good.rb:1:1: E: Remove debugger"));
+    assert!(text.contains("good.rb:1:1: W: Remove debugger"));
     assert!(text.contains("bad.rb: error: syntax error"));
     assert!(text.contains("2 files inspected, 0 corrections applied, 1 offense remaining"));
     assert_eq!(
@@ -3651,7 +3651,7 @@ fn default_and_dot_paths_are_normalized_in_text_output() {
         assert_eq!(
             lines,
             [
-                "ok.rb:1:1: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)",
+                "ok.rb:1:1: W: Remove debugger entry point `binding.pry`. (Lint/Debugger)",
                 "",
                 "1 file inspected, 1 offense detected",
             ],

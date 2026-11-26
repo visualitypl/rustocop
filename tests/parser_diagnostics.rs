@@ -1,5 +1,6 @@
 //! Actual parser deliveries precede selection, directives and fixes.
 //! Syntax fixture sources: RuboCop (MIT), Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Cop, Registry},
@@ -16,14 +17,6 @@ use std::{
 };
 
 const WARNINGS: &str = "Lint/AmbiguousOperator,Lint/AmbiguousRegexpLiteral";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(root: &Path, args: &[&str], input: Option<&[u8]>, code: i32) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -150,7 +143,7 @@ fn syntax_and_resource_errors_never_dispatch_ordinary_lifecycles() {
 
 #[test]
 fn fatal_errors_ignore_cop_selection_configuration_and_directives_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rubocop", "rustocop"] {
         let source = format!(
@@ -207,7 +200,7 @@ fn fatal_errors_ignore_cop_selection_configuration_and_directives_without_writes
 
 #[test]
 fn syntax_named_fatal_selection_and_global_buffer_errors_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [b"(".as_slice(), b"# \xf9\nfail\n"] {
         fs::write(&path, source).unwrap();
@@ -284,7 +277,7 @@ fn syntax_named_fatal_selection_and_global_buffer_errors_never_write() {
 
 #[test]
 fn syntax_directive_scopes_never_suppress_fatal_delivery() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rustocop", "rubocop"] {
         for scope in [
             format!("# {prefix}:disable Lint/Syntax\n"),
@@ -310,7 +303,7 @@ fn syntax_directive_scopes_never_suppress_fatal_delivery() {
 
 #[test]
 fn syntax_expanded_positions_keep_encoded_original_bytes_and_observers() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (prefix, column) in [
         (b"\xef\xbb\xbf\"\xc3\xa9\"; ".as_slice(), 6),
@@ -354,7 +347,7 @@ fn syntax_expanded_positions_keep_encoded_original_bytes_and_observers() {
 
 #[test]
 fn syntax_admission_keeps_minimal_strict_configuration() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"(").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -483,7 +476,7 @@ fn fatal_lifecycle_is_opt_in_isolated_and_cannot_bypass_rejection() {
 
 #[test]
 fn both_prefixes_multiline_next_and_push_scopes_filter_only_warning_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         let source = format!(
             "# {prefix}:disable Lint/AmbiguousOperator\nfoo *args\n# {prefix}:enable Lint/AmbiguousOperator\n# {prefix}:disable-next Lint/AmbiguousRegexpLiteral\np /pattern/\n# {prefix}:push\n# {prefix}:disable Lint\nfoo *args\np /pattern/\n# {prefix}:pop\nfoo *args\np /pattern/\n"
@@ -500,8 +493,8 @@ fn both_prefixes_multiline_next_and_push_scopes_filter_only_warning_findings() {
             .filter(|l| l.contains("(Lint/Ambiguous"))
             .collect();
         assert_eq!(findings.len(), 2, "{text}");
-        assert!(findings[0].starts_with("lib/a.rb:11:5: E:"), "{text}");
-        assert!(findings[1].starts_with("lib/a.rb:12:3: E:"), "{text}");
+        assert!(findings[0].starts_with("lib/a.rb:11:5: W:"), "{text}");
+        assert!(findings[1].starts_with("lib/a.rb:12:3: W:"), "{text}");
     }
 }
 
@@ -509,7 +502,7 @@ fn both_prefixes_multiline_next_and_push_scopes_filter_only_warning_findings() {
 #[test]
 fn rejected_input_preserves_readonly_symlink_target_and_other_files_can_fix() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let alias = dir.path().join("lib/link.rb");
     let source = b"foo *args\nfail\n(\n";

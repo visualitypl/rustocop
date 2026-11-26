@@ -1,16 +1,11 @@
 //! controlled local path semantics, correction composition and no-write.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
     process::{Command, Output},
 };
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn fix(dir: &Path, cop: &str, path: &str, status: i32) {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

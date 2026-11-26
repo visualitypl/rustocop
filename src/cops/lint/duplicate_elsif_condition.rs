@@ -54,10 +54,7 @@ impl Cop for DuplicateElsifCondition {
                     previous.source_buffer_scope_eq(&key, file)
                 })
             {
-                let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                    condition.location().start_offset(),
-                    file,
-                );
+                let (line, col) = file.reference_line_col(condition.location().start_offset());
                 // A nested chain is walked from the outer `if` too; report
                 // each condition once (RuboCop keeps one offense per range).
                 let reported = out

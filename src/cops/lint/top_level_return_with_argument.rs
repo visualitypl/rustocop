@@ -64,7 +64,7 @@ impl Cop for TopLevelReturnWithArgument {
         }
         let start = ret.keyword_loc().start_offset();
         let end = ast::source_end(node);
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

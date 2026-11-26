@@ -56,10 +56,7 @@ impl Cop for UselessDefaultValueArgument {
         if default.as_keyword_hash_node().is_some() {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            default.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(default.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -200,7 +197,7 @@ mod tests {
                 .iter()
                 .map(|o| {
                     assert!(o.correction.is_none());
-                    assert_eq!(o.severity, crate::offense::Severity::Error);
+                    assert_eq!(o.severity, crate::offense::Severity::Warning);
                     (o.line, o.col, o.end_line, o.message.clone())
                 })
                 .collect();

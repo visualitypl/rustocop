@@ -1,4 +1,5 @@
 //! real CLI controls, bytes, runtime observations and composition.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -27,13 +28,6 @@ const CASES: [(&str, &str, &str); 4] = [
         "module M \n  1\nend\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -45,7 +39,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 }
 #[test]
 fn defaults_selectors_config_and_no_write_contract() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     for (cop, before, after) in CASES {
@@ -91,7 +85,7 @@ fn defaults_selectors_config_and_no_write_contract() {
 }
 #[test]
 fn exclusions_directives_and_cross_highlight_atomicity() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         for config in [
@@ -129,7 +123,7 @@ fn exclusions_directives_and_cross_highlight_atomicity() {
 }
 #[test]
 fn parenthesized_namespace_directives_use_only_the_inner_highlight() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, header) in [
         ("Style/TrailingBodyOnClass", "class C"),
@@ -175,7 +169,7 @@ fn parenthesized_namespace_directives_use_only_the_inner_highlight() {
 #[test]
 fn stdin_reports_without_writing_display_path() {
     use std::{io::Write, process::Stdio};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, source, _) in CASES {
         fs::write(&path, source).unwrap();
@@ -202,7 +196,7 @@ fn stdin_reports_without_writing_display_path() {
 }
 #[test]
 fn clean_error_and_individually_uncertain_files_preserve_bytes_and_mtime() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, status) in [
         ("def f = 1\nclass C; 1; end\nmodule M; 1; end\n", 0),
@@ -231,7 +225,7 @@ fn clean_error_and_individually_uncertain_files_preserve_bytes_and_mtime() {
 }
 #[test]
 fn bom_crlf_encoding_literal_and_raw_data_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "\u{feff}# encoding: UTF-8\r\ndef f\r\n  \"café\" end\r\nclass C; \"a\r\nb\"\r\nend\r\nmodule M; 3 # docs\r\nend\r\n__END__\r\nraw; end\r\n".as_bytes(),
@@ -270,7 +264,7 @@ fn controlled_ruby_binding_evaluation_visibility_returns_control_flow_and_litera
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = r#"$events = []
 p __LINE__
@@ -325,7 +319,7 @@ fn controlled_ruby_declaration_results_inline_line_values_and_interpolated_hered
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, harness) in [
         (
@@ -370,7 +364,7 @@ fn trailing_method_bodies_preserve_runtime_binding_defaults_visibility_and_contr
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = r#"$events = []
 p __LINE__
@@ -447,7 +441,7 @@ fn trailing_method_body_declaration_results_preceding_expressions_and_all_visibi
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let mut cases = vec![(
         "$events = []\ndef foo; $events << :foo; end\nfoo;def f; $events << :body\n  7\nend\n"
@@ -484,7 +478,7 @@ fn sibling_deferred_heredoc_values_and_method_returns_are_preserved() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for opener in ["<<TXT", "<<-TXT", "<<~TXT", "<<'TXT'", "<<\"TXT\""] {
         let source = format!("x = {opener};def f; 1\npayload\nTXT\nend\np [x, f]\n");
@@ -516,7 +510,7 @@ fn trailing_shebang_comments_do_not_activate_interpreter_options() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, header, observation) in [
         ("Style/TrailingBodyOnMethodDefinition", "def f", "puts f"),
@@ -550,7 +544,7 @@ fn trailing_shebang_comments_do_not_activate_interpreter_options() {
 }
 #[test]
 fn trailing_method_body_encoding_bom_crlf_comments_and_data_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, expected, status) in [
         (
@@ -604,7 +598,7 @@ fn trailing_method_body_encoding_bom_crlf_comments_and_data_bytes() {
 }
 #[test]
 fn trailing_method_body_default_style_layout_composition_preserves_runtime_and_stabilizes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(
         dir.path().join("rustocop.toml"),
@@ -640,7 +634,7 @@ fn trailing_method_body_default_style_layout_composition_preserves_runtime_and_s
 }
 #[test]
 fn mixed_style_layout_composition_stabilizes_within_six_explicit_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "class C; def one; return ('x'); end\n  def two = [\n    2]\n  def three\n    3; end\nend\nmodule M; extend self\nend\n").unwrap();
     let only = format!(

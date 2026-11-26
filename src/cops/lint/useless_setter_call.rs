@@ -200,10 +200,10 @@ impl<'pr> NodeVisitor<'pr> for Tracker<'_, 'pr> {
                 .get(name)
                 .is_some_and(|origin| *origin >= frame.start)
         {
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, self.file);
+            let (line, col) = self.file.reference_line_col(offset);
             self.out.push(Offense {
                 cop: "Lint/UselessSetterCall",
-                severity: crate::offense::Severity::Error,
+                severity: crate::offense::Severity::Warning,
                 line,
                 col,
                 end_line: line,

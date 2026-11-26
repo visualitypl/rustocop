@@ -53,8 +53,7 @@ impl Cop for UnderscorePrefixedVariableName {
                     location.end = location.start + variable.name.len();
                 }
                 // Named captures deliberately retain the entire regexp receiver.
-                let (line, col) =
-                    super::array_literal_in_regexp::reference_line_col(location.start, file);
+                let (line, col) = file.reference_line_col(location.start);
                 out.push(Offense {
                     correction: None,
                     cop: self.name(),

@@ -94,8 +94,7 @@ impl View {
         }
     }
     fn new(regexp: &crate::cops::style::regexp_literal::Regexp<'_>, file: &SourceFile) -> Self {
-        let position =
-            super::duplicate_match_pattern::buffer_line_col(regexp.opening.end_offset(), file);
+        let position = file.buffer_line_col(regexp.opening.end_offset());
         let mut view = Self::empty(position);
         let mut previous = regexp.opening.end_offset();
         let mut shifted = false;
@@ -337,10 +336,7 @@ pub(super) fn unescaped_brackets(
     let view = if let Some(regexp) = regexp {
         View::new(regexp, file)
     } else {
-        let mut view = View::empty(super::duplicate_match_pattern::buffer_line_col(
-            content.start,
-            file,
-        ));
+        let mut view = View::empty(file.buffer_line_col(content.start));
         view.append(file, content, false);
         view
     };

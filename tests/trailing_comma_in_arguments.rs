@@ -1,4 +1,5 @@
 //! real selectors, safe deletion, byte and runtime observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -9,14 +10,6 @@ use std::{
 const COP: &str = "Style/TrailingCommaInArguments";
 const BEFORE: &str = "f(1,)\n";
 const AFTER: &str = "f(1)\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -30,7 +23,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn defaults_selectors_config_and_stable_one_pass_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     let cops: Vec<_> = registry.cops().iter().filter(|c| c.name() == COP).collect();
@@ -71,7 +64,7 @@ fn defaults_selectors_config_and_stable_one_pass_fix() {
 
 #[test]
 fn directives_anchor_the_comma_not_the_call_or_closing_delimiter() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rustocop", "rubocop"] {
         for target in [COP, "TrailingCommaInArguments", "Style", "all"] {
@@ -100,7 +93,7 @@ fn directives_anchor_the_comma_not_the_call_or_closing_delimiter() {
 
 #[test]
 fn config_relative_excludes_and_stdin_have_no_write_side_effects() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for config in [
         String::new(),
@@ -144,7 +137,7 @@ fn config_relative_excludes_and_stdin_have_no_write_side_effects() {
 
 #[test]
 fn comma_deletion_retains_bom_crlf_encoding_literals_comments_data_and_line() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "\u{feff}# encoding: UTF-8\r\np(\"café\",) # comment,\r\np __LINE__\r\n__END__\r\nraw,\r\n".as_bytes().to_vec(),
@@ -172,7 +165,7 @@ fn controlled_ruby_argument_count_order_keywords_blocks_and_destructuring() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = r#"$events = []
 def effect(value); $events << value; value; end
@@ -243,7 +236,7 @@ raw payload,
 
 #[test]
 fn available_call_forwarding_lambda_and_layout_peers_compose() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def sink(x)\n  x\nend\nf = lambda { |x| sink(x,) }\np f.(('x'),)\n";
     let peers = format!(
@@ -294,7 +287,7 @@ fn available_call_forwarding_lambda_and_layout_peers_compose() {
 
 #[test]
 fn forwarding_peer_atomic_rewrite_and_comma_deletion_do_not_partially_apply() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def target(*args, **kw)\n  [args, kw, yield]\nend\ndef relay(*args, **kwargs, &block)\n  target(*args, **kwargs, &block)\nend\np relay(1, k: 2,) { 3 }\n";
     fs::write(&path, source).unwrap();
@@ -334,7 +327,7 @@ fn incompatible_heredoc_layout_peer_is_exercised_when_available() {
         eprintln!("{peer} is not implemented; conditional pairing remains pending");
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "p(<<~TEXT,)\n  literal,\nTEXT\n").unwrap();
     let only = format!("{COP},{peer}");

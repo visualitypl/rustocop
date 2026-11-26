@@ -1,4 +1,5 @@
 //! real CLI, conservative corrections, and controlled Ruby observations.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -7,12 +8,6 @@ use std::{
 const COP: &str = "Style/TrivialAccessors";
 const BEFORE: &str = "class Foo\n  def foo; @foo; end\n  def foo=(val); @foo=val; end\nend\n";
 const AFTER: &str = "class Foo\n  attr_reader :foo\n  attr_writer :foo\nend\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

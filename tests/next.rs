@@ -1,15 +1,10 @@
 //! RuboCop next_spec.rb examples (MIT License, Copyright (c)
 //! 2012-26 Bozhidar Batsov), fixed-policy corrections and semantic witnesses.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const COP: &str = "Style/Next";
 const BAD: &str = "[].each do\n  if ready?\n    a\n    b\n    c\n  end\nend\n";
 const GOOD: &str = "[].each do\n  next unless ready?\n  a\n  b\n  c\nend\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

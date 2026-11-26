@@ -1,5 +1,6 @@
 //! fixed-policy reference examples and real CLI no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -11,20 +12,6 @@ const BLOCK: &str = "Lint/EmptyBlock";
 const CLASS: &str = "Lint/EmptyClass";
 const BOTH: &str = "Lint/EmptyBlock,Lint/EmptyClass";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -46,7 +33,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
 
 #[test]
 fn all_pinned_specs_documentation_and_controls_match_pipeline_and_rebuilt_cli_without_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/empty_contexts.json")).unwrap();
     assert_eq!(rows.as_array().unwrap().len(), 187);
@@ -73,7 +60,7 @@ fn all_pinned_specs_documentation_and_controls_match_pipeline_and_rebuilt_cli_wi
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -91,7 +78,7 @@ fn all_pinned_specs_documentation_and_controls_match_pipeline_and_rebuilt_cli_wi
         let stdout = String::from_utf8_lossy(&out.stdout);
         for (line, col, _, msg) in expected {
             assert!(
-                stdout.contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({cop})")),
+                stdout.contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({cop})")),
                 "{stdout}"
             );
         }
@@ -115,7 +102,7 @@ fn metadata_matches_actual_detection_only_default_policy() {
 
 #[test]
 fn defaults_selectors_and_department_precedence_preserve_source_without_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = b"each {}\nclass Foo\nend\n";
     for (config, select, expected) in [
         (String::new(), vec![], (1, 1)),
@@ -169,7 +156,7 @@ fn defaults_selectors_and_department_precedence_preserve_source_without_fix() {
 
 #[test]
 fn strict_toml_and_exclusions_use_supplied_path_without_invented_cop_gates() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = b"each {}\nclass Foo; end\n";
     for cop in [BLOCK, CLASS] {
         for key in [
@@ -217,7 +204,7 @@ fn strict_toml_and_exclusions_use_supplied_path_without_invented_cop_gates() {
 
 #[test]
 fn both_prefixes_multiline_next_and_push_directive_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable Lint\neach {{}}\nclass Foo; end\n"),
@@ -253,7 +240,7 @@ fn both_prefixes_multiline_next_and_push_directive_scopes() {
 
 #[test]
 fn stdin_path_is_provenance_never_a_write_target_and_stdin_fix_is_rejected() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -286,7 +273,7 @@ fn stdin_path_is_provenance_never_a_write_target_and_stdin_fix_is_rejected() {
             "{out:?}"
         );
         if expected.0 == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:1: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:1: W:"));
         }
     }
     let out = run(
@@ -302,7 +289,7 @@ fn stdin_path_is_provenance_never_a_write_target_and_stdin_fix_is_rejected() {
 
 #[test]
 fn source_envelopes_and_runtime_observer_text_never_receive_fabricated_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\neach {}\r\nclass Foo\r\nend\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# encoding: Windows-1252\np '\xe9'; each {}\nclass Foo; end\n",
@@ -318,7 +305,7 @@ fn source_envelopes_and_runtime_observer_text_never_receive_fabricated_edits() {
 
 #[test]
 fn invalid_source_atomic_failure_and_readonly_symlink_inputs_preserve_bytes_and_permissions() {
-    let dir = project();
+    let dir = project_with_lib();
     let invalid = b"each {}\nclass Foo; end\ndef broken(\n";
     let out = unchanged(
         dir.path(),

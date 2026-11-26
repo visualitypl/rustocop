@@ -1,5 +1,6 @@
 //! Pinned source-only replay, real CLI and authored native controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -19,20 +20,6 @@ fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
 }
 fn expected(row: &serde_json::Value) -> Vec<Finding> {
     crate::support::fixture::value(&row["findings"])
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -82,7 +69,7 @@ fn all_pinned_original_bytes_match_pipeline() {
             .iter()
             .filter(|o| o.cop == COP)
             .map(|o| {
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 assert!(o.correction.is_none());
                 (o.line, o.col, o.end_line, o.message.clone())
             })
@@ -112,7 +99,7 @@ fn opt_in_metadata_selectors_toml_path_and_stdin_provenance() {
     assert!(cop.safe_fixes());
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
-    let d = project();
+    let d = project_with_lib();
     for (config, selection, want) in [
         (String::new(), vec![], 0),
         (String::new(), vec!["--only", COP], 1),
@@ -192,7 +179,7 @@ fn opt_in_metadata_selectors_toml_path_and_stdin_provenance() {
 }
 #[test]
 fn both_prefixes_multiline_next_push_scopes_and_selection_boundaries() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!(
@@ -267,7 +254,7 @@ fn both_prefixes_multiline_next_push_scopes_and_selection_boundaries() {
 #[test]
 fn real_canonical_atomic_permissions_symlink_and_failure_controls() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, SAFE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();

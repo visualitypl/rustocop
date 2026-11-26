@@ -1,5 +1,6 @@
 //! Source-only pinned AST and CLI checks. Never execute fixture input.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -19,20 +20,6 @@ fn rows() -> Vec<serde_json::Value> {
         19
     );
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -101,7 +88,7 @@ fn pinned_main_source_original_bytes_and_send_shapes_match_without_edits() {
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -145,7 +132,7 @@ fn binary_comment_bytes_have_a_lossless_utf8_diagnostic_not_replacement_characte
         "`rand(\n # \\xE9\n 1\n)` always returns `0`. Perhaps you meant `rand(2)` or `rand`?"
     );
     assert!(o.correction.is_none());
-    let dir = project();
+    let dir = project_with_lib();
     let out = unchanged(
         dir.path(),
         bytes,

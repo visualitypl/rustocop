@@ -1,4 +1,5 @@
 //! real CLI, exact bytes and controlled Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -9,14 +10,6 @@ use std::{
 const COP: &str = "Style/MethodCallWithArgsParentheses";
 const BEFORE: &str = "object.test 1\n";
 const AFTER: &str = "object.test(1)\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -30,7 +23,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn opt_in_fix_selectors_config_and_no_write_contract() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, BEFORE).unwrap();
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -68,7 +61,7 @@ fn opt_in_fix_selectors_config_and_no_write_contract() {
 
 #[test]
 fn directives_exclusions_and_stdin_preserve_bytes_and_mtime() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rustocop", "rubocop"] {
         for target in [COP, "MethodCallWithArgsParentheses", "Style", "all"] {
@@ -143,7 +136,7 @@ fn directives_exclusions_and_stdin_preserve_bytes_and_mtime() {
 
 #[test]
 fn clean_macro_operator_setter_forwarding_and_error_files_are_not_written() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, status) in [
         (AFTER, 0),
@@ -165,7 +158,7 @@ fn clean_macro_operator_setter_forwarding_and_error_files_are_not_written() {
 
 #[test]
 fn statement_only_arguments_and_separators_do_not_abort_independent_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for argument in [
         "alias copied original",
@@ -191,7 +184,7 @@ fn statement_only_arguments_and_separators_do_not_abort_independent_fixes() {
 
 #[test]
 fn post_execution_arguments_do_not_abort_independent_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for argument in [
         "END {}",
@@ -232,7 +225,7 @@ fn controlled_ruby_observes_post_execution_arguments_and_at_exit_order() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let prelude = r#"$events = []
 at_exit { $events << :last; p $events }
@@ -280,7 +273,7 @@ def other(value); $events << [:other, value]; end
 
 #[test]
 fn incompatible_peers_defer_atomically_without_silently_disabling_either_cop() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     for (peer, source) in [
@@ -332,7 +325,7 @@ fn incompatible_peers_defer_atomically_without_silently_disabling_either_cop() {
 
 #[test]
 fn mixed_style_layout_is_deterministic_and_stabilizes_within_a_finite_bound() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def f\n  return (self::take 'x',{:key => 1});  \nend\n";
     let only = "Style/MethodCallWithArgsParentheses,Style/ColonMethodCall,Style/StringLiterals,Style/HashSyntax,Style/RedundantReturn,Style/RedundantParentheses,Style/Semicolon,Style/SignalException,Layout";

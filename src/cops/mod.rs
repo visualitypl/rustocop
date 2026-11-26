@@ -12,7 +12,7 @@ use ruby_prism::Node;
 use crate::{
     config::ResolvedConfig,
     isolation::{CaughtPanic, catch},
-    offense::{Department, GlobalOffense, Offense, Severity, department_of},
+    offense::{Department, GlobalOffense, Offense, Severity},
     source::SourceFile,
 };
 use settings::{Setting, Values};
@@ -108,9 +108,9 @@ pub trait Cop: Send + Sync {
         policy::path_policy(self.name())
     }
 
-    /// The cop's severity. Derived from the department by default.
+    /// The cop's severity: RuboCop's default for it.
     fn severity(&self) -> Severity {
-        Severity::for_department(department_of(self.name()))
+        Severity::for_cop(self.name())
     }
 
     /// The settings this cop takes in `rustocop.toml`, beyond `enabled` and

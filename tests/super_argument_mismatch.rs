@@ -1,6 +1,7 @@
 //! genuine no-index prerequisite, rebuilt CLI and no-write controls.
 //! Indexed detection is tested directly in the cop, not claimed as default parity.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -11,20 +12,6 @@ use std::{
 use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/SuperArgumentMismatch";
 const SOURCE: &str = "class Base\n  def run(first, second); end\nend\nclass Child < Base\n  def run(first)\n    super(first)\n  end\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -66,7 +53,7 @@ fn all_reference_sources_without_assigned_index_have_no_pipeline_or_cli_findings
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let dir = project();
+    let dir = project_with_lib();
     let rows = rows();
     assert_eq!(rows.len(), 302);
     for row in rows {
@@ -104,7 +91,7 @@ fn metadata_and_selection_remain_separate_from_input_prerequisite() {
     );
     assert!(cop.path_policy().is_none());
     assert!(cop.max_setting().is_none());
-    let dir = project();
+    let dir = project_with_lib();
     for (config_text, args, selected) in [
         (String::new(), vec![], true),
         (String::new(), vec!["--only", COP], true),
@@ -202,7 +189,7 @@ fn metadata_and_selection_remain_separate_from_input_prerequisite() {
 }
 #[test]
 fn excludes_and_supplied_file_stdin_path_provenance() {
-    let dir = project();
+    let dir = project_with_lib();
     let sentinel = dir.path().join("lib/display.rb");
     fs::write(&sentinel, "sentinel\n").unwrap();
     let old = fs::metadata(&sentinel).unwrap();
@@ -259,7 +246,7 @@ fn excludes_and_supplied_file_stdin_path_provenance() {
 }
 #[test]
 fn both_directive_prefixes_multiline_next_push_and_forced_enable_do_not_supply_index() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for directive in [
             format!("# {prefix}:disable Lint\n"),
@@ -310,7 +297,7 @@ fn both_directive_prefixes_multiline_next_push_and_forced_enable_do_not_supply_i
 }
 #[test]
 fn encoding_observers_and_parser_failures_preserve_source() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         format!(
             "\u{feff}# encoding: utf-8\r\n{}",
@@ -365,7 +352,7 @@ fn encoding_observers_and_parser_failures_preserve_source() {
 #[cfg(unix)]
 fn readonly_symlink_target_and_permissions_are_unchanged() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();

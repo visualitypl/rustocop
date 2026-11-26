@@ -1,5 +1,6 @@
 //! Source-only reference parity and actual CLI controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 fn lint_str(source: &str) -> Vec<rustocop::offense::Offense> {
     let registry = rustocop::cops::Registry::new();
     let cops: Vec<_> = registry.cops().iter().map(|c| c.as_ref()).collect();
@@ -29,20 +30,6 @@ fn source(row: &serde_json::Value) -> Vec<u8> {
         .as_str()
         .map(|s| s.as_bytes().to_vec())
         .unwrap_or_else(|| crate::support::fixture::value(&row["bytes"]))
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -126,7 +113,7 @@ fn all_rows_rebuilt_cli_lint_fix_preserve_bytes_mtime_permissions_inode() {
     parallel_rows!(for row in rows()
         .into_iter()
         .filter(|r| r["rejected_controls"].is_null()) => {
-        let dir = project();
+        let dir = project_with_lib();
         for cop in COPS {
             let findings = row[cop]["findings"].as_array().unwrap();
             for fix in [false, true] {
@@ -144,7 +131,7 @@ fn all_rows_rebuilt_cli_lint_fix_preserve_bytes_mtime_permissions_inode() {
                 for f in findings {
                     assert!(
                         String::from_utf8_lossy(&out.stdout).contains(&format!(
-                            "lib/a.rb:{}:{}: E: {} ({cop})",
+                            "lib/a.rb:{}:{}: W: {} ({cop})",
                             f[0],
                             f[1],
                             f[3].as_str().unwrap()
@@ -169,7 +156,7 @@ fn registry_fixed_defaults_selectors_strict_toml_department_precedence_and_exclu
                 && c.max_setting().is_none()
                 && c.autocorrect_incompatible_with().is_empty()
         );
-        let dir = project();
+        let dir = project_with_lib();
         for (cfg, args, n) in [
             (String::new(), vec![], 1),
             (String::new(), vec!["--only", cop], 1),
@@ -238,7 +225,7 @@ fn registry_fixed_defaults_selectors_strict_toml_department_precedence_and_exclu
 }
 #[test]
 fn directives_both_prefixes_multiline_range_next_push_pop_and_activation() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS
         .into_iter()
         .zip(["/(?<n>a)\n(b)/\n", "%w[a\n %i[b c]]\n"])
@@ -321,7 +308,7 @@ fn directives_both_prefixes_multiline_range_next_push_pop_and_activation() {
 }
 #[test]
 fn supplied_file_stdin_paths_builtins_and_stdin_fix_rejection() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for path in [
             "lib/a.rb",
@@ -374,7 +361,7 @@ fn readonly_symlink_fd_invalid_source_atomic_failure_and_real_peer_correction() 
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     symlink("a.rb", dir.path().join("lib/link.rb")).unwrap();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
@@ -444,7 +431,7 @@ fn readonly_symlink_fd_invalid_source_atomic_failure_and_real_peer_correction() 
 }
 #[test]
 fn source_observers_and_encoding_envelopes_still_have_no_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for suffix in [
         "p __LINE__\n",
         "p File.binread(__FILE__).bytesize\n",
@@ -469,7 +456,7 @@ fn authored_native_values_stay_unchanged_without_invented_intention_repairs() {
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     // Separately authored bounded programs, not pinned spec/doc/control input.
     for (cop, program, expected) in [
         (
@@ -537,7 +524,7 @@ fn capture_name_reference_boundaries_exact_pipeline_cli_native_syntax_and_no_wri
     use std::io::Read;
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/capture_reference_boundaries.json")).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     let registry = rustocop::cops::Registry::new();
     let cops: Vec<_> = registry
         .cops()
@@ -596,7 +583,7 @@ fn capture_name_reference_boundaries_exact_pipeline_cli_native_syntax_and_no_wri
                 for finding in expected {
                     assert!(
                         String::from_utf8_lossy(&out.stdout).contains(&format!(
-                            "lib/a.rb:{}:{}: E: {} ({cop})",
+                            "lib/a.rb:{}:{}: W: {} ({cop})",
                             finding[0],
                             finding[1],
                             finding[3].as_str().unwrap()

@@ -9,9 +9,15 @@ use ruby_prism::{Node, ProgramNode};
 use ruby_prism_sys::pm_node_t;
 
 /// Counts every AST node on a path, including Program/Statements/Arguments.
-/// Deliberately conservative for default 2 MiB test and Rayon worker stacks;
-/// this is not a configurable Ruby/style limit.
-pub const MAX_AST_DEPTH: usize = 64;
+/// Each file is checked and linted on a [`STACK_SIZE`] segment; release
+/// builds were measured at under 1.5 KB of stack per level for the deepest
+/// shapes (nested blocks, definitions, calls), which leaves a wide margin.
+/// This is not a configurable Ruby/style limit.
+pub const MAX_AST_DEPTH: usize = 4096;
+
+/// The stack a file's parse and lint run on, independent of the calling
+/// thread's (a Rayon worker's is 2 MiB). Only the pages used are committed.
+pub const STACK_SIZE: usize = 64 * 1024 * 1024;
 
 /// The first node (in Prism field order) beyond the supported depth.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -151,14 +157,22 @@ mod tests {
 
     #[test]
     fn accepts_exact_limit_and_rejects_the_next_node_deterministically() {
-        // Program > Statements > 61 Arrays > Integer = 64 nodes.
-        for (count, expected) in [(61, Ok(())), (62, Err(DepthError { offset: 62 }))] {
+        // Program > Statements > 4093 Arrays > Integer = 4096 nodes.
+        let arrays = MAX_AST_DEPTH - 3;
+        for (count, expected) in [
+            (arrays, Ok(())),
+            (arrays + 1, Err(DepthError { offset: arrays + 1 })),
+        ] {
             let source = format!("{}1{}", "[".repeat(count), "]".repeat(count));
-            let parsed = ruby_prism::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0);
-            let program = parsed.node().as_program_node().unwrap();
-            assert_eq!(check(&program), expected);
-            assert_eq!(check(&program), expected);
+            // A raw Prism parse and teardown recurse too: give them the
+            // stack the pipeline gives a file.
+            stacker::grow(STACK_SIZE, || {
+                let parsed = ruby_prism::parse(source.as_bytes());
+                assert_eq!(parsed.errors().count(), 0);
+                let program = parsed.node().as_program_node().unwrap();
+                assert_eq!(check(&program), expected);
+                assert_eq!(check(&program), expected);
+            });
         }
     }
 

@@ -1,5 +1,6 @@
 //! Real CLI controls and separately authored native safety witnesses.
 //! RuboCop spec fixtures: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ const COP: &str = "Lint/RedundantSplatExpansion";
 const SAFE: &[u8] = b"begin\n nil\nrescue *[First, Second]\n handler\nend\n";
 const AFTER: &[u8] = b"begin\n nil\nrescue First, Second\n handler\nend\n";
 const LIVE: &[u8] = b"begin\n work\nrescue *[First, Second]\n handler\nend\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(o: &Output) -> usize {
     String::from_utf8_lossy(&o.stdout)
         .lines()
@@ -68,7 +55,7 @@ fn fixed_metadata_and_actual_current_admission() {
 }
 #[test]
 fn selectors_strict_toml_enablement_department_and_excludes() {
-    let d = project();
+    let d = project_with_lib();
     for (cfg, selectors, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -132,7 +119,7 @@ fn selectors_strict_toml_enablement_department_and_excludes() {
 }
 #[test]
 fn supplied_paths_stdin_provenance_excludes_and_fix_rejection() {
-    let d = project();
+    let d = project_with_lib();
     for name in [
         "lib/source.arb",
         "lib/source.jb",
@@ -189,7 +176,7 @@ fn supplied_paths_stdin_provenance_excludes_and_fix_rejection() {
 #[test]
 fn atomic_validation_readonly_symlink_and_bounded_composition() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, SAFE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();
@@ -202,7 +189,7 @@ fn atomic_validation_readonly_symlink_and_bounded_composition() {
         Some(0)
     );
     assert_eq!(fs::read(&path).unwrap(), AFTER);
-    assert_ne!(inode, fs::metadata(&path).unwrap().ino());
+    assert_eq!(inode, fs::metadata(&path).unwrap().ino());
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640

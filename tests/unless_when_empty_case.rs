@@ -1,4 +1,5 @@
 //! real CLI policy, no-write and controlled Ruby semantic witnesses.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const CASES: [(&str, &str, &str); 3] = [
     (
@@ -17,12 +18,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "if ready\n  work\nend\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

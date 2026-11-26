@@ -1,4 +1,5 @@
 //! fixed policies, conservative fixes and controlled Ruby semantics.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::{RawConfig, ResolvedConfig},
     cops::{Registry, select_active},
@@ -17,13 +18,6 @@ const CASES: [(&str, &str); 3] = [
     ("Style/MixinGrouping", "class Test\n  include M, N\nend\n"),
 ];
 const SAFE: &str = "module Bar; end\nmodule Qux; end\nclass Foo\n  include Bar, Qux\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -80,7 +74,7 @@ fn registry_pipeline_fixed_defaults_and_no_version_or_path_gates() {
 
 #[test]
 fn canonical_fixes_compose_with_semicolon_and_layout_without_oscillation() {
-    let dir = project();
+    let dir = project_with_lib();
     fs::write(dir.path().join("lib/a.rb"), SAFE).unwrap();
     let args = [
         "--only",
@@ -100,7 +94,7 @@ fn canonical_fixes_compose_with_semicolon_and_layout_without_oscillation() {
 
 #[test]
 fn stdin_is_no_write_and_accepts_all_assigned_selectors() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in CASES {
         let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
             .current_dir(dir.path())
@@ -143,7 +137,7 @@ fn run_ruby(source: &str) -> Option<Vec<u8>> {
 }
 #[test]
 fn corrected_core_mixins_preserve_observable_ancestors_nesting_return_and_lookup() {
-    let dir = project();
+    let dir = project_with_lib();
     for method in ["include", "extend", "prepend"] {
         for kind in ["class", "module"] {
             let before = SAFE
@@ -166,7 +160,7 @@ fn corrected_core_mixins_preserve_observable_ancestors_nesting_return_and_lookup
 }
 #[test]
 fn unsafe_module_function_and_top_level_usage_keep_binding_visibility_and_object_effects() {
-    let dir = project();
+    let dir = project_with_lib();
     let module_source = "module Outer\n  VALUE = :lexical\n  module Inner\n    extend self\n    def read; VALUE; end\n  end\nend\nmodule Outer::Inner\n  def read; :redefined; end\nend\n";
     let observe = "p Outer::Inner.read; p Outer::Inner.private_instance_methods(false).include?(:read); p Outer::Inner.instance_methods(false).include?(:read); p Outer::Inner.singleton_class.ancestors.map(&:name)\n";
     unchanged(

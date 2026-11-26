@@ -1,4 +1,5 @@
 //! public pipeline, source bytes and controlled Ruby runtime evidence.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -16,12 +17,6 @@ const CASES: [(&str, &str, &str); 3] = [
     ),
     (REDUNDANT, "foo.sum(0)\n", "foo.sum(0)\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

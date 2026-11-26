@@ -1,4 +1,5 @@
 //! Fixed-policy contract through the real CLI, using only implemented cops.
+use crate::support::cli::project_with_lib;
 use crate::support::stdin;
 
 use std::{
@@ -54,17 +55,9 @@ fn run_cli(
     }
 }
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-
 #[test]
 fn existing_opt_in_is_default_off_and_only_or_per_cop_enabled() {
-    let dir = project();
+    let dir = project_with_lib();
     // Keep the broad --only Style check clean for opt-in Copyright, while
     // still omitting the frozen-string header under test.
     fs::write(
@@ -106,7 +99,7 @@ fn existing_opt_in_is_default_off_and_only_or_per_cop_enabled() {
 
 #[test]
 fn method_call_parentheses_is_opt_in_and_except_wins() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/MethodCallWithArgsParentheses";
     let original = "object.test 1\n";
     let path = dir.path().join("lib/a.rb");
@@ -136,7 +129,7 @@ fn method_call_parentheses_is_opt_in_and_except_wins() {
 
 #[test]
 fn method_call_parentheses_config_enables_and_selectors_override() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/MethodCallWithArgsParentheses";
     fs::write(
         dir.path().join("rustocop.toml"),
@@ -170,7 +163,7 @@ fn method_call_parentheses_config_enables_and_selectors_override() {
 
 #[test]
 fn method_call_parentheses_excludes_apply_before_detection_and_fixing() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/MethodCallWithArgsParentheses";
     let source = "object.test 1\n";
     let path = dir.path().join("lib/a.rb");
@@ -200,7 +193,7 @@ fn method_call_parentheses_excludes_apply_before_detection_and_fixing() {
 
 #[test]
 fn method_call_parentheses_only_writes_reviewed_safe_corrections() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/MethodCallWithArgsParentheses";
     let path = dir.path().join("lib/a.rb");
     for (source, status) in [
@@ -255,7 +248,7 @@ fn method_call_parentheses_only_writes_reviewed_safe_corrections() {
 
 #[test]
 fn pinned_exclude_applies_to_explicit_file_and_stdin_not_just_directory_walks() {
-    let dir = project();
+    let dir = project_with_lib();
     fs::write(dir.path().join("lib/a.arb"), "puts 1\n").unwrap();
     let cop = "Style/FrozenStringLiteralComment";
     for (cwd, path) in [("", "lib/a.arb"), ("lib", "a.arb")] {
@@ -281,7 +274,7 @@ fn pinned_exclude_applies_to_explicit_file_and_stdin_not_just_directory_walks() 
 
 #[test]
 fn exclusions_are_config_relative_from_nested_cwd_for_files_and_stdin() {
-    let dir = project();
+    let dir = project_with_lib();
     fs::write(dir.path().join("lib/a.rb"), "puts 1\n").unwrap();
     for config in [
         "exclude = [\"lib/a.rb\"]\n",
@@ -314,7 +307,7 @@ fn exclusions_are_config_relative_from_nested_cwd_for_files_and_stdin() {
 
 #[test]
 fn nested_path_exclusions_prevent_corrections_as_well_as_reports() {
-    let dir = project();
+    let dir = project_with_lib();
     let original = "puts 'x'\n";
     for config in [
         "exclude = [\"lib/a.rb\"]\n",
@@ -340,7 +333,7 @@ fn nested_path_exclusions_prevent_corrections_as_well_as_reports() {
 
 #[test]
 fn endless_method_is_default_on_and_selectors_override_config() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/EndlessMethod";
     let source = "def foo = [\n  1\n]\n";
     for (config, selectors, expected) in [
@@ -383,7 +376,7 @@ fn endless_method_is_default_on_and_selectors_override_config() {
 
 #[test]
 fn endless_method_exclusions_are_config_relative_and_apply_with_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/EndlessMethod";
     let source = "def foo = [\n  1]\n";
     let path = dir.path().join("lib/a.rb");
@@ -413,7 +406,7 @@ fn endless_method_exclusions_are_config_relative_and_apply_with_fix() {
 
 #[test]
 fn endless_method_report_only_honors_directive_spans() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/EndlessMethod";
     let path = dir.path().join("lib/a.rb");
     let mut cases = vec![
@@ -447,7 +440,7 @@ fn endless_method_report_only_honors_directive_spans() {
 
 #[test]
 fn arguments_forwarding_defaults_selectors_and_enabling_use_the_real_cli() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/ArgumentsForwarding";
     let source = "def foo(*args)\n  bar(*args)\nend\n";
     for (config, selectors, expected) in [
@@ -491,7 +484,7 @@ fn arguments_forwarding_defaults_selectors_and_enabling_use_the_real_cli() {
 
 #[test]
 fn arguments_forwarding_respects_config_relative_exclusions_with_or_without_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/ArgumentsForwarding";
     let source = "def foo(*args); bar(*args); end\n";
     let path = dir.path().join("lib/a.rb");
@@ -521,7 +514,7 @@ fn arguments_forwarding_respects_config_relative_exclusions_with_or_without_fix(
 
 #[test]
 fn arguments_forwarding_honors_directives_and_never_writes_without_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/ArgumentsForwarding";
     let path = dir.path().join("lib/a.rb");
     let bad = "def foo(*args); bar(*args); end\n";
@@ -574,7 +567,7 @@ fn arguments_forwarding_honors_directives_and_never_writes_without_fix() {
 
 #[test]
 fn block_delimiters_defaults_selectors_and_config_use_the_real_cli() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/BlockDelimiters";
     let source = "items.each do |item| item end\n";
     for (config, selectors, expected) in [
@@ -627,7 +620,7 @@ fn block_delimiters_defaults_selectors_and_config_use_the_real_cli() {
 
 #[test]
 fn block_delimiters_exclusions_apply_from_nested_cwd_with_or_without_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/BlockDelimiters";
     let source = "items.each do |x| x end\n";
     let path = dir.path().join("lib/a.rb");
@@ -657,7 +650,7 @@ fn block_delimiters_exclusions_apply_from_nested_cwd_with_or_without_fix() {
 
 #[test]
 fn block_delimiters_directives_and_detection_mode_preserve_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Style/BlockDelimiters";
     let path = dir.path().join("lib/a.rb");
     let bad = "each { |x|\n x\n}\n";
@@ -699,7 +692,7 @@ fn block_delimiters_directives_and_detection_mode_preserve_bytes() {
 // all Eval fixtures are linted/parsed as source, never executed.
 #[test]
 fn security_eval_defaults_selectors_config_and_metadata() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Security/Eval";
     let source = "binding.eval(code)\n";
     for (config, selectors, expected) in [
@@ -740,7 +733,7 @@ fn security_eval_defaults_selectors_config_and_metadata() {
         if expected {
             assert!(
                 output.contains(
-                    "lib/a.rb:1:9: E: The use of `eval` is a serious security risk. (Security/Eval)"
+                    "lib/a.rb:1:9: W: The use of `eval` is a serious security risk. (Security/Eval)"
                 ),
                 "{output}"
             );
@@ -760,7 +753,7 @@ fn security_eval_defaults_selectors_config_and_metadata() {
 
 #[test]
 fn security_eval_fixtures_are_valid_host_and_native_ruby_source_without_execution() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     // Undefined inputs deliberately cannot be run. Ruby is invoked ONLY with
     // -c; neither interpolation nor any eval input is ever executed.
@@ -800,7 +793,7 @@ fn security_eval_fixtures_are_valid_host_and_native_ruby_source_without_executio
 
 #[test]
 fn security_eval_exclusions_cover_nested_paths_stdin_and_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Security/Eval";
     let path = dir.path().join("lib/a.rb");
     let source = "Kernel.eval(code)\n";
@@ -832,7 +825,7 @@ fn security_eval_exclusions_cover_nested_paths_stdin_and_fix() {
 
 #[test]
 fn security_eval_detection_only_preserves_findings_bytes_and_mtime() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Security/Eval";
     let path = dir.path().join("lib/a.rb");
     for (source, count) in [
@@ -898,7 +891,7 @@ fn security_eval_detection_only_preserves_findings_bytes_and_mtime() {
 
 #[test]
 fn security_eval_directives_use_selector_only_ranges_and_cannot_bypass_except() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Security/Eval";
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rustocop", "rubocop"] {
@@ -1004,7 +997,7 @@ fn ns03_cases() -> [(&'static str, &'static str, u32, &'static str); 2] {
 
 #[test]
 fn ns04_directives_protect_the_entire_atomic_binding_and_stdin_never_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, statement, _, _) in ns04_cases() {
         for prefix in ["rustocop", "rubocop"] {
@@ -1072,7 +1065,7 @@ fn ns04_directives_protect_the_entire_atomic_binding_and_stdin_never_writes() {
 
 #[test]
 fn ns04_legacy_encodings_preserve_identifier_bindings_and_withhold_invalid_interior_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (encoding, letter) in [
         ("UTF-8", "é".as_bytes()),
@@ -1160,7 +1153,7 @@ fn ns04_ruby(ruby: &std::ffi::OsStr, path: &std::path::Path) -> Option<std::proc
 
 #[test]
 fn ns04_existing_canonical_fixes_and_style_layout_composition_remain_single_pass() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def +(arg); arg; end\nbegin; rescue => error; fail; error; end\n";
     fs::write(&path, source).unwrap();
@@ -1205,7 +1198,7 @@ const FILE_NAME: &str = "Naming/FileName";
 
 #[test]
 fn ns10_default_selectors_config_and_metadata_use_actual_stdin_filename() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, expected) in [
         (String::new(), vec![], true),
         (String::new(), vec!["--only", FILE_NAME], true),
@@ -1282,7 +1275,7 @@ fn ns10_default_selectors_config_and_metadata_use_actual_stdin_filename() {
 
 #[test]
 fn ns10_excludes_and_pinned_root_rakefile_policy_are_config_relative() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = "print 1\n";
     let path = dir.path().join("lib/badName.rb");
     fs::write(&path, source).unwrap();
@@ -1357,7 +1350,7 @@ fn ns10_excludes_and_pinned_root_rakefile_policy_are_config_relative() {
 
 #[test]
 fn ns10_global_directives_are_at_line_one_and_respect_selector_precedence() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rustocop", "rubocop"] {
         for (source, flagged) in [
             (format!("# {prefix}:disable {FILE_NAME}\nprint 1\n"), false),
@@ -1427,7 +1420,7 @@ fn ns10_every_pinned_and_source_case_is_detection_only_through_real_fix() {
 
 #[test]
 fn ns10_path_matrix_uses_actual_stdin_paths_and_never_accesses_or_creates_them() {
-    let dir = project();
+    let dir = project_with_lib();
     let mut rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns10_paths.json")).unwrap();
     rows.extend(
@@ -1506,7 +1499,7 @@ fn ns10_path_matrix_uses_actual_stdin_paths_and_never_accesses_or_creates_them()
 
 #[test]
 fn ns10_root_stdin_reports_exact_basename_without_writes_and_rejects_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let witness = dir.path().join("lib/BadName.rb");
     for source in [
         "print 1\n",
@@ -1552,7 +1545,7 @@ fn ns10_root_stdin_reports_exact_basename_without_writes_and_rejects_fix() {
 
 #[test]
 fn ns10_fix_preserves_bytes_mtime_filename_permissions_and_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/badName.rb");
     for source in [
         "print 1\n",
@@ -1608,7 +1601,7 @@ fn ns10_fix_preserves_bytes_mtime_filename_permissions_and_findings() {
 
 #[test]
 fn ns10_diagnostics_survive_canonical_naming_style_and_layout_peer_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/badName.rb");
     fs::write(&path, "def +(arg); arg; end\nfail  \n").unwrap();
     let run = cli(
@@ -1635,7 +1628,7 @@ fn ns10_diagnostics_survive_canonical_naming_style_and_layout_peer_fixes() {
 #[test]
 fn ns10_supplied_symlink_names_not_targets_and_permission_bits_are_not_shebangs() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let target = dir.path().join("lib/good.rb");
     fs::write(&target, "print 1\n").unwrap();
     fs::set_permissions(&target, fs::Permissions::from_mode(0o755)).unwrap();
@@ -1715,7 +1708,7 @@ fn ns10_native_ruby34_syntax_only_evidence_for_all_pinned_sources() {
         serde_json::from_str(include_str!("fixtures/ns10_pinned.json")).unwrap();
     let matrix: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns10_paths.json")).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/badName.rb");
     let mut seen = std::collections::BTreeSet::new();
     for row in rows.iter().chain(&matrix) {
@@ -1757,7 +1750,7 @@ fn ns09_cases() -> [(&'static str, &'static str, u32, &'static str); 1] {
 
 #[test]
 fn ns09_opt_in_selectors_config_and_real_metadata() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, expected) in [
         (String::new(), vec![], false),
         (String::new(), vec!["--only", INCLUSIVE_LANGUAGE], true),
@@ -1812,7 +1805,7 @@ fn ns09_opt_in_selectors_config_and_real_metadata() {
 
 #[test]
 fn ns09_supplied_paths_are_diagnostic_only_and_never_renamed() {
-    let dir = project();
+    let dir = project_with_lib();
     for (path, message) in [
         (
             "lib/whitelist.rb",
@@ -1889,7 +1882,7 @@ fn ns09_all_fixed_policy_spec_adaptations_and_source_examples_are_no_write() {
 
 #[test]
 fn ns09_existing_canonical_naming_style_and_layout_fixes_survive() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "whitelist = 1  \ndef +(arg); arg; end\nfail\n";
     fs::write(&path, source).unwrap();
@@ -1933,7 +1926,7 @@ fn ns09_existing_canonical_naming_style_and_layout_fixes_survive() {
 
 #[test]
 fn ns09_native_syntax_encoded_boundaries_and_runtime_no_write_evidence() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     if let Some(ruby) = crate::support::runtime::ruby_os() {
         let version = Command::new(&ruby)
@@ -2024,7 +2017,7 @@ fn ns09_native_syntax_encoded_boundaries_and_runtime_no_write_evidence() {
 
 #[test]
 fn ns09_encoded_pin_projections_keep_diagnostics_and_never_rewrite() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns09_encoding.json")).unwrap();
@@ -2133,7 +2126,7 @@ fn ns04_cases() -> [(&'static str, &'static str, u32, &'static str); 2] {
 
 #[test]
 fn fixed_naming_defaults_selectors_config_and_metadata() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source, col, message) in ns02_cases()
         .into_iter()
         .chain(ns03_cases())
@@ -2217,7 +2210,7 @@ fn fixed_naming_defaults_selectors_config_and_metadata() {
 
 #[test]
 fn fixed_naming_exclusions_are_config_relative_for_files_stdin_and_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, source, _, _) in ns02_cases()
         .into_iter()
@@ -2257,7 +2250,7 @@ fn fixed_naming_exclusions_are_config_relative_for_files_stdin_and_fix() {
 
 #[test]
 fn fixed_naming_directives_and_source_enables_respect_selector_precedence() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, statement, _, _) in ns02_cases()
         .into_iter()
@@ -2331,7 +2324,7 @@ fn fixed_naming_directives_and_source_enables_respect_selector_precedence() {
 
 #[test]
 fn fixed_naming_detection_only_preserves_envelopes_findings_bytes_and_mtime() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, statement, _, _) in ns02_cases()
         .into_iter()
@@ -2385,7 +2378,7 @@ fn fixed_naming_detection_only_preserves_envelopes_findings_bytes_and_mtime() {
 
 #[test]
 fn ns02_fixed_options_are_not_public_configuration() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, key, value) in [
         ("Naming/AsciiIdentifiers", "AsciiConstants", "false"),
         ("Naming/BlockParameterName", "MinNameLength", "2"),
@@ -2413,7 +2406,7 @@ fn ns02_fixed_options_are_not_public_configuration() {
 
 #[test]
 fn ns02_reports_survive_an_existing_canonical_neighbor_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "föö_1 = 1\nfoo { |aB| }\nfail\n";
     fs::write(&path, source).unwrap();
@@ -2442,7 +2435,7 @@ fn ns02_reports_survive_an_existing_canonical_neighbor_fix() {
 
 #[test]
 fn ns02_destructured_highlight_uses_encoded_first_child_text_length() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let cop = "Naming/BlockParameterName";
     for (encoding, letter) in [
@@ -2466,7 +2459,7 @@ fn ns02_destructured_highlight_uses_encoded_first_child_text_length() {
 
 #[test]
 fn ns02_review_regressions_through_cli_fix_preserve_bytes_and_mtime() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let mut cases = Vec::new();
     for encoding in ["Shift_JIS", "Windows-31J"] {
@@ -2549,7 +2542,7 @@ fn ns02_review2_decoded_symbols_and_destructured_comments_are_detection_only() {
         }));
     }
     if let Some(ruby) = crate::support::runtime::ruby_os() {
-        let dir = project();
+        let dir = project_with_lib();
         let path = dir.path().join("lib/a.rb");
         for call in &calls {
             fs::write(&path, call["source"].as_str().unwrap()).unwrap();
@@ -2563,7 +2556,7 @@ fn ns02_review2_decoded_symbols_and_destructured_comments_are_detection_only() {
 
 #[test]
 fn ns02_ascii_selector_ownership_preserves_nested_and_encoded_names_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let cop = "Naming/AsciiIdentifiers";
     for (encoding, letter) in [
@@ -2671,7 +2664,7 @@ fn ns11_predicate_elsif_controls_are_native_valid_and_detection_only() {
     for row in &mut rows {
         row["cop"] = "Naming/PredicateMethod".into();
         if let Some(ruby) = crate::support::runtime::ruby_os() {
-            let dir = project();
+            let dir = project_with_lib();
             let path = dir.path().join("lib/a.rb");
             fs::write(&path, row["source"].as_str().unwrap()).unwrap();
             let run = Command::new(&ruby).arg("-c").arg(&path).output().unwrap();
@@ -2683,7 +2676,7 @@ fn ns11_predicate_elsif_controls_are_native_valid_and_detection_only() {
 
 #[test]
 fn ns08_native_syntax_and_encoded_method_name_columns() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let pinned: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/ns08_pinned.json")).unwrap();
@@ -2751,7 +2744,7 @@ fn ns08_native_syntax_and_encoded_method_name_columns() {
 
 #[test]
 fn ns08_preserves_canonical_peer_fixes_and_rejects_new_settings() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def foo; true; end\nfail\n";
     fs::write(&path, source).unwrap();
@@ -2820,7 +2813,7 @@ fn ns07_all_pinned_specs_source_and_syntax_are_detection_only_through_real_fix()
 
 #[test]
 fn ns07_native_syntax_pinned_shapes_and_encoded_identifier_positions() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let pinned: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/ns07_pinned.json")).unwrap();
@@ -2886,7 +2879,7 @@ fn ns07_native_syntax_pinned_shapes_and_encoded_identifier_positions() {
 
 #[test]
 fn ns07_preserves_canonical_neighbor_fixes_and_rejects_style_settings() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def foo; @bad ||= 1; end\nfail\n";
     fs::write(&path, source).unwrap();
@@ -2938,7 +2931,7 @@ fn ns03_all_pinned_specs_and_source_examples_are_detection_only_through_real_fix
 
 #[test]
 fn ns03_predicate_spec_exclusion_is_project_relative_not_a_name_heuristic() {
-    let dir = project();
+    let dir = project_with_lib();
     let cop = "Naming/PredicatePrefix";
     let source =
         "# rustocop:enable Naming/PredicatePrefix\ndef is_ready; false; end\ndef get_value; end\n";
@@ -3012,7 +3005,7 @@ fn ns03_predicate_spec_exclusion_is_project_relative_not_a_name_heuristic() {
 
 #[test]
 fn ns03_pinned_and_legacy_sources_have_host_and_native_syntax_witnesses() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let pinned: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/ns03_pinned.json")).unwrap();
@@ -3096,7 +3089,7 @@ fn ns03_pinned_and_legacy_sources_have_host_and_native_syntax_witnesses() {
 
 #[test]
 fn ns03_detection_survives_an_existing_canonical_neighbor_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def get_value; end\ndef does_work; false; end\nfail\n";
     fs::write(&path, source).unwrap();
@@ -3124,7 +3117,7 @@ fn ns03_detection_survives_an_existing_canonical_neighbor_fix() {
 }
 
 fn assert_ns02_calls_preserve_bytes_and_mtime(calls: &[serde_json::Value]) {
-    let dir = project();
+    let dir = project_with_lib();
     for call in calls {
         let cop = call["cop"].as_str().unwrap();
         let source = call["source"].as_str().unwrap();
@@ -3156,7 +3149,7 @@ fn assert_ns02_calls_preserve_bytes_and_mtime(calls: &[serde_json::Value]) {
         );
         assert!(output.contains("0 corrections applied"));
         let severity = if cop.starts_with("Security/") {
-            "E"
+            "W"
         } else {
             "C"
         };
@@ -3186,7 +3179,7 @@ fn assert_ns02_calls_preserve_bytes_and_mtime(calls: &[serde_json::Value]) {
 
 #[test]
 fn ns11_four_actual_canonical_fixes_preserve_controlled_native_runtime_together() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let before = "class Box\n  def +(arg); arg + 1; end\nend\ndef sink; yield 4; end\ndef run(&callback)\n  sink(&callback)\nend\nbegin\n  raise 'controlled'\nrescue => error\n  caught = error.message\nend\ntext = <<~sql\nvalue\nsql\np [Box.new + 2, run { |value| value * 2 }, caught, text]\n";
     let after = before
@@ -3234,10 +3227,10 @@ fn ns11_four_actual_canonical_fixes_preserve_controlled_native_runtime_together(
             io::Read,
             os::unix::fs::{MetadataExt, PermissionsExt},
         };
-        assert_ne!(
+        assert_eq!(
             fs::metadata(&path).unwrap().ino(),
             inode,
-            "atomic replacement"
+            "written in place"
         );
         assert_eq!(
             fs::metadata(&path).unwrap().permissions().mode() & 0o777,
@@ -3246,8 +3239,8 @@ fn ns11_four_actual_canonical_fixes_preserve_controlled_native_runtime_together(
         let mut old_bytes = String::new();
         original.read_to_string(&mut old_bytes).unwrap();
         assert_eq!(
-            old_bytes, before,
-            "open descriptor still sees original inode"
+            old_bytes, after,
+            "an open descriptor sees the file written in place"
         );
     }
     let mtime = fs::metadata(&path).unwrap().modified().unwrap();
@@ -3266,7 +3259,7 @@ fn ns11_four_actual_canonical_fixes_preserve_controlled_native_runtime_together(
 
 #[test]
 fn ns11_yaml_version_inactivity_survives_selection_config_and_source_opt_ins() {
-    let dir = project();
+    let dir = project_with_lib();
     for config in [
         "",
         "[cops.Security]\nenabled = true\n",
@@ -3316,7 +3309,7 @@ fn ns11_all_eleven_inherited_cops_source_examples_are_detection_only_and_native_
     );
     assert_ns02_calls_preserve_bytes_and_mtime(&rows);
     let registry = rustocop::cops::Registry::new();
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for row in rows {
         let cop = row["cop"].as_str().unwrap();
@@ -3350,7 +3343,7 @@ fn ns11_all_eleven_inherited_cops_source_examples_are_detection_only_and_native_
 
 #[test]
 fn ns02_legacy_positions_uppercase_and_native_syntax_witnesses() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (encoding, letter) in [
         ("UTF-8", "É".as_bytes()),
@@ -3426,7 +3419,7 @@ fn ns05_pinned_specs_corrections_and_source_run_through_real_cli() {
         serde_json::from_str(include_str!("fixtures/ns05_source.json")).unwrap();
     let syntax: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/ns05_syntax.json")).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for call in fixture["calls"]
         .as_array()
@@ -3489,7 +3482,7 @@ fn ns05_pinned_specs_corrections_and_source_run_through_real_cli() {
 
 #[test]
 fn ns05_atomic_directives_stdin_path_and_no_write_controls() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rustocop", "rubocop"] {
         for source in [
@@ -3559,7 +3552,7 @@ fn ns05_atomic_directives_stdin_path_and_no_write_controls() {
 
 #[test]
 fn ns05_source_comments_encoding_bom_crlf_line_and_data_envelopes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (before, after) in [
         (BLOCK_FORWARDING_BEFORE.to_owned(), NS05_AFTER.to_owned()),
@@ -3660,7 +3653,7 @@ fn ns05_each_of_the_five_pinned_incompatible_peers_withholds_only_edits() {
             "Style/MethodDefParentheses"
         ]
     );
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for peer in peers {
         for only in [
@@ -3688,7 +3681,7 @@ fn ns05_each_of_the_five_pinned_incompatible_peers_withholds_only_edits() {
 
 #[test]
 fn ns05_style_peers_keep_diagnostics_and_compose_in_bounded_explicit_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for peers in [
         "Naming/BlockForwarding,Style/ArgumentsForwarding",
@@ -3754,7 +3747,7 @@ fn ns05_native_ruby34_runtime_forwarding_evaluation_identity_control_flow_and_li
         .output()
         .unwrap();
     assert!(version.status.success(), "{version:?}");
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let prefix = r#"$events=[]
 def sink(*args, **kw, &cb)
@@ -3841,7 +3834,7 @@ fn ns05_native_counterexamples_justify_reflection_and_channel_withholds() {
     let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, naive) in [
         (
@@ -3896,7 +3889,7 @@ fn ns05_native_syntactic_matches_never_authorize_unrelated_or_stranded_reads() {
     let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, prefix, suffix, naive) in [
         (
@@ -3971,7 +3964,7 @@ fn ns05_native_external_conversion_witnesses_the_two_pinned_correction_holds() {
     };
     let fixture: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/ns05_pinned.json")).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (line, prefix, suffix) in [
         (
@@ -4026,7 +4019,7 @@ const NS06_NAMING: &str = "Naming/HeredocDelimiterNaming";
 
 #[test]
 fn ns06_pinned_calls_source_and_syntax_matrix_run_through_cli() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let fixture: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/ns06_pinned.json")).unwrap();
@@ -4085,7 +4078,7 @@ fn ns06_pinned_calls_source_and_syntax_matrix_run_through_cli() {
 
 #[test]
 fn ns06_atomic_disabled_anchors_comments_stdin_provenance_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rustocop", "rubocop"] {
         for source in [
@@ -4180,7 +4173,7 @@ fn ns06_atomic_disabled_anchors_comments_stdin_provenance_and_no_write() {
 
 #[test]
 fn ns06_legacy_label_bytes_ascii_only_renames_and_non_utf8_envelope_holds() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (encoding, lower, upper) in [
         ("ISO-8859-1", b"\xe9".as_slice(), b"\xc9".as_slice()),
@@ -4303,7 +4296,7 @@ fn ns06_legacy_label_bytes_ascii_only_renames_and_non_utf8_envelope_holds() {
 
 #[test]
 fn unknown_cops_and_style_or_version_parameters_remain_errors() {
-    let dir = project();
+    let dir = project_with_lib();
     for config in [
         "TargetRubyVersion = \"4.0\"\n",
         "[cops.Style]\nexclude = []\n",

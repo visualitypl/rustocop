@@ -83,21 +83,21 @@ module Oracle
   # A known deviation from tools/oracle/baseline.txt.
   BaselineEntry = Struct.new(:id, :cop, :signature, :reason, :comment, keyword_init: true)
 
-  # `path:line:col: E: message (Cop/Name)`, as `--format text` prints it. A
+  # `path:line:col: W: message (Cop/Name)`, as `--format text` prints it. A
   # message quoting multi-line source (as RuboCop's do) spans several lines.
   OFFENSE_LINE = %r{
-    \A(?<path>e\d+/.*?):(?<line>\d+):(?<col>\d+):\s[EC]:\s(?<message>.*)
+    \A(?<path>e\d+/.*?):(?<line>\d+):(?<col>\d+):\s[CEFRW]:\s(?<message>.*)
     \s\((?<cop>[A-Za-z]+/[A-Za-z0-9]+)\)\z
   }xm.freeze
   # An offense record whose message continues on the next output line.
-  OFFENSE_START = %r{\Ae\d+/.*?:\d+:\d+:\s[EC]:\s}.freeze
+  OFFENSE_START = %r{\Ae\d+/.*?:\d+:\d+:\s[CEFRW]:\s}.freeze
   # A syntax error on stdout, an internal error (a panic) on stderr.
   ERROR_LINE = %r{\A(?<path>e\d+/.*?)(?::\d+:\d+)?: (?<message>(?:internal )?error: .*)\z}.freeze
 
   # A location-free finding. RuboCop's expect_offense writes one as a `^{}`
   # annotation on the first line (line 1, column 1), so it is compared there.
   GLOBAL_LINE = %r{
-    \A(?<path>e\d+/.*?):\s[EWC]:\s(?<message>.*)
+    \A(?<path>e\d+/.*?):\s[CEFRW]:\s(?<message>.*)
     \s\((?<cop>[A-Za-z]+/[A-Za-z0-9]+)\)\z
   }x.freeze
 

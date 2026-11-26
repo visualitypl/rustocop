@@ -13,7 +13,7 @@ seconds.
 
 ```console
 $ rustocop app
-app/order.rb:3:5: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)
+app/order.rb:3:5: W: Remove debugger entry point `binding.pry`. (Lint/Debugger)
 app/order.rb:4:15: C: Pass `&:price` as an argument to `map` instead of a block. (Style/SymbolProc)
 app/order.rb:8:5: C: Prefer double-quoted strings unless you need single quotes to avoid extra backslashes for escaping. (Style/StringLiterals)
 app/order.rb:8:17: C: Favor `format` over `String#%`. (Style/FormatString)

@@ -55,10 +55,7 @@ impl Cop for UnexpectedBlockArity {
         if actual >= 2 {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            call.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(call.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

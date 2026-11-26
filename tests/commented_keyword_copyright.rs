@@ -1,4 +1,5 @@
 //! fixed defaults, selectors and byte/runtime preservation through CLI.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -15,14 +16,6 @@ const CASES: &[(&str, &str, &str, bool)] = &[
     ),
     ("Style/Copyright", "# header\n", "1:1", false),
 ];
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -54,7 +47,7 @@ fn exact_registration_fixed_defaults_and_correction_classification() {
 
 #[test]
 fn defaults_only_except_config_enabling_and_never_write_without_an_edit() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, source, position, default) in CASES {
         fs::write(&path, source).unwrap();
@@ -116,7 +109,7 @@ fn defaults_only_except_config_enabling_and_never_write_without_an_edit() {
 
 #[test]
 fn directives_and_additive_config_relative_excludes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, body, _, _) in CASES {
         for prefix in ["rubocop", "rustocop"] {
@@ -158,7 +151,7 @@ fn directives_and_additive_config_relative_excludes() {
 
 #[test]
 fn headers_crlf_bom_legacy_encodings_literals_data_and_errors_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         b"#!/usr/bin/env ruby\n# encoding: UTF-8\n# frozen_string_literal: true\nclass X # comment\nend\np __LINE__\n".as_slice(),
@@ -208,7 +201,7 @@ fn controlled_ruby_observations_and_directive_scope_remain_identical() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "#!/usr/bin/env ruby\n# encoding: UTF-8\n# frozen_string_literal: true\nmodule M # description\n  class X # details\n    def self.value # keep\n      [__LINE__, \"é\".encoding.name, \"a\".frozen?]\n    end # close method\n  end # close class\nend # close module\nx = 0\nbegin # meaningful\n  x += 1\nensure\n  x += 10\nend # keep\np [M::X.value, x, __LINE__, DATA.read.bytes]\n__END__\nend # raw data\n",
@@ -238,7 +231,7 @@ fn controlled_ruby_observations_and_directive_scope_remain_identical() {
 
 #[test]
 fn stdin_obeys_selectors_excludes_and_directives_without_writing_display_file() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "untouched\n").unwrap();
     for (cop, source, position, _) in CASES {
@@ -294,7 +287,7 @@ fn stdin_obeys_selectors_excludes_and_directives_without_writing_display_file() 
 
 #[test]
 fn notice_and_annotation_configuration_cannot_expand_the_fixed_policy() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, option) in [
         ("Style/Copyright", "notice"),
         ("Style/Copyright", "autocorrect_notice"),
@@ -315,7 +308,7 @@ fn notice_and_annotation_configuration_cannot_expand_the_fixed_policy() {
 
 #[test]
 fn unrelated_safe_style_and_layout_edits_do_not_hide_uncorrectable_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "class X # keep\nend\nx = 'text';  \nx\n").unwrap();
     let only = "Style/CommentedKeyword,Style/Copyright,Style/StringLiterals,Style/Semicolon,Layout/TrailingWhitespace";

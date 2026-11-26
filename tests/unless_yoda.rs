@@ -1,5 +1,6 @@
 //! Pinned RuboCop style/{unless_logical_operators,yoda_condition,
 //! yoda_expression}_spec.rb examples (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use serde::Deserialize;
 use std::{fs, path::Path, process::Command};
 const COPS: [&str; 3] = [
@@ -8,12 +9,6 @@ const COPS: [&str; 3] = [
     "Style/YodaExpression",
 ];
 const SOURCES: [&str; 3] = ["work unless a || b && c\n", "1 == value\n", "1 + value\n"];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> std::process::Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

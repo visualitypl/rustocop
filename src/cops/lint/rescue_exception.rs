@@ -44,10 +44,7 @@ impl Cop for RescueException {
         if !targets_exception {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            rescue.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(rescue.location().start_offset());
         out.push(Offense {
             correction: None,
             cop: self.name(),

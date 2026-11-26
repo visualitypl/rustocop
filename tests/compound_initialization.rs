@@ -1,6 +1,7 @@
 //! pinned source-only fixtures and real detection-only CLI controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
 //! Upstream unsafe edits in the fixture are evidence, not project corrections.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, select_active},
@@ -32,7 +33,7 @@ fn live_metadata_is_default_on_ruby34_ungated_and_detection_only() {
 
 #[test]
 fn selectors_toml_precedence_and_strict_validation() {
-    let dir = project();
+    let dir = project_with_lib();
     for cop in [CONSTANT, CONSTRUCTOR] {
         for (config, selectors, expected) in [
             (String::new(), vec![], 1),
@@ -101,7 +102,7 @@ fn selectors_toml_precedence_and_strict_validation() {
 
 #[test]
 fn both_directive_prefixes_scope_only_the_operator_not_multiline_rhs() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, assignment, source) in [
         (CONSTANT, "X ||= 1", "X ||=\n  1\n"),
         (
@@ -167,7 +168,7 @@ fn both_directive_prefixes_scope_only_the_operator_not_multiline_rhs() {
 
 #[test]
 fn supplied_paths_stdin_provenance_and_builtin_exclusions() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in ["lib/a.arb", "lib/a.jb", "Rakefile", "lib/.hidden.rb"] {
         fs::write(dir.path().join(path), SOURCE).unwrap();
         let out = run(dir.path(), &["--only", BOTH, path]);
@@ -216,7 +217,7 @@ fn supplied_paths_stdin_provenance_and_builtin_exclusions() {
 
 #[test]
 fn byte_envelopes_and_source_runtime_observers_never_enable_unsafe_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in [
         b"\xef\xbb\xbf".as_slice(),
         b"# coding: ISO-8859-1\n# \xe9\n",
@@ -267,7 +268,7 @@ fn byte_envelopes_and_source_runtime_observers_never_enable_unsafe_fixes() {
 #[test]
 fn symlink_readonly_invalid_and_atomic_composition_reuse_shared_controls() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -310,7 +311,7 @@ fn symlink_readonly_invalid_and_atomic_composition_reuse_shared_controls() {
         fs::read(&path).unwrap(),
         b"X ||= 1\ndef initialize\n @x ||= 1\nend\np [1, 2]\n"
     );
-    assert_ne!(old.ino(), fs::metadata(&path).unwrap().ino());
+    assert_eq!(old.ino(), fs::metadata(&path).unwrap().ino());
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -343,7 +344,7 @@ fn native_fixture_syntax_only_and_authored_semantic_counterexamples() {
         }
     }
     // Only these authored scripts are executed, never reference/corpus sources.
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         "X = :original\nX ||= :replacement\np X\n",
         "class Base\n def initialize\n  @x ||= :base\n end\n attr_reader :x\nend\nclass Derived < Base\n def initialize\n  @x = :derived\n  super\n end\nend\np Derived.new.x\n",
@@ -375,20 +376,6 @@ fn native_fixture_syntax_only_and_authored_semantic_counterexamples() {
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/compound_initialization.json")).unwrap()
 }
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -415,7 +402,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: Option<i32>) -> 
 fn every_pinned_spec_documentation_and_control_has_exact_pipeline_diagnostics() {
     let registry = Registry::new();
     let config = ResolvedConfig::default();
-    let dir = project();
+    let dir = project_with_lib();
     let rows = rows();
     assert_eq!(rows.len(), 522);
     for row in rows {
@@ -459,7 +446,7 @@ fn every_pinned_spec_documentation_and_control_has_exact_pipeline_diagnostics() 
             for finding in &actual {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({cop})",
+                        "lib/a.rb:{}:{}: W: {} ({cop})",
                         finding[0],
                         finding[1],
                         finding[3].as_str().unwrap()

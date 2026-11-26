@@ -3524,16 +3524,18 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "AST exceeds maximum depth of 64")]
+    #[should_panic(expected = "AST exceeds maximum depth of 4096")]
     fn standalone_analysis_rejects_deep_definitions_without_stack_overflow() {
         let mut source = String::new();
-        for i in 0..100 {
+        for i in 0..2100 {
             source.push_str(&format!("def foo{i}(*args)\nbar(*args)\n"));
         }
-        source.push_str(&"end\n".repeat(100));
+        source.push_str(&"end\n".repeat(2100));
         let parsed = ruby_prism::parse(source.as_bytes());
         assert_eq!(parsed.errors().count(), 0);
-        ScopeAnalysis::of(&parsed.node().as_program_node().unwrap());
+        stacker::grow(super::super::depth::STACK_SIZE, || {
+            ScopeAnalysis::of(&parsed.node().as_program_node().unwrap());
+        });
     }
 
     #[test]

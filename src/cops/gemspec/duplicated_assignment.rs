@@ -43,8 +43,7 @@ impl Cop for DuplicatedAssignment {
                 a.attribute.clone(),
                 index,
             );
-            let (line, col) =
-                crate::cops::lint::reference_line_col(a.node.location().start_offset(), file);
+            let (line, col) = file.reference_line_col(a.node.location().start_offset());
             if let Some(first_line) = first.get(&key) {
                 // Selectors are already projected by the structural helper;
                 // only the raw index source still needs source-buffer decoding.

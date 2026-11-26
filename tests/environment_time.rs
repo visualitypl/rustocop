@@ -1,4 +1,5 @@
 //! real selectors and controlled subprocess ENV; no ambient values used.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -7,12 +8,6 @@ use std::{
 const HOME: &str = "Style/EnvHome";
 const FETCH: &str = "Style/FetchEnvVar";
 const DATE: &str = "Style/DateTime";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

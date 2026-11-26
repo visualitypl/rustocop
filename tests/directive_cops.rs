@@ -1,4 +1,5 @@
 //! selectors, directive immunity, conservative fixes and Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -6,13 +7,6 @@ use std::{
 };
 const SCOPE: &str = "Style/DirectiveScope";
 const BAN: &str = "Style/DisableCopsWithinSourceCodeDirective";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(cwd: &Path, args: &[&str], code: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(cwd)
@@ -47,7 +41,7 @@ fn registry_defaults_and_safety() {
 }
 #[test]
 fn default_opt_in_selectors_config_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let scope =
         "# rubocop:disable Migration/Nonexistent\nwork\n# rubocop:enable Migration/Nonexistent\n";
@@ -111,7 +105,7 @@ fn default_opt_in_selectors_config_and_no_write() {
 }
 #[test]
 fn explicit_ban_ignores_self_disable_but_scope_honors_it() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rubocop", "rustocop"] {
         for target in [SCOPE, "Style", "all"] {
@@ -141,7 +135,7 @@ fn explicit_ban_ignores_self_disable_but_scope_honors_it() {
 }
 #[test]
 fn excludes_are_additive_config_relative_and_not_bypassed() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source =
         "# rubocop:disable Migration/Nonexistent\nwork\n# rubocop:enable Migration/Nonexistent\n";
@@ -164,7 +158,7 @@ fn excludes_are_additive_config_relative_and_not_bypassed() {
 }
 #[test]
 fn signed_all_removals_preserve_other_cop_diagnostics() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let only = format!("{BAN},Lint/Debugger");
     for prefix in ["rubocop", "rustocop"] {
@@ -187,7 +181,7 @@ fn signed_all_removals_preserve_other_cop_diagnostics() {
                 for out in [&original, &fixed] {
                     let text = String::from_utf8_lossy(&out.stdout);
                     assert!(
-                        text.contains("lib/a.rb:2:1: E:") && text.contains("(Lint/Debugger)"),
+                        text.contains("lib/a.rb:2:1: W:") && text.contains("(Lint/Debugger)"),
                         "{source}: {text}"
                     );
                 }
@@ -201,7 +195,7 @@ fn signed_all_removals_preserve_other_cop_diagnostics() {
 }
 #[test]
 fn bom_crlf_encoding_line_literals_and_data_bytes_survive() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for encoding in ["UTF-8", "ASCII-8BIT", "Windows-1252"] {
         let bom = if encoding == "UTF-8" { "\u{feff}" } else { "" };
@@ -223,7 +217,7 @@ fn bom_crlf_encoding_line_literals_and_data_bytes_survive() {
 #[test]
 fn stdin_uses_display_path_excludes_and_never_writes() {
     use std::{io::Write, process::Stdio};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "original bytes\n").unwrap();
     let source =

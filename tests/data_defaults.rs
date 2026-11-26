@@ -1,5 +1,6 @@
 //! pinned source-only examples, fixed policy and rebuilt CLI no-write.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ use std::{
 const COPS: [&str; 2] = ["Lint/DataDefineOverride", "Lint/SharedMutableDefault"];
 const SOURCES: [&str; 2] = ["Data.define(:members)\n", "Hash.new([])\n"];
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -49,7 +36,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: Option<i32>) -> 
 
 #[test]
 fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/data_defaults.json")).unwrap();
     assert_eq!(rows.as_array().unwrap().len(), 489);
@@ -76,7 +63,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -94,7 +81,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
         let stdout = String::from_utf8_lossy(&out.stdout);
         for (line, col, _, msg) in expected {
             assert!(
-                stdout.contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({cop})")),
+                stdout.contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({cop})")),
                 "{stdout}"
             );
         }
@@ -126,7 +113,7 @@ fn metadata_default_on_ruby34_detection_only_without_paths_settings_or_future_ad
 
 #[test]
 fn selectors_department_precedence_and_source_activation_without_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for (config, select, expected) in [
             (String::new(), vec![], 1),
@@ -173,7 +160,7 @@ fn selectors_department_precedence_and_source_activation_without_fix_never_write
 
 #[test]
 fn strict_toml_exclusions_and_supplied_file_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for key in [
             "max = 1",
@@ -236,7 +223,7 @@ fn strict_toml_exclusions_and_supplied_file_paths() {
 
 #[test]
 fn both_prefixes_multiline_ranges_next_and_push_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let multiline = if cop == COPS[0] {
             "Data.define(\n :\"members\"\n)\n"
@@ -304,7 +291,7 @@ fn both_prefixes_multiline_ranges_next_and_push_scopes() {
 
 #[test]
 fn stdin_path_is_provenance_and_fix_is_rejected() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -334,7 +321,7 @@ fn stdin_path_is_provenance_and_fix_is_rejected() {
             if expected == 1 {
                 let col = if cop == COPS[0] { 13 } else { 1 };
                 assert!(
-                    String::from_utf8_lossy(&out.stdout).contains(&format!("lib/a.rb:1:{col}: E:"))
+                    String::from_utf8_lossy(&out.stdout).contains(&format!("lib/a.rb:1:{col}: W:"))
                 );
             }
         }
@@ -353,7 +340,7 @@ fn stdin_path_is_provenance_and_fix_is_rejected() {
 
 #[test]
 fn source_envelopes_observers_and_non_utf8_never_receive_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for src in [
             format!(
@@ -396,7 +383,7 @@ fn existing_layout_correction_composes_atomically_and_readonly_failure_retains_f
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
-        let dir = project();
+        let dir = project_with_lib();
         let before = format!("{source}values = [1,2]\n");
         let after = format!("{source}values = [1, 2]\n");
         let only = format!("{cop},Layout/SpaceAfterComma");
@@ -413,8 +400,8 @@ fn existing_layout_correction_composes_atomically_and_readonly_failure_retains_f
         assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
         let mut old_bytes = Vec::new();
         original.read_to_end(&mut old_bytes).unwrap();
-        assert_eq!(old_bytes, before.as_bytes());
-        assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+        assert_eq!(old_bytes, after.as_bytes());
+        assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
         assert_eq!(
             fs::metadata(&path).unwrap().permissions().mode() & 0o777,
             0o640
@@ -441,10 +428,10 @@ fn existing_layout_correction_composes_atomically_and_readonly_failure_retains_f
 #[test]
 fn invalid_resource_io_and_readonly_symlink_controls_preserve_originals() {
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
-        let dir = project();
+        let dir = project_with_lib();
         for src in [
             format!("{source}def broken(\n"),
-            format!("{source}{}nil\n", "x = ".repeat(80)),
+            format!("{source}{}nil{}\n", "[".repeat(4100), "]".repeat(4100)),
         ] {
             let out = unchanged(
                 dir.path(),

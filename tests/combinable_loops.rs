@@ -1,16 +1,11 @@
 //! real CLI controls and unsafe loop-fusion semantic witnesses.
 //! Pinned fixture examples: RuboCop style/combinable_loops_spec.rb
 //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const COP: &str = "Style/CombinableLoops";
 const SOURCE: &str = "items.each { |item| foo(item) }\nitems.each { |item| bar(item) }\n";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> std::process::Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

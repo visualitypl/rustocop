@@ -1,4 +1,5 @@
 //! fixed Struct/Data policies through the real pipeline and CLI.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::{RawConfig, ResolvedConfig},
     cops::{
@@ -32,13 +33,6 @@ const CASES: [(&str, &str, bool); 3] = [
         false,
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, cop: &str, args: &[&str], count: usize, status: i32) {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -108,7 +102,7 @@ fn pipeline_registration_defaults_gates_and_detection_only_contract() {
 
 #[test]
 fn cli_selection_config_directives_and_exclusions_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source, default) in CASES {
         let enable = format!("[cops.\"{cop}\"]\nenabled = true\n");
         let disable = format!("[cops.\"{cop}\"]\nenabled = false\n");
@@ -198,7 +192,7 @@ fn cli_selection_config_directives_and_exclusions_never_write() {
 
 #[test]
 fn rejects_public_version_and_style_knobs() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source, _) in CASES {
         for option in [
             "target_ruby_version = '3.1'",
@@ -225,7 +219,7 @@ fn rejects_public_version_and_style_knobs() {
 
 #[test]
 fn detection_only_preserves_bytes_line_data_encodings_and_error_files() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source, _) in CASES {
         for bytes in [
             format!(
@@ -274,7 +268,7 @@ fn detection_only_preserves_bytes_line_data_encodings_and_error_files() {
 
 #[test]
 fn mixed_safe_fixes_do_not_rewrite_superclasses_or_keyword_initialization() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "class Person < Struct.new(:a, keyword_init: true)\n  def foo\n    return { :key => 'value' };\n  end\nend\nclass Other < Data.define(:a)\nend\n";
     let expected = source
@@ -308,7 +302,7 @@ fn isolated_ruby_preserves_nesting_ancestors_callbacks_visibility_and_keyword_se
     if !available.is_ok_and(|o| o.status.success()) {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let source = r#"EVENTS = []
 VALUE = :outer
 module Mix

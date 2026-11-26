@@ -1,5 +1,6 @@
 //! real selectors/config/directives, no-write safety and Ruby flow witnesses.
 //! Pinned examples: RuboCop MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -9,12 +10,6 @@ const MODIFIER: &str = "Style/RescueModifier";
 const STANDARD: &str = "Style/RescueStandardError";
 const BOTH: &str = "Style/RescueModifier,Style/RescueStandardError";
 const SOURCE: &str = "begin\n  work rescue fallback\nrescue\n  handler\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

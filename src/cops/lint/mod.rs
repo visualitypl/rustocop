@@ -9,8 +9,6 @@ mod ambiguous_range;
 mod ambiguous_regexp_literal;
 mod argument_mismatch;
 mod array_literal_in_regexp;
-// Narrow opt-in seam for cops whose diagnostics follow the reference buffer.
-pub(crate) use array_literal_in_regexp::reference_line_col;
 mod assignment_in_condition;
 mod big_decimal_new;
 mod binary_operator_with_identical_operands;

@@ -1,4 +1,5 @@
 //! Pinned examples port RuboCop (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project_with_lib;
 use rustocop::cops::Registry;
 use std::{
     fs,
@@ -9,13 +10,6 @@ use std::{
 const COP: &str = "Lint/CopDirectiveSyntax";
 const BEFORE: &str = "# rubocop:disable Style/For # rubocop:disable Style/For\n";
 const AFTER: &str = "# rubocop:disable Style/For\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], code: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -55,7 +49,7 @@ fn actual_registry_defaults_cli_precedence_and_no_write() {
     assert!(c.path_policy().is_none() && c.max_setting().is_none());
     assert_eq!(c.ruby_versions(), Default::default());
     assert!(r.has_cop("Lint/Syntax"));
-    let dir = project();
+    let dir = project_with_lib();
     let p = dir.path().join("lib/a.rb");
     fs::write(&p, BEFORE).unwrap();
     let old = fs::metadata(&p).unwrap();
@@ -92,7 +86,7 @@ fn actual_registry_defaults_cli_precedence_and_no_write() {
         if code == 1 {
             assert!(
                 String::from_utf8_lossy(&out.stdout)
-                    .contains("lib/a.rb:1:1: E: Malformed directive comment detected.")
+                    .contains("lib/a.rb:1:1: W: Malformed directive comment detected.")
             );
         }
         assert_eq!(fs::read(&p).unwrap(), BEFORE.as_bytes());
@@ -103,7 +97,7 @@ fn actual_registry_defaults_cli_precedence_and_no_write() {
 }
 #[test]
 fn strict_toml_exclusions_and_supplied_paths_apply_to_files_and_stdin() {
-    let dir = project();
+    let dir = project_with_lib();
     for key in [
         "max = 2",
         "include = ['**/*']",
@@ -171,7 +165,7 @@ fn strict_toml_exclusions_and_supplied_paths_apply_to_files_and_stdin() {
 }
 #[test]
 fn both_prefixes_all_suppression_scopes_and_source_optins() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for scope in [
             format!("# {prefix}:disable {COP}\n{BEFORE}"),
@@ -203,7 +197,7 @@ fn both_prefixes_all_suppression_scopes_and_source_optins() {
 }
 #[test]
 fn qualified_names_are_valid_but_do_not_change_literal_suppression() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for name in ["Style/LineLength", "line_length", "Layout/LineLength"] {
             let source = format!("# {prefix}:disable {name}\n# {}\n", "x".repeat(130));
@@ -236,7 +230,7 @@ fn qualified_names_are_valid_but_do_not_change_literal_suppression() {
 }
 #[test]
 fn lint_style_layout_naming_security_composition_preserves_effective_suppression() {
-    let dir = project();
+    let dir = project_with_lib();
     let p = dir.path().join("lib/a.rb");
     let before = "# rubocop:disable Style/StringLiterals # rubocop:disable Style/StringLiterals\nbadName='value'\n[1].hash\n";
     let after = "# rubocop:disable Style/StringLiterals\nbadName = 'value'\n[1].hash\n";
@@ -264,7 +258,7 @@ fn repeated_markers_and_many_comments_do_not_require_root_rescans() {
             .repeat(3000)
             .trim_end_matches(" # ")
     );
-    let dir = project();
+    let dir = project_with_lib();
     fix(dir.path(), source.as_bytes(), AFTER.as_bytes());
     fix(
         dir.path(),
@@ -277,7 +271,7 @@ fn native_ruby34_controlled_binding_evaluation_flow_values_and_positions_match()
     let Some(ruby) = crate::support::runtime::ruby_os() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     // Only this owned, finite runtime witness is executed, never spec/corpus inputs.
     let body = "events = []\ndef f(events)\n events << :once\n [1, 2].map { |x| next x + 1 }\nensure\n events << :ensure\nend\np [f(events), events, __LINE__, 'value'.encoding.name]\np binding.local_variables.sort\n";
     let before = format!("{BEFORE}{body}");
@@ -295,7 +289,7 @@ fn native_ruby34_controlled_binding_evaluation_flow_values_and_positions_match()
 }
 #[test]
 fn parse_failure_is_no_write_and_symlink_fix_preserves_mode() {
-    let dir = project();
+    let dir = project_with_lib();
     let p = dir.path().join("lib/a.rb");
     let source = format!("{BEFORE}def broken(\n");
     fs::write(&p, &source).unwrap();

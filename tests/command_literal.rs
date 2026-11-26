@@ -1,5 +1,6 @@
 //! commands are NEVER executed, including via a stubbed backtick.
 //! All witnesses below inspect source or Prism ASTs only.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -7,12 +8,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Style/CommandLiteral";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

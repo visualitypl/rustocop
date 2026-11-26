@@ -1,4 +1,5 @@
 //! literal separator ownership, selectors, bytes and Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -21,13 +22,6 @@ const CASES: [(&str, &str, &str, bool); 3] = [
     ),
 ];
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -41,7 +35,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 #[test]
 fn exact_registration_defaults_and_plain_lint_are_read_only() {
     let registry = rustocop::cops::Registry::new();
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (name, before, _, safe) in CASES {
         let cops: Vec<_> = registry
@@ -74,7 +68,7 @@ fn exact_registration_defaults_and_plain_lint_are_read_only() {
 
 #[test]
 fn selectors_and_config_enable_disable_with_stable_safe_only_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (name, before, after, safe) in CASES {
         for config in [
@@ -113,7 +107,7 @@ fn selectors_and_config_enable_disable_with_stable_safe_only_fixes() {
 
 #[test]
 fn directives_support_both_prefixes_and_all_selector_forms() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (name, before, _, _) in CASES {
         for prefix in ["rustocop", "rubocop"] {
@@ -141,7 +135,7 @@ fn directives_support_both_prefixes_and_all_selector_forms() {
 
 #[test]
 fn literal_directives_anchor_the_comma_not_the_open_or_close() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (name, open, item, close) in [(ARRAY, "[", "1", "]"), (HASH, "{", "a: 1", "}")] {
         let source = format!(
@@ -162,7 +156,7 @@ fn literal_directives_anchor_the_comma_not_the_open_or_close() {
 
 #[test]
 fn config_relative_excludes_and_stdin_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (name, before, _, _) in CASES {
         for config in [
@@ -207,7 +201,7 @@ fn config_relative_excludes_and_stdin_never_write() {
 
 #[test]
 fn deletion_preserves_bom_crlf_legacy_encoding_comments_literals_data_and_line() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "\u{feff}# encoding: UTF-8\r\np [\"café\",]\r\np({a: \"café\",}) # comment,\r\np __LINE__\r\n__END__\r\nraw,\r\n".as_bytes().to_vec(),
@@ -236,7 +230,7 @@ fn controlled_ruby_values_insertion_order_evaluation_and_block_destructuring() {
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = r#"$events = []
 def effect(x); $events << x; x; end
@@ -297,7 +291,7 @@ payload,
 
 #[test]
 fn actual_default_and_selected_style_layout_peers_stabilize_and_preserve_runtime() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def sink(x)\n  x\nend\nf = lambda { |x| sink([x,],) }\np f.(({'a' => 'x',}),)\np [[1,2]].map { |(a,b),| [a,b,] }\n";
     let peers = format!(

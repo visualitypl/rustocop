@@ -58,10 +58,7 @@ impl Cop for TripleQuotes {
         let preserves_event_lines = file.line_of(first_survivor.location().start_offset())
             == file.line_of(node.location().start_offset())
             && file.last_line_of(last_survivor.location()) == file.last_line_of(node.location());
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            node.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(), severity: self.severity(), line, col,
             end_line: file.last_line_of(node.location()),

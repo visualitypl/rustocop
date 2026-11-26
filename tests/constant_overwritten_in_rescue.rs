@@ -1,5 +1,6 @@
 //! real CLI, source-only pinned fixtures and authored native witnesses.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ const COP: &str = "Lint/ConstantOverwrittenInRescue";
 const SAFE: &[u8] = b"begin\n  nil\nrescue => Error\nend\n";
 const AFTER: &[u8] = b"begin\n  nil\nrescue Error\nend\n";
 const REACHABLE: &[u8] = b"begin\n  something\nrescue => Error\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -65,7 +52,7 @@ fn metadata_and_current_only_admission_preserve_fixed_policy() {
 }
 #[test]
 fn selectors_strict_toml_department_precedence_and_exclusions() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, select, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -132,7 +119,7 @@ fn selectors_strict_toml_department_precedence_and_exclusions() {
 }
 #[test]
 fn supplied_paths_have_no_cop_gate_and_builtin_directory_exclusions_remain() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in [
         "lib/source.arb",
         "lib/source.jb",
@@ -157,7 +144,7 @@ fn supplied_paths_have_no_cop_gate_and_builtin_directory_exclusions_remain() {
 }
 #[test]
 fn stdin_path_provenance_exclusions_and_fix_rejection() {
-    let dir = project();
+    let dir = project_with_lib();
     fs::write(dir.path().join("lib/a.rb"), b"untouched\n").unwrap();
     let old = fs::metadata(dir.path().join("lib/a.rb")).unwrap();
     for (config, expected) in [
@@ -199,7 +186,7 @@ fn stdin_path_provenance_exclusions_and_fix_rejection() {
 #[test]
 fn atomic_symlink_readonly_validation_and_composition_share_existing_controls() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SAFE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();
@@ -208,7 +195,7 @@ fn atomic_symlink_readonly_validation_and_composition_share_existing_controls() 
     let out = run(dir.path(), &["--only", COP, "--fix", "lib/link.rb"]);
     assert_eq!(out.status.code(), Some(0), "{out:?}");
     assert_eq!(fs::read(&path).unwrap(), AFTER);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640

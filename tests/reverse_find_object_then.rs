@@ -1,4 +1,5 @@
 //! real selector/config/version and safe-correction contracts.
+use crate::support::cli::project;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, policy::RubyVersion, select_active},
@@ -11,12 +12,6 @@ use std::{
 };
 const THEN: &str = "Style/ObjectThen";
 const REVERSE: &str = "Style/ReverseFind";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

@@ -1,5 +1,6 @@
 //! Actual CLI, source-only reference replay and authored native proofs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -9,20 +10,6 @@ use std::{
 const COP: &str = "Lint/DuplicateMagicComment";
 const SAFE: &[u8] = b"# frozen_string_literal: true\n# frozen_string_literal: true\n";
 const HELD: &[u8] = b"# frozen_string_literal: true\n# frozen_string_literal: false\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -67,7 +54,7 @@ fn defaults_gates_selectors_strict_toml_and_department_precedence() {
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, n) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -131,7 +118,7 @@ fn defaults_gates_selectors_strict_toml_and_department_precedence() {
 }
 #[test]
 fn supplied_file_stdin_paths_built_in_exclusions_and_stdin_fix_rejection() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in [
         "lib/a.rb",
         "a.jb",

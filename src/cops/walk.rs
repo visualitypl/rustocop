@@ -74,8 +74,9 @@ pub trait NodeVisitor<'pr> {
 ///
 /// # Panics
 ///
-/// Panics beyond [`super::depth::MAX_AST_DEPTH`] instead of overflowing the
-/// stack. The lint pipeline rejects such files before invoking any visitor.
+/// Panics beyond [`super::depth::MAX_AST_DEPTH`] instead of overflowing a
+/// [`super::depth::STACK_SIZE`] stack. The lint pipeline rejects such files
+/// before invoking any visitor.
 pub fn walk<'pr, V: NodeVisitor<'pr> + ?Sized>(visitor: &mut V, node: &Node<'pr>) {
     let mut adapter = Adapter {
         visitor,
@@ -366,7 +367,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "AST exceeds maximum depth of 64")]
+    #[should_panic(expected = "AST exceeds maximum depth of 4096")]
     fn standalone_walk_rejects_deep_typed_child_chains() {
         struct Ignore;
         impl<'pr> NodeVisitor<'pr> for Ignore {
@@ -374,10 +375,12 @@ mod tests {
         }
         // A receiver chain traverses typed CallNode children directly, not
         // through Visit::visit or its branch hooks.
-        let source = format!("root{}", ".foo".repeat(400));
+        let source = format!("root{}", ".foo".repeat(5000));
         let result = ruby_prism::parse(source.as_bytes());
         assert_eq!(result.errors().count(), 0);
-        walk(&mut Ignore, &result.node());
+        stacker::grow(super::super::depth::STACK_SIZE, || {
+            walk(&mut Ignore, &result.node())
+        });
     }
 
     #[test]

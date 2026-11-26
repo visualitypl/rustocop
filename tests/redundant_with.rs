@@ -1,4 +1,5 @@
 //! RuboCop MIT spec replay is source-only; native runtime controls authored separately.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -15,20 +16,6 @@ fn rows() -> Vec<serde_json::Value> {
 }
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
     crate::support::fixture::value(&row[key])
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -62,7 +49,7 @@ fn defaults_selectors_toml_precedence_and_path_stdin_provenance() {
         assert_eq!(rule.safe_fixes(), cop == INDEX);
         assert_eq!(rule.ruby_versions(), Default::default());
         assert!(rule.path_policy().is_none() && rule.max_setting().is_none());
-        let d = project();
+        let d = project_with_lib();
         for (config, select, want) in [
             (String::new(), vec![], 1),
             (String::new(), vec!["--only", cop], 1),
@@ -144,7 +131,7 @@ fn defaults_selectors_toml_precedence_and_path_stdin_provenance() {
 }
 #[test]
 fn directives_multiline_next_push_and_selection_boundaries() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in [
         (INDEX, "ary.each.with_index(\n 1\n) { |v| v }\n"),
         (OBJECT, "ary.each.with_object(\n []\n) { |v| v }\n"),
@@ -209,7 +196,7 @@ fn directives_multiline_next_push_and_selection_boundaries() {
 #[test]
 fn atomic_permissions_symlink_and_failure_controls() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, SAFE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();

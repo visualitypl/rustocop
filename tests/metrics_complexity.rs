@@ -3,6 +3,7 @@
 //! registry metadata, selectors, strict config, both directive prefixes,
 //! per-method measuring, stdin/encoding/CRLF/BOM/DATA, parser errors and
 //! the no-write guarantee of detection-only cops.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::{cops::Registry, offense::Severity};
 use std::{
     fs,
@@ -34,22 +35,6 @@ const COMPLEX: &str = "def complex(a)
 end
 ";
 
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-
 /// `expect_early_error` only for runs whose asserted exit is the early
 /// `--stdin --fix` rejection, which may exit before reading stdin.
 fn run_stdin(root: &Path, args: &[&str], bytes: &[u8], expect_early_error: bool) -> Output {
@@ -65,7 +50,7 @@ fn run_stdin(root: &Path, args: &[&str], bytes: &[u8], expect_early_error: bool)
     child.wait_with_output().unwrap()
 }
 
-/// The findings of the three cops, as `file:line:col: C: message (cop)`.
+/// The findings of the three cops, as `file:line:col: R: message (cop)`.
 fn found(out: &Output) -> Vec<String> {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -99,13 +84,13 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: i32) -> Output {
 fn expected(file: &str, line: u32, name: &str) -> Vec<String> {
     vec![
         format!(
-            "{file}:{line}:1: C: Cyclomatic complexity for `{name}` is too high. [8/7] (Metrics/CyclomaticComplexity)"
+            "{file}:{line}:1: R: Cyclomatic complexity for `{name}` is too high. [8/7] (Metrics/CyclomaticComplexity)"
         ),
         format!(
-            "{file}:{line}:1: C: Perceived complexity for `{name}` is too high. [9/8] (Metrics/PerceivedComplexity)"
+            "{file}:{line}:1: R: Perceived complexity for `{name}` is too high. [9/8] (Metrics/PerceivedComplexity)"
         ),
         format!(
-            "{file}:{line}:1: C: Assignment Branch Condition size for `{name}` is too high. [<3, 18, 8> 19.92/17] (Metrics/AbcSize)"
+            "{file}:{line}:1: R: Assignment Branch Condition size for `{name}` is too high. [<3, 18, 8> 19.92/17] (Metrics/AbcSize)"
         ),
     ]
 }
@@ -129,7 +114,7 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert!(!cop.default_enabled(), "{name}");
         assert!(!cop.safe_fixes(), "{name}");
-        assert_eq!(cop.severity(), Severity::Convention);
+        assert_eq!(cop.severity(), Severity::Refactor);
         assert_eq!(cop.ruby_versions(), Default::default());
         assert!(cop.path_policy().is_none(), "{name}");
         assert_eq!(cop.max_setting(), Some("max"), "{name}");
@@ -143,7 +128,7 @@ fn registry_metadata_is_fixed_opt_in_and_detection_only() {
 
 #[test]
 fn enabled_runs_report_each_cop_and_fix_never_writes() {
-    let d = project();
+    let d = project_with_lib();
     // The cops are opt-in: a run without a selector or config reports none.
     let out = unchanged(d.path(), COMPLEX.as_bytes(), &["lib/a.rb"], 1);
     assert_eq!(ordered(&out), Vec::<String>::new(), "{out:?}");
@@ -174,7 +159,7 @@ fn enabled_runs_report_each_cop_and_fix_never_writes() {
 
 #[test]
 fn boundaries_at_the_actual_defaults() {
-    let d = project();
+    let d = project_with_lib();
     // `tap` is not an iterating method: complexity 7/7, perceived 8/8, ABC
     // <3, 18, 7> 19.54 (pinned values).
     let at_limit = COMPLEX.replace("j.each", "j.tap");
@@ -187,7 +172,7 @@ fn boundaries_at_the_actual_defaults() {
     assert_eq!(
         found(&out),
         [
-            "lib/a.rb:1:1: C: Assignment Branch Condition size for `complex` is too high. [<3, 18, 7> 19.54/17] (Metrics/AbcSize)"
+            "lib/a.rb:1:1: R: Assignment Branch Condition size for `complex` is too high. [<3, 18, 7> 19.54/17] (Metrics/AbcSize)"
         ]
     );
     // Without the two attribute assignments only the complexities remain.
@@ -212,7 +197,7 @@ fn boundaries_at_the_actual_defaults() {
 
 #[test]
 fn every_definition_is_measured_and_reported_whole() {
-    let d = project();
+    let d = project_with_lib();
     let nested = format!(
         "class X\n  define_method(:dm) do\n{}  end\n\n  def self.outer\n    def inner; end\n{}  end\nend\n",
         indent(
@@ -246,7 +231,7 @@ fn every_definition_is_measured_and_reported_whole() {
     let want: Vec<String> = want
         .into_iter()
         .map(|l| {
-            l.replacen(":1: C:", ":3: C:", 1)
+            l.replacen(":1: R:", ":3: R:", 1)
                 .replace("<3, 18, 8> 19.92", "<3, 19, 8> 20.83")
         })
         .collect();
@@ -276,7 +261,7 @@ fn indent(text: &str, by: usize) -> String {
 
 #[test]
 fn selectors_department_and_strict_config() {
-    let d = project();
+    let d = project_with_lib();
     for (config, flags, count) in [
         (String::new(), vec!["--only", "Metrics"], 3),
         (String::new(), vec!["--only", "Metrics/AbcSize"], 1),
@@ -353,7 +338,7 @@ fn selectors_department_and_strict_config() {
 
 #[test]
 fn both_directive_prefixes_disable_at_the_reported_line() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         let bytes = format!("# {prefix}:disable Metrics\n{COMPLEX}");
         let out = unchanged(
@@ -413,7 +398,7 @@ fn both_directive_prefixes_disable_at_the_reported_line() {
 
 #[test]
 fn stdin_crlf_bom_data_and_legacy_encodings_keep_positions() {
-    let d = project();
+    let d = project_with_lib();
     let crlf = COMPLEX.replace('\n', "\r\n");
     let bom = format!("\u{feff}{COMPLEX}");
     let data = format!("{COMPLEX}__END__\n{COMPLEX}");
@@ -450,7 +435,7 @@ fn stdin_crlf_bom_data_and_legacy_encodings_keep_positions() {
 
 #[test]
 fn parse_errors_missing_files_and_stdin_fix_never_write() {
-    let d = project();
+    let d = project_with_lib();
     let bytes = format!("{COMPLEX}def broken(\n");
     let out = unchanged(
         d.path(),
@@ -482,7 +467,7 @@ fn parse_errors_missing_files_and_stdin_fix_never_write() {
 
 #[test]
 fn correcting_peers_compose_and_the_cops_keep_their_findings() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let bytes = COMPLEX.replacen("    c || d\n", "    c || 'd'\n", 1);
     fs::write(&path, &bytes).unwrap();

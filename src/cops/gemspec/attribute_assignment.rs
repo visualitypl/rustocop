@@ -27,7 +27,7 @@ impl Cop for AttributeAssignment {
         for a in &assignments {
             if a.index.is_some() && direct.contains(a.attribute.as_slice()) {
                 let start = a.node.location().start_offset();
-                let (line, col) = crate::cops::lint::reference_line_col(start, file);
+                let (line, col) = file.reference_line_col(start);
                 out.push(Offense {
                     cop: self.name(),
                     severity: self.severity(),

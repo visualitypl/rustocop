@@ -80,10 +80,7 @@ impl Cop for UnusedMethodArgument {
                     let method = reference_name(def.name().as_slice(), file);
                     message.push_str(&format!(" You can also write as `{method}(*)` if you want the method to accept any arguments but don't care about them."));
                 }
-                let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                    variable.declaration_range.start,
-                    file,
-                );
+                let (line, col) = file.reference_line_col(variable.declaration_range.start);
                 out.push(Offense {
                     cop: self.name(),
                     severity: self.severity(),

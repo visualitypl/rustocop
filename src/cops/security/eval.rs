@@ -269,7 +269,7 @@ mod tests {
                 found[0].message,
                 "The use of `eval` is a serious security risk."
             );
-            assert_eq!(found[0].severity, crate::offense::Severity::Error);
+            assert_eq!(found[0].severity, crate::offense::Severity::Warning);
             assert!(found[0].correction.is_none());
         }
     }

@@ -1,4 +1,5 @@
 //! pipeline policy, byte preservation and parameter-binding regressions.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -24,12 +25,6 @@ const CASES: [(&str, &str, bool); 3] = [
     ),
 ];
 const ALL: &str = "Style/OptionalArguments,Style/OptionalBooleanParameter,Style/OptionHash";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -215,7 +210,7 @@ fn bom_crlf_non_utf8_line_data_and_error_files_retain_bytes_and_mtime() {
         }
         unchanged(dir.path(), cop, b"def f(\n", 2);
         unchanged(dir.path(), cop, b"def f(value:, **kw, &block)\nend\n", 0);
-        let deep = format!("{}x{}\n{source}", "[".repeat(70), "]".repeat(70));
+        let deep = format!("{}x{}\n{source}", "[".repeat(4100), "]".repeat(4100));
         unchanged(dir.path(), cop, deep.as_bytes(), 2);
     }
 }

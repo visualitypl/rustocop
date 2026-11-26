@@ -53,8 +53,7 @@ impl Cop for DevelopmentDependencies {
         if !(1..=3).contains(&arguments.len()) || str_value(&arguments[0], file).is_none() {
             return;
         }
-        let (line, col) =
-            crate::cops::lint::reference_line_col(call.location().start_offset(), file);
+        let (line, col) = file.reference_line_col(call.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

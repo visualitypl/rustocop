@@ -1,4 +1,5 @@
 //! public CLI, byte preservation and controlled Ruby semantic witnesses.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -13,12 +14,6 @@ const CASES: [(&str, &str, &str); 3] = [
     (R, "p \"#{value}\"\n", "p \"#{value}\"\n"),
     (U, "p +\"#{1} x\"\n", "p \"#{1} x\"\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(d: &Path, args: &[&str], status: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(d)

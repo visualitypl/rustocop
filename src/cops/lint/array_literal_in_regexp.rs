@@ -75,7 +75,7 @@ impl Cop for ArrayLiteralInRegexp {
         } else {
             "alternation"
         };
-        let (line, col) = reference_line_col(node.location().start_offset(), file);
+        let (line, col) = file.reference_line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),
@@ -246,15 +246,6 @@ fn regexp_escape(value: &str) -> String {
         }
     }
     out
-}
-// These cops retain the reference buffer's leading BOM character in columns.
-// Reuse the accepted encoding projection without changing prior cop policies.
-pub(crate) fn reference_line_col(offset: usize, file: &SourceFile) -> (u32, u32) {
-    let (line, col) = super::duplicate_match_pattern::buffer_line_col(offset, file);
-    (
-        line,
-        col + u32::from(line == 1 && file.bytes.starts_with(b"\xef\xbb\xbf")),
-    )
 }
 fn character_count(value: &[u8], file: &SourceFile) -> usize {
     if file.match_pattern_binary() {

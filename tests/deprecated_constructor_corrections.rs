@@ -1,5 +1,6 @@
 //! authored native proofs and real guarded CLI.
 //! RuboCop canonical reference: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project;
 use crate::support::deprecated_constructor_native as native_guard;
 use crate::support::stdin as stdin_support;
 use std::{
@@ -13,12 +14,6 @@ const BIG_SAFE: &str = "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kerne
 const BIG_AFTER: &str = "require 'bigdecimal'\ndef BigDecimal.new(value); ::Kernel.BigDecimal(value); end\n[BigDecimal('1.25')]\n";
 const ERB_SAFE: &str = "require 'erb'\n[defined?(ERB.new('task-literal', nil, '-'))]\n";
 const ERB_AFTER: &str = "require 'erb'\n[defined?(ERB.new('task-literal', trim_mode: '-'))]\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(root: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -170,7 +165,7 @@ fn actual_candidate_atomic_readonly_symlink_validation_and_layout_composition() 
         let out = cli(dir.path(), &["--only", cop, "--fix", "link.rb", "a.rb"]);
         assert_eq!(out.status.code(), Some(0), "{out:?}");
         assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
-        assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+        assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
         assert_eq!(
             fs::metadata(&path).unwrap().permissions().mode() & 0o777,
             0o640

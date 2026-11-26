@@ -1,5 +1,6 @@
 //! pinned source-only examples and real rebuilt CLI controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ use std::{
 const COP: &str = "Lint/ConstantDefinitionInBlock";
 const SOURCE: &[u8] = b"task { FOO = 1 }\n";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -49,7 +36,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: Option<i32>) -> 
 
 #[test]
 fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/constant_definition_in_block.json")).unwrap();
     assert_eq!(rows.as_array().unwrap().len(), 397);
@@ -75,7 +62,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -93,7 +80,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
         let stdout = String::from_utf8_lossy(&out.stdout);
         for (line, col, _, msg) in expected {
             assert!(
-                stdout.contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({COP})")),
+                stdout.contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({COP})")),
                 "{stdout}"
             );
         }
@@ -149,7 +136,7 @@ fn metadata_default_on_ruby34_eligible_detection_only_without_paths_or_settings(
 
 #[test]
 fn selectors_config_department_precedence_strict_toml_and_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, select, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -240,7 +227,7 @@ fn selectors_config_department_precedence_strict_toml_and_paths() {
 
 #[test]
 fn both_prefixes_multiline_next_push_and_source_activation() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable {COP}\ntask {{ FOO = 1 }}\n"),
@@ -294,7 +281,7 @@ fn both_prefixes_multiline_next_push_and_source_activation() {
 
 #[test]
 fn stdin_path_is_provenance_and_fix_is_rejected() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -316,7 +303,7 @@ fn stdin_path_is_provenance_and_fix_is_rejected() {
         assert_eq!(count(&out), expected);
         assert_eq!(out.status.code(), Some(i32::from(expected != 0)));
         if expected == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:8: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:8: W:"));
         }
     }
     assert_eq!(
@@ -333,7 +320,7 @@ fn stdin_path_is_provenance_and_fix_is_rejected() {
 
 #[test]
 fn source_envelopes_observers_encodings_and_control_flow_never_receive_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\ntask { FOO = 1 }\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# encoding: Windows-1252\n# \xe9\ntask { FOO = 1 }\n",
@@ -357,7 +344,7 @@ fn layout_composes_atomically_and_readonly_failure_retains_findings() {
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let before = b"task { FOO = 1 }\nvalues = [1,2]\n";
     let after = b"task { FOO = 1 }\nvalues = [1, 2]\n";
     let only = "Lint/ConstantDefinitionInBlock,Layout/SpaceAfterComma";
@@ -374,8 +361,8 @@ fn layout_composes_atomically_and_readonly_failure_retains_findings() {
     assert_eq!(fs::read(&path).unwrap(), after);
     let mut old_bytes = Vec::new();
     original.read_to_end(&mut old_bytes).unwrap();
-    assert_eq!(old_bytes, before);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(old_bytes, after);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -400,10 +387,14 @@ fn layout_composes_atomically_and_readonly_failure_retains_findings() {
 
 #[test]
 fn invalid_resource_io_and_detection_only_readonly_symlinks_preserve_originals() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         "task { FOO = 1 }\ndef broken(\n".to_string(),
-        format!("task {{ FOO = 1 }}\n{}nil\n", "x = ".repeat(80)),
+        format!(
+            "task {{ FOO = 1 }}\n{}nil{}\n",
+            "[".repeat(4100),
+            "]".repeat(4100)
+        ),
     ] {
         let out = unchanged(
             dir.path(),

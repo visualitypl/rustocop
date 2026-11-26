@@ -52,10 +52,7 @@ impl Cop for RescueType {
             })
             .collect::<Vec<_>>()
             .join(", ");
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            rescue.keyword_loc().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(rescue.keyword_loc().start_offset());
         out.push(Offense {
             cop: self.name(), severity: self.severity(), line, col,
             end_line: file.line_of(exceptions.last().unwrap().location().end_offset().saturating_sub(1)),

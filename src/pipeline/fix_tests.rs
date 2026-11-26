@@ -183,7 +183,8 @@ fn a_run_at_ruby_4_parses_and_validates_with_the_ruby_4_grammar() {
 
 #[test]
 fn corrections_that_exceed_the_ast_depth_budget_are_not_written() {
-    let source = format!("{}before{}\n", "[".repeat(61), "]".repeat(61));
+    // At the limit; the correction's two arrays go past it.
+    let source = format!("{}before{}\n", "[".repeat(4093), "]".repeat(4093));
     let registry = Registry::from_cops(vec![Box::new(Fixer {
         name: "Style/DeepFix",
         method: b"before",
@@ -237,8 +238,8 @@ fn corrections_that_exhaust_parser_budgets_are_not_written() {
     for replacement in [
         format!(
             "{}{}",
-            "def foo(*args)\nbar(*args)\n".repeat(1000),
-            "end\n".repeat(1000)
+            "def foo(*args)\nbar(*args)\n".repeat(2100),
+            "end\n".repeat(2100)
         ),
         format!(
             "value in {}capture{}\n",
@@ -770,12 +771,16 @@ fn corrections_that_never_settle_stop_at_the_pass_limit() {
 
 #[test]
 fn a_later_pass_that_fails_validation_keeps_the_earlier_passes() {
-    let registry = rewriting(&[("Style/Deep", b"deep", "deep.more")]);
+    // Each pass nests the chain 40 calls deeper, until one passes the depth
+    // limit and fails validation.
+    const STEP: usize = 40;
+    let deeper = Box::leak(format!("deep{}", ".more".repeat(STEP)).into_boxed_str());
+    let registry = rewriting(&[("Style/Deep", b"deep", deeper)]);
     let (dir, config) = project("deep\n");
     let report = run_project(dir.path(), &config, &registry, true);
     let applied = report.corrections_applied;
     assert!(applied > 1 && applied < MAX_CORRECTION_PASSES, "{applied}");
-    let expected = format!("deep{}\n", ".more".repeat(applied));
+    let expected = format!("deep{}\n", ".more".repeat(STEP * applied));
     assert_eq!(
         fs::read(dir.path().join("x.rb")).unwrap(),
         expected.as_bytes()
@@ -980,8 +985,33 @@ fn write_failure_reports_an_error_and_leaves_original_offenses() {
     assert_eq!(fs::read(dir.path().join("x.rb")).unwrap(), b"before\n");
 }
 
+#[cfg(unix)]
 #[test]
-fn atomic_writer_rejects_stale_sources() {
+fn writer_keeps_the_inode_owner_and_hard_links() {
+    use std::os::unix::fs::MetadataExt;
+    let (dir, _) = project("before\n");
+    let path = dir.path().join("x.rb");
+    let link = dir.path().join("link.rb");
+    fs::hard_link(&path, &link).unwrap();
+    // Only root can give the file another owner; elsewhere the owner is ours.
+    let owner = if rustix::process::geteuid().is_root() {
+        std::os::unix::fs::chown(&path, Some(1234), Some(1234)).unwrap();
+        (1234, 1234)
+    } else {
+        let metadata = fs::metadata(&path).unwrap();
+        (metadata.uid(), metadata.gid())
+    };
+    let inode = fs::metadata(&path).unwrap().ino();
+    write_corrected(&path, b"before\n", b"after, longer\n").unwrap();
+    write_corrected(&path, b"after, longer\n", b"short\n").unwrap();
+    let metadata = fs::metadata(&path).unwrap();
+    assert_eq!((metadata.uid(), metadata.gid()), owner);
+    assert_eq!(metadata.ino(), inode);
+    assert_eq!(fs::read(&link).unwrap(), b"short\n");
+}
+
+#[test]
+fn writer_rejects_stale_sources() {
     let (dir, _) = project("newer source\n");
     assert!(write_corrected(&dir.path().join("x.rb"), b"before\n", b"after\n").is_err());
     assert_eq!(

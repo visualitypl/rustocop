@@ -1,4 +1,5 @@
 //! real CLI controls, source envelopes and controlled runtime witnesses.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -10,12 +11,6 @@ const BOOLEAN: &str = "Style/IfWithBooleanLiteralBranches";
 const BAD: &str = "a ? b : c if ready\n";
 const GOOD: &str = "if ready\na ? b : c\nend\n";
 const BOOL_BAD: &str = "if ready?\n true\nelse\n false\nend\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

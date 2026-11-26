@@ -771,10 +771,7 @@ impl<'pr> Walker<'_, 'pr> {
             key = format!("{key}@{scope_id}");
         }
         let region = self.region();
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            node.location().start_offset(),
-            self.file,
-        );
+        let (line, col) = self.file.reference_line_col(node.location().start_offset());
         let Some(&previous) = self.definitions.get(&key) else {
             self.definitions.insert(key, line);
             return;

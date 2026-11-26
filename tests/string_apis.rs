@@ -1,5 +1,6 @@
 //! Runtime helpers execute ONLY controlled ordinary Ruby, never
 //! command literals, corpus/application code or the source-only probes below.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -10,12 +11,6 @@ const CHARS: &str = "Style/StringChars";
 const METHODS: &str = "Style/StringMethods";
 const STRIP: &str = "Style/Strip";
 const ALL: &str = "Style/StringChars,Style/StringMethods,Style/Strip";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

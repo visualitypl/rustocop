@@ -1,5 +1,6 @@
 //! Source-only pipeline/CLI controls. Inputs are NEVER executed.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{count, project_with_lib, run};
 use rustocop::{config::ResolvedConfig, cops::Cop};
 use std::{
     fs,
@@ -9,25 +10,6 @@ use std::{
 };
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/existing_lint_3.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -99,7 +81,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -122,7 +104,7 @@ fn all_original_byte_reference_rows_match_pipeline_exact_ranges_messages_no_edit
 }
 #[test]
 fn later_line_directives_follow_exact_cop_ranges_not_whole_enclosing_nodes() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for (cop, source, expected) in [
             (

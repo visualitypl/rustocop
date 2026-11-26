@@ -1,16 +1,11 @@
 //! CLI contracts and controlled Ruby semantic observations.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const SEMI: &str = "Style/IfWithSemicolon";
 const INVERSE: &str = "Style/InvertibleUnlessCondition";
 const BAD: &str = "if ready; work else other end\n";
 const GOOD: &str = "ready ? work : other\n";
 const INV_BAD: &str = "work unless odd?\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

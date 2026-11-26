@@ -1,24 +1,11 @@
 //! real CLI, guarded source wrapping and controlled native witnesses.
 //! Pinned examples port RuboCop (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::{project_with_lib, run};
 use std::{fs, path::Path, process::Command};
 const ASSIGN: &str = "Lint/AmbiguousAssignment";
 const PREC: &str = "Lint/AmbiguousOperatorPrecedence";
 const BOTH: &str = "Lint/AmbiguousAssignment,Lint/AmbiguousOperatorPrecedence";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> std::process::Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn fix(root: &Path, before: &[u8], after: &[u8], status: i32) {
     let path = root.join("lib/a.rb");
     fs::write(&path, before).unwrap();
@@ -45,7 +32,7 @@ fn findings(out: &std::process::Output, cop: &str) -> usize {
 
 #[test]
 fn defaults_selectors_department_precedence_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = b"x =- y\na + b * c\n";
     fs::write(&path, source).unwrap();
@@ -88,12 +75,12 @@ fn defaults_selectors_department_precedence_and_no_write() {
         if expected.0 == 1 {
             assert!(
                 String::from_utf8_lossy(&out.stdout)
-                    .contains("lib/a.rb:1:3: E: Suspicious assignment")
+                    .contains("lib/a.rb:1:3: W: Suspicious assignment")
             );
         }
         if expected.1 == 1 {
             assert!(
-                String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:2:5: E: Wrap expressions")
+                String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:2:5: W: Wrap expressions")
             );
         }
         assert_eq!(fs::read(&path).unwrap(), source);
@@ -125,7 +112,7 @@ fn fixed_policy_and_only_real_names_are_admitted() {
 
 #[test]
 fn strict_toml_exclusions_and_path_provenance() {
-    let dir = project();
+    let dir = project_with_lib();
     for key in [
         "max = 80",
         "EnforcedStyle = 'other'",
@@ -157,7 +144,7 @@ fn strict_toml_exclusions_and_path_provenance() {
 
 #[test]
 fn both_directive_prefixes_multiline_next_and_push_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable Lint\nx =- y\na + b * c\n"),
@@ -183,7 +170,7 @@ fn both_directive_prefixes_multiline_next_and_push_scopes() {
 
 #[test]
 fn canonical_and_every_pinned_nested_correction_converge_explicitly() {
-    let dir = project();
+    let dir = project_with_lib();
     fix(dir.path(), b"a + b * c\n", b"a + (b * c)\n", 0);
     fix(
         dir.path(),
@@ -223,7 +210,7 @@ fn canonical_and_every_pinned_nested_correction_converge_explicitly() {
 
 #[test]
 fn comments_bom_crlf_line_data_and_heredoc_values() {
-    let dir = project();
+    let dir = project_with_lib();
     fix(dir.path(), b"\xef\xbb\xbf# encoding: utf-8\r\na + b * # keep\r\n c # tail\r\np __LINE__\r\n__END__\r\nraw\x00\r\n", b"\xef\xbb\xbf# encoding: utf-8\r\na + (b * # keep\r\n c) # tail\r\np __LINE__\r\n__END__\r\nraw\x00\r\n", 0);
     fix(
         dir.path(),
@@ -242,7 +229,7 @@ fn comments_bom_crlf_line_data_and_heredoc_values() {
 #[test]
 fn stdin_path_is_display_and_exclusion_provenance_never_a_write_target() {
     use std::io::Write;
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "sentinel\n").unwrap();
     for (config, count) in [
@@ -266,7 +253,7 @@ fn stdin_path_is_display_and_exclusion_provenance_never_a_write_target() {
         let out = child.wait_with_output().unwrap();
         assert_eq!(findings(&out, PREC), count, "{out:?}");
         if count == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:5: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:5: W:"));
         }
     }
     let out = run(
@@ -279,7 +266,7 @@ fn stdin_path_is_display_and_exclusion_provenance_never_a_write_target() {
 
 #[test]
 fn invalid_source_remains_atomic_and_symlinks_keep_permissions() {
-    let dir = project();
+    let dir = project_with_lib();
     fix(
         dir.path(),
         b"a + b * c\ndef broken(\n",
@@ -321,7 +308,7 @@ fn observe(ruby: &Path, source: &str) -> Vec<u8> {
 }
 #[test]
 fn native_runtime_binding_dispatch_evaluation_flow_values_and_exceptions() {
-    let dir = project();
+    let dir = project_with_lib();
     // Controlled code only, never spec/corpus execution. Custom operators,
     // lexical refinement, locals, short circuit, exceptions and ensure.
     let before = "$events = []\nclass Value\n  def initialize(n); @n = n; end\n  def *(other); $events << :multiply; self; end\n  def +(other); $events << :add; self; end\nend\nmodule Refined\n  refine Value do\n    def +(other); $events << :refined_add; self; end\n  end\nend\nusing Refined\ndef make(n); $events << n; Value.new(n); end\na = make(:a)\nb = make(:b)\nc = make(:c)\nresult = a + b * c\np result.equal?(a)\nx = nil\np (false || (x = true) && :chosen)\np x\np (true || make(:never) && make(:also_never))\nbegin\n  a + b * raise('boom')\nrescue RuntimeError => e\n  p e.message\nensure\n  $events << :ensure\nend\np $events\np __LINE__\n";
@@ -347,7 +334,7 @@ fn native_runtime_binding_dispatch_evaluation_flow_values_and_exceptions() {
 
 #[test]
 fn native_comments_encoding_heredoc_lines_and_nonlocal_flow() {
-    let dir = project();
+    let dir = project_with_lib();
     for before in [
         "\u{feff}# encoding: utf-8\r\nx = \"é\"\r\np x + \"a\" * # keep\r\n 2\r\np __LINE__\r\n__END__\r\nraw\r\n",
         "p \"prefix:\" + <<~TEXT * 2\nraw\nTEXT\np __LINE__\n__END__\nraw\n",
@@ -377,7 +364,7 @@ fn native_comments_encoding_heredoc_lines_and_nonlocal_flow() {
 
 #[test]
 fn lint_style_layout_composition_has_no_default_redundant_parens_cycle() {
-    let dir = project();
+    let dir = project_with_lib();
     let before = "def f(a, b, c)\n  a+b*c\nend\n";
     fs::write(dir.path().join("lib/a.rb"), before).unwrap();
     let selected =

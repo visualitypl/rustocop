@@ -143,7 +143,7 @@ pub(crate) fn investigate(
         {
             continue;
         }
-        let (line, col) = crate::cops::lint::reference_line_col(current.start, file);
+        let (line, col) = file.reference_line_col(current.start);
         out.push(Offense {
             cop,
             severity,

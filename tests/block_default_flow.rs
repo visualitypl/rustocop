@@ -1,4 +1,5 @@
 //! Authored source-only parser, lifecycle and real CLI witnesses.
+use crate::support::cli::project;
 use crate::support::flow_defaults as witnesses;
 
 use rustocop::{
@@ -181,13 +182,6 @@ fn flow_defaults_fatal_gate_prevents_every_ordinary_callback() {
             }
         }
     }
-}
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
 }
 
 fn cli(root: &Path, args: &[&str], input: Option<&[u8]>, code: i32) -> String {

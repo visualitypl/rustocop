@@ -88,7 +88,7 @@ impl Cop for DeprecatedAttributeAssignment {
             if !matched || !reported.insert((candidate.start, candidate.end)) {
                 continue;
             }
-            let (line, col) = crate::cops::lint::reference_line_col(candidate.start, file);
+            let (line, col) = file.reference_line_col(candidate.start);
             let correction = (candidate.statement)
                 .then(|| removal(result, file, &candidate))
                 .flatten();

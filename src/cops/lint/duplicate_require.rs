@@ -248,12 +248,11 @@ impl<'pr> NodeVisitor<'pr> for Requires<'_, 'pr> {
                 {
                     let start = call.location().start_offset();
                     let end = ast::source_end(&node);
-                    let (line, col) =
-                        super::array_literal_in_regexp::reference_line_col(start, self.file);
+                    let (line, col) = self.file.reference_line_col(start);
                     self.candidates.push((
                         Offense {
                             cop: "Lint/DuplicateRequire",
-                            severity: crate::offense::Severity::Error,
+                            severity: crate::offense::Severity::Warning,
                             message: format!(
                                 "Duplicate `{}` detected.",
                                 String::from_utf8_lossy(method)

@@ -1,4 +1,5 @@
 //! actual CLI contracts and controlled Ruby observations (never corpus code).
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -11,12 +12,6 @@ const CASES: [(&str, &str, &str); 2] = [
     (BLOCK, "proc { || 42 }\n", "proc { 42 }\n"),
     (LAMBDA, "-> () { 42 }\n", "-> { 42 }\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

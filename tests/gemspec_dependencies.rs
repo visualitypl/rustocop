@@ -2,6 +2,7 @@
 //! CLI: supplied paths, selectors, opt-in, directives, encodings, fatal
 //! inputs, and the guarded corrections' no-write and atomic guarantees.
 //! Gemspecs and Gemfiles are linted, never evaluated.
+use crate::support::cli::project;
 use crate::support::stdin;
 use rustocop::cops::Registry;
 use std::{fs, path::Path, process::Command};
@@ -14,13 +15,6 @@ const ALL: [&str; 4] = [RUNTIME, VERSION, DEVELOPMENT, DEPRECATED];
 
 /// One finding for each of the four cops.
 const GEMSPEC: &str = "Gem::Specification.new do |s|\n  s.date = '2024-01-01'\n  s.add_runtime_dependency 'a', '~> 1'\n  s.add_dependency 'b'\n  s.add_development_dependency 'c', '~> 2'\nend\n";
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 
 fn cli(root: &Path, args: &[&str], input: Option<&[u8]>) -> std::process::Output {
     use std::process::Stdio;
@@ -63,7 +57,7 @@ fn registry_metadata_defaults_and_no_knobs() {
         assert_eq!(cop.safe_fixes(), safe, "{name}");
         assert_eq!(
             cop.severity(),
-            rustocop::offense::Severity::Convention,
+            rustocop::offense::Severity::for_cop(name),
             "{name}"
         );
         assert!(cop.max_setting().is_none(), "{name}");

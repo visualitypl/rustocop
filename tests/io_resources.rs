@@ -1,4 +1,5 @@
 //! stream/resource policy through the real CLI and controlled local Ruby.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -25,13 +26,6 @@ const CASES: &[(&str, &str, &str, bool)] = &[
         true,
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(cwd)
@@ -43,7 +37,7 @@ fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
 }
 #[test]
 fn defaults_opt_in_selectors_config_and_safe_fix_policy() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     for (cop, before, after, enabled) in CASES {
@@ -97,7 +91,7 @@ fn defaults_opt_in_selectors_config_and_safe_fix_policy() {
 }
 #[test]
 fn directives_excludes_and_stdin_do_not_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _, _) in CASES {
         for prefix in ["rubocop", "rustocop"] {
@@ -159,7 +153,7 @@ fn directives_excludes_and_stdin_do_not_write() {
 }
 #[test]
 fn byte_local_fixes_preserve_legacy_encoding_bom_crlf_data_and_line() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [b"# encoding: ISO-8859-1\r\n$VERBOSE = false\r\n$stderr.puts(\"caf\xe9\")\r\np __LINE__\r\n__END__\r\nraw\xff\r\n".to_vec(), "\u{feff}# encoding: UTF-8\r\n$VERBOSE = true\r\n$stderr.puts(\"café\")\r\np __LINE__\r\n__END__\r\nraw\r\n".as_bytes().to_vec()] {
         let start = source.windows(12).position(|w| w == b"$stderr.puts").unwrap();
@@ -198,7 +192,7 @@ fn corrected(dir: &Path, source: &str, status: i32) -> String {
 }
 #[test]
 fn runtime_warning_policy_output_return_control_flow_and_verbosity() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for receiver in ["$stderr", "STDERR", "::STDERR"] {
         for verbose in ["false", "true"] {
@@ -234,7 +228,7 @@ fn ruby_file(path: &Path, level: &str) -> Option<Output> {
 }
 #[test]
 fn runtime_detection_only_rules_preserve_stream_identity_and_resource_lifetime() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let data = dir.path().join("resource.txt");
     fs::write(&data, "payload").unwrap();
@@ -263,7 +257,7 @@ fn runtime_detection_only_rules_preserve_stream_identity_and_resource_lifetime()
 
 #[test]
 fn style_layout_interactions_stabilize_in_bounded_explicit_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(
         &path,

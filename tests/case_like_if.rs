@@ -1,5 +1,6 @@
 //! pinned RuboCop style/case_like_if_spec.rb examples (MIT License,
 //! Copyright (c) 2012-26 Bozhidar Batsov), fixed-policy and no-write contracts.
+use crate::support::cli::project;
 use serde::Deserialize;
 use std::{fs, path::Path, process::Command};
 const COP: &str = "Style/CaseLikeIf";
@@ -34,12 +35,6 @@ fn lint(source: &[u8]) -> Vec<rustocop::offense::Offense> {
         "{result:?}"
     );
     result.result.offenses
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
 }
 fn cli(dir: &Path, args: &[&str], code: i32) -> std::process::Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))

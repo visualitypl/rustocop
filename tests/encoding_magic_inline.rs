@@ -1,4 +1,5 @@
 //! real selection/config/directive/fix paths and controlled Ruby semantics.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -24,13 +25,6 @@ const CASES: &[(&str, &str, &str, &str)] = &[
 /// The magic-comment fixtures are also default-on
 /// Layout/EmptyLineAfterMagicComment findings; it is not the subject here.
 const MAGIC_OFF: &str = "[cops.\"Layout/EmptyLineAfterMagicComment\"]\nenabled = false\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(cwd)
@@ -46,7 +40,7 @@ fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn defaults_opt_in_exact_names_selectors_config_and_no_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     for (cop, before, after, position) in CASES {
@@ -108,7 +102,7 @@ fn defaults_opt_in_exact_names_selectors_config_and_no_write() {
 
 #[test]
 fn directives_and_additive_config_relative_excludes_protect_all_three() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _, _) in CASES {
         for prefix in ["rubocop", "rustocop"] {
@@ -143,7 +137,7 @@ fn directives_and_additive_config_relative_excludes_protect_all_three() {
 
 #[test]
 fn stdin_uses_display_path_excludes_and_directives_without_writing() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "sentinel\n").unwrap();
     for (cop, before, _, position) in CASES {
@@ -190,7 +184,7 @@ fn stdin_uses_display_path_excludes_and_directives_without_writing() {
 
 #[test]
 fn bom_crlf_headers_literals_line_and_data_bytes_are_preserved() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "\u{feff}#!/usr/bin/env ruby\r\n# -*- encoding: UTF-8; frozen-string-literal: true -*-\r\np [__LINE__, \"é\".encoding, \"a\".frozen?]\r\ns = <<~H\r\n# encoding: utf-8\r\n# FROZEN-STRING-LITERAL: true\r\nH\r\n__END__\r\n# encoding: utf-8\r\n# frozen-string-literal: true\r\n";
     let after = source.replace(
@@ -222,7 +216,7 @@ fn bom_crlf_headers_literals_line_and_data_bytes_are_preserved() {
 
 #[test]
 fn legacy_encoding_header_normalization_does_not_transcode_literal_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for encoding in ["ASCII-8BIT", "Windows-1252", "Shift_JIS"] {
         let mut source =
@@ -245,7 +239,7 @@ fn legacy_encoding_header_normalization_does_not_transcode_literal_bytes() {
 
 #[test]
 fn invalid_utf8_editor_replacements_are_withheld_without_lossy_transcoding() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = b"# -*- encoding: utf-8; mode: \xff -*-\nx\n";
     fs::write(&path, source).unwrap();
@@ -266,7 +260,7 @@ fn encoding_fix_does_not_activate_frozen_directive_after_interior_emacs_delimite
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "# -*- encoding: utf-8; encoding: utf-8 -*-; frozen_string_literal: true -*-\np \"a\".frozen?\n";
     fs::write(&path, source).unwrap();

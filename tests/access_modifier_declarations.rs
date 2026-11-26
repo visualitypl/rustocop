@@ -1,4 +1,5 @@
 //! group visibility detection must never move declarations or methods.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::{RawConfig, ResolvedConfig},
     cops::{Registry, select_active},
@@ -13,13 +14,6 @@ use std::{
 
 const COP: &str = "Style/AccessModifierDeclarations";
 const SOURCE: &str = "class Foo\n  # Docs for foo.\n  private def foo; end # trailing\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -88,7 +82,7 @@ fn exact_registry_default_pipeline_and_no_version_or_path_gates() {
 
 #[test]
 fn default_selectors_and_config_enabling_are_real_cli_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     let disabled = format!("[cops.\"{COP}\"]\nenabled = false\n");
     let enabled = format!("[cops.Style]\nenabled = false\n[cops.\"{COP}\"]\nenabled = true\n");
     for (config, args, expected) in [
@@ -116,7 +110,7 @@ fn default_selectors_and_config_enabling_are_real_cli_paths() {
 
 #[test]
 fn both_directive_prefixes_and_source_opt_ins_preserve_bytes_and_mtime() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rustocop", "rubocop"] {
         for target in [COP, "AccessModifierDeclarations", "Style", "all"] {
             for source in [
@@ -169,7 +163,7 @@ fn both_directive_prefixes_and_source_opt_ins_preserve_bytes_and_mtime() {
 
 #[test]
 fn global_and_cop_excludes_win_over_selection_and_source_enables() {
-    let dir = project();
+    let dir = project_with_lib();
     for config in [
         "exclude = ['lib/**']\n".into(),
         format!("[cops.\"{COP}\"]\nexclude = ['lib/**']\n"),
@@ -190,7 +184,7 @@ fn global_and_cop_excludes_win_over_selection_and_source_enables() {
 
 #[test]
 fn fix_never_changes_unsafe_clean_disabled_or_byte_sensitive_files() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         SOURCE.as_bytes().to_vec(),
         SOURCE.replace('\n', "\r\n").into_bytes(),
@@ -245,7 +239,7 @@ fn fix_never_changes_unsafe_clean_disabled_or_byte_sensitive_files() {
 
 #[test]
 fn stdin_reports_without_creating_its_display_path() {
-    let dir = project();
+    let dir = project_with_lib();
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir.path())
         .args(["--only", COP, "--stdin", "lib/a.rb"])
@@ -284,7 +278,7 @@ fn ruby(source: &str) -> Option<Vec<u8>> {
 
 #[test]
 fn no_movement_preserves_callbacks_visibility_scopes_lookup_and_line_values() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = r#"$events = []
 class Parent
   def inherited; :parent; end
@@ -343,7 +337,7 @@ p $events
 
 #[test]
 fn no_reordering_preserves_argument_evaluation_return_values_and_control_flow() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = r#"$events = []
 module Example
   def self.private(*names)

@@ -55,10 +55,7 @@ impl Cop for ImplicitStringConcatenation {
             {
                 continue;
             }
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                lhs.location().start_offset(),
-                file,
-            );
+            let (line, col) = file.reference_line_col(lhs.location().start_offset());
             // RuboCop removes an empty string, or puts ` + ` between the two.
             let range = |n: &Node<'_>| n.location().start_offset()..n.location().end_offset();
             let (removed, replacement) = if adjacent_strings::empty(lhs) {

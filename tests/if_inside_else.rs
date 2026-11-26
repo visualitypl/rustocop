@@ -1,4 +1,5 @@
 //! real CLI, safety/composition and controlled Ruby observations.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -8,12 +9,6 @@ use std::{
 const COP: &str = "Style/IfInsideElse";
 const BAD: &str = "if a\n  first\nelse\n  if b\n    second\n  end\nend\n";
 const GOOD: &str = "if a\n  first\nelsif b\n  second\nend\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

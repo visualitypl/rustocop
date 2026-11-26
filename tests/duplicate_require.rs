@@ -1,5 +1,6 @@
 //! Pinned source-only fixtures and rebuilt CLI no-write/selection controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -32,20 +33,6 @@ fn v10_neighbour_rows() -> Vec<serde_json::Value> {
 fn v10_review_rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/duplicate_require_identity.json")).unwrap()
 }
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -75,7 +62,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Ou
 }
 #[test]
 fn every_pinned_spec_source_and_control_matches_cli_and_fix_never_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     assert_eq!(rows().len(), 279);
     for row in rows() {
         let source = row["source"].as_str().unwrap();
@@ -94,7 +81,7 @@ fn every_pinned_spec_source_and_control_matches_cli_and_fix_never_writes() {
             for f in expected {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        "lib/a.rb:{}:{}: W: {} ({COP})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -109,7 +96,7 @@ fn every_pinned_spec_source_and_control_matches_cli_and_fix_never_writes() {
 fn encoded_literal_argument_keys_match_reference_without_writes() {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/duplicate_require_bytes.json")).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows {
         let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for args in [
@@ -127,7 +114,7 @@ fn encoded_literal_argument_keys_match_reference_without_writes() {
             for f in expected {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        "lib/a.rb:{}:{}: W: {} ({COP})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -170,7 +157,7 @@ fn v10_review_regexp_and_rescue_neighbours_match_without_writes() {
 
 #[test]
 fn review_identities_compose_with_cli_config_directives_stdin_and_atomic_peer() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         "require(if /x/im; [1,2]; end)\nrequire(if %r{x}mi; [1,2]; end)\n",
         "require(begin; [1,2]; rescue; y; else; end)\nrequire(begin; [1,2]; rescue; y; end)\n",
@@ -242,7 +229,7 @@ fn review_identities_compose_with_cli_config_directives_stdin_and_atomic_peer() 
         assert_eq!(out.status.code(), Some(1));
         assert!(
             String::from_utf8_lossy(&out.stdout)
-                .contains("virtual/review.rb:2:1: E: Duplicate `require` detected.")
+                .contains("virtual/review.rb:2:1: W: Duplicate `require` detected.")
         );
         assert!(!dir.path().join("virtual").exists());
         unchanged(
@@ -279,13 +266,13 @@ fn review_identities_compose_with_cli_config_directives_stdin_and_atomic_peer() 
             assert_eq!(out.status.code(), Some(1));
             assert_eq!(count(&out), 1);
             let new = fs::metadata(&path).unwrap();
-            assert_ne!(old.ino(), new.ino());
+            assert_eq!(old.ino(), new.ino());
             assert_eq!(old.permissions(), new.permissions());
             assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
             let mut held = Vec::new();
             fd.read_to_end(&mut held).unwrap();
-            assert_eq!(held, source.as_bytes());
             let after = source.replace("[1,2]", "[1, 2]");
+            assert_eq!(held, after.as_bytes());
             assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
             unchanged(
                 dir.path(),
@@ -305,7 +292,7 @@ fn review_identities_compose_with_cli_config_directives_stdin_and_atomic_peer() 
 
 #[test]
 fn projected_identity_composes_with_real_cli_gates_stdin_and_atomic_old_peer() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = "# coding: UTF8-MAC\nrequire([ae\u{301},1,2]); require([aé,1,2])\n";
     for selectors in [vec!["--only", COP], vec!["--only", "Lint"], vec![]] {
         let mut args = selectors;
@@ -372,7 +359,7 @@ fn projected_identity_composes_with_real_cli_gates_stdin_and_atomic_old_peer() {
     assert_eq!(out.status.code(), Some(1));
     assert!(
         String::from_utf8_lossy(&out.stdout)
-            .contains("virtual/projected.rb:2:20: E: Duplicate `require` detected.")
+            .contains("virtual/projected.rb:2:20: W: Duplicate `require` detected.")
     );
     assert!(!dir.path().join("virtual").exists());
     unchanged(
@@ -408,7 +395,7 @@ fn projected_identity_composes_with_real_cli_gates_stdin_and_atomic_old_peer() {
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(count(&out), 1);
         let new = fs::metadata(&path).unwrap();
-        assert_ne!(old.ino(), new.ino());
+        assert_eq!(old.ino(), new.ino());
         assert_eq!(old.permissions(), new.permissions());
         assert!(
             fs::symlink_metadata(dir.path().join("lib/alias.rb"))
@@ -417,8 +404,8 @@ fn projected_identity_composes_with_real_cli_gates_stdin_and_atomic_old_peer() {
         );
         let mut held = Vec::new();
         fd.read_to_end(&mut held).unwrap();
-        assert_eq!(held, source.as_bytes());
         let after = source.replace(",1,2", ", 1, 2");
+        assert_eq!(held, after.as_bytes());
         assert_eq!(fs::read(&path).unwrap(), after.as_bytes());
         unchanged(
             dir.path(),
@@ -435,7 +422,7 @@ fn projected_identity_composes_with_real_cli_gates_stdin_and_atomic_old_peer() {
 }
 
 fn byte_rows_match_without_writes(rows: Vec<serde_json::Value>) {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"").unwrap();
     #[cfg(unix)]
@@ -476,7 +463,7 @@ fn byte_rows_match_without_writes(rows: Vec<serde_json::Value>) {
                 .iter()
                 .map(|f| {
                     format!(
-                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        "lib/a.rb:{}:{}: W: {} ({COP})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -497,7 +484,7 @@ fn defaults_metadata_selectors_strict_toml_precedence_and_excludes() {
     assert!(cop.ruby_versions().minimum.is_none() && cop.ruby_versions().maximum.is_none());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, n) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -561,7 +548,7 @@ fn defaults_metadata_selectors_strict_toml_precedence_and_excludes() {
 }
 #[test]
 fn both_prefixes_multiline_ranges_next_push_and_suppressed_first_calls() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable {COP}\nrequire 'x'\nrequire 'x'\n"),
@@ -618,7 +605,7 @@ fn both_prefixes_multiline_ranges_next_push_and_suppressed_first_calls() {
 }
 #[test]
 fn supplied_paths_stdin_no_filesystem_resolution_and_no_stdin_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let absolute = dir.path().join("lib/a.rb");
     for path in [
         "lib/a.rb",
@@ -686,7 +673,7 @@ fn supplied_paths_stdin_no_filesystem_resolution_and_no_stdin_fix() {
 }
 #[test]
 fn encoding_bom_crlf_observers_and_unsafe_control_flow_keep_bytes_and_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in [
         b"".as_slice(),
         b"\xef\xbb\xbf",
@@ -735,7 +722,7 @@ fn encoding_bom_crlf_observers_and_unsafe_control_flow_keep_bytes_and_findings()
 #[test]
 fn atomic_validation_readonly_symlink_failure_and_layout_peer_composition() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -779,7 +766,7 @@ fn atomic_validation_readonly_symlink_failure_and_layout_peer_composition() {
     assert_eq!(out.status.code(), Some(1));
     assert_eq!(count(&out), 1);
     assert_eq!(fs::read(&path).unwrap(), after);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -895,7 +882,7 @@ fn authored_native_external_wall_and_output_overflow_are_failures() {
 }
 #[test]
 fn wide_siblings_and_multiple_input_lifecycles_are_file_local() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = "require 'x'\n".repeat(6000);
     assert_eq!(
         count(&unchanged(
@@ -944,7 +931,7 @@ fn authored_review_identity_counterpairs_still_withhold_unsafe_deletions() {
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     let feature = dir.path().join("review-feature.rb");
     // Separately authored inert helpers only. Never run a reference fixture.
     fs::write(&feature, "$events << :loaded\n").unwrap();
@@ -996,7 +983,7 @@ fn authored_native_require_reload_argument_and_error_counterexamples_prove_no_ed
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     let feature = dir.path().join("feature.rb");
     // Only this authored inert fixture is executed, never reference or corpus files.
     fs::write(&feature, "$events << :loaded\n").unwrap();

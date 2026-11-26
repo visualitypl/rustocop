@@ -261,6 +261,6 @@ fn alias_fix_validation_reuses_original_permission_identity_snapshot() {
     assert!(rows.iter().all(|(_, m)| *m == Some(metadata)));
     assert_eq!(fs::read(&path).unwrap(), b"# after\n");
     assert_eq!(fs::metadata(&path).unwrap().mode() & 0o777, 0o751);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), original.ino());
+    assert_eq!(fs::metadata(&path).unwrap().ino(), original.ino());
     assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
 }

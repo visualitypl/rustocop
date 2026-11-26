@@ -1,5 +1,6 @@
 //! Pinned source-only detection and actual CLI/no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{count, project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -32,25 +33,6 @@ fn rows() -> Vec<serde_json::Value> {
         20
     );
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -122,7 +104,7 @@ fn pinned_main_source_and_original_bytes_match_pipeline_without_edits() {
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -145,7 +127,7 @@ fn pinned_main_source_and_original_bytes_match_pipeline_without_edits() {
 #[test]
 fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
     parallel_rows!(for row in rows() => {
-        let dir = project();
+        let dir = project_with_lib();
         let cop = row["cop"].as_str().unwrap();
         let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         for fix in [false, true] {
@@ -170,7 +152,7 @@ fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
             );
             let mut stdout = String::new();
             for (line, col, _, message) in &expected {
-                stdout.push_str(&format!("lib/a.rb:{line}:{col}: E: {message} ({cop})\n"));
+                stdout.push_str(&format!("lib/a.rb:{line}:{col}: W: {message} ({cop})\n"));
             }
             let n = expected.len();
             let plural = if n == 1 { "" } else { "s" };
@@ -190,7 +172,7 @@ fn every_original_byte_row_matches_rebuilt_cli_lint_and_fix_no_write() {
 #[test]
 fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
     let registry = rustocop::cops::Registry::new();
-    let dir = project();
+    let dir = project_with_lib();
     for cop in COPS {
         let detector = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(detector.default_enabled());
@@ -279,7 +261,7 @@ fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
 }
 #[test]
 fn supplied_file_stdin_path_provenance_and_fixed_path_policies() {
-    let dir = project();
+    let dir = project_with_lib();
     for cop in COPS {
         for config in [
             String::new(),
@@ -364,7 +346,7 @@ fn supplied_file_stdin_path_provenance_and_fixed_path_policies() {
 }
 #[test]
 fn both_directive_prefixes_multiline_next_push_and_exact_ranges() {
-    let dir = project();
+    let dir = project_with_lib();
     for cop in COPS {
         let s = std::str::from_utf8(source(cop)).unwrap();
         for prefix in ["rubocop", "rustocop"] {
@@ -470,7 +452,7 @@ fn both_directive_prefixes_multiline_next_push_and_exact_ranges() {
 }
 #[test]
 fn observer_bytes_parser_gate_peer_composition_and_symlink_atomic_failure() {
-    let dir = project();
+    let dir = project_with_lib();
     for cop in COPS {
         for suffix in [
             "p __LINE__; File.binread(__FILE__); DATA.pos\n__END__\nraw\0\n",

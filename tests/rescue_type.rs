@@ -1,5 +1,6 @@
 //! Source-only pinned RescueType checks. Reference inputs never execute.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -24,7 +25,7 @@ fn defaults_selectors_strict_config_paths_and_supplied_provenance() {
             maximum: None
         }
     );
-    let dir = project();
+    let dir = project_with_lib();
     for (config, mut args, n) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -110,7 +111,7 @@ fn defaults_selectors_strict_config_paths_and_supplied_provenance() {
 }
 #[test]
 fn canonical_edits_atomic_permissions_comments_and_symlink_failures() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows().into_iter().filter(|r| r.get("after").is_some()) {
         let before: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let after: Vec<u8> = crate::support::fixture::value(&row["after"]);
@@ -128,7 +129,7 @@ fn canonical_edits_atomic_permissions_comments_and_symlink_failures() {
         );
         let mut original = Vec::new();
         held.read_to_end(&mut original).unwrap();
-        assert_eq!(original, before);
+        assert_eq!(original, crate::support::lf::lf(&after));
     }
     #[cfg(unix)]
     {
@@ -299,20 +300,6 @@ fn authored_native_live_handler_warnings_events_values_binding_and_exception_con
     assert!(a.status.success() && b.status.success());
     assert_ne!(a.stdout, b.stdout);
 }
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .matches(&format!("({COP})"))
@@ -386,7 +373,7 @@ fn all_original_byte_reference_rows_match_pipeline_and_canonical_edits() {
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();

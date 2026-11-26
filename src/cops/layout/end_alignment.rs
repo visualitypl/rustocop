@@ -310,7 +310,7 @@ mod tests {
                 assert_eq!(found.len(), 1, "{before}");
                 let o = &found[0];
                 assert_eq!((o.line, o.end_line, o.col), (2, 2, 3));
-                assert_eq!(o.severity, Severity::Convention);
+                assert_eq!(o.severity, Severity::Warning);
                 assert_eq!(
                     o.message,
                     format!(

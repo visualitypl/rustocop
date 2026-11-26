@@ -1,5 +1,6 @@
 //! actual fixed3.4 pipeline, rebuilt CLI, mandatory gates/no writes.
 //! RuboCop examples: MIT License, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::ResolvedConfig,
     cops::{
@@ -18,13 +19,6 @@ use std::{
 const COP: &str = "Lint/NonDeterministicRequireOrder";
 const SOURCE: &[u8] = b"Dir[\"*.rb\"].each do |file|\n  require file\nend\n";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(root: &Path, args: &[&str], input: Option<&[u8]>, code: i32) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -86,7 +80,7 @@ fn registration_is_real_but_fixed_target_selection_is_unforceably_inactive() {
 
 #[test]
 fn all_pinned_and_controlled_sources_run_through_real_pipeline_file_cli_and_stdin_without_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = Registry::new();
     let config = ResolvedConfig::default();
@@ -126,7 +120,7 @@ fn all_pinned_and_controlled_sources_run_through_real_pipeline_file_cli_and_stdi
 
 #[test]
 fn overlapping_start_legacy_findings_remain_inactive_and_never_write_in_production() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for require in ["require", "require_relative"] {
         let source = format!("Dir.glob('*.rb', &method(:{require})).each {{ |f| {require} f }}\n");
@@ -151,7 +145,7 @@ fn overlapping_start_legacy_findings_remain_inactive_and_never_write_in_producti
 
 #[test]
 fn config_department_selectors_paths_and_all_source_force_scopes_preserve_the_gate() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     cli(dir.path(), &["lib/a.rb"], None, 0);
@@ -252,7 +246,7 @@ fn config_department_selectors_paths_and_all_source_force_scopes_preserve_the_ga
 
 #[test]
 fn source_envelopes_strict_errors_fatal_parser_and_stdin_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         b"\xef\xbb\xbfDir['*.rb'].each { |file| require file }\r\n".as_slice(),
@@ -292,7 +286,7 @@ fn source_envelopes_strict_errors_fatal_parser_and_stdin_fix_never_write() {
 #[test]
 fn readonly_and_symlink_identity_permissions_are_preserved() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let alias = dir.path().join("alias.rb");
     fs::write(&path, SOURCE).unwrap();

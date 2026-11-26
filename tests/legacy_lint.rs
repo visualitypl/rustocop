@@ -1,5 +1,6 @@
 //! real fixed-target pipeline/CLI gates, not a legacy target knob.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project_with_lib;
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, select_active},
@@ -15,13 +16,6 @@ const IT: &str = "Lint/ItWithoutArgumentsInBlock";
 const ELSE: &str = "Lint/UselessElseWithoutRescue";
 const BOTH: &str = "Lint/ItWithoutArgumentsInBlock,Lint/UselessElseWithoutRescue";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(root: &Path, args: &[&str], input: Option<&[u8]>, code: i32) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -56,7 +50,7 @@ fn unchanged(path: &Path, bytes: &[u8], old: &fs::Metadata) {
 
 #[test]
 fn review_implicit_else_recovery_never_reaches_production_dispatch() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "def foo; work; else; other; end",
@@ -87,7 +81,7 @@ fn review_implicit_else_recovery_never_reaches_production_dispatch() {
 
 #[test]
 fn all_pinned_examples_use_fixed_parser_lifecycle_and_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let registry = Registry::new();
     let config = ResolvedConfig::default();
     let active = select_active(&registry, &config, &[IT.into(), ELSE.into()], &[]);
@@ -132,7 +126,7 @@ fn all_pinned_examples_use_fixed_parser_lifecycle_and_never_write() {
 
 #[test]
 fn real_selection_config_precedence_and_source_force_scopes_cannot_bypass_versions() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = b"items.each { it }\n";
     fs::write(&path, source).unwrap();
@@ -222,7 +216,7 @@ fn real_selection_config_precedence_and_source_force_scopes_cannot_bypass_versio
 
 #[test]
 fn no_write_byte_controls_parser_failures_strict_keys_stdin_and_supplied_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         b"\xef\xbb\xbfitems.each { it }\r\n".as_slice(),
@@ -282,7 +276,7 @@ fn no_write_byte_controls_parser_failures_strict_keys_stdin_and_supplied_paths()
 #[test]
 fn symlink_and_readonly_detection_preserve_actual_write_identity_and_permissions() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let alias = dir.path().join("alias.rb");
     let source = b"items.each { it }\n";

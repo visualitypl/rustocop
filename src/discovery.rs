@@ -38,7 +38,11 @@ pub fn collect_files(
         }
     }
     out.sort();
-    out.dedup();
+    // One file reached under two spellings (`./a.rb` from walking `.`, and
+    // `a.rb` given) is one target, as RuboCop's expanded paths are. Symlinks
+    // are not resolved, so a link stays a separate target there too.
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|path| seen.insert(std::path::absolute(path).unwrap_or_else(|_| path.clone())));
     Ok(out)
 }
 
@@ -426,6 +430,22 @@ mod tests {
                 .collect::<Vec<_>>(),
             &["Rakefile", "lib/x.rb"],
         );
+    }
+
+    #[test]
+    fn a_file_named_twice_is_collected_once() {
+        let (_tmp, root) = setup(&[("lib/x.rb", "1")]);
+        let files = collect_files(
+            &[
+                root.join("."),
+                root.join("lib/x.rb"),
+                root.join("lib/./x.rb"),
+            ],
+            &root,
+            &[],
+        )
+        .unwrap();
+        assert_eq!(files.len(), 1, "{files:?}");
     }
 
     #[test]

@@ -1,5 +1,6 @@
 //! Pinned regexp_literal_spec.rb examples (MIT, Copyright
 //! (c) 2012-26 Bozhidar Batsov), CLI policy and regexp semantic witnesses.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -8,12 +9,6 @@ use std::{
 };
 const COP: &str = "Style/RegexpLiteral";
 const SOURCE: &str = "p(%r{a})\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

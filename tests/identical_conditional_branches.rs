@@ -1,5 +1,6 @@
 //! pinned RuboCop style/identical_conditional_branches_spec.rb examples
 //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov), selection and no-write contracts.
+use crate::support::cli::project;
 use serde::Deserialize;
 use std::{
     fs,
@@ -39,12 +40,6 @@ fn lint(source: &[u8]) -> Vec<rustocop::offense::Offense> {
         "{result:?}"
     );
     result.result.offenses
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
 }
 fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> std::process::Output {
     let path = dir.join("a.rb");

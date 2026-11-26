@@ -1,5 +1,6 @@
 //! Source-only pinned fixtures, real CLI, no-edit applicability.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -16,20 +17,6 @@ fn rows() -> Vec<serde_json::Value> {
         serde_json::from_str(include_str!("fixtures/flip_flop_accumulator.json")).unwrap();
     assert_eq!(rows.len(), 1385);
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn counts(out: &Output) -> (usize, usize) {
     let stdout = String::from_utf8_lossy(&out.stdout);
@@ -91,7 +78,7 @@ fn all_pinned_specs_documentation_syntactic_and_original_byte_controls_match_pip
                 .filter(|o| o.cop == cop)
                 .map(|o| {
                     assert!(o.correction.is_none());
-                    assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                    assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                     (o.line, o.col, o.end_line, o.message.clone())
                 })
                 .collect();
@@ -115,7 +102,7 @@ fn all_pinned_specs_documentation_syntactic_and_original_byte_controls_match_pip
 
 #[test]
 fn every_fixture_matches_exact_rebuilt_cli_and_never_writes_even_when_fix_requested() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows() {
         let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let has_findings = [FLIP, EACH].iter().any(|c| !expected(&row, c).is_empty());
@@ -129,7 +116,7 @@ fn every_fixture_matches_exact_rebuilt_cli_and_never_writes_even_when_fix_reques
         for cop in [FLIP, EACH] {
             let mut expected: Vec<_> = expected(&row, cop)
                 .into_iter()
-                .map(|(line, col, _, msg)| format!("lib/a.rb:{line}:{col}: E: {msg} ({cop})"))
+                .map(|(line, col, _, msg)| format!("lib/a.rb:{line}:{col}: W: {msg} ({cop})"))
                 .collect();
             let mut found: Vec<_> = stdout
                 .lines()
@@ -158,7 +145,7 @@ fn detection_only_metadata_defaults_selectors_and_strict_toml_precedence() {
         assert!(cop.path_policy().is_none());
         assert!(cop.max_setting().is_none());
     }
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selection, expected) in [
         (String::new(), vec![], (1, 1)),
         (String::new(), vec!["--only", BOTH], (1, 1)),
@@ -232,7 +219,7 @@ fn detection_only_metadata_defaults_selectors_and_strict_toml_precedence() {
 
 #[test]
 fn supplied_path_exclusions_stdin_and_both_directive_prefixes_keep_provenance() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, expected) in [
         (String::new(), (1, 1)),
         ("exclude = ['lib/a.rb']\n".into(), (0, 0)),
@@ -329,7 +316,7 @@ fn supplied_path_exclusions_stdin_and_both_directive_prefixes_keep_provenance() 
 
 #[test]
 fn source_observers_encoding_data_heredocs_comments_and_atomic_peers_keep_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\nobj.each_with_object(0)\r\nbody if a..b\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# encoding: Windows-1252\np '\xe9'; obj.each_with_object(0)\nbody if a..b\n",

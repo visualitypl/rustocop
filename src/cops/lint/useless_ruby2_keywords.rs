@@ -96,7 +96,7 @@ impl Cop for UselessRuby2Keywords {
         } else {
             return;
         };
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         let name: String = name
             .utf8_chunks()
             .map(|c| {

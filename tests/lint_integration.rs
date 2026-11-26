@@ -1,6 +1,7 @@
 //! Current project safety proofs, distinct from upstream class flags.
 //! Canonical cases adapt the attributed RuboCop/feature tests (MIT,
 //! Copyright (c) 2012-26 Bozhidar Batsov). Reference fixtures are never executed.
+use crate::support::cli::project;
 use rustocop::cops::Registry;
 use serde::Deserialize;
 use serde_json::Value;
@@ -37,12 +38,6 @@ fn selection(c: &Canonical) -> String {
 }
 fn inventory() -> Value {
     serde_json::from_str(include_str!("../tools/oracle/lint_reference.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
 }
 fn cli(root: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -208,7 +203,7 @@ fn all160_defaults_versions_severity_ownership_and_exact_current520_projection()
             r["default_enabled"].as_bool().unwrap(),
             "{name}"
         );
-        assert_eq!(format!("{:?}", c.severity()), "Error", "{name}");
+        assert_eq!(format!("{:?}", c.severity()), "Warning", "{name}");
         let bounds = c.ruby_versions();
         for (actual, key) in [
             (bounds.minimum, "minimum_ruby"),
@@ -435,7 +430,7 @@ fn every_canonical_preserves_symlink_mode_held_fd_and_readonly_failure() {
         );
         let mut original = Vec::new();
         held.read_to_end(&mut original).unwrap();
-        assert_eq!(original, c.before.as_bytes());
+        assert_eq!(original, c.after.as_bytes());
         assert_eq!(
             fs::metadata(&path).unwrap().permissions().mode() & 0o777,
             0o640

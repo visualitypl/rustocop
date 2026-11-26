@@ -1,4 +1,5 @@
 //! source-only opt-in detection, fixed path policy and no-write CLI.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -9,13 +10,6 @@ use crate::support::stdin as stdin_support;
 
 const COP: &str = "Style/IpAddresses";
 const SOURCE: &str = "puts \"127.0.0.1\"\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn run(dir: &Path, args: &[&str], count: usize) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))

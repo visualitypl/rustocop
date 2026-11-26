@@ -67,9 +67,9 @@ impl Cop for DuplicatedGem {
             {
                 continue; // conditional_declaration?
             }
-            let (first_line, _) = crate::cops::lint::reference_line_col(first.start, file);
+            let (first_line, _) = file.reference_line_col(first.start);
             for declaration in &group[1..] {
-                let (line, col) = crate::cops::lint::reference_line_col(declaration.start, file);
+                let (line, col) = file.reference_line_col(declaration.start);
                 out.push(Offense {
                     cop: self.name(),
                     severity: self.severity(),

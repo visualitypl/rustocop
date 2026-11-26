@@ -1,4 +1,5 @@
 //! real CLI, bytes, binding and controlled-runtime evidence.
+use crate::support::cli::project;
 use crate::support::source_getter;
 use std::{
     fs,
@@ -9,12 +10,6 @@ use std::{
 const COP: &str = "Style/Lambda";
 const BEFORE: &str = "f = lambda { |x| x }\n";
 const AFTER: &str = "f = ->(x) { x }\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

@@ -13,6 +13,7 @@
 //!
 //! The witnesses are pinned RuboCop spec examples at 97f30c4
 //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 
 use std::{
     collections::BTreeSet,
@@ -35,13 +36,6 @@ fn rows<'a>(inventory: &'a Value, kinds: &[&str]) -> Vec<&'a Value> {
         .iter()
         .filter(|row| kinds.contains(&row["correction"]["kind"].as_str().unwrap()))
         .collect()
-}
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
 }
 
 fn cli(dir: &Path, args: &[&str]) -> Output {

@@ -61,8 +61,7 @@ impl Cop for ReturnInVoidContext {
             return;
         }
         let loc = ret.keyword_loc();
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(loc.start_offset(), file);
+        let (line, col) = file.reference_line_col(loc.start_offset());
         let method = single_line(&file.match_pattern_source(def.name_loc().as_slice()));
         out.push(Offense {
             cop: self.name(),

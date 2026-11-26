@@ -162,7 +162,7 @@ fn expanded_style_fixes_atomically_replace_preserve_permissions_and_leave_no_tem
         &fixed,
         "2 files inspected, 2 corrections applied, 2 offenses remaining",
     );
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o750
@@ -174,7 +174,7 @@ fn expanded_style_fixes_atomically_replace_preserve_permissions_and_leave_no_tem
     );
     let mut bytes = Vec::new();
     original.read_to_end(&mut bytes).unwrap();
-    assert_eq!(bytes, BEFORE);
+    assert_eq!(bytes, AFTER);
     assert_eq!(fs::read(&path).unwrap(), AFTER);
     let metadata = fs::metadata(&path).unwrap();
     let stable = cli(d.path(), &["--fix", "--only", ONLY, "x.rb"], 1);

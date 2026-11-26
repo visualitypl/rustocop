@@ -1,5 +1,6 @@
 //! Real filename lifecycle; RuboCop gem_filename_spec.rb examples
 //! ported under MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project;
 use crate::support::deprecated_constructor_native as native;
 use crate::support::stdin as stdin_support;
 use rustocop::{
@@ -13,12 +14,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Bundler/GemFilename";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], bytes: Option<&[u8]>) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -311,7 +306,7 @@ fn stdin_valid_encoding_bom_crlf_data_and_opaque_binary_locks() {
 #[test]
 fn fatal_ruby_encoding_syntax_depth_and_io_cannot_be_bypassed() {
     let d = project();
-    let deep = format!("{}1{}", "[".repeat(2000), "]".repeat(2000));
+    let deep = format!("{}1{}", "[".repeat(4100), "]".repeat(4100));
     for bytes in [
         b"def (".as_slice(),
         b"\xff",

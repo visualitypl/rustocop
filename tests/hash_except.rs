@@ -1,4 +1,5 @@
 //! fixed unsafe detector; no Ruby rewrite is authorized.
+use crate::support::cli::project;
 use crate::support::stdin;
 
 use std::{
@@ -8,12 +9,6 @@ use std::{
 };
 const COP: &str = "Style/HashExcept";
 const SOURCE: &str = "hash.reject { |k, v| k == :bar }\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

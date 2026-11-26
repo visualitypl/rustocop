@@ -57,7 +57,7 @@ impl Cop for ShadowingOuterLocalVariable {
                 continue;
             }
             let range = &variable.declaration_range;
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(range.start, file);
+            let (line, col) = file.reference_line_col(range.start);
             let name: String = file
                 .match_pattern_source(variable.name)
                 .utf8_chunks()

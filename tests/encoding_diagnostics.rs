@@ -1,4 +1,5 @@
 //! diagnostic display must not require UTF-8 source bytes.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -12,13 +13,6 @@ const ENCODINGS: &[(&str, &[u8])] = &[
     ("Shift_JIS", b"\x82\xa0"),
 ];
 const CONDITIONAL: &str = "Style/ConditionalAssignment";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(root: &Path, args: &[&str], stdin: &[u8], status: i32) -> String {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))

@@ -1,4 +1,5 @@
 //! real CLI contracts and controlled, local filesystem semantics.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -63,13 +64,6 @@ const CASES: &[(&str, &str, &str)] = &[
         "File.size(\"path/to/file\") == 0\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(cwd)
@@ -82,7 +76,7 @@ fn cli(cwd: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn directives_excludes_and_disabled_spans_preserve_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         for prefix in ["rubocop", "rustocop"] {
@@ -125,7 +119,7 @@ fn directives_excludes_and_disabled_spans_preserve_bytes() {
 
 #[test]
 fn legacy_encoding_path_bytes_are_reported_but_not_lossily_rewritten() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let bytes =
         b"# encoding: ISO-8859-1\r\nDir.children(\"caf\xe9\").empty?\r\n__END__\r\nraw\xff\r\n";
@@ -141,7 +135,7 @@ fn legacy_encoding_path_bytes_are_reported_but_not_lossily_rewritten() {
 
 #[test]
 fn mixed_style_and_layout_fixes_stabilize_in_bounded_explicit_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(
         &path,
@@ -170,7 +164,7 @@ fn review_runtime_regressions_preserve_indexing_alias_bindings_and_path_errors()
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let script = dir.path().join("a.rb");
     fs::write(dir.path().join("regular"), "x").unwrap();
     for (cop, source) in [
@@ -219,7 +213,7 @@ fn literal_method_binding_runtime_regressions_retain_offenses_and_do_not_write()
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let script = dir.path().join("a.rb");
     for source in [
         // Exact reproductions: these used to become object_id / 123.
@@ -270,7 +264,7 @@ fn literal_api_mutations_retain_offenses_and_preserve_ruby_behavior_without_writ
     if Command::new("ruby").arg("--version").output().is_err() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let script = dir.path().join("a.rb");
     for (cop, binding, expression) in [
         (

@@ -1,5 +1,6 @@
 //! Source-only pinned AST and CLI checks. Never execute reference inputs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{count, project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -12,25 +13,6 @@ fn rows() -> Vec<serde_json::Value> {
     let rows: Vec<serde_json::Value> =
         serde_json::from_str(include_str!("fixtures/send_with_mixin_argument.json")).unwrap();
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -70,7 +52,7 @@ fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> O
 #[test]
 fn defaults_selectors_toml_department_and_path_precedence() {
     let registry = rustocop::cops::Registry::new();
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let detector = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(detector.default_enabled());
@@ -157,7 +139,7 @@ fn defaults_selectors_toml_department_and_path_precedence() {
 #[test]
 fn canonical_atomic_symlink_failure_and_idempotence() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let before = b"if false\n  Foo.send(:include, Bar)\nend\n";
     fs::write(&path, before).unwrap();
@@ -187,7 +169,7 @@ fn canonical_atomic_symlink_failure_and_idempotence() {
         fs::read(&path).unwrap(),
         b"if false\n  Foo.include Bar\nend\n"
     );
-    assert_ne!(old.ino(), fs::metadata(&path).unwrap().ino());
+    assert_eq!(old.ino(), fs::metadata(&path).unwrap().ino());
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -208,7 +190,7 @@ fn canonical_atomic_symlink_failure_and_idempotence() {
 }
 #[test]
 fn source_file_literal_uses_supplied_stdin_path_not_display_or_disk_contents() {
-    let dir = project();
+    let dir = project_with_lib();
     for (path, n) in [
         ("include", 1),
         ("prepend", 1),

@@ -1,5 +1,6 @@
 //! Pinned RuboCop specs (MIT, (c) 2012-26 Bozhidar Batsov).
 //! Runtime witnesses execute only controlled fixtures, never corpus code.
+use crate::support::cli::project;
 use crate::support::stdin;
 use std::{
     fs,
@@ -16,12 +17,6 @@ const SOURCES: [&str; 3] = [
     "[3, 1, 2].sort_by { |x| x }\n",
     "x >= min && x <= max\n",
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

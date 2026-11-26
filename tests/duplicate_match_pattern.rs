@@ -1,5 +1,6 @@
 //! pinned source-only parity and actual rebuilt CLI no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -13,20 +14,6 @@ fn rows() -> Vec<serde_json::Value> {
         serde_json::from_str(include_str!("fixtures/duplicate_match_pattern.json")).unwrap();
     assert_eq!(rows.len(), 148);
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -57,7 +44,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Ou
 }
 #[test]
 fn every_reference_row_matches_cli_with_and_without_fix_and_never_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows() {
         let source = row["source"].as_str().unwrap();
         let findings = row["findings"].as_array().unwrap();
@@ -75,7 +62,7 @@ fn every_reference_row_matches_cli_with_and_without_fix_and_never_writes() {
             for f in findings {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        "lib/a.rb:{}:{}: W: {} ({COP})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -142,7 +129,7 @@ fn reference_buffer_header_projection_does_not_change_main_parse_metadata() {
 
 fn byte_rows_match_cli(json: &str) {
     let rows: Vec<serde_json::Value> = serde_json::from_str(json).unwrap();
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows {
         let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let findings = row["findings"].as_array().unwrap();
@@ -160,7 +147,7 @@ fn byte_rows_match_cli(json: &str) {
             for f in findings {
                 assert!(
                     String::from_utf8_lossy(&out.stdout).contains(&format!(
-                        "lib/a.rb:{}:{}: E: {} ({COP})",
+                        "lib/a.rb:{}:{}: W: {} ({COP})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -183,7 +170,7 @@ fn defaults_metadata_selectors_version_gate_strict_toml_and_precedence() {
     assert!(cop.ruby_versions().maximum.is_none());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, n) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -247,7 +234,7 @@ fn defaults_metadata_selectors_version_gate_strict_toml_and_precedence() {
 }
 #[test]
 fn both_prefixes_multiline_pattern_range_excludes_guard_and_body_next_push_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!(
@@ -324,7 +311,7 @@ fn both_prefixes_multiline_pattern_range_excludes_guard_and_body_next_push_scope
 }
 #[test]
 fn supplied_file_paths_stdin_provenance_excludes_and_rejected_stdin_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let absolute = dir.path().join("lib/a.rb");
     for path in [
         "lib/a.rb",
@@ -339,7 +326,7 @@ fn supplied_file_paths_stdin_provenance_excludes_and_rejected_stdin_fix() {
         let out = run(dir.path(), &["--only", COP, "--fix", path]);
         assert_eq!(out.status.code(), Some(1));
         assert_eq!(count(&out), 1);
-        assert!(String::from_utf8_lossy(&out.stdout).contains(":4:4: E:"));
+        assert!(String::from_utf8_lossy(&out.stdout).contains(":4:4: W:"));
         assert_eq!(fs::read(dir.path().join(path)).unwrap(), SOURCE);
     }
     for directory in ["vendor", "node_modules", "db"] {
@@ -387,7 +374,7 @@ fn supplied_file_paths_stdin_provenance_excludes_and_rejected_stdin_fix() {
 }
 #[test]
 fn bom_crlf_legacy_encodings_and_observers_preserve_bytes_metadata_and_findings() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in [
         b"".as_slice(),
         b"\xef\xbb\xbf",
@@ -437,7 +424,7 @@ fn bom_crlf_legacy_encodings_and_observers_preserve_bytes_metadata_and_findings(
 #[test]
 fn shared_atomic_validation_readonly_symlink_failure_and_layout_composition() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -481,7 +468,7 @@ fn shared_atomic_validation_readonly_symlink_failure_and_layout_composition() {
     assert_eq!(out.status.code(), Some(1), "{out:?}");
     assert_eq!(count(&out), 1);
     assert_eq!(fs::read(&path).unwrap(), after);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640

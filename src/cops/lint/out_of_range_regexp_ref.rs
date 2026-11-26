@@ -93,7 +93,7 @@ impl Cop for OutOfRangeRegexpRef {
         };
         tracker.visit_program_node(&program);
         for (offset, reference, valid) in tracker.offenses {
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, file);
+            let (line, col) = file.reference_line_col(offset);
             let count = if valid == 0 {
                 "no".to_string()
             } else {

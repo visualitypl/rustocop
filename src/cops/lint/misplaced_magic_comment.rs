@@ -22,7 +22,7 @@ impl Cop for MisplacedMagicComment {
         let mut emit = |start: usize, end: usize, message: &str, correction| {
             // The reference source buffer composes UTF8-MAC before counting
             // columns; reuse the existing bounded buffer projection.
-            let (line, col) = super::duplicate_match_pattern::buffer_line_col(start, file);
+            let (line, col) = file.buffer_line_col(start);
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),

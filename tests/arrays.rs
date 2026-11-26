@@ -1,5 +1,6 @@
 //! all three cops are unsafe/detection-only. Runtime scripts below
 //! are controlled ordinary counterexamples, never application or command code.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -11,12 +12,6 @@ const COPS: [(&str, &str, bool); 3] = [
     ("Style/ArrayFirstLast", "arr[0]\n", false),
     ("Style/ArrayIntersect", "(a & b).any?\n", true),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

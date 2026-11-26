@@ -1,28 +1,15 @@
 //! Original-byte source-only references; no fixture execution.
 //! RuboCop examples MIT, Copyright 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project, run};
 use std::{
     fs,
-    path::Path,
     process::{Command, Output},
 };
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
         .filter(|line| line.contains(&format!("({cop})")))
         .count()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
 }
 #[test]
 fn fixed_defaults_selectors_toml_paths_and_directives() {

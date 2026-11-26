@@ -1,15 +1,9 @@
 //! Shared scalar mapping through real cop dispatch, output and byte corrections.
+use crate::support::cli::project;
 use std::{fs, process::Command};
 
 const ONLY: &str =
     "Lint/Debugger,Style/MethodDefParentheses,Style/AmbiguousEndlessMethodDefinition";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(dir: &std::path::Path, args: &[&str], status: i32) -> String {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -112,7 +106,7 @@ fn dense_unicode_corrections_keep_raw_byte_offsets_and_sorted_remaining_position
     for index in 0..REPEATS {
         let col = first_col + index * fixed_fragment.chars().count();
         expected.push_str(&format!(
-            "x.rb:1:{col}: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)\n"
+            "x.rb:1:{col}: W: Remove debugger entry point `binding.pry`. (Lint/Debugger)\n"
         ));
     }
     expected.push_str(&format!(

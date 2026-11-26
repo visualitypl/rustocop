@@ -4,8 +4,8 @@
 //! but can exhaust a default 2 MiB Rust worker stack before reaching that
 //! diagnostic. Reserve ample headroom for that C budget, independently of
 //! RUST_MIN_STACK / Rayon settings. No threads or !Send parser handles cross
-//! thread boundaries. Only parsing uses this segment; Rust analyses retain
-//! their separate, much smaller AST-depth budget. The local sys patch extends
+//! thread boundaries. The depth preflight runs on this segment too; the lint
+//! gets its own (see `depth::STACK_SIZE`). The local sys patch extends
 //! Prism's existing recursion guard to patterns and destructured parameters;
 //! see `vendor/ruby-prism-sys/RUSTOCOP.md` before upgrading either binding.
 
@@ -29,7 +29,7 @@ use crate::cops::{
     policy::RubyVersion,
 };
 
-const PARSER_STACK_SIZE: usize = 64 * 1024 * 1024;
+const PARSER_STACK_SIZE: usize = depth::STACK_SIZE;
 
 /// A parse whose deep (including recovered) tree is always destroyed with
 /// bounded stack usage, even when a caller only reads metadata or unwinds.
@@ -93,19 +93,21 @@ pub(crate) fn parse_with_tokens(source: &[u8], version: RubyVersion) -> Parsed<'
 /// the token stream.
 fn parse_recording(source: &[u8], version: RubyVersion, lexing: bool) -> Parsed<'_> {
     let grammar = grammar(version);
-    let ((result, tokens), continuations) = continuations::collect(|| {
+    let ((result, tokens, depth_error), continuations) = continuations::collect(|| {
         stacker::grow(PARSER_STACK_SIZE, || {
-            if lexing {
+            let (result, tokens) = if lexing {
                 let (result, tokens) = tokens::recording(source, |callback| {
                     ruby_prism::parse_with_version_lexing(source, grammar, callback)
                 });
                 (result, Some(tokens))
             } else {
                 (ruby_prism::parse_with_version(source, grammar), None)
-            }
+            };
+            // The preflight recurses once per level too.
+            let depth_error = depth::check(&result.node().as_program_node().unwrap()).err();
+            (result, tokens, depth_error)
         })
     });
-    let depth_error = depth::check(&result.node().as_program_node().unwrap()).err();
     Parsed {
         result: Some(result),
         depth_error,
@@ -616,12 +618,16 @@ mod tests {
 
     #[test]
     fn parses_on_an_isolated_stack_before_checking_ast_depth() {
-        let source = definitions(1000);
+        // `foo2045`'s splat, on line 4092, is the first node past the limit.
+        let source = definitions(2100);
         let parsed = parse(source.as_bytes());
         assert_eq!(parsed.errors().count(), 0);
         let file = SourceFile::new("deep.rb".into(), source.as_bytes().to_vec());
         file.record_encoding(&parsed);
-        assert_eq!(file.line_col(parsed.depth_error().unwrap().offset), (60, 5));
+        assert_eq!(
+            file.line_col(parsed.depth_error().unwrap().offset),
+            (4092, 5)
+        );
     }
 
     #[test]

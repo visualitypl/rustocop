@@ -1,4 +1,5 @@
 //! real pipeline controls, exact bytes and controlled Ruby semantics.
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -22,12 +23,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "def f(b:, a: 1)\n  [a, b]\nend\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

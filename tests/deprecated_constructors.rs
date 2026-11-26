@@ -1,5 +1,6 @@
 //! source-only reference parity, real CLI and authored native controls.
 //! Ported RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use crate::support::deprecated_constructor_native as native_guard;
 use std::{
     fs,
@@ -11,20 +12,6 @@ const BIG: &str = "Lint/BigDecimalNew";
 const ERB: &str = "Lint/ErbNewArguments";
 const BOTH: &str = "Lint/BigDecimalNew,Lint/ErbNewArguments";
 const SOURCE: &[u8] = b"BigDecimal.new(1, 2)\nERB.new(str, nil, '-', '@buf')\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -62,7 +49,7 @@ fn encoded_argument_diagnostics_match_reference_in_real_lint_fix_and_stdin() {
     ))
     .unwrap();
     assert_eq!(rows.len(), 327);
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "").unwrap();
     #[cfg(unix)]
@@ -89,7 +76,7 @@ fn encoded_argument_diagnostics_match_reference_in_real_lint_fix_and_stdin() {
             for f in findings {
                 assert!(
                     text.contains(&format!(
-                        "{path}:{}:{}: E: {} ({ERB})",
+                        "{path}:{}:{}: W: {} ({ERB})",
                         f[0],
                         f[1],
                         f[3].as_str().unwrap()
@@ -173,7 +160,7 @@ fn actual_defaults_bounds_selectors_toml_precedence_and_strict_keys() {
         assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
         assert!(cop.autocorrect_incompatible_with().is_empty());
     }
-    let dir = project();
+    let dir = project_with_lib();
     for name in [BIG, ERB] {
         let expected = if name == BIG { 1 } else { 3 };
         for (config, selectors, n) in [

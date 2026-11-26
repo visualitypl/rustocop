@@ -1,5 +1,6 @@
 //! pinned source-only examples, fixed policy and rebuilt CLI no-write.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ use std::{
 const COP: &str = "Lint/CircularArgumentReference";
 const SOURCE: &[u8] = b"def f(msg = msg); msg; end\n";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -45,7 +32,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
 
 #[test]
 fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/circular_argument_reference.json")).unwrap();
     assert_eq!(rows.as_array().unwrap().len(), 147);
@@ -71,7 +58,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -89,7 +76,7 @@ fn all_pinned_specs_source_chunks_and_controls_match_pipeline_and_cli_without_ed
         let stdout = String::from_utf8_lossy(&out.stdout);
         for (line, col, _, msg) in expected {
             assert!(
-                stdout.contains(&format!("lib/a.rb:{line}:{col}: E: {msg} ({COP})")),
+                stdout.contains(&format!("lib/a.rb:{line}:{col}: W: {msg} ({COP})")),
                 "{stdout}"
             );
         }
@@ -119,7 +106,7 @@ fn metadata_is_default_on_ruby34_eligible_detection_only_without_paths_or_settin
 
 #[test]
 fn selectors_department_precedence_and_source_activation_without_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, select, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -189,7 +176,7 @@ fn run_source_without_fix(root: &Path, source: &[u8]) -> Output {
 
 #[test]
 fn strict_toml_exclusions_and_supplied_file_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     for key in [
         "max = 1",
         "include = ['**/*']",
@@ -233,7 +220,7 @@ fn strict_toml_exclusions_and_supplied_file_paths() {
 
 #[test]
 fn both_prefixes_multiline_read_range_next_and_push_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable {COP}\ndef f(msg = msg); end\n"),
@@ -274,7 +261,7 @@ fn both_prefixes_multiline_read_range_next_and_push_scopes() {
 
 #[test]
 fn stdin_path_is_provenance_and_fix_is_rejected() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, b"sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -296,7 +283,7 @@ fn stdin_path_is_provenance_and_fix_is_rejected() {
         assert_eq!(count(&out), expected);
         assert_eq!(out.status.code(), Some(i32::from(expected != 0)));
         if expected == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:13: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:13: W:"));
         }
     }
     assert_eq!(
@@ -313,7 +300,7 @@ fn stdin_path_is_provenance_and_fix_is_rejected() {
 
 #[test]
 fn source_envelopes_observers_and_non_utf8_identifiers_never_receive_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\ndef f(msg: msg); end\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# encoding: Windows-1252\ndef f(\xe9 = \xe9); end\n",
@@ -334,7 +321,7 @@ fn existing_layout_correction_composes_atomically_and_readonly_failure_retains_f
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let before = b"def f(msg = msg); end\nvalues = [1,2]\n";
     let after = b"def f(msg = msg); end\nvalues = [1, 2]\n";
     let only = "Lint/CircularArgumentReference,Layout/SpaceAfterComma";
@@ -351,8 +338,8 @@ fn existing_layout_correction_composes_atomically_and_readonly_failure_retains_f
     assert_eq!(fs::read(&path).unwrap(), after);
     let mut old_bytes = Vec::new();
     original.read_to_end(&mut old_bytes).unwrap();
-    assert_eq!(old_bytes, before);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(old_bytes, after);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -377,10 +364,14 @@ fn existing_layout_correction_composes_atomically_and_readonly_failure_retains_f
 
 #[test]
 fn invalid_resource_and_io_failures_and_readonly_symlinks_keep_originals() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         "def f(msg = msg); end\ndef broken(\n".to_string(),
-        format!("def f(msg = {}msg); end\n", "foo = ".repeat(80)),
+        format!(
+            "def f(msg = {}msg{}); end\n",
+            "[".repeat(4100),
+            "]".repeat(4100)
+        ),
     ] {
         let out = unchanged(
             dir.path(),

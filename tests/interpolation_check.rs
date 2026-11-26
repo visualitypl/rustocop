@@ -1,5 +1,6 @@
 //! Original-byte source-only pinned parity and rebuilt CLI controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -14,20 +15,6 @@ fn rows() -> Vec<serde_json::Value> {
         serde_json::from_str(include_str!("fixtures/interpolation_check.json")).unwrap();
     assert_eq!(rows.len(), 7538);
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -90,7 +77,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -113,7 +100,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
 #[test]
 fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
     parallel_rows!(for row in rows() => {
-        let dir = project();
+        let dir = project_with_lib();
         let bytes: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let expected: Vec<Finding> = crate::support::fixture::value(&row["findings"]);
         for fix in [false, true] {
@@ -126,7 +113,7 @@ fn all_original_bytes_match_rebuilt_cli_and_fix_never_writes() {
             assert_eq!(count(&out), expected.len(), "{row}: {out:?}");
             let mut stdout = String::new();
             for (line, col, _, message) in &expected {
-                stdout.push_str(&format!("lib/a.rb:{line}:{col}: E: {message} ({COP})\n"));
+                stdout.push_str(&format!("lib/a.rb:{line}:{col}: W: {message} ({COP})\n"));
             }
             let n = expected.len();
             let plural = if n == 1 { "" } else { "s" };
@@ -153,7 +140,7 @@ fn defaults_selectors_strict_toml_department_and_exclusion_precedence() {
         cop.ruby_versions(),
         rustocop::cops::policy::RubyVersions::default()
     );
-    let dir = project();
+    let dir = project_with_lib();
     let out = unchanged(dir.path(), SOURCE, &["lib/a.rb"], 1);
     assert_eq!(count(&out), 1);
     let out = unchanged(
@@ -211,7 +198,7 @@ fn defaults_selectors_strict_toml_department_and_exclusion_precedence() {
 }
 #[test]
 fn both_directive_prefixes_multiline_next_and_push_scopes() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rustocop", "rubocop"] {
         for source in [
             format!("# {prefix}:disable {COP}\nvalue = '#{{a}}'\n"),
@@ -245,7 +232,7 @@ fn both_directive_prefixes_multiline_next_and_push_scopes() {
 }
 #[test]
 fn stdin_virtual_paths_have_no_fixed_path_gate_and_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in [
         "virtual.rb",
         "lib/template.jb",
@@ -351,7 +338,7 @@ fn individual_when_not_conversions_are_fixed34_reference_grammar_differences() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let dir = project();
+    let dir = project_with_lib();
     for row in exclusions {
         let source = row["source"].as_str().unwrap().as_bytes();
         let expected: Vec<(u32, u32, String)> =
@@ -386,7 +373,7 @@ fn individual_when_not_conversions_are_fixed34_reference_grammar_differences() {
             for (line, col, message) in &expected {
                 assert!(
                     String::from_utf8_lossy(&out.stdout)
-                        .contains(&format!("lib/a.rb:{line}:{col}: E: {message} ({COP})\n"))
+                        .contains(&format!("lib/a.rb:{line}:{col}: W: {message} ({COP})\n"))
                 );
             }
         }
@@ -409,7 +396,7 @@ fn individual_when_not_conversions_are_fixed34_reference_grammar_differences() {
 
 #[test]
 fn parser_failure_peer_composition_and_symlink_controls_keep_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let invalid = b"value = '#{a}'\ndef broken(\n";
     let out = unchanged(
         dir.path(),

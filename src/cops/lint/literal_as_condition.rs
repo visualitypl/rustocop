@@ -157,7 +157,7 @@ impl Reporter<'_> {
     }
 
     fn report_range(&mut self, start: usize, end: usize, correction: Option<Correction>) {
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, self.file);
+        let (line, col) = self.file.reference_line_col(start);
         let projected = self.file.match_pattern_source(&self.file.bytes[start..end]);
         let source = projected
             .utf8_chunks()

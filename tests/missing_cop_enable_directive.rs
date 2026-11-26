@@ -1,4 +1,5 @@
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project_with_lib;
 use crate::support::stdin;
 use rustocop::{
     config::ResolvedConfig,
@@ -13,13 +14,6 @@ use std::{
 const COP: &str = "Lint/MissingCopEnableDirective";
 const TARGET: &str = "Layout/LineLength";
 const BEFORE: &str = "# rubocop:disable Layout/LineLength\nx\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], code: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -69,7 +63,7 @@ fn unchanged(path: &Path, source: &[u8], old: &fs::Metadata) {
 
 #[test]
 fn all_pinned_main_source_and_focused_lifecycle_cases_pipeline_cli_no_write() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     for fixture in [
         include_str!("fixtures/missing_cop_enable_directive_pinned.json"),
@@ -121,7 +115,7 @@ fn all_pinned_main_source_and_focused_lifecycle_cases_pipeline_cli_no_write() {
                     for (line, col, message) in &expected {
                         assert!(
                             stdout
-                                .contains(&format!("lib/a.rb:{line}:{col}: E: {message} ({COP})")),
+                                .contains(&format!("lib/a.rb:{line}:{col}: W: {message} ({COP})")),
                             "{stdout}"
                         );
                     }
@@ -150,7 +144,7 @@ fn actual_metadata_defaults_selectors_toml_precedence_excludes_and_strict_keys()
         MissingCopEnableDirective.ruby_versions(),
         Default::default()
     );
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, BEFORE).unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -240,7 +234,7 @@ fn actual_metadata_defaults_selectors_toml_precedence_excludes_and_strict_keys()
 
 #[test]
 fn configured_disabled_exemption_is_independent_of_selection_path_and_version() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     for (target, default) in [
         (TARGET, true),
@@ -295,7 +289,7 @@ fn configured_disabled_exemption_is_independent_of_selection_path_and_version() 
 
 #[test]
 fn both_prefixes_and_ordinary_next_multiline_push_suppression_apply_to_origin_span() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     for prefix in ["rubocop", "rustocop"] {
         for (source, expected) in [
@@ -353,7 +347,7 @@ fn both_prefixes_and_ordinary_next_multiline_push_suppression_apply_to_origin_sp
 
 #[test]
 fn source_envelopes_remain_detection_only_with_unchanged_bytes_mtime_permissions() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     for source in [
         b"\xef\xbb\xbf# rubocop:disable Layout/LineLength\r\nx\r\n".as_slice(),
@@ -385,12 +379,12 @@ fn source_envelopes_remain_detection_only_with_unchanged_bytes_mtime_permissions
 
 #[test]
 fn supplied_file_stdin_paths_and_stdin_fix_rejection() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, BEFORE).unwrap();
     let old = fs::metadata(&path).unwrap();
     let out = cli(&d.path().join("lib"), &["--only", COP, "a.rb"], 1);
-    assert!(String::from_utf8_lossy(&out.stdout).contains("a.rb:1:1: E:"));
+    assert!(String::from_utf8_lossy(&out.stdout).contains("a.rb:1:1: W:"));
     for (args, code) in [
         (vec!["--only", COP, "--stdin", "virtual/custom.rb"], 1),
         (vec!["--only", COP, "--stdin", "lib/a.rb", "--fix"], 2),
@@ -408,7 +402,7 @@ fn supplied_file_stdin_paths_and_stdin_fix_rejection() {
         let out = child.wait_with_output().unwrap();
         assert_eq!(out.status.code(), Some(code), "{out:?}");
         if code == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("virtual/custom.rb:1:1: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("virtual/custom.rb:1:1: W:"));
         } else {
             assert!(out.stdout.is_empty(), "{out:?}");
             assert!(
@@ -428,7 +422,7 @@ fn detection_only_fix_preserves_read_only_mode_symlinks_and_targets() {
         fs::MetadataExt,
         fs::{PermissionsExt, symlink},
     };
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let link = d.path().join("lib/link.rb");
     fs::write(&path, BEFORE).unwrap();

@@ -479,7 +479,7 @@ fn post_follows_all_ordinary_phases_and_requires_explicit_opt_in() {
 fn invalid_or_resource_rejected_input_never_reaches_post() {
     for source in [
         "(\n".to_owned(),
-        format!("{}1{}", "[".repeat(300), "]".repeat(300)),
+        format!("{}1{}", "[".repeat(4100), "]".repeat(4100)),
     ] {
         let probe = Probe::default();
         let report = lint_one(

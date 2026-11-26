@@ -1,4 +1,5 @@
 //! only controlled Ruby main scripts are executed (DATA is not set by load).
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -21,14 +22,6 @@ const CASES: [(&str, &str, &str); 2] = [
 // Setup follows the candidate: ClassMethodsDefinitions' independent closed-
 // declaration prefix guard must not be the reason these edits are withheld.
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -42,7 +35,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn ordinary_payload_and_inert_data_spellings_still_correct_exactly() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, after) in CASES {
         for crlf in [false, true] {
@@ -90,7 +83,7 @@ fn ruby_main_scripts_with_unobserved_payload_still_correct() {
     if !ruby_available() {
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, after) in CASES {
         let decorate = |candidate| format!("{candidate}p :ok\n__END__\nraw\n");

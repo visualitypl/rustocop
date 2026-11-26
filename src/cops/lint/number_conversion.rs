@@ -37,10 +37,7 @@ impl Cop for NumberConversion {
                         range: node.location().start_offset()..end,
                         replacement: replacement(&method, &raw(&receiver)),
                     });
-                let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                    node.location().start_offset(),
-                    file,
-                );
+                let (line, col) = file.reference_line_col(node.location().start_offset());
                 out.push(Offense {
                     cop: self.name(),
                     severity: self.severity(),
@@ -111,7 +108,7 @@ impl Cop for NumberConversion {
         let Some(message) = message else { return };
         let start = node.location().start_offset();
         let end = ast::source_end(node);
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

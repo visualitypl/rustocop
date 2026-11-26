@@ -63,9 +63,8 @@ impl Cop for DuplicatedGroup {
         }
         for (i, earlier) in reported {
             let declaration = &declarations[i];
-            let (first_line, _) =
-                crate::cops::lint::reference_line_col(declarations[earlier].start, file);
-            let (line, col) = crate::cops::lint::reference_line_col(declaration.start, file);
+            let (first_line, _) = file.reference_line_col(declarations[earlier].start);
+            let (line, col) = file.reference_line_col(declaration.start);
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),
@@ -184,8 +183,7 @@ fn value(node: &Node<'_>, file: &SourceFile) -> Option<Vec<u8>> {
             Some(value.into_bytes())
         }
         Node::SourceLineNode { .. } => {
-            let (line, _) =
-                crate::cops::lint::reference_line_col(node.location().start_offset(), file);
+            let (line, _) = file.reference_line_col(node.location().start_offset());
             Some(line.to_string().into_bytes())
         }
         _ => None,

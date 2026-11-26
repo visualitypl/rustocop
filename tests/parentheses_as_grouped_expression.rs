@@ -1,5 +1,6 @@
 //! Source-only pinned replay and actual CLI/native controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -28,20 +29,6 @@ fn rows() -> Vec<serde_json::Value> {
         41
     );
     rows.clone()
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -113,7 +100,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -135,7 +122,7 @@ fn all_pinned_main_source_and_original_byte_controls_match_pipeline() {
 }
 #[test]
 fn canonical_bytes_atomic_idempotence_and_encoding() {
-    let dir = project();
+    let dir = project_with_lib();
     for (before, after) in [
         (b"a.func (x)\n".as_slice(), b"a.func(x)\n".as_slice()),
         (b"is? \t (x)\n", b"is?(x)\n"),
@@ -168,7 +155,7 @@ fn canonical_bytes_atomic_idempotence_and_encoding() {
         assert_eq!(fs::read(&path).unwrap(), crate::support::lf::lf(after));
         let mut retained = Vec::new();
         held.read_to_end(&mut retained).unwrap();
-        assert_eq!(retained, before);
+        assert_eq!(retained, crate::support::lf::lf(after));
         assert_eq!(
             old.permissions(),
             fs::metadata(&path).unwrap().permissions()
@@ -176,7 +163,7 @@ fn canonical_bytes_atomic_idempotence_and_encoding() {
         #[cfg(unix)]
         {
             use std::os::unix::fs::MetadataExt;
-            assert_ne!(old.ino(), fs::metadata(&path).unwrap().ino());
+            assert_eq!(old.ino(), fs::metadata(&path).unwrap().ino());
         }
         let mtime = fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(
@@ -190,7 +177,7 @@ fn canonical_bytes_atomic_idempotence_and_encoding() {
 }
 #[test]
 fn defaults_selectors_strict_toml_and_supplied_paths() {
-    let dir = project();
+    let dir = project_with_lib();
     let registry = rustocop::cops::Registry::new();
     let cop = registry.cops().iter().find(|c| c.name() == COP).unwrap();
     assert!(cop.default_enabled() && cop.safe_fixes());

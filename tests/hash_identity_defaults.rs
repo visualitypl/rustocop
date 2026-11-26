@@ -1,5 +1,6 @@
 //! Source-only pinned replay and real CLI/correction safety controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -21,20 +22,6 @@ fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
 }
 fn expected(row: &serde_json::Value, cop: &str) -> Vec<Finding> {
     crate::support::fixture::value(&row["findings"][cop])
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -86,7 +73,7 @@ fn all_pinned_sources_and_original_bytes_match_pipeline() {
                 .iter()
                 .filter(|o| o.cop == cop)
                 .map(|o| {
-                    assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                    assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                     assert!(o.correction.is_none());
                     (o.line, o.col, o.end_line, o.message.clone())
                 })
@@ -120,7 +107,7 @@ fn live_metadata_defaults_selectors_strict_toml_and_path_provenance() {
         assert!(cop.path_policy().is_none());
         assert!(cop.max_setting().is_none());
     }
-    let d = project();
+    let d = project_with_lib();
     for (config, selection, want) in [
         (String::new(), vec![], (1, 1)),
         (String::new(), vec!["--only", BOTH], (1, 1)),
@@ -217,7 +204,7 @@ fn live_metadata_defaults_selectors_strict_toml_and_path_provenance() {
 #[test]
 fn real_canonical_atomic_permissions_symlink_and_failure_controls() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, SAFE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();

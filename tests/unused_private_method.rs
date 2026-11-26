@@ -1,5 +1,6 @@
 //! Real rebuilt CLI/pipeline, opt-in and absent assigned-index gate.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -10,20 +11,6 @@ use std::{
 use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/UnusedPrivateMethod";
 const SOURCE: &str = "class Service\n  private\n\n  def helper\n  end\nend\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 /// `expect_early_error` only for runs whose asserted exit is the early
 /// `--stdin --fix` rejection, which may exit before reading stdin.
 fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
@@ -73,7 +60,7 @@ fn every_reference_source_has_no_production_index_even_when_forced_or_fixing() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let dir = project();
+    let dir = project_with_lib();
     let rows = rows();
     assert_eq!(rows.len(), 803);
     for row in rows {
@@ -111,7 +98,7 @@ fn actual_opt_in_metadata_and_selection_are_separate_from_missing_index() {
         cop.ruby_versions(),
         rustocop::cops::policy::RubyVersions::default()
     );
-    let dir = project();
+    let dir = project_with_lib();
     for (text, only, except, selected) in [
         (String::new(), vec![], vec![], false),
         (String::new(), vec![COP], vec![], true),
@@ -174,7 +161,7 @@ fn actual_opt_in_metadata_and_selection_are_separate_from_missing_index() {
 }
 #[test]
 fn strict_toml_rejects_index_style_and_unsupported_settings_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     for key in [
         "max = 1",
         "UseProjectIndex = true",
@@ -199,7 +186,7 @@ fn strict_toml_rejects_index_style_and_unsupported_settings_without_writes() {
 }
 #[test]
 fn exclusions_supplied_paths_and_stdin_provenance_never_provide_an_index() {
-    let dir = project();
+    let dir = project_with_lib();
     let sentinel = dir.path().join("lib/display.rb");
     fs::write(&sentinel, "sentinel\n").unwrap();
     let old = fs::metadata(&sentinel).unwrap();
@@ -255,7 +242,7 @@ fn exclusions_supplied_paths_and_stdin_provenance_never_provide_an_index() {
 }
 #[test]
 fn both_directive_prefixes_multiline_next_signed_and_push_scopes_keep_gate() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for directive in [
             format!("# {prefix}:disable Lint\n"),
@@ -304,7 +291,7 @@ fn both_directive_prefixes_multiline_next_signed_and_push_scopes_keep_gate() {
 }
 #[test]
 fn byte_observers_encoding_and_parser_errors_are_not_fix_opportunities() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [format!("\u{feff}# coding: utf-8\r\n{}", SOURCE.replace('\n', "\r\n")).into_bytes(),
         [b"# coding: Windows-1252\np '\xe9'\n".as_slice(), SOURCE.as_bytes()].concat(),
         format!("{SOURCE}x = <<~TEXT\nhelper\nTEXT\n").into_bytes(),
@@ -335,7 +322,7 @@ fn byte_observers_encoding_and_parser_errors_are_not_fix_opportunities() {
 #[cfg(unix)]
 fn readonly_symlink_permissions_and_inode_are_unchanged() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -362,7 +349,7 @@ fn readonly_symlink_permissions_and_inode_are_unchanged() {
 }
 #[test]
 fn no_fix_never_writes_but_existing_style_layout_atomic_corrections_still_compose() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = format!("{SOURCE}consume(1,2);\n");
     let both = "Lint/UnusedPrivateMethod,Layout/SpaceAfterComma,Style/Semicolon";
     unchanged(

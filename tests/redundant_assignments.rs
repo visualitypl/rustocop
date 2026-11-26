@@ -1,5 +1,6 @@
 //! real pipeline/CLI contracts and controlled Ruby semantic witnesses.
 //! Pinned fixtures ported from RuboCop (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const ASSIGN: &str = "Style/RedundantAssignment";
 const SELF: &str = "Style/RedundantSelfAssignment";
@@ -19,12 +20,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "foo = bar if condition\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

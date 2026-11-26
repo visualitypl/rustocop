@@ -45,10 +45,7 @@ impl Cop for DeprecatedClassMethods {
         let Some((current, prefer)) = deprecated_call(&call, file) else {
             return;
         };
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            call.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(call.location().start_offset());
         out.push(Offense {
             correction: cx
                 .corrections_requested()

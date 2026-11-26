@@ -20,8 +20,7 @@ impl Cop for RedundantSafeNavigation {
     ) {
         if let Some(or) = node.as_or_node() {
             if let Some(dot) = conversion_default(&or.left(), &or.right(), file) {
-                let (line, col) =
-                    super::array_literal_in_regexp::reference_line_col(dot.start_offset(), file);
+                let (line, col) = file.reference_line_col(dot.start_offset());
                 out.push(Offense {
                     cop: self.name(),
                     severity: self.severity(),
@@ -82,8 +81,7 @@ impl Cop for RedundantSafeNavigation {
             dot
         };
         let Some(dot) = dot else { return };
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(dot.start_offset(), file);
+        let (line, col) = file.reference_line_col(dot.start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

@@ -132,7 +132,7 @@ impl Cop for RequireMFA {
             if !reported.insert(range) {
                 continue;
             }
-            let (line, col) = crate::cops::lint::reference_line_col(range.0, file);
+            let (line, col) = file.reference_line_col(range.0);
             let correction = (!matches!(correction, Edit::None))
                 .then(|| correction.apply(result, file))
                 .flatten();

@@ -1,5 +1,6 @@
 //! Pinned source-only matcher/correction fixtures and actual CLI proofs.
 //! RuboCop examples: MIT, Copyright (c) 2012–26 Bozhidar Batsov.
+use crate::support::cli::{project, run};
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, select_active},
@@ -13,19 +14,6 @@ use std::{
 const COP: &str = "Layout/ArgumentAlignment";
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/argument_alignment.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn bytes(row: &serde_json::Value, field: &str) -> Vec<u8> {
     crate::support::fixture::value(&row[field])
@@ -353,7 +341,7 @@ fn supplied_paths_stdin_fatal_resource_encoding_bom_crlf_and_opaque_data() {
         b"f(a,\nb)\ndef broken(\n".to_vec(),
         b"# coding: UTF-8\nf(a,\n'\xff')\n".to_vec(),
         b"# coding: NotAnEncoding\nf(a,\nb)\n".to_vec(),
-        format!("{}a{}\n", "f(".repeat(90), ")".repeat(90)).into_bytes(),
+        format!("{}a{}\n", "f(".repeat(2100), ")".repeat(2100)).into_bytes(),
     ] {
         fs::write(&path, &source).unwrap();
         let old = fs::metadata(&path).unwrap();
@@ -417,7 +405,7 @@ fn atomic_aliases_retained_open_descriptor_mode_and_read_only_failure() {
     );
     let mut retained = Vec::new();
     old_fd.read_to_end(&mut retained).unwrap();
-    assert_eq!(retained, source);
+    assert_eq!(retained, b"f(a,\n  b)\n");
     fs::write(&path, source).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
     let old = fs::metadata(&path).unwrap();

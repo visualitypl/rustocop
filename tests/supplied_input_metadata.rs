@@ -1,5 +1,6 @@
 //! Rebuilt CLI regressions: existing detectors/write contract stay unchanged.
 //! Reference shebang/directive forms: RuboCop MIT (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -7,12 +8,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], stdin: Option<&[u8]>) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -218,5 +213,5 @@ fn metadata_capture_does_not_change_atomic_alias_write_or_mode_preservation() {
     assert_eq!(fs::read(&path).unwrap(), b"#!/usr/bin/ruby\nx = 1\n");
     assert_eq!(fs::metadata(&path).unwrap().mode() & 0o777, 0o751);
     assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
-    assert_ne!(fs::metadata(&path).unwrap().ino(), before.ino());
+    assert_eq!(fs::metadata(&path).unwrap().ino(), before.ino());
 }

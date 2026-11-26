@@ -1,4 +1,5 @@
 //! real CLI policy/bytes and controlled synthetic Ruby observations.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -8,12 +9,6 @@ use std::{
 const EVAL: &str = "Style/EvalWithLocation";
 const SEND: &str = "Style/Send";
 const LITERAL: &str = "Style/SendWithLiteralMethodName";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 3]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

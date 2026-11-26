@@ -1,5 +1,6 @@
 //! source-only pin parity, actual CLI and authored native safety probes.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -14,20 +15,6 @@ const AFTER: &[u8] = b"Fixnum = ::Integer\n[::Integer]\n";
 const UNCERTAIN: &[u8] = b"Fixnum\nURI.escape(uri)\n";
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/integer_uri.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -53,7 +40,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], code: Option<i32>) -> Ou
 }
 #[test]
 fn all_reference_rows_match_cli_with_real_canonical_fixes_and_uncertain_no_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     let mut fixed = 0;
     for row in rows() {
         let cop = row["cop"].as_str().unwrap();
@@ -70,7 +57,7 @@ fn all_reference_rows_match_cli_with_real_canonical_fixes_and_uncertain_no_write
         for f in findings {
             assert!(
                 text.contains(&format!(
-                    "lib/a.rb:{}:{}: E: {} ({cop})",
+                    "lib/a.rb:{}:{}: W: {} ({cop})",
                     f[0],
                     f[1],
                     f[3].as_str().unwrap()
@@ -116,7 +103,7 @@ fn metadata_defaults_selectors_toml_department_precedence_and_strict_settings() 
         assert_eq!(cop.ruby_versions(), Default::default());
         assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
         assert!(cop.autocorrect_incompatible_with().is_empty());
-        let dir = project();
+        let dir = project_with_lib();
         for (config, selectors, n) in [
             (String::new(), vec![], 1),
             (String::new(), vec!["--only", name], 1),
@@ -185,7 +172,7 @@ fn metadata_defaults_selectors_toml_department_precedence_and_strict_settings() 
 }
 #[test]
 fn directives_both_prefixes_multiline_next_push_and_source_enables() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, call) in [(INTEGER, "::Fixnum"), (URI, "URI.escape(uri)")] {
         for prefix in ["rustocop", "rubocop"] {
             for source in [
@@ -262,7 +249,7 @@ fn directives_both_prefixes_multiline_next_push_and_source_enables() {
 }
 #[test]
 fn supplied_paths_stdin_provenance_and_fixed_empty_path_policy() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in ["lib/a.arb", "lib/a.jb", "Rakefile", "lib/.hidden.rb"] {
         fs::write(dir.path().join(path), UNCERTAIN).unwrap();
         let out = run(dir.path(), &["--only", BOTH, "--fix", path]);
@@ -314,7 +301,7 @@ fn supplied_paths_stdin_provenance_and_fixed_empty_path_policy() {
 }
 #[test]
 fn canonical_bytes_encoding_bom_crlf_comments_and_observer_holds() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in [
         b"".as_slice(),
         b"\xef\xbb\xbf",
@@ -378,7 +365,7 @@ fn canonical_bytes_encoding_bom_crlf_comments_and_observer_holds() {
 #[test]
 fn shared_atomic_failure_symlinks_readonly_permissions_invalid_and_composition() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, UNCERTAIN).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -430,7 +417,7 @@ fn shared_atomic_failure_symlinks_readonly_permissions_invalid_and_composition()
         Some(0)
     );
     assert_eq!(fs::read(&path).unwrap(), AFTER);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -486,7 +473,7 @@ fn authored_native_alias_identity_binding_warning_value_and_control_flow_witness
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     for name in ["Fixnum", "Bignum"] {
         for prefix in ["", "::"] {
             let before = format!("{name} = ::Integer\n[{prefix}{name}]\n");

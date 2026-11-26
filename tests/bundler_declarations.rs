@@ -1,6 +1,7 @@
 //! Bundler declaration family: source-only fixtures from the
 //! pinned RuboCop (MIT, (c) 2012-26 Bozhidar Batsov), replayed through the
 //! pipeline and the actual CLI. Gemfiles are linted, never evaluated.
+use crate::support::cli::project;
 use crate::support::stdin;
 use rustocop::{config::ResolvedConfig, cops::Registry, offense::Severity, pipeline};
 use std::{fs, path::Path, process::Command};
@@ -17,13 +18,6 @@ const NAMES: [(&str, bool, bool); 5] = [
 
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/bundler_declarations.json")).unwrap()
-}
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
 }
 
 fn bytes(row: &serde_json::Value, key: &str) -> Option<Vec<u8>> {
@@ -160,7 +154,7 @@ fn registry_admits_exactly_the_landed_bundler_cops_with_fixed_metadata() {
         let cop = registry.cops().iter().find(|c| c.name() == name).unwrap();
         assert_eq!(cop.default_enabled(), enabled, "{name}");
         assert_eq!(cop.safe_fixes(), safe, "{name}");
-        assert_eq!(cop.severity(), Severity::Convention, "{name}");
+        assert_eq!(cop.severity(), Severity::for_cop(name), "{name}");
         assert!(cop.max_setting().is_none(), "{name}");
         assert_eq!(cop.ruby_versions(), Default::default(), "{name}");
         assert!(cop.path_policy().is_some(), "{name}");
@@ -318,7 +312,7 @@ fn encodings_data_sections_and_fatal_inputs_compose() {
     for source in [
         format!("{DUPLICATES}\ndef (").into_bytes(),
         b"# coding: no-such-encoding\ngem 'a'\n".to_vec(),
-        format!("{DUPLICATES}{}{}", "[".repeat(100), "]".repeat(100)).into_bytes(),
+        format!("{DUPLICATES}{}{}", "[".repeat(4100), "]".repeat(4100)).into_bytes(),
     ] {
         let out = cli(
             d.path(),

@@ -51,7 +51,7 @@ impl Cop for UselessOr {
         let start = owner.operator_loc().start_offset();
         let rhs = owner.right();
         let end = rhs.location().end_offset();
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         let text = |n: &Node<'_>| {
             let loc = n.location();
             let bytes = loc.as_slice();

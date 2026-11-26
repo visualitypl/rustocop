@@ -56,7 +56,7 @@ impl Cop for GemComment {
             if commented_any_descendant(send, &builder.nodes, &associator.mapping, &comments) {
                 continue;
             }
-            let (line, col) = crate::cops::lint::reference_line_col(start, file);
+            let (line, col) = file.reference_line_col(start);
             out.push(Offense {
                 cop: self.name(),
                 severity: self.severity(),

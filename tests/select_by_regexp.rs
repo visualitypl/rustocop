@@ -1,4 +1,5 @@
 //! pinned examples, real CLI controls and unsafe-rewrite witnesses.
+use crate::support::cli::project;
 use crate::support::stdin;
 use serde::Deserialize;
 use std::{
@@ -8,12 +9,6 @@ use std::{
 };
 const COP: &str = "Style/SelectByRegexp";
 const SOURCE: &str = "array.select { |x| x.match?(/regexp/) }\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

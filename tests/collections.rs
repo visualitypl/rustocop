@@ -1,4 +1,5 @@
 //! unsafe collection suggestions never edit Ruby.
+use crate::support::cli::project;
 use crate::support::stdin;
 use serde::Deserialize;
 use std::{
@@ -16,12 +17,6 @@ const SOURCES: [&str; 3] = [
     "items.collect { |e| e + 1 }\n",
     "x.count(&:foo?).positive?\n",
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

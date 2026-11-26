@@ -1,5 +1,6 @@
 //! Source-only pinned AST and CLI checks. Never execute fixture input.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{count, project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -31,25 +32,6 @@ fn rows() -> Vec<serde_json::Value> {
         25
     );
     rows
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
 }
 fn unchanged(root: &Path, bytes: &[u8], args: &[&str], status: Option<i32>) -> Output {
     let path = root.join("lib/a.rb");
@@ -118,7 +100,7 @@ fn pinned_main_source_original_bytes_and_safe_navigation_shapes_match_without_ed
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -140,7 +122,7 @@ fn pinned_main_source_original_bytes_and_safe_navigation_shapes_match_without_ed
 }
 #[test]
 fn mixed_newline_source_fixed_policy_rebuilt_cli_preserves_raw_bytes_and_metadata() {
-    let dir = project();
+    let dir = project_with_lib();
     let cases: Vec<_> = rows()
         .into_iter()
         .filter(|r| r["origin"] == "newline")
@@ -167,7 +149,7 @@ fn mixed_newline_source_fixed_policy_rebuilt_cli_preserves_raw_bytes_and_metadat
             for (line, col, _, message) in &expected {
                 assert!(
                     stdout.contains(&format!(
-                        "lib/a.rb:{line}:{col}: E: {message} ({})\n",
+                        "lib/a.rb:{line}:{col}: W: {message} ({})\n",
                         COPS[0]
                     )),
                     "{row}: {stdout}"
@@ -179,7 +161,7 @@ fn mixed_newline_source_fixed_policy_rebuilt_cli_preserves_raw_bytes_and_metadat
 #[test]
 fn defaults_selectors_toml_department_and_path_precedence() {
     let registry = rustocop::cops::Registry::new();
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let detector = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(detector.default_enabled());
@@ -266,7 +248,7 @@ fn defaults_selectors_toml_department_and_path_precedence() {
 #[test]
 fn actual_empty_canonical_atomic_readonly_symlink_and_idempotence() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let cop = COPS[1];
     let path = dir.path().join("lib/a.rb");
     let before = b"if false\n  if probe&.empty?\n  end\nend\n";
@@ -297,7 +279,7 @@ fn actual_empty_canonical_atomic_readonly_symlink_and_idempotence() {
         fs::read(&path).unwrap(),
         b"if false\n  if probe && probe.empty?\n  end\nend\n"
     );
-    assert_ne!(fs::metadata(&path).unwrap().ino(), old.ino());
+    assert_eq!(fs::metadata(&path).unwrap().ino(), old.ino());
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640
@@ -367,7 +349,7 @@ p [iseq.to_a, result, events, local_variables.sort]
     );
     assert_eq!(before.stdout, after.stdout);
     assert_eq!(before.stderr, after.stderr);
-    let dir = project();
+    let dir = project_with_lib();
     let text = b"if false\n  if probe&.empty?\n  end\nend\n";
     unchanged(dir.path(), text, &["--only", COPS[1], "lib/a.rb"], Some(1));
     let out = run(dir.path(), &["--only", COPS[1], "--fix", "lib/a.rb"]);

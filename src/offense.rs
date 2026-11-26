@@ -66,39 +66,50 @@ impl fmt::Display for Department {
     }
 }
 
-/// The severity attached to an offense.
-///
-/// Deliberately coarser than RuboCop's: `Lint`/`Security` offenses are errors,
-/// everything else is a convention. rustocop's exit code treats all offenses
-/// the same; severity is informational.
+/// The severity attached to an offense, as RuboCop names them. rustocop's
+/// exit code treats all offenses the same; severity is informational.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Severity {
+    /// Code that works but could be structured better (`Metrics`).
+    Refactor,
     /// A style or convention offense.
     Convention,
     /// A warning.
     Warning,
-    /// A likely bug or dangerous pattern.
+    /// An error.
     Error,
 }
 
 impl Severity {
-    /// The default severity for a department.
-    pub fn for_department(department: Department) -> Self {
-        match department {
-            Department::Lint | Department::Security => Severity::Error,
-            Department::Style
-            | Department::Naming
-            | Department::Layout
-            | Department::Metrics
-            | Department::Bundler
-            | Department::Gemspec
-            | Department::Migration => Severity::Convention,
+    /// RuboCop's default severity for a cop: `warning` for `Lint` and
+    /// `Security` and the cops its `default.yml` marks so, `refactor` for
+    /// `Metrics`, `convention` otherwise.
+    pub fn for_cop(cop_name: &str) -> Self {
+        const WARNINGS: &[&str] = &[
+            "Bundler/DuplicatedGem",
+            "Bundler/DuplicatedGroup",
+            "Bundler/InsecureProtocolSource",
+            "Gemspec/DeprecatedAttributeAssignment",
+            "Gemspec/DuplicatedAssignment",
+            "Gemspec/RequireMFA",
+            "Gemspec/RequiredRubyVersion",
+            "Gemspec/RubyVersionGlobalsUsage",
+            "Layout/BeginEndAlignment",
+            "Layout/DefEndAlignment",
+            "Layout/EndAlignment",
+        ];
+        match department_of(cop_name) {
+            Department::Lint | Department::Security => Severity::Warning,
+            Department::Metrics => Severity::Refactor,
+            _ if WARNINGS.contains(&cop_name) => Severity::Warning,
+            _ => Severity::Convention,
         }
     }
 
     /// The severity name, as printed in output.
     pub fn as_str(self) -> &'static str {
         match self {
+            Severity::Refactor => "refactor",
             Severity::Convention => "convention",
             Severity::Warning => "warning",
             Severity::Error => "error",
@@ -108,6 +119,7 @@ impl Severity {
     /// The single-letter severity marker, as printed in text output.
     pub fn letter(self) -> char {
         match self {
+            Severity::Refactor => 'R',
             Severity::Convention => 'C',
             Severity::Warning => 'W',
             Severity::Error => 'E',
@@ -240,4 +252,27 @@ pub fn department_of(cop_name: &str) -> Department {
         .next()
         .and_then(Department::parse)
         .unwrap_or(Department::Lint)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Severity;
+
+    #[test]
+    fn severities_follow_rubocops_defaults() {
+        for (cop, severity) in [
+            ("Lint/Debugger", Severity::Warning),
+            ("Security/Eval", Severity::Warning),
+            ("Metrics/AbcSize", Severity::Refactor),
+            ("Style/StringLiterals", Severity::Convention),
+            ("Layout/EndAlignment", Severity::Warning),
+            ("Layout/IndentationWidth", Severity::Convention),
+            ("Gemspec/RequireMFA", Severity::Warning),
+            ("Bundler/OrderedGems", Severity::Convention),
+        ] {
+            assert_eq!(Severity::for_cop(cop), severity, "{cop}");
+        }
+        assert_eq!(Severity::Refactor.letter(), 'R');
+        assert_eq!(Severity::Warning.as_str(), "warning");
+    }
 }

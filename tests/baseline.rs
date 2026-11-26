@@ -87,7 +87,7 @@ fn json_format_is_what_an_editor_plugin_for_rubocop_reads() {
     assert_eq!(
         *debugger,
         serde_json::json!({
-            "severity": "error",
+            "severity": "warning",
             "message": "Remove debugger entry point `binding.pry`.",
             "cop_name": "Lint/Debugger",
             "corrected": false,
@@ -177,7 +177,7 @@ fn a_baseline_silences_the_offenses_of_today_and_new_code_is_still_checked() {
     assert_eq!(code, 1);
     assert_eq!(
         stdout,
-        "lib/weird.rb:1:1: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)\n\
+        "lib/weird.rb:1:1: W: Remove debugger entry point `binding.pry`. (Lint/Debugger)\n\
          \n19 files inspected, 1 offense detected\n"
     );
 

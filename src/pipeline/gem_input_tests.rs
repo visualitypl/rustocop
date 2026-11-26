@@ -333,7 +333,7 @@ fn selected_filename_callbacks_cannot_mask_ruby_syntax_encoding_or_depth_errors(
         Box::new(FilenameConsumer),
         Box::new(EmptyGemspecConsumer),
     ]);
-    let deep = format!("{}1{}", "[".repeat(100), "]".repeat(100));
+    let deep = format!("{}1{}", "[".repeat(4100), "]".repeat(4100));
     for path in ["gems.rb", "broken.gemspec"] {
         for bytes in [
             &b"def ("[..],

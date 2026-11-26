@@ -68,7 +68,7 @@ impl Cop for RandOne {
                 .collect::<String>(),
         }
         .replace("\r\n", "\n");
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

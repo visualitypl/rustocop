@@ -272,10 +272,9 @@ impl Methods<'_, '_> {
         {
             return None;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            def.def_keyword_loc().start_offset(),
-            self.file,
-        );
+        let (line, col) = self
+            .file
+            .reference_line_col(def.def_keyword_loc().start_offset());
         Some(Offense {
             cop: "Lint/UnusedPrivateMethod",
             severity: UnusedPrivateMethod.severity(),
@@ -587,7 +586,7 @@ mod tests {
                 .into_iter()
                 .map(|o| {
                     assert!(o.correction.is_none());
-                    assert_eq!(o.severity, crate::offense::Severity::Error);
+                    assert_eq!(o.severity, crate::offense::Severity::Warning);
                     (o.line, o.col, o.end_line, o.message)
                 })
                 .collect();

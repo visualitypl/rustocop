@@ -1,5 +1,6 @@
 //! real CLI policy, pinned corrections and controlled Ruby witnesses.
 //! Pinned fixtures port RuboCop specs (MIT, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use std::{
     fs,
     path::Path,
@@ -13,12 +14,6 @@ const COPS: [(&str, &str); 2] = [
     (LITERAL, "Array.new\n"),
     (CLASS, "FooError = Class.new(StandardError)\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

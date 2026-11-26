@@ -1,6 +1,7 @@
 //! preserve the original eight policies while the Style registry grows.
 //! Canonical examples adapted from RuboCop's corresponding Style specs
 //! (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -74,14 +75,6 @@ const CASES: &[Case] = &[
     },
 ];
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-
 fn lint(cwd: &Path, args: &[&str]) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(cwd)
@@ -120,7 +113,7 @@ fn original_names_keep_their_defaults_and_exactly_seven_safe_capabilities() {
 
 #[test]
 fn every_original_has_selective_cli_positions_and_config_precedence() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for case in CASES {
         fs::write(&path, case.before).unwrap();
@@ -179,7 +172,7 @@ fn every_original_has_selective_cli_positions_and_config_precedence() {
 
 #[test]
 fn canonical_fixes_preserve_bom_crlf_line_observations_and_end_data() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for case in CASES {
         let wrap = |code: &str| {
@@ -226,7 +219,7 @@ fn canonical_fixes_preserve_bom_crlf_line_observations_and_end_data() {
 
 #[test]
 fn both_directive_prefixes_protect_every_original_even_when_force_selected() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for case in CASES {
         for prefix in ["rustocop", "rubocop"] {
@@ -242,7 +235,7 @@ fn both_directive_prefixes_protect_every_original_even_when_force_selected() {
 
 #[test]
 fn every_original_obeys_additive_config_relative_exclusions_before_fixing() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for case in CASES {
         fs::write(&path, case.before).unwrap();
@@ -268,7 +261,7 @@ fn every_original_obeys_additive_config_relative_exclusions_before_fixing() {
 
 #[test]
 fn opting_into_frozen_comments_does_not_change_the_other_seven_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let before: String = CASES.iter().map(|case| case.before).collect();
     let after: String = CASES.iter().map(|case| case.after).collect();

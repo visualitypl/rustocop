@@ -66,7 +66,7 @@ impl Cop for EmptyWhen {
                         body.location().start_offset()
                     }),
             };
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+            let (line, col) = file.reference_line_col(start);
             let comment_lines = line..file.line_of(next_start);
             if file.has_comment_in_lines(comment_lines.clone())
                 && !file.comments_contain_disables(self.name(), comment_lines)

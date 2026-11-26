@@ -2,6 +2,7 @@
 //! the pinned RuboCop (MIT, (c) 2012-26 Bozhidar Batsov), replayed through
 //! the pipeline and the actual CLI. Gemfiles and gemspecs are linted, never
 //! evaluated.
+use crate::support::cli::project;
 use crate::support::stdin;
 use rustocop::{config::ResolvedConfig, cops::Registry, offense::Severity, pipeline};
 use std::{fs, path::Path, process::Command};
@@ -11,13 +12,6 @@ const DEPS: &str = "Gemspec/OrderedDependencies";
 
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/ordered_dependencies.json")).unwrap()
-}
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
 }
 
 fn bytes(row: &serde_json::Value, key: &str) -> Option<Vec<u8>> {

@@ -1106,7 +1106,7 @@ mod tests {
                 .into_iter()
                 .map(|o| {
                     assert!(o.correction.is_none());
-                    assert_eq!(o.severity, crate::offense::Severity::Error);
+                    assert_eq!(o.severity, crate::offense::Severity::Warning);
                     (o.line, o.col, o.end_line, o.message)
                 })
                 .collect();

@@ -1,5 +1,6 @@
 //! Actual supplied-input CLI/native/atomic/no-write controls.
 //! No new cops are registered by this prerequisite.
+use crate::support::cli::project;
 use crate::support::deprecated_constructor_native as native;
 use crate::support::stdin as stdin_support;
 use std::{
@@ -8,12 +9,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str], source: Option<&[u8]>) -> Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -94,7 +89,7 @@ fn directory_discovery_keeps_ignore_hidden_config_root_and_explicit_file_policie
     ] {
         assert!(
             text.contains(&format!(
-                "{name}:1:1: E: Remove debugger entry point `binding.pry`. (Lint/Debugger)"
+                "{name}:1:1: W: Remove debugger entry point `binding.pry`. (Lint/Debugger)"
             )),
             "{text}"
         );
@@ -177,7 +172,7 @@ fn opaque_locks_are_clean_except_filename_cop_with_exact_output_and_never_writte
 #[test]
 fn ruby_gem_inputs_keep_fatal_syntax_encoding_resource_and_status_contracts() {
     let d = project();
-    let deep = format!("{}1{}", "[".repeat(100), "]".repeat(100));
+    let deep = format!("{}1{}", "[".repeat(4100), "]".repeat(4100));
     for name in [
         "Gemfile",
         "ci.gemfile",
@@ -224,7 +219,7 @@ fn ruby_gem_inputs_keep_fatal_syntax_encoding_resource_and_status_contracts() {
         None,
     );
     status(&out, 2);
-    assert!(String::from_utf8_lossy(&out.stdout).contains("gems.rb:1:1: E:"));
+    assert!(String::from_utf8_lossy(&out.stdout).contains("gems.rb:1:1: W:"));
 }
 
 #[test]
@@ -253,7 +248,7 @@ fn ruby_encoding_bom_crlf_data_directives_and_stdin_keep_existing_positions() {
                 if expected == 1 {
                     assert!(
                         String::from_utf8_lossy(&out.stdout)
-                            .contains(&format!("{name}:{line}:1: E:")),
+                            .contains(&format!("{name}:{line}:1: W:")),
                         "{out:?}"
                     );
                 }
@@ -389,7 +384,7 @@ fn ruby_gem_sources_retain_atomic_canonical_corrections_and_idempotence() {
         #[cfg(unix)]
         {
             use std::os::unix::fs::MetadataExt;
-            assert_ne!(old.ino(), fs::metadata(&path).unwrap().ino());
+            assert_eq!(old.ino(), fs::metadata(&path).unwrap().ino());
         }
         let old = fs::metadata(&path).unwrap();
         status(

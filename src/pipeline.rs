@@ -593,7 +593,8 @@ fn lint_one_in_mode(
 /// it (one outside any cop: parsing, directives, filtering) into an internal
 /// error for the file.
 fn guard_file(display_path: &Path, lint: impl FnOnce() -> FileReport) -> FileReport {
-    catch(lint).unwrap_or_else(|panic| {
+    // Cops recurse once per AST level, up to `MAX_AST_DEPTH`.
+    catch(|| stacker::grow(crate::cops::depth::STACK_SIZE, lint)).unwrap_or_else(|panic| {
         let mut report = FileReport::empty(display_path);
         report.internal_errors.push(InternalError {
             path: display_path.to_path_buf(),
@@ -1144,29 +1145,38 @@ fn read_disk_input(path: &Path) -> std::io::Result<(Vec<u8>, Option<SuppliedInpu
     Ok((bytes, metadata))
 }
 
-/// Write through a sibling temporary file, so a failed write cannot truncate
-/// the original. Resolve symlinks first to preserve them, and retain permissions.
+/// Write a corrected file through [`replace_file`]. Lock files and files
+/// without any write bit are refused, even for root.
 fn write_corrected(path: &Path, original: &[u8], corrected: &[u8]) -> Result<()> {
-    use std::io::Write;
-
-    let path = fs::canonicalize(path)?;
     anyhow::ensure!(
-        !crate::discovery::is_filename_only(&path),
+        !crate::discovery::is_filename_only(&fs::canonicalize(path)?),
         "opaque gem lock files cannot be source-corrected"
     );
-    let metadata = fs::metadata(&path)?;
-    anyhow::ensure!(!metadata.permissions().readonly(), "file is read-only");
     anyhow::ensure!(
-        fs::read(&path)? == original,
-        "file changed while linting; not overwritten"
+        !fs::metadata(path)?.permissions().readonly(),
+        "file is read-only"
     );
-    let mut temporary =
-        tempfile::NamedTempFile::new_in(path.parent().context("file has no parent directory")?)?;
-    temporary.write_all(corrected)?;
-    temporary
-        .as_file()
-        .set_permissions(metadata.permissions())?;
-    temporary.persist(&path)?;
+    replace_file(path, original, corrected)
+}
+
+/// Overwrite the file at `path`, which must still hold `expected`, with `new`
+/// in place, as RuboCop's `File.open(path, 'w')` does: the inode stays, and
+/// with it the mode, owner, hard links and extended attributes, and a symlink
+/// is written through. A file this user may not write is refused.
+pub fn replace_file(path: &Path, expected: &[u8], new: &[u8]) -> Result<()> {
+    use std::io::{Seek, Write};
+
+    let mut file = fs::OpenOptions::new().read(true).write(true).open(path)?;
+    let mut current = Vec::with_capacity(expected.len());
+    file.read_to_end(&mut current)?;
+    anyhow::ensure!(
+        current == expected,
+        "file changed during the run; not overwritten"
+    );
+    // Not atomic, as in RuboCop: a failed write leaves a partial file.
+    file.rewind()?;
+    file.write_all(new)?;
+    file.set_len(new.len() as u64)?;
     Ok(())
 }
 
@@ -1306,10 +1316,12 @@ mod tests {
     #[test]
     fn depth_preflight_runs_before_cops_on_default_test_stacks() {
         let mut source = String::new();
-        for i in 0..100 {
+        // Each definition nests two levels deeper: `foo2045`'s splat at
+        // line 4092 is the first node beyond the limit.
+        for i in 0..2100 {
             source.push_str(&format!("def foo{i}(*args)\nbar(*args)\n"));
         }
-        source.push_str(&"end\n".repeat(100));
+        source.push_str(&"end\n".repeat(2100));
         let config = ResolvedConfig::default();
         let registry = Registry::new();
         let active = select_active(&registry, &config, &[], &[]);
@@ -1323,8 +1335,11 @@ mod tests {
         assert!(report.result.offenses.is_empty());
         assert!(report.internal_errors.is_empty());
         assert_eq!(report.errors.len(), 1);
-        assert_eq!(report.errors[0].message, "AST exceeds maximum depth of 64");
-        assert_eq!(report.errors[0].position, Some((60, 5)));
+        assert_eq!(
+            report.errors[0].message,
+            "AST exceeds maximum depth of 4096"
+        );
+        assert_eq!(report.errors[0].position, Some((4092, 5)));
     }
 
     #[test]
@@ -1338,55 +1353,64 @@ mod tests {
             &ResolvedConfig::default(),
         );
         assert_eq!(report.errors.len(), 1);
-        assert_eq!(report.errors[0].message, "AST exceeds maximum depth of 64");
+        assert_eq!(
+            report.errors[0].message,
+            "AST exceeds maximum depth of 4096"
+        );
         assert!(report.result.offenses.is_empty());
         assert!(report.internal_errors.is_empty());
     }
 
     #[test]
     fn supported_depth_boundary_preserves_real_cop_and_scope_diagnostics() {
-        let mut defs = String::new();
-        for i in 0..29 {
-            defs.push_str(&format!("def foo{i}(*args)\nbar(*args)\n"));
-        }
-        defs.push_str(&"end\n".repeat(29));
-        let sources = [
-            defs,
-            format!("{}1{}", "[".repeat(61), "]".repeat(61)),
-            format!("root{}", ".foo".repeat(61)),
-            format!("{}[1]\n{}", "begin\n".repeat(30), "end\n".repeat(30)),
-            format!("{}[1]\n{}", "each do\n".repeat(20), "end\n".repeat(20)),
-        ];
-        let config = ResolvedConfig::default();
-        let registry = Registry::new();
-        let active = select_active(&registry, &config, &[], &[]);
-        for (index, source) in sources.iter().enumerate() {
-            let parsed = ruby_prism::parse(source.as_bytes());
-            assert_eq!(parsed.errors().count(), 0);
-            assert_eq!(
-                crate::cops::depth::check(&parsed.node().as_program_node().unwrap()),
-                Ok(())
-            );
-            let report = lint_one(
-                Path::new("boundary.rb"),
-                Path::new("boundary.rb"),
-                Some(source.as_bytes()),
-                &active,
-                &config,
-            );
-            assert!(report.errors.is_empty(), "{report:?}");
-            assert!(report.internal_errors.is_empty(), "{report:?}");
-            if index == 0 {
-                let forwarding: Vec<_> = report
-                    .result
-                    .offenses
-                    .iter()
-                    .filter(|offense| offense.cop == "Style/ArgumentsForwarding")
-                    .collect();
-                assert_eq!(forwarding.len(), 58);
-                assert_eq!((forwarding[0].line, forwarding[0].col), (1, 10));
+        // Raw Prism parses of these sources need the stack the pipeline
+        // gives a file.
+        stacker::grow(crate::cops::depth::STACK_SIZE, || {
+            // Each source's deepest node sits exactly at the limit, 4096.
+            const DEFS: usize = 2045;
+            let mut defs = String::new();
+            for i in 0..DEFS {
+                defs.push_str(&format!("def foo{i}(*args)\nbar(*args)\n"));
             }
-        }
+            defs.push_str(&"end\n".repeat(DEFS));
+            let sources = [
+                defs,
+                format!("{}1{}", "[".repeat(4093), "]".repeat(4093)),
+                format!("root{}", ".foo".repeat(4093)),
+                format!("{}[1]\n{}", "begin\n".repeat(2046), "end\n".repeat(2046)),
+                format!("{}[1]\n{}", "each do\n".repeat(1364), "end\n".repeat(1364)),
+            ];
+            let config = ResolvedConfig::default();
+            let registry = Registry::new();
+            let active = select_active(&registry, &config, &[], &[]);
+            for (index, source) in sources.iter().enumerate() {
+                let parsed = ruby_prism::parse(source.as_bytes());
+                assert_eq!(parsed.errors().count(), 0);
+                assert_eq!(
+                    crate::cops::depth::check(&parsed.node().as_program_node().unwrap()),
+                    Ok(())
+                );
+                let report = lint_one(
+                    Path::new("boundary.rb"),
+                    Path::new("boundary.rb"),
+                    Some(source.as_bytes()),
+                    &active,
+                    &config,
+                );
+                assert!(report.errors.is_empty(), "{report:?}");
+                assert!(report.internal_errors.is_empty(), "{report:?}");
+                if index == 0 {
+                    let forwarding: Vec<_> = report
+                        .result
+                        .offenses
+                        .iter()
+                        .filter(|offense| offense.cop == "Style/ArgumentsForwarding")
+                        .collect();
+                    assert_eq!(forwarding.len(), 2 * DEFS);
+                    assert_eq!((forwarding[0].line, forwarding[0].col), (1, 10));
+                }
+            }
+        });
     }
 
     #[test]
@@ -1711,10 +1735,10 @@ mod tests {
         let report = run_files(&registry, &[("x.rb", "work\n")]);
         assert_eq!(
             crate::output::render_text(&report),
-            "x.rb:1:1: E: Alpha (Lint/Alpha)\n\
-             x.rb:1:1: E: Zulu (Lint/Alpha)\n\
-             x.rb:1:1: E: Alpha (Lint/Beta)\n\
-             x.rb:1:1: E: Zulu (Lint/Beta)\n\n\
+            "x.rb:1:1: W: Alpha (Lint/Alpha)\n\
+             x.rb:1:1: W: Zulu (Lint/Alpha)\n\
+             x.rb:1:1: W: Alpha (Lint/Beta)\n\
+             x.rb:1:1: W: Zulu (Lint/Beta)\n\n\
              1 file inspected, 4 offenses detected\n"
         );
         assert_eq!(

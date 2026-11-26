@@ -1,5 +1,6 @@
 //! source-only pinned examples, rebuilt CLI and no-write controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project, run};
 use std::{
     fs,
     io::Write,
@@ -8,19 +9,6 @@ use std::{
 };
 const COP: &str = "Lint/DeprecatedOpenSSLConstant";
 const SOURCE: &[u8] = b"OpenSSL::Digest::SHA256.digest('foo')\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()

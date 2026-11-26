@@ -1,4 +1,5 @@
 //! pinned examples and controlled runtime witnesses (never corpus code).
+use crate::support::cli::project;
 use crate::support::stdin;
 use std::{
     fs,
@@ -7,12 +8,6 @@ use std::{
 };
 const COP: &str = "Style/ComparableClamp";
 const SOURCE: &str = "if 2 < 1; 1; elsif 3 < 2; 3; else; 2; end\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

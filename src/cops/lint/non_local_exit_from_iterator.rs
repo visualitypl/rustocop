@@ -65,10 +65,7 @@ impl Cop for NonLocalExitFromIterator {
             match classify(&call) {
                 BlockKind::Scope => return,
                 BlockKind::Iterator => {
-                    let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                        ret.keyword_loc().start_offset(),
-                        file,
-                    );
+                    let (line, col) = file.reference_line_col(ret.keyword_loc().start_offset());
                     out.push(Offense {
                         correction: None,
                         cop: self.name(),

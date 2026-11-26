@@ -1,5 +1,6 @@
 //! Exact source-only pinned fixtures, rebuilt CLI and no-edit controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -17,20 +18,6 @@ fn rows() -> Vec<serde_json::Value> {
 }
 fn expected(row: &serde_json::Value) -> Vec<Finding> {
     crate::support::fixture::value(&row["findings"])
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -84,7 +71,7 @@ fn all_original_byte_fixtures_match_exact_pipeline_or_explicit_parser_rejections
             .filter(|o| o.cop == COP)
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -106,7 +93,7 @@ fn all_original_byte_fixtures_match_exact_pipeline_or_explicit_parser_rejections
 }
 #[test]
 fn every_fixture_matches_exact_rebuilt_cli_lint_and_fix_without_writes() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows() {
         let source: Vec<u8> = crate::support::fixture::value(&row["bytes"]);
         let invalid =
@@ -135,7 +122,7 @@ fn every_fixture_matches_exact_rebuilt_cli_lint_and_fix_without_writes() {
                 .collect();
             let mut expected: Vec<_> = findings
                 .iter()
-                .map(|(line, col, _, msg)| format!("lib/a.rb:{line}:{col}: E: {msg} ({COP})"))
+                .map(|(line, col, _, msg)| format!("lib/a.rb:{line}:{col}: W: {msg} ({COP})"))
                 .collect();
             found.sort();
             expected.sort();
@@ -153,7 +140,7 @@ fn detection_only_defaults_selectors_strict_toml_and_department_precedence() {
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none());
     assert!(cop.max_setting().is_none());
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selection, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -210,7 +197,7 @@ fn detection_only_defaults_selectors_strict_toml_and_department_precedence() {
 }
 #[test]
 fn paths_stdin_exclusions_and_both_directive_prefixes() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, expected) in [
         (String::new(), 1),
         ("exclude = ['lib/a.rb']\n".into(), 0),
@@ -241,7 +228,7 @@ fn paths_stdin_exclusions_and_both_directive_prefixes() {
         let out = child.wait_with_output().unwrap();
         assert_eq!(count(&out), expected as usize);
         if expected == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:25: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:1:25: W:"));
         }
         assert_eq!(
             fs::read(dir.path().join("lib/a.rb")).unwrap(),
@@ -307,7 +294,7 @@ fn paths_stdin_exclusions_and_both_directive_prefixes() {
 }
 #[test]
 fn invalid_source_observers_comments_encoding_and_atomic_composition() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# coding: utf-8\r\nxs.reduce(0) { next if test; acc }\r\np __LINE__\r\n__END__\r\nraw\x00\r\n".as_slice(),
         b"# coding: Windows-1252\nxs.reduce(0) { '\xe9'; next if test; acc }\n",

@@ -1,5 +1,6 @@
 //! detection only; controlled Ruby witnesses are separate from the
 //! fixed Ruby 3.4 parser/reference policy. Commands are NEVER executed.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -7,12 +8,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Style/LineEndConcatenation";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

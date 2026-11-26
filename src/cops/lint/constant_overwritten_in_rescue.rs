@@ -137,7 +137,7 @@ mod tests {
                 found[0].message,
                 format!("`{target}` is overwritten by `rescue =>`.")
             );
-            assert_eq!(found[0].severity, crate::offense::Severity::Error);
+            assert_eq!(found[0].severity, crate::offense::Severity::Warning);
         }
     }
 

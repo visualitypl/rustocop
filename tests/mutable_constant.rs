@@ -1,4 +1,5 @@
 //! real CLI policy and detection-only preservation of mutable values.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -6,13 +7,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Style/MutableConstant";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -33,7 +27,7 @@ fn run(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
 }
 #[test]
 fn default_selectors_config_enabling_excluding_and_never_writing() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     // The blank line keeps Layout/EmptyLineAfterMagicComment quiet.
     let source = "# frozen_string_literal: true\n\nA = []\n";
@@ -82,7 +76,7 @@ fn default_selectors_config_enabling_excluding_and_never_writing() {
 }
 #[test]
 fn directives_suppress_and_reenable_reports_without_freezing() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rustocop", "rubocop"] {
         for directive in [COP, "Style", "all"] {
@@ -105,7 +99,7 @@ fn directives_suppress_and_reenable_reports_without_freezing() {
 }
 #[test]
 fn fixed_settings_are_not_public_configuration() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "A = []\n").unwrap();
     for setting in [
@@ -130,7 +124,7 @@ fn fixed_settings_are_not_public_configuration() {
 }
 #[test]
 fn unsafe_clean_error_and_encoded_data_files_keep_bytes_and_metadata() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, status, count) in [
         (b"A = [1, { a: [] }]\n".as_slice(), 1, 1),
@@ -150,7 +144,7 @@ fn unsafe_clean_error_and_encoded_data_files_keep_bytes_and_metadata() {
 }
 #[test]
 fn runtime_mutation_binding_order_and_control_flow_remain_observable() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "$events = []\nmodule Outer\n A = []\n private_constant :A\n module Inner\n  B = A\n  def self.value; B; end\n end\nend\nmodule Outer::Inner\n C ||= []\nend\nclass Holder\n class << self\n  D = {}\n end\nend\nmodule Mix\n def value; :mix; end\nend\nclass Holder\n include Mix\n extend Mix\nend\ndef item; $events << :item; 1; end\nX = [item]\nY = { key: [] }\nZ = \"text\"\nX << 2\nY[:key] << 3\nZ << '!'\nOuter::Inner.value << :nested\nOuter::Inner::C << :qualified\nHolder.singleton_class::D[:a] = :singleton\np [X, Y, Z, Outer::Inner.value, Outer::Inner::C, Holder.singleton_class::D, Holder.value, $events, catch(:done) { X << 4; throw :done, :exit }, __LINE__]\n";
     fs::write(&path, source).unwrap();
@@ -175,7 +169,7 @@ fn runtime_mutation_binding_order_and_control_flow_remain_observable() {
 }
 #[test]
 fn style_layout_fixes_never_freeze_literals_and_stabilize() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "A = [ 'a',{:b => []} ];\nA[0] << '!'\nA[1][:b] << 2\np A\n";
     fs::write(&path, source).unwrap();
@@ -212,7 +206,7 @@ fn style_layout_fixes_never_freeze_literals_and_stabilize() {
 }
 #[test]
 fn stdin_is_lint_only_with_path_excludes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "disk bytes").unwrap();
     for (config, count) in [("", 1), ("exclude = ['lib/**']\n", 0)] {

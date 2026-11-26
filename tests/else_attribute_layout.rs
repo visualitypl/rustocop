@@ -1,5 +1,6 @@
 //! Source-only pinned replay and bounded authored native controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -28,20 +29,6 @@ fn rows() -> Vec<serde_json::Value> {
 fn bytes(row: &serde_json::Value, key: &str) -> Vec<u8> {
     crate::support::fixture::value(&row[key])
 }
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -69,7 +56,7 @@ fn unchanged(root: &Path, source: &[u8], args: &[&str], status: i32) -> Output {
 fn metadata_defaults_selectors_toml_department_precedence_paths_and_stdin() {
     let registry = rustocop::cops::Registry::new();
     assert_eq!(registry.cops().len(), 613);
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let rule = registry.cops().iter().find(|c| c.name() == cop).unwrap();
         assert!(rule.default_enabled() && rule.safe_fixes());
@@ -156,7 +143,7 @@ fn metadata_defaults_selectors_toml_department_precedence_paths_and_stdin() {
 }
 #[test]
 fn both_prefixes_multiline_next_push_scopes_and_selection_boundaries() {
-    let d = project();
+    let d = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         let source = String::from_utf8_lossy(source);
         for prefix in ["rubocop", "rustocop"] {
@@ -252,7 +239,7 @@ fn both_prefixes_multiline_next_push_scopes_and_selection_boundaries() {
 fn atomic_permissions_symlink_and_failure_controls() {
     use std::os::unix::fs::{PermissionsExt, symlink};
     for ((cop, safe), after) in COPS.into_iter().zip(SAFE).zip(AFTER) {
-        let d = project();
+        let d = project_with_lib();
         let path = d.path().join("lib/a.rb");
         fs::write(&path, safe).unwrap();
         fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();

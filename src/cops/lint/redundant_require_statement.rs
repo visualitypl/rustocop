@@ -76,10 +76,7 @@ impl Cop for RedundantRequireStatement {
         if !preloaded {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            call.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(call.location().start_offset());
         // The require goes: its whole lines, or, as a modifier's body, with
         // the spaces after it, the modifier becoming a block.
         let correction = cx

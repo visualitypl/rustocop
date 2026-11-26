@@ -84,10 +84,7 @@ impl Cop for UselessTimes {
             .corrections_requested()
             .then(|| correction(node, cx, &count, file))
             .flatten();
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(
-            node.location().start_offset(),
-            file,
-        );
+        let (line, col) = file.reference_line_col(node.location().start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

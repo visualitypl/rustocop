@@ -1,5 +1,6 @@
 //! Source-only pinned parity, rebuilt CLI/no-write and authored native witnesses.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -16,20 +17,6 @@ fn source(row: &serde_json::Value) -> Vec<u8> {
         .as_str()
         .map(|s| s.as_bytes().to_vec())
         .unwrap_or_else(|| crate::support::fixture::value(&row["bytes"]))
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -107,7 +94,7 @@ fn all_pinned_main_source_canonical_and_control_rows_pipeline() {
 }
 #[test]
 fn all_rows_exact_rebuilt_cli_with_and_without_fix_preserve_bytes_mtime_inode_mode() {
-    let dir = project();
+    let dir = project_with_lib();
     for row in rows() {
         for cop in COPS {
             let findings = row[cop]["findings"].as_array().unwrap();
@@ -126,7 +113,7 @@ fn all_rows_exact_rebuilt_cli_with_and_without_fix_preserve_bytes_mtime_inode_mo
                 for f in findings {
                     assert!(
                         String::from_utf8_lossy(&out.stdout).contains(&format!(
-                            "lib/a.rb:{}:{}: E: {} ({cop})",
+                            "lib/a.rb:{}:{}: W: {} ({cop})",
                             f[0],
                             f[1],
                             f[3].as_str().unwrap()
@@ -147,7 +134,7 @@ fn source_filename_value_counts_unicode_characters_with_real_stdin_provenance() 
         .find(|c| c.name() == COPS[0])
         .unwrap()
         .as_ref();
-    let dir = project();
+    let dir = project_with_lib();
     for path in ["a", "é", "ab", "e\u{0301}"] {
         let category = if path.chars().count() == 1 {
             "a character class"
@@ -199,7 +186,7 @@ fn metadata_defaults_selectors_strict_toml_and_department_precedence() {
                 && c.max_setting().is_none()
                 && c.autocorrect_incompatible_with().is_empty()
         );
-        let dir = project();
+        let dir = project_with_lib();
         for (config, selectors, n) in [
             (String::new(), vec![], 1),
             (String::new(), vec!["--only", cop], 1),
@@ -269,7 +256,7 @@ fn metadata_defaults_selectors_strict_toml_and_department_precedence() {
 }
 #[test]
 fn directive_prefixes_range_multiline_next_signed_push_and_source_activation() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(["/#{\n[1]\n}/\n", ":\"tr\\\nue\"\n"]) {
         for prefix in ["rubocop", "rustocop"] {
             for target in [cop, "Lint", "all"] {
@@ -347,7 +334,7 @@ fn directive_prefixes_range_multiline_next_signed_push_and_source_activation() {
 }
 #[test]
 fn file_and_virtual_stdin_paths_builtins_and_stdin_fix_rejection() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for path in [
             "lib/a.rb",
@@ -401,7 +388,7 @@ fn readonly_symlink_open_fd_invalid_source_atomic_failure_and_actual_peer_edit()
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     symlink("a.rb", dir.path().join("lib/link.rb")).unwrap();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
@@ -474,7 +461,7 @@ fn authored_native_pattern_and_symbol_value_counterexamples_remain_unedited() {
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     // Separately authored bounded programs, never original spec/doc/corpus code.
     for (cop, before, after) in [
         (

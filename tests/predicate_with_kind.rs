@@ -1,4 +1,5 @@
 //! real CLI policy and detection-only semantic/no-write contracts.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -8,14 +9,6 @@ use std::{
 
 const COP: &str = "Style/PredicateWithKind";
 const SOURCE: &str = "array.any? { |x| x.is_a?(Integer) }\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn run(dir: &Path, args: &[&str], status: i32, count: usize) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -44,7 +37,7 @@ fn unchanged(dir: &Path, source: &[u8], args: &[&str], status: i32, count: usize
 
 #[test]
 fn default_selectors_config_disable_and_explicit_reenable() {
-    let dir = project();
+    let dir = project_with_lib();
     for (config, args, count) in [
         ("", vec!["lib/a.rb"], 1),
         ("", vec!["--only", COP, "lib/a.rb"], 1),
@@ -91,7 +84,7 @@ fn default_selectors_config_disable_and_explicit_reenable() {
 
 #[test]
 fn both_directive_prefixes_and_full_block_suppression_ranges() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rustocop", "rubocop"] {
         for target in [COP, "Style", "all"] {
             for source in [
@@ -130,7 +123,7 @@ fn both_directive_prefixes_and_full_block_suppression_ranges() {
 
 #[test]
 fn config_relative_and_global_excludes_win_over_only() {
-    let dir = project();
+    let dir = project_with_lib();
     for config in [
         "[cops.\"Style/PredicateWithKind\"]\nexclude = ['lib/**']\n",
         "exclude = ['lib/**']\n",
@@ -158,7 +151,7 @@ fn config_relative_and_global_excludes_win_over_only() {
 
 #[test]
 fn unsafe_clean_and_error_files_keep_bytes_and_mtime_even_with_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     for (source, status, count) in [
         (SOURCE.as_bytes(), 1, 1),
         (b"array.any?(Integer)\n".as_slice(), 0, 0),
@@ -174,7 +167,7 @@ fn unsafe_clean_and_error_files_keep_bytes_and_mtime_even_with_fix() {
 
 #[test]
 fn stdin_reports_exact_location_without_touching_display_path() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "disk sentinel").unwrap();
     for (config, count) in [
@@ -228,7 +221,7 @@ fn ruby(dir: &Path) -> Option<Output> {
 
 #[test]
 fn ruby_custom_semantics_visibility_evaluation_context_and_control_flow_remain_intact() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, count, expected) in [
         // Exact classes differ from === on subclasses, even without overrides.
@@ -282,7 +275,7 @@ fn ruby_custom_semantics_visibility_evaluation_context_and_control_flow_remain_i
 
 #[test]
 fn composition_with_class_check_and_layout_never_applies_the_unsafe_predicate_edit() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "array.any? { |x| x.kind_of?(Integer) }\n").unwrap();
     let only = "Style/PredicateWithKind,Style/ClassCheck,Layout";

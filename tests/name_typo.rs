@@ -1,5 +1,6 @@
 //! Default no-index CLI/pipeline controls. Indexed parity is private.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -10,20 +11,6 @@ use std::{
 use crate::support::stdin as stdin_support;
 const COP: &str = "Lint/NameTypo";
 const SOURCE: &str = "module Services\n  class UserCreator; VALUE = 1; end\nend\nclass Report\n  def self.generate_summary; end\nend\n::Services::UserCraetor.new\n::Report.generate_sumary\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 /// `expect_early_error` only for runs whose asserted exit is the early
 /// `--stdin --fix` rejection, which may exit before reading stdin.
 fn stdin(root: &Path, source: &[u8], args: &[&str], expect_early_error: bool) -> Output {
@@ -91,7 +78,7 @@ fn registered_metadata_and_default_selection_do_not_supply_index() {
         cop.ruby_versions(),
         rustocop::cops::policy::RubyVersions::default()
     );
-    let dir = project();
+    let dir = project_with_lib();
     for (text, args, selected) in [
         (String::new(), vec![], true),
         (String::new(), vec!["--only", COP], true),
@@ -149,7 +136,7 @@ fn every_reference_source_without_index_in_pipeline_and_rebuilt_cli() {
     let registry = rustocop::cops::Registry::new();
     let config = rustocop::config::ResolvedConfig::default();
     let active = rustocop::cops::select_active(&registry, &config, &[COP.into()], &[]);
-    let dir = project();
+    let dir = project_with_lib();
     let rows = rows();
     assert_eq!(rows.iter().filter(|r| r["origin"] == "spec").count(), 35);
     for row in rows {
@@ -177,7 +164,7 @@ fn every_reference_source_without_index_in_pipeline_and_rebuilt_cli() {
 }
 #[test]
 fn strict_toml_defaults_and_existing_cops_are_preserved() {
-    let dir = project();
+    let dir = project_with_lib();
     unchanged(dir.path(), SOURCE.as_bytes(), &["lib/a.rb"], 1);
     let out = unchanged(
         dir.path(),
@@ -210,7 +197,7 @@ fn strict_toml_defaults_and_existing_cops_are_preserved() {
 }
 #[test]
 fn supplied_paths_stdin_exclusions_and_no_hidden_discovery() {
-    let dir = project();
+    let dir = project_with_lib();
     let sentinel = dir.path().join("lib/display.rb");
     fs::write(&sentinel, "sentinel\n").unwrap();
     let old = fs::metadata(&sentinel).unwrap();
@@ -283,7 +270,7 @@ fn supplied_paths_stdin_exclusions_and_no_hidden_discovery() {
 }
 #[test]
 fn both_prefixes_multiline_next_push_and_explicit_enable_never_create_an_index() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for directive in [
             format!("# {prefix}:disable Lint\n"),
@@ -330,7 +317,7 @@ fn both_prefixes_multiline_next_push_and_explicit_enable_never_create_an_index()
 }
 #[test]
 fn observers_heredocs_and_fatal_parser_gates_preserve_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         format!(
             "\u{feff}# encoding: utf-8\r\n{}",
@@ -374,7 +361,7 @@ fn observers_heredocs_and_fatal_parser_gates_preserve_bytes() {
 #[cfg(unix)]
 fn readonly_symlinks_and_inodes_are_untouched() {
     use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, SOURCE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
@@ -399,7 +386,7 @@ fn readonly_symlinks_and_inodes_are_untouched() {
 }
 #[test]
 fn composition_preserves_existing_atomic_layout_and_style_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let source = format!("{SOURCE}consume(1,2)\nthing.kind_of?(Thing)\n");
     let both = "Lint/NameTypo,Layout/SpaceAfterComma,Style/ClassCheck";
     unchanged(
@@ -427,7 +414,7 @@ fn peer_atomic_failure_preserves_readonly_symlink_target() {
     #[cfg(unix)]
     {
         use std::os::unix::fs::{MetadataExt, PermissionsExt, symlink};
-        let dir = project();
+        let dir = project_with_lib();
         let path = dir.path().join("lib/a.rb");
         let source = format!("{SOURCE}consume(1,2)\n");
         fs::write(&path, &source).unwrap();

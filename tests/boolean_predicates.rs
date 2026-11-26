@@ -1,13 +1,8 @@
 //! Ported pinned RuboCop style/{and_or,case_equality,combinable_defined}
 //! specs (MIT License, Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use serde::Deserialize;
 use std::{fs, path::Path, process::Command};
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], code: i32) -> std::process::Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

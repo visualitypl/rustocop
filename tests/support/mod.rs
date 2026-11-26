@@ -1,3 +1,4 @@
+pub mod cli;
 pub mod deprecated_constructor_native;
 pub mod fixture;
 pub mod flow_defaults;

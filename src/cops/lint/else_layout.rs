@@ -105,7 +105,7 @@ impl Cop for ElseLayout {
         if file.line_of(start) != file.line_of(other.else_keyword_loc().start_offset()) {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(start, file);
+        let (line, col) = file.reference_line_col(start);
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

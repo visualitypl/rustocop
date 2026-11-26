@@ -1,5 +1,6 @@
 //! source-only parity and real CLI controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -8,20 +9,6 @@ use std::{
 };
 const COP: &str = "Lint/ConstantReassignment";
 const SOURCE: &[u8] = b"X = 1\nX = 2\n";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -49,7 +36,7 @@ fn rows() -> Vec<serde_json::Value> {
 }
 #[test]
 fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_no_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let rows = rows();
     assert_eq!(rows.len(), 408);
     let registry = rustocop::cops::Registry::new();
@@ -74,7 +61,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_no_edits() {
             .into_iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message)
             })
             .collect();
@@ -92,7 +79,7 @@ fn every_pinned_spec_source_and_control_matches_pipeline_and_cli_no_edits() {
         for (line, col, _, message) in expected {
             assert!(
                 String::from_utf8_lossy(&out.stdout)
-                    .contains(&format!("lib/a.rb:{line}:{col}: E: {message} ({COP})")),
+                    .contains(&format!("lib/a.rb:{line}:{col}: W: {message} ({COP})")),
                 "{out:?}"
             );
         }
@@ -131,7 +118,7 @@ fn metadata_and_selectors_config_paths_strict_toml() {
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
-    let dir = project();
+    let dir = project_with_lib();
     for (config, select, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -224,7 +211,7 @@ fn metadata_and_selectors_config_paths_strict_toml() {
 }
 #[test]
 fn both_directive_prefixes_all_scopes_preserve_ordered_definition_facts() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for source in [
             format!("# {prefix}:disable {COP}\nX = 1\nX = 2\n"),
@@ -272,7 +259,7 @@ fn both_directive_prefixes_all_scopes_preserve_ordered_definition_facts() {
 }
 #[test]
 fn stdin_provenance_no_fix_and_no_index() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "sentinel\n").unwrap();
     let old = fs::metadata(&path).unwrap();
@@ -294,7 +281,7 @@ fn stdin_provenance_no_fix_and_no_index() {
         assert_eq!(count(&out), expected);
         assert_eq!(out.status.code(), Some(i32::from(expected != 0)));
         if expected == 1 {
-            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:2:1: E:"));
+            assert!(String::from_utf8_lossy(&out.stdout).contains("lib/a.rb:2:1: W:"));
         }
     }
     assert_eq!(
@@ -310,7 +297,7 @@ fn stdin_provenance_no_fix_and_no_index() {
 }
 #[test]
 fn envelopes_observers_control_flow_errors_and_no_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     for source in [
         b"\xef\xbb\xbf# encoding: utf-8\r\nX = 1\r\nX = 2\r\np __LINE__\r\n__END__\r\nraw\x00\r\n"
             .as_slice(),
@@ -344,7 +331,11 @@ fn envelopes_observers_control_flow_errors_and_no_fix_never_write() {
     );
     for source in [
         "X = 1; X = 2\ndef broken(\n".to_string(),
-        format!("X = 1; X = 2\n{}nil\n", "x = ".repeat(80)),
+        format!(
+            "X = 1; X = 2\n{}nil{}\n",
+            "[".repeat(4100),
+            "]".repeat(4100)
+        ),
     ] {
         assert_eq!(
             count(&unchanged(
@@ -370,7 +361,7 @@ fn atomic_layout_composition_symlinks_readonly_and_failure() {
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let before = b"X = 1; X = 2\nvalues = [1,2]\n";
     let after = b"X = 1; X = 2\nvalues = [1, 2]\n";
     let only = "Lint/ConstantReassignment,Layout/SpaceAfterComma";
@@ -386,8 +377,8 @@ fn atomic_layout_composition_symlinks_readonly_and_failure() {
     assert_eq!(fs::read(&path).unwrap(), after);
     let mut old_bytes = Vec::new();
     original.read_to_end(&mut old_bytes).unwrap();
-    assert_eq!(old_bytes, before);
-    assert_ne!(fs::metadata(&path).unwrap().ino(), inode);
+    assert_eq!(old_bytes, after);
+    assert_eq!(fs::metadata(&path).unwrap().ino(), inode);
     assert_eq!(
         fs::metadata(&path).unwrap().permissions().mode() & 0o777,
         0o640

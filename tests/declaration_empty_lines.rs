@@ -1,6 +1,7 @@
 //! Actual CLI lifecycle for
 //! Layout/EmptyLinesAfterModuleInclusion, Layout/EmptyLinesAroundAttributeAccessor
 //! and Layout/EmptyLinesAroundAccessModifier.
+use crate::support::cli::{count, project, run};
 use std::{
     fs,
     io::Write,
@@ -33,27 +34,6 @@ const WITNESSES: &[(&str, &str, &str, &str)] = &[
         "example.rb:3:3: C: Keep a blank line before and after `private`.",
     ),
 ];
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
-
-fn count(out: &Output, cop: &str) -> usize {
-    String::from_utf8_lossy(&out.stdout)
-        .matches(&format!("({cop})"))
-        .count()
-}
 
 /// Run `args` on `example.rb` holding `source`; the file must keep its bytes,
 /// mtime, permissions and inode.

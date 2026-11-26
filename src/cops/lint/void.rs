@@ -569,7 +569,7 @@ impl<'pr> Walker<'_> {
         if !self.reported.insert((offset, message.clone())) {
             return;
         }
-        let (line, col) = super::array_literal_in_regexp::reference_line_col(offset, self.file);
+        let (line, col) = self.file.reference_line_col(offset);
         self.out.push(Offense {
             correction,
             cop: self.cop.name(),

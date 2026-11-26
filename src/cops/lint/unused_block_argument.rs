@@ -97,10 +97,7 @@ impl Cop for UnusedBlockArgument {
                         }
                     }
                 }
-                let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                    variable.declaration_range.start,
-                    file,
-                );
+                let (line, col) = file.reference_line_col(variable.declaration_range.start);
                 out.push(Offense {
                     cop: self.name(),
                     severity: self.severity(),

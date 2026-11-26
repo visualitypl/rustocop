@@ -99,10 +99,7 @@ impl Cop for DuplicateSetElement {
             if seen.insert(fingerprint_for_duplicate(element, file)) {
                 continue;
             }
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                element.location().start_offset(),
-                file,
-            );
+            let (line, col) = file.reference_line_col(element.location().start_offset());
             let correction = cx.corrections_requested().then(|| Correction {
                 range: elements[index - 1].location().end_offset()..element.location().end_offset(),
                 replacement: String::new(),

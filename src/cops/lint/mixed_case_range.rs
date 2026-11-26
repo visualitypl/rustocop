@@ -30,8 +30,7 @@ impl Cop for MixedCaseRange {
                 && a != b
             {
                 let loc = range.location();
-                let pos =
-                    super::array_literal_in_regexp::reference_line_col(loc.start_offset(), file);
+                let pos = file.reference_line_col(loc.start_offset());
                 ranges.push((loc.start_offset()..loc.end_offset(), pos));
             }
         } else if let Some(regexp) = crate::cops::style::regexp_literal::Regexp::new(node) {

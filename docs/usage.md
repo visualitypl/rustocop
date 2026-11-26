@@ -50,8 +50,9 @@ linted when named explicitly: `rustocop lib Rakefile`. `db/schema.rb`,
 | 2 | Errors: configuration, unreadable or unparseable files, internal cop errors |
 
 Other files continue after a file error, and other cops continue after a cop
-crash. Lint and Security offenses are reported as errors (`E`); the other
-departments report conventions (`C`).
+crash. Severities are RuboCop's defaults: Lint and Security offenses, and
+those of the few other cops RuboCop marks so, are warnings (`W`); Metrics
+offenses are refactors (`R`); the rest are conventions (`C`).
 
 ## Output formats
 
@@ -135,8 +136,11 @@ that restores an earlier version of the file, and a limit of 200 passes.
 Either one is reported as an error for that file, which keeps the last
 validated version.
 
-**Writing.** Corrected source is parsed again before an atomic replacement
-that preserves permissions and symlinks. If a pass fails validation, the
+**Writing.** Corrected source is parsed again, then written in place, as
+RuboCop writes it: the file keeps its permissions, owner, hard links and
+extended attributes, and a symlink is written through. As in RuboCop, the
+write is not atomic. A file the user may not write is reported as an error
+and left as it is. If a pass fails validation, the
 corrections of the cops that broke it are not applied in that file, the
 error names those cops, and the other cops' corrections still apply. RuboCop
 writes such corrections even when they break the file, for example

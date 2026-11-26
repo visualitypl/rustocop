@@ -1,12 +1,7 @@
 //! only controlled temporary Ruby/file/YAML fixtures are executed.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn fix(dir: &Path, cop: &str, status: i32) {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

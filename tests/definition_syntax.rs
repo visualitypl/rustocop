@@ -1,4 +1,5 @@
 //! real definition-syntax controls, bytes and isolated Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     path::Path,
@@ -18,13 +19,6 @@ const CASES: [(&str, &str, &str); 3] = [
     ),
 ];
 const ONLY: &str = "Style/Alias,Style/ColonMethodDefinition,Style/DefWithParentheses";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -36,7 +30,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 }
 #[test]
 fn defaults_selectors_config_and_no_write_contract() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     for (cop, before, after) in CASES {
@@ -82,7 +76,7 @@ fn defaults_selectors_config_and_no_write_contract() {
 }
 #[test]
 fn config_exclusions_and_directives_suppress_atomic_edits() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         for config in [
@@ -130,7 +124,7 @@ fn config_exclusions_and_directives_suppress_atomic_edits() {
 fn stdin_reports_each_cop_without_writing_display_paths() {
     use std::io::Write;
     use std::process::Stdio;
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         fs::write(&path, before).unwrap();
@@ -158,7 +152,7 @@ fn stdin_reports_each_cop_without_writing_display_paths() {
 
 #[test]
 fn token_edits_preserve_bom_crlf_encoding_data_and_explicit_lines() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "\u{feff}# encoding: UTF-8\r\ndef self::foo()\r\n  [\"café\", __LINE__]\r\nend\r\nalias :ala :bala\r\np __LINE__\r\n__END__\r\nraw::() :ala :bala\r\n".as_bytes(),
@@ -182,7 +176,7 @@ fn ruby(dir: &Path, harness: &str) -> Output {
         .unwrap()
 }
 fn runtime_case(source: &str, harness: &str, expected_fixed: &str, status: i32) {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let before = ruby(dir.path(), harness);
@@ -248,7 +242,7 @@ p [$object[:key], $object + 3]
 }
 #[test]
 fn mixed_style_layout_composition_stabilizes_within_four_explicit_passes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def self::foo();\n  return ('x');  \nend\nalias :ala :bala\n";
     fs::write(&path, source).unwrap();

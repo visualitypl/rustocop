@@ -1,4 +1,5 @@
 //! real CLI controls, byte fidelity and controlled Ruby observations.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -8,12 +9,6 @@ use std::{
 const NIL: &str = "Style/NilLambda";
 const LIMIT: &str = "Style/NumberedParametersLimit";
 const BOTH: &str = "Style/NilLambda,Style/NumberedParametersLimit";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

@@ -225,23 +225,10 @@ fn write_new(path: &std::path::Path, text: &str) -> anyhow::Result<()> {
         .with_context(|| format!("could not write {}", path.display()))
 }
 
-/// Put `text` in place of `existing`, the text of the file `path`, through a
-/// sibling temporary file, so that a failed write cannot truncate the file.
+/// Put `text` in place of `existing`, the text of the file `path`.
 fn replace(path: &std::path::Path, existing: &str, text: &str) -> anyhow::Result<()> {
-    let write = || -> anyhow::Result<()> {
-        anyhow::ensure!(
-            std::fs::read_to_string(path)? == existing,
-            "the file changed during the run"
-        );
-        let directory = path.parent().context("the file has no directory")?;
-        let mut temporary = tempfile::NamedTempFile::new_in(directory)?;
-        temporary.write_all(text.as_bytes())?;
-        let permissions = std::fs::metadata(path)?.permissions();
-        temporary.as_file().set_permissions(permissions)?;
-        temporary.persist(path)?;
-        Ok(())
-    };
-    write().with_context(|| format!("could not update {}", path.display()))
+    pipeline::replace_file(path, existing.as_bytes(), text.as_bytes())
+        .with_context(|| format!("could not update {}", path.display()))
 }
 
 /// Write a `rustocop.toml` in the current directory from its `.rubocop.yml`,

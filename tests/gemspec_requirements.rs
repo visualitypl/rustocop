@@ -3,6 +3,7 @@
 //! the location-free missing finding, and RequireMFA's guarded corrections
 //! with their no-write and atomic guarantees. Gemspecs are linted, never
 //! evaluated.
+use crate::support::cli::project;
 use crate::support::stdin;
 use rustocop::cops::Registry;
 use std::{fs, path::Path, process::Command};
@@ -16,13 +17,6 @@ const ALL: [&str; 3] = [MFA, REQUIRED, GLOBALS];
 /// RUBY_VERSION.
 const GEMSPEC: &str = "Gem::Specification.new do |s|\n  s.required_ruby_version = '>= 3.3'\n  s.add_dependency 'a' if RUBY_VERSION >= '3'\nend\n";
 const MISSING: &str = "`required_ruby_version` should be specified.";
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 
 fn cli(root: &Path, args: &[&str], input: Option<&[u8]>) -> std::process::Output {
     use std::process::Stdio;
@@ -60,7 +54,7 @@ fn registry_metadata_defaults_and_no_knobs() {
         assert_eq!(cop.safe_fixes(), safe, "{name}");
         assert_eq!(
             cop.severity(),
-            rustocop::offense::Severity::Convention,
+            rustocop::offense::Severity::for_cop(name),
             "{name}"
         );
         assert!(cop.max_setting().is_none(), "{name}");
@@ -214,7 +208,7 @@ fn missing_finding_is_global_for_empty_and_comment_only_gemspecs() {
         assert_eq!(out.status.code(), Some(1), "{out:?}");
         assert_eq!(
             String::from_utf8_lossy(&out.stdout).lines().next().unwrap(),
-            format!("x.gemspec: C: {MISSING} ({REQUIRED})"),
+            format!("x.gemspec: W: {MISSING} ({REQUIRED})"),
             "{source:?}"
         );
         assert_eq!(count(&out, REQUIRED), 1);

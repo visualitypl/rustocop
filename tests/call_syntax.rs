@@ -1,4 +1,5 @@
 //! real CLI policy, byte/no-write contracts and controlled Ruby observations.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -19,13 +20,6 @@ const CASES: [(&str, &str, &str); 3] = [
         "puts(compute(something))\n",
     ),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -38,7 +32,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn default_on_selectors_config_and_no_write_contracts() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, after) in CASES {
         fs::write(&path, before).unwrap();
@@ -80,7 +74,7 @@ fn default_on_selectors_config_and_no_write_contracts() {
 
 #[test]
 fn directives_excludes_and_stdin_do_not_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, before, _) in CASES {
         for prefix in ["rustocop", "rubocop"] {
@@ -162,7 +156,7 @@ fn ruby(source: &str) -> Option<Output> {
 fn runtime_equivalent(cop: &str, source: &str, status: i32) {
     let Some(before) = ruby(source) else { return };
     assert!(before.status.success(), "{before:?}");
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     cli(
@@ -253,7 +247,7 @@ p $events
 #[test]
 fn heredoc_scope_lead_counterexample_keeps_two_and_file_identity() {
     let source = "class C; def self.foo;2;end; foo=1; X=<<~TXT\n#{foo()}\nTXT\nend; p C::X\n";
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let modified = fs::metadata(&path).unwrap().modified().unwrap();
@@ -303,7 +297,7 @@ puts $values
 p $events
 "#
                 );
-                let dir = project();
+                let dir = project_with_lib();
                 let path = dir.path().join("lib/a.rb");
                 fs::write(&path, &source).unwrap();
                 cli(dir.path(), &["--only", CASES[0].0, "--fix", "lib/a.rb"], 0);
@@ -330,7 +324,7 @@ p $events
 
 #[test]
 fn heredoc_scope_corrections_preserve_headers_directives_excludes_and_raw_bytes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let body = "class C; foo=1; X=<<~TXT\n#{foo()} #{safe()} #{__LINE__}\nTXT\nend\n";
     for prefix in [
@@ -390,7 +384,7 @@ fn heredoc_scope_corrections_preserve_headers_directives_excludes_and_raw_bytes(
 
 #[test]
 fn all_three_and_style_layout_composition_stabilize_without_cycles() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def f\n  return sink(inner 1); object::value()\nend\nfoo.+(bar).to_s\n";
     fs::write(&path, source).unwrap();

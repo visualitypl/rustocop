@@ -2,6 +2,7 @@
 //! metadata, selectors, strict config, both directive prefixes, stdin,
 //! encodings/CRLF/BOM/DATA, parse errors, guarded atomic corrections, the
 //! no-write holds and compositions with the directive lifecycle cops.
+use crate::support::cli::{project_with_lib, run};
 use rustocop::{cops::Registry, offense::Severity};
 use std::{
     fs,
@@ -15,22 +16,6 @@ const COP: &str = "Migration/DepartmentName";
 const SOURCE: &str =
     "# rubocop:todo Alias, LineLength\nalias :ala :bala\n# rubocop:enable Alias, LineLength\n";
 const FIXED: &str = "# rubocop:todo Style/Alias, Layout/LineLength\nalias :ala :bala\n# rubocop:enable Style/Alias, Layout/LineLength\n";
-
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 
 /// `expect_early_error` only for runs whose asserted exit is the early
 /// `--stdin --fix` rejection, which may exit before reading stdin.
@@ -123,7 +108,7 @@ fn registry_metadata_default_on_safe_and_no_knobs() {
 
 #[test]
 fn default_on_selectors_department_and_strict_config() {
-    let d = project();
+    let d = project_with_lib();
     let all = vec![
         "lib/a.rb:1:16",
         "lib/a.rb:1:23",
@@ -208,7 +193,7 @@ fn default_on_selectors_department_and_strict_config() {
 
 #[test]
 fn fix_qualifies_both_prefixes_and_is_stable() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         let before = SOURCE.replace("rubocop", prefix);
         let after = FIXED.replace("rubocop", prefix);
@@ -233,7 +218,7 @@ fn fix_qualifies_both_prefixes_and_is_stable() {
 
 #[test]
 fn comment_only_and_empty_files() {
-    let d = project();
+    let d = project_with_lib();
     let out = unchanged(
         d.path(),
         b"# rubocop:disable Alias\n",
@@ -253,7 +238,7 @@ fn comment_only_and_empty_files() {
 
 #[test]
 fn stdin_uses_display_path_and_never_writes() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, "original\n").unwrap();
     let out = run_stdin(
@@ -291,7 +276,7 @@ fn stdin_uses_display_path_and_never_writes() {
 
 #[test]
 fn crlf_bom_legacy_encodings_and_data_keep_every_other_byte() {
-    let d = project();
+    let d = project_with_lib();
     fixed(
         d.path(),
         b"\xef\xbb\xbf# rubocop:disable Alias\r\nx = 1\r\n",
@@ -317,7 +302,7 @@ fn crlf_bom_legacy_encodings_and_data_keep_every_other_byte() {
 
 #[test]
 fn qualified_names_suppress_exactly_what_they_did() {
-    let d = project();
+    let d = project_with_lib();
     let before = "# rubocop:disable Semicolon\nfoo; bar\n# rubocop:enable Semicolon\nfoo; bar\n# rubocop:disable-next Semicolon\nfoo; bar\n";
     let after = "# rubocop:disable Style/Semicolon\nfoo; bar\n# rubocop:enable Style/Semicolon\nfoo; bar\n# rubocop:disable-next Semicolon\nfoo; bar\n";
     let semicolons = |root: &Path| -> Vec<String> {

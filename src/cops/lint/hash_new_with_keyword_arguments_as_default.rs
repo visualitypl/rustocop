@@ -55,8 +55,7 @@ impl Cop for HashNewWithKeywordArgumentsAsDefault {
             return;
         }
         let loc = hash.location();
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(loc.start_offset(), file);
+        let (line, col) = file.reference_line_col(loc.start_offset());
         out.push(Offense {
             cop: self.name(),
             severity: self.severity(),

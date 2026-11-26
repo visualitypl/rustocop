@@ -1,5 +1,6 @@
 //! pinned RuboCop loop specs (MIT, Copyright (c) 2012-26
 //! Bozhidar Batsov), real pipeline/CLI controls and controlled runtime witnesses.
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 const NEG: &str = "Style/NegatedWhile";
 const DO: &str = "Style/WhileUntilDo";
@@ -14,12 +15,6 @@ const CASES: [(&str, &str, &str); 3] = [
     ),
     (MOD, "while cond\n work\nend\n", "work while cond\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> std::process::Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)

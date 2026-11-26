@@ -670,6 +670,42 @@ impl SourceFile {
         )
     }
 
+    /// [`line_col`](Self::line_col) as RuboCop's reference buffer counts
+    /// columns, for the cops whose positions follow it: characters of the
+    /// [`match_pattern_source`](Self::match_pattern_source) projection (bytes
+    /// for a binary source), after a leading UTF-8 BOM. Composition,
+    /// surrogate pairs and multi-scalar expansions can all change the count
+    /// before the original offset.
+    pub(crate) fn buffer_line_col(&self, offset: usize) -> (u32, u32) {
+        let line = self.line_of(offset);
+        let start = if line == 1 && self.bytes.starts_with(b"\xef\xbb\xbf") {
+            3.min(offset)
+        } else {
+            self.line_start(line)
+        };
+        // One line's prefix holds no newline, so the reference buffer's CRLF
+        // normalization cannot change its count.
+        let prefix = self.match_pattern_source(&self.bytes[start..offset]);
+        let columns = if self.match_pattern_binary() {
+            prefix.len()
+        } else {
+            prefix
+                .utf8_chunks()
+                .map(|chunk| chunk.valid().chars().count() + chunk.invalid().len())
+                .sum()
+        };
+        (line, columns as u32 + 1)
+    }
+
+    /// [`buffer_line_col`](Self::buffer_line_col), but a leading UTF-8 BOM
+    /// counts as one column of line 1, as most Lint, Bundler and Gemspec cops
+    /// report it.
+    pub(crate) fn reference_line_col(&self, offset: usize) -> (u32, u32) {
+        let (line, col) = self.buffer_line_col(offset);
+        let bom = line == 1 && self.bytes.starts_with(b"\xef\xbb\xbf");
+        (line, col + u32::from(bom))
+    }
+
     /// Map a byte offset to a 1-based (line, column) pair.
     ///
     /// Columns count characters in Ruby's declared source encoding (UTF-8 by

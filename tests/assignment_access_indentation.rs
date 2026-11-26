@@ -1,5 +1,6 @@
 //! Source-only pinned lifecycle fixtures and actual CLI safety proofs.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project, run};
 use rustocop::{
     config::ResolvedConfig,
     cops::{Registry, select_active},
@@ -15,19 +16,6 @@ const ASSIGN: &str = "Layout/AssignmentIndentation";
 const BOTH: &str = "Layout/AccessModifierIndentation,Layout/AssignmentIndentation";
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/assignment_access_indentation.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 #[test]
 fn complete_pinned_custom_source_and_adversarial_original_byte_detection() {

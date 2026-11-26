@@ -1,4 +1,5 @@
 //! SOURCE ONLY. RuboCop examples: MIT, (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::{Read, Write},
@@ -15,20 +16,6 @@ fn rows() -> Vec<serde_json::Value> {
 }
 fn bytes(r: &serde_json::Value, key: &str) -> Vec<u8> {
     crate::support::fixture::value(&r[key])
-}
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -96,7 +83,7 @@ fn all_original_bytes_exact_pipeline_findings_ranges_messages_and_no_detection_e
             .iter()
             .map(|o| {
                 assert!(o.correction.is_none());
-                assert_eq!(o.severity, rustocop::offense::Severity::Error);
+                assert_eq!(o.severity, rustocop::offense::Severity::Warning);
                 (o.line, o.col, o.end_line, o.message.clone())
             })
             .collect();
@@ -127,7 +114,7 @@ fn defaults_selectors_strict_toml_department_precedence_and_path_stdin_provenanc
             && rule.max_setting().is_none()
             && rule.autocorrect_incompatible_with().is_empty()
     );
-    let d = project();
+    let d = project_with_lib();
     for (config, select, want) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -215,7 +202,7 @@ fn defaults_selectors_strict_toml_department_precedence_and_path_stdin_provenanc
 }
 #[test]
 fn both_prefixes_multiline_next_push_and_selection_scopes() {
-    let d = project();
+    let d = project_with_lib();
     let source = String::from_utf8_lossy(SOURCE);
     for prefix in ["rubocop", "rustocop"] {
         fs::write(
@@ -277,7 +264,7 @@ fn both_prefixes_multiline_next_push_and_selection_scopes() {
 #[test]
 fn atomic_permissions_symlink_and_failure_controls() {
     use std::os::unix::fs::{PermissionsExt, symlink};
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, SAFE).unwrap();
     fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();

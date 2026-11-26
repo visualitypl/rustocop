@@ -1,5 +1,6 @@
 //! Source-only reference parity, actual CLI and authored native holds.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -11,20 +12,6 @@ const SOURCES: [&str; 2] = [
     "nil\n# frozen_string_literal: true\n",
     "# frozen_string_literal: true\n# encoding: ascii\n",
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output, cop: &str) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -70,7 +57,7 @@ fn source(row: &serde_json::Value) -> Vec<u8> {
 fn every_pinned_spec_source_shared_alias_byte_and_control_row_exact_cli_no_write() {
     assert_eq!(rows().len(), 1040);
     parallel_rows!(for row in rows() => {
-        let dir = project();
+        let dir = project_with_lib();
         for cop in COPS {
             let findings = row[cop]["findings"].as_array().unwrap();
             let code = i32::from(!findings.is_empty());
@@ -84,7 +71,7 @@ fn every_pinned_spec_source_shared_alias_byte_and_control_row_exact_cli_no_write
                 for f in findings {
                     assert!(
                         String::from_utf8_lossy(&out.stdout).contains(&format!(
-                            "lib/a.rb:{}:{}: E: {} ({cop})",
+                            "lib/a.rb:{}:{}: W: {} ({cop})",
                             f[0],
                             f[1],
                             f[3].as_str().unwrap()
@@ -106,7 +93,7 @@ fn actual_metadata_defaults_selectors_and_strict_toml_precedence() {
         assert_eq!(detector.ruby_versions(), Default::default());
         assert!(detector.path_policy().is_none() && detector.max_setting().is_none());
         assert!(detector.autocorrect_incompatible_with().is_empty());
-        let dir = project();
+        let dir = project_with_lib();
         for (config, selectors, n) in [
             (String::new(), vec![], 1),
             (String::new(), vec!["--only", cop], 1),
@@ -174,7 +161,7 @@ fn actual_metadata_defaults_selectors_and_strict_toml_precedence() {
 }
 #[test]
 fn both_directive_prefixes_range_next_signed_push_pop_and_explicit_source_enable() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for prefix in ["rubocop", "rustocop"] {
             for target in [cop, "Lint", "all"] {
@@ -250,7 +237,7 @@ fn both_directive_prefixes_range_next_signed_push_pop_and_explicit_source_enable
 }
 #[test]
 fn supplied_file_stdin_paths_builtins_and_stdin_fix_rejection() {
-    let dir = project();
+    let dir = project_with_lib();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for path in [
             "lib/a.rb",
@@ -303,7 +290,7 @@ fn readonly_symlink_fd_invalid_input_atomic_failure_and_real_peer_correction() {
         io::Read,
         os::unix::fs::{MetadataExt, PermissionsExt, symlink},
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     symlink("a.rb", dir.path().join("lib/link.rb")).unwrap();
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
@@ -385,7 +372,7 @@ fn authored_native_unsafe_activation_value_encoding_warning_position_and_heap_co
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     // Independently authored bounded programs, not executed reference text.
     for (cop, before, after) in [
         (
@@ -445,7 +432,7 @@ fn authored_native_file_source_data_vm_error_bom_crlf_and_heredoc_observers_hold
     let Ok(ruby) = crate::support::runtime::ruby() else {
         return;
     };
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for suffix in [
         "p File.binread(__FILE__).bytesize\n",

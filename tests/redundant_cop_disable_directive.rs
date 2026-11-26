@@ -1,5 +1,6 @@
 //! Real CLI/pipeline and independently authored native safety controls.
 //! RuboCop-derived directive forms: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -8,13 +9,6 @@ use std::{
 };
 const COP: &str = "Lint/RedundantCopDisableDirective";
 const SELECTED: &str = "Lint/RedundantCopDisableDirective,Lint/Debugger";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(root: &Path, args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(root)
@@ -44,7 +38,7 @@ fn check(root: &Path, source: &[u8], args: &[&str], expected: usize, after: &[u8
 }
 #[test]
 fn actual_defaults_selectors_config_precedence_paths_and_stdin() {
-    let d = project();
+    let d = project_with_lib();
     let source = b"# rubocop:disable Lint/Debugger\nputs 1\n";
     for (args, expected) in [
         (vec!["lib/a.rb"], 1),
@@ -107,7 +101,7 @@ fn actual_defaults_selectors_config_precedence_paths_and_stdin() {
 }
 #[test]
 fn actual_scopes_unknowns_inactive_paths_and_opt_ins() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for (body, expected) in [
             ("# P:disable Debugger\nputs 1\n", 1),
@@ -159,7 +153,7 @@ fn actual_scopes_unknowns_inactive_paths_and_opt_ins() {
 }
 #[test]
 fn real_canonical_edits_no_write_holds_and_style_layout_composition() {
-    let d = project();
+    let d = project_with_lib();
     for source in [
         b"# rubocop:disable Lint/Debugger\n".as_slice(),
         b"# rustocop:todo Lint/Debugger -- obsolete\r\n",
@@ -217,7 +211,7 @@ fn real_canonical_edits_no_write_holds_and_style_layout_composition() {
 }
 #[test]
 fn invalid_input_is_fatal_and_symlink_atomic_controls_remain_shared() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let source = b"# rubocop:disable Lint/Debugger\ndef bad(\n";
     fs::write(&path, source).unwrap();
@@ -265,7 +259,7 @@ fn authored_native_closed_comment_nil_vm_trace_heap_binding_proofs() {
             .output()
             .unwrap()
     };
-    let d = project();
+    let d = project_with_lib();
     // Independently authored programs only, never the pinned spec/corpus inputs.
     for (before, after) in [
         ("# rustocop:disable Lint/Debugger -- retired\n", ""),

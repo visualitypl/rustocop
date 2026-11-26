@@ -86,13 +86,10 @@ fn check_sequence<'pr>(
             } else {
                 "`protected` inside a `class << self` block"
             };
-            let (line, col) = super::array_literal_in_regexp::reference_line_col(
-                def.def_keyword_loc().start_offset(),
-                file,
-            );
+            let (line, col) = file.reference_line_col(def.def_keyword_loc().start_offset());
             out.push(Offense {
                 cop: "Lint/IneffectiveAccessModifier",
-                severity: crate::offense::Severity::Error,
+                severity: crate::offense::Severity::Warning,
                 message: format!("`{visibility}` (on line {modifier_line}) does not make singleton methods {visibility}. Use {alternative} instead."),
                 line,
                 col,

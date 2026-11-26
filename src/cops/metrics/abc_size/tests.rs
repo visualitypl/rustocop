@@ -32,7 +32,7 @@ fn findings(source: &str) -> Vec<(u32, u32, u32, String)> {
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {
-            assert_eq!(o.severity, crate::offense::Severity::Convention);
+            assert_eq!(o.severity, crate::offense::Severity::Refactor);
             assert!(o.correction.is_none());
             (o.line, o.col, o.end_line, o.message)
         })

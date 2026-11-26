@@ -1,5 +1,6 @@
 //! controlled ordinary formatting fixtures only. Command literals are
 //! source/AST-only and are NEVER executed (including through runtime helpers).
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -7,12 +8,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Style/FormatString";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let o = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

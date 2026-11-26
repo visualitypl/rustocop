@@ -1,4 +1,5 @@
 //! real selectors, opt-in policy, no-write and controlled Ruby semantics.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -8,13 +9,6 @@ use std::{
 const MEMBER: &str = "Style/ModuleMemberExistenceCheck";
 const VISIBILITY: &str = "Style/ConstantVisibility";
 const BOTH: &str = "Style/ModuleMemberExistenceCheck,Style/ConstantVisibility";
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -35,7 +29,7 @@ fn run(dir: &Path, args: &[&str], status: i32, counts: [usize; 2]) -> Output {
 }
 #[test]
 fn defaults_opt_in_selectors_config_and_no_fix_never_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "Array.instance_methods.include?(:size)\nmodule M\n  X = 1\nend\n";
     // The module declaration prevents a closed-file correction proof, but does
@@ -89,7 +83,7 @@ fn defaults_opt_in_selectors_config_and_no_fix_never_write() {
 }
 #[test]
 fn fixed_settings_are_not_public_style_or_ruby_parameters() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "module M; X = 1; end\n";
     fs::write(&path, source).unwrap();
@@ -118,7 +112,7 @@ fn fixed_settings_are_not_public_style_or_ruby_parameters() {
 
 #[test]
 fn directives_and_config_excludes_suppress_reports_and_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (cop, code) in [
         (MEMBER, "Array.instance_methods.include?(:size)"),
@@ -196,7 +190,7 @@ fn same(before: &Output, after: &Output) {
 }
 #[test]
 fn ruby_core_visibility_inheritance_and_identity_survive_canonical_fixes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "p [Array.instance_methods.include?(:size), Array.public_instance_methods(true).member?(:size), Array.private_instance_methods.include?(:initialize), Array.protected_instance_methods.include?(:size), Array.instance_methods(false).include?(:tap), Array.instance_methods(true).include?(:tap), Array.class_variables.include?(:@@foo), Array&.instance_methods&.include?(:size), __LINE__]\n";
     fs::write(&path, source).unwrap();
@@ -228,7 +222,7 @@ fn ruby_core_visibility_inheritance_and_identity_survive_canonical_fixes() {
 }
 #[test]
 fn ruby_constant_nesting_qualified_reopen_and_singleton_visibility_remain_unchanged() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "module Outer\n X = :outer\n private_constant :X\n module Inner\n  Y = X\n  def self.value; [Y, Module.nesting]; end\n end\nend\nclass C; X = :public; class << self; X = :singleton; end; end\nmodule Outer::Inner; Z = :qualified; end\nmodule Outer::Inner; private_constant :Z; end\np [Outer::Inner.value, C::X, C.singleton_class::X, Outer.constants(false), Outer::Inner.constants(false)]\n";
     fs::write(&path, source).unwrap();
@@ -246,7 +240,7 @@ fn ruby_constant_nesting_qualified_reopen_and_singleton_visibility_remain_unchan
 }
 #[test]
 fn canonical_edits_preserve_bom_crlf_encodings_comments_line_values_and_data() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         b"\xef\xbb\xbf# coding: utf-8\r\np ['caf\xc3\xa9', __LINE__, Array.instance_methods(true).include?(:size)] # keep\r\n__END__\r\nArray.instance_methods.include?(:size)\xff\r\n".to_vec(),
@@ -264,7 +258,7 @@ fn canonical_edits_preserve_bom_crlf_encodings_comments_line_values_and_data() {
 }
 #[test]
 fn curated_style_layout_composition_stabilizes_and_preserves_observations() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "p( [ 'value',Array.instance_methods(true).include?(:size) ] );\n";
     fs::write(&path, source).unwrap();
@@ -298,7 +292,7 @@ fn curated_style_layout_composition_stabilizes_and_preserves_observations() {
 
 #[test]
 fn stdin_is_lint_only_and_obeys_display_path_excludes() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     fs::write(&path, "disk bytes").unwrap();
     for (config, count) in [("", 1), ("exclude = ['lib/**']\n", 0)] {

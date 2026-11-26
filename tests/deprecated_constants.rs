@@ -1,5 +1,6 @@
 //! pinned source-only fixtures, actual CLI and authored native witnesses.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -11,20 +12,6 @@ const SAFE: &[u8] = b"NIL = nil\n[::NIL]\n";
 const UNCERTAIN: &[u8] = b"NIL\n";
 fn rows() -> Vec<serde_json::Value> {
     serde_json::from_str(include_str!("fixtures/deprecated_constants.json")).unwrap()
-}
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
 }
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
@@ -58,7 +45,7 @@ fn metadata_selectors_toml_department_precedence_and_exclusions() {
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
     assert!(registry.has_cop("Lint/UnusedPrivateMethod"));
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, expected) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -126,7 +113,7 @@ fn metadata_selectors_toml_department_precedence_and_exclusions() {
 }
 #[test]
 fn supplied_paths_stdin_and_builtin_exclusions() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in ["lib/a.arb", "lib/a.jb", "Rakefile", "lib/.hidden.rb"] {
         fs::write(dir.path().join(path), UNCERTAIN).unwrap();
         let out = run(dir.path(), &["--only", COP, path]);
@@ -174,7 +161,7 @@ fn supplied_paths_stdin_and_builtin_exclusions() {
 }
 #[test]
 fn canonical_byte_envelopes_preserve_comments_encoding_bom_and_crlf() {
-    let dir = project();
+    let dir = project_with_lib();
     for prefix in [
         b"".as_slice(),
         b"\xef\xbb\xbf",

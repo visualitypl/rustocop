@@ -1,4 +1,5 @@
 //! percent spelling, atomic edits, CLI controls and semantic witnesses.
+use crate::support::cli::project;
 use std::{
     fs,
     io::Write,
@@ -15,12 +16,6 @@ const CASES: [(&str, &str, &str); 3] = [
     (DELIM, "p %w(one two)\n", "p %w[one two]\n"),
     (Q, "p %Q(hi)\n", "p %q(hi)\n"),
 ];
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)

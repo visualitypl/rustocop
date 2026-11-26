@@ -106,7 +106,7 @@ mod tests {
                         o.message,
                         "Script file script.rb doesn't have execute permission."
                     );
-                    assert_eq!(o.severity, crate::offense::Severity::Error);
+                    assert_eq!(o.severity, crate::offense::Severity::Warning);
                     assert!(o.correction.is_none());
                 }
             }

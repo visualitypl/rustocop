@@ -1,17 +1,12 @@
 //! real CLI policy/no-write and controlled Ruby semantic witnesses.
 //! Pinned examples: RuboCop style/infinite_loop_spec.rb (MIT License,
 //! Copyright (c) 2012-26 Bozhidar Batsov).
+use crate::support::cli::project;
 use std::{fs, path::Path, process::Command};
 
 const COP: &str = "Style/InfiniteLoop";
 const SOURCE: &str = "while true\n  work\n  other\nend\n";
 
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 fn unchanged(dir: &Path, source: &[u8], args: &[&str], code: i32) -> std::process::Output {
     let path = dir.join("a.rb");
     fs::write(&path, source).unwrap();

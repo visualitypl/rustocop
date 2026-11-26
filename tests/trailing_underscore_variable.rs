@@ -1,4 +1,5 @@
 //! parallel-assignment semantics and real CLI safety.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -6,13 +7,6 @@ use std::{
     process::{Command, Output, Stdio},
 };
 const COP: &str = "Style/TrailingUnderscoreVariable";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let out = Command::new(env!("CARGO_BIN_EXE_rustocop"))
         .current_dir(dir)
@@ -38,7 +32,7 @@ fn registration_default_lint_and_single_pass_fix() {
     assert!(cops[0].default_enabled());
     assert!(cops[0].safe_fixes());
     assert!(cops[0].path_policy().is_none());
-    let d = project();
+    let d = project_with_lib();
     unchanged(d.path(), b"a, _ = foo()\n", &["lib/a.rb"], 1);
     unchanged(d.path(), b"a, _ = foo()\n", &["--only", COP, "lib/a.rb"], 1);
     cli(d.path(), &["--only", COP, "--fix", "lib/a.rb"], 0);
@@ -55,7 +49,7 @@ fn registration_default_lint_and_single_pass_fix() {
 }
 #[test]
 fn only_except_and_per_cop_department_enabling() {
-    let d = project();
+    let d = project_with_lib();
     for config in [
         format!("[cops.\"{COP}\"]\nenabled = false\n"),
         "[cops.Style]\nenabled = false\n".into(),
@@ -86,7 +80,7 @@ fn only_except_and_per_cop_department_enabling() {
 }
 #[test]
 fn directives_and_atomic_disabled_spans() {
-    let d = project();
+    let d = project_with_lib();
     for prefix in ["rubocop", "rustocop"] {
         for selector in [COP, "TrailingUnderscoreVariable", "Style", "all"] {
             for s in [
@@ -114,7 +108,7 @@ fn directives_and_atomic_disabled_spans() {
 }
 #[test]
 fn config_relative_excludes_and_stdin_are_read_only() {
-    let d = project();
+    let d = project_with_lib();
     let source = b"a, _ = rhs\n";
     for config in [
         String::new(),
@@ -142,7 +136,7 @@ fn config_relative_excludes_and_stdin_are_read_only() {
 }
 #[test]
 fn bom_crlf_encoding_comments_literals_line_and_payload_survive() {
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     for source in [
         "\u{feff}# encoding: UTF-8\r\na, _ = [\"café\", 2] # keep\r\np a, __LINE__\r\n__END__\r\nraw\r\n".as_bytes().to_vec(),
@@ -181,7 +175,7 @@ d, *_, _, _ = [6, 7, 8, 9]
 array = (_, _ = *Values.new)
 p [a, b, c, d, value.equal?(box), array, $events]
 "#;
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let before = ruby(&path);
@@ -203,7 +197,7 @@ p [a, b, c, d, value.equal?(box), array, $events]
 #[test]
 fn partial_corrections_preserve_conversion_exception_counts_and_partial_writes() {
     let source = "$events=[]\nobj=Object.new\ndef obj.to_ary; $events << :convert; :invalid; end\nbegin; a, _ = obj; rescue TypeError; $events << :raised; end\np [a, $events]\n";
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     fs::write(&path, source).unwrap();
     let before = ruby(&path);
@@ -244,7 +238,7 @@ fn prism_lexical_depth_and_cli_variable_liveness_agree() {
             }
         }
     }
-    let d = project();
+    let d = project_with_lib();
     for (source, expected) in [
         (
             "a, b = [-> { b }, 2]; p a.call\n",
@@ -317,7 +311,7 @@ fn fixed_34_prism_binding_implicit_it_and_decoded_literals_are_unchanged() {
         walk(&mut o, &parse.node());
         o.items
     }
-    let d = project();
+    let d = project_with_lib();
     let path = d.path().join("lib/a.rb");
     let source = "a, _ = [-> { it }, \"caf\\u00e9\"]\np a, __LINE__\n";
     fs::write(&path, source).unwrap();

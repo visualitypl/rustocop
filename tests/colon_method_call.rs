@@ -1,4 +1,5 @@
 //! real CLI controls, byte preservation and controlled Ruby semantics.
+use crate::support::cli::project_with_lib;
 use std::{
     fs,
     io::Write,
@@ -9,14 +10,6 @@ use std::{
 const COP: &str = "Style/ColonMethodCall";
 const BEFORE: &str = "object::method_name(arg)\n";
 const AFTER: &str = "object.method_name(arg)\n";
-
-fn project() -> tempfile::TempDir {
-    let dir = tempfile::tempdir().unwrap();
-    fs::create_dir(dir.path().join(".git")).unwrap();
-    fs::create_dir(dir.path().join("lib")).unwrap();
-    fs::write(dir.path().join("rustocop.toml"), "").unwrap();
-    dir
-}
 
 fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
     let output = Command::new(env!("CARGO_BIN_EXE_rustocop"))
@@ -30,7 +23,7 @@ fn cli(dir: &Path, args: &[&str], status: i32) -> Output {
 
 #[test]
 fn defaults_selectors_config_and_stable_single_pass_fix() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let registry = rustocop::cops::Registry::new();
     let cops: Vec<_> = registry.cops().iter().filter(|c| c.name() == COP).collect();
@@ -76,7 +69,7 @@ fn defaults_selectors_config_and_stable_single_pass_fix() {
 
 #[test]
 fn directives_suppress_the_dispatch_token_not_unrelated_argument_lines() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for prefix in ["rubocop", "rustocop"] {
         for target in [COP, "ColonMethodCall", "Style", "all"] {
@@ -105,7 +98,7 @@ fn directives_suppress_the_dispatch_token_not_unrelated_argument_lines() {
 
 #[test]
 fn config_relative_exclusions_and_stdin_do_not_write() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for config in [
         String::new(),
@@ -149,7 +142,7 @@ fn config_relative_exclusions_and_stdin_do_not_write() {
 
 #[test]
 fn clean_exempt_and_error_files_are_not_rewritten() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for (source, status) in [
         (AFTER, 0),
@@ -167,7 +160,7 @@ fn clean_exempt_and_error_files_are_not_rewritten() {
 
 #[test]
 fn token_edits_preserve_bom_crlf_encoding_literals_data_and_line_numbers() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     for source in [
         "\u{feff}# encoding: UTF-8\r\np File::basename(\"café\")\r\np __LINE__\r\n__END__\r\nraw::data\r\n".as_bytes(),
@@ -188,7 +181,7 @@ fn upstream_incompatible_redundant_self_pair_when_registered() {
         eprintln!("RedundantSelf pair pending its implementation; ColonMethodCall remains enabled");
         return;
     }
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "class C\n  def value; 1; end\n  def run; self::value; end\nend\np C.new.run\n";
     fs::write(&path, source).unwrap();
@@ -232,7 +225,7 @@ fn upstream_incompatible_redundant_self_pair_when_registered() {
 
 #[test]
 fn mixed_style_layout_fixes_compose_without_disabling_requested_rules() {
-    let dir = project();
+    let dir = project_with_lib();
     let path = dir.path().join("lib/a.rb");
     let source = "def f\n  return (self::take('x',{:key => 1}));  \nend\n";
     fs::write(&path, source).unwrap();

@@ -317,8 +317,7 @@ impl TypoVisitor<'_, '_> {
         }
     }
     fn report(&mut self, loc: Location<'_>, message: String) {
-        let (line, col) =
-            super::array_literal_in_regexp::reference_line_col(loc.start_offset(), self.file);
+        let (line, col) = self.file.reference_line_col(loc.start_offset());
         self.out.push(Offense {
             cop: "Lint/NameTypo",
             severity: NameTypo.severity(),
@@ -650,7 +649,7 @@ mod tests {
                 .into_iter()
                 .map(|o| {
                     assert!(o.correction.is_none());
-                    assert_eq!(o.severity, crate::offense::Severity::Error);
+                    assert_eq!(o.severity, crate::offense::Severity::Warning);
                     (o.line, o.col, o.end_line, o.message)
                 })
                 .collect();

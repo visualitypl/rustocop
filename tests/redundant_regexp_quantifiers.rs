@@ -1,5 +1,6 @@
 //! Real CLI/pipeline and authored native correction-safety controls.
 //! RuboCop examples: MIT, Copyright (c) 2012-26 Bozhidar Batsov.
+use crate::support::cli::{project_with_lib, run};
 use std::{
     fs,
     io::Write,
@@ -9,20 +10,6 @@ use std::{
 const COP: &str = "Lint/RedundantRegexpQuantifiers";
 const SAFE: &[u8] = b"[defined?(/(?:a+)+/)]\n";
 const ORDINARY: &[u8] = b"value = /(?:a+)+/\n";
-fn project() -> tempfile::TempDir {
-    let d = tempfile::tempdir().unwrap();
-    fs::create_dir(d.path().join(".git")).unwrap();
-    fs::create_dir(d.path().join("lib")).unwrap();
-    fs::write(d.path().join("rustocop.toml"), "").unwrap();
-    d
-}
-fn run(root: &Path, args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_rustocop"))
-        .current_dir(root)
-        .args(args)
-        .output()
-        .unwrap()
-}
 fn count(out: &Output) -> usize {
     String::from_utf8_lossy(&out.stdout)
         .lines()
@@ -52,7 +39,7 @@ fn rows() -> Vec<serde_json::Value> {
 }
 #[test]
 fn nested_overlapping_atomic_envelopes_retain_findings_and_converge() {
-    let dir = project();
+    let dir = project_with_lib();
     for (before, after) in [
         ("[defined?(/(?:(?:a?)+)+/)]\n", "[defined?(/(?:(?:a*))/)]\n"),
         ("[defined?(/(?:(?:a+)?)+/)]\n", "[defined?(/(?:(?:a*))/)]\n"),
@@ -124,7 +111,7 @@ fn default_on_metadata_selectors_strict_toml_and_department_precedence() {
     assert_eq!(cop.ruby_versions(), Default::default());
     assert!(cop.path_policy().is_none() && cop.max_setting().is_none());
     assert!(cop.autocorrect_incompatible_with().is_empty());
-    let dir = project();
+    let dir = project_with_lib();
     for (config, selectors, n) in [
         (String::new(), vec![], 1),
         (String::new(), vec!["--only", COP], 1),
@@ -191,7 +178,7 @@ fn default_on_metadata_selectors_strict_toml_and_department_precedence() {
 }
 #[test]
 fn supplied_paths_stdin_provenance_and_stdin_fix_rejection() {
-    let dir = project();
+    let dir = project_with_lib();
     for path in [
         "lib/a.rb",
         "a.jb",
