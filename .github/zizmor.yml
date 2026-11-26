@@ -1,0 +1,9 @@
+rules:
+  # `$/` is GitHub's newer way to use an action or workflow of the running
+  # repository, but actionlint 1.7.12 rejects it, and then cannot check the
+  # inputs passed to them. `./` gives the same commit here, because each job
+  # checks out the commit under test first. Switch once actionlint accepts `$/`.
+  self-repository:
+    ignore:
+      - ci.yml
+      - release.yml
