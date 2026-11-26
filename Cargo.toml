@@ -24,7 +24,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
 # The version that `toml` uses: adds a baseline to an existing rustocop.toml.
-toml_edit = "0.22"
+toml_edit = "0.25"
 unicode-width = "0.2"
 # Reads `.rubocop.yml` for `--import-rubocop-config`.
 yaml-rust2 = { version = "0.13", default-features = false }
