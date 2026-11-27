@@ -515,7 +515,7 @@ fn defaults_metadata_selectors_strict_toml_precedence_and_excludes() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "target_ruby = 2.7",

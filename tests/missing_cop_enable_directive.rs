@@ -218,7 +218,7 @@ fn actual_metadata_defaults_selectors_toml_precedence_excludes_and_strict_keys()
     for key in [
         "max = 2",
         "MaxRangeSize = 2",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "EnforcedStyle = 'other'",
     ] {

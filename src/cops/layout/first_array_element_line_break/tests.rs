@@ -17,7 +17,7 @@ const COP: &str = "Layout/FirstArrayElementLineBreak";
 
 /// `(line, col)` of each finding, checking message, severity and end line.
 fn positions(source: &str) -> Vec<(u32, u32)> {
-    let mut found: Vec<_> = lint_str_with(&[&FirstArrayElementLineBreak], source)
+    let mut found: Vec<_> = lint_str_with(&[&FirstArrayElementLineBreak::default()], source)
         .into_iter()
         .filter(|o| o.cop == COP)
         .map(|o| {
@@ -33,19 +33,19 @@ fn positions(source: &str) -> Vec<(u32, u32)> {
 
 /// Apply this cop's corrections once, as one `--fix` pass would.
 fn fixed(source: &str) -> String {
-    let offenses = correction_offenses(&FirstArrayElementLineBreak, source);
+    let offenses = correction_offenses(&FirstArrayElementLineBreak::default(), source);
     let applied = crate::corrections::apply(source.as_bytes(), &offenses).unwrap();
     String::from_utf8(applied.bytes).unwrap()
 }
 
 #[test]
 fn metadata_is_fixed_and_opt_in() {
-    assert_eq!(FirstArrayElementLineBreak.name(), COP);
-    assert!(!FirstArrayElementLineBreak.default_enabled());
-    assert!(!FirstArrayElementLineBreak.department_selection_enables());
-    assert!(FirstArrayElementLineBreak.safe_fixes());
+    assert_eq!(FirstArrayElementLineBreak::default().name(), COP);
+    assert!(!FirstArrayElementLineBreak::default().default_enabled());
+    assert!(!FirstArrayElementLineBreak::default().department_selection_enables());
+    assert!(FirstArrayElementLineBreak::default().safe_fixes());
     assert!(
-        FirstArrayElementLineBreak
+        FirstArrayElementLineBreak::default()
             .autocorrect_incompatible_with()
             .is_empty()
     );
@@ -156,10 +156,13 @@ fn corrections_insert_one_line_break_and_keep_every_other_byte() {
 
 #[test]
 fn findings_only_without_requested_corrections() {
-    let offenses = lint_str_with(&[&FirstArrayElementLineBreak], "x = [1,\n  2]\n");
+    let offenses = lint_str_with(&[&FirstArrayElementLineBreak::default()], "x = [1,\n  2]\n");
     assert_eq!(offenses.len(), 1);
     assert!(offenses[0].correction.is_none());
     assert_eq!(offenses[0].end_line, 1);
-    let offenses = lint_str_with(&[&FirstArrayElementLineBreak], "[foo(\n  1\n), 2]\n");
+    let offenses = lint_str_with(
+        &[&FirstArrayElementLineBreak::default()],
+        "[foo(\n  1\n), 2]\n",
+    );
     assert_eq!((offenses[0].line, offenses[0].end_line), (1, 3));
 }

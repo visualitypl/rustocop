@@ -153,7 +153,7 @@ fn opt_in_metadata_selectors_toml_path_and_stdin_provenance() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "TargetRubyVersion = 3.3",
         "Style = 'other'",

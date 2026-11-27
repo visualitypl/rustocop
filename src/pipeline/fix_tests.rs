@@ -1055,7 +1055,7 @@ fn preserves_permissions_and_symlinks_and_coordinates_alias_writes() {
 fn alias_fix_collection_requests_semicolon_corrections_without_writing_early() {
     let (dir, config) = project("x = 1;\n");
     std::os::unix::fs::symlink("x.rb", dir.path().join("alias.rb")).unwrap();
-    let registry = Registry::from_cops(vec![Box::new(crate::cops::style::Semicolon)]);
+    let registry = Registry::from_cops(vec![Box::new(crate::cops::style::Semicolon::default())]);
     let report = run(
         &[dir.path().join("x.rb"), dir.path().join("alias.rb")],
         &RunOptions {

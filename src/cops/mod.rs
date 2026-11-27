@@ -280,6 +280,12 @@ pub struct Companions {
     /// Style/StringLiterals is disabled or prefers single quotes, for the cops
     /// that write a string literal (RuboCop's `StringLiteralsHelp`).
     pub single_quotes: bool,
+    /// Layout/EndAlignment's `enforced_style_align_with`, enabled or not,
+    /// which ElseAlignment, IndentationWidth and ConditionalAssignment read.
+    pub end_align_with: layout::EndAlignWith,
+    /// Layout/SpaceInsideArrayLiteralBrackets is enabled with the `compact`
+    /// style, for FirstArrayElementLineBreak and LineLength.
+    pub compact_array_brackets: bool,
 }
 
 /// One registered cop's per-file investigation facts. Absence from the universe
@@ -872,8 +878,8 @@ impl Registry {
                 Box::new(style::StringLiteralsInInterpolation),
                 Box::new(style::RedundantCondition),
                 Box::new(style::RedundantConditional),
-                Box::new(style::RedundantReturn),
-                Box::new(style::Semicolon),
+                Box::new(style::RedundantReturn::default()),
+                Box::new(style::Semicolon::default()),
                 Box::new(style::RedundantParentheses),
                 Box::new(naming::ClassAndModuleCamelCase),
                 Box::new(naming::ConstantName),
@@ -909,12 +915,12 @@ impl Registry {
                 Box::new(layout::SpaceAroundOperators),
                 Box::new(layout::SpaceInsideParens),
                 Box::new(layout::SpaceInsideHashLiteralBraces),
-                Box::new(layout::SpaceInsideBlockBraces),
-                Box::new(layout::SpaceInsideArrayLiteralBrackets),
+                Box::new(layout::SpaceInsideBlockBraces::default()),
+                Box::new(layout::SpaceInsideArrayLiteralBrackets::default()),
                 Box::new(layout::SpaceInsideReferenceBrackets),
                 Box::new(layout::IndentationStyle),
-                Box::new(layout::IndentationWidth),
-                Box::new(layout::EndAlignment),
+                Box::new(layout::IndentationWidth::default()),
+                Box::new(layout::EndAlignment::default()),
                 Box::new(layout::AccessModifierIndentation),
                 Box::new(layout::AssignmentIndentation),
                 Box::new(layout::ArgumentAlignment),
@@ -929,8 +935,8 @@ impl Registry {
                 Box::new(layout::FirstArgumentIndentation),
                 Box::new(layout::FirstArrayElementIndentation),
                 Box::new(layout::FirstHashElementIndentation),
-                Box::new(layout::CaseIndentation),
-                Box::new(layout::ElseAlignment),
+                Box::new(layout::CaseIndentation::default()),
+                Box::new(layout::ElseAlignment::default()),
                 Box::new(layout::RescueEnsureAlignment),
                 Box::new(layout::HeredocIndentation),
                 Box::new(layout::ClosingHeredocIndentation),
@@ -961,7 +967,7 @@ impl Registry {
                 Box::new(layout::ExtraSpacing),
                 Box::new(layout::SpaceBeforeFirstArg),
                 Box::new(layout::SpaceBeforeSemicolon),
-                Box::new(layout::FirstArrayElementLineBreak),
+                Box::new(layout::FirstArrayElementLineBreak::default()),
                 Box::new(layout::FirstHashElementLineBreak),
                 Box::new(layout::FirstMethodArgumentLineBreak),
                 Box::new(layout::FirstMethodParameterLineBreak),

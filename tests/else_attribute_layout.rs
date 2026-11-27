@@ -116,7 +116,7 @@ fn metadata_defaults_selectors_toml_department_precedence_paths_and_stdin() {
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
             "TargetRubyVersion = 3.3",
             "Style = 'other'",

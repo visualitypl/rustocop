@@ -127,7 +127,7 @@ fn defaults_selectors_toml_department_provenance_and_strict_keys() {
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
             "TargetRubyVersion = 3.3",
             "Style = 'other'",

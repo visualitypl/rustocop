@@ -1,8 +1,9 @@
 //! `Style/RedundantReturn` — flags a `return` that is the last thing a
 //! method (or `define_method` block, or lambda) evaluates.
 //!
-//! Matches RuboCop's semantics with its default
-//! `AllowMultipleReturnValues: false`. The bodies checked are those of `def`
+//! Matches RuboCop's semantics. With `allow_multiple_return_values`
+//! (RuboCop's `AllowMultipleReturnValues`, off by default) a `return` of
+//! several values is accepted. The bodies checked are those of `def`
 //! and `def obj.name`, of a literal block passed to `define_method`,
 //! `define_singleton_method` or `lambda` (any receiver, not `&.`), and of a
 //! `->` lambda. From such a body, the final expression is followed through
@@ -17,13 +18,20 @@
 use ruby_prism::Node;
 
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{Kind, Setting, Values},
+    },
     offense::{Correction, Offense},
     source::SourceFile,
 };
 
 /// The `Style/RedundantReturn` cop.
-pub struct RedundantReturn;
+#[derive(Default)]
+pub struct RedundantReturn {
+    /// `allow_multiple_return_values`.
+    allow_multiple: bool,
+}
 
 /// Methods whose literal block is a method or lambda body.
 const BODY_METHODS: [&[u8]; 3] = [b"define_method", b"define_singleton_method", b"lambda"];
@@ -31,6 +39,22 @@ const BODY_METHODS: [&[u8]; 3] = [b"define_method", b"define_singleton_method", 
 impl Cop for RedundantReturn {
     fn name(&self) -> &'static str {
         "Style/RedundantReturn"
+    }
+
+    fn settings(&self) -> &'static [Setting] {
+        const ALLOW_MULTIPLE_RETURN_VALUES: Setting = Setting {
+            name: "allow_multiple_return_values",
+            kind: Kind::Flag,
+        };
+        &[ALLOW_MULTIPLE_RETURN_VALUES]
+    }
+
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        Some(Box::new(RedundantReturn {
+            allow_multiple: values
+                .flag("allow_multiple_return_values")
+                .unwrap_or(self.allow_multiple),
+        }))
     }
 
     fn safe_fixes(&self) -> bool {
@@ -157,6 +181,9 @@ impl RedundantReturn {
         let values = return_node
             .arguments()
             .map_or(0, |arguments| arguments.arguments().iter().count());
+        if self.allow_multiple && values > 1 {
+            return;
+        }
         let message = if values > 1 {
             "Redundant `return` detected. To return multiple values, use an array."
         } else {
@@ -306,7 +333,7 @@ mod tests {
                 "def func\n  <<~TEXT\n    text\n  TEXT\nend\n",
             ),
         ] {
-            crate::cops::testing::assert_correction(&RedundantReturn, before, after);
+            crate::cops::testing::assert_correction(&RedundantReturn::default(), before, after);
         }
     }
 
@@ -322,7 +349,7 @@ mod tests {
             assert!(found[0].correction.is_none(), "{source}");
         }
         crate::cops::testing::assert_correction(
-            &RedundantReturn,
+            &RedundantReturn::default(),
             "def foo\n  return()\nend\np __LINE__\n",
             "def foo\n  nil\nend\np __LINE__\n",
         );
@@ -511,6 +538,46 @@ mod tests {
             "def f\n  begin\n    return 1\n  end while x\nend\n",
         ] {
             assert!(offenses(source).is_empty(), "should accept {source:?}");
+        }
+    }
+
+    #[test]
+    fn allow_multiple_return_values_accepts_several_values() {
+        let cop = RedundantReturn {
+            allow_multiple: true,
+        };
+        let found = |source: &str| crate::pipeline::lint_str_with(&[&cop], source);
+        assert!(
+            found(
+                "def pair
+  return 1, 2
+end
+"
+            )
+            .is_empty()
+        );
+        assert!(
+            found(
+                "def splat
+  return 1, *rest
+end
+"
+            )
+            .is_empty()
+        );
+        for source in [
+            "def one
+  return 1
+end
+",
+            "def list
+  return [1, 2]
+end
+",
+        ] {
+            let offenses = found(source);
+            assert_eq!(offenses.len(), 1, "{source}");
+            assert_eq!(offenses[0].message, "Redundant `return` detected.");
         }
     }
 

@@ -27,6 +27,14 @@ module Oracle
   # The lowest target Ruby RuboCop's Prism engine parses.
   PRISM_MINIMUM_RUBY = 3.3
 
+  # rustocop's own cases, in the format of RuboCop's specs. RuboCop is their
+  # oracle: each expectation is checked against the pinned cop as the spec
+  # is evaluated, and one that RuboCop does not give is an error.
+  CASES = File.join(__dir__, "cases")
+
+  # RuboCop gives other offenses or another correction than a case says.
+  class CaseMismatch < StandardError; end
+
   # One `expect_offense` or `expect_no_offenses` call. `correction` is the
   # source that a following `expect_correction` expects, `:none` after
   # `expect_no_corrections`; `correction_loop` is its `loop:`.
@@ -419,7 +427,9 @@ module Oracle
       annotated = Annotations.format_offense(source, **replacements)
       plain, offenses = Annotations.parse(annotated)
       plain = plain.chomp if chomp
-      @__example.record(self, plain, file, offenses)
+      recorded = @__example.record(self, plain, file, offenses)
+      __rubocop_offenses(plain, file, offenses)
+      recorded
     end
 
     # This owner's specs batch source assertions in RSpec's failure wrapper.
@@ -432,7 +442,56 @@ module Oracle
     end
 
     def expect_no_offenses(source, file = nil)
-      @__example.record(self, source, file, [])
+      recorded = @__example.record(self, source, file, [])
+      __rubocop_offenses(source, file, [])
+      recorded
+    end
+
+    # In a case of tools/oracle/cases, RuboCop's `expect_offense`: the pinned
+    # cop must report exactly `expected` for `source`.
+    def __rubocop_offenses(source, file, expected)
+      return unless Oracle.current_spec&.start_with?("#{CASES}/")
+
+      @__rubocop_case = [source, file]
+      found = __rubocop_investigate(source, file).map do |o|
+        [o.line, o.column + 1, o.column_length, o.message]
+      end
+      wanted = expected.map { |o| [o.line, o.col, o.carets, o.message] }
+      return if found.sort == wanted.sort
+
+      raise CaseMismatch, "RuboCop reports #{found.sort.inspect}, the case expects #{wanted.sort.inspect}"
+    end
+
+    # In a case, RuboCop's `expect_correction` and `expect_no_corrections`.
+    def __rubocop_correction(correction, loop)
+      return unless @__rubocop_case
+
+      source, file = @__rubocop_case
+      corrected = source
+      (RuboCop::Runner::MAX_ITERATIONS + 1).times do
+        corrector = @__rubocop_corrector
+        break if corrector.nil? || corrector.empty?
+
+        corrected = corrector.rewrite
+        break unless loop
+
+        __rubocop_investigate(corrected, file)
+      end
+      wanted = correction == :none ? source : correction
+      return if corrected == wanted
+
+      raise CaseMismatch, "RuboCop corrects to #{corrected.inspect}, the case expects #{wanted.inspect}"
+    end
+
+    # CopHelper's `_investigate`, with the corrector kept.
+    def __rubocop_investigate(source, file)
+      cop.instance_variable_get(:@options)[:autocorrect] = true
+      processed = RuboCop::ProcessedSource.new(source, ruby_version, file, parser_engine: :parser_prism)
+      processed.config = config
+      processed.registry = RuboCop::Cop::Registry.global
+      report = RuboCop::Cop::Team.new([cop], config, raise_error: true).investigate(processed)
+      @__rubocop_corrector = report.correctors.first
+      report.offenses.reject(&:disabled?)
     end
 
     # Source expectations can be nested in `expect { ... }.not_to raise_error`.
@@ -446,6 +505,7 @@ module Oracle
 
     def expect_correction(correction = nil, *, source: nil, loop: true, **)
       @__example.correct(correction, loop) if correction.is_a?(String)
+      __rubocop_correction(correction, loop) if correction.is_a?(String)
       # SingleLineMethods' shared examples provide their input only here. Run
       # the pinned detector for expected positions, not the correction text;
       # independent Rust tests assert the canonical before/after bytes.
@@ -477,6 +537,7 @@ module Oracle
 
     def expect_no_corrections
       @__example.correct(:none, true)
+      __rubocop_correction(:none, true)
     end
 
     # The empty-call spec includes a batched performance fixture without caret

@@ -4,16 +4,24 @@ use std::{collections::BTreeMap, ops::Range};
 
 use ruby_prism::{Location, Node};
 
+use super::alignment::{EndAlignWith, assignment_owner};
+
 use crate::{
     cops::{
-        Cop, NodeContext,
+        Companions, Cop, NodeContext,
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
     source::{SourceFile, literal_interior},
 };
 
-pub struct IndentationWidth;
+#[derive(Default)]
+pub struct IndentationWidth {
+    /// Layout/EndAlignment's `enforced_style_align_with`: the base of the
+    /// body of an `if`, `unless`, `while` or `until` that is the value of an
+    /// assignment.
+    end_align_with: EndAlignWith,
+}
 
 impl Cop for IndentationWidth {
     fn name(&self) -> &'static str {
@@ -24,6 +32,12 @@ impl Cop for IndentationWidth {
         true
     }
 
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(IndentationWidth {
+            end_align_with: companions.end_align_with,
+        }))
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -31,7 +45,7 @@ impl Cop for IndentationWidth {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        checks(node, cx, file, &mut |check| {
+        checks(node, cx, file, self.end_align_with, &mut |check| {
             let (line, col) = file.line_col(check.highlight);
             out.push(Offense {
                 correction: None,
@@ -67,6 +81,7 @@ impl Cop for IndentationWidth {
         // errors must not cause quadratic rescans or interfering shifts.
         struct Plans<'a, 'pr> {
             file: &'a SourceFile,
+            end_align_with: EndAlignWith,
             ancestors: Vec<Node<'pr>>,
             checks: Vec<Check>,
             interiors: Vec<Range<usize>>,
@@ -79,7 +94,9 @@ impl Cop for IndentationWidth {
                     corrections_requested: true,
                     require_order_reports: &Default::default(),
                 };
-                checks(&node, &cx, self.file, &mut |c| self.checks.push(c));
+                checks(&node, &cx, self.file, self.end_align_with, &mut |c| {
+                    self.checks.push(c)
+                });
                 if let Some(range) = literal_interior(&node, self.file) {
                     self.interiors.push(range);
                 }
@@ -92,6 +109,7 @@ impl Cop for IndentationWidth {
         }
         let mut plans = Plans {
             file,
+            end_align_with: self.end_align_with,
             ancestors: Vec::new(),
             checks: Vec::new(),
             interiors: Vec::new(),
@@ -295,8 +313,18 @@ fn checks<'pr>(
     node: &Node<'pr>,
     cx: &NodeContext<'_, 'pr>,
     file: &SourceFile,
+    end_align_with: EndAlignWith,
     emit: &mut impl FnMut(Check),
 ) {
+    // `check_assignment`: a conditional or loop that is the value of an
+    // assignment, or the last argument of a call (`&.` too), takes the
+    // start of that assignment as the base when Layout/EndAlignment does
+    // not align with the keyword and nothing breaks the line between them.
+    let owner = || {
+        assignment_owner(node, cx.ancestors(), false, true)
+            .filter(|owner| end_align_with.aligns_with_owner(file, owner, node))
+            .map(|owner| owner.location().start_offset())
+    };
     let mut check_range = |base: usize, expression: Option<Range<usize>>| {
         let Some(expression) = expression else {
             return;
@@ -321,14 +349,14 @@ fn checks<'pr>(
             indentation,
         });
     };
-    let mut check = |base: Location<'pr>, body_node: Option<Node<'pr>>| {
+    let mut check = |base: usize, body_node: Option<Node<'pr>>| {
         // A multi-statement body starting with an access modifier belongs to
         // the access-modifier/consistency cops, except class/module members.
         let skip = body_node
             .as_ref()
             .is_some_and(|b| starts_with_access(b, node, cx));
         if !skip {
-            check_range(base.start_offset(), body_node.as_ref().and_then(body));
+            check_range(base, body_node.as_ref().and_then(body));
         }
     };
     match node {
@@ -337,13 +365,17 @@ fn checks<'pr>(
             if let Some(keyword) = n.if_keyword_loc()
                 && keyword.start_offset() == n.location().start_offset()
             {
-                check(keyword, n.statements().map(|s| s.as_node()));
+                let base = owner().unwrap_or(keyword.start_offset());
+                check(base, n.statements().map(|s| s.as_node()));
             }
         }
         Node::UnlessNode { .. } => {
             let n = node.as_unless_node().unwrap();
             if n.keyword_loc().start_offset() == n.location().start_offset() {
-                check(n.keyword_loc(), n.statements().map(|s| s.as_node()));
+                check(
+                    owner().unwrap_or(n.keyword_loc().start_offset()),
+                    n.statements().map(|s| s.as_node()),
+                );
             }
         }
         Node::ElseNode { .. } => {
@@ -379,7 +411,7 @@ fn checks<'pr>(
                 _ => Some(n.else_keyword_loc()),
             };
             if let Some(base) = base {
-                check(base, n.statements().map(|s| s.as_node()));
+                check(base.start_offset(), n.statements().map(|s| s.as_node()));
             }
         }
         Node::WhileNode { .. } => {
@@ -388,7 +420,10 @@ fn checks<'pr>(
                 && file.line_of(n.predicate().location().start_offset())
                     == file.last_line_of(n.predicate().location())
             {
-                check(n.keyword_loc(), n.statements().map(|s| s.as_node()));
+                check(
+                    owner().unwrap_or(n.keyword_loc().start_offset()),
+                    n.statements().map(|s| s.as_node()),
+                );
             }
         }
         Node::UntilNode { .. } => {
@@ -397,28 +432,46 @@ fn checks<'pr>(
                 && file.line_of(n.predicate().location().start_offset())
                     == file.last_line_of(n.predicate().location())
             {
-                check(n.keyword_loc(), n.statements().map(|s| s.as_node()));
+                check(
+                    owner().unwrap_or(n.keyword_loc().start_offset()),
+                    n.statements().map(|s| s.as_node()),
+                );
             }
         }
         Node::ForNode { .. } => {
             let n = node.as_for_node().unwrap();
-            check(n.for_keyword_loc(), n.statements().map(|s| s.as_node()));
+            check(
+                n.for_keyword_loc().start_offset(),
+                n.statements().map(|s| s.as_node()),
+            );
         }
         Node::WhenNode { .. } => {
             let n = node.as_when_node().unwrap();
-            check(n.keyword_loc(), n.statements().map(|s| s.as_node()));
+            check(
+                n.keyword_loc().start_offset(),
+                n.statements().map(|s| s.as_node()),
+            );
         }
         Node::InNode { .. } => {
             let n = node.as_in_node().unwrap();
-            check(n.in_loc(), n.statements().map(|s| s.as_node()));
+            check(
+                n.in_loc().start_offset(),
+                n.statements().map(|s| s.as_node()),
+            );
         }
         Node::RescueNode { .. } => {
             let n = node.as_rescue_node().unwrap();
-            check(n.keyword_loc(), n.statements().map(|s| s.as_node()));
+            check(
+                n.keyword_loc().start_offset(),
+                n.statements().map(|s| s.as_node()),
+            );
         }
         Node::EnsureNode { .. } => {
             let n = node.as_ensure_node().unwrap();
-            check(n.ensure_keyword_loc(), n.statements().map(|s| s.as_node()));
+            check(
+                n.ensure_keyword_loc().start_offset(),
+                n.statements().map(|s| s.as_node()),
+            );
         }
         Node::DefNode { .. } => {
             let n = node.as_def_node().unwrap();
@@ -456,13 +509,13 @@ fn checks<'pr>(
         Node::BlockNode { .. } => {
             let n = node.as_block_node().unwrap();
             if starts_line(file, n.closing_loc().start_offset()) {
-                check(n.closing_loc(), n.body());
+                check(n.closing_loc().start_offset(), n.body());
             }
         }
         Node::LambdaNode { .. } => {
             let n = node.as_lambda_node().unwrap();
             if starts_line(file, n.closing_loc().start_offset()) {
-                check(n.closing_loc(), n.body());
+                check(n.closing_loc().start_offset(), n.body());
             }
         }
         Node::BeginNode { .. } => {
@@ -912,7 +965,7 @@ mod tests {
             ),
         ] {
             assert!(!offenses(before).is_empty(), "{before}");
-            assert_correction(&IndentationWidth, before, after);
+            assert_correction(&IndentationWidth::default(), before, after);
         }
     }
 
@@ -925,7 +978,7 @@ mod tests {
             assert_eq!((found[0].line, found[0].col), (2, 3));
             assert_eq!(found[0].message, "Use 2 (not -4) spaces for indentation.");
             assert_correction(
-                &IndentationWidth,
+                &IndentationWidth::default(),
                 &before,
                 &format!("var = {keyword} a\n        b\nend\n"),
             );
@@ -974,7 +1027,7 @@ mod tests {
             [(2, 1), (4, 1), (8, 1)]
         );
         assert_correction(
-            &IndentationWidth,
+            &IndentationWidth::default(),
             before,
             "class A\n  private\n\n  def x\n  end\n\n      public\n  def y\n  end\nend\n",
         );
@@ -982,7 +1035,7 @@ mod tests {
 
     fn assert_unchanged(source: &str) {
         assert!(offenses(source).is_empty(), "{source}");
-        let found = correction_offenses(&IndentationWidth, source);
+        let found = correction_offenses(&IndentationWidth::default(), source);
         assert!(found.is_empty(), "{source}");
         let applied = crate::corrections::apply(source.as_bytes(), &found).unwrap();
         assert_eq!(applied.bytes, source.as_bytes());
@@ -1056,7 +1109,7 @@ mod tests {
                 found[0].message,
                 format!("Use 2 (not {indentation}) spaces for indentation.")
             );
-            assert_correction(&IndentationWidth, before, after);
+            assert_correction(&IndentationWidth::default(), before, after);
         }
     }
 
@@ -1103,7 +1156,7 @@ mod tests {
                 found[0].message,
                 format!("Use 2 (not {indentation}) spaces for indentation.")
             );
-            assert_correction(&IndentationWidth, before, after);
+            assert_correction(&IndentationWidth::default(), before, after);
         }
     }
 
@@ -1125,29 +1178,33 @@ mod tests {
         ] {
             let before = format!("def x\n   {literal}\nend\n");
             let after = format!("def x\n  {literal}\nend\n");
-            assert_correction(&IndentationWidth, &before, &after);
+            assert_correction(&IndentationWidth::default(), &before, &after);
         }
         let before = "\u{feff}module M日本語\r\n    def élève\r\n      \"é\"\r\n    end\r\nend\r\n__END__\r\n  raw\r\n";
         let after = "\u{feff}module M日本語\r\n  def élève\r\n    \"é\"\r\n  end\r\nend\r\n__END__\r\n  raw\r\n";
-        assert_correction(&IndentationWidth, before, after);
+        assert_correction(&IndentationWidth::default(), before, after);
         assert!(offenses(after).is_empty());
-        assert_correction(&IndentationWidth, "def x\n    1\nend", "def x\n  1\nend");
+        assert_correction(
+            &IndentationWidth::default(),
+            "def x\n    1\nend",
+            "def x\n  1\nend",
+        );
     }
 
     #[test]
     fn pinned_heredoc_and_block_comment_safety() {
         let before = "module Foo\nmodule Bar\n  SOMETHING = <<GOO\ntext\nmore text\nfoo\nGOO\n  def baz\n    do_something(\"#{x}\")\n  end\nend\nend\n";
         let after = "module Foo\n  module Bar\n    SOMETHING = <<GOO\ntext\nmore text\nfoo\nGOO\n    def baz\n      do_something(\"#{x}\")\n    end\n  end\nend\n";
-        assert_correction(&IndentationWidth, before, after);
+        assert_correction(&IndentationWidth::default(), before, after);
         let before =
             "module Foo\nclass Bar\n=begin\ncomment\n=end\ndef baz\ndo_something\nend\nend\nend\n";
         assert_eq!(offenses(before).len(), 3);
         assert!(
-            correction_offenses(&IndentationWidth, before)
+            correction_offenses(&IndentationWidth::default(), before)
                 .iter()
                 .all(|o| o.correction.is_none())
         );
-        assert_correction(&IndentationWidth, before, before);
+        assert_correction(&IndentationWidth::default(), before, before);
     }
 
     #[test]
@@ -1166,7 +1223,7 @@ mod tests {
                 assert_eq!(found.len(), 1, "{before}");
                 assert_eq!((found[0].line, found[0].col), (14, 1));
                 assert_correction(
-                    &IndentationWidth,
+                    &IndentationWidth::default(),
                     &before,
                     &before.replace("\n w\n", "\n  w\n"),
                 );
@@ -1176,11 +1233,11 @@ mod tests {
             );
             // As in RuboCop, the enabled offense shifts its whole subtree,
             // disabled lines included.
-            let found = correction_offenses(&IndentationWidth, &before);
+            let found = correction_offenses(&IndentationWidth::default(), &before);
             assert_eq!(found.len(), 1);
             assert!(found[0].correction.is_some(), "{before}");
             assert_correction(
-                &IndentationWidth,
+                &IndentationWidth::default(),
                 &before,
                 &format!(
                     "module A\n  class B\n    # {prefix}:disable Layout/IndentationWidth\n    def x\n    end\n    # {prefix}:enable Layout/IndentationWidth\n  end\nend\n"
@@ -1193,11 +1250,11 @@ mod tests {
     fn nested_and_wide_correction_work_selects_disjoint_spans() {
         // Stay within the shared AST-depth budget (two nodes per module).
         let nested = format!("{}x\n{}", "module A\n".repeat(30), "end\n".repeat(30));
-        let found = correction_offenses(&IndentationWidth, &nested);
+        let found = correction_offenses(&IndentationWidth::default(), &nested);
         assert_eq!(found.len(), 30);
         assert_eq!(found.iter().filter(|o| o.correction.is_some()).count(), 1);
         let wide = "class A\n    def x\n    end\n    def y\n    end\nend\n".repeat(2000);
-        let found = correction_offenses(&IndentationWidth, &wide);
+        let found = correction_offenses(&IndentationWidth::default(), &wide);
         assert_eq!(found.len(), 4000);
         let mut end = 0;
         for o in found {
@@ -1216,18 +1273,18 @@ mod tests {
             "x = %Q #{if true\n1\nend} \n",
         ] {
             assert!(!offenses(source).is_empty(), "{source}");
-            assert_correction(&IndentationWidth, source, source);
+            assert_correction(&IndentationWidth::default(), source, source);
         }
         // A containing shift preserves both literal text and interpolation.
         let before = "class A\nclass B\n  X = \"a\n#{\nif true\n 1\nend\n}tail\"\nend\nend\n";
         let after = "class A\n  class B\n    X = \"a\n#{\nif true\n 1\nend\n}tail\"\n  end\nend\n";
-        assert_correction(&IndentationWidth, before, after);
+        assert_correction(&IndentationWidth::default(), before, after);
     }
 
     #[test]
     fn subtree_shifts_do_not_create_a_data_marker() {
         assert_correction(
-            &IndentationWidth,
+            &IndentationWidth::default(),
             "class A\n    def x\n  __END__\n    end\nend\n",
             "class A\n  def x\n  __END__\n  end\nend\n",
         );
@@ -1287,7 +1344,7 @@ mod tests {
                 &[(2, 1, 6), (4, 3, -2)],
             ),
         ] {
-            let found = correction_offenses(&IndentationWidth, source);
+            let found = correction_offenses(&IndentationWidth::default(), source);
             let expected: Vec<_> = expected
                 .iter()
                 .map(|&(line, col, width)| {
@@ -1307,7 +1364,7 @@ mod tests {
                 "{source:?}"
             );
             assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
-            assert_correction(&IndentationWidth, source, source);
+            assert_correction(&IndentationWidth::default(), source, source);
         }
     }
 
@@ -1359,7 +1416,7 @@ mod tests {
                 "def x\n  a\nrescue\n  b\nend\n",
             ),
         ] {
-            assert_correction(&IndentationWidth, before, after);
+            assert_correction(&IndentationWidth::default(), before, after);
         }
         for source in [
             "if true\n  if true\n    1\n  end\nend\n",
@@ -1415,7 +1472,7 @@ mod tests {
                 &[(2, 1, 3)],
             ),
         ] {
-            let found = correction_offenses(&IndentationWidth, source);
+            let found = correction_offenses(&IndentationWidth::default(), source);
             let expected: Vec<_> = expected
                 .iter()
                 .map(|&(line, col, width)| {
@@ -1435,7 +1492,7 @@ mod tests {
                 "{source:?}"
             );
             assert!(found.iter().all(|o| o.correction.is_none()), "{source:?}");
-            assert_correction(&IndentationWidth, source, source);
+            assert_correction(&IndentationWidth::default(), source, source);
         }
     }
 
@@ -1518,14 +1575,14 @@ mod tests {
                 "if a\n\t if b\n\t\t c\n\t end\nend\n",
             ),
         ] {
-            assert_correction(&IndentationWidth, before, after);
+            assert_correction(&IndentationWidth::default(), before, after);
         }
     }
 
     #[test]
     fn pinned_mixed_tab_character_columns() {
         assert_correction(
-            &IndentationWidth,
+            &IndentationWidth::default(),
             "class A\n  def x\n \t\tbar\n  end\nend\n",
             "class A\n  def x\n \t\t bar\n  end\nend\n",
         );

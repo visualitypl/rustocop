@@ -66,7 +66,7 @@ fn selectors_toml_precedence_and_strict_validation() {
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "target_ruby = 2.6",

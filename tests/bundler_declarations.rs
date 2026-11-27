@@ -249,7 +249,7 @@ fn supplied_paths_selectors_config_and_directives_cannot_bypass_gates() {
     for key in [
         "max=1",
         "enforced_style='gems.rb'",
-        "include=['**/*']",
+        "Include=['**/*']",
         "allowed_gems=[]",
     ] {
         fs::write(

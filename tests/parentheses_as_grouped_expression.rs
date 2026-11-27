@@ -221,7 +221,7 @@ fn defaults_selectors_strict_toml_and_supplied_paths() {
     }
     for key in [
         "max=1",
-        "include=['**/*']",
+        "Include=['**/*']",
         "Enabled=true",
         "TargetRubyVersion=3.3",
         "SafeAutoCorrect=true",

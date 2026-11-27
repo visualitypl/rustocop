@@ -190,7 +190,7 @@ fn registry_fixed_defaults_selectors_strict_toml_department_precedence_and_exclu
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "target_ruby = 3.3",

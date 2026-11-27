@@ -271,3 +271,67 @@ fn allowed_patterns_accept_the_long_lines_that_match_one() {
         )
     );
 }
+
+#[test]
+fn an_imported_omakase_config_lints_as_rubocop_does() {
+    // The settings of rubocop-rails-omakase 1.1.0 that a rustocop.toml can say.
+    let omakase = "Layout/CaseIndentation:\n  Enabled: true\n  EnforcedStyle: end\n\
+                   Layout/EndAlignment:\n  Enabled: true\n  EnforcedStyleAlignWith: variable\n\
+                   Layout/SpaceInsideArrayLiteralBrackets:\n  Enabled: true\n  \
+                   EnforcedStyle: space\n  EnforcedStyleForEmptyBrackets: no_space\n\
+                   Layout/SpaceInsideBlockBraces:\n  Enabled: true\n  \
+                   EnforcedStyleForEmptyBraces: space\n\
+                   Style/RedundantReturn:\n  Enabled: true\n  AllowMultipleReturnValues: true\n\
+                   Style/Semicolon:\n  Enabled: true\n  AllowAsExpressionSeparator: true\n";
+    let good = "result = if ready?\n  1\nelse\n  2\nend\n\n[ 1, 2 ].each { }\n\n\
+                def pair\n  return 1, 2\nend\n\nx = 1; y = 2\n\n\
+                output = case result\nwhen 1 then :one\nend\n";
+    let dir = project(&[
+        (".rubocop.yml", omakase),
+        ("good.rb", good),
+        ("bad.rb", "[1, 2]\n[ ]\neach {}\n"),
+    ]);
+    assert_eq!(rustocop(dir.path(), &["--import-rubocop-config"]).0, 0);
+    assert_eq!(
+        std::fs::read_to_string(dir.path().join("rustocop.toml")).unwrap(),
+        "# Written by `rustocop --import-rubocop-config` from .rubocop.yml.\n\
+         \n[cops.\"Layout/CaseIndentation\"]\nenabled = true\nenforced_style = \"end\"\n\
+         \n[cops.\"Layout/EndAlignment\"]\nenabled = true\nenforced_style_align_with = \"variable\"\n\
+         \n[cops.\"Layout/SpaceInsideArrayLiteralBrackets\"]\nenabled = true\n\
+         enforced_style = \"space\"\nenforced_style_for_empty_brackets = \"no_space\"\n\
+         \n[cops.\"Layout/SpaceInsideBlockBraces\"]\nenabled = true\n\
+         enforced_style_for_empty_braces = \"space\"\n\
+         \n[cops.\"Style/RedundantReturn\"]\nallow_multiple_return_values = true\nenabled = true\n\
+         \n[cops.\"Style/Semicolon\"]\nallow_as_expression_separator = true\nenabled = true\n\
+         \n[cops.\"Style/StringLiterals\"]\nenforced_style = \"single_quotes\"\n\
+         \n[cops.\"Style/StringLiteralsInInterpolation\"]\nenforced_style = \"single_quotes\"\n"
+    );
+    let only = "Layout/CaseIndentation,Layout/EndAlignment,Layout/ElseAlignment,\
+                Layout/IndentationWidth,Layout/SpaceInsideArrayLiteralBrackets,\
+                Layout/SpaceInsideBlockBraces,Style/RedundantReturn,Style/Semicolon";
+    assert_eq!(
+        rustocop(dir.path(), &["--only", only]),
+        (
+            1,
+            "bad.rb:1:1: C: Use space inside array brackets. \
+             (Layout/SpaceInsideArrayLiteralBrackets)\n\
+             bad.rb:1:6: C: Use space inside array brackets. \
+             (Layout/SpaceInsideArrayLiteralBrackets)\n\
+             bad.rb:2:1: C: Do not use space inside empty array brackets. \
+             (Layout/SpaceInsideArrayLiteralBrackets)\n\
+             bad.rb:3:6: C: Space missing inside empty braces. (Layout/SpaceInsideBlockBraces)\n\
+             \n2 files inspected, 4 offenses detected\n"
+                .into(),
+            String::new()
+        )
+    );
+    assert_eq!(rustocop(dir.path(), &["-a", "--only", only]).0, 0);
+    assert_eq!(
+        std::fs::read_to_string(dir.path().join("bad.rb")).unwrap(),
+        "[ 1, 2 ]\n[]\neach { }\n"
+    );
+    assert_eq!(
+        std::fs::read_to_string(dir.path().join("good.rb")).unwrap(),
+        good
+    );
+}

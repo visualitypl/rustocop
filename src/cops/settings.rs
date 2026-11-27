@@ -31,6 +31,8 @@ pub enum Kind {
     Choice(&'static [&'static str]),
     /// A list of regular expressions, in the syntax of the `regex` crate.
     Patterns,
+    /// `true` or `false`.
+    Flag,
 }
 
 /// `max`, RuboCop's `Max`.
@@ -46,6 +48,7 @@ pub enum Value {
     /// The string as the setting declares it.
     Choice(&'static str),
     Patterns(Vec<Regex>),
+    Flag(bool),
 }
 
 impl Setting {
@@ -89,6 +92,8 @@ impl Setting {
                 Ok(Value::Patterns(patterns))
             }
             (Kind::Patterns, _) => bail!("`{name}` for `{cop}` must be a list of strings"),
+            (Kind::Flag, toml::Value::Boolean(flag)) => Ok(Value::Flag(*flag)),
+            (Kind::Flag, _) => bail!("`{name}` for `{cop}` must be true or false"),
         }
     }
 }
@@ -127,6 +132,14 @@ impl Values {
         }
     }
 
+    /// The value of the [`Kind::Flag`] setting `name`.
+    pub fn flag(&self, name: &str) -> Option<bool> {
+        match self.0.get(name)? {
+            Value::Flag(flag) => Some(*flag),
+            _ => None,
+        }
+    }
+
     /// The value of the [`Kind::Patterns`] setting `name`.
     pub fn patterns(&self, name: &str) -> Option<&[Regex]> {
         match self.0.get(name)? {
@@ -154,6 +167,8 @@ mod tests {
         assert_eq!(parse(Kind::Count, "7").unwrap().count("key"), Some(7));
         let choice = Kind::Choice(&["one", "two"]);
         assert_eq!(parse(choice, "'two'").unwrap().choice("key"), Some("two"));
+        assert_eq!(parse(Kind::Flag, "true").unwrap().flag("key"), Some(true));
+        assert_eq!(parse(Kind::Flag, "false").unwrap().flag("key"), Some(false));
         let patterns = parse(Kind::Patterns, r"['^a', 'b$']").unwrap();
         assert_eq!(patterns.patterns("key").unwrap().len(), 2);
         // A value is read only as its own kind, and only under its name.
@@ -174,6 +189,11 @@ mod tests {
                 "unknown `key = \"three\"` for `Dept/Cop`; use \"one\" or \"two\"",
             ),
             (choice, "1", "`key` for `Dept/Cop` must be a string"),
+            (
+                Kind::Flag,
+                "'true'",
+                "`key` for `Dept/Cop` must be true or false",
+            ),
             (
                 Kind::Patterns,
                 "'a'",

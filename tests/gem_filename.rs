@@ -156,7 +156,7 @@ fn real_metadata_and_only_landed_department_identity() {
         "max=2",
         "enforced_style='gems.rb'",
         "target_ruby_version='3.4'",
-        "include=['**/*']",
+        "Include=['**/*']",
     ] {
         fs::write(
             d.path().join("rustocop.toml"),

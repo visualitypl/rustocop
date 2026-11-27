@@ -4,6 +4,7 @@
 
 mod access_modifier_indentation;
 mod alignment;
+pub use alignment::EndAlignWith;
 mod argument_alignment;
 mod array_alignment;
 mod assignment_indentation;

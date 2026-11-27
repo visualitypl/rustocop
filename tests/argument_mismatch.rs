@@ -185,7 +185,7 @@ fn default_selectors_strict_toml_and_metadata() {
     for key in [
         "max = 1",
         "UseProjectIndex = true",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "exclude = ['[']",
     ] {

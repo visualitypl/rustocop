@@ -2583,13 +2583,17 @@ class SpecEvaluationTest < Minitest::Test
     matching = recorder.expectations.reject do |e|
       e.skip || Oracle.config_mismatch(cop, e.config, defaults, e.source).first
     end
-    assert_equal 73, matching.uniq { |e| Oracle.case_id(cop, e, {}) }.size
+    assert_equal 166, matching.uniq { |e| Oracle.case_id(cop, e, {}) }.size
     assert matching.any? { |e| e.description.include?('behaves like aligned') }
     assert matching.any? { |e| e.description.include?('behaves like misaligned') }
     assert matching.any? { |e| e.source.start_with?('var = if') && !e.offenses.empty? }
-    refute matching.any? { |e| e.source.start_with?('var = if') && e.config[cop]['EnforcedStyleAlignWith'] != 'keyword' }
-    refute matching.any? { |e| e.source.start_with?('puts 1; class') && e.config[cop]['EnforcedStyleAlignWith'] == 'start_of_line' }
-    assert matching.any? { |e| e.source.start_with?('puts 1; class') && e.config[cop]['EnforcedStyleAlignWith'] == 'keyword' }
+    # Every style runs: the cop declares `enforced_style_align_with`.
+    %w[variable start_of_line].each do |style|
+      assert matching.any? { |e| e.source.start_with?('var = if') && e.config[cop]['EnforcedStyleAlignWith'] == style }
+    end
+    %w[start_of_line keyword].each do |style|
+      assert matching.any? { |e| e.source.start_with?('puts 1; class') && e.config[cop]['EnforcedStyleAlignWith'] == style }
+    end
   end
 
   def test_operator_specs_run_under_equivalent_unset_no_space_styles
@@ -2935,8 +2939,8 @@ class SplitSpecEvaluationTest < Minitest::Test
     assert_equal paths, recorder.expectations.map(&:spec).uniq
     defaults = RuboCop::ConfigLoader.default_configuration.to_h
     matching, skipped = recorder.expectations.partition { |e| !e.skip && !Oracle.config_mismatch(cop, e.config, defaults, e.source).first }
-    assert_equal 573, matching.size # 378 unique; repeated calls retained.
-    assert_equal 654, skipped.size # Alternate style/branch/ternary/end alignment settings.
+    assert_equal 590, matching.size # 395 unique; repeated calls retained.
+    assert_equal 637, skipped.size # Alternate style/branch/ternary/end alignment settings.
     assert_equal 514, matching.count { |e| corrections[e.object_id] }
     assert_equal 612, skipped.count { |e| e.spec == paths.first }
     expected = matching.map do |e|
@@ -3218,16 +3222,25 @@ class ConfigMismatchTest < Minitest::Test
                  mismatch("Layout/LineLength", config, "x = <<~TEXT\n  y\nTEXT\n").first
   end
 
-  def test_end_alignment_style_is_irrelevant_without_inline_conditionals
+  def test_end_alignment_style_is_written_for_the_cops_that_read_it
     config = { "Layout/IndentationWidth" => DEFAULTS["Layout/IndentationWidth"],
                "Layout/EndAlignment" => { "EnforcedStyleAlignWith" => "variable" } }
+    assert_equal [nil, { "Layout/EndAlignment" => { "enforced_style_align_with" => "variable" } }],
+                 mismatch("Layout/IndentationWidth", config, "x = if y\n a\nend\n")
+  end
+
+  # For a cop that does not read it, EndAlignment's styles coincide when the
+  # keyword is first on its line.
+  def test_end_alignment_style_is_irrelevant_without_inline_conditionals
+    cop = "Layout/BeginEndAlignment"
+    config = { cop => DEFAULTS[cop], "Layout/EndAlignment" => { "EnforcedStyleAlignWith" => "variable" } }
     ["if x\n a\nend\n", "class A\n   def x\n   end\nend\n",
      "x =\n  if y\n    z\n  end\n"].each do |source|
-      assert_nil mismatch("Layout/IndentationWidth", config, source).first
+      assert_nil mismatch(cop, config, source).first
     end
     ["x = if y\n a\nend\n", "foo.bar = while y\n a\nend\n"].each do |source|
       assert_equal ['Layout/EndAlignment EnforcedStyleAlignWith="variable"'],
-                   mismatch("Layout/IndentationWidth", config, source).first
+                   mismatch(cop, config, source).first
     end
   end
 

@@ -159,7 +159,7 @@ fn default_on_selectors_department_and_strict_config() {
     for body in [
         "max=1",
         "Max=1",
-        "include=['**/*']",
+        "Include=['**/*']",
         "AllowedNames=['Alias']",
         "enabled='true'",
     ] {

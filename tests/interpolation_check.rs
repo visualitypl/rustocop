@@ -190,7 +190,7 @@ fn defaults_selectors_strict_toml_department_and_exclusion_precedence() {
     for toml in [
         "[cops.\"Lint/InterpolationCheck\"]\nmax = 1\n",
         "[cops.\"Lint/InterpolationCheck\"]\nEnforcedStyle = 'double'\n",
-        "[cops.\"Lint/InterpolationCheck\"]\ninclude = ['**']\n",
+        "[cops.\"Lint/InterpolationCheck\"]\nInclude = ['**']\n",
     ] {
         fs::write(dir.path().join("rustocop.toml"), toml).unwrap();
         unchanged(dir.path(), SOURCE, &["--only", COP, "--fix", "lib/a.rb"], 2);

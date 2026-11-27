@@ -3,7 +3,7 @@
 //!
 //! A `rustocop.toml` says less than a `.rubocop.yml`: the paths to skip,
 //! the Ruby version, whether a cop or department is on, the paths a cop
-//! skips, and the settings that a cop declares (`Cop::settings`), such as
+//! skips or checks, and the settings that a cop declares (`Cop::settings`), such as
 //! the `max` of `Layout/LineLength`. The import carries those over and lists
 //! every other setting, so that none is dropped silently.
 
@@ -93,7 +93,26 @@ pub fn import(path: &Path, registry: &Registry) -> Result<Import> {
                 ("Enabled", Yaml::Boolean(on)) if !top => {
                     let _ = writeln!(lines, "enabled = {on}");
                 }
-                // A department takes no `exclude`.
+                // A department takes no `exclude` or `include`.
+                ("Include", Yaml::Array(patterns)) if cop => {
+                    let mut kept = String::new();
+                    let mut all = true;
+                    for pattern in patterns {
+                        let pattern = pattern.into_string().unwrap_or_default();
+                        let glob = pattern.trim_start_matches("./");
+                        if glob.starts_with('/') || globset::Glob::new(glob).is_err() {
+                            all = false;
+                        } else {
+                            let _ = writeln!(kept, "  {},", toml::Value::String(glob.into()));
+                        }
+                    }
+                    // A partial list would check fewer files than RuboCop.
+                    if all {
+                        let _ = write!(lines, "include = [\n{kept}]\n");
+                    } else {
+                        dropped.push(key);
+                    }
+                }
                 ("Exclude", Yaml::Array(patterns)) if top || cop => {
                     let mut kept = String::new();
                     for pattern in patterns {
@@ -167,6 +186,9 @@ fn carry_over(
         }
         (Kind::Choice(choices), Yaml::String(choice)) if choices.contains(&choice.as_str()) => {
             let _ = writeln!(lines, "{name} = \"{choice}\"");
+        }
+        (Kind::Flag, Yaml::Boolean(flag)) => {
+            let _ = writeln!(lines, "{name} = {flag}");
         }
         (Kind::Patterns, Yaml::Array(patterns)) => {
             let mut kept = String::new();
@@ -383,6 +405,56 @@ mod tests {
         let config = ResolvedConfig::resolve(raw, None, &Registry::new()).unwrap();
         assert!(matches_any(&config.global_excludes, Path::new("tmp/x.rb")));
         assert_eq!(config.settings["Layout/LineLength"].count("max"), Some(100));
+    }
+
+    #[test]
+    fn a_cop_include_is_carried_over_whole_or_not_at_all() {
+        let import = import_files(&[(
+            ".rubocop.yml",
+            "Style/StringLiterals:\n  Include:\n    - 'app/**/*'\n    - ./Gemfile\n\
+             Style/HashSyntax:\n  Include:\n    - 'lib/**/*'\n    - !ruby/regexp /_spec\\.rb$/\n\
+             Style:\n  Include: ['a.rb']\n",
+        )])
+        .unwrap();
+        assert!(
+            import.toml.contains(
+                "[cops.\"Style/StringLiterals\"]\nenforced_style = \"single_quotes\"\n\
+                 include = [\n  \"app/**/*\",\n  \"Gemfile\",\n]\n"
+            ),
+            "{}",
+            import.toml
+        );
+        assert!(!import.toml.contains("lib/**/*"), "{}", import.toml);
+        assert_eq!(
+            import.dropped,
+            ["Style: Include", "Style/HashSyntax: Include"]
+        );
+    }
+
+    #[test]
+    fn a_flag_is_carried_over_as_a_boolean() {
+        let import = import_files(&[(
+            ".rubocop.yml",
+            "Style/RedundantReturn:\n  AllowMultipleReturnValues: true\n\
+             Style/Semicolon:\n  AllowAsExpressionSeparator: 'yes'\n",
+        )])
+        .unwrap();
+        assert!(
+            import.toml.contains(
+                "[cops.\"Style/RedundantReturn\"]\nallow_multiple_return_values = true\n"
+            ),
+            "{}",
+            import.toml
+        );
+        assert!(
+            import
+                .dropped
+                .contains(&"Style/Semicolon: AllowAsExpressionSeparator".to_owned())
+        );
+        let raw: RawConfig = toml::from_str(&import.toml).unwrap();
+        let config = ResolvedConfig::resolve(raw, None, &Registry::new()).unwrap();
+        let values = &config.settings["Style/RedundantReturn"];
+        assert_eq!(values.flag("allow_multiple_return_values"), Some(true));
     }
 
     #[test]

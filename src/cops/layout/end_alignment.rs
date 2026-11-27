@@ -1,18 +1,43 @@
-//! `Layout/EndAlignment` — align closing `end` with its opening keyword.
+//! `Layout/EndAlignment` — align closing `end` with its opening keyword, or
+//! with what `enforced_style_align_with` (RuboCop's `EnforcedStyleAlignWith`)
+//! names: `keyword` (the default), `variable` (the start of an assignment,
+//! or of a call, that the construct is the value of) or `start_of_line`.
 
 use ruby_prism::{Location, Node};
 
+use super::alignment::{EndAlignWith, assignment_owner, start_line_range};
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext, ast,
+        settings::{Kind, Setting, Values},
+    },
     offense::Offense,
     source::SourceFile,
 };
 
-pub struct EndAlignment;
+#[derive(Default)]
+pub struct EndAlignment {
+    style: EndAlignWith,
+}
 
 impl Cop for EndAlignment {
     fn name(&self) -> &'static str {
         "Layout/EndAlignment"
+    }
+
+    fn settings(&self) -> &'static [Setting] {
+        const ENFORCED_STYLE_ALIGN_WITH: Setting = Setting {
+            name: "enforced_style_align_with",
+            kind: Kind::Choice(&["keyword", "variable", "start_of_line"]),
+        };
+        &[ENFORCED_STYLE_ALIGN_WITH]
+    }
+
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let style = values
+            .choice("enforced_style_align_with")
+            .map_or(self.style, EndAlignWith::parse);
+        Some(Box::new(EndAlignment { style }))
     }
 
     fn safe_fixes(&self) -> bool {
@@ -29,16 +54,33 @@ impl Cop for EndAlignment {
         let Some((keyword, end)) = keywords(node) else {
             return;
         };
-        let (align_line, align_col) = file.line_col(keyword.start_offset());
+        let keyword = keyword.start_offset()..keyword.end_offset();
+        let anchor = match self.style {
+            EndAlignWith::Keyword => keyword,
+            EndAlignWith::StartOfLine => start_line_range(file, node.location().start_offset()),
+            // `check_asgn_alignment` when the construct is the value of an
+            // assignment or call, `check_other_alignment` otherwise.
+            EndAlignWith::Variable => match outer(node, cx) {
+                Some(outer)
+                    if file.line_of(node.location().start_offset())
+                        <= file.line_of(outer.location().start_offset()) =>
+                {
+                    outer.location().start_offset()..keyword.end
+                }
+                _ => keyword,
+            },
+        };
+        let (align_line, align_col) = file.line_col(anchor.start);
         let (line, col) = file.line_col(end.start_offset());
         if line == align_line || col == align_col {
             return;
         }
         let correction = cx.corrections_requested().then(|| {
+            let column = file.line_col(self.alignment(node, cx, file)).1;
             super::alignment::align_end(
                 file,
                 end.start_offset(),
-                &" ".repeat((align_col - 1) as usize),
+                &" ".repeat((column - 1) as usize),
             )
         });
         out.push(Offense {
@@ -48,13 +90,150 @@ impl Cop for EndAlignment {
             message: format!(
                 "`end` at {line}, {} is not aligned with `{}` at {align_line}, {}.",
                 col - 1,
-                String::from_utf8_lossy(keyword.as_slice()),
+                String::from_utf8_lossy(&file.bytes[anchor]),
                 align_col - 1,
             ),
             line,
             end_line: line,
             col,
         });
+    }
+}
+
+impl EndAlignment {
+    /// The offset whose column the corrector moves `end` to
+    /// (`alignment_node`).
+    fn alignment<'pr>(
+        &self,
+        node: &Node<'pr>,
+        cx: &NodeContext<'_, 'pr>,
+        file: &SourceFile,
+    ) -> usize {
+        let start = node.location().start_offset();
+        match self.style {
+            EndAlignWith::Keyword => start,
+            EndAlignWith::StartOfLine => start_line_range(file, start).start,
+            // `alignment_node_for_variable_style`.
+            EndAlignWith::Variable => {
+                if let Some(call) = case_argument_of(node, cx)
+                    && file.line_of(call.location().start_offset()) == file.line_of(start)
+                {
+                    return call.location().start_offset();
+                }
+                match assignment_or_operator_method(node, cx) {
+                    Some(owner)
+                        if file.line_of(start) <= file.line_of(owner.location().start_offset()) =>
+                    {
+                        owner.location().start_offset()
+                    }
+                    _ => start,
+                }
+            }
+        }
+    }
+}
+
+/// The node that RuboCop's `check_asgn_alignment` aligns `node` with: the
+/// assignment or call it is the value of (`CheckAssignment`, for a
+/// conditional), the call that a `case` is an argument of, the assignment
+/// that a `class << self` is the value of. `None` for
+/// `check_other_alignment`.
+fn outer<'a, 'pr>(node: &Node<'pr>, cx: &NodeContext<'a, 'pr>) -> Option<&'a Node<'pr>> {
+    match node {
+        Node::SingletonClassNode { .. } => cx.parent().filter(|parent| {
+            ast::is_assignment(parent)
+                && super::multiline_expression::assignment_value(parent).is_some_and(|value| {
+                    value.location().start_offset() == node.location().start_offset()
+                })
+        }),
+        Node::ClassNode { .. } | Node::ModuleNode { .. } => None,
+        _ => assignment_owner(node, cx.ancestors(), true, false)
+            .or_else(|| case_argument_of(node, cx)),
+    }
+}
+
+/// The call (not `&.`) that `node`, a `case`, is an argument of
+/// (`argument?`).
+fn case_argument_of<'a, 'pr>(node: &Node<'pr>, cx: &NodeContext<'a, 'pr>) -> Option<&'a Node<'pr>> {
+    if !matches!(node, Node::CaseNode { .. } | Node::CaseMatchNode { .. }) {
+        return None;
+    }
+    let mut ancestors = cx.ancestors();
+    ancestors.next()?.as_arguments_node()?;
+    ancestors.next().filter(|call| {
+        call.as_call_node()
+            .is_some_and(|call| !call.is_safe_navigation())
+    })
+}
+
+/// RuboCop's `assignment_or_operator_method`: the nearest ancestor that is an
+/// assignment (or `<<` call) whose value leads to `node`, an operator call
+/// whose receiver chain does not, or another call whose last argument
+/// does (`leading_node`). A call is not an ancestor of its block's body in
+/// the parser gem, as it is in Prism.
+fn assignment_or_operator_method<'a, 'pr>(
+    node: &Node<'pr>,
+    cx: &NodeContext<'a, 'pr>,
+) -> Option<&'a Node<'pr>> {
+    let span = |n: &Node<'_>| (n.location().start_offset(), n.location().end_offset());
+    let is_node = |candidate: Option<Node<'pr>>| candidate.is_some_and(|c| span(&c) == span(node));
+    let mut child = span(node);
+    for ancestor in cx.ancestors() {
+        let previous = std::mem::replace(&mut child, span(ancestor));
+        let found = if ast::is_assignment(ancestor) {
+            is_node(leading_node(super::multiline_expression::assignment_value(
+                ancestor,
+            )))
+        } else if let Some(call) = ancestor.as_call_node()
+            && !call.is_safe_navigation()
+            && call.block().is_none_or(|block| span(&block) != previous)
+        {
+            if call.name().as_slice() == b"<<" {
+                is_node(leading_node(last_argument(&call)))
+            } else if ast::is_operator_method(call.name().as_slice()) {
+                !is_node(leading_node(call.receiver()))
+            } else {
+                is_node(leading_node(last_argument(&call)))
+            }
+        } else {
+            false
+        };
+        if found {
+            return Some(ancestor);
+        }
+    }
+    None
+}
+
+/// The parser gem's `last_argument`, where a block pass is an argument.
+fn last_argument<'pr>(call: &ruby_prism::CallNode<'pr>) -> Option<Node<'pr>> {
+    match call.block() {
+        Some(block) if block.as_block_argument_node().is_some() => Some(block),
+        _ => call.arguments()?.arguments().iter().last(),
+    }
+}
+
+/// `EndAlignment#leading_node`: down the receivers of a call chain
+/// (`first_part_of_call_chain`), then through `(…)`, `||` and `&&`.
+fn leading_node(node: Option<Node<'_>>) -> Option<Node<'_>> {
+    let mut node = node?;
+    while let Some(call) = node.as_call_node() {
+        node = call.receiver()?;
+    }
+    loop {
+        node = if let Some(parentheses) = node.as_parentheses_node() {
+            let body = parentheses.body()?;
+            match body.as_statements_node() {
+                Some(statements) => statements.body().iter().next()?,
+                None => body,
+            }
+        } else if let Some(or) = node.as_or_node() {
+            or.left()
+        } else if let Some(and) = node.as_and_node() {
+            and.left()
+        } else {
+            return Some(node);
+        };
     }
 }
 
@@ -166,7 +345,7 @@ mod tests {
                 let found = offenses(&before);
                 assert_eq!(found.len(), 1, "{before}");
                 assert_eq!((found[0].line, found[0].col), (2, 1));
-                assert_correction(&EndAlignment, &before, &after);
+                assert_correction(&EndAlignment::default(), &before, &after);
                 assert!(offenses(&after).is_empty(), "{after}");
             }
         }
@@ -178,7 +357,7 @@ mod tests {
                 "x = y || case a\nwhen b\n         end\n",
             ),
         ] {
-            assert_correction(&EndAlignment, before, after);
+            assert_correction(&EndAlignment::default(), before, after);
             assert!(offenses(after).is_empty());
         }
     }
@@ -201,7 +380,7 @@ mod tests {
             found[1].message,
             "`end` at 11, 2 is not aligned with `if` at 1, 0."
         );
-        assert_correction(&EndAlignment, before, after);
+        assert_correction(&EndAlignment::default(), before, after);
         assert!(offenses(after).is_empty());
     }
 
@@ -259,10 +438,14 @@ mod tests {
             assert_eq!(found.len(), 1);
             assert_eq!((found[0].line, found[0].col), position);
             assert_eq!(found[0].message, message);
-            assert_correction(&EndAlignment, before, after);
+            assert_correction(&EndAlignment::default(), before, after);
         }
         let before = "class A\n  end\n__END__\r\n  end\n\traw";
-        assert_correction(&EndAlignment, before, &before.replacen("  end", "end", 1));
+        assert_correction(
+            &EndAlignment::default(),
+            before,
+            &before.replacen("  end", "end", 1),
+        );
     }
 
     #[test]
@@ -275,14 +458,14 @@ mod tests {
                     format!("# {prefix}:disable-next {target}\nif a\n  end\n"),
                 ] {
                     assert!(offenses(&source).is_empty(), "{source}");
-                    assert!(correction_offenses(&EndAlignment, &source).is_empty());
+                    assert!(correction_offenses(&EndAlignment::default(), &source).is_empty());
                 }
                 let before = format!(
                     "# {prefix}:disable {target}\nif a\n  end\n# {prefix}:enable {target}\nif b\n  end\n"
                 );
                 let after = before.strip_suffix("  end\n").unwrap().to_owned() + "end\n";
                 assert_eq!(offenses(&before).len(), 1);
-                assert_correction(&EndAlignment, &before, &after);
+                assert_correction(&EndAlignment::default(), &before, &after);
             }
         }
     }
@@ -319,7 +502,7 @@ mod tests {
                     )
                 );
                 assert!(o.correction.is_none());
-                assert_correction(&EndAlignment, &before, &after);
+                assert_correction(&EndAlignment::default(), &before, &after);
                 assert!(offenses(&after).is_empty());
             }
         }

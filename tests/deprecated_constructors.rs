@@ -193,7 +193,7 @@ fn actual_defaults_bounds_selectors_toml_precedence_and_strict_keys() {
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "target_ruby = 2.5",

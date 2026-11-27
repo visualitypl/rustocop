@@ -215,7 +215,7 @@ fn defaults_selectors_strict_toml_department_precedence_and_path_excludes() {
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "TargetRubyVersion = 3.3",

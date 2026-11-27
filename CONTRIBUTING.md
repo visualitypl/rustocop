@@ -102,7 +102,9 @@ Examples with `expect_correction` are also corrected with `rustocop -A`, and
 the result is compared with the source the spec expects. `cargo test` runs the
 oracle when Ruby, RuboCop's runtime gems and a checkout at the pinned revision
 are available, and skips otherwise. Known deviations are listed with reasons
-in `tools/oracle/baseline.txt`. See
+in `tools/oracle/baseline.txt`. Examples that RuboCop's specs lack go in
+`tools/oracle/cases/<department>/<cop>_spec.rb`, in the same format; the
+oracle checks each of them against RuboCop itself. See
 [tools/oracle/README.md](tools/oracle/README.md).
 
 ## Differential check

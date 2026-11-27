@@ -69,7 +69,7 @@ fn registry_metadata_defaults_and_no_knobs() {
         for key in [
             "enforced_style='forbidden'",
             "allowed_gems=['a']",
-            "include=['**/*']",
+            "Include=['**/*']",
             "max=1",
         ] {
             fs::write(

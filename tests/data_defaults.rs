@@ -164,7 +164,7 @@ fn strict_toml_exclusions_and_supplied_file_paths() {
     for (cop, source) in COPS.into_iter().zip(SOURCES) {
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "target_ruby = 2.6",

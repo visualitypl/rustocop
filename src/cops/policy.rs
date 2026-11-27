@@ -196,7 +196,13 @@ impl PathPolicy {
 
     pub(crate) fn allows(&self, relative: &std::path::Path) -> bool {
         (self.includes.is_empty() || crate::config::matches_any(&self.includes, relative))
-            && !crate::config::matches_any(&self.excludes, relative)
+            && !self.excludes(relative)
+    }
+
+    /// Whether the policy's `Exclude` matches `relative`, which a config's
+    /// `include` for the cop does not replace.
+    pub(crate) fn excludes(&self, relative: &std::path::Path) -> bool {
+        crate::config::matches_any(&self.excludes, relative)
     }
 }
 

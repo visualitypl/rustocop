@@ -7,7 +7,8 @@
 //! - Strict: unknown keys, unknown cops/departments, or invalid settings fail
 //!   the run instead of being silently ignored.
 //! - Per-cop and per-department `enabled`, per-cop and global `exclude`
-//!   globs, and for each cop the settings that it declares
+//!   globs, per-cop `include` globs, and for each cop the settings that it
+//!   declares
 //!   (`Cop::settings`), such as `max` for `Layout/LineLength`.
 
 use std::{
@@ -59,6 +60,9 @@ pub struct RawCopSettings {
     /// Glob patterns for paths this cop should skip (not valid for departments).
     /// Preserve presence so even an explicitly empty department setting is rejected.
     pub exclude: Option<Vec<String>>,
+    /// Glob patterns for the only paths this cop checks, RuboCop's `Include`
+    /// of a cop (not valid for departments).
+    pub include: Option<Vec<String>>,
     /// Every other key: the cop's own settings, such as `max`. A key is
     /// valid when the cop declares it (`Cop::settings`), which `resolve`
     /// checks. A `max` on a cop that is off by default also switches the
@@ -108,6 +112,9 @@ pub struct CopSettings {
     pub enabled: Option<bool>,
     /// Exclude globs for this cop (always empty for department settings).
     pub excludes: Vec<GlobMatcher>,
+    /// Include globs for this cop, which replace those of its pinned path
+    /// policy; `None` when the config sets none.
+    pub includes: Option<Vec<GlobMatcher>>,
 }
 
 impl Default for ResolvedConfig {
@@ -230,6 +237,9 @@ impl ResolvedConfig {
                     "`exclude` is not a valid setting for department `{key}`; use global or per-cop exclusions"
                 );
             }
+            if is_department && raw.include.is_some() {
+                bail!("`include` is not a valid setting for department `{key}`; set it per cop");
+            }
             let declared = registry.cop(&key).map_or(&[][..], |cop| cop.settings());
             let mut values = Values::default();
             for (name, value) in &raw.settings {
@@ -239,6 +249,10 @@ impl ResolvedConfig {
                 values = values.with(setting.name, setting.parse(&key, value)?);
             }
             let excludes = compile_globs(raw.exclude.as_deref().unwrap_or_default(), &key)?;
+            let includes = match &raw.include {
+                Some(patterns) => Some(compile_globs(patterns, &key)?),
+                None => None,
+            };
             // A limit for a cop that is off by default asks for the cop.
             let wanted =
                 values.count("max").is_some() && !crate::cops::policy::default_enabled(&key);
@@ -247,6 +261,7 @@ impl ResolvedConfig {
                 CopSettings {
                     enabled: raw.enabled.or(wanted.then_some(true)),
                     excludes,
+                    includes,
                 },
             );
             if !values.is_empty() {
@@ -309,6 +324,15 @@ impl ResolvedConfig {
             single_line_block_chain: own("Layout/SingleLineBlockChain").unwrap_or(false),
             space_inside_parens: enabled("Layout/SpaceInsideParens"),
             single_quotes,
+            end_align_with: settings
+                .get("Layout/EndAlignment")
+                .and_then(|values| values.choice("enforced_style_align_with"))
+                .map_or_else(Default::default, crate::cops::layout::EndAlignWith::parse),
+            compact_array_brackets: enabled("Layout/SpaceInsideArrayLiteralBrackets")
+                && settings
+                    .get("Layout/SpaceInsideArrayLiteralBrackets")
+                    .and_then(|values| values.choice("enforced_style"))
+                    == Some("compact"),
         };
         for cop in registry.cops() {
             let base = configured
@@ -395,6 +419,32 @@ pub fn matches_any(matchers: &[GlobMatcher], path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn include_is_a_cop_setting() {
+        let registry = Registry::new();
+        let resolve = |text: &str| {
+            ResolvedConfig::resolve(toml::from_str(text).unwrap(), None, &registry)
+                .map_err(|error| error.to_string())
+        };
+        let config =
+            resolve("[cops.\"Style/StringLiterals\"]\ninclude = [\"app/**/*\"]\n").unwrap();
+        let includes = config.cop_settings["Style/StringLiterals"]
+            .includes
+            .as_deref()
+            .unwrap();
+        assert!(matches_any(includes, Path::new("app/models/a.rb")));
+        assert!(!matches_any(includes, Path::new("spec/a_spec.rb")));
+        assert!(
+            config.cop_settings["Style/StringLiterals"]
+                .excludes
+                .is_empty()
+        );
+        assert_eq!(
+            resolve("[cops.\"Style\"]\ninclude = [\"app/**/*\"]\n").unwrap_err(),
+            "`include` is not a valid setting for department `Style`; set it per cop"
+        );
+    }
 
     #[test]
     fn rejects_unknown_top_level_keys() {

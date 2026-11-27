@@ -77,7 +77,7 @@ fn metadata_selectors_strict_toml_department_precedence_and_exclusions() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "target_ruby = 2.6",

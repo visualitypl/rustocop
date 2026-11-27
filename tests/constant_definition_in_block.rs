@@ -169,7 +169,7 @@ fn selectors_config_department_precedence_strict_toml_and_paths() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "AllowedMethods = []",

@@ -256,7 +256,7 @@ fn policy_settings_remain_strictly_fixed() {
     for key in [
         "allowed_methods = []",
         "require_for_non_public_methods = true",
-        "include = []",
+        "Include = []",
         "max = 2",
     ] {
         fs::write(

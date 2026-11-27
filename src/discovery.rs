@@ -11,9 +11,12 @@ use crate::config::matches_any;
 /// Collect Ruby inputs and the two opaque gem lock filenames to inspect.
 ///
 /// Explicit file paths are kept whatever their name or extension. Directories
-/// are walked `.gitignore`-aware, skipping hidden files, and yield `.rb`,
-/// `Gemfile`, `*.gemfile`, `*.gemspec`, `Gemfile.lock` and `gems.locked` inputs.
-/// Other extensionless files such as `LICENSE` or `bin/` scripts are skipped.
+/// are walked `.gitignore`-aware and yield the files of RuboCop's default
+/// `AllCops: Include` ([`RUBY_EXTENSIONS`], [`RUBY_FILE_NAMES`] and
+/// `*Fastfile`), plus `Gemfile.lock` and `gems.locked`. As in RuboCop's
+/// globs, hidden directories are skipped, and of the hidden files only
+/// `.irbrc`, `.pryrc` and `.simplecov` are kept. Other extensionless files
+/// such as `LICENSE` or `bin/` scripts are skipped.
 /// Excludes apply to both explicit and discovered inputs.
 pub fn collect_files(
     paths: &[PathBuf],
@@ -25,10 +28,23 @@ pub fn collect_files(
         if path.is_file() {
             push_candidate(path, config_root, excludes, &mut out);
         } else if path.is_dir() {
-            let walker = WalkBuilder::new(path).build();
+            // RuboCop's `hidden_dir?`: in a hidden directory that is named,
+            // every Ruby file counts, hidden or not.
+            let hidden_root = path
+                .file_name()
+                .is_some_and(|name| name.to_string_lossy().starts_with('.'));
+            let walker = WalkBuilder::new(path)
+                .hidden(false)
+                .filter_entry(move |entry| {
+                    hidden_root
+                        || entry.depth() == 0
+                        || !entry.file_type().is_some_and(|ft| ft.is_dir())
+                        || !entry.file_name().to_string_lossy().starts_with('.')
+                })
+                .build();
             for entry in walker.flatten() {
                 if entry.file_type().is_some_and(|ft| ft.is_file())
-                    && is_supported_input(entry.path())
+                    && is_supported_input(entry.path(), hidden_root)
                 {
                     push_candidate(entry.path(), config_root, excludes, &mut out);
                 }
@@ -53,12 +69,81 @@ pub(crate) fn is_filename_only(path: &Path) -> bool {
         .is_some_and(|name| name == "Gemfile.lock" || name == "gems.locked")
 }
 
-fn is_supported_input(path: &Path) -> bool {
-    is_filename_only(path)
-        || path.file_name().is_some_and(|name| name == "Gemfile")
+/// The extensions in RuboCop 1.92's default `AllCops: Include` (`**/*.rb`
+/// and so on), case-sensitive.
+pub const RUBY_EXTENSIONS: &[&str] = &[
+    "rb",
+    "arb",
+    "axlsx",
+    "builder",
+    "gemfile",
+    "gemspec",
+    "jb",
+    "jbuilder",
+    "mspec",
+    "opal",
+    "pluginspec",
+    "podspec",
+    "rabl",
+    "rake",
+    "rbw",
+    "ru",
+    "ruby",
+    "schema",
+    "spec",
+    "thor",
+];
+
+/// The file names in RuboCop 1.92's default `AllCops: Include`, besides
+/// `**/*Fastfile`.
+pub const RUBY_FILE_NAMES: &[&str] = &[
+    ".irbrc",
+    ".pryrc",
+    ".simplecov",
+    "buildfile",
+    "Appraisals",
+    "Berksfile",
+    "Brewfile",
+    "Buildfile",
+    "Capfile",
+    "Dangerfile",
+    "Deliverfile",
+    "Fastfile",
+    "Gemfile",
+    "Guardfile",
+    "Jarfile",
+    "Mavenfile",
+    "Podfile",
+    "Puppetfile",
+    "Rakefile",
+    "rakefile",
+    "Schemafile",
+    "Snapfile",
+    "Steepfile",
+    "Thorfile",
+    "Vagrantfile",
+];
+
+/// Whether a file found in a directory is an input: RuboCop's `ruby_file?`
+/// by extension or name, or else a match of the `Include` globs, which
+/// match no hidden file but the listed ones (and `*Fastfile`). In a hidden
+/// directory that is named, `ruby_file?` alone.
+fn is_supported_input(path: &Path, hidden_root: bool) -> bool {
+    let Some(name) = path.file_name().and_then(|name| name.to_str()) else {
+        return false;
+    };
+    let ruby_file = RUBY_FILE_NAMES.contains(&name)
         || path
             .extension()
-            .is_some_and(|ext| matches!(ext.to_str(), Some("rb" | "gemfile" | "gemspec")))
+            .and_then(|ext| ext.to_str())
+            .is_some_and(|ext| RUBY_EXTENSIONS.contains(&ext));
+    if hidden_root {
+        return is_filename_only(path) || ruby_file;
+    }
+    if name.starts_with('.') {
+        return RUBY_FILE_NAMES.contains(&name);
+    }
+    is_filename_only(path) || ruby_file || name.ends_with("Fastfile")
 }
 
 /// Keep a file unless it is excluded. Exclude globs are matched against the
@@ -153,7 +238,9 @@ mod tests {
     use crate::config::compile_globs;
 
     fn setup(tree: &[(&str, &str)]) -> (tempfile::TempDir, PathBuf) {
-        let tmp = tempfile::tempdir().unwrap();
+        // Not the default `.tmp` prefix: a hidden directory is walked as
+        // RuboCop walks one (see `is_supported_input`).
+        let tmp = tempfile::Builder::new().prefix("tree").tempdir().unwrap();
         for (path, contents) in tree {
             let full = tmp.path().join(path);
             std::fs::create_dir_all(full.parent().unwrap()).unwrap();
@@ -322,8 +409,14 @@ mod tests {
         let (_tmp, root) = setup(&[
             ("Rakefile", "task :default"),
             ("lib/tasks/build.rake", "task :build"),
+            ("config.ru", "run App"),
+            ("app/views/a.json.jbuilder", "json.a 1"),
+            ("fastlane/Fastfile", "lane :a"),
+            ("fastlane/AppFastfile", "lane :a"),
+            ("Vagrantfile", "1"),
             ("gem.gemspec", "Gem::Specification.new"),
             ("lib/upper.RB", "1"),
+            ("lib/RAKEFILE", "1"),
             ("lib/backup.rb.orig", "1"),
             ("lib/x.rb", "1"),
         ]);
@@ -333,7 +426,59 @@ mod tests {
                 .iter()
                 .map(|p| display_path(p, &root))
                 .collect::<Vec<_>>(),
-            &["gem.gemspec", "lib/x.rb"],
+            &[
+                "Rakefile",
+                "Vagrantfile",
+                "app/views/a.json.jbuilder",
+                "config.ru",
+                "fastlane/AppFastfile",
+                "fastlane/Fastfile",
+                "gem.gemspec",
+                "lib/tasks/build.rake",
+                "lib/x.rb",
+            ],
+        );
+    }
+
+    #[test]
+    fn directory_walk_keeps_only_the_included_hidden_files() {
+        let shown = |dir: &Path, root: &Path| {
+            collect_files(&[dir.to_path_buf()], root, &[])
+                .unwrap()
+                .iter()
+                .map(|p| display_path(p, root))
+                .collect::<Vec<_>>()
+        };
+        let (_tmp, root) = setup(&[
+            (".irbrc", "1"),
+            ("lib/.pryrc", "1"),
+            (".simplecov", "1"),
+            (".hidden.rb", "1"),
+            (".config/x.rb", "1"),
+            (".config/.irbrc", "1"),
+            ("lib/x.rb", "1"),
+        ]);
+        assert_files(
+            &shown(&root, &root),
+            &[".irbrc", ".simplecov", "lib/.pryrc", "lib/x.rb"],
+        );
+        // In a hidden directory that is named, every Ruby file counts.
+        let (_tmp, root) = setup(&[
+            (".config/x.rb", "1"),
+            (".config/.irbrc", "1"),
+            (".config/.y.rb", "1"),
+            (".config/.deep/z.rb", "1"),
+            (".config/AppFastfile", "1"),
+            (".config/notes.txt", "1"),
+        ]);
+        assert_files(
+            &shown(&root.join(".config"), &root),
+            &[
+                ".config/.deep/z.rb",
+                ".config/.irbrc",
+                ".config/.y.rb",
+                ".config/x.rb",
+            ],
         );
     }
 

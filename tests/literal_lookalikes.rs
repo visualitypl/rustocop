@@ -220,7 +220,7 @@ fn metadata_defaults_selectors_strict_toml_and_department_precedence() {
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "target_ruby = 3.3",

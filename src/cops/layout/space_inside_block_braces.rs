@@ -1,6 +1,12 @@
 //! `Layout/SpaceInsideBlockBraces` — spaces in brace blocks and lambdas.
+//! `enforced_style_for_empty_braces` is RuboCop's
+//! `EnforcedStyleForEmptyBraces`: `no_space` (the default) reports any
+//! whitespace between empty braces, `space` reports `{}`.
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{Kind, Setting, Values},
+    },
     offense::Offense,
     source::SourceFile,
 };
@@ -8,10 +14,28 @@ use ruby_prism::Node;
 
 use super::brace_spacing::is_ruby_whitespace;
 
-pub struct SpaceInsideBlockBraces;
+#[derive(Default)]
+pub struct SpaceInsideBlockBraces {
+    /// `enforced_style_for_empty_braces = "space"`.
+    empty_space: bool,
+}
 impl Cop for SpaceInsideBlockBraces {
     fn name(&self) -> &'static str {
         "Layout/SpaceInsideBlockBraces"
+    }
+    fn settings(&self) -> &'static [Setting] {
+        const ENFORCED_STYLE_FOR_EMPTY_BRACES: Setting = Setting {
+            name: "enforced_style_for_empty_braces",
+            kind: Kind::Choice(&["no_space", "space"]),
+        };
+        &[ENFORCED_STYLE_FOR_EMPTY_BRACES]
+    }
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let empty_space = match values.choice("enforced_style_for_empty_braces") {
+            Some(style) => style == "space",
+            None => self.empty_space,
+        };
+        Some(Box::new(SpaceInsideBlockBraces { empty_space }))
     }
     fn safe_fixes(&self) -> bool {
         true
@@ -42,9 +66,25 @@ impl Cop for SpaceInsideBlockBraces {
         }
         let inside = &file.bytes[left + 1..right];
         if inside.is_empty() {
+            if self.empty_space {
+                super::brace_spacing::report(
+                    self,
+                    node,
+                    cx,
+                    file,
+                    left..right + 1,
+                    left..right + 1,
+                    "{ }",
+                    "Space missing inside empty braces.",
+                    out,
+                );
+            }
             return;
         }
         if inside.iter().copied().all(is_ruby_whitespace) {
+            if self.empty_space {
+                return;
+            }
             super::brace_spacing::report(
                 self,
                 node,
@@ -114,9 +154,36 @@ mod tests {
         );
         lint_str(source)
             .into_iter()
-            .filter(|o| o.cop == SpaceInsideBlockBraces.name())
+            .filter(|o| o.cop == SpaceInsideBlockBraces::default().name())
             .collect()
     }
+    #[test]
+    fn empty_braces_take_a_space_in_the_space_style() {
+        let cop = SpaceInsideBlockBraces { empty_space: true };
+        let found = |source: &str| {
+            crate::pipeline::lint_str_with(&[&cop], source)
+                .into_iter()
+                .map(|o| (o.col, o.message))
+                .collect::<Vec<_>>()
+        };
+        for source in [
+            "each { }\n",
+            "each {   }\n",
+            "-> { }\n",
+            "[ 1, 2 ].each { }\n",
+        ] {
+            assert!(found(source).is_empty(), "{source}");
+        }
+        assert_eq!(
+            found("each {}\n"),
+            [(6, "Space missing inside empty braces.".to_owned())]
+        );
+        assert_correction(&cop, "each {}\n", "each { }\n");
+        assert_correction(&cop, "->{}\n", "->{ }\n");
+        // Non-empty braces keep the default `space` style.
+        assert_correction(&cop, "each {puts}\n", "each { puts }\n");
+    }
+
     #[test]
     fn pinned_exact_offenses_and_corrections() {
         for (before, after, columns, messages) in [
@@ -174,7 +241,7 @@ mod tests {
                 assert_eq!(o.message, message);
                 assert_eq!(o.severity, crate::offense::Severity::Convention);
             }
-            assert_correction(&SpaceInsideBlockBraces, before, after);
+            assert_correction(&SpaceInsideBlockBraces::default(), before, after);
             assert!(offenses(after).is_empty());
         }
     }
@@ -193,7 +260,7 @@ mod tests {
             ("each {# Comment\n  puts\n}", "each { # Comment\n  puts\n}"),
             ("each { \t }\r\n", "each {}\r\n"),
         ] {
-            assert_correction(&SpaceInsideBlockBraces, before, after);
+            assert_correction(&SpaceInsideBlockBraces::default(), before, after);
             assert!(offenses(after).is_empty(), "{after}");
         }
         let found = offenses("each {|x|\n  puts\n}");
@@ -227,7 +294,7 @@ mod tests {
             ("->(x =\n 1) {x}", "->(x =\n 1) { x }"),
             ("f {\\\n x\n}", "f { \\\n x\n}"),
         ] {
-            assert_correction(&SpaceInsideBlockBraces, before, after);
+            assert_correction(&SpaceInsideBlockBraces::default(), before, after);
             assert!(offenses(after).is_empty(), "{after}");
         }
         let found = offenses("\u{feff}f {é}\r\n");
@@ -271,7 +338,7 @@ mod tests {
                 found.iter().map(|o| o.message.as_str()).collect::<Vec<_>>(),
                 messages
             );
-            assert_correction(&SpaceInsideBlockBraces, before, after);
+            assert_correction(&SpaceInsideBlockBraces::default(), before, after);
             assert!(offenses(after).is_empty(), "{after:?}");
         }
     }
@@ -283,12 +350,12 @@ mod tests {
         assert_eq!(found.len(), 1);
         assert_eq!((found[0].line, found[0].col), (1, 4));
         assert_eq!(found[0].message, "Space inside empty braces detected.");
-        assert_correction(&SpaceInsideBlockBraces, source, "f {}");
+        assert_correction(&SpaceInsideBlockBraces::default(), source, "f {}");
         for (before, after) in [
             ("f {\u{000b}x}", "f {\u{000b}x }"),
             ("f {x\u{000b}}", "f { x\u{000b}}"),
         ] {
-            assert_correction(&SpaceInsideBlockBraces, before, after);
+            assert_correction(&SpaceInsideBlockBraces::default(), before, after);
             assert!(offenses(after).is_empty(), "{after:?}");
         }
         for source in [
@@ -298,8 +365,11 @@ mod tests {
         ] {
             assert!(offenses(source).is_empty(), "{source:?}");
             assert!(
-                crate::cops::testing::correction_offenses(&SpaceInsideBlockBraces, source)
-                    .is_empty()
+                crate::cops::testing::correction_offenses(
+                    &SpaceInsideBlockBraces::default(),
+                    source
+                )
+                .is_empty()
             );
         }
     }

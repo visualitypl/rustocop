@@ -163,7 +163,7 @@ fn strict_toml_and_exclusions_use_supplied_path_without_invented_cop_gates() {
             "max = 1",
             "AllowComments = true",
             "AllowEmptyLambdas = false",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
         ] {
             fs::write(

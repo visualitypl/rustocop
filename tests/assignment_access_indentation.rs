@@ -465,7 +465,7 @@ fn actual_metadata_default_config_only_except_and_strict_no_new_knobs() {
             "IndentationWidth=4",
             "EnforcedStyle='outdent'",
             "Width=4",
-            "include=['**/*']",
+            "Include=['**/*']",
             "enabled='true'",
         ] {
             fs::write(

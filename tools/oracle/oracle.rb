@@ -267,10 +267,16 @@ module Oracle
       source_and_specs(src, cop).fetch(:specs)
     end
 
+    # rustocop's own cases for a cop (see `Oracle::CASES` in rspec_shim.rb),
+    # as tools/oracle/cases/<department>/<cop>_spec.rb.
+    def case_paths(cop)
+      Dir[File.join(__dir__, "cases", spec_path("", cop).delete_prefix("/spec/rubocop/cop/"))]
+    end
+
     # Everything the oracle learns about one cop.
     def check_cop(cop, src, defaults, binary, tmp)
       mapping = source_and_specs(src, cop)
-      specs = mapping.fetch(:specs)
+      specs = mapping.fetch(:specs) + case_paths(cop)
       result = { cop: cop, spec: specs.first, specs: specs, cases: [], skipped: [], errors: [],
                  fatal: nil, no_spec: false }
       missing = [mapping.fetch(:source), *specs].reject { |path| File.file?(path) }
@@ -535,7 +541,7 @@ module Oracle
     end
 
     def relative_spec(spec)
-      spec[%r{spec/rubocop/cop/.*}] || spec
+      spec[%r{spec/rubocop/cop/.*}] || relative(spec)
     end
 
     def relative(path)

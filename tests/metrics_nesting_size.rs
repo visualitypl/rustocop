@@ -253,7 +253,7 @@ fn selectors_department_and_strict_config() {
             "Max=2",
             "CountBlocks=true",
             "CountModifierForms=true",
-            "include=['**/*']",
+            "Include=['**/*']",
         ] {
             fs::write(
                 d.path().join("rustocop.toml"),

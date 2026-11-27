@@ -60,7 +60,7 @@ fn defaults_selectors_strict_config_paths_and_supplied_provenance() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "TargetRubyVersion = 3.3",

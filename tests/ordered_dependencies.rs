@@ -228,7 +228,7 @@ fn supplied_paths_selectors_config_and_directives_cannot_bypass_gates() {
     for key in [
         "treat_comments_as_group_separators=false",
         "consider_punctuation=true",
-        "include=['**/*']",
+        "Include=['**/*']",
         "max=1",
     ] {
         for name in [GEMS, DEPS] {

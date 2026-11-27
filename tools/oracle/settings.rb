@@ -1093,6 +1093,12 @@ module Oracle
   # the examples that leave the setting at rustocop's default.
   READ_BY_OTHER_COPS = {
     "Layout/LineLength" => { "max" => :all },
+    "Layout/EndAlignment" => {
+      "enforced_style_align_with" => %w[Layout/ElseAlignment Layout/IndentationWidth Style/ConditionalAssignment]
+    },
+    "Layout/SpaceInsideArrayLiteralBrackets" => {
+      "enforced_style" => %w[Layout/FirstArrayElementLineBreak Layout/LineLength]
+    },
     "Style/StringLiterals" => {
       "enforced_style" => %w[Style/QuotedSymbols Style/EmptyHeredoc Style/EmptyLiteral Style/RedundantRegexpArgument]
     }

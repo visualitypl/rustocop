@@ -15,6 +15,7 @@ fn main() {
                 Kind::Count => "count".to_owned(),
                 Kind::Choice(choices) => format!("choice\t{}", choices.join(",")),
                 Kind::Patterns => "patterns".to_owned(),
+                Kind::Flag => "flag".to_owned(),
             };
             println!("{}\t{}\t{kind}", cop.name(), setting.name);
         }

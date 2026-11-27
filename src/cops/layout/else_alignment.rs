@@ -1,20 +1,26 @@
 //! `Layout/ElseAlignment` — align `else` and `elsif` with the keyword that
-//! opens their construct. With the fixed `Layout/EndAlignment: keyword`,
-//! upstream's assignment handling (`CheckAssignment`) always aligns with the
-//! conditional's own keyword, so assignments need no separate base.
+//! opens their construct. As in RuboCop (`CheckAssignment`), the `else` of an
+//! `if` that is the value of an assignment, or the last argument of a call,
+//! aligns with the start of that assignment or call instead when
+//! Layout/EndAlignment's `enforced_style_align_with` is not `keyword` and the
+//! `if` starts on its line.
 
 use std::ops::Range;
 
 use ruby_prism::{Location, Node};
 
-use super::alignment::{Alignment, start_line_range, starts_line};
+use super::alignment::{Alignment, EndAlignWith, assignment_owner, start_line_range, starts_line};
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::Offense,
     source::SourceFile,
 };
 
-pub struct ElseAlignment;
+#[derive(Default)]
+pub struct ElseAlignment {
+    /// Layout/EndAlignment's `enforced_style_align_with`.
+    end_align_with: EndAlignWith,
+}
 
 impl Cop for ElseAlignment {
     fn name(&self) -> &'static str {
@@ -23,6 +29,12 @@ impl Cop for ElseAlignment {
 
     fn safe_fixes(&self) -> bool {
         true
+    }
+
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(ElseAlignment {
+            end_align_with: companions.end_align_with,
+        }))
     }
 
     fn check_node<'pr>(
@@ -41,20 +53,27 @@ impl Cop for ElseAlignment {
             Node::IfNode { .. } => {
                 // Every `elsif` and `else` of a chain aligns with the opening
                 // `if` (upstream's nested and later-visited elsif nodes both
-                // resolve to that keyword). Ternaries and elsif nodes
-                // themselves are not chain heads.
+                // resolve to that keyword), or with the assignment it is the
+                // value of. Upstream hands that base down the chain only up
+                // to a branch keyword that does not begin its line. Ternaries
+                // and elsif nodes themselves are not chain heads.
                 let head = node.as_if_node().unwrap();
                 let Some(keyword) = head.if_keyword_loc().filter(|k| k.as_slice() == b"if") else {
                     return;
                 };
-                let base = keyword.start_offset()..keyword.end_offset();
+                let keyword = keyword.start_offset()..keyword.end_offset();
+                let mut base = self.if_base(node, cx, file, keyword.clone());
                 let mut next = head.subsequent();
                 while let Some(branch) = next {
                     if let Some(elsif) = branch.as_if_node() {
-                        let Some(keyword) = elsif.if_keyword_loc() else {
+                        let Some(branch_keyword) = elsif.if_keyword_loc() else {
                             return;
                         };
-                        check(base.clone(), keyword);
+                        let branch_start = branch_keyword.start_offset();
+                        check(base.clone(), branch_keyword);
+                        if !starts_line(file, branch_start) {
+                            base = keyword.clone();
+                        }
                         next = elsif.subsequent();
                     } else if let Some(other) = branch.as_else_node() {
                         check(base.clone(), other.else_keyword_loc());
@@ -68,10 +87,9 @@ impl Cop for ElseAlignment {
                 let unless = node.as_unless_node().unwrap();
                 if let Some(other) = unless.else_clause() {
                     let keyword = unless.keyword_loc();
-                    check(
-                        keyword.start_offset()..keyword.end_offset(),
-                        other.else_keyword_loc(),
-                    );
+                    let keyword = keyword.start_offset()..keyword.end_offset();
+                    let base = self.if_base(node, cx, file, keyword);
+                    check(base, other.else_keyword_loc());
                 }
             }
             Node::CaseNode { .. } => {
@@ -119,6 +137,23 @@ impl Cop for ElseAlignment {
 }
 
 impl ElseAlignment {
+    /// The base of an `if` or `unless` chain: its keyword, or the
+    /// assignment or call whose value it is (`check_assignment`).
+    fn if_base<'pr>(
+        &self,
+        node: &Node<'pr>,
+        cx: &NodeContext<'_, 'pr>,
+        file: &SourceFile,
+        keyword: Range<usize>,
+    ) -> Range<usize> {
+        match assignment_owner(node, cx.ancestors(), false, false) {
+            Some(owner) if self.end_align_with.aligns_with_owner(file, owner, node) => {
+                owner.location().start_offset()..owner.location().end_offset()
+            }
+            _ => keyword,
+        }
+    }
+
     /// `check_alignment`: an `else`/`elsif` that begins its line must share
     /// the base's character column (a line-1 BOM is not a column).
     fn misaligned<'pr>(
@@ -485,7 +520,7 @@ mod tests {
                 .map(|&(l, c, m)| (l, c, m.to_owned()))
                 .collect();
             assert_eq!(found, expected, "{before}");
-            assert_correction(&ElseAlignment, before, after);
+            assert_correction(&ElseAlignment::default(), before, after);
         }
         let found = offenses(REPORTED[0].0);
         assert_eq!(found[0].severity, Severity::Convention);
@@ -523,7 +558,7 @@ mod tests {
             ]
         );
         assert_correction(
-            &ElseAlignment,
+            &ElseAlignment::default(),
             source,
             "if a\n  1\nelsif b\n  2\nelsif c\n  3\nelse\nend\n",
         );
@@ -563,7 +598,7 @@ mod tests {
             assert_eq!(found[0].1, col, "{source}");
         }
         assert_correction(
-            &ElseAlignment,
+            &ElseAlignment::default(),
             "x = begin\n  a\nrescue\n  b\nelse\n  c\nend\n",
             "x = begin\n  a\nrescue\n  b\n    else\n  c\nend\n",
         );
@@ -584,7 +619,7 @@ mod tests {
             [(3, 3, "Align `else` with `if`.".into())]
         );
         assert_correction(
-            &ElseAlignment,
+            &ElseAlignment::default(),
             before,
             "\u{feff}if a\r\n  1\r\nelse\r\n  2\r\nend\r\n",
         );
@@ -595,7 +630,7 @@ mod tests {
             [(3, 2, "Align `else` with `if`.".into())]
         );
         assert_correction(
-            &ElseAlignment,
+            &ElseAlignment::default(),
             before,
             "  if a\n    1\n\t else\n    2\n  end\n",
         );
@@ -605,7 +640,7 @@ mod tests {
             [(3, 2, "Align `else` with `if`.".into())]
         );
         assert!(
-            correction_offenses(&ElseAlignment, before)[0]
+            correction_offenses(&ElseAlignment::default(), before)[0]
                 .correction
                 .is_none()
         );
@@ -614,7 +649,7 @@ mod tests {
     #[test]
     fn literal_interiors_keep_their_bytes() {
         let source = "x = <<~H\n  #{if a\n    1\n      else\n    2\n    end}\nH\n";
-        let found = correction_offenses(&ElseAlignment, source);
+        let found = correction_offenses(&ElseAlignment::default(), source);
         assert_eq!(found.len(), 1);
         assert!(found[0].correction.is_none());
         for source in [
@@ -635,7 +670,7 @@ mod tests {
                     format!("if x\n  1\n else # {prefix}:disable {target}\nend\n"),
                 ] {
                     assert!(offenses(&source).is_empty(), "{source}");
-                    assert!(correction_offenses(&ElseAlignment, &source).is_empty());
+                    assert!(correction_offenses(&ElseAlignment::default(), &source).is_empty());
                 }
             }
         }

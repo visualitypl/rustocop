@@ -101,7 +101,7 @@ fn defaults_selectors_toml_precedence_and_path_stdin_provenance() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "TargetRubyVersion = 3.3",
         "Style = 'other'",

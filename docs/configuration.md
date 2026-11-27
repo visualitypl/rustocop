@@ -35,7 +35,17 @@ enforced_style = "single_quotes"
 
 Validation is strict: unknown keys, unknown cops or departments, invalid globs
 and unsupported Ruby versions are errors before any linting. Department tables
-accept only `enabled`. Every cop table accepts `enabled` and `exclude`.
+accept only `enabled`. Every cop table accepts `enabled`, `exclude` and
+`include`. `include` is RuboCop's `Include` of a cop: the cop checks only the
+files that one of its globs matches, as in
+
+```toml
+[cops."Style/StringLiterals"]
+include = ["app/**/*", "config/**/*", "lib/**/*", "test/**/*", "Gemfile"]
+```
+
+It replaces the paths a cop is fixed to (such as the Gemfiles of the Bundler
+cops), but not the paths it is fixed to skip.
 
 ## Settings
 
@@ -57,6 +67,11 @@ cops is fixed at RuboCop's default.
 
 The `EnforcedStyle` of the same cop in RuboCop.
 
+- `Layout/CaseIndentation`: `"case"` (the default) or `"end"`, the keyword
+  that `when` and `in` are as deep as.
+- `Layout/SpaceInsideArrayLiteralBrackets`: `"no_space"` (the default),
+  `"space"` or `"compact"`. `Layout/FirstArrayElementLineBreak` and
+  `Layout/LineLength` read `"compact"`, as in RuboCop.
 - `Style/HashSyntax`: `"ruby19"` (the default), `"hash_rockets"`,
   `"no_mixed_keys"` or `"ruby19_no_mixed_keys"`.
 - `Style/StringLiterals`: `"double_quotes"` (the default) or
@@ -68,6 +83,27 @@ The `EnforcedStyle` of the same cop in RuboCop.
 - `Style/QuotedSymbols`: the same two values, or `"same_as_string_literals"`.
   Without a setting it has the style of `Style/StringLiterals`, and single
   quotes when that cop is disabled.
+
+### `enforced_style_align_with`
+
+The `EnforcedStyleAlignWith` of `Layout/EndAlignment`: `"keyword"` (the
+default), `"variable"` or `"start_of_line"`. As in RuboCop,
+`Layout/ElseAlignment`, `Layout/IndentationWidth` and the correction of
+`Style/ConditionalAssignment` follow it, even while `Layout/EndAlignment` is
+disabled.
+
+### `enforced_style_for_empty_brackets` and `enforced_style_for_empty_braces`
+
+The spacing inside empty brackets of `Layout/SpaceInsideArrayLiteralBrackets`
+and inside empty braces of `Layout/SpaceInsideBlockBraces`: `"no_space"` (the
+default) or `"space"`.
+
+### `allow_multiple_return_values` and `allow_as_expression_separator`
+
+`true` or `false` (the default). `Style/RedundantReturn` accepts a `return`
+of several values (`return 1, 2`) with `allow_multiple_return_values`;
+`Style/Semicolon` accepts a semicolon between two expressions on a line
+(`x = 1; y = 2`) with `allow_as_expression_separator`.
 
 ### `allowed_patterns`
 

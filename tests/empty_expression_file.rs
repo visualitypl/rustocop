@@ -152,7 +152,7 @@ fn strict_toml_exclusions_and_supplied_paths_apply_to_both_source_lifecycles() {
         for key in [
             "max = 1",
             "AllowComments = false",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
             "exclude = ['[']",
         ] {

@@ -261,7 +261,7 @@ fn selectors_strict_config_and_real_path_gates_cannot_be_bypassed() {
     for key in [
         "max=1",
         "enforced_style='indexed'",
-        "include=['**/*']",
+        "Include=['**/*']",
         "target_ruby_version='3.4'",
         "use_project_index=true",
     ] {

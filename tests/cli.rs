@@ -3955,6 +3955,79 @@ fn directory_walk_skips_license_and_other_extensionless_files() {
 }
 
 #[test]
+fn directory_walk_finds_the_files_of_rubocops_default_include() {
+    let dir = project(&[
+        ("app/Rakefile", "binding.pry\n"),
+        ("app/config.ru", "binding.pry\n"),
+        ("app/lib/tasks/build.rake", "binding.pry\n"),
+        ("app/app/views/a.json.jbuilder", "binding.pry\n"),
+        ("app/.irbrc", "binding.pry\n"),
+        ("app/.git/hooks/x.rb", "binding.pry\n"),
+        ("app/notes.txt", "binding.pry\n"),
+    ]);
+    let output = rustocop(dir.path(), &["--only", "Lint/Debugger", "app"], "");
+    let mut files: Vec<String> = stdout_lines(&output)
+        .iter()
+        .filter_map(|line| line.split_once(":1:1: ").map(|(path, _)| path.to_owned()))
+        .collect();
+    files.sort();
+    assert_eq!(
+        files,
+        [
+            "app/.irbrc",
+            "app/Rakefile",
+            "app/app/views/a.json.jbuilder",
+            "app/config.ru",
+            "app/lib/tasks/build.rake",
+        ],
+        "{output:?}"
+    );
+}
+
+#[test]
+fn a_cop_include_limits_the_cop_to_those_paths() {
+    let quoted = "x = 'a'\n";
+    let dir = project(&[
+        (
+            "rustocop.toml",
+            "[cops.\"Style/StringLiterals\"]\ninclude = [\"app/**/*\", \"Gemfile\"]\n\
+             [cops.\"Bundler/OrderedGems\"]\ninclude = [\"Gemfile\"]\n",
+        ),
+        ("app/models/a.rb", quoted),
+        ("spec/a_spec.rb", quoted),
+        (
+            "Gemfile",
+            "source 'https://rubygems.org'\ngem 'b'\ngem 'a'\n",
+        ),
+        ("other.gemfile", "gem 'b'\ngem 'a'\n"),
+    ]);
+    let output = rustocop(
+        dir.path(),
+        &["--only", "Style/StringLiterals,Bundler/OrderedGems", "."],
+        "",
+    );
+    let mut found: Vec<String> = stdout_lines(&output)
+        .iter()
+        .filter_map(|line| {
+            let (path, rest) = line.split_once(": C: ")?;
+            Some(format!("{path} {}", rest.rsplit_once(" (")?.1))
+        })
+        .collect();
+    found.sort();
+    assert_eq!(
+        found,
+        [
+            "Gemfile:1:8 Style/StringLiterals)",
+            "Gemfile:2:5 Style/StringLiterals)",
+            "Gemfile:3:1 Bundler/OrderedGems)",
+            "Gemfile:3:5 Style/StringLiterals)",
+            "app/models/a.rb:1:5 Style/StringLiterals)",
+        ],
+        "{output:?}"
+    );
+}
+
+#[test]
 fn explicitly_named_non_rb_files_are_still_linted() {
     let dir = project(&[
         ("Rakefile", "binding.pry\n"),

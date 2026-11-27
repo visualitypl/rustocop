@@ -274,7 +274,7 @@ fn source_envelopes_strict_errors_fatal_parser_and_stdin_fix_never_write() {
     cli(dir.path(), &["--only", COP, "--fix", "missing.rb"], None, 2);
     for settings in [
         "target_ruby = '2.7'\n".to_owned(),
-        format!("[cops.\"{COP}\"]\ninclude = ['**']\n"),
+        format!("[cops.\"{COP}\"]\nInclude = ['**']\n"),
         format!("[cops.\"{COP}\"]\nmax = 1\n"),
     ] {
         fs::write(dir.path().join("rustocop.toml"), settings).unwrap();

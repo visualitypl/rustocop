@@ -178,7 +178,7 @@ fn strict_toml_defaults_and_existing_cops_are_preserved() {
         "UseProjectIndex = true",
         "CheckMethods = true",
         "AllowedNames = []",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "exclude = ['[']",
     ] {

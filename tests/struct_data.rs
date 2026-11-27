@@ -198,7 +198,7 @@ fn rejects_public_version_and_style_knobs() {
             "target_ruby_version = '3.1'",
             "enforced_style = 'block'",
             "max = 2",
-            "include = ['lib/**']",
+            "Include = ['lib/**']",
         ] {
             fs::write(
                 dir.path().join("rustocop.toml"),

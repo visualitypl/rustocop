@@ -237,7 +237,7 @@ fn default_selectors_and_strict_toml_precedence() {
     for key in [
         "max = 1",
         "AllowComments = false",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "exclude = ['[']",
     ] {

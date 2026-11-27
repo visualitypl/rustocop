@@ -1,15 +1,65 @@
-//! `Layout/SpaceInsideArrayLiteralBrackets` — fixed `no_space` for literals and patterns.
+//! `Layout/SpaceInsideArrayLiteralBrackets` — spaces inside the brackets of
+//! array literals and patterns. `enforced_style` is RuboCop's
+//! `EnforcedStyle`: `no_space` (the default), `space`, or `compact` (spaces,
+//! except between the brackets of nested arrays: `[[ 1 ]]`).
+//! `enforced_style_for_empty_brackets` is `EnforcedStyleForEmptyBrackets`:
+//! `no_space` (the default, `[]`) or `space` (`[ ]`).
 use crate::{
-    cops::{Cop, NodeContext},
-    offense::Offense,
-    source::SourceFile,
+    cops::{
+        Cop, NodeContext,
+        settings::{Kind, Setting, Values},
+    },
+    offense::{Correction, Offense},
+    source::{Fact, SourceFile, tokens::Token},
 };
 use ruby_prism::Node;
 
-pub struct SpaceInsideArrayLiteralBrackets;
+#[derive(Default)]
+pub struct SpaceInsideArrayLiteralBrackets {
+    style: Style,
+    /// `enforced_style_for_empty_brackets = "space"`.
+    empty_space: bool,
+}
+
+/// `enforced_style`.
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+enum Style {
+    #[default]
+    NoSpace,
+    Space,
+    Compact,
+}
+
 impl Cop for SpaceInsideArrayLiteralBrackets {
     fn name(&self) -> &'static str {
         "Layout/SpaceInsideArrayLiteralBrackets"
+    }
+    fn settings(&self) -> &'static [Setting] {
+        const ENFORCED_STYLE: Setting = Setting {
+            name: "enforced_style",
+            kind: Kind::Choice(&["no_space", "space", "compact"]),
+        };
+        const ENFORCED_STYLE_FOR_EMPTY_BRACKETS: Setting = Setting {
+            name: "enforced_style_for_empty_brackets",
+            kind: Kind::Choice(&["no_space", "space"]),
+        };
+        &[ENFORCED_STYLE, ENFORCED_STYLE_FOR_EMPTY_BRACKETS]
+    }
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let style = match values.choice("enforced_style") {
+            Some("space") => Style::Space,
+            Some("compact") => Style::Compact,
+            Some(_) => Style::NoSpace,
+            None => self.style,
+        };
+        let empty_space = match values.choice("enforced_style_for_empty_brackets") {
+            Some(style) => style == "space",
+            None => self.empty_space,
+        };
+        Some(Box::new(SpaceInsideArrayLiteralBrackets {
+            style,
+            empty_space,
+        }))
     }
     fn safe_fixes(&self) -> bool {
         true
@@ -94,6 +144,20 @@ impl Cop for SpaceInsideArrayLiteralBrackets {
         if skip_left && skip_right {
             return;
         }
+        if self.style != Style::NoSpace
+            && let Some((left, right)) = delimiters
+            && !super::bracket_spacing::empty_gap(&file.bytes[left + 1..right])
+        {
+            let brackets = Brackets {
+                node,
+                left,
+                right,
+                skip_left,
+                skip_right,
+            };
+            self.check_spaced(&brackets, cx, file, out);
+            return;
+        }
         super::bracket_spacing::check(
             self,
             node,
@@ -103,9 +167,241 @@ impl Cop for SpaceInsideArrayLiteralBrackets {
             super::bracket_spacing::Kind::Array {
                 skip_left,
                 skip_right,
+                empty_space: self.empty_space,
             },
             out,
         );
+    }
+}
+
+/// The brackets of one array (or of the constant pattern it is in) that
+/// a non-empty `space` or `compact` check looks at. `skip_left` and
+/// `skip_right`: a side that an enclosing pattern reports.
+struct Brackets<'a, 'pr> {
+    node: &'a Node<'pr>,
+    left: usize,
+    right: usize,
+    skip_left: bool,
+    skip_right: bool,
+}
+
+const USE: &str = "Use space inside array brackets.";
+const DO_NOT_USE: &str = "Do not use space inside array brackets.";
+
+/// `processed_source.sorted_tokens`: the indexes of the parser tokens, in a
+/// stable sort by start.
+static SORTED_TOKENS: Fact<Vec<usize>> = Fact::new();
+
+impl SpaceInsideArrayLiteralBrackets {
+    /// RuboCop's `space_offenses` and `compact_offenses`, on the tokens
+    /// within the node, with the corrector of `autocorrect`: one correction
+    /// for both brackets, on the first offense.
+    fn check_spaced(
+        &self,
+        brackets: &Brackets<'_, '_>,
+        cx: &NodeContext<'_, '_>,
+        file: &SourceFile,
+        out: &mut Vec<Offense>,
+    ) {
+        let all = file.parser_tokens();
+        let order = SORTED_TOKENS.get(file, || {
+            let mut order: Vec<usize> = (0..all.len()).collect();
+            order.sort_by_key(|&i| all[i].start);
+            order
+        });
+        // `tokens_within(node)`.
+        let location = brackets.node.location();
+        let first = order.partition_point(|&i| all[i].start < location.start_offset());
+        let last = order.partition_point(|&i| all[i].end < location.end_offset());
+        let Some(tokens) = order.get(first..=last.min(order.len().saturating_sub(1))) else {
+            return;
+        };
+        let tokens: Vec<&Token> = tokens.iter().map(|&i| &all[i]).collect();
+        let (Some(l), Some(r)) = (
+            tokens.iter().position(|t| t.start == brackets.left),
+            tokens.iter().position(|t| t.start == brackets.right),
+        ) else {
+            return;
+        };
+        let bytes = &file.bytes;
+        let (left, right) = (brackets.left, brackets.right);
+        let at = |offset: usize| bytes.get(offset).copied().unwrap_or(0);
+        // `extra_space?`, then `space_after?` / `space_before?`.
+        let extra_after_left = blank(at(left + 1));
+        let extra_before_right = blank(at(right - 1));
+        let space_after_left = whitespace(at(left + 1));
+        let space_before_right = whitespace(at(right - 1));
+        let single_line = file.line_of(location.start_offset()) == file.last_line_of(location);
+        // `next_to_newline?`: the token after `[` is on another line.
+        let start_ok = tokens
+            .get(l + 1)
+            .is_some_and(|next| next.line != tokens[l].line);
+        // `end_has_own_line?`: nothing but whitespace before `]` on its line.
+        let line_start = file.line_start(file.line_of(right));
+        let own_line = bytes[line_start..right].iter().all(|&b| whitespace(b));
+        let end_ok = !single_line && own_line;
+        // `multi_dimensional_array?`: the nearest token inward, past newline
+        // tokens, is a bracket of the same side.
+        let nested_left = tokens[l + 1..]
+            .iter()
+            .find(|t| !t.is_newline())
+            .is_some_and(|t| matches!(t.kind, "tLBRACK" | "tLBRACK2"));
+        let nested_right = tokens[..r]
+            .iter()
+            .rev()
+            .find(|t| !t.is_newline())
+            .is_some_and(|t| t.kind == "tRBRACK");
+        let sides = Sides {
+            space_after_left,
+            space_before_right,
+            nested_left,
+            nested_right,
+            kept_apart: own_line && !nested_left && !first_child_on_line(brackets.node, file, left),
+        };
+
+        let mut found: Vec<(std::ops::Range<usize>, &str)> = Vec::new();
+        if self.style == Style::Space {
+            if !(extra_after_left || start_ok) {
+                found.push((left..left + 1, USE));
+            }
+            if !(extra_before_right || end_ok) {
+                found.push((right..right + 1, USE));
+            }
+        } else {
+            // `compact_offense`: the blanks after `[` (before `]`), which are
+            // none when a line break follows (precedes) the bracket.
+            if nested_left && space_after_left {
+                let end = left + 1 + bytes[left + 1..].iter().take_while(|&&b| blank(b)).count();
+                found.push((left + 1..end, DO_NOT_USE));
+            } else if !nested_left && !(extra_after_left || start_ok) {
+                found.push((left..left + 1, USE));
+            }
+            if !sides.kept_apart {
+                if nested_right && space_before_right {
+                    let start = right
+                        - bytes[..right]
+                            .iter()
+                            .rev()
+                            .take_while(|&&b| blank(b))
+                            .count();
+                    found.push((start..right, DO_NOT_USE));
+                } else if !nested_right && !(extra_before_right || end_ok) {
+                    found.push((right..right + 1, USE));
+                }
+            }
+        }
+        // An enclosing pattern reports a side that it shares.
+        found.retain(|(range, _)| {
+            let on_left = range.start <= left + 1;
+            !(on_left && brackets.skip_left || !on_left && brackets.skip_right)
+        });
+        let mut correction = cx
+            .corrections_requested()
+            .then(|| self.correction(file, left, right, &sides))
+            .flatten();
+        for (range, message) in found {
+            let (line, col) = file.line_col(range.start);
+            out.push(Offense {
+                correction: correction.take(),
+                cop: self.name(),
+                severity: self.severity(),
+                message: message.to_owned(),
+                line,
+                end_line: file.line_of(range.end.max(range.start + 1) - 1),
+                col,
+            });
+        }
+    }
+
+    /// RuboCop's `autocorrect` for the `space` (`SpaceCorrector.add_space`)
+    /// and `compact` (`compact_corrections`) styles.
+    fn correction(
+        &self,
+        file: &SourceFile,
+        left: usize,
+        right: usize,
+        sides: &Sides,
+    ) -> Option<Correction> {
+        let bytes = &file.bytes;
+        // `side_space_range(include_newlines: true)`.
+        let gap = |b: u8| matches!(b, b' ' | b'\t' | b'\n');
+        let compact = self.style == Style::Compact;
+        let mut edits = Vec::new();
+        if compact && sides.nested_left {
+            let end = left + 1 + bytes[left + 1..].iter().take_while(|&&b| gap(b)).count();
+            edits.push((left + 1..end, String::new()));
+        } else if !sides.space_after_left {
+            edits.push((left + 1..left + 1, " ".to_owned()));
+        }
+        if compact && sides.kept_apart {
+            // The closing bracket stays on its own line.
+        } else if compact && sides.nested_right {
+            let start = right - bytes[..right].iter().rev().take_while(|&&b| gap(b)).count();
+            edits.push((start..right, String::new()));
+        } else if !sides.space_before_right {
+            edits.push((right..right, " ".to_owned()));
+        }
+        Correction::from_edits(bytes, edits)
+    }
+}
+
+/// What the corrector of the `space` and `compact` styles reads about the
+/// two brackets.
+struct Sides {
+    /// `space_after?` of `[` and `space_before?` of `]`: any whitespace.
+    space_after_left: bool,
+    space_before_right: bool,
+    /// `multi_dimensional_array?` on each side.
+    nested_left: bool,
+    nested_right: bool,
+    /// `closing_bracket_kept_apart?`: in the `compact` style, a `]` on its
+    /// own line stays there unless `[` is on the line of the first element
+    /// or opens a nested array.
+    kept_apart: bool,
+}
+
+/// RuboCop's `SINGLE_SPACE_REGEXP`.
+fn blank(b: u8) -> bool {
+    matches!(b, b' ' | b'\t')
+}
+
+/// Ruby's `\s`.
+fn whitespace(b: u8) -> bool {
+    matches!(b, b' ' | b'\t' | b'\n' | b'\r' | b'\x0b' | b'\x0c')
+}
+
+/// `same_line?(left, node.children.first)`: false without a first child.
+fn first_child_on_line(node: &Node<'_>, file: &SourceFile, left: usize) -> bool {
+    first_child(node).is_some_and(|child| file.line_of(child) == file.line_of(left))
+}
+
+/// The start of `node.children.first` in the parser gem: the first element
+/// of an array or array pattern, the constant of a constant pattern.
+fn first_child(node: &Node<'_>) -> Option<usize> {
+    let start = |n: Node<'_>| n.location().start_offset();
+    match node {
+        Node::ArrayNode { .. } => node
+            .as_array_node()
+            .unwrap()
+            .elements()
+            .iter()
+            .next()
+            .map(start),
+        Node::ArrayPatternNode { .. } => {
+            let n = node.as_array_pattern_node().unwrap();
+            if let Some(constant) = n.constant() {
+                return Some(start(constant));
+            }
+            n.requireds()
+                .iter()
+                .chain(n.rest())
+                .chain(n.posts().iter())
+                .map(start)
+                .min()
+        }
+        Node::FindPatternNode { .. } => node.as_find_pattern_node().unwrap().constant().map(start),
+        Node::HashPatternNode { .. } => node.as_hash_pattern_node().unwrap().constant().map(start),
+        _ => None,
     }
 }
 
@@ -198,7 +494,7 @@ mod tests {
         );
         lint_str(source)
             .into_iter()
-            .filter(|o| o.cop == SpaceInsideArrayLiteralBrackets.name())
+            .filter(|o| o.cop == SpaceInsideArrayLiteralBrackets::default().name())
             .collect()
     }
 
@@ -251,7 +547,7 @@ mod tests {
             ("x = [\r\n \t]\r\n", "x = []\r\n"),
             ("[ ?[ , ?] ]", "[?[ , ?]]"),
         ] {
-            assert_correction(&SpaceInsideArrayLiteralBrackets, before, after);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), before, after);
             assert!(offenses(after).is_empty(), "{after}");
         }
         let found = offenses("\u{feff}[ \"é\" ]\r\n");
@@ -332,7 +628,7 @@ mod tests {
             ("[ 1 ]\n__END__\n[ x ]\n", "[1]\n__END__\n[ x ]\n"),
         ] {
             assert_eq!(offenses(before).len(), 2, "{before}");
-            assert_correction(&SpaceInsideArrayLiteralBrackets, before, after);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), before, after);
         }
     }
 
@@ -343,18 +639,20 @@ mod tests {
             "x = [\n]\ndef f; __LINE__; end\n",
             "x = <<~H\n  #{[\n]}\nH\n",
         ] {
-            let found =
-                crate::cops::testing::correction_offenses(&SpaceInsideArrayLiteralBrackets, source);
+            let found = crate::cops::testing::correction_offenses(
+                &SpaceInsideArrayLiteralBrackets::default(),
+                source,
+            );
             assert_eq!(found.len(), 1, "{source}");
             assert!(found[0].correction.is_none(), "{source}");
-            assert_correction(&SpaceInsideArrayLiteralBrackets, source, source);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), source, source);
         }
         for source in [
             "x = [\n] # rubocop:disable Style\n",
             "x = [\n] # rustocop:disable-next Style\n1\n",
         ] {
             assert_correction(
-                &SpaceInsideArrayLiteralBrackets,
+                &SpaceInsideArrayLiteralBrackets::default(),
                 source,
                 &source.replacen("[\n]", "[]", 1),
             );
@@ -372,7 +670,7 @@ mod tests {
                 offenses(before).iter().map(|o| o.col).collect::<Vec<_>>(),
                 columns
             );
-            assert_correction(&SpaceInsideArrayLiteralBrackets, before, after);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), before, after);
         }
     }
 
@@ -411,7 +709,7 @@ mod tests {
                 columns,
                 "{before}"
             );
-            assert_correction(&SpaceInsideArrayLiteralBrackets, before, after);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), before, after);
         }
     }
 
@@ -429,7 +727,7 @@ mod tests {
                 .all(|o| o.message == "Do not use space inside array brackets.")
         );
         assert_correction(
-            &SpaceInsideArrayLiteralBrackets,
+            &SpaceInsideArrayLiteralBrackets::default(),
             before,
             "x in A(a: ^([1]))",
         );
@@ -465,7 +763,7 @@ mod tests {
                 columns,
                 "{before}"
             );
-            assert_correction(&SpaceInsideArrayLiteralBrackets, before, after);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), before, after);
             assert!(offenses(after).is_empty(), "{after}");
         }
     }
@@ -490,7 +788,7 @@ mod tests {
                 columns,
                 "{before}"
             );
-            assert_correction(&SpaceInsideArrayLiteralBrackets, before, after);
+            assert_correction(&SpaceInsideArrayLiteralBrackets::default(), before, after);
             assert!(offenses(after).is_empty(), "{after}");
         }
     }
@@ -503,12 +801,15 @@ mod tests {
         ] {
             assert!(offenses(source).is_empty(), "{source:?}");
             assert!(
-                crate::cops::testing::correction_offenses(&SpaceInsideArrayLiteralBrackets, source)
-                    .is_empty()
+                crate::cops::testing::correction_offenses(
+                    &SpaceInsideArrayLiteralBrackets::default(),
+                    source
+                )
+                .is_empty()
             );
         }
         assert_correction(
-            &SpaceInsideArrayLiteralBrackets,
+            &SpaceInsideArrayLiteralBrackets::default(),
             "[ \n=begin\ncomment\n=end\n 1 ]\n",
             "[ \n=begin\ncomment\n=end\n 1]\n",
         );
@@ -535,7 +836,7 @@ mod tests {
             assert_eq!(o.severity, crate::offense::Severity::Convention);
         }
         assert_correction(
-            &SpaceInsideArrayLiteralBrackets,
+            &SpaceInsideArrayLiteralBrackets::default(),
             before,
             "[2, 3, 4]\n[b, c, d]\na = []\na = []\na = []\n",
         );

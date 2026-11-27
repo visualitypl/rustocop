@@ -173,7 +173,7 @@ fn selectors_department_and_strict_config() {
             "CountAsOne=['array']",
             "AllowedMethods=['foo']",
             "AllowedPatterns=['foo']",
-            "include=['**/*']",
+            "Include=['**/*']",
         ] {
             fs::write(
                 d.path().join("rustocop.toml"),

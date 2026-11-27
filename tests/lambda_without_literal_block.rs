@@ -102,7 +102,7 @@ fn defaults_selectors_strict_toml_department_and_file_stdin_provenance() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "TargetRubyVersion = 3.3",
         "Style = 'other'",

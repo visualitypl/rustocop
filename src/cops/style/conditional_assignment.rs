@@ -15,12 +15,16 @@ thread_local! {
 
 pub struct ConditionalAssignment {
     max_line_length: Option<usize>,
+    /// Layout/EndAlignment aligns `end` with the keyword, so the correction
+    /// indents it by the moved left-hand side (RuboCop's `indent`).
+    indent_end: bool,
 }
 
 impl Default for ConditionalAssignment {
     fn default() -> Self {
         Self {
             max_line_length: Some(120),
+            indent_end: true,
         }
     }
 }
@@ -38,6 +42,7 @@ impl Cop for ConditionalAssignment {
     fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
         Some(Box::new(Self {
             max_line_length: companions.line_length_limit,
+            indent_end: companions.end_align_with == crate::cops::layout::EndAlignWith::Keyword,
         }))
     }
     fn check_node<'pr>(
@@ -128,7 +133,16 @@ impl Cop for ConditionalAssignment {
             end_line: file.last_line_of(node.location()),
             correction: cx
                 .corrections_requested()
-                .then(|| correction(node, &branches, &assignments, file, ternary))
+                .then(|| {
+                    correction(
+                        node,
+                        &branches,
+                        &assignments,
+                        file,
+                        ternary,
+                        self.indent_end,
+                    )
+                })
                 .flatten(),
         });
     }
@@ -137,14 +151,15 @@ impl Cop for ConditionalAssignment {
 /// RuboCop's correctors: a ternary is rewritten whole; an `if`, `unless` or
 /// `case` gets the LHS in front, each branch replaced by its value (an
 /// unbracketed array in the first or last branch of an `if`, or the `else`
-/// of a `case`, gets brackets), and the `end` indented by the LHS, as
-/// Layout/EndAlignment's `keyword` alignment wants.
+/// of a `case`, gets brackets), and the `end` indented by the LHS when
+/// Layout/EndAlignment's alignment is `keyword`.
 fn correction(
     node: &Node<'_>,
     branches: &[Node<'_>],
     assignments: &[Assignment<'_>],
     file: &SourceFile,
     ternary: bool,
+    indent_end: bool,
 ) -> Option<Correction> {
     // A replacement is UTF-8 text: other bytes cannot be carried over.
     std::str::from_utf8(node.location().as_slice()).ok()?;
@@ -203,10 +218,12 @@ fn correction(
             replacement: value(assignment, index == last || (!case && index == 0)),
         });
     }
-    edits.push(Correction {
-        range: end.start_offset()..end.start_offset(),
-        replacement: " ".repeat(lhs.chars().count()),
-    });
+    if indent_end {
+        edits.push(Correction {
+            range: end.start_offset()..end.start_offset(),
+            replacement: " ".repeat(lhs.chars().count()),
+        });
+    }
     super::correction::combine(file, edits)
 }
 
@@ -1141,7 +1158,8 @@ mod tests {
         assert_eq!(
             lint_str_with(
                 &[&super::ConditionalAssignment {
-                    max_line_length: None
+                    max_line_length: None,
+                    indent_end: true,
                 }],
                 &conditional
             )

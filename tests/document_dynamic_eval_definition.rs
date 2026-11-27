@@ -228,7 +228,7 @@ fn no_writes_preserve_bom_crlf_legacy_encodings_line_literals_data_clean_and_err
 #[test]
 fn unsupported_policy_settings_are_errors_before_writes() {
     let dir = project();
-    for key in ["include = []", "max = 3", "allowed_methods = []"] {
+    for key in ["Include = []", "max = 3", "allowed_methods = []"] {
         fs::write(
             dir.path().join("rustocop.toml"),
             format!("[cops.\"{COP}\"]\n{key}\n"),

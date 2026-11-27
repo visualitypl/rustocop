@@ -46,6 +46,17 @@ source the spec expects. Each cop's line and the last line count the
 corrections that match and differ; `-v` shows each difference. The count
 does not make the run fail, and the baseline does not list it.
 
+## Cases of our own
+
+`cases/<department>/<cop>_spec.rb` holds examples beyond RuboCop's specs, in
+the same format (`expect_offense`, `expect_no_offenses`, `expect_correction`),
+such as the settings of `rubocop-rails-omakase` in `cases/layout/` and
+`cases/style/`. The oracle runs them with the cop's own specs. RuboCop is their
+oracle: as a case is evaluated, the pinned RuboCop cop runs on its source
+under its configuration, and an offense, message or correction that RuboCop
+does not give makes the example an evaluation error, which fails the run. Write
+a case with what you expect; the error then names what RuboCop gives.
+
 ## Reference data
 
 `style_reference.json` and `lint_reference.json` record, for the pinned

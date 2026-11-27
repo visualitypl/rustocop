@@ -296,7 +296,7 @@ fn selectors_config_precedence_strict_toml_exclusions_and_explicit_paths() {
             "Only = []",
             "Ignore = []",
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
             "target_ruby = 2.6",
         ] {

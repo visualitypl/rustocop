@@ -35,6 +35,8 @@ module FixedPolicy
       case kind
       when "count" then value if value.is_a?(Integer) && value.positive?
       when "choice" then value if choices.include?(value)
+      # Cops test these for truthiness: an unset key is off.
+      when "flag" then value ? true : false
       when "patterns"
         patterns = Array(value).map { |pattern| rust_regex(pattern) }
         patterns unless patterns.include?(nil)

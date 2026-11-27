@@ -179,7 +179,7 @@ fn strict_toml_exclusions_and_supplied_file_paths() {
     let dir = project_with_lib();
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "target_ruby = 2.6",

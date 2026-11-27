@@ -264,7 +264,7 @@ fn no_write_byte_controls_parser_failures_strict_keys_stdin_and_supplied_paths()
     );
     for setting in [
         "target_ruby = '2.5'\n".to_owned(),
-        format!("[cops.\"{IT}\"]\ninclude = ['**']\n"),
+        format!("[cops.\"{IT}\"]\nInclude = ['**']\n"),
         format!("[cops.\"{ELSE}\"]\nmax = 1\n"),
     ] {
         fs::write(dir.path().join("rustocop.toml"), setting).unwrap();

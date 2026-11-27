@@ -318,7 +318,7 @@ fn selectors_department_and_strict_config() {
             "AllowedMethods=['complex']",
             "AllowedPatterns=['complex']",
             "CountRepeatedAttributes=false",
-            "include=['**/*']",
+            "Include=['**/*']",
         ] {
             fs::write(
                 d.path().join("rustocop.toml"),

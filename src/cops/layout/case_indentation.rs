@@ -1,20 +1,44 @@
-//! `Layout/CaseIndentation` — indent `when` and `in` as deep as `case`
-//! (fixed `EnforcedStyle: case`, `IndentOneStep: false`).
+//! `Layout/CaseIndentation` — indent `when` and `in` as deep as `case`, or
+//! as deep as `end` with `enforced_style = "end"` (RuboCop's
+//! `EnforcedStyle`; `IndentOneStep` is fixed at `false`).
 
 use ruby_prism::{Location, Node};
 
 use super::alignment::end_indentation;
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{
+        Cop, NodeContext,
+        settings::{Kind, Setting, Values},
+    },
     offense::Offense,
     source::SourceFile,
 };
 
-pub struct CaseIndentation;
+#[derive(Default)]
+pub struct CaseIndentation {
+    /// `enforced_style = "end"`: the clauses align with `end`, not `case`.
+    end_style: bool,
+}
 
 impl Cop for CaseIndentation {
     fn name(&self) -> &'static str {
         "Layout/CaseIndentation"
+    }
+
+    fn settings(&self) -> &'static [Setting] {
+        const ENFORCED_STYLE: Setting = Setting {
+            name: "enforced_style",
+            kind: Kind::Choice(&["case", "end"]),
+        };
+        &[ENFORCED_STYLE]
+    }
+
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        let end_style = match values.choice("enforced_style") {
+            Some(style) => style == "end",
+            None => self.end_style,
+        };
+        Some(Box::new(CaseIndentation { end_style }))
     }
 
     fn safe_fixes(&self) -> bool {
@@ -28,22 +52,40 @@ impl Cop for CaseIndentation {
         file: &SourceFile,
         out: &mut Vec<Offense>,
     ) {
-        let (case, clauses, branch) = match node {
+        // The keyword of each clause; the `then` of the last one; the `case`,
+        // `else` and `end` keywords.
+        let (clauses, last_then, case, else_keyword, end, branch) = match node {
             Node::CaseNode { .. } => {
                 let case = node.as_case_node().unwrap();
-                let clauses = case
+                let whens: Vec<_> = case
                     .conditions()
                     .iter()
-                    .filter_map(|c| c.as_when_node().map(|w| w.keyword_loc()));
-                (case.case_keyword_loc(), clauses.collect::<Vec<_>>(), "when")
+                    .filter_map(|c| c.as_when_node())
+                    .collect();
+                (
+                    whens.iter().map(|w| w.keyword_loc()).collect::<Vec<_>>(),
+                    whens.last().and_then(|w| w.then_keyword_loc()),
+                    case.case_keyword_loc(),
+                    case.else_clause().map(|e| e.else_keyword_loc()),
+                    case.end_keyword_loc(),
+                    "when",
+                )
             }
             Node::CaseMatchNode { .. } => {
                 let case = node.as_case_match_node().unwrap();
-                let clauses = case
+                let ins: Vec<_> = case
                     .conditions()
                     .iter()
-                    .filter_map(|c| c.as_in_node().map(|i| i.in_loc()));
-                (case.case_keyword_loc(), clauses.collect::<Vec<_>>(), "in")
+                    .filter_map(|c| c.as_in_node())
+                    .collect();
+                (
+                    ins.iter().map(|i| i.in_loc()).collect::<Vec<_>>(),
+                    ins.last().and_then(|i| i.then_loc()),
+                    case.case_keyword_loc(),
+                    case.else_clause().map(|e| e.else_keyword_loc()),
+                    case.end_keyword_loc(),
+                    "in",
+                )
             }
             _ => return,
         };
@@ -52,9 +94,24 @@ impl Cop for CaseIndentation {
         if file.line_of(location.start_offset()) == file.last_line_of(location) {
             return;
         }
+        // RuboCop's `end_and_last_conditional_same_line?`: an `end` on the
+        // line of the `else`, or else of the last clause's `then`.
+        let end_line = file.line_of(end.start_offset());
+        if self.end_style
+            && else_keyword
+                .or(last_then)
+                .is_some_and(|keyword| file.line_of(keyword.start_offset()) == end_line)
+        {
+            return;
+        }
+        let (anchor, base_name) = if self.end_style {
+            (end, "end")
+        } else {
+            (case, "case")
+        };
         // Character columns, as the parser gem's `column`; a leading BOM is
         // not a column.
-        let base = file.line_col(case.start_offset()).1;
+        let base = file.line_col(anchor.start_offset()).1;
         for keyword in clauses {
             let (line, col) = file.line_col(keyword.start_offset());
             if col == base {
@@ -67,7 +124,7 @@ impl Cop for CaseIndentation {
                     .flatten(),
                 cop: self.name(),
                 severity: self.severity(),
-                message: format!("Indent `{branch}` as deep as `case`."),
+                message: format!("Indent `{branch}` as deep as `{base_name}`."),
                 line,
                 end_line: line,
                 col,
@@ -163,6 +220,39 @@ mod tests {
     ];
 
     #[test]
+    fn end_style_aligns_clauses_with_end() {
+        let cop = CaseIndentation { end_style: true };
+        let found = |source: &str| {
+            crate::pipeline::lint_str_with(&[&cop], source)
+                .into_iter()
+                .map(|o| (o.line, o.col, o.message))
+                .collect::<Vec<_>>()
+        };
+        for source in [
+            "x = case y\nwhen 1 then :a\nend\n",
+            "x = case y\n    when 1 then :a\n    end\n",
+            "case y\nin 1\n  :a\nend\n",
+            // An `end` on the line of the `else` or of the last `then`.
+            "x = case y\n  when 1\n    :a\n  else :b end\n",
+            "x = case y\n  when 1 then :a end\n",
+        ] {
+            assert!(found(source).is_empty(), "{source}");
+        }
+        let source = "x = case y\n    when 1 then :a\nend\n";
+        assert_eq!(
+            found(source),
+            at(&[(2, 5)], "Indent `when` as deep as `end`.")
+        );
+        assert_correction(&cop, source, "x = case y\nwhen 1 then :a\nend\n");
+        let source = "  case y\nin 1\n  end\n";
+        assert_eq!(
+            found(source),
+            at(&[(2, 1)], "Indent `in` as deep as `end`.")
+        );
+        assert_correction(&cop, source, "  case y\n  in 1\n  end\n");
+    }
+
+    #[test]
     fn pinned_accepted_examples() {
         for source in ACCEPTED {
             assert!(offenses(source).is_empty(), "{source}");
@@ -177,7 +267,7 @@ mod tests {
                 format!("output = case variable\n{keyword}\n  'output1'\nelse\n  'output2'\nend\n");
             assert_eq!(positions(&before), at(&[(2, 1)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "output = case variable\n         {keyword}\n  'output1'\nelse\n  'output2'\nend\n"
@@ -189,7 +279,7 @@ mod tests {
             );
             assert_eq!(positions(&before), at(&[(2, 3)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "output = case variable\n         {keyword}\n    'output1'\n  else\n    'output2'\nend\n"
@@ -204,7 +294,7 @@ mod tests {
             );
             assert_eq!(positions(&before), at(&[(8, 1)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "{good}output = case variable\n         {keyword}\n  'output1'\nelse\n  'output2'\nend\n"
@@ -224,7 +314,7 @@ mod tests {
             assert_eq!(found[0].end_line, 2);
             assert_eq!(positions(&before), at(&[(2, 5), (5, 10)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "case a\n{keyword} 0 then return\n    else\n        case b\n        {keyword} 1 then return\n        end\nend\n"
@@ -242,7 +332,7 @@ mod tests {
             );
             assert_eq!(positions(&before), at(&[(2, 12)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "output = case variable\n         {keyword}\n             'output1'\n           else\n             'output2'\n         end\n"
@@ -261,7 +351,7 @@ mod tests {
             );
             assert_eq!(positions(&before), at(&[(2, 3), (5, 11)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "case a\n{keyword} 0 then return\n  else\n        case b\n        {keyword} 1 then return\n        end\nend\n"
@@ -286,7 +376,7 @@ mod tests {
             );
             assert_eq!(positions(&before), at(&[(2, 8)], message));
             assert_correction(
-                &CaseIndentation,
+                &CaseIndentation::default(),
                 &before,
                 &format!(
                     "output = case variable\n         {keyword}\n         'output1'\n       else\n         'output2'\n       end\n"
@@ -299,7 +389,7 @@ mod tests {
     fn when_on_the_case_line_is_reported_without_an_edit() {
         let source = "case test when something\nend\n";
         assert_eq!(positions(source), at(&[(1, 11)], WHEN));
-        let found = correction_offenses(&CaseIndentation, source);
+        let found = correction_offenses(&CaseIndentation::default(), source);
         assert!(found[0].correction.is_none());
     }
 
@@ -309,7 +399,7 @@ mod tests {
         let before = "\tcase a\n\t\twhen b\n\t\t\tc\n\tend\n";
         assert_eq!(positions(before), at(&[(2, 3)], WHEN));
         assert_correction(
-            &CaseIndentation,
+            &CaseIndentation::default(),
             before,
             "\tcase a\n when b\n\t\t\tc\n\tend\n",
         );
@@ -317,7 +407,7 @@ mod tests {
         let before = "a = case b\n  when c\n    d\nend\n";
         assert_eq!(positions(before), at(&[(2, 3)], WHEN));
         assert_correction(
-            &CaseIndentation,
+            &CaseIndentation::default(),
             before,
             "a = case b\n    when c\n    d\nend\n",
         );
@@ -325,20 +415,24 @@ mod tests {
         let before = "\tx = case a\n    when b\n\t\t\tc\n\tend\n";
         assert_eq!(positions(before), at(&[(2, 5)], WHEN));
         assert!(
-            correction_offenses(&CaseIndentation, before)[0]
+            correction_offenses(&CaseIndentation::default(), before)[0]
                 .correction
                 .is_some()
         );
         let before = "\tx = case a\n\t\twhen b\n\t\t\tc\n\tend\n";
         assert_eq!(positions(before), at(&[(2, 3)], WHEN));
         assert_correction(
-            &CaseIndentation,
+            &CaseIndentation::default(),
             before,
             "\tx = case a\n     when b\n\t\t\tc\n\tend\n",
         );
         let before = "case a\n\twhen b\n  c\nend\n";
         assert_eq!(positions(before), at(&[(2, 2)], WHEN));
-        assert_correction(&CaseIndentation, before, "case a\nwhen b\n  c\nend\n");
+        assert_correction(
+            &CaseIndentation::default(),
+            before,
+            "case a\nwhen b\n  c\nend\n",
+        );
     }
 
     #[test]
@@ -353,11 +447,15 @@ mod tests {
         }
         let before = "é = case x\n  when 1\n  end\n";
         assert_eq!(positions(before), at(&[(2, 3)], WHEN));
-        assert_correction(&CaseIndentation, before, "é = case x\n    when 1\n  end\n");
+        assert_correction(
+            &CaseIndentation::default(),
+            before,
+            "é = case x\n    when 1\n  end\n",
+        );
         let before = "\u{feff}case x\r\n  when 1\r\nend\r\n";
         assert_eq!(positions(before), at(&[(2, 3)], WHEN));
         assert_correction(
-            &CaseIndentation,
+            &CaseIndentation::default(),
             before,
             "\u{feff}case x\r\nwhen 1\r\nend\r\n",
         );
@@ -369,13 +467,13 @@ mod tests {
         let source = "case x\nwhen 1 then a; when 2 then b\nend\n";
         assert_eq!(positions(source), at(&[(2, 16)], WHEN));
         assert!(
-            correction_offenses(&CaseIndentation, source)[0]
+            correction_offenses(&CaseIndentation::default(), source)[0]
                 .correction
                 .is_none()
         );
         // Inside heredoc interpolation the clause keeps its bytes.
         let source = "x = <<~H\n  #{case y\n      when 1 then 2\n    end}\nH\n";
-        let found = correction_offenses(&CaseIndentation, source);
+        let found = correction_offenses(&CaseIndentation::default(), source);
         assert_eq!(found.len(), 1);
         assert!(found[0].correction.is_none());
         // Keywords in strings, symbols and comments are not clauses.
@@ -397,7 +495,7 @@ mod tests {
                     format!("case x\n  when 1 # {prefix}:disable {target}\nend\n"),
                 ] {
                     assert!(offenses(&source).is_empty(), "{source}");
-                    assert!(correction_offenses(&CaseIndentation, &source).is_empty());
+                    assert!(correction_offenses(&CaseIndentation::default(), &source).is_empty());
                 }
             }
         }

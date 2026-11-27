@@ -35,11 +35,14 @@ rustocop --import-rubocop-config   # write a rustocop.toml from .rubocop.yml
 
 ## Files
 
-Directories are searched for `.rb` files, `Gemfile`, `*.gemfile`, `*.gemspec`,
-`Gemfile.lock` and `gems.locked`. The search honours `.gitignore` and skips
-hidden files. Other files, such as `Rakefile`, `*.rake` or `bin/` scripts, are
-linted when named explicitly: `rustocop lib Rakefile`. `db/schema.rb`,
-`vendor/**` and `node_modules/**` are excluded by default.
+Directories are searched for the files of RuboCop's default `AllCops: Include`:
+`.rb`, `.rake`, `.ru`, `.gemspec`, `.jbuilder` and the other Ruby extensions,
+`Gemfile`, `Rakefile` and the other Ruby file names, plus `Gemfile.lock` and
+`gems.locked`. The search honours `.gitignore` and, as RuboCop's does, skips
+hidden directories and hidden files other than `.irbrc`, `.pryrc` and
+`.simplecov`. Other files, such as `bin/` scripts, are linted when named
+explicitly: `rustocop lib bin/setup`. `db/schema.rb`, `vendor/**` and
+`node_modules/**` are excluded by default.
 
 ## Exit codes and severities
 

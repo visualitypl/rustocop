@@ -4301,7 +4301,7 @@ fn unknown_cops_and_style_or_version_parameters_remain_errors() {
         "TargetRubyVersion = \"4.0\"\n",
         "[cops.Style]\nexclude = []\n",
         "[cops.\"Style/StringLiterals\"]\nEnforcedStyle = \"single_quotes\"\n",
-        "[cops.\"Style/StringLiterals\"]\ninclude = [\"lib/**\"]\n",
+        "[cops.\"Style/StringLiterals\"]\nInclude = [\"lib/**\"]\n",
         "[cops.\"Style/NotImplemented\"]\nenabled = true\n",
         "[cops.\"Naming/HeredocDelimiterCase\"]\nEnforcedStyle = \"lowercase\"\n",
         "[cops.\"Naming/HeredocDelimiterNaming\"]\nForbiddenDelimiters = []\n",

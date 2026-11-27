@@ -1,8 +1,9 @@
 //! `Style/Semicolon` — flags semicolons that terminate an expression or
 //! separate expressions on one line.
 //!
-//! Matches RuboCop's semantics with its default
-//! `AllowAsExpressionSeparator: false`. RuboCop works on the token stream;
+//! Matches RuboCop's semantics. With `allow_as_expression_separator`
+//! (RuboCop's `AllowAsExpressionSeparator`, off by default) only the
+//! terminators below are reported, not the separators. RuboCop works on the token stream;
 //! rustocop has no lexer, so it rebuilds the tokens of each line that holds
 //! a semicolon from the AST (literals, interpolation and block braces) and a
 //! light scan of the code in between. A semicolon token is reported when:
@@ -32,6 +33,7 @@ use crate::{
     cops::{
         Cop, NodeContext,
         ast::fingerprint_ignoring_grouping,
+        settings::{self, Setting, Values},
         walk::{NodeVisitor, walk},
     },
     offense::{Correction, Offense},
@@ -39,7 +41,11 @@ use crate::{
 };
 
 /// The `Style/Semicolon` cop.
-pub struct Semicolon;
+#[derive(Default)]
+pub struct Semicolon {
+    /// `allow_as_expression_separator`.
+    allow_separator: bool,
+}
 
 #[cfg(test)]
 thread_local! {
@@ -49,6 +55,22 @@ thread_local! {
 impl Cop for Semicolon {
     fn name(&self) -> &'static str {
         "Style/Semicolon"
+    }
+
+    fn settings(&self) -> &'static [Setting] {
+        const ALLOW_AS_EXPRESSION_SEPARATOR: Setting = Setting {
+            name: "allow_as_expression_separator",
+            kind: settings::Kind::Flag,
+        };
+        &[ALLOW_AS_EXPRESSION_SEPARATOR]
+    }
+
+    fn configure(&self, values: &Values) -> Option<Box<dyn Cop>> {
+        Some(Box::new(Semicolon {
+            allow_separator: values
+                .flag("allow_as_expression_separator")
+                .unwrap_or(self.allow_separator),
+        }))
     }
 
     fn safe_fixes(&self) -> bool {
@@ -92,7 +114,12 @@ impl Cop for Semicolon {
         let mut offending = Vec::new();
         let mut separators = BTreeSet::new();
         // Expressions sharing a line.
-        for sequence in &layout.sequences {
+        let sequences = if self.allow_separator {
+            &[][..]
+        } else {
+            &layout.sequences[..]
+        };
+        for sequence in sequences {
             let mut lines: Vec<u32> = sequence
                 .iter()
                 .map(|range| file.line_of(range.end.saturating_sub(1).max(range.start)))
@@ -890,7 +917,7 @@ mod tests {
     fn verifies_semicolon_corrections_in_one_batch() {
         CORRECTION_REPARSES.set(0);
         crate::cops::testing::assert_correction(
-            &Semicolon,
+            &Semicolon::default(),
             &"x = 1;\n".repeat(2000),
             &"x = 1\n".repeat(2000),
         );
@@ -900,7 +927,7 @@ mod tests {
     #[test]
     fn a_failed_batch_retains_only_semantically_verified_corrections() {
         let source = "x = 1;\ny = 2;\n";
-        let mut found = crate::cops::testing::correction_offenses(&Semicolon, source);
+        let mut found = crate::cops::testing::correction_offenses(&Semicolon::default(), source);
         // Simulate an unforeseen repair that parses but changes the AST.
         found[0].correction.as_mut().unwrap().replacement = " + 1".into();
         let file = SourceFile::new("test.rb".into(), source.as_bytes().to_vec());
@@ -961,14 +988,14 @@ mod tests {
                 "x = 1\n y = <<~TEXT\n  text\nTEXT\n",
             ),
         ] {
-            crate::cops::testing::assert_correction(&Semicolon, before, after);
+            crate::cops::testing::assert_correction(&Semicolon::default(), before, after);
         }
     }
 
     #[test]
     fn splits_separators_even_when_that_changes_a_directive_scope() {
         crate::cops::testing::assert_correction(
-            &Semicolon,
+            &Semicolon::default(),
             "fail; foo # rubocop:disable Style/SignalException\n",
             "fail\n foo # rubocop:disable Style/SignalException\n",
         );
@@ -977,7 +1004,7 @@ mod tests {
     #[test]
     fn leaves_semicolons_that_would_change_magic_line_values() {
         let source = "foo; bar\nline = __LINE__\n";
-        let found = crate::cops::testing::correction_offenses(&Semicolon, source);
+        let found = crate::cops::testing::correction_offenses(&Semicolon::default(), source);
         assert_eq!(found.len(), 1);
         assert!(found[0].correction.is_none());
     }
@@ -988,7 +1015,7 @@ mod tests {
             "x = <<~TEXT; y = 2\n  text\nTEXT\n",
             "x = <<~ONE; y = <<~TWO\n  one\nONE\n  two\nTWO\n",
         ] {
-            let found = crate::cops::testing::correction_offenses(&Semicolon, source);
+            let found = crate::cops::testing::correction_offenses(&Semicolon::default(), source);
             assert!(!found.is_empty());
             assert!(found.iter().all(|offense| offense.correction.is_none()));
         }
@@ -1107,6 +1134,61 @@ mod tests {
         ] {
             assert_eq!(positions(source), expected, "{source:?}");
         }
+    }
+
+    #[test]
+    fn allow_as_expression_separator_reports_only_terminators() {
+        let cop = Semicolon {
+            allow_separator: true,
+        };
+        let found = |source: &str| {
+            crate::pipeline::lint_str_with(&[&cop], source)
+                .iter()
+                .map(|o| (o.line, o.col))
+                .collect::<Vec<_>>()
+        };
+        assert!(
+            found(
+                "x = 1; y = 2
+"
+            )
+            .is_empty()
+        );
+        assert!(
+            found(
+                "def foo(a) x(1); y(2); end
+"
+            )
+            .is_empty()
+        );
+        assert_eq!(
+            found(
+                "x = 1; y = 2;
+"
+            ),
+            [(1, 13)]
+        );
+        assert_eq!(
+            found(
+                "; foo
+"
+            ),
+            [(1, 1)]
+        );
+        assert_eq!(
+            found(
+                "foo { bar; }
+"
+            ),
+            [(1, 10)]
+        );
+        crate::cops::testing::assert_correction(
+            &cop,
+            "x = 1; y = 2;
+",
+            "x = 1; y = 2
+",
+        );
     }
 
     #[test]

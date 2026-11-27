@@ -324,7 +324,7 @@ fn fixed_allowed_constants_and_paths_do_not_expand_public_configuration() {
     let dir = project();
     for key in [
         "allowed_constants = [\"ClassMethods\"]",
-        "include = [\"lib/**\"]",
+        "Include = [\"lib/**\"]",
         "max = 1",
     ] {
         fs::write(

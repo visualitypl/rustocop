@@ -419,13 +419,13 @@ struct UniverseFact {
 }
 
 /// Whether some path makes `cop` ineligible: it has a pinned path policy or
-/// the config excludes paths for it.
+/// the config excludes or includes paths for it.
 fn path_gated(cop: &dyn crate::cops::Cop, config: &ResolvedConfig) -> bool {
     cop.path_policy().is_some()
         || config
             .cop_settings
             .get(cop.name())
-            .is_some_and(|settings| !settings.excludes.is_empty())
+            .is_some_and(|settings| !settings.excludes.is_empty() || settings.includes.is_some())
 }
 
 impl<'a> CopSelection<'a> {
@@ -625,9 +625,23 @@ fn lint_file(
         return report;
     }
     let eligible = |cop: &&dyn crate::cops::Cop| {
-        cop.path_policy()
-            .is_none_or(|policy| policy.allows(relative))
-            && !cop_excluded(config, relative, cop.name())
+        // A config's `include` replaces the pinned policy's include list.
+        let includes = config
+            .cop_settings
+            .get(cop.name())
+            .and_then(|settings| settings.includes.as_deref());
+        let included = match includes {
+            Some(includes) => {
+                crate::config::matches_any(includes, relative)
+                    && cop
+                        .path_policy()
+                        .is_none_or(|policy| !policy.excludes(relative))
+            }
+            None => cop
+                .path_policy()
+                .is_none_or(|policy| policy.allows(relative)),
+        };
+        included && !cop_excluded(config, relative, cop.name())
     };
     // The same answer for a cop paired with its `path_gated` flag, without
     // the lookups for the many cops that no path can bar.

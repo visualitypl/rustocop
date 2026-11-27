@@ -378,7 +378,7 @@ fn rejects_public_style_threshold_version_and_include_knobs() {
             "allowed_classes = ['A']",
             "max = 2",
             "target_ruby_version = '3.0'",
-            "include = ['lib/**']",
+            "Include = ['lib/**']",
         ] {
             fs::write(
                 dir.path().join("rustocop.toml"),

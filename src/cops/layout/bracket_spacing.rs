@@ -20,7 +20,13 @@ pub(super) fn offsets(
 }
 
 pub(super) enum Kind {
-    Array { skip_left: bool, skip_right: bool },
+    /// `empty_space`: `EnforcedStyleForEmptyBrackets: space`, so empty
+    /// brackets hold exactly one space.
+    Array {
+        skip_left: bool,
+        skip_right: bool,
+        empty_space: bool,
+    },
     Reference,
 }
 
@@ -33,12 +39,13 @@ pub(super) fn check(
     kind: Kind,
     out: &mut Vec<Offense>,
 ) {
-    let (reference, skip_left, skip_right) = match kind {
+    let (reference, skip_left, skip_right, empty_space) = match kind {
         Kind::Array {
             skip_left,
             skip_right,
-        } => (false, skip_left, skip_right),
-        Kind::Reference => (true, false, false),
+            empty_space,
+        } => (false, skip_left, skip_right, empty_space),
+        Kind::Reference => (true, false, false, false),
     };
     let Some((left, right)) = delimiters else {
         return;
@@ -49,7 +56,21 @@ pub(super) fn check(
     let kind = if reference { "reference" } else { "array" };
     let root = cx.ancestors().next_back().unwrap_or(node);
     if empty_gap(inside) {
-        if !inside.is_empty() {
+        if empty_space {
+            if inside != b" " {
+                report(
+                    cop,
+                    cx,
+                    file,
+                    root,
+                    left..right + 1,
+                    start..end,
+                    " ",
+                    format!("Use one space inside empty {kind} brackets."),
+                    out,
+                );
+            }
+        } else if !inside.is_empty() {
             report(
                 cop,
                 cx,
@@ -57,6 +78,7 @@ pub(super) fn check(
                 root,
                 left..right + 1,
                 start..end,
+                "",
                 format!("Do not use space inside empty {kind} brackets."),
                 out,
             );
@@ -99,6 +121,7 @@ pub(super) fn check(
             root,
             start..first,
             start..first,
+            "",
             format!("Do not use space inside {kind} brackets."),
             out,
         );
@@ -126,6 +149,7 @@ pub(super) fn check(
             root,
             highlight_start..end,
             last..end,
+            "",
             format!("Do not use space inside {kind} brackets."),
             out,
         );
@@ -133,7 +157,7 @@ pub(super) fn check(
 }
 
 /// Line-continuation bytes are not tokens between otherwise empty brackets.
-fn empty_gap(bytes: &[u8]) -> bool {
+pub(super) fn empty_gap(bytes: &[u8]) -> bool {
     skip_gap(bytes) == bytes.len()
 }
 
@@ -161,13 +185,14 @@ fn report(
     root: &Node<'_>,
     highlight: Range<usize>,
     range: Range<usize>,
+    replacement: &str,
     message: String,
     out: &mut Vec<Offense>,
 ) {
     let (line, col) = file.line_col(highlight.start);
     let newline = file.bytes[range.clone()].contains(&b'\n');
     let correction = (cx.corrections_requested()
-        && !range.is_empty()
+        && (!range.is_empty() || !replacement.is_empty())
         && (!newline
             || (range.start >= line_value_boundary(file)
                 // Squiggly-heredoc dedentation depends on physical lines;
@@ -180,7 +205,7 @@ fn report(
                 && !file.overlaps_literal(root, &range))))
     .then(|| Correction {
         range,
-        replacement: String::new(),
+        replacement: replacement.to_owned(),
     });
     out.push(Offense {
         correction,

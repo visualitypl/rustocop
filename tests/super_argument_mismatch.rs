@@ -170,7 +170,7 @@ fn metadata_and_selection_remain_separate_from_input_prerequisite() {
     for key in [
         "max = 1",
         "UseProjectIndex = true",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "exclude = ['[']",
     ] {

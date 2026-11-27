@@ -35,7 +35,7 @@ use unicode_width::UnicodeWidthStr;
 
 use crate::{
     cops::{
-        Cop, NodeContext, ast,
+        Companions, Cop, NodeContext, ast,
         settings::{self, Kind, Setting, Values},
         walk::{NodeVisitor, walk},
     },
@@ -50,6 +50,9 @@ pub struct LineLength {
     max: usize,
     /// A longer line is accepted when one of these matches it.
     allowed: Vec<regex::bytes::Regex>,
+    /// `compact_array_brackets_enforced?`: no line break goes between the
+    /// opening brackets of nested arrays.
+    compact_brackets: bool,
 }
 
 impl LineLength {
@@ -61,6 +64,7 @@ impl LineLength {
         LineLength {
             max,
             allowed: Vec::new(),
+            compact_brackets: false,
         }
     }
 }
@@ -97,6 +101,15 @@ impl Cop for LineLength {
         Some(Box::new(LineLength {
             max: values.count("max").unwrap_or(self.max),
             allowed: allowed.unwrap_or(&self.allowed).to_vec(),
+            compact_brackets: self.compact_brackets,
+        }))
+    }
+
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(LineLength {
+            max: self.max,
+            allowed: self.allowed.clone(),
+            compact_brackets: companions.compact_array_brackets,
         }))
     }
 
@@ -138,7 +151,13 @@ impl Cop for LineLength {
                 continue;
             }
             let breaks = breaks.get_or_insert_with(|| {
-                Breaks::collect(node, file, self.max, cx.corrections_requested())
+                Breaks::collect(
+                    node,
+                    file,
+                    self.max,
+                    self.compact_brackets,
+                    cx.corrections_requested(),
+                )
             });
             // An endless method's line takes no exemption (`handle_endless_method_line`).
             let (length, excess_start, correction) =
@@ -615,10 +634,17 @@ struct Breaks {
 impl Breaks {
     /// `corrections`: collect the break positions too, not only the endless
     /// methods (which detection needs).
-    fn collect(root: &Node<'_>, file: &SourceFile, max: usize, corrections: bool) -> Self {
+    fn collect(
+        root: &Node<'_>,
+        file: &SourceFile,
+        max: usize,
+        compact_brackets: bool,
+        corrections: bool,
+    ) -> Self {
         let mut collector = Collector {
             file,
             max,
+            compact_brackets,
             corrections,
             comment_lines: if corrections {
                 file.comments()
@@ -660,6 +686,7 @@ impl Breaks {
 struct Collector<'a, 'pr> {
     file: &'a SourceFile,
     max: usize,
+    compact_brackets: bool,
     corrections: bool,
     comment_lines: HashSet<u32>,
     ancestors: Vec<Node<'pr>>,
@@ -775,6 +802,18 @@ impl<'pr> Collector<'_, 'pr> {
     /// `check_for_breakable_node`: the first one on a line wins.
     fn check_breakable(&mut self, node: &Node<'pr>) {
         if let Some(start) = self.extract_breakable_node(node) {
+            // `compact_nested_array_break?`: the first element of a
+            // bracketed array, itself starting with `[`.
+            if self.compact_brackets
+                && let Some(array) = node.as_array_node()
+                && array.opening_loc().is_some_and(|o| o.as_slice() == b"[")
+                && array.elements().iter().next().is_some_and(|first| {
+                    first.location().start_offset() == start
+                        && first.location().as_slice().starts_with(b"[")
+                })
+            {
+                return;
+            }
             self.breaks
                 .at
                 .entry(self.file.line_of(start))

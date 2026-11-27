@@ -1656,7 +1656,7 @@ mod tests {
         f.record_data_start(&result);
         f.record_encoding(&result);
         let cops: &[&dyn Cop] = &[
-            &SpaceInsideArrayLiteralBrackets,
+            &SpaceInsideArrayLiteralBrackets::default(),
             &SpaceInsideReferenceBrackets,
         ];
         let mut found = Vec::new();

@@ -167,7 +167,7 @@ fn strict_toml_rejects_index_style_and_unsupported_settings_without_writes() {
         "UseProjectIndex = true",
         "AllowedNames = ['helper']",
         "AllowedPatterns = ['.*']",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
         "exclude = ['[']",
     ] {

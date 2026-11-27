@@ -66,7 +66,7 @@ fn registry_metadata_defaults_and_no_knobs() {
         for key in [
             "target_ruby_version='3.3'",
             "enforced_style='x'",
-            "include=['**/*']",
+            "Include=['**/*']",
             "max=1",
         ] {
             fs::write(

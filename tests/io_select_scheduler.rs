@@ -154,7 +154,7 @@ fn defaults_metadata_selectors_strict_toml_and_department_precedence() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "TargetRubyVersion = 3.3",

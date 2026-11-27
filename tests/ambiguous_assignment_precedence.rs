@@ -116,7 +116,7 @@ fn strict_toml_exclusions_and_path_provenance() {
     for key in [
         "max = 80",
         "EnforcedStyle = 'other'",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "enabled = 'true'",
     ] {
         fs::write(

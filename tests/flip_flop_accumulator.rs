@@ -197,7 +197,7 @@ fn detection_only_metadata_defaults_selectors_and_strict_toml_precedence() {
     for cop in [FLIP, EACH] {
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
             "TargetRubyVersion = 3.3",
             "Style = 'other'",

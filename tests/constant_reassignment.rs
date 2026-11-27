@@ -149,7 +149,7 @@ fn metadata_and_selectors_config_paths_strict_toml() {
     }
     for key in [
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "enabled = 'true'",
         "UseProjectIndex = true",

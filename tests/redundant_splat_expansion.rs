@@ -87,7 +87,7 @@ fn selectors_strict_toml_enablement_department_and_excludes() {
     for key in [
         "AllowPercentLiteralArrayArgument = false",
         "max = 1",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "Enabled = true",
         "target_ruby = 2.7",
         "SafeAutoCorrect = true",

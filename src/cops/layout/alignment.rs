@@ -245,6 +245,109 @@ pub(super) fn shift_lines(
     })
 }
 
+/// `Layout/EndAlignment`'s `EnforcedStyleAlignWith`, which
+/// `Layout/ElseAlignment` and `Layout/IndentationWidth` read too.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum EndAlignWith {
+    #[default]
+    Keyword,
+    Variable,
+    StartOfLine,
+}
+
+impl EndAlignWith {
+    /// The style a `rustocop.toml` names.
+    pub fn parse(name: &str) -> Self {
+        match name {
+            "variable" => EndAlignWith::Variable,
+            "start_of_line" => EndAlignWith::StartOfLine,
+            _ => EndAlignWith::Keyword,
+        }
+    }
+
+    /// `EndKeywordAlignment#variable_alignment?`: whether a construct on the
+    /// right of `owner` (see [`assignment_owner`]) takes the owner as its
+    /// base: in a style other than `keyword`, when the construct starts on
+    /// the owner's first line.
+    pub(super) fn aligns_with_owner(
+        self,
+        file: &SourceFile,
+        owner: &Node<'_>,
+        rhs: &Node<'_>,
+    ) -> bool {
+        self != EndAlignWith::Keyword
+            && file.line_of(rhs.location().start_offset())
+                <= file.line_of(owner.location().start_offset())
+    }
+}
+
+fn span(node: &Node<'_>) -> (usize, usize) {
+    (node.location().start_offset(), node.location().end_offset())
+}
+
+/// RuboCop's `CheckAssignment`, from the right-hand side: the assignment,
+/// or the call with arguments, whose `extract_rhs` (the value, or the last
+/// argument) leads to `node` through `first_part_of_call_chain` (receivers
+/// of calls). With `leading`, as `EndAlignment#leading_node`, the way then
+/// goes on through `(…)`, `||` and `&&` (their first child). A call with
+/// `&.` counts only with `csend` (a cop that also registers `on_csend`).
+/// `ancestors` are innermost first.
+pub(super) fn assignment_owner<'a, 'pr: 'a>(
+    node: &Node<'pr>,
+    ancestors: impl Iterator<Item = &'a Node<'pr>>,
+    leading: bool,
+    csend: bool,
+) -> Option<&'a Node<'pr>> {
+    let ancestors: Vec<&Node<'pr>> = ancestors.collect();
+    let mut current = span(node);
+    let mut i = 0;
+    while leading && let Some(ancestor) = ancestors.get(i) {
+        let first_statement = ancestor
+            .as_statements_node()
+            .and_then(|statements| statements.body().iter().next());
+        if first_statement.is_some_and(|first| span(&first) == current)
+            && let Some(parentheses) = ancestors
+                .get(i + 1)
+                .filter(|p| p.as_parentheses_node().is_some())
+        {
+            current = span(parentheses);
+            i += 2;
+        } else if ancestor
+            .as_or_node()
+            .is_some_and(|or| span(&or.left()) == current)
+            || ancestor
+                .as_and_node()
+                .is_some_and(|and| span(&and.left()) == current)
+        {
+            current = span(ancestor);
+            i += 1;
+        } else {
+            break;
+        }
+    }
+    while let Some(call) = ancestors.get(i).and_then(|n| n.as_call_node())
+        && call
+            .receiver()
+            .is_some_and(|receiver| span(&receiver) == current)
+    {
+        current = span(ancestors[i]);
+        i += 1;
+    }
+    let parent = ancestors.get(i)?;
+    if crate::cops::ast::is_assignment(parent) {
+        let value = super::multiline_expression::assignment_value(parent)?;
+        return (span(&value) == current).then_some(*parent);
+    }
+    let last = parent.as_arguments_node()?.arguments().iter().last()?;
+    let owner = ancestors.get(i + 1)?;
+    let call = owner.as_call_node()?;
+    let block_pass = call
+        .block()
+        .is_some_and(|b| b.as_block_argument_node().is_some());
+    (span(&last) == current && !block_pass && (csend || !call.is_safe_navigation()))
+        .then_some(*owner)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::cops::{

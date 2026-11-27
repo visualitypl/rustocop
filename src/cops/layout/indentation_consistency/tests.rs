@@ -482,7 +482,7 @@ fn items_at_the_body_width_defer_to_indentation_width_of_the_base() {
         );
         // Together with IndentationWidth one pass makes the body consistent.
         let found = crate::pipeline::lint_str_with_corrections(
-            &[&IndentationConsistency, &IndentationWidth],
+            &[&IndentationConsistency, &IndentationWidth::default()],
             source,
         );
         let fixed = crate::corrections::apply(source.as_bytes(), &found)

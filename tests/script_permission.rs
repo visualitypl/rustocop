@@ -110,7 +110,7 @@ fn defaults_selectors_and_strict_toml_keep_metadata_and_source_policy_separate()
     }
     for key in [
         "max = 1",
-        "include = [\"*\"]",
+        "Include = [\"*\"]",
         "permission = true",
         "autocorrect = false",
         "target_ruby = \"3.4\"",

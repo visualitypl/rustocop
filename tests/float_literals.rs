@@ -426,7 +426,7 @@ fn defaults_selectors_and_strict_config_precedence_preserve_bytes_even_without_f
     for cop in [COMPARISON, RANGE] {
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "enabled = 'true'",
             "TargetRubyVersion = 3.3",
             "Style = 'epsilon'",

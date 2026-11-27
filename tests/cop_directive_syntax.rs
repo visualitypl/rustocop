@@ -100,7 +100,7 @@ fn strict_toml_exclusions_and_supplied_paths_apply_to_files_and_stdin() {
     let dir = project_with_lib();
     for key in [
         "max = 2",
-        "include = ['**/*']",
+        "Include = ['**/*']",
         "EnforcedStyle = 'x'",
         "enabled = 'true'",
     ] {

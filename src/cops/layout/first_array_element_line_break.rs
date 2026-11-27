@@ -6,22 +6,26 @@
 //! false`. Every Prism `ArrayNode` (the parser's `array`) is checked when it
 //! has an opening (`[`, `%w(`, `%i[`, ...) or when it is an implicit array
 //! whose start line holds nothing but blanks after an `=` before it
-//! (`x = 1,\n  2`, `a, b = 1,\n  2`, `a.b = 1,\n  2`). Upstream's
-//! compact-nested-array exemption needs `Layout/SpaceInsideArrayLiteralBrackets`
-//! with `EnforcedStyle: compact`; that cop is fixed at `no_space`, so the
-//! exemption never applies. The shared `FirstElementLineBreak` projection
+//! (`x = 1,\n  2`, `a, b = 1,\n  2`, `a.b = 1,\n  2`). While
+//! `Layout/SpaceInsideArrayLiteralBrackets` is enabled with
+//! `enforced_style = "compact"`, a bracketed array whose first element's
+//! source starts with `[` is exempt. The shared `FirstElementLineBreak` projection
 //! (`first_element_line_break`) decides the finding and the guarded
 //! line-break insertion before the first element.
 use ruby_prism::Node;
 
 use super::first_element_line_break::{first_element, report};
 use crate::{
-    cops::{Cop, NodeContext},
+    cops::{Companions, Cop, NodeContext},
     offense::Offense,
     source::SourceFile,
 };
 
-pub struct FirstArrayElementLineBreak;
+#[derive(Default)]
+pub struct FirstArrayElementLineBreak {
+    /// `compact_array_brackets_enforced?`.
+    compact_brackets: bool,
+}
 
 const MSG: &str = "Add a line break before the first element of a multi-line array.";
 
@@ -44,6 +48,12 @@ impl Cop for FirstArrayElementLineBreak {
         node.as_array_node().is_some()
     }
 
+    fn with_companions(&self, companions: &Companions) -> Option<Box<dyn Cop>> {
+        Some(Box::new(FirstArrayElementLineBreak {
+            compact_brackets: companions.compact_array_brackets,
+        }))
+    }
+
     fn check_node<'pr>(
         &self,
         node: &Node<'pr>,
@@ -59,6 +69,15 @@ impl Cop for FirstArrayElementLineBreak {
             return;
         }
         let elements: Vec<_> = array.elements().iter().collect();
+        // `compact_nested_array?`.
+        if self.compact_brackets
+            && array.opening_loc().is_some_and(|o| o.as_slice() == b"[")
+            && elements
+                .first()
+                .is_some_and(|e| e.location().as_slice().starts_with(b"["))
+        {
+            return;
+        }
         if let Some(first) = first_element(file, file.line_of(start), &elements) {
             report(self, MSG, first, cx, file, out);
         }

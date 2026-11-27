@@ -69,11 +69,18 @@ The import carries over:
 - `AllCops: TargetRubyVersion` when it is 3.4 or 4.0, as `ruby_version`;
 - `Enabled: true` and `Enabled: false` of a cop or a department;
 - `Exclude` of a cop;
+- `Include` of a cop, when every entry is a relative glob;
 - `Max` of `Layout/LineLength` and of a Metrics cop, when it is a whole
   number;
 - `EnforcedStyle` of `Style/StringLiterals`,
-  `Style/StringLiteralsInInterpolation`, `Style/QuotedSymbols` and
-  `Style/HashSyntax`;
+  `Style/StringLiteralsInInterpolation`, `Style/QuotedSymbols`,
+  `Style/HashSyntax`, `Layout/CaseIndentation` and
+  `Layout/SpaceInsideArrayLiteralBrackets`;
+- `EnforcedStyleAlignWith` of `Layout/EndAlignment`,
+  `EnforcedStyleForEmptyBrackets` of `Layout/SpaceInsideArrayLiteralBrackets`
+  and `EnforcedStyleForEmptyBraces` of `Layout/SpaceInsideBlockBraces`;
+- `AllowMultipleReturnValues` of `Style/RedundantReturn` and
+  `AllowAsExpressionSeparator` of `Style/Semicolon`;
 - `AllowedPatterns` of `Layout/LineLength`. A pattern is a Ruby regexp, and
   the import keeps the ones that Rust's `regex` crate reads too. It lists the
   others, such as a pattern with a lookbehind.

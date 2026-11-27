@@ -189,7 +189,7 @@ fn defaults_config_department_only_except_exclusions_and_strict_errors() {
         "Max=6",
         "MaxOptionalParameters=4",
         "CountKeywordArgs=false",
-        "include=['**/*']",
+        "Include=['**/*']",
         "enabled='true'",
     ] {
         fs::write(

@@ -137,7 +137,7 @@ fn metadata_defaults_selectors_toml_department_precedence_and_strict_settings() 
         }
         for key in [
             "max = 1",
-            "include = ['**/*']",
+            "Include = ['**/*']",
             "Enabled = true",
             "enabled = 'true'",
             "target_ruby = 2.3",
