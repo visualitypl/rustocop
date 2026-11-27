@@ -54,7 +54,7 @@ fn local_v1_version_exits_without_linting_or_loading_configuration() {
         let output = rustocop(dir.path(), &[flag], "");
         assert_eq!(output.status.code(), Some(0), "{output:?}");
         assert!(output.stderr.is_empty(), "{output:?}");
-        assert_eq!(output.stdout, b"rustocop 1.6.0\n");
+        assert_eq!(output.stdout, b"rustocop 1.7.0\n");
         assert_eq!(
             std::fs::read(dir.path().join("broken.rb")).unwrap(),
             b"def (\n"

@@ -213,7 +213,7 @@ fn all160_defaults_versions_severity_ownership_and_exact_current520_projection()
             assert_eq!(actual, r[key].as_f64(), "{name}/{key}");
         }
     }
-    assert_eq!(env!("CARGO_PKG_VERSION"), "1.6.0");
+    assert_eq!(env!("CARGO_PKG_VERSION"), "1.7.0");
 }
 
 #[test]
